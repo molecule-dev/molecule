@@ -12,6 +12,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -58,8 +59,10 @@ export const LeaderboardList = defineComponent({
       const titleNodes = slotOrProp(slots.title, props.title)
       const actionsNodes = slotOrProp(slots.actions, props.actions)
       const emptyStateNodes = slotOrProp(slots.emptyState, props.emptyState)
-      const childrenNodes: VNodeChild[] = slots.default ? slots.default() : []
-      const childCount = Array.isArray(childrenNodes) ? childrenNodes.length : childrenNodes ? 1 : 0
+      // React's children array: a `v-for` arrives as one Fragment and a false `v-if` as a
+      // Comment, so the slot result is flattened before it is counted.
+      const childrenNodes = toChildArray(slots.default?.())
+      const childCount = childrenNodes.length
 
       const content: VNodeChild[] = []
       if (titleNodes.length > 0 || actionsNodes.length > 0) {

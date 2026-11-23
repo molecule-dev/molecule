@@ -15,11 +15,11 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { BodyPortal } from '@molecule/app-solid'
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
-import { BodyPortal } from '../utilities/portal.jsx'
 import { withDisplayName } from './displayName.js'
 
 interface Position {

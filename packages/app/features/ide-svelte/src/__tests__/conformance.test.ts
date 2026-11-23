@@ -27,7 +27,13 @@ import * as Feature from '../index.js'
 import * as Parts from '../parts.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding: Binding })
+// `WorkspaceLayout` takes its panes as data and drops a text child, as React's
+// `Children.toArray(...).filter(isValidElement)` does.
+const adapter = createSvelteAdapter({
+  exports: { ...UI, ...Feature, ...Parts },
+  binding: Binding,
+  listChildren: { WorkspaceLayout: { prop: 'items', elementsOnly: true } },
+})
 
 runFeatureConformance('@molecule/app-ide-react', adapter, {
   module: Feature,

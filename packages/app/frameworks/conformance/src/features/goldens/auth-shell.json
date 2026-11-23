@@ -64,6 +64,38 @@
      "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nWelcome\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nsign in to continue\n</p>\n</header>\n<form data-form>\nform\n</form>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\n⟦Back to home⟧\n</a>\n</p>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "renders the heading, children and the back link by default, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nWelcome\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nsign in to continue\n</p>\n</header>\n<form data-form>\nform\n</form>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nWelcome\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nsign in to continue\n</p>\n</header>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nWelcome\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nsign in to continue\n</p>\n</header>\n<form data-form>\nform\n</form>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the brand, decoration and footer slots, then brand emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the brand, decoration and footer slots, then decoration emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the brand, decoration and footer slots, then footer emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<div data-decoration>\nOrbs\n</div>\n</div>\n<div>\n<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<div data-brand>\nBrand\n</div>\n<header class=\"c1e8176ab c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c0d99ed10 c16e96f28 c201466f5 c20e78aa5 ce6c94376\">\nH\n</h1>\n<p class=\"c052585d2 c16e96f28 c445db9b9 cd16b9c58\">\nS\n</p>\n</header>\nx\n<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<p data-footer>\nNo account?\n</p>\n</footer>\n</div>\n</main>\n<p class=\"c052585d2 c16e96f28 c4647f690 c9cfc2d67\">\n<a class=\"c1e8176ab c42740ba6 c7d370ab9 c9866e6d5 cafbf045d cc2d72006 ccae02ff2 cd9b20003\" href=\"/\">\n<span aria-hidden=\"true\" class=\"caeede141\" style=\"font-size: 14px\">\narrow_back\n</span>\nBack to home\n</a>\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthShellBackLink": {
@@ -118,6 +150,14 @@
      "<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<span data-body>\nbody\n</span>\n</div>\n</main>\n@route /"
     ],
     "calls": []
+   },
+   "renders its children in the default glass surface, then children emptied and refilled": {
+    "snapshots": [
+     "<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<span data-body>\nbody\n</span>\n</div>\n</main>\n@route /",
+     "<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n</div>\n</main>\n@route /",
+     "<main class=\"c92784b69 cbf033fe8 cfc82911d cfe976fcd\">\n<div class=\"c1f523237 c2cbb8333 c42740ba6 c9166dbd0 ca5d631fa cbaac6b89 cc2d72006 cc7a6f016 ccae02ff2 ce9657330 cf205d1e4 cf781d280 cfb587cd8\">\n<span data-body>\nbody\n</span>\n</div>\n</main>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthShellCardColumn": {
@@ -136,6 +176,14 @@
    "renders a centered section by default, then a locale switch": {
     "snapshots": [
      "<section class=\"c1e8176ab c42740ba6 c71a5c916 c88528a98 c9773cd2b cbaac6b89 ccae02ff2\">\n<div data-card>\ncard\n</div>\n</section>\n@route /",
+     "<section class=\"c1e8176ab c42740ba6 c71a5c916 c88528a98 c9773cd2b cbaac6b89 ccae02ff2\">\n<div data-card>\ncard\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders a centered section by default, then children emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c42740ba6 c71a5c916 c88528a98 c9773cd2b cbaac6b89 ccae02ff2\">\n<div data-card>\ncard\n</div>\n</section>\n@route /",
+     "<section class=\"c1e8176ab c42740ba6 c71a5c916 c88528a98 c9773cd2b cbaac6b89 ccae02ff2\">\n</section>\n@route /",
      "<section class=\"c1e8176ab c42740ba6 c71a5c916 c88528a98 c9773cd2b cbaac6b89 ccae02ff2\">\n<div data-card>\ncard\n</div>\n</section>\n@route /"
     ],
     "calls": []
@@ -166,6 +214,14 @@
      "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<span data-child>\ncontent\n</span>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "centers its children with the default layout, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<span data-child>\ncontent\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c521316b1 c8f19053a c9773cd2b c97d61bf0 ccae02ff2 cd9b20003 cdde537c9 ce6c94376 cfc82911d\">\n<span data-child>\ncontent\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthShellDecoration": {
@@ -181,6 +237,14 @@
      "<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<span data-orb>\norb\n</span>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "renders its decoration children, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<span data-orb>\norb\n</span>\n</div>\n@route /",
+     "<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n</div>\n@route /",
+     "<div class=\"c0dd268bc c2883f28d c63a6bab3 c647a4070 c8f19053a\">\n<span data-orb>\norb\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthShellFooter": {
@@ -193,6 +257,14 @@
    "renders its children inside the footer, then a locale switch": {
     "snapshots": [
      "<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<span data-f>\nhelp\n</span>\n</footer>\n@route /",
+     "<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<span data-f>\nhelp\n</span>\n</footer>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its children inside the footer, then children emptied and refilled": {
+    "snapshots": [
+     "<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<span data-f>\nhelp\n</span>\n</footer>\n@route /",
+     "<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n</footer>\n@route /",
      "<footer class=\"c052585d2 c16e96f28 c358a0776 c445db9b9 cf0ca6c6e cf2199df4\">\n<span data-f>\nhelp\n</span>\n</footer>\n@route /"
     ],
     "calls": []
@@ -250,6 +322,14 @@
      "<aside class=\"c0ba9b93d c41e94dac cf618f139\" data-rest=\"panel-rest\">\n<div data-brand>\nBrand\n</div>\n</aside>\n@route /"
     ],
     "calls": []
+   },
+   "renders its children in the collapsing panel with a forwarded class and attribute, then children emptied and refilled": {
+    "snapshots": [
+     "<aside class=\"c0ba9b93d c41e94dac cf618f139\" data-rest=\"panel-rest\">\n<div data-brand>\nBrand\n</div>\n</aside>\n@route /",
+     "<aside class=\"c0ba9b93d c41e94dac cf618f139\" data-rest=\"panel-rest\">\n</aside>\n@route /",
+     "<aside class=\"c0ba9b93d c41e94dac cf618f139\" data-rest=\"panel-rest\">\n<div data-brand>\nBrand\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthShellSplit": {
@@ -265,6 +345,17 @@
      "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n<div data-row>\nrow\n</div>\n<footer data-site-footer>\n© Brand\n</footer>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "renders a row and a footer sibling with a forwarded class and attribute, then children change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n<div data-row>\nrow\n</div>\n<footer data-site-footer>\n© Brand\n</footer>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n<div data-row>\nrow\n</div>\n<div data-row>\nrow\n</div>\n<footer data-site-footer>\n© Brand\n</footer>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n<div data-row>\nrow\n</div>\n<footer data-site-footer>\n© Brand\n</footer>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n<footer data-site-footer>\n© Brand\n</footer>\n<div data-row>\nrow\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c540feae2 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9\" data-rest=\"split-rest\">\n<div data-row>\nrow\n</div>\n<footer data-site-footer>\n© Brand\n</footer>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthShellSplitRow": {
@@ -277,6 +368,17 @@
    "renders its two columns with a forwarded class and attribute, then a locale switch": {
     "snapshots": [
      "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-panel>\npanel\n</div>\n<div data-col>\ncol\n</div>\n</main>\n@route /",
+     "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-panel>\npanel\n</div>\n<div data-col>\ncol\n</div>\n</main>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its two columns with a forwarded class and attribute, then children change": {
+    "snapshots": [
+     "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-panel>\npanel\n</div>\n<div data-col>\ncol\n</div>\n</main>\n@route /",
+     "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-panel>\npanel\n</div>\n<div data-panel>\npanel\n</div>\n<div data-col>\ncol\n</div>\n</main>\n@route /",
+     "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-panel>\npanel\n</div>\n<div data-col>\ncol\n</div>\n</main>\n@route /",
+     "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-col>\ncol\n</div>\n<div data-panel>\npanel\n</div>\n</main>\n@route /",
+     "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n</main>\n@route /",
      "<main class=\"cb5823274 ccd91553a\" data-rest=\"row-rest\">\n<div data-panel>\npanel\n</div>\n<div data-col>\ncol\n</div>\n</main>\n@route /"
     ],
     "calls": []

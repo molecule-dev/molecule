@@ -3,9 +3,9 @@
 
   Svelte counterpart of `@molecule/app-ide-react`'s `FileExplorerContextMenu`
   (see that file for the design notes): the same props (React names), the same
-  DOM for the same input, the same callbacks. The menu is portalled into
-  `document.body` the way React portals it (the `portalTo` action), so it
-  escapes every `overflow` ancestor; the position clamps into the viewport on
+  DOM for the same input, the same callbacks. The menu renders through
+  `BodyPortal` into `document.body` the way React portals it, so it escapes
+  every `overflow` ancestor; the position clamps into the viewport on
   mount and on every position change, measured from the menu's own box;
   `Escape` (a document listener in the capture phase, which stops the key from
   reaching the rows) and a pointer press outside close it; a row acts on click
@@ -265,29 +265,12 @@
     )
     return filterReadOnly(items)
   }
-
-  /**
-   * Reparents the menu into `document.body`, Svelte's counterpart of
-   * `createPortal` (React portals the menu into the body, so no `overflow`
-   * ancestor clips it).
-   *
-   * @param node - The menu element.
-   * @returns The action's destroy hook.
-   */
-  function portalToBody(node: HTMLElement): { destroy(): void } {
-    document.body.appendChild(node)
-    return {
-      destroy(): void {
-        node.parentNode?.removeChild(node)
-      },
-    }
-  }
 </script>
 
 <script lang="ts">
   import { untrack } from 'svelte'
 
-  import { useTranslation } from '@molecule/app-svelte'
+  import { BodyPortal, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   let { position, node, selectedCount, canPaste, onAction, onClose, readOnly }: ContextMenuProps =
@@ -351,36 +334,37 @@
   }
 </script>
 
-<div
-  bind:this={menuEl}
-  use:portalToBody
-  role="menu"
-  class={cm.dropdownContent}
-  style={`position: fixed; left: ${clamped.x}px; top: ${clamped.y}px; z-index: 9999; min-width: 160px`}
->
-  {#each items as item, i (item.action)}
-    <div>
-      {#if item.separator && i > 0}
-        <div class={cm.dropdownSeparator} role="separator"></div>
-      {/if}
-      <div
-        role="menuitem"
-        tabindex="0"
-        data-mol-id={`file-context-${item.action}`}
-        class={cm.cn(cm.dropdownItem, cm.touchTargetCompact)}
-        onclick={() => handleClick(item.action)}
-        onkeydown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick(item.action)
-          }
-        }}
-      >
-        <span class={cm.dropdownItemLabel}>{item.label}</span>
-        {#if item.shortcut}
-          <span class={cm.dropdownItemShortcut}>{item.shortcut}</span>
+<BodyPortal
+  ><div
+    bind:this={menuEl}
+    role="menu"
+    class={cm.dropdownContent}
+    style={`position: fixed; left: ${clamped.x}px; top: ${clamped.y}px; z-index: 9999; min-width: 160px`}
+  >
+    {#each items as item, i (item.action)}
+      <div>
+        {#if item.separator && i > 0}
+          <div class={cm.dropdownSeparator} role="separator"></div>
         {/if}
+        <div
+          role="menuitem"
+          tabindex="0"
+          data-mol-id={`file-context-${item.action}`}
+          class={cm.cn(cm.dropdownItem, cm.touchTargetCompact)}
+          onclick={() => handleClick(item.action)}
+          onkeydown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              handleClick(item.action)
+            }
+          }}
+        >
+          <span class={cm.dropdownItemLabel}>{item.label}</span>
+          {#if item.shortcut}
+            <span class={cm.dropdownItemShortcut}>{item.shortcut}</span>
+          {/if}
+        </div>
       </div>
-    </div>
-  {/each}
-</div>
+    {/each}
+  </div></BodyPortal
+>

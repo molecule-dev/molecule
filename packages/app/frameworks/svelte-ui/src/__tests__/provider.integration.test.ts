@@ -67,6 +67,7 @@ const { default: Tooltip } = await import('../components/Tooltip.svelte')
 const { default: ProviderAlertHost } = await import('./ProviderAlertHost.svelte')
 const { default: ProviderInputHost } = await import('./ProviderInputHost.svelte')
 const { default: ProviderModalHost } = await import('./ProviderModalHost.svelte')
+const { default: DropdownTriggerHost } = await import('./DropdownTriggerHost.svelte')
 const { default: ProviderProgressHost } = await import('./ProviderProgressHost.svelte')
 const { default: ProviderSelectHost } = await import('./ProviderSelectHost.svelte')
 const { default: ProviderSwitchCheckedHost } = await import('./ProviderSwitchCheckedHost.svelte')
@@ -243,10 +244,10 @@ function mountError<Props extends Record<string, unknown>>(
   hosts.push(host)
   try {
     mounted.push(mount(component, { target: host, props }))
+    flushSync()
   } catch (error) {
     return error instanceof Error ? error.message : String(error)
   }
-  flushSync()
   return null
 }
 
@@ -1100,15 +1101,15 @@ describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
 describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
   // Dropdown reads `useLocation()` (to auto-close on route change), so every
   // mount needs a router-provided location — the file-level mock supplies the
-  // fixed route a MemoryRouter would in React.
-  const trigger = (): Snippet => markup('<button type="button">Actions</button>')
+  // fixed route a MemoryRouter would in React. The host's trigger spreads the
+  // props the Dropdown passes, the single-element clone path.
 
   it('CONSUMER PROPERTY: ArrowDown on the trigger opens the menu and focuses the first item', () => {
     const items = [
       { value: 'a', label: 'Item A' },
       { value: 'b', label: 'Item B' },
     ]
-    mountIn(Dropdown, { trigger: trigger(), items })
+    mountIn(DropdownTriggerHost, { items })
     const button = screen.getByRole('button', { name: 'Actions' })
     expect(button.getAttribute('aria-haspopup')).toBe('menu')
     expect(button.getAttribute('aria-expanded')).toBe('false')
@@ -1124,7 +1125,7 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
       { value: 'a', label: 'Item A' },
       { value: 'b', label: 'Item B' },
     ]
-    mountIn(Dropdown, { trigger: trigger(), items })
+    mountIn(DropdownTriggerHost, { items })
     press(screen.getByRole('button', { name: 'Actions' }), { key: 'ArrowUp' })
     const menuItems = screen.getAllByRole('menuitem')
     expect(document.activeElement).toBe(menuItems[1])
@@ -1136,7 +1137,7 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
       { value: 'b', label: 'Item B' },
       { value: 'c', label: 'Item C' },
     ]
-    mountIn(Dropdown, { trigger: trigger(), items })
+    mountIn(DropdownTriggerHost, { items })
     click(screen.getByRole('button', { name: 'Actions' }))
     const menuItems = screen.getAllByRole('menuitem')
     expect(document.activeElement).toBe(menuItems[0])
@@ -1159,7 +1160,7 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
     elsewhere.type = 'button'
     elsewhere.textContent = 'Elsewhere'
     document.body.appendChild(elsewhere)
-    mountIn(Dropdown, { trigger: trigger(), items })
+    mountIn(DropdownTriggerHost, { items })
     const button = screen.getByRole('button', { name: 'Actions' })
     click(button)
     press(document, { key: 'Escape' })
@@ -1188,7 +1189,7 @@ describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
 
   it('width="trigger" never renders the invalid literal CSS value "trigger"', () => {
     const items = [{ value: 'a', label: 'Item A' }]
-    mountIn(Dropdown, { trigger: trigger(), items, width: 'trigger' })
+    mountIn(DropdownTriggerHost, { items, width: 'trigger' })
     click(screen.getByRole('button', { name: 'Actions' }))
     // Before the fix, the first-open frame (before the trigger ref is
     // measurable) rendered the literal string 'trigger' as the CSS `width`

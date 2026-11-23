@@ -227,6 +227,22 @@
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nNew feature!\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"⟦Dismiss⟧\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nNew feature!\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nNew feature!\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an icon slot, then icon emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-icon>\n🎉\n</span>\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-icon>\n🎉\n</span>\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

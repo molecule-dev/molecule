@@ -26,6 +26,7 @@
 import '@angular/compiler'
 import {
   ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
@@ -95,6 +96,7 @@ let routedTextCount = 0
  */
 function routedTextComponent(text: string): Type<unknown> {
   return Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-routed-text-${++routedTextCount}`,
     standalone: true,
     template: '{{ text }}',
@@ -154,6 +156,7 @@ export function createAngularBindingAdapter({
     const { children, sessionFallback, awaitSession } = props
     if (typeof sessionFallback === 'string') container.textContent = sessionFallback
     const App = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: `mol-binding-root-${++hostCount}`,
       standalone: true,
       template: '{{ text }}',
@@ -267,6 +270,7 @@ export function createAngularBindingAdapter({
         } else {
           // Each mount defines its own host class; a distinct selector keeps their component ids apart.
           const Host = Component({
+            changeDetection: ChangeDetectionStrategy.Eager,
             selector: `mol-binding-host-${++hostCount}`,
             standalone: true,
             template: '',

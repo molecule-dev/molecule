@@ -281,6 +281,7 @@ export const ThreeViewer: Component<ThreeViewerProps> = (props) => {
     const renderer = new WebGLRenderer({ antialias: true, alpha: !props.background })
     renderer.setPixelRatio(typeof window !== 'undefined' ? window.devicePixelRatio : 1)
     renderer.setSize(width, height)
+    // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- three.js's renderer canvas, not a node the framework rendered
     host.appendChild(renderer.domElement)
 
     const orbitControls = new OrbitControls(sceneCamera, renderer.domElement)
@@ -357,6 +358,7 @@ export const ThreeViewer: Component<ThreeViewerProps> = (props) => {
       }
       renderer.dispose()
       if (renderer.domElement.parentNode === host) {
+        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- three.js's renderer canvas, not a node the framework rendered
         host.removeChild(renderer.domElement)
       }
       camera = null

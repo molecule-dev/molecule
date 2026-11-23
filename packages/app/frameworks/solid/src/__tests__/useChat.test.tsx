@@ -519,7 +519,8 @@ describe('useChat', () => {
     await waitFor(() => expect(deferreds).toHaveLength(2))
 
     const bMsgAfter = chat.messages().find((m) => m.content === 'B')
-    expect(bMsgAfter?.queued).toBeFalsy()
+    expect(bMsgAfter).toBeDefined()
+    expect(bMsgAfter!.queued).toBeFalsy()
 
     complete(1)
     await waitFor(() => expect(chat.isLoading()).toBe(false))
@@ -1340,7 +1341,7 @@ describe('useChat', () => {
 
     const aMsg = chat.messages().find((m) => m.content === 'A')
     expect(aMsg).toBeDefined()
-    expect(aMsg?.queued).toBeFalsy()
+    expect(aMsg!.queued).toBeFalsy()
 
     // Attempt to edit a non-queued message
     await chat.editQueuedMessage(aMsg?.id as string, 'A-edited')

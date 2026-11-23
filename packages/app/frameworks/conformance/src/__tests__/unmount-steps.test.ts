@@ -42,6 +42,7 @@ const fetchingComponent =
       // Every adapter's flush drains the promise chains a step started.
       flush: settle,
       setProps: async () => undefined,
+      setChildren: async () => undefined,
       location: () => '/page',
       navigate: () => undefined,
       unmount: async () => {
@@ -113,6 +114,7 @@ describe('unmount and fetch steps', () => {
           return {
             flush: async () => undefined,
             setProps: async () => undefined,
+            setChildren: async () => undefined,
             location: () => '/',
             navigate: () => undefined,
             unmount: async () => undefined,
@@ -158,6 +160,7 @@ const countingComponent =
     return {
       flush: settle,
       setProps: async () => undefined,
+      setChildren: async () => undefined,
       location: () => '/page',
       navigate: () => undefined,
       unmount: async () => {

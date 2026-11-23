@@ -13,8 +13,8 @@ import { toChildArray } from '../children.js'
 
 describe('toChildArray', () => {
   it('flattens a v-for Fragment into one entry per item', () => {
-    const fragment = h(Fragment, null, [h('img', { key: 'a' }), h('img', { key: 'b' })])
-    expect(toChildArray(fragment)).toEqual([fragment.children[0], fragment.children[1]])
+    const items = [h('img', { key: 'a' }), h('img', { key: 'b' })]
+    expect(toChildArray(h(Fragment, null, items))).toEqual(items)
   })
 
   it('drops a false v-if (a Comment vnode) and an empty text node', () => {

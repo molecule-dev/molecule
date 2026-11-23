@@ -6,7 +6,7 @@
   import Dropdown from '../components/Dropdown.svelte'
   import SidebarUserCard from '../components/SidebarUserCard.svelte'
   import UserMenu from '../components/UserMenu.svelte'
-  import type { DropdownItem } from '../types.js'
+  import type { DropdownItem, DropdownTriggerProps } from '../types.js'
   import PanelClosePanel from './PanelClosePanel.svelte'
 
   let {
@@ -18,8 +18,8 @@
   } = $props()
 </script>
 
-{#snippet dropdownTrigger()}
-  <button type="button">Open menu</button>
+{#snippet dropdownTrigger(props: DropdownTriggerProps)}
+  <button type="button" {...props}>Open menu</button>
 {/snippet}
 
 {#if kind === 'user-menu'}

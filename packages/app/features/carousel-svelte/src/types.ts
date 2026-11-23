@@ -1,7 +1,7 @@
 /**
  * Types for the Svelte carousel: the same props
- * `@molecule/app-carousel-react`'s `Carousel` accepts (React names), with node
- * values typed as Svelte snippets.
+ * `@molecule/app-carousel-react`'s `Carousel` accepts (React names), with the
+ * slide list as data and node values typed as Svelte snippets.
  *
  * @module
  */
@@ -9,9 +9,11 @@
 import type { Snippet } from 'svelte'
 
 /** Props accepted by the {@link Carousel} component. */
-export interface CarouselProps {
-  /** Slides — each child is one frame, rendered through the `children` snippet. */
-  children?: Snippet
+export interface CarouselProps<T = unknown> {
+  /** The slides, one entry per frame (React's `children` array). */
+  items?: T[]
+  /** Renders one entry of `items` as its slide. */
+  children?: Snippet<[item: T, index: number]>
   /** Controlled active index — caller owns state. */
   index?: number
   /** Called when the active index changes. */

@@ -64,6 +64,6 @@ describe('Breadcrumb i18n', () => {
     flushSync()
     const nav = target.querySelector('nav')
     expect(nav?.getAttribute('aria-label')).toBe('«breadcrumb.aria.breadcrumb»')
-    expect(nav?.getAttribute('aria-label')).not.toBe('Breadcrumb')
+    expect(nav!.getAttribute('aria-label')).not.toBe('Breadcrumb')
   })
 })

@@ -35,6 +35,7 @@ const hangingComponent = (
         if (flushes === 2) await new Promise<void>((resolve) => (release = resolve))
       },
       setProps: async () => undefined,
+      setChildren: async () => undefined,
       location: () => '/',
       navigate: () => undefined,
       unmount: async () => {
@@ -133,6 +134,7 @@ describe('the case teardown', () => {
       return {
         flush: settle,
         setProps: async () => undefined,
+        setChildren: async () => undefined,
         location: () => '/',
         navigate: () => undefined,
         unmount: async () => {

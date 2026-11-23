@@ -8,7 +8,7 @@
  * @module
  */
 
-import type { JSX } from 'solid-js'
+import { createSignal, For, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -143,5 +143,32 @@ describe('ShowMore', () => {
   it('forwards className', () => {
     const markup = mount(() => <ShowMore className="sm-cls">{items(2)}</ShowMore>)
     expect(markup).toContain('sm-cls')
+  })
+
+  it('counts items added through a <For> and drops the toggle when it shrinks', () => {
+    const [values, setValues] = createSignal(['a', 'b', 'c', 'd'])
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    disposers.push(
+      render(
+        () => (
+          <ShowMore initialCount={3}>
+            <For each={values()}>{(value) => <div data-item={value}>{value}</div>}</For>
+          </ShowMore>
+        ),
+        container,
+      ),
+    )
+    expect(container.textContent).toContain('Show 1 more')
+
+    setValues(['a', 'b', 'c', 'd', 'e'])
+    expect(container.textContent).toContain('Show 2 more')
+
+    setValues(['a', 'b'])
+    expect(container.textContent).not.toContain('Show')
+    expect(container.querySelectorAll('[data-item]')).toHaveLength(2)
+
+    setValues([])
+    expect(container.querySelectorAll('[data-item]')).toHaveLength(0)
   })
 })

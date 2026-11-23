@@ -39,6 +39,14 @@
      "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "children, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "SettingsLayout": {
@@ -83,6 +91,30 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "sidebar and content, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "sidebar and content, then sidebar emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header, sidebar and content, then header emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header data-header>\nSettings\n</header>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header data-header>\nSettings\n</header>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside class=\"ca596e575\">\n<nav data-sidebar>\nProfile\n</nav>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9166dbd0 cbaac6b89 ccae02ff2\">\n<p data-body>\nForm fields\n</p>\n</div>\n</main>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -168,6 +200,38 @@
     "snapshots": [
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /",
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n</header>\n<div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, description, body and a footer action, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button data-save type=\"button\">\nSave\n</button>\n</footer>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button data-save type=\"button\">\nSave\n</button>\n</footer>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button data-save type=\"button\">\nSave\n</button>\n</footer>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, description, body and a footer action, then footer emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button data-save type=\"button\">\nSave\n</button>\n</footer>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n</footer>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\nProfile\n</h2>\n<p class=\"c445db9b9\">\nUpdate your display name.\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n<footer class=\"c117f3063 c1e8176ab c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button data-save type=\"button\">\nSave\n</button>\n</footer>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title and description, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<strong data-title>\nProfile\n</strong>\n</h2>\n<p class=\"c445db9b9\">\n<em data-desc>\nPublic\n</em>\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n</h2>\n<p class=\"c445db9b9\">\n<em data-desc>\nPublic\n</em>\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<strong data-title>\nProfile\n</strong>\n</h2>\n<p class=\"c445db9b9\">\n<em data-desc>\nPublic\n</em>\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title and description, then description emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<strong data-title>\nProfile\n</strong>\n</h2>\n<p class=\"c445db9b9\">\n<em data-desc>\nPublic\n</em>\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<strong data-title>\nProfile\n</strong>\n</h2>\n<p class=\"c445db9b9\">\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h2 class=\"c6a2a1a28 c7f74399a\">\n<strong data-title>\nProfile\n</strong>\n</h2>\n<p class=\"c445db9b9\">\n<em data-desc>\nPublic\n</em>\n</p>\n</header>\n<div>\n<p data-body>\nForm fields\n</p>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -293,6 +357,14 @@
      "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
      "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n</nav>\n@route /",
      "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n</nav>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer inside the sidebar, then footer emptied and refilled": {
+    "snapshots": [
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n<div class=\"c9efc308d\">\n<button data-signout type=\"button\">\nSign out\n</button>\n</div>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n<div class=\"c9efc308d\">\n</div>\n</nav>\n@route /",
+     "<nav aria-label=\"Settings\" class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<button aria-current=\"page\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nProfile\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nBilling\n</span>\n</button>\n<div class=\"c9efc308d\">\n<button data-signout type=\"button\">\nSign out\n</button>\n</div>\n</nav>\n@route /"
     ],
     "calls": []
    }

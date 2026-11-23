@@ -8,7 +8,7 @@
  * @module
  */
 
-import type { JSX } from 'solid-js'
+import { createSignal, For, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -115,6 +115,35 @@ describe('AuthBrandHeader (children mode)', () => {
     expect(markup).toContain('Bespoke')
     expect(markup).not.toContain('IgnoredName')
     expect(markup).not.toContain('IgnoredTagline')
+  })
+
+  it('renders children passed through a <For> as it grows, and an empty one instead of the preset', () => {
+    const [names, setNames] = createSignal<string[]>([])
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    disposers.push(
+      render(
+        () => (
+          <AuthBrandHeader appName="Acme" tagline="Ship faster">
+            <For each={names()}>{(name) => <span data-extra={name}>{name}</span>}</For>
+          </AuthBrandHeader>
+        ),
+        container,
+      ),
+    )
+    // React's `children ?? preset`: an empty list is passed children, not an absent value.
+    expect(container.innerHTML).not.toContain('Acme')
+
+    setNames(['one'])
+    expect(container.querySelector('h1')).toBeNull()
+    expect(container.querySelectorAll('[data-extra]')).toHaveLength(1)
+
+    setNames(['one', 'two'])
+    expect(container.querySelectorAll('[data-extra]')).toHaveLength(2)
+
+    setNames([])
+    expect(container.innerHTML).not.toContain('Acme')
+    expect(container.querySelectorAll('[data-extra]')).toHaveLength(0)
   })
 })
 

@@ -169,7 +169,7 @@ describe('ScriptsCard parameterized run', () => {
     await vi.waitFor(() => expect(postMock).toHaveBeenCalledTimes(1))
     // Ran the right endpoint with no params body.
     expect(postMock.mock.calls[0]?.[0]).toContain('/scripts/run-tests/run')
-    expect(postMock.mock.calls[0]?.[1]).toBeUndefined()
+    expect(postMock.mock.calls[0]![1]).toBeUndefined()
   })
 
   it('opens an option form for a param script and runs with the chosen values', async () => {

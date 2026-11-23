@@ -126,6 +126,30 @@
      "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</footer>\n@route /"
     ],
     "calls": []
+   },
+   "logo, copyright and links, then logo emptied and refilled": {
+    "snapshots": [
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<span class=\"c4647f690\">\n© 2026 Acme\n</span>\n</div>\n<nav aria-label=\"Footer\" class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<a class=\"c1477cccf c445db9b9\" href=\"/privacy\">\nPrivacy\n</a>\n<a class=\"c1477cccf c445db9b9\" href=\"#\">\nTerms\n</a>\n</nav>\n</footer>\n@route /",
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n© 2026 Acme\n</span>\n</div>\n<nav aria-label=\"Footer\" class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<a class=\"c1477cccf c445db9b9\" href=\"/privacy\">\nPrivacy\n</a>\n<a class=\"c1477cccf c445db9b9\" href=\"#\">\nTerms\n</a>\n</nav>\n</footer>\n@route /",
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<span class=\"c4647f690\">\n© 2026 Acme\n</span>\n</div>\n<nav aria-label=\"Footer\" class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<a class=\"c1477cccf c445db9b9\" href=\"/privacy\">\nPrivacy\n</a>\n<a class=\"c1477cccf c445db9b9\" href=\"#\">\nTerms\n</a>\n</nav>\n</footer>\n@route /"
+    ],
+    "calls": []
+   },
+   "node copyright, then copyright emptied and refilled": {
+    "snapshots": [
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n<strong>\nAcme Inc.\n</strong>\n</span>\n</div>\n<span data-right>\nlocale\n</span>\n</footer>\n@route /",
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n</span>\n</div>\n<span data-right>\nlocale\n</span>\n</footer>\n@route /",
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n<strong>\nAcme Inc.\n</strong>\n</span>\n</div>\n<span data-right>\nlocale\n</span>\n</footer>\n@route /"
+    ],
+    "calls": []
+   },
+   "node copyright, then right emptied and refilled": {
+    "snapshots": [
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n<strong>\nAcme Inc.\n</strong>\n</span>\n</div>\n<span data-right>\nlocale\n</span>\n</footer>\n@route /",
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n<strong>\nAcme Inc.\n</strong>\n</span>\n</div>\n</footer>\n@route /",
+     "<footer class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 ca46eac0b ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\n<strong>\nAcme Inc.\n</strong>\n</span>\n</div>\n<span data-right>\nlocale\n</span>\n</footer>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AppShellSideNav": {
@@ -235,6 +259,22 @@
      "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav aria-label=\"⟦Sidebar⟧\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-settings\n</span>\n</span>\n</button>\n</nav>\n</aside>\n@route /"
     ],
     "calls": []
+   },
+   "header and footer slots, then header emptied and refilled": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-header>\nAcme\n</div>\n<nav aria-label=\"Sidebar\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n</nav>\n<div class=\"c4b587630\">\n<div data-footer>\ntheme\n</div>\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav aria-label=\"Sidebar\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n</nav>\n<div class=\"c4b587630\">\n<div data-footer>\ntheme\n</div>\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-header>\nAcme\n</div>\n<nav aria-label=\"Sidebar\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n</nav>\n<div class=\"c4b587630\">\n<div data-footer>\ntheme\n</div>\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
+   },
+   "header and footer slots, then footer emptied and refilled": {
+    "snapshots": [
+     "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-header>\nAcme\n</div>\n<nav aria-label=\"Sidebar\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n</nav>\n<div class=\"c4b587630\">\n<div data-footer>\ntheme\n</div>\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-header>\nAcme\n</div>\n<nav aria-label=\"Sidebar\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n</nav>\n<div class=\"c4b587630\">\n</div>\n</aside>\n@route /",
+     "<aside class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-header>\nAcme\n</div>\n<nav aria-label=\"Sidebar\" class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8e3cd4a1 c937ba156 c9566e21c caa6eb57d ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nlabel-home\n</span>\n</span>\n</button>\n</nav>\n<div class=\"c4b587630\">\n<div data-footer>\ntheme\n</div>\n</div>\n</aside>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AppShellTopNav": {
@@ -314,6 +354,22 @@
     "snapshots": [
      "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</header>\n@route /",
      "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "logo, items and right slot, then logo emptied and refilled": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<nav aria-label=\"Main\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-home\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-settings\n</span>\n</button>\n</nav>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-right>\naccount\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n<nav aria-label=\"Main\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-home\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-settings\n</span>\n</button>\n</nav>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-right>\naccount\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<nav aria-label=\"Main\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-home\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-settings\n</span>\n</button>\n</nav>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-right>\naccount\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "logo, items and right slot, then right emptied and refilled": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<nav aria-label=\"Main\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-home\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-settings\n</span>\n</button>\n</nav>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-right>\naccount\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<nav aria-label=\"Main\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-home\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-settings\n</span>\n</button>\n</nav>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c8f3cd634 c9366def6 c937ba156 ca96eb3ea ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-logo>\nAcme\n</span>\n<nav aria-label=\"Main\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-home\n</span>\n</button>\n<button class=\"c1e8176ab c42740ba6 c445db9b9 c80b1c428 c8d3cd30e c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span>\nlabel-settings\n</span>\n</button>\n</nav>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-right>\naccount\n</span>\n</div>\n</header>\n@route /"
     ],
     "calls": []
    }

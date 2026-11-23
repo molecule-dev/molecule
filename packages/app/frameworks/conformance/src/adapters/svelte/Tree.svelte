@@ -7,7 +7,7 @@
 <script lang="ts">
   import { type Component, untrack } from 'svelte'
 
-  import { isComponentSpec, isProbeSpec, type NodeSpec } from '../../ui/index.js'
+  import { isComponentSpec, isProbeSpec, keyOf, type NodeSpec } from '../../ui/index.js'
   import Probe from './Probe.svelte'
   import { snippetBuilders } from './snippets.js'
   import Tree from './Tree.svelte'
@@ -36,7 +36,8 @@
   <Tree nodes={list} exports={exportsOf} {callback} />
 {/snippet}
 
-{#each nodes as node, i (i)}
+<!-- Keyed by a node's own `key` (a `children` step's list), else by position, as React matches them. -->
+{#each nodes as node, i (keyOf(node) ?? i)}
   {#if typeof node === 'string'}
     {node}
   {:else if isProbeSpec(node)}
@@ -45,6 +46,8 @@
     {@const Target = components[node.component]}
     <Target {...builders.propsOf(node)} />
   {:else}
+    <!-- `attrs` may carry props a component passed to this snippet, merged onto the one-element
+         list it renders (`withSnippetProps`); the spread forwards them, attachment keys included. -->
     <svelte:element this={node.tag} {...node.attrs ?? {}}
       ><Tree nodes={node.children ?? []} exports={exportsOf} {callback} /></svelte:element
     >

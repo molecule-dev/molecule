@@ -7,7 +7,16 @@
  * @module
  */
 
-import { type Component, createEffect, createSignal, For, onCleanup } from 'solid-js'
+import {
+  children,
+  type Component,
+  createEffect,
+  createSignal,
+  For,
+  onCleanup,
+  type ResolvedJSXElement,
+  Show,
+} from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
@@ -39,12 +48,13 @@ const dotStyle = { background: 'transparent', border: 'none', padding: '4px' }
 export const Carousel: Component<CarouselProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
-  // React reads `children.length` once per render; Solid reads its node
-  // children once, at mount, and the slide list stays as React's does.
-  const raw = props.children
-  const slides =
-    raw === undefined || raw === null || raw === false ? [] : Array.isArray(raw) ? raw : [raw]
-  const total = slides.length
+  // React's `children` array: Solid's `children` helper resolves whatever the caller passed
+  // (elements, text, a `<For>`, a conditional) to the flat list of rendered children, and
+  // follows it when it changes.
+  const resolved = children(() => props.children)
+  const slides = (): ResolvedJSXElement[] =>
+    resolved.toArray().filter((c) => c !== null && c !== undefined && c !== false)
+  const total = (): number => slides().length
   // React's `useState(0)` / `useState(false)`.
   const [internal, setInternal] = createSignal(0)
   const [hovered, setHovered] = createSignal(false)
@@ -60,7 +70,7 @@ export const Carousel: Component<CarouselProps> = (props) => {
    */
   const setIdx = (next: number): void => {
     const clamped =
-      (props.loop ?? true) ? (next + total) % total : Math.max(0, Math.min(total - 1, next))
+      (props.loop ?? true) ? (next + total()) % total() : Math.max(0, Math.min(total() - 1, next))
     if (props.index === undefined) setInternal(clamped)
     props.onChange?.(clamped)
   }
@@ -79,104 +89,107 @@ export const Carousel: Component<CarouselProps> = (props) => {
     onCleanup(() => clearInterval(id))
   })
 
-  if (total === 0) return null
-
   return (
-    <div
-      class={cm.cn(cm.position('relative'), props.className)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div style={{ overflow: 'hidden' }}>
-        <div
-          style={{
-            display: 'flex',
-            width: `${total * 100}%`,
-            transform: `translateX(-${(active() / total) * 100}%)`,
-            transition: 'transform 250ms ease',
-          }}
-        >
-          <For each={slides}>
-            {(child, i) => (
-              <div
-                data-mol-id="carousel-slide"
-                aria-hidden={i() !== active() ? 'true' : 'false'}
-                style={{ width: `${100 / total}%`, 'flex-shrink': '0' }}
-              >
-                {child}
-              </div>
-            )}
-          </For>
+    <Show when={total() > 0}>
+      <div
+        class={cm.cn(cm.position('relative'), props.className)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <div style={{ overflow: 'hidden' }}>
+          <div
+            style={{
+              display: 'flex',
+              width: `${total() * 100}%`,
+              transform: `translateX(-${(active() / total()) * 100}%)`,
+              transition: 'transform 250ms ease',
+            }}
+          >
+            <For each={slides()}>
+              {(child, i) => (
+                <div
+                  data-mol-id="carousel-slide"
+                  aria-hidden={i() !== active() ? 'true' : 'false'}
+                  style={{ width: `${100 / total()}%`, 'flex-shrink': '0' }}
+                >
+                  {child}
+                </div>
+              )}
+            </For>
+          </div>
         </div>
+        {(props.showArrows ?? true) && total() > 1 && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIdx(active() - 1)}
+              aria-label={t('carousel.previous', {}, { defaultValue: 'Previous' })}
+              className={cm.position('absolute')}
+              style={arrowLeftStyle}
+            >
+              ‹
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIdx(active() + 1)}
+              aria-label={t('carousel.next', {}, { defaultValue: 'Next' })}
+              className={cm.position('absolute')}
+              style={arrowRightStyle}
+            >
+              ›
+            </Button>
+          </>
+        )}
+        {(props.showDots ?? true) && total() > 1 && (
+          <div
+            class={cm.cn(
+              cm.flex({ align: 'center', justify: 'center', gap: 'xs' }),
+              cm.sp('py', 2),
+            )}
+          >
+            <For each={slides()}>
+              {(_child, i) => (
+                <button
+                  type="button"
+                  data-mol-id="carousel-dot"
+                  data-active={i() === active() ? 'true' : 'false'}
+                  aria-label={t(
+                    'carousel.goToSlide',
+                    { index: i() + 1 },
+                    { defaultValue: 'Go to slide {{index}}' },
+                  )}
+                  aria-current={i() === active() ? 'true' : undefined}
+                  onClick={() => setIdx(i())}
+                  class={cm.cn(
+                    cm.cursorPointer,
+                    cm.touchTargetCompact,
+                    cm.flex({ align: 'center', justify: 'center' }),
+                  )}
+                  style={dotStyle}
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: 'block',
+                      width: '8px',
+                      height: '8px',
+                      'border-radius': '50%',
+                      // Theme tokens: the inactive dot was `rgba(0,0,0,0.2)`, which
+                      // is invisible on a dark surface.
+                      background:
+                        i() === active()
+                          ? 'var(--mol-color-primary, currentColor)'
+                          : 'var(--mol-color-border, rgba(128,128,128,0.4))',
+                    }}
+                  />
+                </button>
+              )}
+            </For>
+          </div>
+        )}
       </div>
-      {(props.showArrows ?? true) && total > 1 && (
-        <>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIdx(active() - 1)}
-            aria-label={t('carousel.previous', {}, { defaultValue: 'Previous' })}
-            className={cm.position('absolute')}
-            style={arrowLeftStyle}
-          >
-            ‹
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIdx(active() + 1)}
-            aria-label={t('carousel.next', {}, { defaultValue: 'Next' })}
-            className={cm.position('absolute')}
-            style={arrowRightStyle}
-          >
-            ›
-          </Button>
-        </>
-      )}
-      {(props.showDots ?? true) && total > 1 && (
-        <div
-          class={cm.cn(cm.flex({ align: 'center', justify: 'center', gap: 'xs' }), cm.sp('py', 2))}
-        >
-          <For each={slides}>
-            {(_child, i) => (
-              <button
-                type="button"
-                data-mol-id="carousel-dot"
-                data-active={i() === active() ? 'true' : 'false'}
-                aria-label={t(
-                  'carousel.goToSlide',
-                  { index: i() + 1 },
-                  { defaultValue: 'Go to slide {{index}}' },
-                )}
-                aria-current={i() === active() ? 'true' : undefined}
-                onClick={() => setIdx(i())}
-                class={cm.cn(
-                  cm.cursorPointer,
-                  cm.touchTargetCompact,
-                  cm.flex({ align: 'center', justify: 'center' }),
-                )}
-                style={dotStyle}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    display: 'block',
-                    width: '8px',
-                    height: '8px',
-                    'border-radius': '50%',
-                    // Theme tokens: the inactive dot was `rgba(0,0,0,0.2)`, which
-                    // is invisible on a dark surface.
-                    background:
-                      i() === active()
-                        ? 'var(--mol-color-primary, currentColor)'
-                        : 'var(--mol-color-border, rgba(128,128,128,0.4))',
-                  }}
-                />
-              </button>
-            )}
-          </For>
-        </div>
-      )}
-    </div>
+    </Show>
   )
 }

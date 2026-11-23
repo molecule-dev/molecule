@@ -87,6 +87,14 @@
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\nMain content\n</span>\n@route /"
     ],
     "calls": []
+   },
+   "children only, no dot, then children emptied and refilled": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nMain content\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nMain content\n</span>\n@route /"
+    ],
+    "calls": []
    }
   },
   "PresenceDot": {

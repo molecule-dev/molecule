@@ -14,11 +14,12 @@
 </script>
 
 <script lang="ts">
+  import { BodyPortal } from '@molecule/app-svelte'
   import type { TooltipPlacement } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
-  import { bodyPortal, spreadEvents, useGeneratedId } from '../dom.js'
+  import { spreadEvents, useGeneratedId } from '../dom.js'
   import { type CSSStyle, reactStyle } from '../style.js'
   import type { TooltipProps } from '../types.js'
   import ReactNode from './ReactNode.svelte'
@@ -289,23 +290,29 @@
 {#if isVisible && typeof document !== 'undefined'}
   <!-- The arrow renders as the box's SIBLING: tooltipContent sets
        overflow-hidden, so a nested arrow would be clipped invisible. -->
-  <div
-    use:reactStyle={{ position: 'absolute', top: position.top, left: position.left, zIndex: 9999 }}
-    use:bodyPortal
-    use:spreadEvents={boxHandlers}
-  >
-    <div
-      bind:this={ref}
-      id={tooltipId}
-      role="tooltip"
-      class={cm.cn(cm.tooltipContent, className)}
-      use:reactStyle={style}
-      data-testid={testId}
-      {...attributes}
-      use:spreadEvents={rest}
+  <BodyPortal
+    ><div
+      use:reactStyle={{
+        position: 'absolute',
+        top: position.top,
+        left: position.left,
+        zIndex: 9999,
+      }}
+      use:spreadEvents={boxHandlers}
     >
-      <ReactNode node={content} />
-    </div>
-    {#if hasArrow}<span aria-hidden="true" use:reactStyle={arrowStyle(placement)}></span>{/if}
-  </div>
+      <div
+        bind:this={ref}
+        id={tooltipId}
+        role="tooltip"
+        class={cm.cn(cm.tooltipContent, className)}
+        use:reactStyle={style}
+        data-testid={testId}
+        {...attributes}
+        use:spreadEvents={rest}
+      >
+        <ReactNode node={content} />
+      </div>
+      {#if hasArrow}<span aria-hidden="true" use:reactStyle={arrowStyle(placement)}></span>{/if}
+    </div></BodyPortal
+  >
 {/if}

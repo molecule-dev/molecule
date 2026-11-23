@@ -2,9 +2,9 @@
  * Svelte leaderboard list container.
  *
  * Exports `LeaderboardList` — header row (title + actions) above a vertical
- * stack of rows. Props: `children` (pre-rendered rows), `title?`, `actions?`
- * (period selector, filters), `emptyState?`, `className?` — the node props
- * are snippets. Pair with a row component
+ * stack of rows. Props: `items` (one entry per row) with a `children` snippet
+ * that renders one entry, `title?`, `actions?` (period selector, filters),
+ * `emptyState?`, `className?` — the node props are snippets. Pair with a row component
  * (`@molecule/app-leaderboard-row-react` in React apps; your own Svelte rows
  * otherwise) — this container adds no rank/podium logic of its own. It is the
  * Svelte counterpart of `@molecule/app-leaderboard-list-react`: same props
@@ -21,20 +21,21 @@
  *   ]
  * </script>
  *
- * <LeaderboardList title="Top Contributors">
- *   {#each entries as e (e.id)}
- *     <div class="flex justify-between">
+ * <LeaderboardList items={entries}>
+ *   {#snippet title()}Top Contributors{/snippet}
+ *   {#snippet children(e)}
+ *     <div>
  *       <span>{`${e.rank}. ${e.name}`}</span>
  *       <strong>{e.score}</strong>
  *     </div>
- *   {/each}
+ *   {/snippet}
  * </LeaderboardList>
  * ```
  *
  * @remarks
- * - `emptyState` renders only when `children` is absent; if you pass content
- *   the list always renders. Map your entries directly (as in the example)
- *   so the empty case is detectable.
+ * - `emptyState` renders only when `items` is empty or absent, as React's
+ *   renders when `children` is. A snippet cannot be counted, so the rows are
+ *   data.
  * - No `data-mol-id` prop; styling resolves through `getClassMap()`.
  *
  * @module

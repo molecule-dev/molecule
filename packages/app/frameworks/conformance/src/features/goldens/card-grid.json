@@ -290,6 +290,17 @@
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "default columns and gap, then children change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"b\">\nB\n</div>\n<div data-card=\"a\">\nA\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

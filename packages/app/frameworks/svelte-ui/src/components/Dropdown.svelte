@@ -1,27 +1,30 @@
 <!--
-  Dropdown: WAI-ARIA APG menu-button pattern. A single-element trigger
-  (rendered through `trigger`) is turned into the real menu button — its
-  element is adopted in place and given aria-haspopup/aria-expanded/
-  aria-controls, tabindex and the open/keyboard handlers, with no extra
-  wrapper, exactly like React's cloneElement path; any other trigger (text,
-  several nodes, none) is wrapped in a role="button" tabindex="0" container
-  instead. Enter/Space/ArrowDown open onto the first item (ArrowUp the last);
-  ArrowUp/Down/Home/End rove the role="menuitem" items; Escape closes and
-  returns focus to the trigger; Tab closes without trapping; an outside
-  mousedown closes without refocusing; a route change closes the open menu
-  (and announces the state once on mount). The menu portals to document.body,
-  positioned absolutely from the trigger's rect one animation frame after
-  opening.
+  Dropdown: WAI-ARIA APG menu-button pattern. The trigger snippet receives
+  {@link DropdownTriggerProps} — one attachment — to spread on its own element,
+  which makes that element the real menu button the way React's cloneElement
+  path does: aria-haspopup/aria-expanded/aria-controls, tabindex, the
+  open/keyboard handlers, and no wrapper. The attachment runs on whichever
+  element the snippet renders, so a trigger whose root element changes is
+  followed. A string trigger, or a snippet that does not spread the props
+  (renders text, several nodes, or ignores its argument), is wrapped in a
+  role="button" tabindex="0" container instead. Enter/Space/ArrowDown open onto
+  the first item (ArrowUp the last); ArrowUp/Down/Home/End rove the
+  role="menuitem" items; Escape closes and returns focus to the trigger; Tab
+  closes without trapping; an outside mousedown closes without refocusing; a
+  route change closes the open menu (and announces the state once on mount).
+  The menu portals to document.body, positioned absolutely from the trigger's
+  rect one animation frame after opening.
 -->
 <script lang="ts">
   import { untrack } from 'svelte'
+  import { type Attachment, createAttachmentKey } from 'svelte/attachments'
 
-  import { useLocation } from '@molecule/app-svelte'
+  import { BodyPortal, useLocation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { bodyPortal, useGeneratedId } from '../dom.js'
+  import { useGeneratedId } from '../dom.js'
   import { type CSSStyle, reactStyle } from '../style.js'
-  import type { DropdownItem, DropdownProps } from '../types.js'
+  import type { DropdownItem, DropdownProps, DropdownTriggerProps } from '../types.js'
   import { calculateDropdownPosition } from './dropdown.js'
   import ReactNode from './ReactNode.svelte'
 
@@ -56,9 +59,9 @@
   let internalOpen = $state(false)
   let position = $state<{ top: number; left: number }>({ top: 0, left: 0 })
   let activeIndex = $state(-1)
-  // The interactive trigger node — the adopted single-element trigger or the
-  // role="button" wrapper. Used for position measurement, outside-click
-  // detection AND focus restoration.
+  // The interactive trigger node — the element the trigger snippet spread the
+  // attachment on, or the role="button" wrapper. Used for position measurement,
+  // outside-click detection AND focus restoration.
   let triggerEl = $state<HTMLElement | null>(null)
   const itemEls: (HTMLDivElement | null)[] = []
   // Which end of the menu keyboard-driven opens should focus: ArrowDown (and
@@ -265,92 +268,112 @@
     }
   }
 
-  // Trigger adoption. React clones a single-element trigger's element with
-  // the menu-button props; Svelte snippets render in place, so the trigger is
-  // rendered into a host div and adopted after mount: a single element child
-  // keeps its own element (the host unwraps out of the DOM, leaving no
-  // wrapper), everything else turns the host itself into React's
-  // role="button" fallback container.
-  let triggerHost = $state<HTMLDivElement | null>(null)
-  let adopted = false
-  // Whether the trigger is React's fallback role="button" wrapper (anything
-  // that is not a single element) rather than an adopted trigger element.
-  let triggerIsWrapper = $state(false)
-  $effect(() => {
-    if (!triggerHost || adopted) return
-    adopted = true
-    const host = triggerHost
-    // Svelte anchors snippets with comment and empty text nodes; the trigger's
-    // rendered content is what remains once those are ignored.
-    const content = Array.from(host.childNodes).filter(
-      (n) =>
-        n.nodeType !== Node.COMMENT_NODE &&
-        !(n.nodeType === Node.TEXT_NODE && !(n.textContent ?? '').trim()),
-    )
-    const single =
-      content.length === 1 && content[0]!.nodeType === Node.ELEMENT_NODE
-        ? (content[0] as HTMLElement)
-        : null
-    const el = single ?? host
-    triggerIsWrapper = single === null
-    if (single) {
-      const parent = host.parentNode
-      if (parent) {
-        while (host.firstChild) parent.insertBefore(host.firstChild, host)
-        parent.removeChild(host)
-      }
-    } else {
-      host.setAttribute('role', 'button')
-      host.classList.add(cm.dropdownTrigger)
-    }
-    if (el.getAttribute('tabindex') === null) el.setAttribute('tabindex', '0')
+  // Trigger adoption. React clones a single-element trigger with the
+  // menu-button props; here the snippet spreads an attachment on its own
+  // element, and the attachment does what the clone does on that element and
+  // undoes it in its cleanup. It reads the reactive values below, so Svelte
+  // re-runs it when they change — a trigger whose root element changes is
+  // followed because the attachment runs on the new element.
+  const triggerAttachment: Attachment<HTMLElement> = (el) => {
+    const open = isOpen
+    const isDisabled = disabled
+    const givenTestId = testId
+    const givenAutomationId = automationId
+    // React's `cloneElement` keeps the trigger's own tabindex; only an
+    // element that has none becomes a tab stop.
+    const ownTabindex = el.hasAttribute('tabindex')
+    if (!ownTabindex) el.setAttribute('tabindex', '0')
     el.setAttribute('aria-haspopup', 'menu')
+    el.setAttribute('aria-expanded', open ? 'true' : 'false')
+    if (open) el.setAttribute('aria-controls', menuId)
+    else el.removeAttribute('aria-controls')
+    // Only a given id replaces the trigger's own; an absent one leaves it in
+    // place (only a value this attachment set is removed).
+    let setTestId = false
+    if (givenTestId !== undefined) {
+      el.setAttribute('data-testid', givenTestId)
+      setTestId = true
+    }
+    let setAutomationId = false
+    if (givenAutomationId !== undefined) {
+      el.setAttribute('data-mol-id', givenAutomationId)
+      setAutomationId = true
+    }
+    // A disabled dropdown disables the cloned trigger (a Button or a native
+    // button then ignores clicks).
+    let setDisabled = false
+    if (isDisabled) {
+      el.setAttribute('disabled', '')
+      setDisabled = true
+    }
+    // `addEventListener`, not `onclick`, so the element's own handlers still
+    // run — React composes the trigger's onClick with its own the same way.
     el.addEventListener('click', handleTriggerClick)
     el.addEventListener('keydown', handleTriggerKeyDown)
     triggerEl = el
+    untrack(() => (attachedTriggers += 1))
+    return () => {
+      untrack(() => (attachedTriggers -= 1))
+      if (!ownTabindex) el.removeAttribute('tabindex')
+      el.removeAttribute('aria-haspopup')
+      el.removeAttribute('aria-expanded')
+      el.removeAttribute('aria-controls')
+      if (setTestId) el.removeAttribute('data-testid')
+      if (setAutomationId) el.removeAttribute('data-mol-id')
+      if (setDisabled) el.removeAttribute('disabled')
+      el.removeEventListener('click', handleTriggerClick)
+      el.removeEventListener('keydown', handleTriggerKeyDown)
+      if (triggerEl === el) triggerEl = null
+    }
+  }
+
+  // Read by the attachment (not tracked): true once an element spread the
+  // props during a render. The snippet's own render runs synchronously before
+  // any effect, so the decision effect below sees the value the first render
+  // left — never an ordering race with the attachment's effect.
+  let triggerApplied = false
+  const triggerAttachmentKey = createAttachmentKey()
+  const triggerProps = Object.defineProperty({}, triggerAttachmentKey, {
+    enumerable: true,
+    get() {
+      triggerApplied = true
+      return triggerAttachment
+    },
+  }) as DropdownTriggerProps
+
+  // React wraps anything that is not a single element in its role="button"
+  // fallback. Once the snippet's first render has finished, a snippet that
+  // spreads the attachment has already read it (the getter above ran during
+  // that render); no read means it rendered text, several nodes, or ignored
+  // its argument, so switch to the fallback and render it there (with the
+  // counting props below).
+  let decidedFallback = $state(false)
+  $effect(() => {
+    if (trigger !== undefined && typeof trigger !== 'string' && !triggerApplied) {
+      decidedFallback = true
+    }
   })
 
-  // React's cloned/wrapped trigger re-renders with the live open state; the
-  // adopted element gets the same attributes re-applied on every change. A
-  // given testId/automationId replaces the trigger's own; an absent one leaves
-  // it in place (only a value this component previously set is removed).
-  let appliedTestId: string | undefined
-  let appliedAutomationId: string | undefined
-  let appliedDisabled = false
+  // React decides on every render whether the trigger is a single element, so
+  // a trigger whose content changes (a list that empties, then refills) moves
+  // between the clone and the fallback. The elements the attachment is on now:
+  // none left means the snippet no longer renders the element (React's
+  // fallback wraps what it renders now).
+  let attachedTriggers = $state(0)
   $effect(() => {
-    const el = triggerEl
-    if (!el) return
-    el.setAttribute('aria-expanded', isOpen ? 'true' : 'false')
-    if (isOpen) el.setAttribute('aria-controls', menuId)
-    else el.removeAttribute('aria-controls')
-    if (triggerIsWrapper) {
-      // React's fallback container: announced disabled and out of the tab order.
-      el.setAttribute('tabindex', disabled ? '-1' : '0')
-      if (disabled) el.setAttribute('aria-disabled', 'true')
-      else el.removeAttribute('aria-disabled')
-    } else if (disabled) {
-      // A disabled dropdown disables the cloned trigger (a Button or a native
-      // button then ignores clicks). An absent `disabled` leaves the trigger's own.
-      el.setAttribute('disabled', '')
-      appliedDisabled = true
-    } else if (appliedDisabled) {
-      el.removeAttribute('disabled')
-      appliedDisabled = false
-    }
-    if (testId !== undefined) {
-      el.setAttribute('data-testid', testId)
-      appliedTestId = testId
-    } else if (appliedTestId !== undefined) {
-      el.removeAttribute('data-testid')
-      appliedTestId = undefined
-    }
-    if (automationId !== undefined) {
-      el.setAttribute('data-mol-id', automationId)
-      appliedAutomationId = automationId
-    } else if (appliedAutomationId !== undefined) {
-      el.removeAttribute('data-mol-id')
-      appliedAutomationId = undefined
-    }
+    if (!decidedFallback && triggerApplied && attachedTriggers === 0) decidedFallback = true
+  })
+  // In the fallback the snippet gets props whose attachment only counts the
+  // elements it is on: once the snippet spreads them on an element again, that
+  // element is the trigger again.
+  let probedTriggers = $state(0)
+  const probeAttachment: Attachment<HTMLElement> = () => {
+    untrack(() => (probedTriggers += 1))
+    return () => untrack(() => (probedTriggers -= 1))
+  }
+  const probeProps = { [createAttachmentKey()]: probeAttachment } as DropdownTriggerProps
+  $effect(() => {
+    if (decidedFallback && probedTriggers > 0) decidedFallback = false
   })
 
   // Not measurable until the trigger element exists (the first open frame,
@@ -377,48 +400,66 @@
   // reference renders.
 </script>
 
-{#snippet triggerNodes()}
-  {#if typeof trigger === 'string'}{trigger}{:else}{@render trigger?.()}{/if}
-{/snippet}
-
-<div bind:this={triggerHost}>{@render triggerNodes()}</div>
+{#if typeof trigger === 'string' || trigger === undefined || decidedFallback}
+  <!-- React's fallback: a role="button" container around a trigger that is not
+       a single element the props could be spread on. -->
+  <div
+    bind:this={triggerEl}
+    role="button"
+    tabindex={disabled ? -1 : 0}
+    aria-disabled={disabled || undefined}
+    aria-haspopup="menu"
+    aria-expanded={isOpen}
+    aria-controls={isOpen ? menuId : undefined}
+    onclick={handleTriggerClick}
+    onkeydown={handleTriggerKeyDown}
+    class={cm.dropdownTrigger}
+    data-testid={testId}
+    data-mol-id={automationId}
+  >
+    {#if typeof trigger === 'string'}{trigger}{:else if trigger}{@render trigger(probeProps)}{/if}
+  </div>
+{:else}
+  {@render trigger(triggerProps)}
+{/if}
 
 {#if isOpen}
   <!-- Focusable but never a Tab stop (the items carry the roving tab stop):
        a click on a separator or the menu's padding keeps focus in the menu,
        so the arrow keys still move between its items. -->
-  <div
-    bind:this={ref}
-    id={menuId}
-    role="menu"
-    tabindex={-1}
-    data-state="open"
-    class={cm.cn(cm.dropdownContent, className)}
-    use:reactStyle={menuStyle}
-    use:bodyPortal
-    data-testid={testId ? `${testId}-menu` : undefined}
-    data-mol-id={automationId ? `${automationId}-menu` : undefined}
-    onkeydown={handleMenuKeyDown}
+  <BodyPortal
+    ><div
+      bind:this={ref}
+      id={menuId}
+      role="menu"
+      tabindex={-1}
+      data-state="open"
+      class={cm.cn(cm.dropdownContent, className)}
+      use:reactStyle={menuStyle}
+      data-testid={testId ? `${testId}-menu` : undefined}
+      data-mol-id={automationId ? `${automationId}-menu` : undefined}
+      onkeydown={handleMenuKeyDown}
+    >
+      {#each items as item, index (item.separator ? `separator-${index}` : item.value)}
+        {#if item.separator}
+          <div class={cm.dropdownSeparator} role="separator"></div>
+        {:else}
+          <div
+            bind:this={itemEls[index]}
+            role="menuitem"
+            tabindex={item.disabled ? -1 : index === activeIndex ? 0 : -1}
+            class={cm.cn(cm.dropdownItem, item.disabled && cm.dropdownItemDisabled)}
+            onclick={() => itemClick(item)}
+            onkeydown={(e) => itemKeyDown(e, item)}
+            aria-disabled={item.disabled || undefined}
+            data-disabled={item.disabled || undefined}
+          >
+            {#if item.icon}<span class={cm.dropdownItemIcon}><ReactNode node={item.icon} /></span
+              >{/if}<span class={cm.dropdownItemLabel}><ReactNode node={item.label} /></span
+            >{#if item.shortcut}<span class={cm.dropdownItemShortcut}>{item.shortcut}</span>{/if}
+          </div>
+        {/if}
+      {/each}
+    </div></BodyPortal
   >
-    {#each items as item, index (item.separator ? `separator-${index}` : item.value)}
-      {#if item.separator}
-        <div class={cm.dropdownSeparator} role="separator"></div>
-      {:else}
-        <div
-          bind:this={itemEls[index]}
-          role="menuitem"
-          tabindex={item.disabled ? -1 : index === activeIndex ? 0 : -1}
-          class={cm.cn(cm.dropdownItem, item.disabled && cm.dropdownItemDisabled)}
-          onclick={() => itemClick(item)}
-          onkeydown={(e) => itemKeyDown(e, item)}
-          aria-disabled={item.disabled || undefined}
-          data-disabled={item.disabled || undefined}
-        >
-          {#if item.icon}<span class={cm.dropdownItemIcon}><ReactNode node={item.icon} /></span
-            >{/if}<span class={cm.dropdownItemLabel}><ReactNode node={item.label} /></span
-          >{#if item.shortcut}<span class={cm.dropdownItemShortcut}>{item.shortcut}</span>{/if}
-        </div>
-      {/if}
-    {/each}
-  </div>
 {/if}

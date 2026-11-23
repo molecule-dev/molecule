@@ -101,7 +101,7 @@ describe('NewsletterSignup locale switch', () => {
     flushSync()
 
     expect(target.querySelector('input')?.getAttribute('aria-label')).toBe('Adresse e-mail')
-    expect(target.querySelector('input')?.getAttribute('aria-label')).not.toBe('Email')
+    expect(target.querySelector('input')!.getAttribute('aria-label')).not.toBe('Email')
   })
 
   it('renders the subscription failure message in French after setLocale', async () => {

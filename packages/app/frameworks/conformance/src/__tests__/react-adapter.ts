@@ -31,10 +31,14 @@ import {
   buildServices,
   callProbe,
   CallRecorder,
+  type ChildLists,
   type FrameworkAdapter,
+  initialChildLists,
   isComponentSpec,
   isProbeSpec,
+  keyOf,
   materializeProps,
+  nextChildLists,
   type NodeSpec,
   type ProbeSpec,
   probeValue,
@@ -81,14 +85,18 @@ function Probe({ spec }: { spec: ProbeSpec }): ReactElement {
  */
 export function toReactNodes(nodes: NodeSpec[] | undefined): ReactNode {
   if (!nodes) return undefined
-  // Only a list needs keys. A single node is returned on its own, and an index
-  // key there would collide with another slot's node rendered beside it.
-  const keyOf = (index: number): number | undefined => (nodes.length > 1 ? index : undefined)
+  // A node's own `key` first. Otherwise only a list needs keys: a single node is returned on its
+  // own, and an index key there would collide with another slot's node rendered beside it.
+  const keyFor = (node: NodeSpec, index: number): string | number | undefined =>
+    keyOf(node) ?? (nodes.length > 1 ? index : undefined)
   const out = nodes.map((node, index) => {
     if (typeof node === 'string') return node
-    if (isProbeSpec(node)) return createElement(Probe, { key: keyOf(index), spec: node })
+    if (isProbeSpec(node)) return createElement(Probe, { key: keyFor(node, index), spec: node })
     if (isComponentSpec(node)) {
-      const props: Record<string, unknown> = { key: keyOf(index), ...reactProps(node.props ?? {}) }
+      const props: Record<string, unknown> = {
+        key: keyFor(node, index),
+        ...reactProps(node.props ?? {}),
+      }
       for (const [slot, nodes] of Object.entries(node.slots ?? {}))
         props[slot] = toReactNodes(nodes)
       return createElement(
@@ -97,7 +105,7 @@ export function toReactNodes(nodes: NodeSpec[] | undefined): ReactNode {
         toReactNodes(node.children),
       )
     }
-    const props: Record<string, unknown> = { key: keyOf(index) }
+    const props: Record<string, unknown> = { key: keyFor(node, index) }
     for (const [k, v] of Object.entries(node.attrs ?? {})) props[REACT_ATTR[k] ?? k] = v
     return createElement(node.tag, props, toReactNodes(node.children))
   })
@@ -157,14 +165,15 @@ async function runReactCase(
   const app = options.app ? buildAppServices(testCase, recorder, options.app) : null
   const callbacks: Record<string, unknown> = {}
   for (const name of testCase.callbacks ?? []) callbacks[name] = recorder.spy(name)
-  const slots: Record<string, unknown> = {}
-  for (const [slot, nodes] of Object.entries(testCase.slots ?? {}))
-    slots[slot] = toReactNodes(nodes)
+  // The children and slots the case renders now: a `children` step replaces them (`setChildren`).
+  let lists: ChildLists = initialChildLists(testCase)
+  const slotProps = (slots: Record<string, NodeSpec[]>): Record<string, unknown> =>
+    Object.fromEntries(Object.entries(slots).map(([slot, nodes]) => [slot, toReactNodes(nodes)]))
   // A ref case hands the component a ref, as a caller does (`ref={r}`).
   const refObject = createRef<Element>()
   let props: Record<string, unknown> = {
     ...reactProps(testCase.props ?? {}),
-    ...slots,
+    ...slotProps(lists.slots),
     ...callbacks,
     ...(testCase.ref ? { ref: refObject } : {}),
   }
@@ -184,8 +193,8 @@ async function runReactCase(
       { 'data-parity-unwrap': '' },
       // A third createElement argument replaces props.children even when it is undefined, so
       // pass it only for node children: a render-function `children` prop must reach the component.
-      testCase.children
-        ? createElement(Component, props, toReactNodes(testCase.children))
+      lists.children
+        ? createElement(Component, props, toReactNodes(lists.children))
         : createElement(Component, props),
     )
     if (app) {
@@ -217,6 +226,14 @@ async function runReactCase(
           },
           setProps: async (next) => {
             props = { ...props, ...reactProps(next) }
+            await act(async () => {
+              root.render(element())
+            })
+          },
+          // The consumer re-renders with its new lists; React matches each node by its `key`.
+          setChildren: async (step) => {
+            lists = nextChildLists(lists, step)
+            props = { ...props, ...slotProps(step.slots ?? {}) }
             await act(async () => {
               root.render(element())
             })

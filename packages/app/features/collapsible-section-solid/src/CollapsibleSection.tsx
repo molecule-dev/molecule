@@ -8,26 +8,14 @@
  * @module
  */
 
-import type { Component, JSX } from 'solid-js'
-import { createSignal, Show } from 'solid-js'
+import type { Component, ResolvedJSXElement } from 'solid-js'
+import { children, createSignal, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { CollapsibleSectionProps, ShowMoreProps } from './types.js'
-
-/**
- * The children of a React `ReactNode[]` prop, as a list: Solid's `children`
- * is the single node it was given, or the array of nodes.
- *
- * @param children - The `children` prop value.
- * @returns The nodes, in order.
- */
-const nodeList = (children: JSX.Element): JSX.Element[] => {
-  if (children === undefined || children === null || children === false) return []
-  return Array.isArray(children) ? children : [children]
-}
 
 /**
  * Expandable section with a clickable heading. Lighter-weight than
@@ -108,15 +96,17 @@ export const ShowMore: Component<ShowMoreProps> = (props) => {
   const { t } = useTranslation()
   const [expanded, setExpanded] = createSignal(false)
 
+  // React's `children` array: Solid's `children` helper resolves whatever the caller passed
+  // (elements, text, a `<For>`, a conditional) to the flat list of rendered children, and
+  // follows it when it changes.
+  const resolved = children(() => props.children)
+  const all = (): ResolvedJSXElement[] => resolved.toArray()
   /** React's `initialCount = 3` default parameter. */
   const initialCount = (): number => props.initialCount ?? 3
   /** The items to render (React's `children.slice(0, initialCount)` when collapsed). */
-  const visible = (): JSX.Element[] => {
-    const all = nodeList(props.children)
-    return expanded() ? all : all.slice(0, initialCount())
-  }
+  const visible = (): ResolvedJSXElement[] => (expanded() ? all() : all().slice(0, initialCount()))
   /** How many items the toggle reveals (React's `Math.max(0, children.length - initialCount)`). */
-  const remaining = (): number => Math.max(0, nodeList(props.children).length - initialCount())
+  const remaining = (): number => Math.max(0, all().length - initialCount())
 
   return (
     <div class={cm.cn(cm.stack(2), props.className)}>

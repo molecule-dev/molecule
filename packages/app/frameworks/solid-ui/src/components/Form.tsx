@@ -5,6 +5,7 @@
  */
 
 import {
+  children,
   createEffect,
   createMemo,
   createSignal,
@@ -203,10 +204,14 @@ export const FormField = withDisplayName<WithRef<FormFieldProps, HTMLDivElement>
   const errorId = (): string => `${fieldId()}-error`
   const hintId = (): string => `${fieldId()}-hint`
 
-  const singleChild = (): unknown => {
-    const child = local.children
-    if (Array.isArray(child)) return null
-    return child ?? null
+  // The children as they render now. `children` resolves them once per change,
+  // so the nodes are kept between reads, and it follows children that change (a
+  // `<For>` of fields counts its items, as React counts an array).
+  const resolvedChildren = children(() => local.children as JSX.Element)
+  // The single element React's `isValidElement(children)` clones into, else null.
+  const singleChild = (): Element | null => {
+    const nodes = resolvedChildren.toArray()
+    return nodes.length === 1 && nodes[0] instanceof Element ? nodes[0] : null
   }
 
   // The child's own id wins over the field id (React reads it from the
@@ -231,7 +236,11 @@ export const FormField = withDisplayName<WithRef<FormFieldProps, HTMLDivElement>
     void local.hint
     const target = describedBy()
     const child = singleChild()
-    if (!child || !wrapperRef) return
+    if (!child || !wrapperRef) {
+      // No single child (any more): the label points at the field id, as React's does.
+      setChildId(undefined)
+      return
+    }
     const root =
       wrapperRef.querySelector('input, textarea, select') ??
       ((): Element | null => {
@@ -278,7 +287,7 @@ export const FormField = withDisplayName<WithRef<FormFieldProps, HTMLDivElement>
           {local.label}
         </label>
       </Show>
-      {local.children as JSX.Element}
+      {resolvedChildren()}
       <Show when={local.error}>
         <p id={errorId()} class={cm.formError}>
           {local.error}

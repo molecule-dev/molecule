@@ -91,9 +91,10 @@ async function renderChatPanel(history: ChatMessage[] = []): Promise<HTMLElement
     chat: buildChatProvider(history),
     props: { projectId: 'proj-a11y', agentName: 'Synthase' },
   })
-  await vi.waitFor(() =>
-    expect(mounted?.container.querySelector('[data-mol-chat-input]')).not.toBeNull(),
-  )
+  await vi.waitFor(() => {
+    expect(mounted).not.toBeNull()
+    expect(mounted!.container.querySelector('[data-mol-chat-input]')).not.toBeNull()
+  })
   return mounted.container
 }
 

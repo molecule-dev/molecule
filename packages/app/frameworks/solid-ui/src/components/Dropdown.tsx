@@ -5,6 +5,7 @@
  */
 
 import {
+  children,
   type Component,
   createComputed,
   createEffect,
@@ -19,13 +20,12 @@ import {
   untrack,
 } from 'solid-js'
 
-import { useLocation } from '@molecule/app-solid'
+import { BodyPortal, useLocation } from '@molecule/app-solid'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
-import { BodyPortal } from '../utilities/portal.jsx'
 import { withDisplayName } from './displayName.js'
 
 interface Position {
@@ -236,9 +236,15 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   const menuId = createUniqueId()
   const location = useLocation()
 
-  // Read once: slot children are created per read, and the trigger is a
-  // single static node for the life of the dropdown.
-  const triggerNode = props.trigger
+  // The trigger as it renders now. `children` resolves it once per change, so
+  // the nodes it holds are kept between reads, and it follows a trigger that
+  // changes (a `<Show>` or `<For>` trigger, a list that empties).
+  const resolvedTrigger = children(() => props.trigger as JSX.Element)
+  // The single element React's `isValidElement(trigger)` clones, else null.
+  const triggerElement = (): HTMLElement | null => {
+    const nodes = resolvedTrigger.toArray()
+    return nodes.length === 1 && nodes[0] instanceof HTMLElement ? nodes[0] : null
+  }
 
   // A disabled dropdown never opens, whatever `open` says.
   const isOpen = (): boolean => !props.disabled && (props.open ?? internalOpen())
@@ -499,7 +505,8 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   return (
     <>
       <Show
-        when={triggerNode instanceof Element ? triggerNode : false}
+        when={triggerElement()}
+        keyed
         fallback={
           <div
             ref={(el) => {
@@ -517,13 +524,14 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
             data-testid={props.testId}
             data-mol-id={props.automationId}
           >
-            {triggerNode as JSX.Element}
+            {resolvedTrigger()}
           </div>
         }
       >
         {/* The trigger is a single element the caller rendered; merge the
-            menu-button attributes onto it (see wireClonedTrigger). */}
-        <ClonedTrigger node={triggerNode as HTMLElement} wire={wireClonedTrigger} />
+            menu-button attributes onto it (see wireClonedTrigger), again for
+            each new element. */}
+        {(el) => <ClonedTrigger node={el} wire={wireClonedTrigger} />}
       </Show>
       <Show when={isOpen()}>
         <BodyPortal>

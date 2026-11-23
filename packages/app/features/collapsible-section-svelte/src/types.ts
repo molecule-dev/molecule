@@ -29,9 +29,11 @@ export interface CollapsibleSectionProps {
 }
 
 /** Props accepted by the {@link ShowMore} component. */
-export interface ShowMoreProps {
-  /** Items before truncation — the `children` snippet. */
-  children?: Snippet
+export interface ShowMoreProps<T = unknown> {
+  /** The items before truncation, one entry each (React's `children` array). */
+  items?: T[]
+  /** Renders one entry of `items`. */
+  children?: Snippet<[item: T, index: number]>
   /** Number to show initially. Defaults to 3. */
   initialCount?: number
   /** i18n key for the "Show more" label — receives `{ remaining }`. */

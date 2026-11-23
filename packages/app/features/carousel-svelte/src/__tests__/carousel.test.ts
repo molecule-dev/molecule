@@ -53,6 +53,7 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
 }))
 
 const { default: CarouselHost } = await import('./CarouselHost.svelte')
+const { default: CarouselEachHost } = await import('./CarouselEachHost.svelte')
 
 /**
  * Mounts {@link CarouselHost} — the carousel with a real children snippet — into
@@ -83,6 +84,43 @@ interface Mounted {
   done: () => Promise<void>
 }
 
+/**
+ * Mounts {@link CarouselHost} into jsdom and keeps it live, so a test can
+ * replace the slide list and read the markup again.
+ *
+ * @param props - The component props.
+ * @param slides - How many slides the host renders first.
+ * @returns The live view: the container, a slide-list setter, the markup and the teardown.
+ */
+const live = (props: Record<string, unknown> = {}, slides = 0): LiveView => {
+  const target = document.createElement('div')
+  document.body.appendChild(target)
+  const instance = mount(CarouselHost, { target, props: { props, slides } }) as unknown as {
+    setSlides(next: number[]): void
+  }
+  flushSync()
+  return {
+    target,
+    setSlides: (next) => instance.setSlides(next),
+    markup: () => target.innerHTML,
+    done: async () => {
+      await unmount(instance as never)
+      target.remove()
+    },
+  }
+}
+
+interface LiveView {
+  /** The container the carousel rendered into. */
+  target: HTMLElement
+  /** Replaces the slide list, as an app's own state update does. */
+  setSlides: (next: number[]) => void
+  /** The current markup. */
+  markup: () => string
+  /** Unmounts the component and removes its container. */
+  done: () => Promise<void>
+}
+
 afterEach(() => {
   document.body.innerHTML = ''
 })
@@ -90,8 +128,77 @@ afterEach(() => {
 describe('Carousel', () => {
   it('renders nothing when there are no slides', async () => {
     const view = html({}, 0)
-    expect(view.markup).toBe('')
+    // Svelte's own block anchor (a comment) is all that is left; React renders no element either.
+    expect(view.markup.replace(/<!--.*?-->/g, '')).toBe('')
     await view.done()
+  })
+
+  it('wraps a slide inserted between two others in its own wrapper', async () => {
+    // Regression: the port wrapped the nodes a `children` snippet had already
+    // rendered, so Svelte inserted a new slide relative to a node now inside
+    // another slide's wrapper (or dropped it). Every entry now gets a wrapper
+    // from this component's own `{#each}`.
+    const view = live({}, 3)
+    view.setSlides([0, 9, 1, 2])
+    flushSync()
+    const markup = view.markup()
+
+    expect(markup.split('data-mol-id="carousel-slide"').length - 1).toBe(4)
+    expect(markup.split('data-mol-id="carousel-dot"').length - 1).toBe(4)
+    const order = ['slide-0', 'slide-9', 'slide-1', 'slide-2'].map((text) => markup.indexOf(text))
+    expect(order).toEqual([...order].sort((a, b) => a - b))
+    await view.done()
+  })
+
+  it('reorders the wrappers when a slide moves', async () => {
+    const view = live({}, 3)
+    view.setSlides([2, 0, 1])
+    flushSync()
+    const markup = view.markup()
+
+    expect(markup.split('data-mol-id="carousel-slide"').length - 1).toBe(3)
+    expect(markup.indexOf('slide-2')).toBeLessThan(markup.indexOf('slide-0'))
+    await view.done()
+  })
+
+  it('renders no wrapper when the list empties and wraps a slide again when it refills', async () => {
+    // Regression: the empty render detached the component's root element, so a
+    // later refill re-appended it at the end of the old parent (or nowhere).
+    const view = live({}, 3)
+    view.setSlides([])
+    flushSync()
+    expect(view.markup().replace(/<!--.*?-->/g, '')).toBe('')
+
+    view.setSlides([7])
+    flushSync()
+    const markup = view.markup()
+    expect(markup.split('data-mol-id="carousel-slide"').length - 1).toBe(1)
+    expect(markup).toContain('slide-7')
+    await view.done()
+  })
+
+  it('appears when inserted before an empty carousel in a keyed list', async () => {
+    // Regression: an empty carousel detached its root element, which was the
+    // keyed item's only node, so a carousel inserted before it never rendered.
+    const target = document.createElement('div')
+    document.body.appendChild(target)
+    const instance = mount(CarouselEachHost, {
+      target,
+      props: { groups: [{ id: 'empty', slides: [] }] },
+    }) as unknown as { setGroups(next: { id: string; slides: number[] }[]): void }
+    flushSync()
+
+    instance.setGroups([
+      { id: 'first', slides: [1] },
+      { id: 'empty', slides: [] },
+    ])
+    flushSync()
+    const markup = target.innerHTML
+    expect(markup.split('data-mol-id="carousel-slide"').length - 1).toBe(1)
+    expect(markup).toContain('slide-1')
+
+    await unmount(instance as never)
+    target.remove()
   })
 
   it('renders every slide', async () => {

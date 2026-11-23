@@ -11,13 +11,15 @@
 import { computed, defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: a
  * prop that was given wins (React's single source of truth — a later `null`
  * removes the node, as React does), and the slot is used only while the prop
- * is absent. An absent pair contributes nothing.
+ * is absent. An absent pair contributes nothing. The result is flattened the way React
+ * counts children: a `v-for` slot arrives as one Fragment and a false `v-if` as a
+ * Comment, and `ShowMore` counts and slices the list.
  *
  * @param prop - The prop value, when the caller passed the prop.
  * @param slot - The slot render function, when the caller passed the slot.
@@ -27,9 +29,9 @@ const nodeValue = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): VN
   if (prop !== undefined) {
     if (prop === null) return []
     // A node-valued prop may carry one node or a list of them.
-    return Array.isArray(prop) ? prop : [prop]
+    return toChildArray(prop)
   }
-  if (slot) return slot()
+  if (slot) return toChildArray(slot())
   return []
 }
 

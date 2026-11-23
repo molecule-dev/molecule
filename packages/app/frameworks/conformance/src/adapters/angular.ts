@@ -25,6 +25,9 @@
  *   attributes; a component whose React spread target is not its root moves them.
  * - `children` is the default `<ng-content>`; a node-valued prop `foo` is projected
  *   content selected by `[slot=foo]`.
+ * - A list a `children` step replaces (the children or a slot) is a keyed `@for` over the ids
+ *   the host holds now, whose body is a `@switch` of every node the list ever holds (projected
+ *   content is compiled with the host, so the template holds them all from the start).
  * - A node value inside a data prop (`items[0].icon`) is a `TemplateRef`; a render
  *   function (`columns[0].render`) is a `TemplateRef` whose context holds the
  *   function's arguments (`$implicit` = the first, `args` = all of them).
@@ -43,7 +46,6 @@ import {
   Component,
   type ComponentRef,
   createComponent,
-  type DoCheck,
   ElementRef,
   type EnvironmentProviders,
   inject,
@@ -69,12 +71,17 @@ import {
   buildServices,
   callProbe,
   CallRecorder,
+  changingLists,
+  type ChildLists,
+  childListStates,
   type FnValue,
   type FrameworkAdapter,
+  hasChildSteps,
   interpolate,
   isComponentSpec,
   isProbeSpec,
   materializeProps,
+  nodeIdentity,
   type NodeSpec,
   type ProbeSpec,
   probeValue,
@@ -199,6 +206,62 @@ interface Built {
 /** Whether nodes are rendered inside a render-function template (so `a0`… are in scope). */
 type Scope = 'static' | 'render'
 
+/**
+ * One list of a case with a `children` step (its children, or one slot): every node the list ever
+ * holds, by id, and the host expression that holds the list's ids now.
+ */
+interface ListBlock {
+  /** The host expression of the list's current ids (`c.children`, `c.slots['footer']`). */
+  ids: string
+  /** Every node the list holds at mount or after a step, by id. */
+  nodes: Map<string, NodeSpec>
+}
+
+/** The lists a case's `children` steps replace, which the host renders as `@for` blocks. */
+interface ListBlocks {
+  /** The children, when a step replaces them. */
+  children?: ListBlock
+  /** Every slot a step replaces. */
+  slots: Record<string, ListBlock>
+}
+
+/** The node ids each list holds at one moment of the case (the host's `c`). */
+interface ListIds {
+  children: string[]
+  slots: Record<string, string[]>
+}
+
+/** A node's root element as content projection matches it: its tag and static attributes. */
+interface ProjectedRoot {
+  tag: string
+  attrs: Record<string, string>
+}
+
+/**
+ * Whether an `<ng-content select>` selector matches a projected node's root, as Angular matches
+ * static attributes: a tag, and `[attr]` / `[attr=value]` parts.
+ *
+ * @param selector - One of the component's `ngContentSelectors` (not `*`).
+ * @param root - The node's root.
+ * @returns Whether the node would be projected there.
+ * @throws {Error} For selector syntax this matcher does not read (a class, `:not()`).
+ */
+const projectionMatches = (selector: string, root: ProjectedRoot): boolean =>
+  selector.split(',').some((part) => {
+    const simple = part.trim()
+    const tag = /^[a-z][\w-]*/i.exec(simple)?.[0]
+    const rest = tag ? simple.slice(tag.length) : simple
+    if (rest.replace(/\[[^\]]*\]/g, '').trim())
+      throw new Error(
+        `angular: cannot match the content selector "${selector}" for a children step`,
+      )
+    if (tag && tag.toLowerCase() !== root.tag.toLowerCase()) return false
+    return [...rest.matchAll(/\[([\w-]+)(?:=["']?([^"'\]]*)["']?)?\]/g)].every(
+      ([, name, value]) =>
+        name! in root.attrs && (value === undefined || root.attrs[name!] === value),
+    )
+  })
+
 const argsExpr = `[${Array.from({ length: RENDER_ARGS }, (_v, i) => `a${i}`).join(', ')}]`
 
 /** Registers (once) the `<ng-template>` for a marker and returns its placeholder. */
@@ -225,6 +288,55 @@ const hasTemplates = (value: unknown): boolean => {
   return false
 }
 
+/**
+ * The lists a case's `children` steps replace, as `@for` blocks, and the ids each list holds at
+ * mount and after each step. A node keeps its id while its identity (`nodeIdentity`: its key, or its
+ * position, with its content) stays in the list.
+ *
+ * @param testCase - The case.
+ * @returns No blocks for a case without such a step; otherwise the blocks and one `ListIds` per
+ *   moment (mount, then each `children` step).
+ */
+function listBlocksOf(testCase: UICase): { blocks?: ListBlocks; ids: ListIds[] } {
+  if (!hasChildSteps(testCase)) return { ids: [] }
+  const states = childListStates(testCase)
+  const field = (
+    read: (lists: ChildLists) => NodeSpec[] | undefined,
+    expr: string,
+  ): { block: ListBlock; ids: string[][] } => {
+    const byIdentity = new Map<string, string>()
+    const nodes = new Map<string, NodeSpec>()
+    const ids = states.map((lists) =>
+      (read(lists) ?? []).map((node, index) => {
+        const identity = nodeIdentity(node, index)
+        let id = byIdentity.get(identity)
+        if (id === undefined) {
+          id = `n${byIdentity.size}`
+          byIdentity.set(identity, id)
+          nodes.set(id, node)
+        }
+        return id
+      }),
+    )
+    return { block: { ids: expr, nodes }, ids }
+  }
+  const changing = changingLists(testCase)
+  const children = changing.children ? field((lists) => lists.children, 'c.children') : undefined
+  const slots = [...changing.slots].map(
+    (slot) => [slot, field((lists) => lists.slots[slot], `c.slots['${slot}']`)] as const,
+  )
+  return {
+    blocks: {
+      ...(children ? { children: children.block } : {}),
+      slots: Object.fromEntries(slots.map(([slot, list]) => [slot, list.block])),
+    },
+    ids: states.map((_lists, index) => ({
+      children: children?.ids[index] ?? [],
+      slots: Object.fromEntries(slots.map(([slot, list]) => [slot, list.ids[index]!])),
+    })),
+  }
+}
+
 /** What the adapter needs from `@molecule/app-angular` (the package under test passes the module). */
 export interface AngularBinding extends BindingCaseResets {
   provideAuth(client: AuthClient<Record<string, unknown>>): EnvironmentProviders
@@ -234,6 +346,14 @@ export interface AngularBinding extends BindingCaseResets {
   provideTheme(provider: ThemeProvider): EnvironmentProviders
   /** The renderer rules the ports' components need (`provideMolecule` includes them). */
   provideDomPlacement(): EnvironmentProviders
+  /** Gives `usePlacement` the gate's own moments (the gate lists it in `hostDirectives`). */
+  MolPlacement: Type<unknown>
+  /** Runs the gate's placement function. */
+  usePlacement(place: () => void): void
+  /** Renders the gate's content in front of the gate. */
+  placeContentBefore(capture: Element, sibling: Node): void
+  /** Takes the gate's own element out of the DOM. */
+  setElementPresent(element: Node, present: boolean): void
   /** Auth state; the session gate holds its content until `status` leaves `'loading'`. */
   useAuth(): { status: Signal<AuthStatus> }
   /** The full composition root, for feature cases that mount with every service (`RunOptions.app`). */
@@ -262,12 +382,16 @@ export function createAngularAdapter({
 }: AngularAdapterOptions): FrameworkAdapter {
   const {
     provideAuth,
+    MolPlacement,
+    placeContentBefore,
     provideDomPlacement,
     provideI18n,
     provideMolecule,
     provideRouter,
     provideTheme,
+    setElementPresent,
     useAuth,
+    usePlacement,
   } = binding
 
   const renderNodes = (nodes: NodeSpec[] | undefined, built: Built, scope: Scope): string =>
@@ -351,6 +475,11 @@ export function createAngularAdapter({
     laterProps: Record<string, unknown>[] = [],
     /** A template variable on the component, for the host's ref query (a ref case). */
     templateVariable?: string,
+    /**
+     * A case with a `children` step: the lists its steps replace, as `@for` blocks over the ids
+     * the host holds now, in place of those in `children` and `slots`.
+     */
+    lists?: ListBlocks,
   ): string => {
     const Comp = exportsOf[name]
     if (!isComponent(Comp))
@@ -399,16 +528,106 @@ export function createAngularAdapter({
       else if (DOM_EVENTS[cb]) bindings.push(`(${DOM_EVENTS[cb]})="cb('${cb}', $event)"`)
       else throw new Error(`angular: ${name} has no output ${output} for ${cb}`)
     }
+    const slotContent = (slot: string, content: string): string => {
+      if (!mirror.ngContentSelectors.some((s) => s.includes(slot))) {
+        throw new Error(`angular: ${name} has no <ng-content select="[slot=${slot}]">`)
+      }
+      return `<ng-container ngProjectAs="[slot=${slot}]">${content}</ng-container>`
+    }
+    const changing = lists ?? { slots: {} }
     const projected = [
-      renderNodes(children, built, scope),
-      ...Object.entries(slots).map(([slot, list]) => {
-        if (!mirror.ngContentSelectors.some((s) => s.includes(slot))) {
-          throw new Error(`angular: ${name} has no <ng-content select="[slot=${slot}]">`)
-        }
-        return `<ng-container ngProjectAs="[slot=${slot}]">${renderNodes(list, built, scope)}</ng-container>`
-      }),
+      changing.children
+        ? childrenBlock(name, mirror.ngContentSelectors, changing.children, built)
+        : renderNodes(children, built, scope),
+      ...Object.entries(slots)
+        .filter(([slot]) => !(slot in changing.slots))
+        .map(([slot, list]) => slotContent(slot, renderNodes(list, built, scope))),
+      ...Object.entries(changing.slots).map(([slot, list]) =>
+        slotContent(slot, forBlock(list, built)),
+      ),
     ].join('')
     return `<${tag} ${bindings.join(' ')}>${projected}</${tag}>`
+  }
+
+  /**
+   * A list that changes, as a template whose list changes writes it: a keyed `@for` over the ids
+   * the host holds now, whose body is a `@switch` of every node the list ever holds. Nothing when
+   * the list never holds a node.
+   *
+   * @param list - The list's nodes and ids.
+   * @param built - The template under construction.
+   * @returns The `@for` block.
+   */
+  const forBlock = (list: ListBlock, built: Built): string =>
+    list.nodes.size === 0
+      ? ''
+      : `@for (k of ${list.ids}; track k) {@switch (k) {${[...list.nodes]
+          .map(([id, node]) => `@case ('${id}') {${renderNode(node, built, 'static')}}`)
+          .join('')}}}`
+
+  /**
+   * The root element content projection matches for a node, or null for text (which goes to the
+   * catch-all `<ng-content>`).
+   *
+   * @param node - A node of the case.
+   * @returns Its tag and static attributes.
+   */
+  const projectedRoot = (node: NodeSpec): ProjectedRoot | null => {
+    if (typeof node === 'string') return null
+    if (isProbeSpec(node))
+      return { tag: 'button', attrs: { type: 'button', 'data-parity-probe': node.label } }
+    if (isComponentSpec(node)) {
+      const Comp = exportsOf[node.component]
+      if (!isComponent(Comp)) return null
+      const { tag, attrs } = parseSelector(reflectComponentType(Comp)!.selector)
+      return {
+        tag,
+        attrs: Object.fromEntries(
+          attrs.map((a) => {
+            const [key, value] = a.split('=')
+            return [key!, value === undefined ? '' : value.replace(/^"|"$/g, '')]
+          }),
+        ),
+      }
+    }
+    return { tag: node.tag, attrs: node.attrs ?? {} }
+  }
+
+  /**
+   * The children's `@for` block, projected where its nodes would be. A control-flow block whose
+   * body is not one element is projected into the catch-all `<ng-content>`, so a list whose nodes
+   * a narrower `<ng-content select>` takes is wrapped in `<ng-container ngProjectAs>` with that
+   * selector.
+   *
+   * @param name - The component, for the error.
+   * @param selectors - Its `ngContentSelectors`.
+   * @param list - The children's nodes and ids.
+   * @param built - The template under construction.
+   * @returns The projected block.
+   * @throws {Error} When the nodes would go to more than one place.
+   */
+  const childrenBlock = (
+    name: string,
+    selectors: readonly string[],
+    list: ListBlock,
+    built: Built,
+  ): string => {
+    const block = forBlock(list, built)
+    const narrow = selectors.filter((s) => s !== '*')
+    const places = new Set(
+      [...list.nodes.values()].map((node) => {
+        const root = projectedRoot(node)
+        return (root && narrow.find((s) => projectionMatches(s, root))) ?? '*'
+      }),
+    )
+    if (places.size > 1)
+      throw new Error(
+        `angular: ${name}'s children in a children step would be projected into more than one <ng-content> (${[...places].join(', ')})`,
+      )
+    const [place] = places
+    return place === undefined || place === '*'
+      ? block
+      : `<ng-container ngProjectAs="${attr(place)}">${block}</ng-container>`
   }
 
   /**
@@ -422,6 +641,8 @@ export function createAngularAdapter({
     Component({
       selector: `button[data-parity-probe="${spec.label}"]`,
       standalone: true,
+      // A hook can return a plain value that changes outside Angular: re-read it on every check.
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: text(spec.label),
       host: { '(click)': 'call()', '[attr.data-parity-value]': 'value()' },
     })(
@@ -442,36 +663,35 @@ export function createAngularAdapter({
   /**
    * The mount wrapper for cases with an auth context: holds its content until
    * the auth client has decided the session, exactly like React's reference
-   * mount inside `AuthProvider` (default `awaitSession`). Its host is unwrapped
-   * by the DOM normalizer (`data-parity-unwrap`), so it adds nothing to the
-   * snapshot.
+   * mount inside `AuthProvider` (default `awaitSession`). React's AuthProvider
+   * renders no DOM, so the gate renders its content in its own place and takes
+   * its element out of the DOM: it appears in no snapshot and no `@focus` path.
    */
   const SessionGate = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-session-gate',
     standalone: true,
-    host: { 'data-parity-unwrap': '', style: 'display: contents' },
+    hostDirectives: [MolPlacement],
     template: `@if (decided()) {<ng-content></ng-content>}`,
   })(
-    class MolSessionGate implements DoCheck {
+    class MolSessionGate {
       /** The auth status this gate holds on (`'loading'` renders nothing). */
       readonly status = useAuth().status
-      private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+      constructor() {
+        const host = (inject(ElementRef) as ElementRef<HTMLElement>).nativeElement
+        usePlacement(() => {
+          placeContentBefore(host, host)
+          setElementPresent(host, false)
+        })
+      }
+
       /**
        * Whether the session is decided.
        * @returns True once the status has left `'loading'`.
        */
       decided(): boolean {
         return this.status() !== 'loading'
-      }
-      /**
-       * Adopts the decided content beside the gate, so the gate element never
-       * appears in a `@focus` path (React's AuthProvider renders no DOM).
-       */
-      ngDoCheck(): void {
-        const host = this.host.nativeElement
-        const parent = host.parentNode
-        if (!parent) return
-        for (const node of Array.from(host.childNodes)) parent.insertBefore(node, host)
       }
     },
   )
@@ -509,6 +729,10 @@ export function createAngularAdapter({
         laterProps.push(next)
         for (const k of Object.keys(next)) if (!(k in initialProps)) initialProps[k] = undefined
       }
+      // A case with a `children` step: the template holds every node each list ever holds
+      // (projected content is compiled with the host), and the host's `c` holds each list's ids
+      // at mount and after each step.
+      const { blocks, ids: listIds } = listBlocksOf(testCase)
       const main = renderComponent(
         component,
         initialProps,
@@ -520,6 +744,7 @@ export function createAngularAdapter({
         'static',
         laterProps,
         testCase.ref ? 'parityRef' : undefined,
+        blocks,
       )
       const templates = [...built.templates.values()].sort((a, b) => a.id - b.id)
       // Template refs are visible across the whole view, so `tpls` may name templates defined after it.
@@ -547,11 +772,13 @@ export function createAngularAdapter({
           ...[...built.used].map((n) => exportsOf[n] as Type<unknown>),
           ...built.probes.values(),
         ],
-        changeDetection: ChangeDetectionStrategy.Default,
+        changeDetection: ChangeDetectionStrategy.Eager,
         template,
       })(
         class ConformanceHost {
           p: Record<string, unknown> = initialProps
+          /** The node ids each list of a case with a `children` step holds now. */
+          c: ListIds = listIds[0] ?? { children: [], slots: {} }
           /** The case component's instance, for a ref case. */
           parityRef: unknown = undefined
           np = built.nested
@@ -586,6 +813,7 @@ export function createAngularAdapter({
         },
       ) as Type<{
         p: Record<string, unknown>
+        c: ListIds
         cbFns: Record<string, (...args: unknown[]) => unknown>
         parityRef: unknown
       }>
@@ -594,6 +822,7 @@ export function createAngularAdapter({
       // `routedPage` text, or nothing. Its host is unwrapped like the case's own host, and named
       // after it so no two cases share a definition.
       const routedPage = Component({
+        changeDetection: ChangeDetectionStrategy.Eager,
         selector: 'div[data-parity-routed-page]',
         host: { 'data-parity-unwrap': '', 'data-parity-routed-page': String(hostCount) },
         standalone: true,
@@ -605,6 +834,7 @@ export function createAngularAdapter({
       // registers it, before the host is first compiled: JIT ignores `queries` in `Component()` metadata.
       if (testCase.ref) ViewChild('parityRef')(host.prototype, 'parityRef')
       let stepProps = 0
+      let stepChildren = 0
       try {
         return await runSteps(
           testCase,
@@ -634,8 +864,10 @@ export function createAngularAdapter({
              */
             const show = (
               props: Record<string, unknown>,
+              lists?: ListIds,
             ): ComponentRef<{
               p: Record<string, unknown>
+              c: ListIds
               cbFns: Record<string, (...args: unknown[]) => unknown>
               parityRef: unknown
             }> => {
@@ -643,6 +875,7 @@ export function createAngularAdapter({
                 environmentInjector: appRef.injector,
               })
               created.instance.p = props
+              if (lists) created.instance.c = lists
               container.appendChild(created.location.nativeElement as HTMLElement)
               created.instance.cbFns = Object.fromEntries(spies)
               appRef.attachView(created.hostView)
@@ -688,6 +921,15 @@ export function createAngularAdapter({
                 ref.changeDetectorRef.markForCheck()
                 appRef.tick()
               },
+              setChildren: async () => {
+                // Steps run in order, so the next ids are this step's; written as `setProps` writes `p`.
+                const next = listIds[++stepChildren]
+                if (!next)
+                  throw new Error('angular: a children step the template was not built for')
+                ref.instance.c = next
+                ref.changeDetectorRef.markForCheck()
+                appRef.tick()
+              },
               location: () => {
                 const l = router.getLocation()
                 return `${l.pathname}${l.search}`
@@ -705,9 +947,9 @@ export function createAngularAdapter({
                 ref.destroy()
                 element.remove()
               },
-              // The same application, with the props the destroyed host last had.
+              // The same application, with the props and lists the destroyed host last had.
               remount: async () => {
-                ref = show(ref.instance.p)
+                ref = show(ref.instance.p, ref.instance.c)
               },
               dispose: async () => {
                 appRef.destroy()

@@ -8,6 +8,9 @@
  * - Props keep their React names and React value shapes, including `className`
  *   and a camelCase `style` object (`{ marginTop: '4px' }`).
  * - Node-valued props and `children` are JSX values (here: DOM nodes and strings).
+ * - A list a `children` step replaces (`children` or a node-valued prop) is a `<For>` over the
+ *   list's node identities (`nodeIdentity`), which follows each step; one that only ever holds
+ *   text is the text itself, read when the prop is read.
  * - Callback props keep their React names (`onClick`, `onOpenChange`).
  * - A node value inside a data prop (`items[0].icon`) is a JSX value; a render
  *   function (`columns[0].render`) returns JSX. A render function whose content
@@ -18,7 +21,15 @@
  * @module
  */
 
-import { type Component, createComponent, createRenderEffect, createRoot, type JSX } from 'solid-js'
+import {
+  type Component,
+  createComponent,
+  createRenderEffect,
+  createRoot,
+  createSignal,
+  For,
+  type JSX,
+} from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
 import { insert } from 'solid-js/web'
 
@@ -34,13 +45,19 @@ import {
   buildServices,
   callProbe,
   CallRecorder,
+  changingLists,
+  type ChildLists,
+  childListStates,
   type FrameworkAdapter,
   hasPlaceholder,
+  initialChildLists,
   interpolate,
   interpolateValue,
   isComponentSpec,
   isProbeSpec,
   materializeProps,
+  nextChildLists,
+  nodeIdentity,
   type NodeSpec,
   type ProbeSpec,
   probeValue,
@@ -292,7 +309,53 @@ export function createSolidAdapter({
           for (const k of Object.keys(step.props)) if (!(k in initial)) initial[k] = undefined
       }
       const [props, setProps] = createStore<Record<string, unknown>>(initial)
-      const slotNames = Object.keys(testCase.slots ?? {})
+      // The children and slots the case renders now; a `children` step replaces them. A list a step
+      // replaces goes through `<For>` over its nodes' identities, from mount on, as a consumer whose
+      // list changes writes it (`<Comp><For each={rows()}>…</For></Comp>`); one that only ever holds
+      // text is that text, read when the prop is read (`title={title()}`). Every other list is
+      // passed as the case writes it.
+      const [lists, setLists] = createSignal<ChildLists>(initialChildLists(testCase))
+      const changing = changingLists(testCase)
+      const states = childListStates(testCase)
+      const slotNames = Object.keys(lists().slots)
+      const hasChildren = lists().children !== undefined
+      /**
+       * A list as `<For>` renders it: one entry per node identity, each node built once and kept
+       * while its identity stays in the list.
+       *
+       * @param read - Reads the list's current nodes.
+       * @returns The `<For>` element.
+       */
+      const forList = (read: () => NodeSpec[]): JSX.Element => {
+        const byIdentity = new Map<string, NodeSpec>()
+        return createComponent(For, {
+          get each() {
+            return read().map((node, index) => {
+              const identity = nodeIdentity(node, index)
+              byIdentity.set(identity, node)
+              return identity
+            })
+          },
+          children: (identity: string) =>
+            single(toSolidNodes([byIdentity.get(identity)!])) as JSX.Element,
+        })
+      }
+      /**
+       * One list's value for the component: through `<For>` for a list a step replaces that ever
+       * holds an element or component, else the nodes it holds now.
+       *
+       * @param changes - Whether a `children` step replaces the list.
+       * @param read - Reads the list's nodes from a set of lists.
+       * @returns The JSX value of the prop.
+       */
+      const listValue = (
+        changes: boolean,
+        read: (from: ChildLists) => NodeSpec[] | undefined,
+      ): unknown =>
+        changes &&
+        states.some((state) => (read(state) ?? []).some((node) => typeof node !== 'string'))
+          ? forList(() => read(lists()) ?? [])
+          : single(toSolidNodes(read(lists())))
       // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
       // with no matched child), provided as a routing bond provides one.
       const routedPage = testCase.context?.routedPage
@@ -328,13 +391,14 @@ export function createSolidAdapter({
                       for (const slot of slotNames) {
                         Object.defineProperty(merged, slot, {
                           enumerable: true,
-                          get: () => single(toSolidNodes(testCase.slots?.[slot])),
+                          get: () =>
+                            listValue(changing.slots.has(slot), (from) => from.slots[slot]),
                         })
                       }
-                      if (testCase.children) {
+                      if (hasChildren) {
                         Object.defineProperty(merged, 'children', {
                           enumerable: true,
-                          get: () => single(toSolidNodes(testCase.children)),
+                          get: () => listValue(changing.children, (from) => from.children),
                         })
                       }
                       if (testCase.ref) {
@@ -368,6 +432,9 @@ export function createSolidAdapter({
                     for (const [k, v] of Object.entries(solidProps(next))) draft[k] = v
                   }),
                 )
+              },
+              setChildren: async (step) => {
+                setLists((current) => nextChildLists(current, step))
               },
               location: () => {
                 const l = router.getLocation()

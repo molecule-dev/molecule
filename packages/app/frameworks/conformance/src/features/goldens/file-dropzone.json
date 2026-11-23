@@ -332,6 +332,14 @@
      "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\n⟦Drop files here or click to browse⟧\n</p>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "custom children replace the default copy, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<span data-custom>\nMy uploader\n</span>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<span data-custom>\nMy uploader\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

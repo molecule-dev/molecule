@@ -150,6 +150,7 @@ describe('StorefrontTopNav i18n', () => {
     const glyph = host.querySelector('[data-icon="person"]')
     expect(glyph?.getAttribute('aria-hidden')).toBe('true')
     const trigger = host.querySelector('[data-mol-id="profile-trigger-01"]')
-    expect(trigger?.getAttribute('aria-label')).not.toBe('person')
+    expect(trigger).not.toBeNull()
+    expect(trigger!.getAttribute('aria-label')).not.toBe('person')
   })
 })

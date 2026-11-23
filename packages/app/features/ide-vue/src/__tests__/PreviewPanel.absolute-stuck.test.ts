@@ -295,7 +295,7 @@ describe('PreviewPanel — stale-document auto-recovery', () => {
     await advance(13_000)
     const after = container.querySelector('iframe')
     expect(after).not.toBeNull()
-    expect(after?.src).not.toBe(srcBefore)
+    expect(after!.src).not.toBe(srcBefore)
   })
 
   it('does NOT reload once the app has confirmed a render', async () => {

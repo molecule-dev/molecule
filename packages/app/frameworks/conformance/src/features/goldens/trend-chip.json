@@ -109,6 +109,14 @@
      "<span aria-label=\"▲ 12%\" class=\"c1e8176ab c311bf57c c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n12%\n</span>\n</span>\n@route /"
     ],
     "calls": []
+   },
+   "element prefix with an explicit aria label, then prefix emptied and refilled": {
+    "snapshots": [
+     "<span aria-label=\"up four percent\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003 cef6f5494\" style=\"border-bottom-left-radius: 999px; border-bottom-right-radius: 999px; border-top-left-radius: 999px; border-top-right-radius: 999px; padding-bottom: 2px; padding-left: 6px; padding-right: 6px; padding-top: 2px\">\n<strong>\n+\n</strong>\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /",
+     "<span aria-label=\"up four percent\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003 cef6f5494\" style=\"border-bottom-left-radius: 999px; border-bottom-right-radius: 999px; border-top-left-radius: 999px; border-top-right-radius: 999px; padding-bottom: 2px; padding-left: 6px; padding-right: 6px; padding-top: 2px\">\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /",
+     "<span aria-label=\"up four percent\" class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 cc63f2c4d ccae02ff2 cd9b20003 cef6f5494\" style=\"border-bottom-left-radius: 999px; border-bottom-right-radius: 999px; border-top-left-radius: 999px; border-top-right-radius: 999px; padding-bottom: 2px; padding-left: 6px; padding-right: 6px; padding-top: 2px\">\n<strong>\n+\n</strong>\n<span aria-hidden=\"true\">\n▲\n</span>\n<span>\n4%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

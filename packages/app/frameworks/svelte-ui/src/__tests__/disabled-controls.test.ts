@@ -52,6 +52,7 @@ vi.mock('@molecule/app-icons', () => ({
 }))
 
 const ui = await import('../index.js')
+const { default: DropdownTriggerHost } = await import('./DropdownTriggerHost.svelte')
 
 const mounted: Array<ReturnType<typeof mount>> = []
 const hosts: HTMLElement[] = []
@@ -78,9 +79,6 @@ function show<Props extends Record<string, unknown>>(
   mounted.push(mount(component, { target: host, props }))
   flushSync()
 }
-
-/** A node-valued snippet rendering the given markup. */
-const html = (markup: string): Snippet => createRawSnippet(() => ({ render: () => markup }))
 
 /** A `children` snippet rendering plain text. */
 const text = (value: string): Snippet => createRawSnippet(() => ({ render: () => value }))
@@ -120,10 +118,10 @@ describe('disabled controls', () => {
 
   it('a disabled Dropdown disables its trigger and never opens', () => {
     const onOpenChange = vi.fn()
-    show(ui.Dropdown, {
+    show(DropdownTriggerHost, {
       disabled: true,
       onOpenChange,
-      trigger: html('<button type="button">Options</button>'),
+      label: 'Options',
       items: [{ value: 'a', label: 'A' }],
     })
     const trigger = screen.getByRole('button', { name: 'Options' })

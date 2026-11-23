@@ -80,6 +80,7 @@ function renderStrip(
       ...props,
     },
   }) as Record<string, unknown>
+  flushSync()
 }
 
 describe('DockStrip', () => {

@@ -136,7 +136,8 @@ describe('chat:activity restore and dispatch', () => {
           request.url === '/projects/p1/conversations/c1/activity-cards',
       ),
     ).toBe(true)
-    expect(mounted?.container.querySelector('[data-mol-id="activity-card-act-1"]')).not.toBeNull()
+    expect(mounted).not.toBeNull()
+    expect(mounted!.container.querySelector('[data-mol-id="activity-card-act-1"]')).not.toBeNull()
     expect(mounted?.container.textContent).toContain('Welcome aboard')
   })
 
@@ -160,6 +161,7 @@ describe('chat:activity restore and dispatch', () => {
       ),
     ).toBe(false)
     // The cards still restore and render for the viewer to read.
-    expect(mounted?.container.querySelector('[data-mol-id="activity-card-act-1"]')).not.toBeNull()
+    expect(mounted).not.toBeNull()
+    expect(mounted!.container.querySelector('[data-mol-id="activity-card-act-1"]')).not.toBeNull()
   })
 })

@@ -10,9 +10,10 @@
   import type { Router } from '@molecule/app-routing'
 
   import type { NodeSpec } from '../../ui/index.js'
-  import type { SvelteMoleculeConfig } from '../svelte.js'
+  import type { SvelteListChildren, SvelteMoleculeConfig } from '../svelte.js'
   import { ROUTED_TEXT_KEY } from '../svelte-bindings/routed-text.js'
   import RoutedText from '../svelte-bindings/RoutedText.svelte'
+  import type { ChildListsBag } from './bag.svelte.js'
   import { snippetBuilders } from './snippets.js'
   import Tree from './Tree.svelte'
 
@@ -28,6 +29,8 @@
     bag,
     slots,
     children,
+    live,
+    itemsProp,
     captureRef,
     firstRender,
   }: {
@@ -47,6 +50,14 @@
     bag: { props: Record<string, unknown> }
     slots: Record<string, NodeSpec[]>
     children?: NodeSpec[]
+    /**
+     * Set for a case with a `children` step: its children and slots as they are now. They replace
+     * `children` and `slots`, and each list a step replaces is one snippet for the whole case that
+     * follows it.
+     */
+    live?: ChildListsBag
+    /** Set for a list component: the prop that takes `children` as data, and whether a text child is dropped. */
+    itemsProp?: string | SvelteListChildren
     /** Set for a ref case: receives what the component's bindable `ref` prop holds (`bind:ref`). */
     captureRef?: (el: unknown) => void
     /**
@@ -89,10 +100,46 @@
     untrack(() => callback),
   )
 
+  // A case with a `children` step: one snippet for the whole case per list a step replaces, each
+  // rendering the list the case holds now, as a consumer's `{#each}` inside one snippet does;
+  // every other list as the case writes it.
+  const liveSnippets = untrack(() => {
+    const bag = live
+    if (!bag) return null
+    const out: Record<string, unknown> = {}
+    for (const [slot, list] of Object.entries(bag.lists.slots))
+      out[slot] = bag.changing.slots.has(slot)
+        ? builders.liveSnippetOf(() => bag.lists.slots[slot] ?? [])
+        : builders.snippetOf(list)
+    const now = bag.lists.children
+    if (now !== undefined && !itemsProp)
+      out.children = bag.changing.children
+        ? builders.liveSnippetOf(() => bag.lists.children ?? [])
+        : builders.snippetOf(now)
+    return out
+  })
+
   const nodeProps = $derived.by(() => {
+    if (live && liveSnippets) {
+      const out: Record<string, unknown> = { ...liveSnippets }
+      const now = live.lists.children
+      if (now !== undefined && itemsProp) {
+        // A list component takes the list as data: it follows each step through the prop.
+        const spec = typeof itemsProp === 'string' ? { prop: itemsProp } : itemsProp
+        out[spec.prop] = spec.elementsOnly ? now.filter((node) => typeof node !== 'string') : now
+        out.children = builders.itemSnippet
+      }
+      return out
+    }
     const out: Record<string, unknown> = {}
     for (const [slot, list] of Object.entries(slots)) out[slot] = builders.snippetOf(list)
-    if (children) out.children = builders.snippetOf(children)
+    if (children && itemsProp) {
+      const spec = typeof itemsProp === 'string' ? { prop: itemsProp } : itemsProp
+      out[spec.prop] = spec.elementsOnly
+        ? children.filter((node) => typeof node !== 'string')
+        : children
+      out.children = builders.itemSnippet
+    } else if (children) out.children = builders.snippetOf(children)
     return out
   })
   // Each prop is materialized once and kept while its value is unchanged, as an app keeps

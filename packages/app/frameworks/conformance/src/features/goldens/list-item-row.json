@@ -140,6 +140,30 @@
      "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nInbox\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "leading and actions slots, then leading emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-leading>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\">\n<span data-actions>\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\">\n<span data-actions>\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-leading>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\">\n<span data-actions>\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "leading and actions slots, then actions emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-leading>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\">\n<span data-actions>\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-leading>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\">\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-leading>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575 cfc82911d\">\n<span data-actions>\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title slot node, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\n<span data-title>\nSlotted title\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\n<span data-title>\nSlotted title\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

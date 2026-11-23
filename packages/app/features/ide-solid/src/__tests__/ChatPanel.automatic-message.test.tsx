@@ -209,7 +209,7 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
     expect(autoCard?.style.border).toContain('--mol-color-success')
     expect(autoCard?.style.border).not.toContain('--mol-color-primary')
     // A `sync` glyph renders, and NOT the user's avatar.
-    expect(autoCard?.querySelector('svg'), 'the auto (sync) icon should render').not.toBeNull()
+    expect(autoCard!.querySelector('svg'), 'the auto (sync) icon should render').not.toBeNull()
     expect(autoCard?.querySelector('[data-mol-id="chat-user-avatar"]')).toBeNull()
     expect(autoCard?.querySelector('[data-mol-id="chat-automatic-avatar"]')).toBeNull()
     // The old "Sent automatically" heading is gone — just the message text.
@@ -228,7 +228,7 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
     expect(accentStyle?.textContent).toContain('[data-mol-id="chat-user-message"]::before')
     expect(accentStyle?.textContent).toContain('--mol-color-primary')
     expect(accentStyle?.textContent).toContain('mol-chat-accent-flow')
-    expect(userCard?.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
+    expect(userCard!.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
     expect(userCard?.textContent).not.toContain('Sent automatically')
   })
 

@@ -7,6 +7,8 @@
  * Mapping (the contract this package follows; see the conformance kit README):
  * - Props keep their React names (`variant`, `loading`, `leftIcon`, …).
  * - `children` is the default slot.
+ * - A list a `children` step replaces (the default slot or a named one) returns one Fragment of
+ *   keyed VNodes, what a template's keyed `v-for` compiles to, and follows each step.
  * - A node-valued prop (`leftIcon`, `footer`, …) is passed BOTH as a VNode prop
  *   of the same name and as a named slot of the same name; components accept either.
  * - A callback prop `onFooBar` is a Vue listener: components declare the emit
@@ -22,6 +24,7 @@ import {
   type Component,
   createApp,
   defineComponent,
+  Fragment,
   h,
   nextTick,
   onErrorCaptured,
@@ -47,10 +50,14 @@ import {
   buildServices,
   callProbe,
   CallRecorder,
+  changingLists,
+  type ChildLists,
   type FrameworkAdapter,
+  initialChildLists,
   isComponentSpec,
   isProbeSpec,
   materializeProps,
+  nextChildLists,
   type NodeSpec,
   type ProbeSpec,
   probeValue,
@@ -159,11 +166,25 @@ export function createVueAdapter({
           slots[slot] = () => toVueNodes(nodes)
         }
         if (node.children) slots.default = () => toVueNodes(node.children)
+        if (node.key !== undefined) props.key = node.key
         return h(exportsOf[node.component] as Component, props, slots) as VNode
       }
-      return h(node.tag, { ...(node.attrs ?? {}) }, toVueNodes(node.children)) as VNode
+      return h(
+        node.tag,
+        { ...(node.key === undefined ? {} : { key: node.key }), ...(node.attrs ?? {}) },
+        toVueNodes(node.children),
+      ) as VNode
     })
   }
+
+  /**
+   * A list as a consumer whose list changes renders it: a template's keyed `v-for`, which compiles
+   * to one Fragment holding a VNode per item (the Fragment stays even when the list is empty).
+   *
+   * @param nodes - Neutral nodes.
+   * @returns The slot content: one Fragment.
+   */
+  const vForNodes = (nodes: NodeSpec[]): VNodeChild[] => [h(Fragment, null, toVueNodes(nodes))]
 
   return {
     name: 'vue',
@@ -185,11 +206,27 @@ export function createVueAdapter({
       const shown = ref(true)
       const nodeProps: Record<string, unknown> = {}
       const slots: Record<string, () => VNodeChild[]> = {}
-      for (const [slot, nodes] of Object.entries(testCase.slots ?? {})) {
-        nodeProps[slot] = vueValue(nodes)
-        slots[slot] = () => toVueNodes(nodes)
+      // The children and slots the case renders now; a `children` step replaces them. Each list a
+      // step replaces is passed as a consumer's keyed `v-for` does, from mount on, and read while
+      // the host renders, so a step re-renders the component with the new list; every other list
+      // is passed as the case writes it.
+      const lists = shallowRef<ChildLists>(initialChildLists(testCase))
+      const changing = changingLists(testCase)
+      for (const [slot, nodes] of Object.entries(lists.value.slots)) {
+        if (changing.slots.has(slot)) {
+          const current = (): NodeSpec[] => lists.value.slots[slot] ?? []
+          Object.defineProperty(nodeProps, slot, {
+            enumerable: true,
+            get: () => vueValue(current()),
+          })
+          slots[slot] = () => vForNodes(current())
+        } else {
+          nodeProps[slot] = vueValue(nodes)
+          slots[slot] = () => toVueNodes(nodes)
+        }
       }
-      if (testCase.children) slots.default = () => toVueNodes(testCase.children)
+      if (changing.children) slots.default = () => vForNodes(lists.value.children ?? [])
+      else if (testCase.children) slots.default = () => toVueNodes(testCase.children)
       const listeners: Record<string, unknown> = {}
       for (const name of testCase.callbacks ?? []) listeners[name] = recorder.spy(name)
       /** The case component with its props, slots and listeners — what the mount wrapper hosts. */
@@ -279,6 +316,10 @@ export function createVueAdapter({
               },
               setProps: async (next) => {
                 state.props = { ...state.props, ...vueProps(next) }
+                await nextTick()
+              },
+              setChildren: async (step) => {
+                lists.value = nextChildLists(lists.value, step)
                 await nextTick()
               },
               location: () => {

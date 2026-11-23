@@ -18,6 +18,7 @@ import { describe, expect, it } from 'vitest'
 import { assertConformanceRunBuilt } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import * as allCases from './cases/index.js'
+import { withChildSteps } from './children-step.js'
 import { PSEUDO_LOCALE } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
 import { currentReadable } from './normalize.js'
@@ -177,7 +178,10 @@ export const withoutGoldensGroups = (family: UIComponentCases): UIComponentCases
   return family
 }
 
-/** Every case family, in a stable order, each with its locale-switch and keyed-list cases. */
+/**
+ * Every case family, in a stable order, each with its derived cases: locale switch, keyed lists,
+ * declared props, ref, and (while `CONFORMANCE_CHILDREN_STEP=1`) children changes.
+ */
 export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UIComponentCases[])
   .sort((a, b) => a.component.localeCompare(b.component))
   .map(withoutGoldensGroups)
@@ -185,6 +189,7 @@ export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UI
   .map(withKeyedLists)
   .map(withDeclaredProps)
   .map(withRef)
+  .map(withChildSteps)
 
 /** The React reference results every framework must reproduce. */
 export const uiGoldens: UIGoldens = goldensJson

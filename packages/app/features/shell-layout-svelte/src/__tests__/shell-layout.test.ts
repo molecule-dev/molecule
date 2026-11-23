@@ -66,8 +66,9 @@ describe('AppShellLayout', () => {
       {},
       { header: '<header data-header>Acme</header>', footer: '<footer data-footer>©</footer>' },
     )
-    expect(wrapper?.querySelector('[data-header]')).not.toBeNull()
-    expect(wrapper?.querySelector('[data-footer]')).not.toBeNull()
+    expect(wrapper).not.toBeNull()
+    expect(wrapper!.querySelector('[data-header]')).not.toBeNull()
+    expect(wrapper!.querySelector('[data-footer]')).not.toBeNull()
   })
 
   it('omits header/footer when not supplied', async () => {

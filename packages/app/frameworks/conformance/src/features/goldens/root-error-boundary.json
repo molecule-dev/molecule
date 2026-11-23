@@ -50,6 +50,17 @@
      "App content\n@route /"
     ],
     "calls": []
+   },
+   "several children, then children change": {
+    "snapshots": [
+     "<header>\nAcme\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /",
+     "<header>\nAcme\n</header>\n<header>\nAcme\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /",
+     "<header>\nAcme\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /",
+     "<footer>\n© Acme\n</footer>\n<main>\nMain content\n</main>\n<header>\nAcme\n</header>\n@route /",
+     "\n@route /",
+     "<header>\nAcme\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

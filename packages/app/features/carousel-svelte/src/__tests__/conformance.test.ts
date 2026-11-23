@@ -23,7 +23,11 @@ import * as UI from '@molecule/app-ui-svelte'
 import * as Feature from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: Binding })
+const adapter = createSvelteAdapter({
+  exports: { ...UI, ...Feature },
+  binding: Binding,
+  listChildren: { Carousel: 'items' },
+})
 
 runFeatureConformance('@molecule/app-carousel-react', adapter, {
   module: Feature,

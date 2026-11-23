@@ -88,16 +88,17 @@ describe('UserAvatar — the avatar beside a user message (SOC1)', () => {
     expect((avatar as HTMLElement).tagName).not.toBe('IMG')
     expect(avatar?.getAttribute('role')).toBe('img')
     expect(avatar?.getAttribute('aria-label')).toBe('You')
-    expect(avatar?.querySelector('svg'), 'the fallback renders the user glyph').not.toBeNull()
+    expect(avatar!.querySelector('svg'), 'the fallback renders the user glyph').not.toBeNull()
     expect(host.querySelector('img[data-mol-id="chat-user-avatar"]')).toBeNull()
   })
 
   it("shows a TEAMMATE's initial — never the viewer's own avatar — when the author has none", () => {
     const host = renderAvatar({ name: 'Test' })
     const avatar = host.querySelector('[data-mol-id="chat-user-avatar"]')
+    expect(avatar).not.toBeNull()
     // Not an image at all (the author has none — no avatar leaks onto them),
     // and the tile shows the author's initial with their name as the label.
-    expect((avatar as HTMLElement)?.tagName).not.toBe('IMG')
+    expect((avatar as HTMLElement)!.tagName).not.toBe('IMG')
     expect(host.querySelector('img[data-mol-id="chat-user-avatar"]')).toBeNull()
     expect(avatar?.getAttribute('aria-label')).toBe('Test')
     expect(avatar?.textContent).toBe('T')

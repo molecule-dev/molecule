@@ -231,7 +231,7 @@ export function callProbe(spec: ProbeSpec, result: unknown): void {
 
 /**
  * Lists every component and probe hook one case renders: its root, nested
- * component nodes in children and slots, and node values inside props.
+ * component nodes in children and slots (its `children` steps' too), and node values inside props.
  *
  * @param component - The case family's component.
  * @param testCase - The case.
@@ -250,7 +250,10 @@ export function caseExports(component: string, testCase: UICase): Set<string> {
     else if (value && typeof value === 'object') Object.values(value).forEach(fromProps)
   }
   fromProps(testCase.props)
-  for (const step of testCase.interactions ?? []) if (step.type === 'props') fromProps(step.props)
+  for (const step of testCase.interactions ?? []) {
+    if (step.type === 'props') fromProps(step.props)
+    else if (step.type === 'children') lists.push(step.children, ...Object.values(step.slots ?? {}))
+  }
   for (const list of lists) {
     const used = usedExports(list)
     for (const name of [...used.components, ...used.probes]) names.add(name)

@@ -12,7 +12,7 @@
   import type { Readable } from 'svelte/store'
 
   import Dropdown from '../components/Dropdown.svelte'
-  import type { DropdownItem } from '../types.js'
+  import type { DropdownItem, DropdownTriggerProps } from '../types.js'
 
   let {
     open,
@@ -27,8 +27,8 @@
   } = $props()
 </script>
 
-{#snippet triggerButton()}
-  <button type="button">Actions</button>
+{#snippet triggerButton(props: DropdownTriggerProps)}
+  <button type="button" {...props}>Actions</button>
 {/snippet}
 
 {#if open}

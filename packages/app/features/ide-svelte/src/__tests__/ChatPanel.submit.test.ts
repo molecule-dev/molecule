@@ -372,7 +372,7 @@ describe('ChatPanel chat:submit slice', () => {
     await submit.handleSubmit()
     expect(sends).toHaveLength(1)
     expect(sends[0]?.message).toBe('Build the header')
-    expect(sends[0]?.attachments).toBeUndefined()
+    expect(sends[0]!.attachments).toBeUndefined()
     expect(ctx.composer.inputRef.current).toBe('')
     expect(ctx.composer.hasInput).toBe(false)
     expect(requests).toEqual([])

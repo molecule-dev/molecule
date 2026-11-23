@@ -270,7 +270,9 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     // stays revealed.
     await wait(5000)
     expect(q(container, 'preview-blank-notice')).toBeNull()
-    expect(currentIframe(container)?.style.visibility).not.toBe('hidden')
+    const iframeAfter = currentIframe(container)
+    expect(iframeAfter).not.toBeNull()
+    expect(iframeAfter!.style.visibility).not.toBe('hidden')
   }, 18_000)
 
   it('a click intent for an app route does not certify a blank reload', async () => {

@@ -155,6 +155,14 @@
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "children inside the stack, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "ListingCardActions": {
@@ -212,6 +220,14 @@
    "renders its children, then a locale switch": {
     "snapshots": [
      "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n</button>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its children, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n</button>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n@route /",
      "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n</button>\n</div>\n@route /"
     ],
     "calls": []
@@ -312,6 +328,38 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-title>\nSea view\n</strong>\n</h3>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n</h3>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-title>\nSea view\n</strong>\n</h3>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle as a node, then subtitle emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n<em data-subtitle>\nDowntown\n</em>\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n<em data-subtitle>\nDowntown\n</em>\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "price as a node, then price emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n<span data-price>\n$120\n</span>\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n<span data-price>\n$120\n</span>\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "meta row, then meta emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -436,6 +484,22 @@
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt=\"a photo\" src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "children replace the image, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n</video>\n</div>\n@route /",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n</div>\n@route /",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n</video>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the overlay node renders over the media, then overlay emptied and refilled": {
+    "snapshots": [
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n</div>\n</div>\n@route /",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "ListingGrid": {
@@ -535,6 +599,17 @@
    "renders its children, then a locale switch": {
     "snapshots": [
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its children, then children change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"b\">\nB\n</div>\n<div data-card=\"a\">\nA\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n</div>\n@route /",
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
     ],
     "calls": []

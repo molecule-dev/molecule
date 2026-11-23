@@ -150,13 +150,13 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     hover(back.parentElement as HTMLElement)
     expect(tooltip()?.textContent).toBe(fr['ide.preview.back'])
     // The pre-fix bug: with the key absent, the default English "Back" rendered.
-    expect(tooltip()?.textContent).not.toBe('Back')
+    expect(tooltip()!.textContent).not.toBe('Back')
     unhover(back.parentElement as HTMLElement)
     await vi.waitFor(() => expect(tooltip()).toBeNull())
 
     hover(forward.parentElement as HTMLElement)
     expect(tooltip()?.textContent).toBe(fr['ide.preview.forward'])
-    expect(tooltip()?.textContent).not.toBe('Forward')
+    expect(tooltip()!.textContent).not.toBe('Forward')
     unhover(forward.parentElement as HTMLElement)
   })
 
@@ -217,7 +217,7 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
 
     // The title is the commit label (click = commit now), resolved from the bond.
     expect(badge?.getAttribute('title')).toBe(fr['ide.chat.commit'])
-    expect(badge?.getAttribute('title')).not.toBe('Commit')
+    expect(badge!.getAttribute('title')).not.toBe('Commit')
 
     // The visible text + aria-label interpolate the live countdown into the
     // BONDED template — this only works because the inline default was
@@ -302,7 +302,7 @@ describe('IDE chat/activity i18n debt closed (cross-cutting-i18n, final wave)', 
     expect(status.textContent?.trim()).toBe(fr['ide.chat.streaming.thinking'])
     expect(status.getAttribute('aria-label')).toBe(fr['ide.chat.streaming.thinking'])
     // The pre-fix bug: with the key absent, the English "Synthesizing..." rendered.
-    expect(status.textContent?.trim()).not.toBe('Synthesizing...')
+    expect(status.textContent!.trim()).not.toBe('Synthesizing...')
   })
 
   it('translates the human chat/help/report copy (not stuck on the English default)', () => {
@@ -465,7 +465,7 @@ describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)'
       fr['ide.tests.runAll'],
     )
     // The pre-fix bug: with the key absent, the English default would render.
-    expect(container.querySelector('[data-mol-id="tests-card-run-all"]')?.textContent).not.toBe(
+    expect(container.querySelector('[data-mol-id="tests-card-run-all"]')!.textContent).not.toBe(
       'Run all',
     )
     expect(

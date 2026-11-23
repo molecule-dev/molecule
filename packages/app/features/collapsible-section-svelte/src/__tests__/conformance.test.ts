@@ -23,7 +23,11 @@ import * as UI from '@molecule/app-ui-svelte'
 import * as Feature from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: Binding })
+const adapter = createSvelteAdapter({
+  exports: { ...UI, ...Feature },
+  binding: Binding,
+  listChildren: { ShowMore: 'items' },
+})
 
 runFeatureConformance('@molecule/app-collapsible-section-react', adapter, {
   module: Feature,

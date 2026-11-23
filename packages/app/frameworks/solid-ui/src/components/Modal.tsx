@@ -6,12 +6,11 @@
 
 import { createEffect, createUniqueId, type JSX, on, onCleanup, Show, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { BodyPortal, useTranslation } from '@molecule/app-solid'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
-import { BodyPortal } from '../utilities/portal.jsx'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { withDisplayName } from './displayName.js'
 

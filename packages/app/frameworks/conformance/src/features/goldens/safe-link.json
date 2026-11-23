@@ -171,6 +171,14 @@
      "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard"
     ],
     "calls": []
+   },
+   "a link to another path keeps it, then children emptied and refilled": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings\">\n</a>\n@route /dashboard",
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard"
+    ],
+    "calls": []
    }
   }
  }

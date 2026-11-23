@@ -119,6 +119,16 @@
  * >{$favorite.count}</button>
  * ```
  *
+ * @example
+ * ```svelte
+ * <!-- PortaledNode.svelte — content in document.body, exactly as React renders it -->
+ * <script lang="ts">
+ *   import { BodyPortal } from '@molecule/app-svelte'
+ * </script>
+ *
+ * <BodyPortal><div role="dialog">…</div></BodyPortal>
+ * ```
+ *
  * Session state is a three-way decision, not a boolean: `status === 'loading'`
  * is undecided, so wait for it and redirect only on
  * `status === 'unauthenticated'`; `'unavailable'` keeps the session candidate
@@ -138,11 +148,16 @@
  * - In-app links are `Link` (`<Link to="/settings">`): it navigates through the router with
  *   react-router `<Link>`'s click rules. A hand-written click handler that calls `navigate()`
  *   breaks ctrl/cmd-click (new tab) unless it repeats those rules.
+ * - `BodyPortal` is React's `createPortal(children, document.body)` for Svelte: Svelte itself
+ *   renders the content in the target (a nested `mount`), so no node is moved after Svelte
+ *   placed it. Nothing renders on the server; `target` replaces the body and `null` renders
+ *   nothing until a target exists.
  *
  * @module
  */
 
 export * from './agent-identity.js'
+export * from './components/index.js'
 export * from './context.js'
 export * from './hooks/index.js'
 export * from './link/index.js'

@@ -35,12 +35,20 @@ export interface ElementSpec {
   attrs?: Record<string, string>
   /** Child nodes. */
   children?: NodeSpec[]
+  /**
+   * React `key` of this node among its siblings; the other frameworks track it by the same key (a
+   * keyed `v-for`, `{#each}`, `<For>`, `@for`). In one list every element and component node has a
+   * key or none does, and no two share one.
+   */
+  key?: string
 }
 
 /** A component exported by the UI package under test (same name in every framework). */
 export interface ComponentSpec {
   /** Export name (`CardHeader`). */
   component: string
+  /** React `key` of this node among its siblings, as {@link ElementSpec.key}. */
+  key?: string
   /** Neutral data props. */
   props?: Record<string, unknown>
   /** Default children. */
@@ -225,6 +233,14 @@ export type Interaction =
   | { type: 'advance'; ms: number }
   /** Re-renders with these props merged over the current ones. */
   | { type: 'props'; props: Record<string, unknown> }
+  /**
+   * Re-renders with these children and slots in place of the current ones, as a consumer whose
+   * list changed. A field the step omits keeps its nodes; a slot the step omits keeps its nodes.
+   * Nodes keep their identity by `key` ({@link ElementSpec.key}). From mount, a case with this
+   * step passes its children and every slot it or a step names the way such a consumer does (a
+   * keyed `v-for`, `{#each}`, `<For>`, `@for`), `[]` where it starts with none.
+   */
+  | { type: 'children'; children?: NodeSpec[]; slots?: Record<string, NodeSpec[]> }
   /** Settles the oldest pending call of a callback listed with `defer` in {@link UICase.callbackResults}. */
   | { type: 'settle'; callback: string; value?: unknown; error?: string }
   /**

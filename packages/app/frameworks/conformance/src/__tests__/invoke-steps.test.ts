@@ -43,6 +43,7 @@ const handleComponent = (recorder: CallRecorder) => {
     return {
       flush: settle,
       setProps: async () => register(),
+      setChildren: async () => undefined,
       location: () => '/page',
       navigate: () => undefined,
       unmount: async () => node.remove(),

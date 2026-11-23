@@ -35,6 +35,7 @@ import { registerHookFamilies } from '../bindings/run.js'
 import { buildBindingServices } from '../bindings/services.js'
 import type { BindingAdapter, BindingContext } from '../bindings/spec.js'
 import { assertConformanceRunBuilt } from '../build-freshness.js'
+import { withChildSteps } from '../ui/children-step.js'
 import { installRandomSources } from '../ui/globals.js'
 import { installDomGaps } from '../ui/page.js'
 import {
@@ -52,7 +53,8 @@ const here = dirname(fileURLToPath(import.meta.url))
 
 /**
  * One feature's cases as every runner sees them: families and hooks sorted, each
- * family with its derived cases (the pseudo-locale switch, keyed-list reorders).
+ * family with its derived cases (the pseudo-locale switch, keyed-list reorders, and while
+ * `CONFORMANCE_CHILDREN_STEP=1` children changes).
  *
  * @param feature - The cases as written in `cases/<feature>.ts`.
  * @returns The cases the recorder and every framework run.
@@ -63,7 +65,8 @@ export function featureCaseSet(feature: FeatureCases): FeatureCases {
     families: [...feature.families]
       .sort((a, b) => a.component.localeCompare(b.component))
       .map(withLocaleSwitch)
-      .map(withKeyedLists),
+      .map(withKeyedLists)
+      .map(withChildSteps),
     ...(feature.hooks
       ? { hooks: [...feature.hooks].sort((a, b) => a.hook.localeCompare(b.hook)) }
       : {}),

@@ -72,7 +72,7 @@ vi.mock('@molecule/app-icons', () => ({
   getIcon: () => ({ viewBox: '0 0 20 20', fill: 'currentColor', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
 
-import { type Component, mount, unmount } from 'svelte'
+import { type Component, flushSync, mount, unmount } from 'svelte'
 
 const { default: ConfirmDialog } = await import('../components/ConfirmDialog.svelte')
 const { default: PromptDialog } = await import('../components/PromptDialog.svelte')
@@ -97,6 +97,7 @@ function mountComponent(
   document.body.appendChild(host)
   hosts.push(host)
   mounted.push(mount(component, { target: host, props }))
+  flushSync()
 }
 
 describe('dialog and drawer accessible names', () => {

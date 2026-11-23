@@ -136,6 +136,14 @@
      "<button aria-label=\"⟦Help⟧\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
+   },
+   "custom icon, then icon emptied and refilled": {
+    "snapshots": [
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span data-icon>\n!\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span data-icon>\n!\n</span>\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

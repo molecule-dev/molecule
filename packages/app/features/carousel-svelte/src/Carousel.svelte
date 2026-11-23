@@ -5,17 +5,16 @@
   callbacks.
 
   React maps its `children` array to one wrapper `<div>` per slide. A Svelte
-  snippet renders its nodes into the live DOM and exposes no count, so the
-  wrappers are applied to the rendered nodes in `syncSlides` (an effect): each
-  projected node moves into its own wrapper, the count comes from the wrappers,
-  and re-running the effect keeps `aria-hidden` current. The children render
-  once, at mount — the same single render React gives them.
+  snippet is opaque (it has no count and gives no access to one child), so the
+  list is data: `items` holds one entry per slide and the `children` snippet
+  renders one entry. This component's own `{#each}` renders the wrappers, so
+  Svelte places every node and nothing is moved after it rendered.
 
   The markup is written without whitespace between sibling elements, and is
   `prettier-ignore`d to stay that way: React renders no text nodes between the
   arrows or the dots, while Svelte keeps a template's indentation as text nodes.
 -->
-<script lang="ts">
+<script lang="ts" generics="T">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
@@ -23,6 +22,7 @@
   import type { CarouselProps } from './types.js'
 
   let {
+    items = [],
     children,
     index,
     onChange,
@@ -32,7 +32,7 @@
     pauseOnHover = true,
     loop = true,
     className,
-  }: CarouselProps = $props()
+  }: CarouselProps<T> = $props()
 
   // Arrow offsets + vertical centering, exactly as React writes them: the
   // ClassMap contract exposes no left/right/top or translate resolver (only
@@ -57,17 +57,10 @@
   // React's `useState(0)` / `useState(false)`.
   let internal = $state(0)
   let hovered = $state(false)
-  /** How many slides the children rendered — React's `children.length`. */
-  let count = $state(0)
+  /** React's `children.length`. */
+  const count = $derived(items.length)
   /** React's `const active = index ?? internal`. */
   const active = $derived(index ?? internal)
-
-  let root: HTMLElement | undefined = $state()
-  let track: HTMLElement | undefined = $state()
-  /** The slide wrappers, in rendered order (plain DOM state, not reactive). */
-  const wrappers: HTMLElement[] = []
-  /** Where the root sat before a no-slides render detached it. */
-  let rootParent: Node | null = null
 
   /**
    * Moves to an index, clamping or wrapping exactly as React's `setIdx` does,
@@ -82,43 +75,19 @@
   }
 
   /**
-   * Wraps each rendered slide in its React wrapper `<div>` and keeps every
-   * wrapper's `aria-hidden` and width in step with the active index.
+   * One slide wrapper's inline style, written through the CSSOM as React writes it.
+   *
+   * @param node - The wrapper.
+   * @param total - The slide count.
+   * @returns The action's update hook.
    */
-  function syncSlides(): void {
-    const el = track
-    if (!el) return
-    for (const child of Array.from(el.childNodes)) {
-      if (wrappers.includes(child as HTMLElement)) continue
-      // Svelte anchors a snippet block with comment nodes (React renders none,
-      // and the conformance normalizer strips them) and the template's own
-      // indentation leaves whitespace-only text nodes beside those anchors.
-      if (child.nodeType === Node.COMMENT_NODE) continue
-      if (child.nodeType === Node.TEXT_NODE && (child.textContent ?? '').trim() === '') continue
-      const wrapper = document.createElement('div')
-      wrapper.setAttribute('data-mol-id', 'carousel-slide')
-      el.insertBefore(wrapper, child)
-      wrapper.appendChild(child)
-      wrappers.push(wrapper)
+  function slideStyle(node: HTMLElement, total: number): { update(next: number): void } {
+    const apply = (next: number): void => {
+      node.style.width = `${100 / next}%`
+      node.style.flexShrink = '0'
     }
-    const total = wrappers.length
-    count = total
-    for (const [i, wrapper] of wrappers.entries()) {
-      wrapper.setAttribute('aria-hidden', i === active ? 'false' : 'true')
-      wrapper.style.width = total === 0 ? '0%' : `${100 / total}%`
-      wrapper.style.flexShrink = '0'
-    }
-    // React returns `null` without slides, so no root element is in the page.
-    const host = root
-    if (!host) return
-    if (total === 0) {
-      if (host.isConnected) {
-        rootParent = host.parentNode
-        host.remove()
-      }
-    } else if (!host.isConnected && rootParent) {
-      rootParent.appendChild(host)
-    }
+    apply(total)
+    return { update: apply }
   }
 
   /** The track's inline style — React's flex track, translated to the active slide. */
@@ -162,13 +131,6 @@
     }
   }
 
-  // The slide wrappers, the count and the aria-hidden flags follow the
-  // rendered children and the active index.
-  $effect(() => {
-    void active
-    syncSlides()
-  })
-
   // React's autoplay effect: an interval that advances by one and restarts on
   // every change of the index, the interval, the hover state or the prop
   // values `setIdx` closes over (React lists `setIdx` itself as a dependency).
@@ -184,14 +146,13 @@
 </script>
 
 <!-- prettier-ignore -->
-<div
-  bind:this={root}
+{#if count > 0}<div
   class={cm.cn(cm.position('relative'), className)}
   use:hoverState={(over): void => {
     hovered = over
   }}
 >
-  <div style="overflow: hidden"><div bind:this={track} style={trackStyle}>{#if children}{@render children()}{/if}</div></div>
+  <div style="overflow: hidden"><div style={trackStyle}>{#each items as item, i (i)}<div data-mol-id="carousel-slide" aria-hidden={i === active ? 'false' : 'true'} use:slideStyle={count}>{@render children?.(item, i)}</div>{/each}</div></div>
   {#if showArrows && count > 1}<Button variant="ghost" size="sm" onclick={() => setIdx(active - 1)} aria-label={t('carousel.previous', {}, { defaultValue: 'Previous' })} className={cm.position('absolute')} style={arrowLeftStyle}>‹</Button><Button variant="ghost" size="sm" onclick={() => setIdx(active + 1)} aria-label={t('carousel.next', {}, { defaultValue: 'Next' })} className={cm.position('absolute')} style={arrowRightStyle}>›</Button>{/if}
   {#if showDots && count > 1}<div class={cm.cn(cm.flex({ align: 'center', justify: 'center', gap: 'xs' }), cm.sp('py', 2))}>{#each Array.from({ length: count }, (_, i) => i) as i (i)}<button type="button" data-mol-id="carousel-dot" data-active={i === active ? 'true' : 'false'} aria-label={t('carousel.goToSlide', { index: i + 1 }, { defaultValue: 'Go to slide {{index}}' })} aria-current={i === active ? 'true' : undefined} onclick={() => setIdx(i)} class={cm.cn(cm.cursorPointer, cm.touchTargetCompact, cm.flex({ align: 'center', justify: 'center' }))} style={dotStyle}><span aria-hidden="true" style={dotFill(i)}></span></button>{/each}</div>{/if}
-</div>
+</div>{/if}

@@ -241,4 +241,47 @@ describe('WorkspaceLayout resize sash (PV6)', () => {
     expect(panelId).toBe('chat')
     expect(size).toBeCloseTo(27.4, 5)
   })
+
+  it('wraps a pane that appears after mount and adds its divider', () => {
+    // Regression: the port moved the panes the `children` snippet had already
+    // rendered into wrappers, so a pane that appeared later landed in the row
+    // unwrapped and got no divider. The component now renders one wrapper (and
+    // the divider that follows it) per entry in its own `{#each}`.
+    if (instance) {
+      unmount(instance)
+      instance = null
+    }
+    document.body.innerHTML = ''
+    const root = document.createElement('div')
+    document.body.appendChild(root)
+    const mounted = mount(WorkspaceLayoutHost, {
+      target: root,
+      props: { workspace: buildStubProvider(vi.fn()) },
+    })
+    instance = mounted
+    container = root
+    flushSync()
+
+    ;(mounted as unknown as { setPanes(next: string[]): void }).setPanes([
+      'chat',
+      'main',
+      'preview',
+    ])
+    flushSync()
+
+    const panes = Array.from(root.querySelectorAll('[data-testid$="-pane"]')) as HTMLElement[]
+    expect(panes.map((pane) => pane.getAttribute('data-testid'))).toEqual([
+      'chat-pane',
+      'main-pane',
+      'preview-pane',
+    ])
+    // Every pane sits inside its own wrapper, one per pane, directly in the row.
+    const wrappers = new Set(panes.map((pane) => pane.parentElement))
+    expect(wrappers.size).toBe(3)
+    for (const wrapper of wrappers) {
+      expect(wrapper?.getAttribute('data-workspace-layout')).toBeNull()
+      expect(wrapper?.parentElement?.hasAttribute('data-workspace-layout')).toBe(true)
+    }
+    expect(root.querySelectorAll('[data-mol-id="workspace-resize-handle"]')).toHaveLength(2)
+  })
 })

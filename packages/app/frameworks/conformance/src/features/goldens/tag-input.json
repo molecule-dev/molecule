@@ -98,6 +98,14 @@
      "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /"
     ],
     "calls": []
+   },
+   "plain label, then children emptied and refilled": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8d3cd30e c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nreact\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
    }
   },
   "TagInput": {

@@ -136,7 +136,8 @@ async function renderChatPanel(): Promise<HTMLElement> {
     props: { agentName: 'Synthase' },
   })
   await vi.waitFor(() => {
-    expect(panel?.container.querySelector('[data-mol-chat-input]')).not.toBeNull()
+    expect(panel).not.toBeNull()
+    expect(panel!.container.querySelector('[data-mol-chat-input]')).not.toBeNull()
   })
   return panel.container
 }

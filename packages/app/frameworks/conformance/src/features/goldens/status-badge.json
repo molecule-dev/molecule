@@ -128,6 +128,22 @@
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /"
     ],
     "calls": []
+   },
+   "ui appearance by default, then children emptied and refilled": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance with an icon, then icon emptied and refilled": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
    }
   },
   "StatusPill": {
@@ -208,6 +224,14 @@
    "default dot and neutral, then a locale switch": {
     "snapshots": [
      "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "default dot and neutral, then children emptied and refilled": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n</span>\n@route /",
      "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
     ],
     "calls": []

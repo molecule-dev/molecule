@@ -338,6 +338,14 @@
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<button data-child>\ninbox\n</button>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /"
     ],
     "calls": []
+   },
+   "renders its child, then children emptied and refilled": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<button data-child>\ninbox\n</button>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<button data-child>\ninbox\n</button>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

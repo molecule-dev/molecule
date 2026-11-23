@@ -292,6 +292,14 @@
      "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details data-conformance-mark=\"1\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align-all: right; text-align-last: auto; width: 48px\">\n10:01\n</span>\n<span class=\"c0d4608b5 cc63f2c4d\" style=\"border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-top-left-radius: 4px; border-top-right-radius: 4px; display: inline-block; font-weight: 700; min-width: 48px; padding-bottom: 0px; padding-left: 6px; padding-right: 6px; padding-top: 0px; text-align-all: center; text-align-last: auto; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n<details data-conformance-mark=\"0\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align-all: right; text-align-last: auto; width: 48px\">\n10:00\n</span>\n<span class=\"cc63f2c4d cef6f5494\" style=\"border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-top-left-radius: 4px; border-top-right-radius: 4px; display: inline-block; font-weight: 700; min-width: 48px; padding-bottom: 0px; padding-left: 6px; padding-right: 6px; padding-top: 0px; text-align-all: center; text-align-last: auto; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "no entries with an empty state, then emptyState emptied and refilled": {
+    "snapshots": [
+     "<p data-empty>\nNo logs\n</p>\n@route /",
+     "\n@route /",
+     "<p data-empty>\nNo logs\n</p>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

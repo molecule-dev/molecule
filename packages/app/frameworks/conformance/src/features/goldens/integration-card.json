@@ -251,6 +251,30 @@
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\n⟦Not connected⟧\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "an icon, then icon emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node title, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title, description and icon, then description emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<p class=\"c445db9b9\">\n<em data-node=\"description\">\nTeam notifications\n</em>\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<p class=\"c445db9b9\">\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<p class=\"c445db9b9\">\n<em data-node=\"description\">\nTeam notifications\n</em>\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

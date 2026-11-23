@@ -7,12 +7,11 @@
   react to Escape and Tab, and reference-counts the body scroll lock.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { BodyPortal, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import {
-    bodyPortal,
     getFocusableElements,
     isTopOfModalStack,
     lockBodyScroll,
@@ -142,60 +141,61 @@
 
 {#if open}
   <!-- Overlay background -->
-  <div class={cm.dialogOverlay} aria-hidden="true" use:bodyPortal></div>
+  <BodyPortal><div class={cm.dialogOverlay} aria-hidden="true"></div></BodyPortal>
 
   <!-- Centering wrapper. `centered` has no ClassMap resolver option, so a
        top-anchored layout is the one inline-style exception the styling rule
        allows (same as React). -->
-  <div
-    class={cm.dialogWrapper}
-    use:reactStyle={centered ? undefined : { alignItems: 'flex-start' }}
-    role="presentation"
-    onclick={handleOverlayClick}
-    use:bodyPortal
-  >
-    <div
-      bind:this={ref}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={title ? instanceId : undefined}
-      tabindex={-1}
-      class={cm.cn(cm.modal({ size }), className)}
-      use:reactStyle={style}
-      data-testid={testId}
-      {...attributes}
-      use:spreadEvents={rest}
+  <BodyPortal
+    ><div
+      class={cm.dialogWrapper}
+      use:reactStyle={centered ? undefined : { alignItems: 'flex-start' }}
+      role="presentation"
+      onclick={handleOverlayClick}
     >
-      {#if title}
-        <div class={cm.dialogHeader}>
-          <h2 id={instanceId} class={cm.dialogTitle}><ReactNode node={title} /></h2>
-          {#if showCloseButton}
-            <button
-              type="button"
-              onclick={onClose}
-              class={cm.dialogClose}
-              data-mol-id="modal-close"
-              aria-label={resolvedCloseLabel}
-            >
-              <IconGlyph name="x-mark" className={cm.iconMd} />
-            </button>
-          {/if}
-        </div>
-      {:else if showCloseButton}
-        <button
-          type="button"
-          onclick={onClose}
-          class={cm.dialogCloseFloating}
-          data-mol-id="modal-close"
-          aria-label={resolvedCloseLabel}
-        >
-          <IconGlyph name="x-mark" className={cm.iconMd} />
-        </button>
-      {/if}
+      <div
+        bind:this={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? instanceId : undefined}
+        tabindex={-1}
+        class={cm.cn(cm.modal({ size }), className)}
+        use:reactStyle={style}
+        data-testid={testId}
+        {...attributes}
+        use:spreadEvents={rest}
+      >
+        {#if title}
+          <div class={cm.dialogHeader}>
+            <h2 id={instanceId} class={cm.dialogTitle}><ReactNode node={title} /></h2>
+            {#if showCloseButton}
+              <button
+                type="button"
+                onclick={onClose}
+                class={cm.dialogClose}
+                data-mol-id="modal-close"
+                aria-label={resolvedCloseLabel}
+              >
+                <IconGlyph name="x-mark" className={cm.iconMd} />
+              </button>
+            {/if}
+          </div>
+        {:else if showCloseButton}
+          <button
+            type="button"
+            onclick={onClose}
+            class={cm.dialogCloseFloating}
+            data-mol-id="modal-close"
+            aria-label={resolvedCloseLabel}
+          >
+            <IconGlyph name="x-mark" className={cm.iconMd} />
+          </button>
+        {/if}
 
-      <div class={cm.dialogBody}>{@render children?.()}</div>
+        <div class={cm.dialogBody}>{@render children?.()}</div>
 
-      {#if footer}<div class={cm.dialogFooter}><ReactNode node={footer} /></div>{/if}
-    </div>
-  </div>
+        {#if footer}<div class={cm.dialogFooter}><ReactNode node={footer} /></div>{/if}
+      </div>
+    </div></BodyPortal
+  >
 {/if}

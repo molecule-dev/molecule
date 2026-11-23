@@ -11,7 +11,9 @@
  * target size and visibility rules would report nothing true. A violation the case's
  * own input causes on purpose (an empty label it passes, a bare `<img>` it hands a
  * slot) is declared on that case as `a11y: { expect: [rule], reason }`; a declared rule
- * that no snapshot breaks fails too, so a declaration cannot outlive its cause.
+ * that no snapshot breaks fails too, so a declaration cannot outlive its cause. A snapshot
+ * taken while a `children` step has emptied a list the case mounted with nodes in is
+ * not held to the accessible-name rules: what took its name from that list has none.
  *
  * Found 2026-11-16: 34 feature goldens and 9 UI components broke these rules, among
  * them a reorderable list whose rows became `option`s and hid their move buttons.
@@ -31,6 +33,7 @@ import {
   loadFeatureGoldens,
 } from '../features/index.js'
 import { featureCaseFileNames, loadFeatureCases } from '../features/load.js'
+import { snapshotsWithEmptiedList } from '../ui/children-step.js'
 import { uiCaseFamilies, uiGoldens } from '../ui/run.js'
 import type { CaseResult, UIComponentCases } from '../ui/spec.js'
 
@@ -71,6 +74,23 @@ const RULES = [
   'select-name',
   'svg-img-alt',
 ]
+
+/** The rules among {@link RULES} that an element without an accessible name breaks. */
+const NAME_RULES = new Set([
+  'aria-command-name',
+  'aria-dialog-name',
+  'aria-input-field-name',
+  'aria-meter-name',
+  'aria-progressbar-name',
+  'aria-toggle-field-name',
+  'aria-tooltip-name',
+  'aria-treeitem-name',
+  'button-name',
+  'input-button-name',
+  'label',
+  'link-name',
+  'select-name',
+])
 
 /**
  * A recorded snapshot as HTML: the recorder appends its own `@route …`, `@scroll …`,
@@ -153,14 +173,21 @@ async function familyProblems(
   for (const kase of family.cases) {
     const snapshots = results?.[kase.name]?.snapshots
     if (!snapshots?.length) continue
+    const emptied = snapshotsWithEmptiedList(kase)
     const found = new Map<string, string>()
-    for (const snapshot of snapshots) {
+    for (const [index, snapshot] of snapshots.entries()) {
       let checked = seen.get(snapshot)
       if (!checked) {
         checked = await violations(snapshot, signal)
         seen.set(snapshot, checked)
       }
-      for (const [rule, html] of checked) if (!found.has(rule)) found.set(rule, html)
+      for (const [rule, html] of checked) {
+        // A `children` step that empties a list the case mounted with nodes in (a button's
+        // label, a dialog's title) leaves what took its name from it unnamed: the case's own
+        // input, on purpose. Every other rule still holds in that snapshot.
+        if (emptied[index] && NAME_RULES.has(rule)) continue
+        if (!found.has(rule)) found.set(rule, html)
+      }
     }
     const declared = new Set(kase.a11y?.expect ?? [])
     for (const [rule, html] of found)

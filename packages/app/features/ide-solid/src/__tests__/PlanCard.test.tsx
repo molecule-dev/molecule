@@ -156,7 +156,8 @@ describe('PlanCard in the work tray', () => {
     expect(rows).toHaveLength(3)
     expect(rows[0].querySelector('svg path')?.getAttribute('d')).toBe('M2 5.2 4 7.2 8 3')
     expect(rows[1].querySelector('svg')).not.toBeNull()
-    expect(rows[1].querySelector('svg path')?.getAttribute('d')).not.toBe('M2 5.2 4 7.2 8 3')
+    // The spinner draws no tick.
+    expect(rows[1].querySelector('svg path[d="M2 5.2 4 7.2 8 3"]')).toBeNull()
     expect(rows[2].querySelector('svg')).toBeNull()
   })
 

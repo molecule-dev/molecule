@@ -486,7 +486,9 @@ describe('useChat', () => {
     await flush()
     expect(deferreds).toHaveLength(2)
 
-    expect(get(chat.messages).find((m) => m.content === 'B')?.queued).toBeFalsy()
+    const sentB = get(chat.messages).find((m) => m.content === 'B')
+    expect(sentB).toBeDefined()
+    expect(sentB!.queued).toBeFalsy()
     complete(1)
     await flush()
   })

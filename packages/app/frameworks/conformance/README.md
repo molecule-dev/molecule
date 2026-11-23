@@ -171,6 +171,23 @@ A `props` step that changes a controlled value (`checked`, `value`) holds a fram
 React's update path, which differs from its mount path: React sets the `checked` attribute
 when it creates a checkbox and only the property afterwards.
 
+A `children` step (`{ type: 'children', children?, slots? }`) re-renders the component with new
+children or slot lists, as a consumer whose list changed does; a field it leaves out keeps its
+nodes, and an element or component node's `key` is its identity (key every node of a list or
+none). From mount on, a case with such a step passes each list a step replaces the way that
+consumer writes it: a keyed array in React, one keyed `v-for` Fragment in Vue, one snippet with a
+keyed `{#each}` in Svelte, a `<For>` in Solid (a list that only ever holds text is passed as its
+value), a `@for` in Angular, and `[]` for a list it starts without or a step empties. Every other
+list is passed as the case writes it. A port that wraps, counts or moves its children by hand, or
+reads an empty list as an absent one, fails here when the list changes. With
+`CONFORMANCE_CHILDREN_STEP=1` set, the kit derives such cases for every family
+(`withChildSteps`, `src/ui/children-step.ts`): the first case whose children are two or more
+elements gets `"<name>, then children change"` (insert, remove, reverse, empty, refill), else the
+first case with children gets `"<name>, then children emptied and refilled"`, and each slot a
+case fills gets `"<name>, then <slot> emptied and refilled"`. The React goldens hold them, so
+recording without the switch would drop them and refuses to run. A snapshot taken while a step
+has emptied a list the case mounted with nodes is not held to axe's accessible-name rules.
+
 A `click` takes optional `modifiers` (`{ ctrlKey, metaKey, shiftKey, altKey }`). A click
 inside an `a[href]` adds `@click default prevented` or `@click default kept` to the snapshot
 after it: whether the browser would still follow the anchor. An in-app link must prevent a

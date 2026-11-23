@@ -50,18 +50,17 @@ export const Breadcrumb: Component<BreadcrumbProps> = (props) => {
 
   /**
    * The separator rendered at ONE gap position, fresh each call: the
-   * caller's node (cloned — a DOM node cannot be inserted twice), or the
-   * default `/`.
+   * caller's nodes (each DOM node cloned — a DOM node cannot be inserted
+   * twice), or the default `/`. As React's `separator ?? <span>/</span>`,
+   * only an absent separator gets the default; an empty list leaves the gap empty.
    * @returns The separator of one gap.
    */
   const separatorAt = (): JSX.Element => {
     const given =
       typeof props.separator === 'function' ? (props.separator as () => unknown)() : props.separator
-    const nodes = given == null ? [] : Array.isArray(given) ? given : [given]
-    const first = nodes[0]
-    if (first == null) return <span aria-hidden="true">/</span>
-    if (isDomNode(first)) return first.cloneNode(true) as JSX.Element
-    return first as JSX.Element
+    if (given == null) return <span aria-hidden="true">/</span>
+    const nodes: unknown[] = Array.isArray(given) ? given : [given]
+    return nodes.map((node) => (isDomNode(node) ? node.cloneNode(true) : node)) as JSX.Element
   }
 
   return (

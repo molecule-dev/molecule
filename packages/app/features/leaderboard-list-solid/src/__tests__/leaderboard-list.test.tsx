@@ -6,7 +6,7 @@
  *
  * @module
  */
-import type { JSX } from 'solid-js'
+import { createSignal, For, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -90,5 +90,25 @@ describe('LeaderboardList', () => {
       </LeaderboardList>
     ))
     expect(container.innerHTML).toContain('ll-cls')
+  })
+
+  it('counts rows added through a <For> and shows the empty state when it shrinks to none', () => {
+    const [rows, setRows] = createSignal<string[]>([])
+    const container = mount(() => (
+      <LeaderboardList emptyState={<p data-empty="">No entries</p>}>
+        <For each={rows()}>{(row) => <div data-row={row}>{row}</div>}</For>
+      </LeaderboardList>
+    ))
+    expect(container.querySelector('[data-empty]')).not.toBeNull()
+
+    setRows(['a', 'b'])
+    expect(container.querySelectorAll('[data-row]')).toHaveLength(2)
+    expect(container.querySelector('[data-empty]')).toBeNull()
+
+    setRows(['a'])
+    expect(container.querySelectorAll('[data-row]')).toHaveLength(1)
+
+    setRows([])
+    expect(container.querySelector('[data-empty]')).not.toBeNull()
   })
 })

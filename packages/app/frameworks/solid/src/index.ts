@@ -66,6 +66,7 @@
  */
 
 export * from './agent-identity.js'
+export * from './body-portal.jsx'
 export * from './context.js'
 export * from './link.jsx'
 export * from './primitives/index.js'

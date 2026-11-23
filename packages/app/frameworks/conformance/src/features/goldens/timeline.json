@@ -153,6 +153,14 @@
      "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\nYesterday\n</span>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "its children, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\nYesterday\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\nYesterday\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "TimelineEvent": {

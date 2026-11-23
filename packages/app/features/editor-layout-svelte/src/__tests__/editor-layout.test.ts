@@ -51,13 +51,15 @@ afterEach(() => {
 describe('EditorLayout', () => {
   it('renders the topBar and canvas', () => {
     const { wrapper } = render()
-    expect(wrapper?.querySelector('[data-topbar]')).not.toBeNull()
-    expect(wrapper?.querySelector('[data-canvas]')).not.toBeNull()
+    expect(wrapper).not.toBeNull()
+    expect(wrapper!.querySelector('[data-topbar]')).not.toBeNull()
+    expect(wrapper!.querySelector('[data-canvas]')).not.toBeNull()
   })
 
   it('renders the side panel after the canvas by default (right)', () => {
     const { wrapper } = render({}, { sidePanel: '<div data-panel>Panel</div>' })
-    expect(wrapper?.querySelector('aside')).not.toBeNull()
+    expect(wrapper).not.toBeNull()
+    expect(wrapper!.querySelector('aside')).not.toBeNull()
     const canvas = wrapper?.querySelector('[data-canvas]') as HTMLElement
     const panel = wrapper?.querySelector('[data-panel]') as HTMLElement
     expect(canvas.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()

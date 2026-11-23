@@ -362,7 +362,8 @@ describe('ChatPanel user avatar clickability (C5)', () => {
       return found
     })
     // Luke's (first message) wraps the real avatar image; Test's is the initial tile.
-    expect(buttons[0]?.querySelector('img')).not.toBeNull()
+    expect(buttons[0]).toBeDefined()
+    expect(buttons[0]!.querySelector('img')).not.toBeNull()
     expect(buttons[1]?.querySelector('img')).toBeNull()
 
     // Clicking the teammate's avatar carries the TEAMMATE's identity.

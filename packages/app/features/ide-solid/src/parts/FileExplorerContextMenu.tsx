@@ -19,7 +19,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import type { FileNode } from '@molecule/app-ide-panel-logic'
-import { useTranslation } from '@molecule/app-solid'
+import { BodyPortal, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Action identifiers for context menu items. */
@@ -300,14 +300,8 @@ export function FileExplorerContextMenu(props: ContextMenuProps): JSX.Element {
     setClamped({ x, y })
   }
 
-  // React portals the menu into `document.body`; move the rendered menu there
-  // the way the portal does — appended last, so it lands where React's menu
-  // lands. (Solid's own `<Portal>` wraps its content in a container div the
-  // reference DOM does not have.) Solid's teardown removes nodes from wherever
-  // they live, so the moved menu is cleaned up with the component.
-  onMount(() => {
-    if (menuRef) document.body.appendChild(menuRef)
-  })
+  // React portals the menu into `document.body`; `<BodyPortal>` renders it there
+  // directly (no wrapper element), last, so it lands where React's menu lands.
 
   // Close on Escape (the capture-phase listener stops the key from reaching
   // anything else) or outside click.
@@ -342,43 +336,45 @@ export function FileExplorerContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   return (
-    <div
-      ref={(el: HTMLDivElement) => {
-        menuRef = el
-      }}
-      role="menu"
-      class={cm.dropdownContent}
-      style={{
-        position: 'fixed',
-        left: `${clamped().x}px`,
-        top: `${clamped().y}px`,
-        'z-index': '9999',
-        'min-width': '160px',
-      }}
-    >
-      {items().map((item, i) => (
-        <div>
-          {item.separator && i > 0 && <div class={cm.dropdownSeparator} role="separator" />}
-          <div
-            role="menuitem"
-            tabIndex={0}
-            data-mol-id={`file-context-${item.action}`}
-            // Menu rows take the same coarse-pointer floor as the preview's
-            // device menu — `dropdownItem` sets padding only.
-            class={cm.cn(cm.dropdownItem, cm.touchTargetCompact)}
-            onClick={() => handleClick(item.action)}
-            onKeyDown={(e: KeyboardEvent) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                handleClick(item.action)
-              }
-            }}
-          >
-            <span class={cm.dropdownItemLabel}>{item.label}</span>
-            {item.shortcut && <span class={cm.dropdownItemShortcut}>{item.shortcut}</span>}
+    <BodyPortal>
+      <div
+        ref={(el: HTMLDivElement) => {
+          menuRef = el
+        }}
+        role="menu"
+        class={cm.dropdownContent}
+        style={{
+          position: 'fixed',
+          left: `${clamped().x}px`,
+          top: `${clamped().y}px`,
+          'z-index': '9999',
+          'min-width': '160px',
+        }}
+      >
+        {items().map((item, i) => (
+          <div>
+            {item.separator && i > 0 && <div class={cm.dropdownSeparator} role="separator" />}
+            <div
+              role="menuitem"
+              tabIndex={0}
+              data-mol-id={`file-context-${item.action}`}
+              // Menu rows take the same coarse-pointer floor as the preview's
+              // device menu — `dropdownItem` sets padding only.
+              class={cm.cn(cm.dropdownItem, cm.touchTargetCompact)}
+              onClick={() => handleClick(item.action)}
+              onKeyDown={(e: KeyboardEvent) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleClick(item.action)
+                }
+              }}
+            >
+              <span class={cm.dropdownItemLabel}>{item.label}</span>
+              {item.shortcut && <span class={cm.dropdownItemShortcut}>{item.shortcut}</span>}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </BodyPortal>
   )
 }

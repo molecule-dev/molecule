@@ -87,6 +87,38 @@
      "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n</div>\n</section>\n@route /"
     ],
     "calls": []
+   },
+   "title as an element, then title emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c0d99ed10 c4547f4fd\">\n<strong>\nNo comments yet\n</strong>\n</h3>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c0d99ed10 c4547f4fd\">\n</h3>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c0d99ed10 c4547f4fd\">\n<strong>\nNo comments yet\n</strong>\n</h3>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "eyebrow, media, description and an action, then eyebrow emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "eyebrow, media, description and an action, then media emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "eyebrow, media, description and an action, then action emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c42740ba6 c9366def6 c97d61bf0 cbaac6b89 cc2d72006 ccae02ff2\">\n<div class=\"ca596e575\">\n<img data-media src=\"/bank.svg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c4647f690 c7f74399a\">\n<span data-eyebrow>\nNEW\n</span>\n</div>\n<h3 class=\"c0d99ed10 c4547f4fd\">\nConnect your bank\n</h3>\n<p>\nLink an account to start tracking.\n</p>\n<div class=\"c98fc271b\">\n<button data-act type=\"button\">\nSend one\n</button>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
    }
   },
   "EmptyState": {
@@ -199,6 +231,38 @@
     "snapshots": [
      "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n</section>\n@route /",
      "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as an element, then title emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\n<strong>\nNo comments yet\n</strong>\n</h3>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\n</h3>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\n<strong>\nNo comments yet\n</strong>\n</h3>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon above the title, then icon emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<div class=\"c056c420c c1e8176ab c42740ba6 c527491fb c9052b18c c917228dd c9773cd2b ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n</div>\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<div class=\"c056c420c c1e8176ab c42740ba6 c527491fb c9052b18c c917228dd c9773cd2b ccae02ff2 cd9b20003\">\n</div>\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<div class=\"c056c420c c1e8176ab c42740ba6 c527491fb c9052b18c c917228dd c9773cd2b ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n</div>\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "description as an element, then description emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n<p class=\"c8b721f6b cfe976fcd\">\n<em>\nNothing here yet.\n</em>\n</p>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n<p class=\"c8b721f6b cfe976fcd\">\n</p>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n<p class=\"c8b721f6b cfe976fcd\">\n<em>\nNothing here yet.\n</em>\n</p>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "description with an action, then action emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n<p class=\"c917228dd cfe976fcd\">\nComments appear here.\n</p>\n<button data-act type=\"button\">\nSend one\n</button>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n<p class=\"c917228dd cfe976fcd\">\nComments appear here.\n</p>\n</section>\n@route /",
+     "<section class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b cbaac6b89 ccae02ff2 cd21f0b45\">\n<h3 class=\"c0d99ed10 c201466f5 c8d722291\">\nNo comments yet\n</h3>\n<p class=\"c917228dd cfe976fcd\">\nComments appear here.\n</p>\n<button data-act type=\"button\">\nSend one\n</button>\n</section>\n@route /"
     ],
     "calls": []
    }

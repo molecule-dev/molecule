@@ -13,6 +13,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 
 import { withinCaseDeadline } from './case-deadline.js'
 import { createCaseRouter } from './case-router.js'
+import { checkNodeKeys, type ChildrenStep } from './children-step.js'
 import { advanceClock, type ClockScope, installCaseClock } from './clock.js'
 import {
   freshContainer,
@@ -448,6 +449,14 @@ export interface MountedCase {
   /** Re-render with these props merged over the current ones. */
   setProps(props: Record<string, unknown>): Promise<void>
   /**
+   * Re-render with a `children` step's lists in place of the current ones (a field the step
+   * omits keeps its nodes; `nextChildLists` merges them), as a consumer whose list changed: the
+   * adapter renders the case's lists that way from mount whenever the case has such a step
+   * (`hasChildSteps`), keyed by each node's `key`. A case with a `children` step fails on an
+   * adapter without it.
+   */
+  setChildren(step: ChildrenStep): Promise<void>
+  /**
    * Tear the component down, and only the component: what an app keeps alive
    * past one page (Angular's application and its environment injector, Vue's
    * app) stays until {@link MountedCase.dispose}, so work tied to the app
@@ -577,7 +586,7 @@ export async function runSteps(
           progress.at = `step ${index + 1} (${step.type})`
           afterRenderMillisecond(renderedAt)
           applyLayout()
-          snap(await runStep(step, mounted, recorder, app, page, state))
+          snap(await runStep(step, mounted, recorder, app, page, state, testCase.name))
           renderedAt = Date.now()
         }
       },
@@ -681,6 +690,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   submit: { selector: 'required' },
   advance: { ms: 'required' },
   props: { props: 'required' },
+  children: { children: 'optional', slots: 'optional' },
   settle: { callback: 'required', value: 'optional', error: 'optional' },
   invoke: { callback: 'required', path: 'required', args: 'optional' },
   navigate: { to: 'required' },
@@ -711,7 +721,8 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
 
 /**
  * Fails a UI case that carries a field the case or one of its interactions does
- * not take (a misspelled field is otherwise never read, and the case tests nothing).
+ * not take (a misspelled field is otherwise never read, and the case tests nothing),
+ * or whose node lists key some nodes but not all (`checkNodeKeys`).
  *
  * @param testCase - The case.
  */
@@ -720,6 +731,7 @@ export function checkCaseFields(testCase: UICase): void {
   ;(testCase.interactions ?? []).forEach((step, index) =>
     checkStepFields(step, INTERACTION_FIELDS, `interaction ${index + 1} of "${testCase.name}"`),
   )
+  checkNodeKeys(testCase)
 }
 
 /** The steps that still mean something once the component is gone: they settle what it started, or mount it again. */
@@ -743,6 +755,7 @@ const runStep = async (
   app: AppServices | null,
   page: PageControls,
   state: { unmounted: boolean; location?: string; locationState?: unknown },
+  caseName: string,
 ): Promise<string | undefined> => {
   const controls = (): AppServices['controls'] => {
     if (!app)
@@ -791,6 +804,13 @@ const runStep = async (
     }
   } else if (step.type === 'props') {
     await mounted.setProps(step.props)
+  } else if (step.type === 'children') {
+    // Typed as required; an adapter written without the types still fails the case here, by name.
+    if (typeof (mounted as Partial<MountedCase>).setChildren !== 'function')
+      throw new Error(
+        `conformance: "${caseName}" changes its children, and this adapter has no setChildren`,
+      )
+    await mounted.setChildren(step)
   } else {
     const perform = async (): Promise<void> => {
       if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)

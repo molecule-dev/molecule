@@ -1,8 +1,8 @@
 /**
- * DOM helpers shared by the Svelte components: generated ids, the
- * document-body portal action, the focus-trap query and the reference-counted
- * body scroll lock. Each mirrors the exact behavior of its React counterpart
- * so portals, focus and locking are indistinguishable between frameworks.
+ * DOM helpers shared by the Svelte components: generated ids, the focus-trap
+ * query and the reference-counted body scroll lock. Each mirrors the exact
+ * behavior of its React counterpart so focus and locking are indistinguishable
+ * between frameworks.
  *
  * @module
  */
@@ -70,27 +70,6 @@ export function popModalStack(id: string): void {
  */
 export function isTopOfModalStack(id: string): boolean {
   return openModalStack.length > 0 && openModalStack[openModalStack.length - 1] === id
-}
-
-/**
- * Svelte action that moves the element it is placed on into `document.body`,
- * reproducing React's `createPortal(…, document.body)` output: the portal
- * children become direct body children, in mount order, with no extra wrapper
- * element. A portal's node is no longer where Svelte's block teardown looks for
- * it, so the action returns a `destroy` hook that removes it — without it an
- * unmounted Modal or Dropdown menu stays in the document and its markup is
- * found by later queries (React's portal unmounts its children).
- *
- * @param node - The element to portal into the document body.
- * @returns An action payload whose `destroy` removes the portaled node.
- */
-export function bodyPortal(node: HTMLElement): { destroy: () => void } {
-  if (typeof document !== 'undefined') document.body.appendChild(node)
-  return {
-    destroy: () => {
-      node.remove()
-    },
-  }
 }
 
 // Reference-counted body scroll lock: two overlays can be open at once; closing

@@ -114,7 +114,48 @@ describe('ShowMore', () => {
   })
 
   it('forwards className', () => {
-    const markup = render(ShowMore as never, { className: 'sm-cls', children: items(1) })
+    const markup = render(ShowMore as never, {
+      className: 'sm-cls',
+      items: [0],
+      children: items(1),
+    })
     expect(markup).toContain('sm-cls')
+  })
+
+  it('shows a newly inserted item and keeps the order after a removal', async () => {
+    // Regression: the port measured the nodes a `children` snippet had already
+    // rendered and then detached/restored them, so a list changed by the caller
+    // lost the inserted item and came back out of order. The component now
+    // slices `items` and renders every entry itself.
+    const target = document.createElement('div')
+    document.body.appendChild(target)
+    const instance = mount(ShowMoreList, {
+      target,
+      props: { count: 5, initialCount: 3 },
+    }) as unknown as { setItems(next: number[]): void }
+    flushSync()
+
+    instance.setItems([0, 9, 1, 2, 3, 4])
+    flushSync()
+    let markup = target.innerHTML
+    expect(markup).toContain('item-9')
+    expect(markup).toContain('Show 3 more')
+    expect(markup).not.toContain('item-2')
+
+    // Every item inline after a removal, in the caller's order.
+    ;(target.querySelector('button') as HTMLButtonElement).click()
+    flushSync()
+    instance.setItems([0, 9, 2, 3, 4])
+    flushSync()
+    markup = target.innerHTML
+    expect(markup).toContain('Show less')
+    const order = ['item-0', 'item-9', 'item-2', 'item-3', 'item-4'].map((text) =>
+      markup.indexOf(text),
+    )
+    expect(order).toEqual([...order].sort((a, b) => a - b))
+    expect(markup).not.toContain('item-1')
+
+    await unmount(instance as never)
+    target.remove()
   })
 })

@@ -62,6 +62,7 @@ setProvider(createSimpleI18nProvider())
 
 const ui = await import('../index.js')
 const { default: DeclaredPropsToastHost } = await import('./DeclaredPropsToastHost.svelte')
+const { default: DropdownOwnIdsHost } = await import('./DropdownOwnIdsHost.svelte')
 
 /** Mounts one case's component with its props. */
 type RenderCase = (props: Record<string, unknown>) => void
@@ -269,10 +270,7 @@ describe('declared props reach the DOM', () => {
   })
 
   it('Dropdown leaves a cloned trigger its own test id, automation id and ref', () => {
-    show(ui.Dropdown, {
-      trigger: html('<button data-testid="own-trigger" data-mol-id="own-auto">Menu</button>'),
-      items: [{ value: 'a', label: 'A' }],
-    })
+    show(DropdownOwnIdsHost, { items: [{ value: 'a', label: 'A' }] })
     const trigger = document.querySelector('[data-testid="own-trigger"]')
     expect(trigger?.getAttribute('data-mol-id')).toBe('own-auto')
     // The adopted trigger keeps its own element, which is the observable the

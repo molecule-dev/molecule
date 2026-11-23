@@ -53,6 +53,7 @@ const vueCard =
     return {
       flush: settle,
       setProps: async () => undefined,
+      setChildren: async () => undefined,
       location: () => '/',
       navigate: () => undefined,
       unmount: async () => app.unmount(),

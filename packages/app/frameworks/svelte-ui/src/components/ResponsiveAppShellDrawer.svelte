@@ -8,10 +8,10 @@
   navigation. Renders nothing on desktop or while closed.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { BodyPortal, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { bodyPortal, getFocusableElements, lockBodyScroll, unlockBodyScroll } from '../dom.js'
+  import { getFocusableElements, lockBodyScroll, unlockBodyScroll } from '../dom.js'
   import { useShellContext } from '../shell-context.js'
   import { reactStyle } from '../style.js'
   import type { ResponsiveAppShellDrawerProps } from '../types.js'
@@ -133,64 +133,65 @@
 {#if open && hasDocument}
   <!-- Backdrop click-to-close; only a click on the wrapper itself (the
        backdrop) closes. -->
-  <div class={cm.overlay} aria-hidden="true" use:bodyPortal></div>
-  <div
-    class={cm.cn(cm.position('fixed'), cm.inset0)}
-    use:reactStyle={{ zIndex: 41 }}
-    role="presentation"
-    onclick={handleWrapperClick}
-    use:bodyPortal
-  >
-    <div
-      bind:this={panelRef}
-      id={shell.drawerId}
-      role="dialog"
-      aria-modal="true"
-      aria-label={resolvedNavLabel}
-      tabindex={-1}
-      class={cm.cn(cm.flex({ direction: 'col' }), cm.surface, className)}
-      use:reactStyle={{ width: shell.sidebarWidthPx, maxWidth: '85vw', overflowY: 'auto' }}
-      data-mol-id={dataMolId}
-      data-testid={testId}
+  <BodyPortal><div class={cm.overlay} aria-hidden="true"></div></BodyPortal>
+  <BodyPortal
+    ><div
+      class={cm.cn(cm.position('fixed'), cm.inset0)}
+      use:reactStyle={{ zIndex: 41 }}
+      role="presentation"
+      onclick={handleWrapperClick}
     >
-      {#if header || showCloseButton}<div
-          class={cm.cn(
-            cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
-            cm.sp('p', 3),
-            cm.shrink0,
-          )}
-        >
-          {#if header}<div use:reactStyle={{ minWidth: 0 }}>
-              <ReactNode node={header} />
-            </div>{:else}<span aria-hidden="true"></span>{/if}{#if showCloseButton}<button
-              type="button"
-              onclick={shell.closeDrawer}
-              aria-label={t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })}
-              data-mol-id={closeDataMolId}
-              class={cm.cn(
-                cm.flex({ align: 'center', justify: 'center' }),
-                cm.w(10),
-                cm.h(10),
-                cm.shrink0,
-                cm.roundedFull,
-                cm.cursorPointer,
-                cm.textMuted,
-              )}><IconGlyph name="x-mark" className={cm.iconMd} /></button
-            >{/if}
-        </div>{/if}
-      <nav aria-label={resolvedNavLabel} class={cm.cn(cm.flex1, cm.stack(1))}>
-        {@render children?.()}
-      </nav>
-      {#if footer}<div
-          class={cm.cn(
-            cm.flex({ direction: 'col', gap: 'sm' }),
-            cm.borderT,
-            cm.sp('p', 3),
-            cm.shrink0,
-          )}
-        >
-          <ReactNode node={footer} />
-        </div>{/if}
-    </div>
-  </div>
+      <div
+        bind:this={panelRef}
+        id={shell.drawerId}
+        role="dialog"
+        aria-modal="true"
+        aria-label={resolvedNavLabel}
+        tabindex={-1}
+        class={cm.cn(cm.flex({ direction: 'col' }), cm.surface, className)}
+        use:reactStyle={{ width: shell.sidebarWidthPx, maxWidth: '85vw', overflowY: 'auto' }}
+        data-mol-id={dataMolId}
+        data-testid={testId}
+      >
+        {#if header || showCloseButton}<div
+            class={cm.cn(
+              cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
+              cm.sp('p', 3),
+              cm.shrink0,
+            )}
+          >
+            {#if header}<div use:reactStyle={{ minWidth: 0 }}>
+                <ReactNode node={header} />
+              </div>{:else}<span aria-hidden="true"></span>{/if}{#if showCloseButton}<button
+                type="button"
+                onclick={shell.closeDrawer}
+                aria-label={t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })}
+                data-mol-id={closeDataMolId}
+                class={cm.cn(
+                  cm.flex({ align: 'center', justify: 'center' }),
+                  cm.w(10),
+                  cm.h(10),
+                  cm.shrink0,
+                  cm.roundedFull,
+                  cm.cursorPointer,
+                  cm.textMuted,
+                )}><IconGlyph name="x-mark" className={cm.iconMd} /></button
+              >{/if}
+          </div>{/if}
+        <nav aria-label={resolvedNavLabel} class={cm.cn(cm.flex1, cm.stack(1))}>
+          {@render children?.()}
+        </nav>
+        {#if footer}<div
+            class={cm.cn(
+              cm.flex({ direction: 'col', gap: 'sm' }),
+              cm.borderT,
+              cm.sp('p', 3),
+              cm.shrink0,
+            )}
+          >
+            <ReactNode node={footer} />
+          </div>{/if}
+      </div>
+    </div></BodyPortal
+  >
 {/if}

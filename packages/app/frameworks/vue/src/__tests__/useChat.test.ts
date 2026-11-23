@@ -578,7 +578,8 @@ describe('useChat', () => {
     await waitFor(() => expect(deferreds).toHaveLength(2))
 
     const sentB = chat.messages.value.find((message) => message.content === 'B')
-    expect(sentB?.queued).toBeFalsy()
+    expect(sentB).toBeDefined()
+    expect(sentB!.queued).toBeFalsy()
 
     await act(async () => {
       complete(1)
@@ -1555,7 +1556,7 @@ describe('useChat', () => {
 
     const sentA = chat.messages.value.find((message) => message.content === 'A')
     expect(sentA).toBeDefined()
-    expect(sentA?.queued).toBeFalsy()
+    expect(sentA!.queued).toBeFalsy()
 
     await act(async () => {
       void chat.editQueuedMessage(sentA?.id ?? '', 'A-edited')

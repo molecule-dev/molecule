@@ -106,8 +106,9 @@ describe('AppFooter', () => {
 
   it('renders Privacy/Terms as router Links in route mode', async () => {
     const { footer } = render({ appName: 'Acme', aboutHref: '/about', legalMode: 'route' })
-    expect(footer?.querySelector('a[href="/privacy"]')).not.toBeNull()
-    expect(footer?.querySelector('a[href="/terms"]')).not.toBeNull()
+    expect(footer).not.toBeNull()
+    expect(footer!.querySelector('a[href="/privacy"]')).not.toBeNull()
+    expect(footer!.querySelector('a[href="/terms"]')).not.toBeNull()
   })
 
   it('renders the language button and the version string', async () => {
@@ -115,7 +116,7 @@ describe('AppFooter', () => {
     const languageButton = footer?.querySelector('button[aria-label="Language"]')
     expect(languageButton).not.toBeNull()
     // The globe icon renders as the bonded SVG glyph.
-    expect(languageButton?.querySelector('svg')).not.toBeNull()
+    expect(languageButton!.querySelector('svg')).not.toBeNull()
     expect(languageButton?.textContent).toContain('English')
     expect(footer?.textContent).toContain('v2.0.0')
   })

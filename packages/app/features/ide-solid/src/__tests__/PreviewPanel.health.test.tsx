@@ -334,7 +334,8 @@ describe('PreviewPanel — health check down verdict and recovery', () => {
     expect(q(container, 'preview-overlay')).not.toBeNull()
     // …and the recovery probe finds the server up → one cache-busted reload.
     const reloaded = container.querySelector('iframe')
-    expect(reloaded?.getAttribute('src')).not.toBe(srcBefore)
+    expect(reloaded).not.toBeNull()
+    expect(reloaded!.getAttribute('src')).not.toBe(srcBefore)
     expect(reloaded?.getAttribute('src')).toContain('_r=')
   })
 

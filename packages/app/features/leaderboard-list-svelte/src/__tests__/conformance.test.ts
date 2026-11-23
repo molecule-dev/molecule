@@ -23,7 +23,12 @@ import * as UI from '@molecule/app-ui-svelte'
 import * as Feature from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: Binding })
+// React counts `children`, so the Svelte port takes its rows as data in `items`.
+const adapter = createSvelteAdapter({
+  exports: { ...UI, ...Feature },
+  binding: Binding,
+  listChildren: { LeaderboardList: 'items' },
+})
 
 runFeatureConformance('@molecule/app-leaderboard-list-react', adapter, {
   module: Feature,

@@ -55,6 +55,38 @@
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "main only, then main emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, then breadcrumb emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, then topBar emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, then sidebar emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

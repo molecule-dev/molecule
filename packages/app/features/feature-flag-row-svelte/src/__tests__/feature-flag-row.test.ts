@@ -177,7 +177,7 @@ describe('FeatureFlagRow i18n', () => {
       'fr: {{flag}} in {{environment}}',
     )
     expect(wrapper.textContent).toContain('fr: Percentage')
-    expect(wrapper.querySelector('button[role="switch"]')?.getAttribute('aria-label')).not.toBe(
+    expect(wrapper.querySelector('button[role="switch"]')!.getAttribute('aria-label')).not.toBe(
       '{{flag}} in {{environment}}',
     )
   })

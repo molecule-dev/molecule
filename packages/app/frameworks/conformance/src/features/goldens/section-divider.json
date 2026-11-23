@@ -69,6 +69,14 @@
      "<div aria-orientation=\"horizontal\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" role=\"separator\">\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "center with a text label, then children emptied and refilled": {
+    "snapshots": [
+     "<div aria-orientation=\"horizontal\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" role=\"separator\">\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n<span class=\"c4647f690 c7f74399a\">\nOR\n</span>\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n</div>\n@route /",
+     "<div aria-orientation=\"horizontal\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" role=\"separator\">\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n<span class=\"c4647f690 c7f74399a\">\n</span>\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n</div>\n@route /",
+     "<div aria-orientation=\"horizontal\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" role=\"separator\">\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n<span class=\"c4647f690 c7f74399a\">\nOR\n</span>\n<span aria-hidden=\"true\" class=\"cb5823274\" style=\"border-top-color: currentcolor; border-top-style: solid; border-top-width: 1px; opacity: 0.2\">\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

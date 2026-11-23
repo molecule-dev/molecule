@@ -243,7 +243,7 @@ describe('PreviewPanel — stale-document auto-recovery', () => {
     await advance(13_000)
     const after = currentIframe(mounted.container)
     expect(after).not.toBeNull()
-    expect(after?.getAttribute('src')).not.toBe(srcBefore)
+    expect(after!.getAttribute('src')).not.toBe(srcBefore)
   })
 
   it('does NOT reload once the app has confirmed a render', async () => {

@@ -1,21 +1,20 @@
 <!--
   WorkspaceLayout: the Svelte counterpart of `@molecule/app-ide-react`'s
-  `WorkspaceLayout` — the IDE workspace row of resizable panes. Same props
-  (React names), same DOM for the same input, same callbacks. Children (the
-  `children` snippet) are arranged in a row; a draggable vertical divider
-  follows each pane but the last, and every divider resizes its left panel.
-  Only the trailing pane flex-grows — every leading pane keeps its
-  `flex-basis` exactly, so a drag moves its edge 1:1 with the pointer. See the
-  React file for the design notes.
+  `WorkspaceLayout` — the IDE workspace row of resizable panes. Same DOM for
+  the same input, same callbacks. The panes are data: `items` holds one entry
+  per pane and the `children` snippet renders one entry; this component's own
+  `{#each}` renders each pane's wrapper and the divider that follows it. A
+  draggable vertical divider follows each pane but the last, and every divider
+  resizes its left panel. Only the trailing pane flex-grows — every leading
+  pane keeps its `flex-basis` exactly, so a drag moves its edge 1:1 with the
+  pointer. See the React file for the design notes.
 
-  A Svelte snippet renders as one unit, so the panes cannot be projected into
-  their own wrappers by the template: the snippet renders once as the host's
-  direct children and an effect moves each element node into the wrapper the
-  `{#each}` rendered for it (a text child — which React's
-  `Children.toArray(...).filter(isValidElement)` drops — is removed, not
-  wrapped). Styles Svelte writes as attribute text, so the pane geometry is
-  written as the `flex` shorthand cssstyle composes from React's three
-  longhands; that keeps the serialized attribute identical.
+  Svelte places every node: the wrapper and the pane's content are rendered by
+  the same `{#each}` iteration, so a pane that appears after mount lands
+  already wrapped and nothing the framework rendered is moved or detached.
+  Styles Svelte writes as attribute text, so the pane geometry is written as
+  the `flex` shorthand cssstyle composes from React's three longhands; that
+  keeps the serialized attribute identical.
 
   Styling uses `getClassMap()` (`cm.*`); the only inline styles are that
   geometry and the root's overflow/min-height. All user-facing text goes
@@ -26,10 +25,10 @@
   import type * as types from '../types.js'
 
   /** Re-exported from the plain-TS contract module (src/props.ts). */
-  export type WorkspaceLayoutProps = types.WorkspaceLayoutProps
+  export type WorkspaceLayoutProps<T = unknown> = types.WorkspaceLayoutProps<T>
 </script>
 
-<script lang="ts">
+<script lang="ts" generics="T">
   import type { PanelConfig } from '@molecule/app-ide'
   import { clampPanelSize, livePanelSize } from '@molecule/app-ide-panel-logic'
   import { useWorkspace } from '@molecule/app-svelte'
@@ -37,22 +36,13 @@
 
   import ResizeHandle from './ResizeHandle.svelte'
 
-  let { children, className }: WorkspaceLayoutProps = $props()
+  let { items = [], children, className }: WorkspaceLayoutProps<T> = $props()
 
   const cm = getClassMap()
   const { layout, resizePanel } = useWorkspace()
 
-  /** The row's root (the host the panes are wrapped inside). */
-  let hostEl: HTMLElement
-  /** The pane nodes taken out of the snippet's render position, in order. */
-  let panes: Node[] = []
-  /** Whether the snippet's rendered nodes have been taken into {@link panes}. */
-  let captured = false
-  /** How many panes render — the wrapper/handle count, known after the snippet renders. */
-  let count = $state(0)
-
-  /** One pane per wrapper the template renders. */
-  const indexes = $derived(Array.from({ length: count }, (_, i) => i))
+  /** How many panes render — React's `panels.length`. */
+  const count = $derived(items.length)
 
   /** The visible panel configs taken one per rendered pane, in order. */
   const panelConfigs = $derived(
@@ -104,48 +94,17 @@
     const grow = index === count - 1 ? 1 : 0
     return `flex: ${grow} ${grow} ${size}%; min-width: 0px; overflow: hidden; position: relative`
   }
-
-  // Takes the snippet's element children, then moves each into its wrapper.
-  // The first pass has no wrappers yet (the pane count is unknown until the
-  // snippet renders), so it captures and sets the count; the state change
-  // re-renders the wrappers and the second pass places the panes.
-  $effect(() => {
-    const total = count
-    if (!hostEl) return
-    if (!captured) {
-      const elements: Node[] = []
-      for (const node of Array.from(hostEl.childNodes)) {
-        if (node.nodeType === 1) elements.push(node)
-        // React drops a text child (it is not an element); the snippet's own
-        // text nodes go with it.
-        else if (node.nodeType === 3) node.remove()
-      }
-      captured = true
-      panes = elements
-      count = elements.length
-      return
-    }
-    if (total === 0) return
-    // The template renders the wrappers and dividers first, in order (wrapper,
-    // divider, wrapper, …), and the panes after them; a wrapper is every even
-    // direct child. Reading the order avoids naming the wrappers with an
-    // attribute React's DOM does not have.
-    const rendered = Array.from(hostEl.children) as HTMLElement[]
-    panes.forEach((node, i) => {
-      const wrapper = rendered[i * 2]
-      if (wrapper && node.parentNode !== wrapper) wrapper.appendChild(node)
-    })
-  })
 </script>
 
 <div
-  bind:this={hostEl}
   data-workspace-layout=""
   class={cm.cn(cm.flex({ direction: 'row' }), cm.w('full'), cm.h('full'), className)}
   style="overflow: hidden; min-height: 0px"
 >
-  {#each indexes as i (i)}
-    <div class={cm.flex({ direction: 'col' })} style={panelStyle(i)}></div>
+  {#each items as item, i (i)}
+    <div class={cm.flex({ direction: 'col' })} style={panelStyle(i)}>
+      {@render children?.(item, i)}
+    </div>
     {#if i < count - 1}
       <!-- A divider between this pane and the next, a direct flex-row
           sibling so it spans the full height. -->
@@ -156,5 +115,4 @@
       />
     {/if}
   {/each}
-  {#if children}{@render children()}{/if}
 </div>

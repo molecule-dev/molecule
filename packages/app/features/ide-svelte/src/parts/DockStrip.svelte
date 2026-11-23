@@ -97,36 +97,12 @@
   function textOf(value: StripNode | undefined): string {
     return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
   }
-
-  /**
-   * Reparents an element into a portal target, updating with the target —
-   * Svelte's counterpart of `createPortal` (the tray's header and detail
-   * elements live elsewhere in the work tray's frame).
-   *
-   * @param node - The element to move.
-   * @param target - The element to move it into (null until the tray mounted).
-   * @returns The action's update and destroy hooks.
-   */
-  function portalTo(
-    node: HTMLElement,
-    target: HTMLElement | null,
-  ): { update(next: HTMLElement | null): void; destroy(): void } {
-    const attach = (next: HTMLElement | null | undefined): void => {
-      if (next && node.parentNode !== next) next.appendChild(node)
-    }
-    attach(target)
-    return {
-      update: attach,
-      destroy(): void {
-        node.parentNode?.removeChild(node)
-      },
-    }
-  }
 </script>
 
 <script lang="ts">
   import { getContext } from 'svelte'
 
+  import { BodyPortal } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   let {
@@ -196,62 +172,67 @@
 
 {#if tray}
   {#if tray.headerEl}
-    <div
-      use:portalTo={tray.headerEl}
-      data-mol-id={molId}
-      {...rootProps}
-      style="display: inline-flex; align-items: center; gap: 6px; max-width: 100%"
-    >
-      <div
-        role="button"
-        tabindex="0"
-        data-mol-id={toggleMolId}
-        aria-expanded={onActivate ? undefined : open ? 'true' : 'false'}
-        aria-label={rowAriaLabel}
-        title={chipHoverText}
-        class={rowClasses}
-        data-state={open ? 'open' : 'closed'}
-        onclick={() => trayActivate()}
-        onkeydown={(event) => onRowKeydown(event, trayActivate)}
-        style={`display: inline-flex; align-items: center; gap: 6px; min-width: 0px${open ? '; box-shadow: inset 0 0 0 1px currentColor' : ''}`}
+    <BodyPortal target={tray.headerEl}
+      ><div
+        data-mol-id={molId}
+        {...rootProps}
+        style="display: inline-flex; align-items: center; gap: 6px; max-width: 100%"
       >
-        {#if icon != null}{#if isSnippet(icon)}{@render icon()}{:else}{textOf(icon)}{/if}{/if}
-        {#if hideLabel}
-          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
-            <path
-              d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-            />
-          </svg>
-        {:else}
-          <span
-            class={labelClasses}
-            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
-          >
-            {#if chipLabel != null}
-              {#if isSnippet(chipLabel)}{@render chipLabel()}{:else}{textOf(chipLabel)}{/if}
-            {:else}
-              {#if isSnippet(label)}{@render label()}{:else}{textOf(label)}{/if}
-            {/if}
-          </span>
+        <div
+          role="button"
+          tabindex="0"
+          data-mol-id={toggleMolId}
+          aria-expanded={onActivate ? undefined : open ? 'true' : 'false'}
+          aria-label={rowAriaLabel}
+          title={chipHoverText}
+          class={rowClasses}
+          data-state={open ? 'open' : 'closed'}
+          onclick={() => trayActivate()}
+          onkeydown={(event) => onRowKeydown(event, trayActivate)}
+          style={`display: inline-flex; align-items: center; gap: 6px; min-width: 0px${open ? '; box-shadow: inset 0 0 0 1px currentColor' : ''}`}
+        >
+          {#if icon != null}{#if isSnippet(icon)}{@render icon()}{:else}{textOf(icon)}{/if}{/if}
+          {#if hideLabel}
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
+              <path
+                d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+            </svg>
+          {:else}
+            <span
+              class={labelClasses}
+              style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+            >
+              {#if chipLabel != null}
+                {#if isSnippet(chipLabel)}{@render chipLabel()}{:else}{textOf(chipLabel)}{/if}
+              {:else}
+                {#if isSnippet(label)}{@render label()}{:else}{textOf(label)}{/if}
+              {/if}
+            </span>
+          {/if}
+        </div>
+        {#if actions != null}
+          {#if isSnippet(actions)}{@render actions()}{:else}{textOf(actions)}{/if}
         {/if}
-      </div>
-      {#if actions != null}
-        {#if isSnippet(actions)}{@render actions()}{:else}{textOf(actions)}{/if}
-      {/if}
-    </div>
+      </div></BodyPortal
+    >
   {/if}
   {#if open && (children || detailActions != null) && tray.detailEl}
-    <div use:portalTo={tray.detailEl} data-mol-id={`${molId}-detail`} style="padding: 2px 10px 8px">
-      {#if detailActions != null}
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px">
-          {#if isSnippet(detailActions)}{@render detailActions()}{:else}{textOf(detailActions)}{/if}
-        </div>
-      {/if}
-      {#if children}{@render children()}{/if}
-    </div>
+    <BodyPortal target={tray.detailEl}
+      ><div data-mol-id={`${molId}-detail`} style="padding: 2px 10px 8px">
+        {#if detailActions != null}
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px">
+            {#if isSnippet(detailActions)}{@render detailActions()}{:else}{textOf(
+                detailActions,
+              )}{/if}
+          </div>
+        {/if}
+        {#if children}{@render children()}{/if}
+      </div></BodyPortal
+    >
   {/if}
 {:else}
   <div

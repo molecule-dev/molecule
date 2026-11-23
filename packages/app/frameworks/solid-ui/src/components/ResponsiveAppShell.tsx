@@ -54,11 +54,10 @@ import {
   useContext,
 } from 'solid-js'
 
-import { useLocation, useTranslation } from '@molecule/app-solid'
+import { BodyPortal, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
-import { BodyPortal } from '../utilities/portal.jsx'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /** The fleet-wide responsive breakpoint, as a `matchMedia` query. */

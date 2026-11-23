@@ -556,6 +556,7 @@ export function performDomInteraction(step: Interaction): string | undefined {
     }
     case 'advance':
     case 'props':
+    case 'children':
     case 'settle':
     case 'invoke':
     case 'navigate':

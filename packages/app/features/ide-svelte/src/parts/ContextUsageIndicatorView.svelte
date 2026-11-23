@@ -73,35 +73,6 @@
     return () => document.removeEventListener('keydown', dismiss)
   })
 
-  /** The trigger button (the tooltip names its box on it while visible). */
-  let triggerEl = $state<HTMLButtonElement | null>(null)
-
-  /** The modal body's first node (identifies this view's portal dialog). */
-  let modalBodyEl = $state<HTMLDivElement | null>(null)
-
-  // React unmounts the whole view, the toolkit Tooltip's portal box and the
-  // open Modal's overlay and wrapper included. Those are document.body
-  // children, and Svelte's paused key branch does not detach a moved node, so
-  // the view takes its own visible portals with it: the tooltip names its box
-  // by id on the trigger, and the modal body's node identifies its dialog,
-  // wrapper and overlay.
-  $effect(() => {
-    return () => {
-      const describedBy = triggerEl?.getAttribute('aria-describedby')
-      const box = describedBy ? document.getElementById(describedBy) : null
-      if (box) {
-        ;(box.parentElement ?? box).remove()
-      }
-      const dialogEl = modalBodyEl?.closest('[role="dialog"]')
-      const wrapper = dialogEl?.parentElement
-      if (wrapper) {
-        const overlay = wrapper.previousElementSibling
-        wrapper.remove()
-        if (overlay?.classList.contains(cm.dialogOverlay)) overlay.remove()
-      }
-    }
-  })
-
   // Navigation must discard totals and in-flight requests from the old session.
   const { data, loading, failed, refresh } = useContextSessionUsage(project, conversation, active)
 
@@ -301,7 +272,6 @@
     style={{ width: 320, maxWidth: 'calc(100vw - 32px)', whiteSpace: 'normal' }}
   >
     <button
-      bind:this={triggerEl}
       type="button"
       class={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
       style={triggerStyle}
@@ -362,7 +332,7 @@
 </div>
 
 <Modal {open} onClose={closeModal} {title} size="lg">
-  <div class={cm.flex({ direction: 'col', gap: 'lg' })} bind:this={modalBodyEl}>
+  <div class={cm.flex({ direction: 'col', gap: 'lg' })}>
     <section class={cm.card({ variant: 'outline' })} style={sectionStyle}>
       {@render contextSummary()}
       <div class={cm.borderT} style="margin-top: 16px; padding-top: 16px">

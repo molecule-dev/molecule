@@ -151,7 +151,8 @@ describe('ChatPanel outer panel', () => {
       props: { canShare: true },
     })
     await waitFor(() => {
-      expect(mounted?.container.querySelector('[data-mol-id="chat-share-button"]')).not.toBeNull()
+      expect(mounted).not.toBeNull()
+      expect(mounted!.container.querySelector('[data-mol-id="chat-share-button"]')).not.toBeNull()
     })
     const container = mounted.container
     const share = container.querySelector('[data-mol-id="chat-share-button"]')
@@ -173,7 +174,8 @@ describe('ChatPanel outer panel', () => {
       props: { canEdit: false, canShare: false },
     })
     await waitFor(() => {
-      expect(mounted?.container.querySelector('[data-mol-id="chat-report-button"]')).not.toBeNull()
+      expect(mounted).not.toBeNull()
+      expect(mounted!.container.querySelector('[data-mol-id="chat-report-button"]')).not.toBeNull()
     })
     const container = mounted.container
     expect(container.querySelector('[data-mol-id="chat-new-conversation"]')).toBeNull()

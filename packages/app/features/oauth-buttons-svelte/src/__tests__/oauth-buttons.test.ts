@@ -160,7 +160,7 @@ describe('<OAuthButtons />', () => {
     const container = render(OAuthButtons, { providers: ['google'] })
     const group = container.querySelector<HTMLElement>('[data-mol-id="oauth-buttons"]')
     expect(group?.dataset.layout).toBe('horizontal')
-    expect(group?.style.display).not.toBe('grid')
+    expect(group!.style.display).not.toBe('grid')
   })
 
   it('switches to grid layout with 2 columns when >4 providers', () => {

@@ -16,6 +16,7 @@
  */
 
 import type { Snippet } from 'svelte'
+import type { Attachment } from 'svelte/attachments'
 
 import type { IconName } from '@molecule/app-icons'
 import type {
@@ -455,11 +456,39 @@ export interface DropdownItem {
 }
 
 /**
+ * Menu-button props a {@link Dropdown} passes to its `trigger` snippet.
+ *
+ * The object holds one key — an attachment created with Svelte's
+ * `createAttachmentKey()`. Spreading it on the snippet's own element makes that
+ * element the menu button, the way React's `cloneElement` path clones a
+ * single-element trigger: the attachment adds `aria-haspopup`, the live
+ * `aria-expanded`/`aria-controls`, a `tabindex="0"` when the element has none,
+ * `data-testid`/`data-mol-id` when given, `disabled` while the dropdown is
+ * disabled, and the click/keydown handlers, without a wrapper. A snippet that
+ * does not spread it (it renders text, several nodes, or ignores the argument)
+ * is wrapped in the `role="button"` fallback instead.
+ *
+ * @example
+ * ```svelte
+ * {#snippet trigger(props)}<button {...props}>Menu</button>{/snippet}
+ * ```
+ */
+export interface DropdownTriggerProps {
+  /** The attachment that turns the element it is spread on into the menu button. */
+  [key: symbol]: Attachment<HTMLElement>
+}
+
+/**
  * Props for {@link Dropdown}. The ref element is the role="menu" menu, not the trigger (test id and automation id go to the trigger).
  */
 export interface DropdownProps extends WithElementRef<object, HTMLDivElement> {
-  /** Trigger content; a single element becomes the menu button itself, anything else is wrapped in one. */
-  trigger?: Snippet | string
+  /**
+   * Trigger content: a string or a snippet. A snippet receives the
+   * {@link DropdownTriggerProps} to spread on its element, which then becomes
+   * the menu button itself; a string, or a snippet that does not spread them,
+   * is wrapped in a `role="button"` container instead.
+   */
+  trigger?: Snippet<[DropdownTriggerProps]> | string
   /** Menu entries. */
   items: DropdownItem[]
   /** Called with the chosen item's value. */

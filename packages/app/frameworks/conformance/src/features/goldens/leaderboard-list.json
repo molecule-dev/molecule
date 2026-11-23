@@ -78,6 +78,41 @@
      "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "rows only, then children change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"b\">\n</div>\n<div data-row=\"a\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and actions, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\n</h3>\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and actions, then actions emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty list with an empty state, then emptyState emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p data-empty>\nNo entries\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p data-empty>\nNo entries\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

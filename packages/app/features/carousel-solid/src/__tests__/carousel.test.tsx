@@ -8,7 +8,7 @@
  * @module
  */
 
-import type { JSX } from 'solid-js'
+import { createSignal, For, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -199,5 +199,39 @@ describe('Carousel', () => {
   it('forwards className', () => {
     const markup = html({ className: 'car-cls' }, slides(2))
     expect(markup).toContain('car-cls')
+  })
+
+  it('wraps a slide inserted between two others in its own wrapper', () => {
+    const [items, setItems] = createSignal(['a', 'b', 'c'])
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    disposers.push(
+      render(
+        () => (
+          <Carousel showArrows={false}>
+            <For each={items()}>{(item) => <img data-slide={item} alt={item} />}</For>
+          </Carousel>
+        ),
+        container,
+      ),
+    )
+    const wrappers = (): NodeListOf<Element> =>
+      container.querySelectorAll('[data-mol-id="carousel-slide"]')
+    expect(wrappers()).toHaveLength(3)
+    expect(container.querySelectorAll('[data-mol-id="carousel-dot"]')).toHaveLength(3)
+
+    setItems(['a', 'x', 'b', 'c'])
+    expect(wrappers()).toHaveLength(4)
+    expect(wrappers()[1].querySelector('img')?.getAttribute('data-slide')).toBe('x')
+    expect(container.querySelectorAll('[data-mol-id="carousel-dot"]')).toHaveLength(4)
+
+    setItems(['a', 'b'])
+    expect(wrappers()).toHaveLength(2)
+
+    setItems([])
+    expect(container.innerHTML).toBe('')
+
+    setItems(['z'])
+    expect(wrappers()).toHaveLength(1)
   })
 })

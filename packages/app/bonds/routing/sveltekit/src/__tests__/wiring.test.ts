@@ -77,7 +77,8 @@ describe('MoleculeRouterProvider wiring (sveltekit)', () => {
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe(kitUrl('/dashboard'))
     // A push: kit is asked for no `replace`, and the state carries no app value.
-    expect(calls[0].options?.replace).toBeUndefined()
+    expect(calls[0].options).toBeDefined()
+    expect(calls[0].options!.replace).toBeUndefined()
     expect(calls[0].options?.persistState).toBe(true)
     expect(started.app.router.getLocation().pathname).toBe('/dashboard')
     expect(started.app.router.getLocation().state).toBeUndefined()

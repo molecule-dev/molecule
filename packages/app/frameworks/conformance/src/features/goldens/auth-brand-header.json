@@ -77,6 +77,14 @@
      "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\n⟦Acme⟧\n</h1>\n<p class=\"c052585d2 c445db9b9 c80b1c428\">\n⟦Ship faster⟧\n</p>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "composed children ignore the preset props, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div data-custom>\n<h1>\nBespoke\n</h1>\n<p>\nComposed tagline\n</p>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div data-custom>\n<h1>\nBespoke\n</h1>\n<p>\nComposed tagline\n</p>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthBrandHeaderChip": {
@@ -163,6 +171,14 @@
      "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /"
     ],
     "calls": []
+   },
+   "text children, then children emptied and refilled": {
+    "snapshots": [
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /",
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\n</p>\n@route /",
+     "<p class=\"c052585d2 c445db9b9 c80b1c428\">\nShip faster\n</p>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthBrandHeaderWordmark": {
@@ -200,6 +216,14 @@
    "text children, then a locale switch": {
     "snapshots": [
      "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /",
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /"
+    ],
+    "calls": []
+   },
+   "text children, then children emptied and refilled": {
+    "snapshots": [
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /",
+     "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\n</h1>\n@route /",
      "<h1 class=\"c5e9752b6 c9a4d1a6c cd542c1f3 ce6c94376\">\nRefract\n</h1>\n@route /"
     ],
     "calls": []

@@ -65,6 +65,6 @@ describe('BulkActionToolbar i18n', () => {
     flushSync()
     const region = target.querySelector('[role="region"]')
     expect(region?.getAttribute('aria-label')).toBe('«bulkActions.aria.toolbar»')
-    expect(region?.getAttribute('aria-label')).not.toBe('Bulk actions')
+    expect(region!.getAttribute('aria-label')).not.toBe('Bulk actions')
   })
 })

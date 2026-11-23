@@ -20,10 +20,8 @@
  *   <p>Content revealed when expanded.</p>
  * </CollapsibleSection>
  *
- * <ShowMore initialCount={3}>
- *   {#each items as item}
- *     <div>{item.label}</div>
- *   {/each}
+ * <ShowMore items={items} initialCount={3}>
+ *   {#snippet children(item)}<div>{item.label}</div>{/snippet}
  * </ShowMore>
  * ```
  *
@@ -36,9 +34,9 @@
  * `<ShowMore>`'s labels use the i18n keys `showMore.more` / `showMore.less`
  * with English `defaultValue`s; no companion locale bond ships these keys —
  * add them to your app's locale resources (or pass custom `moreKey`/`lessKey`).
- * A snippet has no length, so `<ShowMore>` measures the nodes its `children`
- * snippet rendered to decide which ones to hide — pass the items themselves,
- * not a wrapper around them.
+ * A snippet has no length, so `<ShowMore>` takes the list as data (`items`)
+ * and renders each entry through its `children` snippet; the initial slice is
+ * `items.slice(0, initialCount)`.
  *
  * @module
  */

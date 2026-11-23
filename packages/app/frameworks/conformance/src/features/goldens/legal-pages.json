@@ -157,6 +157,108 @@
       ]
      }
     ]
+   },
+   "content only, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "hero with eyebrow, title and subtitle, then eyebrow emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "hero with eyebrow, title and subtitle, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "hero with eyebrow, title and subtitle, then subtitle emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n<p class=\"c052585d2 c0a86609f c504afaf4 c97fc2588\">\nLast updated June 2025\n</p>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "header and footer around the body, then header emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "header and footer around the body, then footer emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\nBody copy\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
    }
   },
   "LegalContentPage": {
@@ -340,6 +442,40 @@
       ]
      }
     ]
+   },
+   "header and footer chrome, then header emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" data-mol-id=\"page-terms\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 caa4a9e61 cc435a591 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<h2>\nTerms\n</h2>\n<p>\nUse Acme kindly.\n</p>\n</div>\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" data-mol-id=\"page-terms\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 caa4a9e61 cc435a591 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<h2>\nTerms\n</h2>\n<p>\nUse Acme kindly.\n</p>\n</div>\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" data-mol-id=\"page-terms\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 caa4a9e61 cc435a591 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<h2>\nTerms\n</h2>\n<p>\nUse Acme kindly.\n</p>\n</div>\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "header and footer chrome, then footer emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" data-mol-id=\"page-terms\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 caa4a9e61 cc435a591 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<h2>\nTerms\n</h2>\n<p>\nUse Acme kindly.\n</p>\n</div>\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" data-mol-id=\"page-terms\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 caa4a9e61 cc435a591 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<h2>\nTerms\n</h2>\n<p>\nUse Acme kindly.\n</p>\n</div>\n</div>\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c0a86609f c2cbb8333 c42740ba6 c521316b1 cbaac6b89 cc2d72006 ccae02ff2 cdde537c9 ce6c94376\">\n<header>\nAcme\n</header>\n<section class=\"c85408cf6 c8f19053a c913cd95a cfc82911d\" data-mol-id=\"page-terms\" style=\"background: linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%); border-bottom: 1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)\">\n<div aria-hidden=\"true\" class=\"c07eddcf8 c0dd268bc c2883f28d c39610a33 c7474b7c4 c9052b18c c9164cfab cc27bfe10\" style=\"background: color-mix(in srgb, var(--mol-color-primary) 22%, transparent)\">\n</div>\n<div class=\"c830586de c8f3cd634 c92784b69 cbf033fe8 cd5d4be14 cfc82911d\">\n<p class=\"c0d99ed10 c267fcecb c4647f690 c8c7220fe c91e4907f cda72d38d cdf83deeb\">\nLegal\n</p>\n<h1 class=\"c20e78aa5 c9a4d1a6c cafb098af cd542c1f3\">\nTerms of Service\n</h1>\n</div>\n</section>\n<main class=\"c8740901c c913cd95a cb5823274\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\n<div class=\"c18b873b1 c1f523237 c4b92e3a8 c5e7000ad c6011fc59 ca5d631fa\">\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 caa4a9e61 cc435a591 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<h2>\nTerms\n</h2>\n<p>\nUse Acme kindly.\n</p>\n</div>\n</div>\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
    }
   },
   "LegalModalLinks": {
@@ -516,6 +652,40 @@
       ]
      }
     ]
+   },
+   "custom labels replace the translated text, then privacyLabel emptied and refilled": {
+    "snapshots": [
+     "<button type=\"button\">\n<strong>\nYour privacy\n</strong>\n</button>\n<button type=\"button\">\nThe terms\n</button>\n@route /",
+     "<button type=\"button\">\n</button>\n<button type=\"button\">\nThe terms\n</button>\n@route /",
+     "<button type=\"button\">\n<strong>\nYour privacy\n</strong>\n</button>\n<button type=\"button\">\nThe terms\n</button>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "custom labels replace the translated text, then termsLabel emptied and refilled": {
+    "snapshots": [
+     "<button type=\"button\">\n<strong>\nYour privacy\n</strong>\n</button>\n<button type=\"button\">\nThe terms\n</button>\n@route /",
+     "<button type=\"button\">\n<strong>\nYour privacy\n</strong>\n</button>\n<button type=\"button\">\n</button>\n@route /",
+     "<button type=\"button\">\n<strong>\nYour privacy\n</strong>\n</button>\n<button type=\"button\">\nThe terms\n</button>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
    }
   },
   "LegalPageLayout": {
@@ -618,6 +788,40 @@
       ]
      }
     ]
+   },
+   "title and body, then children emptied and refilled": {
+    "snapshots": [
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms of Service\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p>\nThese terms govern your use of the service.\n</p>\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms of Service\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms of Service\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p>\nThese terms govern your use of the service.\n</p>\n</div>\n</main>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "title and body, then title emptied and refilled": {
+    "snapshots": [
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms of Service\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p>\nThese terms govern your use of the service.\n</p>\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p>\nThese terms govern your use of the service.\n</p>\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms of Service\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p>\nThese terms govern your use of the service.\n</p>\n</div>\n</main>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
    }
   },
   "LegalPageSection": {
@@ -687,6 +891,40 @@
        "i18n",
        "Locale changed",
        "en-XA"
+      ]
+     }
+    ]
+   },
+   "title and one paragraph, then children emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2 class=\"c4547f4fd c7f74399a\">\nAcceptance\n</h2>\n<p>\nBy using this service you agree to these terms.\n</p>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2 class=\"c4547f4fd c7f74399a\">\nAcceptance\n</h2>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2 class=\"c4547f4fd c7f74399a\">\nAcceptance\n</h2>\n<p>\nBy using this service you agree to these terms.\n</p>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "title and one paragraph, then title emptied and refilled": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2 class=\"c4547f4fd c7f74399a\">\nAcceptance\n</h2>\n<p>\nBy using this service you agree to these terms.\n</p>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2 class=\"c4547f4fd c7f74399a\">\n</h2>\n<p>\nBy using this service you agree to these terms.\n</p>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2 class=\"c4547f4fd c7f74399a\">\nAcceptance\n</h2>\n<p>\nBy using this service you agree to these terms.\n</p>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
       ]
      }
     ]
@@ -1167,6 +1405,23 @@
       ]
      }
     ]
+   },
+   "supplied body replaces the boilerplate intro, then children emptied and refilled": {
+    "snapshots": [
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\" data-mol-id=\"page-privacy\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nPrivacy\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p data-real>\nreal\n</p>\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\" data-mol-id=\"page-privacy\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nPrivacy\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\" data-mol-id=\"page-privacy\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nPrivacy\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p data-real>\nreal\n</p>\n</div>\n</main>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
    }
   },
   "TermsPage": {
@@ -1289,6 +1544,23 @@
        "i18n",
        "Locale changed",
        "en-XA"
+      ]
+     }
+    ]
+   },
+   "supplied body replaces the boilerplate intro, then children emptied and refilled": {
+    "snapshots": [
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\" data-mol-id=\"page-terms\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p data-real>\nreal\n</p>\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\" data-mol-id=\"page-terms\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n</div>\n</main>\n@route /",
+     "<main class=\"c830586de c89409342 c8f3cd634 cbf033fe8 cd5d4be14\" data-mol-id=\"page-terms\">\n<h1 class=\"c0d99ed10 c917228dd c91a3f70a\">\nTerms\n</h1>\n<div class=\"c0c46d2a6 c1fb8c728 c22cddca1 c249baba8 c2cbb8333 c3e45a761 c41bb954c c819e191f c89bdefbc c8de4c320 c9366def6 caa4a9e61 cbaac6b89 cc435a591 ccae02ff2 ccccfb8c4 cd7da2116 cdeabf844 ce5b615b9\">\n<p data-real>\nreal\n</p>\n</div>\n</main>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
       ]
      }
     ]

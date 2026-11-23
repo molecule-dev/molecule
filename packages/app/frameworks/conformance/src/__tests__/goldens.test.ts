@@ -7,6 +7,8 @@
  * never-committed readable copy with real class names under
  * `node_modules/.cache/framework-conformance/`). Recording is the deliberate
  * step that changes the contract: every framework then has to match it.
+ * `CONFORMANCE_GOLDENS_OUT=<file>` writes the recording there instead, to compare it
+ * with the committed goldens before keeping it.
  *
  * While writing cases: `CONFORMANCE_COMPONENTS=Input,Select` narrows the run and
  * `CONFORMANCE_SKIP_GOLDENS=1` checks only that React renders them cleanly.
@@ -35,12 +37,21 @@ import {
   writePixelCapture,
 } from '../ui/index.js'
 import { reactAdapter } from './react-adapter.js'
-import { assertCompleteRecording, missingRecordings } from './recording.js'
+import {
+  assertCompleteRecording,
+  assertKeepsChildStepGoldens,
+  missingRecordings,
+} from './recording.js'
 
 // React is recorded here: a reference that stops yielding ends the run with its stack.
 watchConformanceEventLoop()
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
+/**
+ * A file a recording writes instead of the committed `goldens.json`: a recording to compare before
+ * keeping it (new cases recorded, to merge only what they add).
+ */
+const OUT = process.env.CONFORMANCE_GOLDENS_OUT || null
 const SKIP_GOLDENS = process.env.CONFORMANCE_SKIP_GOLDENS === '1'
 const FILTER =
   process.env.CONFORMANCE_COMPONENTS?.split(',')
@@ -48,6 +59,7 @@ const FILTER =
     .filter(Boolean) ?? null
 if (RECORD && FILTER)
   throw new Error('RECORD_GOLDENS records every component; unset CONFORMANCE_COMPONENTS')
+if (RECORD && !OUT) assertKeepsChildStepGoldens(uiGoldens.cases, 'src/ui/goldens.json')
 const families = uiCaseFamilies.filter((f) => !FILTER || FILTER.includes(f.component))
 const here = dirname(fileURLToPath(import.meta.url))
 // A recording reads React's UI kit from its dist/: refuse one older than its source.
@@ -114,9 +126,10 @@ describe('React reference renders', () => {
         Object.fromEntries(families.map((f) => [f.component, f.cases.map((c) => c.name)])),
         recorded.cases,
       ),
-      GOLDENS_FILE,
+      OUT ?? GOLDENS_FILE,
     )
-    writeFileSync(GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
+    if (OUT) mkdirSync(dirname(OUT), { recursive: true })
+    writeFileSync(OUT ?? GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
     mkdirSync(dirname(READABLE_FILE), { recursive: true })
     writeFileSync(READABLE_FILE, JSON.stringify(recordedReadable))
   })

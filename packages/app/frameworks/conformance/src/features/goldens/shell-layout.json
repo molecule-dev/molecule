@@ -42,6 +42,30 @@
      "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "content only, then children emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header, content and footer, then header emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<header>\nAcme\n</header>\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<header>\nAcme\n</header>\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header, content and footer, then footer emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<header>\nAcme\n</header>\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<header>\nAcme\n</header>\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<header>\nAcme\n</header>\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   }
  }

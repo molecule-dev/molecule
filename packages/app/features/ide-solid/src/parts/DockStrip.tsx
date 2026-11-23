@@ -19,17 +19,14 @@
 import type { Accessor, JSX } from 'solid-js'
 import {
   createContext,
-  createEffect,
   createMemo,
-  createRoot,
   createUniqueId,
-  onCleanup,
   type ParentProps,
   Show,
   useContext,
 } from 'solid-js'
 
-import { useThemeMode } from '@molecule/app-solid'
+import { BodyPortal, useThemeMode } from '@molecule/app-solid'
 import { getClassMap, moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 
 /** The pixel size of a strip's status icon at its default. */
@@ -271,114 +268,94 @@ export function DockStrip(props: DockStripProps): JSX.Element {
 
   if (tray) {
     const open = (): boolean => !props.onActivate && tray.openId() === props.molId
-    /**
-     * React's tray branch is a fragment of two portals: the chip's element appears directly in the
-     * tray's header and the open detail directly in its detail element, nothing where the strip
-     * itself stands. Solid's `Portal` would wrap each in a container div, so each element is
-     * created in its own root, never inserted by Solid (nothing moves it afterwards), and appended
-     * to its tray element; it is removed when that element goes, the detail closes or the strip
-     * unmounts.
-     */
-    const appendTo = (target: Accessor<HTMLElement | null>, create: () => JSX.Element): void => {
-      createEffect(() => {
-        const parent = target()
-        if (!parent) return
-        const [node, dispose] = createRoot((disposeRoot) => [create(), disposeRoot] as const)
-        if (!(node instanceof HTMLElement)) {
-          dispose()
-          throw new Error('DockStrip: a tray chip or detail must render one element')
-        }
-        parent.appendChild(node)
-        onCleanup(() => {
-          node.remove()
-          dispose()
-        })
-      })
-    }
-    appendTo(tray.headerEl, () => (
-      <div
-        data-mol-id={props.molId}
-        {...props.rootProps}
-        style={{
-          display: 'inline-flex',
-          'align-items': 'center',
-          gap: '6px',
-          'max-width': '100%',
-        }}
-      >
-        <div
-          role="button"
-          tabindex={0}
-          data-mol-id={props.toggleMolId}
-          aria-expanded={props.onActivate ? undefined : open() ? 'true' : 'false'}
-          aria-label={rowAriaLabel()}
-          title={props.chipTitle ?? rowAriaLabel()}
-          class={rowClasses}
-          data-state={open() ? 'open' : 'closed'}
-          onClick={() => (props.onActivate ? props.onActivate() : tray.toggle(props.molId))}
-          onKeyDown={onKeyDown(() =>
-            props.onActivate ? props.onActivate() : tray.toggle(props.molId),
-          )}
-          /* mol-bespoke-button: a work-tray CHIP — status icon and short label
-                   that opens its section's detail; a disclosure toggle, not a CTA. */
-          style={{
-            display: 'inline-flex',
-            'align-items': 'center',
-            gap: '6px',
-            'min-width': '0px',
-            ...(open() ? { 'box-shadow': 'inset 0 0 0 1px currentColor' } : {}),
-          }}
-        >
-          {props.icon}
-          {props.hideLabel ? (
-            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
-              <path
-                d={open() ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              />
-            </svg>
-          ) : (
-            <span
-              class={labelClasses}
-              style={{
-                'white-space': 'nowrap',
-                overflow: 'hidden',
-                'text-overflow': 'ellipsis',
-              }}
-            >
-              {props.chipLabel ?? props.label}
-            </span>
-          )}
-        </div>
-        {props.actions}
-      </div>
-    ))
-    // A memo, so the detail is rebuilt only when the element it goes into changes.
+    // React's tray branch is a fragment of two portals: the chip's element
+    // appears directly in the tray's header and the open detail directly in
+    // its detail element, nothing where the strip itself stands.
+    // `<BodyPortal mount={…}>` renders each there without a wrapper element.
     const detailTarget = createMemo(() =>
       open() && (props.children || props.detailActions) ? tray.detailEl() : null,
     )
-    appendTo(detailTarget, () => (
-      <div data-mol-id={`${props.molId}-detail`} style={{ padding: '2px 10px 8px' }}>
-        {props.detailActions ? (
+    return (
+      <>
+        <BodyPortal mount={tray.headerEl()}>
           <div
+            data-mol-id={props.molId}
+            {...props.rootProps}
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               'align-items': 'center',
               gap: '6px',
-              'margin-bottom': '6px',
+              'max-width': '100%',
             }}
           >
-            {props.detailActions}
+            <div
+              role="button"
+              tabindex={0}
+              data-mol-id={props.toggleMolId}
+              aria-expanded={props.onActivate ? undefined : open() ? 'true' : 'false'}
+              aria-label={rowAriaLabel()}
+              title={props.chipTitle ?? rowAriaLabel()}
+              class={rowClasses}
+              data-state={open() ? 'open' : 'closed'}
+              onClick={() => (props.onActivate ? props.onActivate() : tray.toggle(props.molId))}
+              onKeyDown={onKeyDown(() =>
+                props.onActivate ? props.onActivate() : tray.toggle(props.molId),
+              )}
+              /* mol-bespoke-button: a work-tray CHIP — status icon and short label
+                   that opens its section's detail; a disclosure toggle, not a CTA. */
+              style={{
+                display: 'inline-flex',
+                'align-items': 'center',
+                gap: '6px',
+                'min-width': '0px',
+                ...(open() ? { 'box-shadow': 'inset 0 0 0 1px currentColor' } : {}),
+              }}
+            >
+              {props.icon}
+              {props.hideLabel ? (
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
+                  <path
+                    d={open() ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              ) : (
+                <span
+                  class={labelClasses}
+                  style={{
+                    'white-space': 'nowrap',
+                    overflow: 'hidden',
+                    'text-overflow': 'ellipsis',
+                  }}
+                >
+                  {props.chipLabel ?? props.label}
+                </span>
+              )}
+            </div>
+            {props.actions}
           </div>
-        ) : null}
-        {props.children}
-      </div>
-    ))
-    // Nothing at the strip's own position: the chip and the detail live in
-    // the tray.
-    return null
+        </BodyPortal>
+        <BodyPortal mount={detailTarget()}>
+          <div data-mol-id={`${props.molId}-detail`} style={{ padding: '2px 10px 8px' }}>
+            {props.detailActions ? (
+              <div
+                style={{
+                  display: 'flex',
+                  'align-items': 'center',
+                  gap: '6px',
+                  'margin-bottom': '6px',
+                }}
+              >
+                {props.detailActions}
+              </div>
+            ) : null}
+            {props.children}
+          </div>
+        </BodyPortal>
+      </>
+    )
   }
   return (
     <div

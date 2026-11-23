@@ -20,12 +20,11 @@ import {
 
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
-import { useTranslation } from '@molecule/app-solid'
+import { BodyPortal, useTranslation } from '@molecule/app-solid'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
-import { BodyPortal } from '../utilities/portal.jsx'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { withDisplayName } from './displayName.js'
 

@@ -2,14 +2,25 @@
   LeaderboardList: the Svelte counterpart of
   `@molecule/app-leaderboard-list-react`'s `LeaderboardList` — header row
   (title + actions) above a stack of rows. Same props, same DOM for the same
-  input; `children`, `title`, `actions` and `emptyState` are snippet slots.
+  input; `title`, `actions` and `emptyState` are snippet slots.
+
+  React counts its `children` to choose between the rows and `emptyState`. A
+  Svelte snippet is opaque (it has no count), so the rows are data: `items`
+  holds one entry per row and the `children` snippet renders one entry.
 -->
-<script lang="ts">
+<script lang="ts" generics="T">
   import { getClassMap } from '@molecule/app-ui'
 
   import type { LeaderboardListProps } from './types.js'
 
-  let { children, title, actions, emptyState, className }: LeaderboardListProps = $props()
+  let {
+    items = [],
+    children,
+    title,
+    actions,
+    emptyState,
+    className,
+  }: LeaderboardListProps<T> = $props()
 
   const cm = $derived(getClassMap())
 </script>
@@ -23,8 +34,10 @@
       {#if actions}{@render actions()}{/if}
     </header>
   {/if}
-  {#if children}
-    <div class={cm.stack(1)}>{@render children()}</div>
+  {#if items.length > 0}
+    <div class={cm.stack(1)}>
+      {#each items as item, i (i)}{@render children?.(item, i)}{/each}
+    </div>
   {:else if emptyState}
     {@render emptyState()}
   {/if}

@@ -30,6 +30,7 @@ const domComponent =
     return {
       flush: settle,
       setProps: async () => undefined,
+      setChildren: async () => undefined,
       location: () => '/page',
       navigate: () => undefined,
       unmount: async () => {

@@ -4,24 +4,12 @@
  * @module
  */
 
-import type { Component, JSX } from 'solid-js'
+import type { Component } from 'solid-js'
 import { children, createEffect, createSignal, onCleanup, Show } from 'solid-js'
 
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FilterPillProps } from './types.js'
-
-/**
- * The nodes a React `ReactNode` children prop renders, as a list: Solid's
- * `children` is the single node it was given, or the array of nodes.
- *
- * @param value - The resolved children value.
- * @returns The nodes, in order.
- */
-const nodeList = (value: JSX.Element): JSX.Element[] => {
-  if (value === undefined || value === null || value === false) return []
-  return Array.isArray(value) ? value : [value]
-}
 
 /**
  * Outlined filter pill with an optional `expand_more` chevron and a dropdown
@@ -106,7 +94,9 @@ export const FilterPill: Component<FilterPillProps> = (props) => {
           </Show>
         </span>
       </button>
-      <Show when={open() && nodeList(content()).length > 0}>
+      {/* React's `open && children`: the children value's own truthiness, so an
+          empty list (`[]`, a `<For>` with no rows) still opens an empty panel. */}
+      <Show when={open() && content()}>
         <div
           class={cm.cn(
             cm.sp('mt', 2),

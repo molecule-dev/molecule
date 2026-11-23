@@ -133,6 +133,54 @@
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "title and value, then title emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and value, then value emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle below the value, then subtitle emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nvs. last week\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nvs. last week\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a trend indicator, then trend emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-trend>\n+12.4%\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-trend>\n+12.4%\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon and action slots, then icon emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n<button data-action>\nMore\n</button>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n<button data-action>\nMore\n</button>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n<button data-action>\nMore\n</button>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon and action slots, then action emptied and refilled": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n<button data-action>\nMore\n</button>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span class=\"c445db9b9 c80b1c428\">\nRevenue\n</span>\n</div>\n<button data-action>\nMore\n</button>\n</div>\n<div class=\"c0d99ed10 c91a3f70a\">\n$48,200\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "KpiCardGrid": {
@@ -208,6 +256,17 @@
     "snapshots": [
      "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<span data-card>\ncard-a\n</span>\n</div>\n@route /",
      "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<span data-card>\ncard-a\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two columns, then children change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<span data-card>\na\n</span>\n<span data-card>\nb\n</span>\n</div>\n@route /",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<span data-card>\na\n</span>\n<span data-card>\na\n</span>\n<span data-card>\nb\n</span>\n</div>\n@route /",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<span data-card>\na\n</span>\n<span data-card>\nb\n</span>\n</div>\n@route /",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<span data-card>\nb\n</span>\n<span data-card>\na\n</span>\n</div>\n@route /",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n</div>\n@route /",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<span data-card>\na\n</span>\n<span data-card>\nb\n</span>\n</div>\n@route /"
     ],
     "calls": []
    }

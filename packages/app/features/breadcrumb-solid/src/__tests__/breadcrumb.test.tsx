@@ -103,6 +103,18 @@ describe('Breadcrumb', () => {
     expect(container.innerHTML).toContain('data-sep=""')
   })
 
+  it('renders every node of a separator list in each gap, and nothing for an empty one', () => {
+    // React's `separator ?? <span aria-hidden>/</span>`: a list renders whole, and an empty
+    // list is not an absent separator.
+    const pair = mountView(() => (
+      <Breadcrumb items={items} separator={[<i data-a="" />, <i data-b="" />]} />
+    ))
+    expect(pair.querySelectorAll('[data-a]')).toHaveLength(2)
+    expect(pair.querySelectorAll('[data-b]')).toHaveLength(2)
+    const empty = mountView(() => <Breadcrumb items={items} separator={[]} />)
+    expect(empty.innerHTML).not.toContain('aria-hidden="true">/')
+  })
+
   it('renders crumb icons', () => {
     const container = mountView(() => (
       <Breadcrumb items={[{ label: 'Home', to: '/', icon: <i data-icon="" /> }]} />

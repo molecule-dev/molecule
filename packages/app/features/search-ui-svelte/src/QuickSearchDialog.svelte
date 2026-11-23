@@ -42,26 +42,6 @@
   $effect(() => {
     if (open) session.inputRef.current?.focus()
   })
-
-  // React's Modal portals its chrome into document.body and removes it on
-  // close. The UI kit's Svelte Modal moves its overlay and wrapper with an
-  // action that has no teardown, so once the nodes are in `document.body` the
-  // `{#if}` teardown — which walks siblings beside the anchor they were
-  // created at — never reaches them, and a closed dialog would leave them
-  // behind. Snapshot the body just before the chrome is created, and on close
-  // take back whatever appeared: the portaled chrome, and only that.
-  let bodyBeforeOpen: Element[] = []
-  $effect.pre(() => {
-    if (open) bodyBeforeOpen = [...document.body.children]
-  })
-  $effect(() => {
-    if (!open) return
-    return () => {
-      for (const node of [...document.body.children]) {
-        if (!bodyBeforeOpen.includes(node)) node.remove()
-      }
-    }
-  })
 </script>
 
 {#if open}

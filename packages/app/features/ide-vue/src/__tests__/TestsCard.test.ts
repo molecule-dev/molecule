@@ -449,7 +449,8 @@ describe('TestsCard — chrome', () => {
     const embedded = renderCard({ embedded: true })
     // The overlay header already shows the title; the card must not repeat it.
     const heading = embedded.container.querySelector('[data-mol-id="tests-card"] > div')
-    expect(heading?.textContent).not.toBe('Tests')
+    expect(heading).not.toBeNull()
+    expect(heading!.textContent).not.toBe('Tests')
   })
 
   it('has a data-mol-id on every interactive element', () => {

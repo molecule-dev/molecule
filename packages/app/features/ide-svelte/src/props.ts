@@ -435,10 +435,12 @@ export interface SidebarTabsProps {
   className?: string
 }
 
-/** Props for `WorkspaceLayout` — the React prop names, React's own contract. */
-export interface WorkspaceLayoutProps {
-  /** The panes, in row order (the `children` snippet). */
-  children?: Snippet
+/** Props for `WorkspaceLayout` — the pane list as data, everything else React's own contract. */
+export interface WorkspaceLayoutProps<T = unknown> {
+  /** The panes, in row order (React's `children` elements). */
+  items?: T[]
+  /** Renders one entry of `items` as its pane. */
+  children?: Snippet<[item: T, index: number]>
   /** Extra classes from the host, appended to the root's ClassMap classes. */
   className?: string
 }
