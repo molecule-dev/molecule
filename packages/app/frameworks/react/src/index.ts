@@ -220,7 +220,10 @@
  *   changed). Call a `useEffectEvent` function only from effects and what they
  *   schedule, and never call either function while rendering. The root holds what
  *   every framework binding also exports; these exist only because a React body
- *   re-runs and a render can be thrown away.
+ *   re-runs and a render can be thrown away. `slot(node)` from the same entry returns
+ *   `undefined` for a node prop that renders nothing (`cond && <X/>`, `[]`, `''`), so read a
+ *   node prop through it once (`const title = slot(titleProp)`) before `title && …` or an
+ *   `aria-labelledby` that points at it.
  * - The in-app anchor comes from `@molecule/app-react/link`: `<Link to="/settings">`
  *   navigates through the molecule router under every routing bond (react-router's
  *   `<Link>` rules), and its `href` is the one the router writes, base path included.

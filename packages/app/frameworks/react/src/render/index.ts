@@ -14,11 +14,13 @@
  *
  * const onTick = useEffectEvent(() => report(count)) // reads the latest `count` from an effect
  * const onSelect = useStableCallback((id: string) => props.onSelect?.(id)) // one identity, latest props
+ * const title = slot(props.title) // undefined when the title renders nothing (cond && <X/>, [], '')
  * ```
  *
  * @module
  */
 
+export * from './slot.js'
 export * from './useCommittedRef.js'
 export * from './useEffectEvent.js'
 export * from './useStableCallback.js'
