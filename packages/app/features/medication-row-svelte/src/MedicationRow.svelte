@@ -52,28 +52,28 @@
     <div class={cm.cn(cm.flex1, cm.stack(1))}>
       <header class={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
         <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>
-          {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+          {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
         </h3>
         {#if dosage}
           <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
-            {#if typeof dosage === 'function'}{@render dosage()}{:else}{dosage}{/if}
+            {#if typeof dosage === 'function'}{@render dosage?.()}{:else}{dosage}{/if}
           </span>
         {/if}
         {#if form}
           <span class={cm.textSize('xs')}>
-            {#if typeof form === 'function'}{@render form()}{:else}{form}{/if}
+            {#if typeof form === 'function'}{@render form?.()}{:else}{form}{/if}
           </span>
         {/if}
       </header>
       {#if instructions}
         <p class={cm.textSize('sm')}>
-          {#if typeof instructions === 'function'}{@render instructions()}{:else}{instructions}{/if}
+          {#if typeof instructions === 'function'}{@render instructions?.()}{:else}{instructions}{/if}
         </p>
       {/if}
       <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
         {#if prescriber}
           {#if typeof prescriber === 'function'}
-            <span class={cm.textSize('xs')}>{prescribedBy} {@render prescriber()}</span>
+            <span class={cm.textSize('xs')}>{prescribedBy} {@render prescriber?.()}</span>
           {:else}
             <span class={cm.textSize('xs')}>{prescribedBy} {prescriber}</span>
           {/if}
@@ -87,7 +87,7 @@
       </div>
     </div>
     {#if actions}
-      <div class={cm.shrink0}>{@render actions()}</div>
+      <div class={cm.shrink0}>{@render actions?.()}</div>
     {/if}
   </div>
 </Card>

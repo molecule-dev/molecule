@@ -61,7 +61,7 @@
             i === currentStep ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
           )}
         >
-          {#if typeof s.label === 'string'}{s.label}{:else}{@render s.label()}{/if}
+          {#if typeof s.label === 'string'}{s.label}{:else}{@render s.label?.()}{/if}
         </span>
       {/each}
     </div>
@@ -85,11 +85,11 @@
         class={cm.cn(cm.flex1, cm.sp('p', 3), cm.stack(1))}
       >
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-          {i + 1}. {#if typeof s.label === 'string'}{s.label}{:else}{@render s.label()}{/if}
+          {i + 1}. {#if typeof s.label === 'string'}{s.label}{:else}{@render s.label?.()}{/if}
         </span>
         {#if s.description}
           <span class={cm.textSize('xs')}>
-            {#if typeof s.description === 'string'}{s.description}{:else}{@render s.description()}{/if}
+            {#if typeof s.description === 'string'}{s.description}{:else}{@render s.description?.()}{/if}
           </span>
         {/if}
       </button>
@@ -133,7 +133,7 @@
               : cm.fontWeight('medium'),
           )}
         >
-          {#if typeof s.label === 'string'}{s.label}{:else}{@render s.label()}{/if}
+          {#if typeof s.label === 'string'}{s.label}{:else}{@render s.label?.()}{/if}
         </span>
         {#if i !== steps.length - 1 && orientation === 'horizontal'}
           <span

@@ -17,12 +17,12 @@
 </script>
 
 {#if items.length === 0 && emptyState}
-  {@render emptyState()}
+  {@render emptyState?.()}
 {:else}
   <div class={cm.cn(cm.stack(4), className)}>
     {#each items as item (item.id)}
       <ActivityFeedItem {item} />
     {/each}
-    {#if footer}{@render footer()}{/if}
+    {#if footer}{@render footer?.()}{/if}
   </div>
 {/if}

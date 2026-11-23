@@ -84,7 +84,7 @@
     variant={variant ?? (pressed ? 'solid' : 'outline')}
     aria-pressed={pressed}
     aria-busy={$pending}
-    >{#if pressed}{#if typeof activeLabel === 'function'}{@render activeLabel()}{:else}{activeLabel}{/if}{:else}{#if typeof inactiveLabel === 'function'}{@render inactiveLabel()}{:else}{inactiveLabel}{/if}{/if}{labelSeparator}<span
+    >{#if pressed}{#if typeof activeLabel === 'function'}{@render activeLabel?.()}{:else}{activeLabel}{/if}{:else}{#if typeof inactiveLabel === 'function'}{@render inactiveLabel?.()}{:else}{inactiveLabel}{/if}{/if}{labelSeparator}<span
       >{count}</span
     ></Button
   >

@@ -42,11 +42,11 @@
     disabled={action.disabled}
   >
     {#if action.icon}
-      {#if typeof action.icon === 'function'}{@render action.icon()}{:else}{action.icon}{/if}
+      {#if typeof action.icon === 'function'}{@render action.icon?.()}{:else}{action.icon}{/if}
     {/if}
     {#if action.label}
       <span>
-        {#if typeof action.label === 'function'}{@render action.label()}{:else}{action.label}{/if}
+        {#if typeof action.label === 'function'}{@render action.label?.()}{:else}{action.label}{/if}
       </span>
     {/if}
   </Button>
@@ -63,11 +63,11 @@
   use:reactStyle={stickyStyle}
 >
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-    {#if leading}{@render leading()}{/if}
+    {#if leading}{@render leading?.()}{/if}
     <h1 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-      {#if title}{@render title()}{/if}
+      {#if title}{@render title?.()}{/if}
     </h1>
-    {#if badge}{@render badge()}{/if}
+    {#if badge}{@render badge?.()}{/if}
   </div>
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
     {#each primaryActions as action (action.id)}

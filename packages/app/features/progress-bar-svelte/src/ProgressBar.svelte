@@ -44,12 +44,12 @@
           id={namedByLabel ? nameId : undefined}
           class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
         >
-          {#if typeof label === 'function'}{@render label()}{:else}{label}{/if}
+          {#if typeof label === 'function'}{@render label?.()}{:else}{label}{/if}
         </span>
       {/if}
       {#if valueLabel}
         <span class={cm.textSize('sm')}>
-          {#if typeof valueLabel === 'function'}{@render valueLabel()}{:else}{valueLabel}{/if}
+          {#if typeof valueLabel === 'function'}{@render valueLabel?.()}{:else}{valueLabel}{/if}
         </span>
       {/if}
     </div>

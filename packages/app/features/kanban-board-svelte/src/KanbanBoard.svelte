@@ -70,10 +70,10 @@
         {onCardDragStart}
       >
         {#snippet headerActions()}
-          {#if renderHeaderActions}{@render renderHeaderActions(column)}{/if}
+          {#if renderHeaderActions}{@render renderHeaderActions?.(column)}{/if}
         {/snippet}
         {#snippet footer()}
-          {#if renderFooter}{@render renderFooter(column)}{/if}
+          {#if renderFooter}{@render renderFooter?.(column)}{/if}
         {/snippet}
       </KanbanColumn>
     </div>

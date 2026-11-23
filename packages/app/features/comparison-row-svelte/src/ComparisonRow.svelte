@@ -38,29 +38,29 @@
 <div class={cm.cn(cm.flex({ align: 'baseline', justify: 'between', gap: 'md' }), className)}>
   <div class={cm.stack(0)}>
     <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-      {#if typeof label === 'function'}{@render label()}{:else}{label}{/if}
+      {#if typeof label === 'function'}{@render label?.()}{:else}{label}{/if}
     </span>
     {#if periodLabel}
       <span class={cm.textSize('xs')}>
-        {#if typeof periodLabel === 'function'}{@render periodLabel()}{:else}{periodLabel}{/if}
+        {#if typeof periodLabel === 'function'}{@render periodLabel?.()}{:else}{periodLabel}{/if}
       </span>
     {/if}
   </div>
   <div class={cm.flex({ align: 'baseline', gap: 'sm' })}>
     <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-      {#if typeof current === 'function'}{@render current()}{:else}{current}{/if}
+      {#if typeof current === 'function'}{@render current?.()}{:else}{current}{/if}
     </span>
     {#if previous !== undefined}
       <span
         class={cm.cn(cm.textSize('xs'))}
         use:reactStyle={{ textDecoration: 'line-through', opacity: 0.6 }}
       >
-        {#if typeof previous === 'function'}{@render previous()}{:else}{previous}{/if}
+        {#if typeof previous === 'function'}{@render previous?.()}{:else}{previous}{/if}
       </span>
     {/if}
     {#if deltaPct !== undefined}
       <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), deltaToneClass)}>
-        {#if formatDelta}{@render formatDelta(deltaPct)}{:else}{arrow} {pct}%{/if}
+        {#if formatDelta}{@render formatDelta?.(deltaPct)}{:else}{arrow} {pct}%{/if}
       </span>
     {/if}
   </div>

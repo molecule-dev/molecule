@@ -142,7 +142,7 @@
         <img src={photo.src} alt={photo.alt ?? `Image ${index + 1}`} style={IMG_STYLE} />
         {#if photo.caption}
           <figcaption class={cm.textOnTone} style={CAPTION_STYLE}>
-            {#if typeof photo.caption === 'function'}{@render photo.caption()}{:else}{photo.caption}{/if}
+            {#if typeof photo.caption === 'function'}{@render photo.caption?.()}{:else}{photo.caption}{/if}
           </figcaption>
         {/if}
       </figure>

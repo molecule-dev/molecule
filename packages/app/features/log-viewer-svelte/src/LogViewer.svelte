@@ -79,11 +79,11 @@
 </script>
 
 {#snippet field(value: Snippet | string | number)}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 {#if entries.length === 0 && emptyState}
-  {@render emptyState()}
+  {@render emptyState?.()}
 {:else}
   <div class={cm.cn(cm.stack(1), className)} role="log">
     {#each entries as entry (entry.id)}

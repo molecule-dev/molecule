@@ -34,7 +34,7 @@
 
 {#if layout.rows.length === 0}
   {#if emptyState}
-    {@render emptyState()}
+    {@render emptyState?.()}
   {:else}
     <div
       class={cm.cn(cm.sp('p', 3), cm.textSize('sm'), className)}

@@ -19,11 +19,11 @@
 <div class={cm.stack(gap)}>
   <div class={cm.flex({ justify: 'between', align: 'center' })}>
     <label for={htmlFor} class={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelSectionLabel)}>
-      {#if typeof label === 'function'}{@render label()}{:else}{label}{/if}
+      {#if typeof label === 'function'}{@render label?.()}{:else}{label}{/if}
     </label>
     {#if renders(trailing)}
-      {#if typeof trailing === 'function'}{@render trailing()}{:else}{trailing}{/if}
+      {#if typeof trailing === 'function'}{@render trailing?.()}{:else}{trailing}{/if}
     {/if}
   </div>
-  {#if children}{@render children()}{/if}
+  {#if children}{@render children?.()}{/if}
 </div>

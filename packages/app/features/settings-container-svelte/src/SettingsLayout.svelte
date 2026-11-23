@@ -15,14 +15,14 @@
 </script>
 
 <div data-mol-id={dataMolId} class={cm.cn(cm.stack(4), className)}>
-  {#if header}{@render header()}{/if}
+  {#if header}{@render header?.()}{/if}
   <div class={cm.flex({ align: 'start', gap: 'lg' })}>
     <aside class={cm.shrink0}>
-      {#if sidebar}{@render sidebar()}{/if}
+      {#if sidebar}{@render sidebar?.()}{/if}
     </aside>
     <main class={cm.flex1}>
       <div class={cm.stack(6)}>
-        {#if children}{@render children()}{/if}
+        {#if children}{@render children?.()}{/if}
       </div>
     </main>
   </div>

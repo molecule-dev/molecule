@@ -159,5 +159,5 @@
       {t('filterBar.clear', {}, { defaultValue: 'Clear filters' })}
     </Button>
   {/if}
-  {#if actions}{@render actions()}{/if}
+  {#if actions}{@render actions?.()}{/if}
 </div>

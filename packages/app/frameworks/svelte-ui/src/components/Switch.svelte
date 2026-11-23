@@ -75,7 +75,7 @@
   </button>
   {#if label}
     <span class={cm.controlText}
-      >{#if typeof label === 'string'}{label}{:else}{@render label()}{/if}</span
+      >{#if typeof label === 'string'}{label}{:else}{@render label?.()}{/if}</span
     >
   {/if}
 </label>

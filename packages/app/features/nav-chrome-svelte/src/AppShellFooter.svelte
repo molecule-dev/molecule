@@ -28,10 +28,10 @@
   )}
 >
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-    {#if typeof logo === 'function'}{@render logo()}{:else if logo != null}{logo}{/if}
+    {#if typeof logo === 'function'}{@render logo?.()}{:else if logo != null}{logo}{/if}
     {#if copyright}
       <span class={cm.textSize('xs')}>
-        {#if typeof copyright === 'function'}{@render copyright()}{:else}{copyright}{/if}
+        {#if typeof copyright === 'function'}{@render copyright?.()}{:else}{copyright}{/if}
       </span>
     {/if}
   </div>
@@ -39,10 +39,10 @@
     <nav aria-label={navLabel} class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>
       {#each links as l, i (i)}
         <a href={l.to ?? '#'} class={cm.cn(cm.textSize('sm'), cm.link)}>
-          {#if typeof l.label === 'function'}{@render l.label()}{:else}{l.label}{/if}
+          {#if typeof l.label === 'function'}{@render l.label?.()}{:else}{l.label}{/if}
         </a>
       {/each}
     </nav>
   {/if}
-  {#if typeof right === 'function'}{@render right()}{:else if right != null}{right}{/if}
+  {#if typeof right === 'function'}{@render right?.()}{:else if right != null}{right}{/if}
 </footer>

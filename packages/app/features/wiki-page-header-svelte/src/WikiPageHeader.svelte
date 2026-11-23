@@ -30,10 +30,10 @@
 </script>
 
 <header class={cm.cn(cm.stack(2), className)}>
-  {#if typeof breadcrumb === 'function'}{@render breadcrumb()}{:else if breadcrumb}{breadcrumb}{/if}
+  {#if typeof breadcrumb === 'function'}{@render breadcrumb?.()}{:else if breadcrumb}{breadcrumb}{/if}
   <div class={cm.flex({ justify: 'between', align: 'start', gap: 'md', wrap: 'wrap' })}>
     <h1 class={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h1>
     <div class={cm.flex({ align: 'center', gap: 'sm' })}>
       {#if onEdit}
@@ -46,29 +46,29 @@
           {t('wiki.history', {}, { defaultValue: 'History' })}
         </Button>
       {/if}
-      {#if typeof extraActions === 'function'}{@render extraActions()}{:else if extraActions}{extraActions}{/if}
+      {#if typeof extraActions === 'function'}{@render extraActions?.()}{:else if extraActions}{extraActions}{/if}
     </div>
   </div>
   <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
     {#if version}
       <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-        {#if typeof version === 'function'}{@render version()}{:else}{version}{/if}
+        {#if typeof version === 'function'}{@render version?.()}{:else}{version}{/if}
       </span>
     {/if}
     {#if updatedAt}
       <span class={cm.textSize('xs')}>
         {t('wiki.updatedAt', {}, { defaultValue: 'Updated' })}
-        {#if typeof updatedAt === 'function'}{@render updatedAt()}{:else}{updatedAt}{/if}
+        {#if typeof updatedAt === 'function'}{@render updatedAt?.()}{:else}{updatedAt}{/if}
       </span>
     {/if}
     {#if updatedBy}
       <span class={cm.textSize('xs')}
-        >· {#if typeof updatedBy === 'function'}{@render updatedBy()}{:else}{updatedBy}{/if}</span
+        >· {#if typeof updatedBy === 'function'}{@render updatedBy?.()}{:else}{updatedBy}{/if}</span
       >
     {/if}
     {#if tags}
       <span class={cm.flex({ align: 'center', gap: 'xs' })}>
-        {#if typeof tags === 'function'}{@render tags()}{:else}{tags}{/if}
+        {#if typeof tags === 'function'}{@render tags?.()}{:else}{tags}{/if}
       </span>
     {/if}
   </div>

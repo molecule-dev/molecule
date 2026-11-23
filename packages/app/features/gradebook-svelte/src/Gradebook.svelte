@@ -116,7 +116,7 @@
               class={cm.cn(cm.textSize('sm'))}
               data-mol-id="gradebook-cell-title"
               onclick={handlerFor(grade, 'title')}
-              >{#if typeof grade.title === 'function'}{@render grade.title()}{:else}{grade.title}{/if}</td
+              >{#if typeof grade.title === 'function'}{@render grade.title?.()}{:else}{grade.title}{/if}</td
             >
             <td
               class={cm.cn(cm.textSize('sm'))}
@@ -146,7 +146,7 @@
               class={cm.cn(cm.textSize('sm'))}
               data-mol-id="gradebook-cell-posted"
               onclick={handlerFor(grade, 'posted')}
-              >{#if typeof grade.postedAt === 'function'}{@render grade.postedAt()}{:else}{grade.postedAt ??
+              >{#if typeof grade.postedAt === 'function'}{@render grade.postedAt?.()}{:else}{grade.postedAt ??
                   '—'}{/if}</td
             >
           </tr>

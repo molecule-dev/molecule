@@ -25,12 +25,12 @@
   <div class={stackClass}>
     <header class={headerClass}>
       <div class={innerClass}>
-        {#if typeof icon === 'function'}{@render icon()}{:else if icon}{icon}{/if}
+        {#if typeof icon === 'function'}{@render icon?.()}{:else if icon}{icon}{/if}
         <h3 class={titleClass}>
-          {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+          {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
         </h3>
       </div>
-      {#if typeof actions === 'function'}{@render actions()}{:else if actions}{actions}{/if}
+      {#if typeof actions === 'function'}{@render actions?.()}{:else if actions}{actions}{/if}
     </header>
     <DefinitionList {fields} {columns} />
   </div>

@@ -65,6 +65,6 @@
   class={cm.cn(cm.position('relative'), cm.cursorPointer, cm.surface, className)}
   use:reactStyle={rootStyle}
 >
-  {#if children}{@render children()}{/if}
+  {#if children}{@render children?.()}{/if}
   <span class={cm.cn(cm.bgScrim, cm.textOnTone)} use:reactStyle={badgeStyle}>{index}</span>
 </button>

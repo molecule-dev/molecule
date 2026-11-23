@@ -150,7 +150,7 @@
 <form class={cm.cn(cm.stack(3), className)} onsubmit={handle}>
   {#if title}
     <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h3>
   {/if}
   <!-- jsx-a11y's interactive-supports-focus asks the group (it carries
@@ -195,7 +195,7 @@
     {#if submitting}
       {submittingText}
     {:else if typeof submitLabel === 'function'}
-      {@render submitLabel()}
+      {@render submitLabel?.()}
     {:else if submitLabel !== undefined && submitLabel !== null}
       {submitLabel}
     {:else}

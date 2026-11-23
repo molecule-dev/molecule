@@ -39,26 +39,26 @@
 >
   {#if media}
     <div class={cm.shrink0}>
-      {#if typeof media === 'function'}{@render media()}{:else}{media}{/if}
+      {#if typeof media === 'function'}{@render media?.()}{:else}{media}{/if}
     </div>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(2))}>
     {#if eyebrow}
       <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-        {#if typeof eyebrow === 'function'}{@render eyebrow()}{:else}{eyebrow}{/if}
+        {#if typeof eyebrow === 'function'}{@render eyebrow?.()}{:else}{eyebrow}{/if}
       </div>
     {/if}
     <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h3>
     {#if description}
       <p>
-        {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+        {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
       </p>
     {/if}
     {#if action}
       <div class={cm.sp('mt', 2)}>
-        {#if typeof action === 'function'}{@render action()}{:else}{action}{/if}
+        {#if typeof action === 'function'}{@render action?.()}{:else}{action}{/if}
       </div>
     {/if}
   </div>

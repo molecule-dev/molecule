@@ -17,7 +17,7 @@
 
 <section class={cm.cn(cm.stack(3), className)}>
   <h3 class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-    {#if typeof heading === 'function'}{@render heading()}{:else}{heading ?? ''}{/if}
+    {#if typeof heading === 'function'}{@render heading?.()}{:else}{heading ?? ''}{/if}
   </h3>
   <div class={cm.stack(4)}>
     {#each items as item (item.id)}

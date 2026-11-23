@@ -73,18 +73,18 @@
 
 {#if submitted && successContent !== undefined}
   <div class={className}>
-    {#if typeof successContent === 'function'}{@render successContent()}{:else if successContent !== null}{successContent}{/if}
+    {#if typeof successContent === 'function'}{@render successContent?.()}{:else if successContent !== null}{successContent}{/if}
   </div>
 {:else}
   <form class={cm.cn(cm.stack(2), className)} onsubmit={handle}>
     {#if title}
       <h4 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-        {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+        {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
       </h4>
     {/if}
     {#if description}
       <p class={cm.textSize('sm')}>
-        {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+        {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
       </p>
     {/if}
     <div class={inline ? cm.flex({ align: 'center', gap: 'sm' }) : cm.stack(2)}>
@@ -101,7 +101,7 @@
         {#if submitting}
           {subscribingText}
         {:else if typeof buttonLabel === 'function'}
-          {@render buttonLabel()}
+          {@render buttonLabel?.()}
         {:else if buttonLabel !== undefined && buttonLabel !== null}
           {buttonLabel}
         {:else}

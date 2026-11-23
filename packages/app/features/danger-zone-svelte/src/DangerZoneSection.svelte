@@ -35,7 +35,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 <Card {className} data-mol-id={dataMolId}>

@@ -544,9 +544,9 @@
           style:height="100%"
         >
           {#if nodeRenderers?.[node.type]}
-            {@render nodeRenderers[node.type](node)}
+            {@render nodeRenderers[node.type]?.(node)}
           {:else if children}
-            {@render children()}
+            {@render children?.()}
           {/if}
         </div>
         <!-- The connection handle is dragged, never focused: React's DOM gives it

@@ -43,29 +43,29 @@
 <Card {className} style={cardStyle}>
   <div class={cm.flex({ align: 'start', gap: 'md' })}>
     <div class={cm.shrink0} style="font-size: 36px">
-      {#if typeof icon === 'function'}{@render icon()}{:else if icon}{icon}{/if}
+      {#if typeof icon === 'function'}{@render icon?.()}{:else if icon}{icon}{/if}
     </div>
     <div class={cm.cn(cm.flex1, cm.stack(1))}>
       <header class={cm.flex({ align: 'baseline', gap: 'sm' })}>
         <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>
-          {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+          {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
         </h3>
         {#if tier}
           <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-            {#if typeof tier === 'function'}{@render tier()}{:else}{tier}{/if}
+            {#if typeof tier === 'function'}{@render tier?.()}{:else}{tier}{/if}
           </span>
         {/if}
       </header>
       {#if description}
         <p class={cm.textSize('sm')}>
-          {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+          {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
         </p>
       {/if}
       {#if earned}
         {#if earnedAt}
           <span class={cm.textSize('xs')}>
             {earnedText}
-            {#if typeof earnedAt === 'function'}{@render earnedAt()}{:else}{earnedAt}{/if}
+            {#if typeof earnedAt === 'function'}{@render earnedAt?.()}{:else}{earnedAt}{/if}
           </span>
         {/if}
       {:else if progress}

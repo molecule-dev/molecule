@@ -75,7 +75,7 @@
     />
     {#if label}
       <span class={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>
-        {#if typeof label === 'string'}{label}{:else}{@render label()}{/if}
+        {#if typeof label === 'string'}{label}{:else}{@render label?.()}{/if}
       </span>
     {/if}
   </label>

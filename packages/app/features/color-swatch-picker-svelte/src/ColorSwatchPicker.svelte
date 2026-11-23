@@ -44,5 +44,5 @@
       ></button>
     {/each}
   </div>
-  {#if preview}{@render preview()}{/if}
+  {#if preview}{@render preview?.()}{/if}
 </div>

@@ -135,7 +135,7 @@
     <BackgroundTasksStrip tasks={ctx.chat.backgroundTasks} />
     {#if showTests}
       {#if nativeTests}
-        {@render nativeTests.renderStatus(() => ctx.tests.openTestsBrowser(''))}
+        {@render nativeTests.renderStatus?.(() => ctx.tests.openTestsBrowser(''))}
       {:else}
         <TestStatusBar
           run={testsRun}

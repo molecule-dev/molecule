@@ -184,7 +184,7 @@
           data-mol-id="stage-timeline-label"
           style="text-align: center; color: {labelColor(status)}"
         >
-          {#if isSnippet(stage.label)}{@render stage.label()}{:else}{textOf(stage.label)}{/if}
+          {#if isSnippet(stage.label)}{@render stage.label?.()}{:else}{textOf(stage.label)}{/if}
         </span>
         {#if stage.subtitle}
           <span
@@ -192,7 +192,7 @@
             data-mol-id="stage-timeline-subtitle"
             style="text-align: center; color: var(--mol-color-on-surface-variant, #888)"
           >
-            {#if isSnippet(stage.subtitle)}{@render stage.subtitle()}{:else}{textOf(
+            {#if isSnippet(stage.subtitle)}{@render stage.subtitle?.()}{:else}{textOf(
                 stage.subtitle,
               )}{/if}
           </span>

@@ -20,7 +20,7 @@
 
 {#if showsEmptyState}
   <div class={cm.cn(cm.flex1, cm.flex({ align: 'center', justify: 'center' }))}>
-    {#if typeof emptyState === 'function'}{@render emptyState()}{:else}{emptyState}{/if}
+    {#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}
   </div>
 {:else}
   <div class={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 4), cm.chatbotTesterMessageList)}>

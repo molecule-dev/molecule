@@ -86,7 +86,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else if value !== undefined && value !== ''}{value}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else if value !== undefined && value !== ''}{value}{/if}
 {/snippet}
 
 <div class={cm.cn(cm.card(), className)} style="overflow: hidden">
@@ -177,7 +177,7 @@
               </td>
             {/if}
             {#each columns as column (column.id)}
-              <td class={cellClass(column)}>{@render column.render(row)}</td>
+              <td class={cellClass(column)}>{@render column.render?.(row)}</td>
             {/each}
             {#if hasActions && rowActions}
               <td class={cm.cn(cm.sp('py', 4), cm.sp('px', 6), cm.textRight)}>

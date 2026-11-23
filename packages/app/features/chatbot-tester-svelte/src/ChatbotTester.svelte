@@ -85,7 +85,7 @@
         for="chatbot-tester-bot-select"
         class={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
       >
-        {#if typeof label === 'function'}{@render label()}{:else}{label}{/if}
+        {#if typeof label === 'function'}{@render label?.()}{:else}{label}{/if}
       </label>
       <select
         bind:this={selectEl}
@@ -102,7 +102,7 @@
   <ChatbotTesterMessages {messages} {loading} {emptyState} />
   {#if error}
     <p role="alert" class={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}>
-      {#if typeof error === 'function'}{@render error()}{:else}{error}{/if}
+      {#if typeof error === 'function'}{@render error?.()}{:else}{error}{/if}
     </p>
   {/if}
   <ChatbotTesterInput

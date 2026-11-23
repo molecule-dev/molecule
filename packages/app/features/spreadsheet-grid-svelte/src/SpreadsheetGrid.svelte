@@ -291,7 +291,7 @@
       />
     {:else}
       <div class={layout.contentClasses}>
-        {#if renderCell}{@render renderCell(cell.value, cell.ref)}{:else}{cell.text}{/if}
+        {#if renderCell}{@render renderCell?.(cell.value, cell.ref)}{:else}{cell.text}{/if}
       </div>
     {/if}
   </div>

@@ -68,15 +68,15 @@
     <header class={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
       {#if progress}
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-          {#if typeof progress === 'function'}{@render progress()}{:else}{progress}{/if}
+          {#if typeof progress === 'function'}{@render progress?.()}{:else}{progress}{/if}
         </span>
       {/if}
       {#if timer}
-        {#if typeof timer === 'function'}{@render timer()}{:else}{timer}{/if}
+        {#if typeof timer === 'function'}{@render timer?.()}{:else}{timer}{/if}
       {/if}
     </header>
     <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-      {#if typeof question === 'function'}{@render question()}{:else}{question}{/if}
+      {#if typeof question === 'function'}{@render question?.()}{:else}{question}{/if}
     </h2>
     <div class={cm.stack(2)}>
       {#each options as option (option.id)}
@@ -105,7 +105,7 @@
           style={optionStyle(isCorrect, isWrong, isSelected)}
         >
           <span>
-            {#if typeof option.label === 'function'}{@render option.label()}{:else}{option.label}{/if}
+            {#if typeof option.label === 'function'}{@render option.label?.()}{:else}{option.label}{/if}
           </span>
           {#if isCorrect}<span aria-hidden="true">✓</span>{/if}
           {#if isWrong}<span aria-hidden="true">×</span>{/if}
@@ -118,7 +118,7 @@
       </Button>
     {:else if explanation}
       <p class={cm.textSize('sm')}>
-        {#if typeof explanation === 'function'}{@render explanation()}{:else}{explanation}{/if}
+        {#if typeof explanation === 'function'}{@render explanation?.()}{:else}{explanation}{/if}
       </p>
     {/if}
   </div>

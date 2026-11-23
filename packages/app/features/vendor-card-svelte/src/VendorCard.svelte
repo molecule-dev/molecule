@@ -34,12 +34,12 @@
     <div class={cm.cn(cm.flex1, cm.stack(2))}>
       <header>
         <h3 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-          {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+          {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
         </h3>
         <!-- React's `{description && …}`: a falsy description renders nothing. -->
         {#if description}
           <p class={cm.textSize('sm')}>
-            {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+            {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
           </p>
         {/if}
       </header>
@@ -56,15 +56,15 @@
         {/if}
         {#if memberSince}
           <span class={cm.textSize('xs')}>
-            · {#if typeof memberSince === 'function'}{@render memberSince()}{:else}{memberSince}{/if}
+            · {#if typeof memberSince === 'function'}{@render memberSince?.()}{:else}{memberSince}{/if}
           </span>
         {/if}
-        {#if typeof badges === 'function'}{@render badges()}{:else}{badges}{/if}
+        {#if typeof badges === 'function'}{@render badges?.()}{:else}{badges}{/if}
       </div>
       <!-- React's `{actions && …}`: a falsy actions row renders nothing. -->
       {#if actions}
         <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-          {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+          {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
         </div>
       {/if}
     </div>

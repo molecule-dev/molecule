@@ -67,7 +67,7 @@
     report(caught)
   }}
 >
-  {@render render()}
+  {@render render?.()}
   {#snippet failed()}
     <div
       data-mol-id="chat-item-render-error"

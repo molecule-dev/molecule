@@ -21,14 +21,14 @@
   {#if typeof emptyState === 'string' || typeof emptyState === 'number'}
     {emptyState}
   {:else}
-    {@render emptyState()}
+    {@render emptyState?.()}
   {/if}
 {:else}
   <div class={cm.cn(cm.stack(0 as const), className)}>
     {#each events as event, i (event.id)}
       {@const prev = i > 0 ? events[i - 1] : undefined}
       <div>
-        {#if renderDateSeparator}{@render renderDateSeparator(event, prev)}{/if}
+        {#if renderDateSeparator}{@render renderDateSeparator?.(event, prev)}{/if}
         <TimelineEvent {event} isLast={i === events.length - 1} />
       </div>
     {/each}

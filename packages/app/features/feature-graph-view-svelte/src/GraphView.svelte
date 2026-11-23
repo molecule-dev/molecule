@@ -91,7 +91,7 @@
         >{#each edges as edge (edge.id)}{@const src = findNode(edge.source)}{@const tgt = findNode(
             edge.target,
           )}{#if src && tgt}{#if edgeRenderer}<g data-mol-id="graph-view-edge-{edge.id}"
-                >{@render edgeRenderer(edge, src, tgt)}</g
+                >{@render edgeRenderer?.(edge, src, tgt)}</g
               >{:else}<line
                 data-mol-id="graph-view-edge-{edge.id}"
                 x1={src.x}
@@ -124,7 +124,7 @@
             }}
             style:cursor={onNodeClick ? 'pointer' : 'default'}
             style:outline="none"
-            >{#if nodeRenderer}{@render nodeRenderer(node)}{:else}<g
+            >{#if nodeRenderer}{@render nodeRenderer?.(node)}{:else}<g
                 data-mol-id="graph-view-node-{node.id}"
                 data-selected={isSelected ? 'true' : 'false'}
                 transform="translate({node.x}, {node.y})"

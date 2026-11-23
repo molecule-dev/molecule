@@ -28,21 +28,21 @@
 
 <div class={cm.cn(cm.stack(1), cm.sp('p', 3), className)}>
   <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-    {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+    {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
   </h3>
   {#if renders(subtitle)}
     <p class={cm.textSize('sm')}>
-      {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+      {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
     </p>
   {/if}
   {#if renders(price)}
     <p class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-      {#if typeof price === 'function'}{@render price()}{:else}{price}{/if}
+      {#if typeof price === 'function'}{@render price?.()}{:else}{price}{/if}
     </p>
   {/if}
   {#if renders(meta)}
     <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-      {#if typeof meta === 'function'}{@render meta()}{:else}{meta}{/if}
+      {#if typeof meta === 'function'}{@render meta?.()}{:else}{meta}{/if}
     </div>
   {/if}
 </div>

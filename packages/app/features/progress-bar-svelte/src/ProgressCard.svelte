@@ -42,22 +42,22 @@
     <div class={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
       <div class={cm.flex({ align: 'center', gap: 'sm' })}>
         {#if icon}
-          {#if typeof icon === 'function'}{@render icon()}{:else}{icon}{/if}
+          {#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}
         {/if}
         <div>
           <h3 id={titleId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-            {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+            {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
           </h3>
           {#if description}
             <p id={descriptionId} class={cm.textSize('sm')}>
-              {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+              {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
             </p>
           {/if}
         </div>
       </div>
       {#if valueLabel}
         <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-          {#if typeof valueLabel === 'function'}{@render valueLabel()}{:else}{valueLabel}{/if}
+          {#if typeof valueLabel === 'function'}{@render valueLabel?.()}{:else}{valueLabel}{/if}
         </span>
       {/if}
     </div>
@@ -68,6 +68,6 @@
       labelledBy={titleId}
       describedBy={description ? descriptionId : undefined}
     />
-    {#if children}{@render children()}{/if}
+    {#if children}{@render children?.()}{/if}
   </div>
 </Card>

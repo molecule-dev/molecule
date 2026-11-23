@@ -338,7 +338,7 @@
   >
     {#if mapSlot}
       <div data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px">
-        {@render mapSlot()}
+        {@render mapSlot?.()}
       </div>
     {/if}
     <svg

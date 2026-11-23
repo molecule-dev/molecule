@@ -88,7 +88,7 @@
             cm.cursorPointer,
           )}
           ><span use:reactStyle={{ width: '80px', opacity: '0.7' }}
-            >{#if typeof timestamp === 'function'}{@render timestamp()}{:else if timestamp !== ''}{timestamp}{/if}</span
+            >{#if typeof timestamp === 'function'}{@render timestamp?.()}{:else if timestamp !== ''}{timestamp}{/if}</span
           ><span
             class={cm.cn(cm.bgTone(statusTone(delivery.status)), cm.textOnTone)}
             use:reactStyle={{

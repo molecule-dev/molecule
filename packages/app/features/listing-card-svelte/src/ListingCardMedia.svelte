@@ -19,13 +19,13 @@
 
 <div class={cm.cn(cm.position('relative'), className)} style="aspect-ratio: {aspectRatio}">
   {#if children}
-    {#if typeof children === 'function'}{@render children()}{:else}{children}{/if}
+    {#if typeof children === 'function'}{@render children?.()}{:else}{children}{/if}
   {:else if src}
     <img {src} alt={alt ?? ''} style="width: 100%; height: 100%; object-fit: cover" />
   {/if}
   {#if overlay}
     <div class={cm.cn(cm.position('absolute'), cm.inset0)}>
-      {#if typeof overlay === 'function'}{@render overlay()}{:else}{overlay}{/if}
+      {#if typeof overlay === 'function'}{@render overlay?.()}{:else}{overlay}{/if}
     </div>
   {/if}
 </div>

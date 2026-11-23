@@ -21,20 +21,20 @@
   <div class={cm.stack(4)}>
     <header class={cm.stack(1)}>
       <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
-        {#if typeof title === 'function'}{@render title()}{:else if title != null}{title}{/if}
+        {#if typeof title === 'function'}{@render title?.()}{:else if title != null}{title}{/if}
       </h2>
       {#if description}
         <p class={cm.textSize('sm')}>
-          {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+          {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
         </p>
       {/if}
     </header>
     <div>
-      {#if children}{@render children()}{/if}
+      {#if children}{@render children?.()}{/if}
     </div>
     {#if footer}
       <footer class={cm.flex({ justify: 'end', align: 'center', gap: 'sm' })}>
-        {#if typeof footer === 'function'}{@render footer()}{:else}{footer}{/if}
+        {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
       </footer>
     {/if}
   </div>

@@ -32,29 +32,29 @@
 >
   <div class={cm.flex({ justify: 'between', align: 'center', gap: 'md', wrap: 'wrap' })}>
     <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-      {#if typeof leading === 'function'}{@render leading()}{:else if leading}{leading}{/if}
+      {#if typeof leading === 'function'}{@render leading?.()}{:else if leading}{leading}{/if}
       <div class={cm.stack(1)}>
         <div class={cm.flex({ align: 'center', gap: 'sm' })}>
           <h1 class={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
-            {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+            {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
           </h1>
-          {#if typeof status === 'function'}{@render status()}{:else if status}{status}{/if}
+          {#if typeof status === 'function'}{@render status?.()}{:else if status}{status}{/if}
         </div>
         {#if subtitle}
           <p class={cm.textSize('sm')}>
-            {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+            {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
           </p>
         {/if}
       </div>
     </div>
     <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-      {#if typeof search === 'function'}{@render search()}{:else if search}{search}{/if}
-      {#if typeof actions === 'function'}{@render actions()}{:else if actions}{actions}{/if}
+      {#if typeof search === 'function'}{@render search?.()}{:else if search}{search}{/if}
+      {#if typeof actions === 'function'}{@render actions?.()}{:else if actions}{actions}{/if}
     </div>
   </div>
   {#if meta}
     <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-      {#if typeof meta === 'function'}{@render meta()}{:else}{meta}{/if}
+      {#if typeof meta === 'function'}{@render meta?.()}{:else}{meta}{/if}
     </div>
   {/if}
 </header>

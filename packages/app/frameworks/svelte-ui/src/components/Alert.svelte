@@ -75,7 +75,7 @@
 >
   {#if icon || iconName}
     <span class={cm.alertIconWrapper}>
-      {#if icon}{@render icon()}{:else if iconName}<IconGlyph
+      {#if icon}{@render icon?.()}{:else if iconName}<IconGlyph
           name={iconName}
           className={cm.iconMd}
         />{/if}

@@ -329,7 +329,7 @@
         <!-- Human-verification challenge — signup only (login is not gated). -->
         {#if isSignup && captchaSlot}
           <div data-mol-id="auth-modal-captcha" style="display: grid; margin-top: 2px">
-            {#if typeof captchaSlot === 'function'}{@render captchaSlot()}{:else}{captchaSlot}{/if}
+            {#if typeof captchaSlot === 'function'}{@render captchaSlot?.()}{:else}{captchaSlot}{/if}
           </div>
         {/if}
         <Button

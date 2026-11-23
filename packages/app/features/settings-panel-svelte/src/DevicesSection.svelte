@@ -89,7 +89,7 @@
                 </span>{/if}</span
             >
             {#if renderRowIcon}
-              {@render renderRowIcon(device)}
+              {@render renderRowIcon?.(device)}
             {:else if device.isCurrent}
               <Icon name="chevron-right" size={16} className={cm.textSubtle} />
             {:else if confirmingId === device.id}

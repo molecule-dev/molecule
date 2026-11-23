@@ -51,28 +51,28 @@
       {#if showBadge}
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
           {#if badgeProvided}
-            {#if typeof badge === 'function'}{@render badge()}{:else}{badge}{/if}
+            {#if typeof badge === 'function'}{@render badge?.()}{:else}{badge}{/if}
           {:else}
             {t('plan.recommended', {}, { defaultValue: 'Recommended' })}
           {/if}
         </span>
       {/if}
       <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
-        {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+        {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
       </h3>
       {#if showDescription}
         <p class={cm.textSize('sm')}>
-          {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+          {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
         </p>
       {/if}
     </header>
     <div class={cm.flex({ align: 'baseline', gap: 'xs' })}>
       <span class={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>
-        {#if typeof price === 'function'}{@render price()}{:else}{price}{/if}
+        {#if typeof price === 'function'}{@render price?.()}{:else}{price}{/if}
       </span>
       {#if showInterval}
         <span class={cm.textSize('sm')}>
-          {#if typeof interval === 'function'}{@render interval()}{:else}{interval}{/if}
+          {#if typeof interval === 'function'}{@render interval?.()}{:else}{interval}{/if}
         </span>
       {/if}
     </div>
@@ -81,7 +81,7 @@
         <li class={cm.flex({ align: 'start', gap: 'sm' })}>
           <span aria-hidden="true">✓</span>
           <span class={cm.textSize('sm')}>
-            {#if typeof feature === 'function'}{@render feature()}{:else}{feature}{/if}
+            {#if typeof feature === 'function'}{@render feature?.()}{:else}{feature}{/if}
           </span>
         </li>
       {/each}
@@ -90,12 +90,12 @@
       {#if ctaHref}
         <a href={ctaHref}>
           <Button variant="solid" color={recommended ? 'primary' : 'secondary'}>
-            {#if typeof ctaLabel === 'function'}{@render ctaLabel()}{:else}{ctaLabel}{/if}
+            {#if typeof ctaLabel === 'function'}{@render ctaLabel?.()}{:else}{ctaLabel}{/if}
           </Button>
         </a>
       {:else}
         <Button variant="solid" color={recommended ? 'primary' : 'secondary'} onClick={onCta}>
-          {#if typeof ctaLabel === 'function'}{@render ctaLabel()}{:else}{ctaLabel}{/if}
+          {#if typeof ctaLabel === 'function'}{@render ctaLabel?.()}{:else}{ctaLabel}{/if}
         </Button>
       {/if}
     {/if}

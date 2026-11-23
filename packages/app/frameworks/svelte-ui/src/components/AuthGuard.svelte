@@ -80,7 +80,7 @@
   <!-- Nothing while redirecting, as React renders its redirect: a redirect that
        cannot land (a guard refusing the login path) must not show the protected page. -->
 {:else if children}
-  {@render children()}
+  {@render children?.()}
 {:else}
   <RoutedView />
 {/if}

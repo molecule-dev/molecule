@@ -28,7 +28,7 @@
   )}
 >
   <div class={cm.flex({ align: 'center', gap: 'lg' })}>
-    {#if typeof logo === 'function'}{@render logo()}{:else if logo != null}{logo}{/if}
+    {#if typeof logo === 'function'}{@render logo?.()}{:else if logo != null}{logo}{/if}
     {#if items && items.length > 0}
       <nav aria-label={navLabel} class={cm.flex({ align: 'center', gap: 'sm' })}>
         {#each items as it (it.id)}
@@ -45,17 +45,17 @@
               it.id === activeId ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
             )}
           >
-            {#if typeof it.icon === 'function'}{@render it.icon()}{:else if it.icon != null}{it.icon}{/if}
+            {#if typeof it.icon === 'function'}{@render it.icon?.()}{:else if it.icon != null}{it.icon}{/if}
             <span>
-              {#if typeof it.label === 'function'}{@render it.label()}{:else}{it.label}{/if}
+              {#if typeof it.label === 'function'}{@render it.label?.()}{:else}{it.label}{/if}
             </span>
-            {#if typeof it.badge === 'function'}{@render it.badge()}{:else if it.badge != null}{it.badge}{/if}
+            {#if typeof it.badge === 'function'}{@render it.badge?.()}{:else if it.badge != null}{it.badge}{/if}
           </button>
         {/each}
       </nav>
     {/if}
   </div>
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-    {#if typeof right === 'function'}{@render right()}{:else if right != null}{right}{/if}
+    {#if typeof right === 'function'}{@render right?.()}{:else if right != null}{right}{/if}
   </div>
 </header>

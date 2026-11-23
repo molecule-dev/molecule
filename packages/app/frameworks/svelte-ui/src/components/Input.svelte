@@ -80,7 +80,7 @@
     >
   {/if}
   <div class={cm.inputInner}>
-    {#if leftElement}<div class={cm.inputLeftElement}>{@render leftElement()}</div>{/if}
+    {#if leftElement}<div class={cm.inputLeftElement}>{@render leftElement?.()}</div>{/if}
     <input
       bind:this={ref}
       {type}

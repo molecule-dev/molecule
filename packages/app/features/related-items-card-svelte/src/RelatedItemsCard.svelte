@@ -35,7 +35,7 @@
 
 {#snippet node(
   value: ReactNodeProp | undefined,
-)}{#if typeof value === 'function'}{@render value()}{:else if value !== undefined && value !== ''}{value}{/if}{/snippet}
+)}{#if typeof value === 'function'}{@render value?.()}{:else if value !== undefined && value !== ''}{value}{/if}{/snippet}
 
 <Card {className} data-mol-id={dataMolId}>
   <div class={cm.stack(3)}>
@@ -73,10 +73,10 @@
                   onItemClick?.(item, i)
                 }}
               >
-                {@render renderItem(item, i)}
+                {@render renderItem?.(item, i)}
               </div>
             {:else}
-              {@render renderItem(item, i)}
+              {@render renderItem?.(item, i)}
             {/if}
           </li>
         {/each}

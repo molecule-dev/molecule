@@ -27,7 +27,7 @@
 </script>
 
 {#snippet node(value: string | Snippet)}
-  {#if typeof value === 'string'}{value}{:else}{@render value()}{/if}
+  {#if typeof value === 'string'}{value}{:else}{@render value?.()}{/if}
 {/snippet}
 
 <section

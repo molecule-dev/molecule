@@ -53,7 +53,7 @@
   <header class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'sm' }), cm.sp('p', 3))}>
     <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
       {#if title !== undefined && title !== null}
-        {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+        {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
       {:else}{defaultTitle}{/if}
     </h3>
     {#if onMarkAllRead && hasItems}
@@ -77,7 +77,7 @@
   {/if}
   {#if !hasItems}
     {#if emptyState !== undefined && emptyState !== null}
-      {#if typeof emptyState === 'function'}{@render emptyState()}{:else}{emptyState}{/if}
+      {#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}
     {:else}
       <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>{emptyText}</div>
     {/if}
@@ -115,7 +115,7 @@
           >
             {#if it.leading}
               <div class={cm.shrink0}>
-                {#if typeof it.leading === 'function'}{@render it.leading()}{:else}{it.leading}{/if}
+                {#if typeof it.leading === 'function'}{@render it.leading?.()}{:else}{it.leading}{/if}
               </div>
             {/if}
             <div class={cm.cn(cm.flex1, cm.stack(0 as const))}>
@@ -128,16 +128,16 @@
                   it.read ? cm.fontWeight('medium') : cm.fontWeight('semibold'),
                 )}
               >
-                {#if typeof it.title === 'function'}{@render it.title()}{:else}{it.title}{/if}
+                {#if typeof it.title === 'function'}{@render it.title?.()}{:else}{it.title}{/if}
               </span>
               {#if it.body}
                 <span class={cm.textSize('xs')}>
-                  {#if typeof it.body === 'function'}{@render it.body()}{:else}{it.body}{/if}
+                  {#if typeof it.body === 'function'}{@render it.body?.()}{:else}{it.body}{/if}
                 </span>
               {/if}
               {#if it.timestamp}
                 <span class={cm.textSize('xs')}>
-                  {#if typeof it.timestamp === 'function'}{@render it.timestamp()}{:else}{it.timestamp}{/if}
+                  {#if typeof it.timestamp === 'function'}{@render it.timestamp?.()}{:else}{it.timestamp}{/if}
                 </span>
               {/if}
             </div>

@@ -28,7 +28,7 @@
 <LegalPageLayout dataMolId="page-terms" {stackGap}>
   {#snippet title()}{pageTitle}{/snippet}
   {#if children}
-    {@render children()}
+    {@render children?.()}
   {:else}
     <p>{intro}</p>
   {/if}

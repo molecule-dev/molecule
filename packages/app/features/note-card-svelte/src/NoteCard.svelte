@@ -80,7 +80,7 @@
 {#snippet content()}
   {#if title}
     <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))} id={onClick ? nameId : undefined}>
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h3>
   {/if}
   <div
@@ -88,7 +88,7 @@
     style="white-space: pre-wrap"
     id={title ? undefined : onClick ? nameId : undefined}
   >
-    {#if typeof body === 'function'}{@render body()}{:else}{body}{/if}
+    {#if typeof body === 'function'}{@render body?.()}{:else}{body}{/if}
   </div>
 {/snippet}
 
@@ -127,10 +127,10 @@
     >
       {#if modifiedAt}
         <span class={cm.textSize('xs')}>
-          {#if typeof modifiedAt === 'function'}{@render modifiedAt()}{:else}{modifiedAt}{/if}
+          {#if typeof modifiedAt === 'function'}{@render modifiedAt?.()}{:else}{modifiedAt}{/if}
         </span>
       {/if}
-      {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+      {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
     </footer>
   {/if}
 </article>

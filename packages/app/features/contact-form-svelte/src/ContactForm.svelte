@@ -78,7 +78,7 @@
 
 {#if submitted && successContent !== undefined}
   <div class={className}>
-    {#if typeof successContent === 'function'}{@render successContent()}{:else if successContent !== null}{successContent}{/if}
+    {#if typeof successContent === 'function'}{@render successContent?.()}{:else if successContent !== null}{successContent}{/if}
   </div>
 {:else}
   <form class={cm.cn(cm.stack(3), className)} onsubmit={handle}>
@@ -86,12 +86,12 @@
       <header class={cm.stack(1)}>
         {#if title}
           <h3 class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
-            {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+            {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
           </h3>
         {/if}
         {#if description}
           <p class={cm.textSize('sm')}>
-            {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+            {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
           </p>
         {/if}
       </header>
@@ -113,7 +113,7 @@
       aria-label={emailLabel}
     />
     {#if extraFields}
-      {#if typeof extraFields === 'function'}{@render extraFields()}{:else}{extraFields}{/if}
+      {#if typeof extraFields === 'function'}{@render extraFields?.()}{:else}{extraFields}{/if}
     {/if}
     <Textarea
       value={message}
@@ -130,7 +130,7 @@
       {#if submitting}
         {sendingText}
       {:else if typeof submitLabel === 'function'}
-        {@render submitLabel()}
+        {@render submitLabel?.()}
       {:else if submitLabel !== undefined && submitLabel !== null}
         {submitLabel}
       {:else}

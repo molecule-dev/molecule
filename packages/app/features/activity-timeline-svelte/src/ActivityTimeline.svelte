@@ -74,7 +74,7 @@
 </script>
 
 <div class={cm.cn(cm.card(), cm.sp('p', 6), className)}>
-  {#if header != null}{#if isSnippet(header)}{@render header()}{:else}{textOf(header)}{/if}{/if}
+  {#if header != null}{#if isSnippet(header)}{@render header?.()}{:else}{textOf(header)}{/if}{/if}
   <div class={cm.cn(cm.stack(8), cm.position('relative'))}>
     <!--
       Connector rail. Color comes from the theme border token (cm.bgBorder,
@@ -90,10 +90,10 @@
     {#each events as event (event.id)}
       {@const tone = toneOf(event)}
       {#snippet curriedWrapper(children: Snippet)}
-        {#if rowWrapper}{@render rowWrapper(event, children)}{/if}
+        {#if rowWrapper}{@render rowWrapper?.(event, children)}{/if}
       {/snippet}
       <ActivityTimelineRow {event} {tone} wrapper={rowWrapper ? curriedWrapper : undefined} />
     {/each}
   </div>
-  {#if footer != null}{#if isSnippet(footer)}{@render footer()}{:else}{textOf(footer)}{/if}{/if}
+  {#if footer != null}{#if isSnippet(footer)}{@render footer?.()}{:else}{textOf(footer)}{/if}{/if}
 </div>

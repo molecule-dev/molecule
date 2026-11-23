@@ -161,7 +161,7 @@
     style="display: none"
   />
   {#if children}
-    {@render children()}
+    {@render children?.()}
   {:else}
     <p class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{dropHere}</p>
     {#if accept}

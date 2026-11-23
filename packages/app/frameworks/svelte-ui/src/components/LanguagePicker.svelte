@@ -40,7 +40,7 @@
 </script>
 
 {#if renderTrigger}
-  {@render renderTrigger(() => (open = true))}
+  {@render renderTrigger?.(() => (open = true))}
 {:else}
   <button
     type="button"

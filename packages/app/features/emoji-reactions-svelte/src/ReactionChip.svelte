@@ -71,7 +71,7 @@
       class={cm.cn(cm.tooltip(), cm.position('absolute'))}
       style={tipStyle}
     >
-      {@render renderTooltip(reaction)}
+      {@render renderTooltip?.(reaction)}
     </span>
   {/if}
 </span>

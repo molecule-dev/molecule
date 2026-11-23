@@ -75,7 +75,7 @@
 
 <div class={cm.cn(cm.stack(2), className)}>
   {#if label}
-    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{@render label()}</span>
+    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{@render label?.()}</span>
   {/if}
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
     <span class={cm.textSize('sm')}>{fmt(low)}</span>

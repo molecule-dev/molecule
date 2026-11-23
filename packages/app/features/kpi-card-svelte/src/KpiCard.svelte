@@ -56,22 +56,22 @@
   <div class={stackClass}>
     <div class={headerClass}>
       <div class={innerClass}>
-        {#if typeof icon === 'function'}{@render icon()}{:else if icon}{icon}{/if}
+        {#if typeof icon === 'function'}{@render icon?.()}{:else if icon}{icon}{/if}
         <span class={titleClass}>
-          {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+          {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
         </span>
       </div>
-      {#if typeof action === 'function'}{@render action()}{:else if action}{action}{/if}
+      {#if typeof action === 'function'}{@render action?.()}{:else if action}{action}{/if}
     </div>
     <div class={valueClass}>
-      {#if typeof value === 'function'}{@render value()}{:else}{value}{/if}
+      {#if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
     </div>
     {#if hasTrendRow}
       <div class={innerClass}>
-        {#if typeof trend === 'function'}{@render trend()}{:else if trend}{trend}{/if}
+        {#if typeof trend === 'function'}{@render trend?.()}{:else if trend}{trend}{/if}
         {#if subtitle}
           <span class={subtitleClass}>
-            {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+            {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
           </span>
         {/if}
       </div>

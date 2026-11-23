@@ -193,6 +193,6 @@
     data-canvas-y={current.y}
     style={innerStyle}
   >
-    {#if children}{@render children()}{/if}
+    {#if children}{@render children?.()}{/if}
   </div>
 </div>

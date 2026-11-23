@@ -71,7 +71,7 @@
 
 {#snippet content(
   value: TransportBarProps['timeDisplay'],
-)}{#if typeof value === 'function'}{@render value()}{:else}{value}{/if}{/snippet}
+)}{#if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}{/snippet}
 
 <div
   role="toolbar"

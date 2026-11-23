@@ -61,29 +61,29 @@
     <div class={cm.cn(cm.flex({ justify: 'between', align: 'center' }), cm.sp('mb', 1))}>
       <!-- Title inherits the theme foreground from the card surface — no explicit color. -->
       <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
-        {#if isSnippet(event.title)}{@render event.title()}{:else}{textOf(event.title)}{/if}
+        {#if isSnippet(event.title)}{@render event.title?.()}{:else}{textOf(event.title)}{/if}
       </h3>
       {#if event.meta}
         <span
           class={cm.cn(cm.fontWeight('medium'), cm.textSize('xs'), cm.textMuted, cm.uppercase)}
           style="white-space: nowrap"
-          >{#if isSnippet(event.meta)}{@render event.meta()}{:else}{textOf(event.meta)}{/if}</span
+          >{#if isSnippet(event.meta)}{@render event.meta?.()}{:else}{textOf(event.meta)}{/if}</span
         >
       {/if}
     </div>
     {#if event.description}
       <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>
-        {#if isSnippet(event.description)}{@render event.description()}{:else}{textOf(
+        {#if isSnippet(event.description)}{@render event.description?.()}{:else}{textOf(
             event.description,
           )}{/if}
       </p>
     {/if}
     {#if event.footer != null}
-      {#if isSnippet(event.footer)}{@render event.footer()}{:else}{textOf(event.footer)}{/if}
+      {#if isSnippet(event.footer)}{@render event.footer?.()}{:else}{textOf(event.footer)}{/if}
     {/if}
   </div>
 {/snippet}
 
 <div class={cm.cn(cm.sp('pl', 10), cm.position('relative'))}>
-  {#if wrapper}{@render wrapper(inner)}{:else}{@render inner()}{/if}
+  {#if wrapper}{@render wrapper?.(inner)}{:else}{@render inner()}{/if}
 </div>

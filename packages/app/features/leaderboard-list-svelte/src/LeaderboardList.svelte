@@ -29,9 +29,9 @@
   {#if title || actions}
     <header class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
       {#if title}
-        <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{@render title()}</h3>
+        <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{@render title?.()}</h3>
       {/if}
-      {#if actions}{@render actions()}{/if}
+      {#if actions}{@render actions?.()}{/if}
     </header>
   {/if}
   {#if items.length > 0}
@@ -39,6 +39,6 @@
       {#each items as item, i (i)}{@render children?.(item, i)}{/each}
     </div>
   {:else if emptyState}
-    {@render emptyState()}
+    {@render emptyState?.()}
   {/if}
 </div>

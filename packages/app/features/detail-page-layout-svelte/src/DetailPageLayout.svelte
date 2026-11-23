@@ -31,21 +31,21 @@
 </script>
 
 <div class={cm.cn(cm.stack(4), className)} data-mol-id={dataMolId}>
-  {#if breadcrumb}{@render breadcrumb()}{/if}
-  {#if topBar}{@render topBar()}{/if}
+  {#if breadcrumb}{@render breadcrumb?.()}{/if}
+  {#if topBar}{@render topBar?.()}{/if}
   <div
     class={cm.cn(
       cm.flex({ align: 'start', gap: 'lg', direction: sidebarPosition === 'left' ? 'row' : 'row' }),
     )}
   >
     {#if sidebar && sidebarPosition === 'left'}
-      <aside use:reactStyle={sidebarStyle}>{@render sidebar()}</aside>
+      <aside use:reactStyle={sidebarStyle}>{@render sidebar?.()}</aside>
     {/if}
     <main class={cm.flex1}>
-      <div class={cm.stack(4)}>{@render main()}</div>
+      <div class={cm.stack(4)}>{@render main?.()}</div>
     </main>
     {#if sidebar && sidebarPosition === 'right'}
-      <aside use:reactStyle={sidebarStyle}>{@render sidebar()}</aside>
+      <aside use:reactStyle={sidebarStyle}>{@render sidebar?.()}</aside>
     {/if}
   </div>
 </div>

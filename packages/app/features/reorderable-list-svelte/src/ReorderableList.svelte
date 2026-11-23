@@ -264,10 +264,10 @@
           ondragstart={(event) => onDragStart(item.id, event)}
           ondragend={reset}
           class={cm.cursorPointer}
-          aria-label={dragHandleLabel}>{@render renderHandle()}</span
+          aria-label={dragHandleLabel}>{@render renderHandle?.()}</span
         >
       {/if}
-      <div class={cm.flex1}>{@render renderItem(item, draggingId === item.id)}</div>
+      <div class={cm.flex1}>{@render renderItem?.(item, draggingId === item.id)}</div>
       <div class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }))}>
         <button
           type="button"

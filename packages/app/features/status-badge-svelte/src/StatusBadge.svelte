@@ -40,12 +40,12 @@
       className,
     )}
   >
-    {#if icon}<span class={cm.sp('mr', 1)}>{@render icon()}</span>{/if}
-    {@render children()}
+    {#if icon}<span class={cm.sp('mr', 1)}>{@render icon?.()}</span>{/if}
+    {@render children?.()}
   </span>
 {:else}
   <Badge color={KIND_TO_COLOR[kind]} {className}>
-    {#if icon}<span class={cm.sp('mr', 1)}>{@render icon()}</span>{/if}
-    {@render children()}
+    {#if icon}<span class={cm.sp('mr', 1)}>{@render icon?.()}</span>{/if}
+    {@render children?.()}
   </Badge>
 {/if}

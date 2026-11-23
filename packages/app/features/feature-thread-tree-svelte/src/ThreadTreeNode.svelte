@@ -102,7 +102,7 @@
           : t('threadTree.collapseSymbol', {}, { defaultValue: '[−]' })}
       </button>
       <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-        {#if typeof comment.author === 'function'}{@render comment.author()}{:else}{comment.author}{/if}
+        {#if typeof comment.author === 'function'}{@render comment.author?.()}{:else}{comment.author}{/if}
       </span>
       {#if typeof comment.score === 'number'}
         <span class={cm.cn(cm.textSize('xs'), cm.textMuted)}>
@@ -131,7 +131,7 @@
         </p>
       {:else}
         <div class={bodyClasses}>
-          {#if typeof comment.body === 'function'}{@render comment.body()}{:else}{comment.body}{/if}
+          {#if typeof comment.body === 'function'}{@render comment.body?.()}{:else}{comment.body}{/if}
         </div>
       {/if}
       <div class={cm.flex({ align: 'center', gap: 'sm' })}>

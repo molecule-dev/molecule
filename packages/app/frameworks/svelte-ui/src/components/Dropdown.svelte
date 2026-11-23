@@ -417,10 +417,10 @@
     data-testid={testId}
     data-mol-id={automationId}
   >
-    {#if typeof trigger === 'string'}{trigger}{:else if trigger}{@render trigger(probeProps)}{/if}
+    {#if typeof trigger === 'string'}{trigger}{:else if trigger}{@render trigger?.(probeProps)}{/if}
   </div>
 {:else}
-  {@render trigger(triggerProps)}
+  {@render trigger?.(triggerProps)}
 {/if}
 
 {#if isOpen}

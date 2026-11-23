@@ -61,7 +61,7 @@
       variant={screenSharing ? 'solid' : 'outline'}
       onClick={onToggleScreenShare}
       aria-pressed={!!screenSharing}>{shareGlyph}</Button
-    >{/if}{#if typeof extraControls === 'function'}{@render extraControls()}{:else if extraControls}{extraControls}{/if}<Button
+    >{/if}{#if typeof extraControls === 'function'}{@render extraControls?.()}{:else if extraControls}{extraControls}{/if}<Button
     variant="solid"
     color="error"
     onClick={onLeave}>{leaveLabel}</Button

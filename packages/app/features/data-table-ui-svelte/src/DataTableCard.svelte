@@ -31,7 +31,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else if value !== undefined && value !== ''}{value}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else if value !== undefined && value !== ''}{value}{/if}
 {/snippet}
 
 <section data-mol-id={dataMolId} class={cm.cn(cm.stack(4), cm.dataTableCardShell, className)}>
@@ -106,7 +106,7 @@
                     column.cellClassName,
                   )}
                 >
-                  {@render column.cell(row)}
+                  {@render column.cell?.(row)}
                 </td>
               {/each}
             </tr>

@@ -15,5 +15,5 @@
 </script>
 
 <div class={cm.cn(cm.stack(6), className)}>
-  {#if children}{@render children()}{/if}
+  {#if children}{@render children?.()}{/if}
 </div>

@@ -21,13 +21,13 @@
 <div class={cm.cn(cm.stack(1), className)}>
   {#each attachments as attachment (attachment.id)}
     <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-      {#if attachment.icon}{@render attachment.icon()}{/if}
+      {#if attachment.icon}{@render attachment.icon?.()}{/if}
       <span class={cm.cn(cm.flex1, cm.textSize('sm'))}
         ><span class={cm.fontWeight('medium')}>{attachment.name}</span>{#if attachment.size}<span
             class={cm.sp('ml', 2)}>{attachment.size}</span
           >{/if}</span
       >
-      {#if attachment.action}{@render attachment.action()}{/if}
+      {#if attachment.action}{@render attachment.action?.()}{/if}
     </div>
   {/each}
 </div>

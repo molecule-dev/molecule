@@ -20,16 +20,16 @@
 {#snippet inner()}
   <div class={cm.cn(cm.stack(2))}>
     <h4 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-      {#if isSnippet(card.title)}{@render card.title()}{:else}{textOf(card.title)}{/if}
+      {#if isSnippet(card.title)}{@render card.title?.()}{:else}{textOf(card.title)}{/if}
     </h4>
     {#if card.body}
       <div class={cm.cn(cm.textSize('sm'))}>
-        {#if isSnippet(card.body)}{@render card.body()}{:else}{textOf(card.body)}{/if}
+        {#if isSnippet(card.body)}{@render card.body?.()}{:else}{textOf(card.body)}{/if}
       </div>
     {/if}
     {#if card.footer}
       <div class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}>
-        {#if isSnippet(card.footer)}{@render card.footer()}{:else}{textOf(card.footer)}{/if}
+        {#if isSnippet(card.footer)}{@render card.footer?.()}{:else}{textOf(card.footer)}{/if}
       </div>
     {/if}
   </div>

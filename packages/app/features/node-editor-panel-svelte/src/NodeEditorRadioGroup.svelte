@@ -65,7 +65,7 @@
             : cm.nodeEditorPanelOptionLabel,
         )}
       >
-        {#if typeof option.label === 'function'}{@render option.label()}{:else}{option.label}{/if}
+        {#if typeof option.label === 'function'}{@render option.label?.()}{:else}{option.label}{/if}
       </span>
       <div
         aria-hidden="true"

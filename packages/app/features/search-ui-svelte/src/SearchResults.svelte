@@ -117,17 +117,17 @@
         ontouchstart={() => onPrefetch?.(hit.doc)}
       >
         {#if renderLink}
-          {@render renderLink(linkProps)}
+          {@render renderLink?.(linkProps)}
         {:else}
           <a
             href={linkProps.href}
             class={linkProps.className}
             data-mol-id={linkProps['data-mol-id']}
-            onclick={linkProps.onClick}>{@render linkProps.children()}</a
+            onclick={linkProps.onClick}>{@render linkProps.children?.()}</a
           >
         {/if}
         {#if action}
-          <span class={cm.resultAction}>{@render action(hit.doc)}</span>
+          <span class={cm.resultAction}>{@render action?.(hit.doc)}</span>
         {/if}
       </li>
     {/each}

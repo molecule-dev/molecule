@@ -54,7 +54,7 @@
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
     <div class={cm.flex({ align: 'center', gap: 'sm' })}>
       <span class={cm.cn(cm.fontWeight('semibold'))}>
-        {#if typeof flag.name === 'function'}{@render flag.name()}{:else}{flag.name}{/if}
+        {#if typeof flag.name === 'function'}{@render flag.name?.()}{:else}{flag.name}{/if}
       </span>
       <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
         {flagTypeLabel(flag.type, t)}
@@ -63,7 +63,7 @@
     <span class={cm.cn(cm.textSize('xs'))}>{flag.key}</span>
     {#if flag.description}
       <p class={cm.textSize('sm')}>
-        {#if typeof flag.description === 'function'}{@render flag.description()}{:else}{flag.description}{/if}
+        {#if typeof flag.description === 'function'}{@render flag.description?.()}{:else}{flag.description}{/if}
       </p>
     {/if}
   </div>
@@ -71,7 +71,7 @@
     {#each flag.environments as env (env.id)}
       <div class={cm.cn(cm.stack(0), cm.textCenter)}>
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-          {#if typeof env.label === 'function'}{@render env.label()}{:else}{env.label}{/if}
+          {#if typeof env.label === 'function'}{@render env.label?.()}{:else}{env.label}{/if}
         </span>
         <div class={cm.flex({ align: 'center', gap: 'xs' })}>
           <Switch

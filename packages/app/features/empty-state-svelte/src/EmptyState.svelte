@@ -45,16 +45,16 @@
         iconWrapperClassName,
       )}
     >
-      {#if typeof icon === 'function'}{@render icon()}{:else}{icon}{/if}
+      {#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}
     </div>
   {/if}
   <h3 class={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
-    {#if typeof content.title === 'function'}{@render content.title()}{:else}{content.title}{/if}
+    {#if typeof content.title === 'function'}{@render content.title?.()}{:else}{content.title}{/if}
   </h3>
   {#if content.description}
     <p class={cm.cn(cm.maxW('md'), cm.sp('mb', content.action ? 6 : 0))}>
-      {#if typeof content.description === 'function'}{@render content.description()}{:else}{content.description}{/if}
+      {#if typeof content.description === 'function'}{@render content.description?.()}{:else}{content.description}{/if}
     </p>
   {/if}
-  {#if typeof content.action === 'function'}{@render content.action()}{:else}{content.action}{/if}
+  {#if typeof content.action === 'function'}{@render content.action?.()}{:else}{content.action}{/if}
 </section>

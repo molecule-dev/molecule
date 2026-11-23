@@ -33,7 +33,7 @@
       {#if typeof opt.label === 'string'}
         {opt.label}
       {:else}
-        {@render opt.label()}
+        {@render opt.label?.()}
       {/if}
     </button>
   {/each}

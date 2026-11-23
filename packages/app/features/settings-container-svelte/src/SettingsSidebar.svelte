@@ -34,15 +34,15 @@
         item.id === activeId ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
       )}
     >
-      {#if typeof item.icon === 'function'}{@render item.icon()}{:else if item.icon != null}{item.icon}{/if}
+      {#if typeof item.icon === 'function'}{@render item.icon?.()}{:else if item.icon != null}{item.icon}{/if}
       <span>
-        {#if typeof item.label === 'function'}{@render item.label()}{:else}{item.label}{/if}
+        {#if typeof item.label === 'function'}{@render item.label?.()}{:else}{item.label}{/if}
       </span>
     </button>
   {/each}
   {#if footer}
     <div class={cm.sp('mt', 4)}>
-      {#if typeof footer === 'function'}{@render footer()}{:else}{footer}{/if}
+      {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
     </div>
   {/if}
 </nav>

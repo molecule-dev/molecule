@@ -40,7 +40,7 @@
 </script>
 
 {#snippet content(value: PricingPlan['name'] | PricingFeature['values'][string] | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else}{value}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
 {/snippet}
 
 <div class={cm.cn(cm.stack(0), className)} style={wrapperStyle}>

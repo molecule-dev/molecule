@@ -100,10 +100,10 @@
           </Link>
         {/each}
       </nav>
-      {#if userMenu}{@render userMenu()}{/if}
+      {#if userMenu}{@render userMenu?.()}{/if}
     </div>
   </header>
   <main>
-    {#if children}{@render children()}{:else}<RoutedView />{/if}
+    {#if children}{@render children?.()}{:else}<RoutedView />{/if}
   </main>
 </div>

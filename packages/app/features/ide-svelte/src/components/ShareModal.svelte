@@ -150,7 +150,7 @@
       />
     {/if}
 
-    {#if children}{@render children()}{/if}
+    {#if children}{@render children?.()}{/if}
 
     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px">
       <button

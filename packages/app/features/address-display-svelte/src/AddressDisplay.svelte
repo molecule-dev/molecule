@@ -41,12 +41,12 @@
 
 <div class={cm.cn(cm.flex({ align: 'start', gap: 'sm' }), className)}>
   {#if leading}
-    {#if typeof leading === 'function'}{@render leading()}{:else}{leading}{/if}
+    {#if typeof leading === 'function'}{@render leading?.()}{:else}{leading}{/if}
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(1), cm.textSize('sm'))}>
     {#if name}
       <span class={cm.fontWeight('semibold')}>
-        {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+        {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
       </span>
     {/if}
     {#if inline}
@@ -61,6 +61,6 @@
     {/if}
   </div>
   {#if actions}
-    {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+    {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
   {/if}
 </div>

@@ -75,7 +75,7 @@
     onclick={onClick}
     onkeydown={handleBodyKeyDown}
   >
-    <span>{@render children()}</span>
+    <span>{@render children?.()}</span>
   </span>
 {:else}
   <span class={chipClass}>
@@ -86,10 +86,10 @@
         onclick={onClick}
         class={cm.cn(cm.cursorPointer)}
       >
-        <span>{@render children()}</span>
+        <span>{@render children?.()}</span>
       </button>
     {:else}
-      <span>{@render children()}</span>
+      <span>{@render children?.()}</span>
     {/if}
     {#if onRemove}
       <button type="button" onclick={onRemove} aria-label={removeLabel} class={removeClass}>

@@ -252,7 +252,7 @@
 
     {#if trailing}
       <div class={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
-        {@render trailing()}
+        {@render trailing?.()}
       </div>
     {/if}
   </div>

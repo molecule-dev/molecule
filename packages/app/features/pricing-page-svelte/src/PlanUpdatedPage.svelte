@@ -46,7 +46,7 @@
           class={cm.button({ variant: 'solid', size: 'md' })}
           data-mol-id="plan-updated-cta"
         >
-          {#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel()}{/if}
+          {#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel?.()}{/if}
         </a>
       {:else}
         <button
@@ -55,7 +55,7 @@
           onclick={(event) => onCta?.(event)}
           data-mol-id="plan-updated-cta"
         >
-          {#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel()}{/if}
+          {#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel?.()}{/if}
         </button>
       {/if}
     </footer>

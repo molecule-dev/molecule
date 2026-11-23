@@ -38,9 +38,9 @@
 
 <div class={cm.cn(cm.flex({ align: 'baseline', gap: 'sm' }), cm.textSize('xs'), className)}>
   <span class={cm.fontWeight('semibold')}
-    >{#if isSnippet(author)}{@render author()}{:else}{textOf(author)}{/if}</span
+    >{#if isSnippet(author)}{@render author?.()}{:else}{textOf(author)}{/if}</span
   >
   <span
-    >{#if isSnippet(timestamp)}{@render timestamp()}{:else}{textOf(timestamp)}{/if}</span
+    >{#if isSnippet(timestamp)}{@render timestamp?.()}{:else}{textOf(timestamp)}{/if}</span
   >
 </div>

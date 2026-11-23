@@ -80,7 +80,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 <!-- React returns null before its `<Modal>` renders when there are no steps.

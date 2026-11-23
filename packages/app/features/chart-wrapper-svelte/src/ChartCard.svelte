@@ -31,31 +31,31 @@
     <header class={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
       <div class={cm.stack(1)}>
         <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-          {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+          {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
         </h3>
         {#if typeof description === 'function'}
-          <p class={cm.textSize('sm')}>{@render description()}</p>
+          <p class={cm.textSize('sm')}>{@render description?.()}</p>
         {:else if description}
           <p class={cm.textSize('sm')}>{description}</p>
         {/if}
       </div>
       {#if actions}
         <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-          {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+          {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
         </div>
       {/if}
     </header>
     {#if summary}
       <div class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>
-        {#if typeof summary === 'function'}{@render summary()}{:else}{summary}{/if}
+        {#if typeof summary === 'function'}{@render summary?.()}{:else}{summary}{/if}
       </div>
     {/if}
     <div style="min-height: {minChartHeight}px">
-      {#if typeof children === 'function'}{@render children()}{:else}{children}{/if}
+      {#if typeof children === 'function'}{@render children?.()}{:else}{children}{/if}
     </div>
     {#if footer}
       <div>
-        {#if typeof footer === 'function'}{@render footer()}{:else}{footer}{/if}
+        {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
       </div>
     {/if}
   </div>

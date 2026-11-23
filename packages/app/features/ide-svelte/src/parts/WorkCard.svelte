@@ -62,5 +62,5 @@
     style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 10px"
   ></div>
   <div bind:this={tray.detailEl} style="max-height: 220px; overflow-y: auto"></div>
-  {#if children}{@render children()}{/if}
+  {#if children}{@render children?.()}{/if}
 </div>

@@ -79,12 +79,12 @@
   <Avatar src={avatarSrc} alt={displayName} name={displayName} size="sm" />
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
     <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-      {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+      {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
     </span>
     <!-- React's `{subtitle && …}`: a falsy subtitle renders nothing. -->
     {#if subtitle}
       <span class={cm.textSize('xs')}>
-        {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+        {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
       </span>
     {/if}
   </div>
@@ -95,6 +95,6 @@
     >
   {/if}
   <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
-    {#if typeof score === 'function'}{@render score()}{:else}{score}{/if}
+    {#if typeof score === 'function'}{@render score?.()}{:else}{score}{/if}
   </span>
 </div>

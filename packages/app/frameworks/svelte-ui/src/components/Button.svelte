@@ -48,7 +48,7 @@
   use:spreadEvents={rest}
 >
   {#if loading}<Spinner size="sm" className={cm.buttonIconLeft} />{/if}
-  {#if !loading && leftIcon}<span class={cm.buttonIconLeft}>{@render leftIcon()}</span>{/if}
+  {#if !loading && leftIcon}<span class={cm.buttonIconLeft}>{@render leftIcon?.()}</span>{/if}
   {#if loading && loadingText}{loadingText}{:else}{@render children?.()}{/if}
-  {#if !loading && rightIcon}<span class={cm.buttonIconRight}>{@render rightIcon()}</span>{/if}
+  {#if !loading && rightIcon}<span class={cm.buttonIconRight}>{@render rightIcon?.()}</span>{/if}
 </button>

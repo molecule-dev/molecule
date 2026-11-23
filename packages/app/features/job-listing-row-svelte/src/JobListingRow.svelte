@@ -61,37 +61,37 @@
   {/if}
   {#if leading}
     <div class={cm.shrink0}>
-      {#if typeof leading === 'function'}{@render leading()}{:else}{leading}{/if}
+      {#if typeof leading === 'function'}{@render leading?.()}{:else}{leading}{/if}
     </div>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(1))}>
     <h3 id={nameId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h3>
     {#if company}
       <span class={cm.textSize('sm')}>
-        {#if typeof company === 'function'}{@render company()}{:else}{company}{/if}
+        {#if typeof company === 'function'}{@render company?.()}{:else}{company}{/if}
       </span>
     {/if}
     <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
       {#if location}
         <span class={cm.textSize('xs')}>
-          📍 {#if typeof location === 'function'}{@render location()}{:else}{location}{/if}
+          📍 {#if typeof location === 'function'}{@render location?.()}{:else}{location}{/if}
         </span>
       {/if}
       {#if type}
         <span class={cm.textSize('xs')}>
-          · {#if typeof type === 'function'}{@render type()}{:else}{type}{/if}
+          · {#if typeof type === 'function'}{@render type?.()}{:else}{type}{/if}
         </span>
       {/if}
       {#if salary}
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-          · {#if typeof salary === 'function'}{@render salary()}{:else}{salary}{/if}
+          · {#if typeof salary === 'function'}{@render salary?.()}{:else}{salary}{/if}
         </span>
       {/if}
       {#if postedAt}
         <span class={cm.textSize('xs')}>
-          · {#if typeof postedAt === 'function'}{@render postedAt()}{:else}{postedAt}{/if}
+          · {#if typeof postedAt === 'function'}{@render postedAt?.()}{:else}{postedAt}{/if}
         </span>
       {/if}
     </div>
@@ -102,7 +102,7 @@
           cm.position('relative'),
         )}
       >
-        {#if typeof tags === 'function'}{@render tags()}{:else}{tags}{/if}
+        {#if typeof tags === 'function'}{@render tags?.()}{:else}{tags}{/if}
       </div>
     {/if}
   </div>
@@ -110,7 +110,7 @@
     <div
       class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0, cm.position('relative'))}
     >
-      {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+      {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
     </div>
   {/if}
 </div>

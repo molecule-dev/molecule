@@ -37,7 +37,7 @@
      them: React renders the two child nodes with nothing in between, so any
      literal whitespace here would show up as an extra text node. -->
 <span class={classes} style="display: inline-block"
-  >{#if children}{@render children()}{/if}<span use:reactStyle={style}
+  >{#if children}{@render children?.()}{/if}<span use:reactStyle={style}
     ><NotificationBadge {count} {hideOnZero} {variant} /></span
   ></span
 >

@@ -66,7 +66,7 @@
 </script>
 
 {#snippet field(value: Snippet | string | number)}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->

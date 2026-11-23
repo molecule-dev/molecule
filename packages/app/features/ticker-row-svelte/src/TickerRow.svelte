@@ -103,7 +103,7 @@
   {/if}
   {#if icon}
     <div class={cm.shrink0}>
-      {#if typeof icon === 'function'}{@render icon()}{:else}{icon}{/if}
+      {#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}
     </div>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
@@ -112,29 +112,29 @@
       id={clickable ? nameId : undefined}
       class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}
     >
-      {#if typeof symbol === 'function'}{@render symbol()}{:else}{symbol}{/if}
+      {#if typeof symbol === 'function'}{@render symbol?.()}{:else}{symbol}{/if}
     </span>
     {#if name}
       <span class={cm.textSize('xs')}>
-        {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+        {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
       </span>
     {/if}
   </div>
   {#if sparkline}
     <div class={cm.shrink0}>
-      {#if typeof sparkline === 'function'}{@render sparkline()}{:else}{sparkline}{/if}
+      {#if typeof sparkline === 'function'}{@render sparkline?.()}{:else}{sparkline}{/if}
     </div>
   {/if}
   <div class={cm.cn(cm.textCenter, cm.stack(0))}>
     <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-      {#if typeof price === 'function'}{@render price()}{:else}{price}{/if}
+      {#if typeof price === 'function'}{@render price?.()}{:else}{price}{/if}
     </span>
     {#if showChange}
       <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), colorClass)}
         ><span aria-hidden="true">{arrow}</span><span class={cm.cn(cm.srOnly)}
           ><!-- The direction in words for screen readers; the arrow is read
           aloud as a glyph otherwise. -->{directionLabel}</span
-        >&#32;{#if typeof changeDisplay === 'function'}{@render changeDisplay()}{:else}{changeDisplay ??
+        >&#32;{#if typeof changeDisplay === 'function'}{@render changeDisplay?.()}{:else}{changeDisplay ??
             formatted}{/if}</span
       >
     {/if}
@@ -146,7 +146,7 @@
     <div
       class={cm.cn(cm.textSize('xs'), cm.shrink0, onClick ? cm.position('relative') : undefined)}
     >
-      {#if typeof meta === 'function'}{@render meta()}{:else}{meta}{/if}
+      {#if typeof meta === 'function'}{@render meta?.()}{:else}{meta}{/if}
     </div>
   {/if}
 </div>

@@ -138,7 +138,7 @@
       data-mol-id="annotation-pin-label"
       style={labelStyle}
     >
-      {#if typeof label === 'function'}{@render label()}{:else if label !== undefined && label !== null}{label}{/if}
+      {#if typeof label === 'function'}{@render label?.()}{:else if label !== undefined && label !== null}{label}{/if}
     </span>
   </button>
   {#if selected}
@@ -152,7 +152,7 @@
     >
       <div data-mol-id="annotation-pin-popup-body">
         {#if note !== undefined && note !== null}
-          {#if typeof note === 'function'}{@render note()}{:else}{note}{/if}
+          {#if typeof note === 'function'}{@render note?.()}{:else}{note}{/if}
         {:else}
           <span data-mol-id="annotation-pin-popup-empty">{emptyNote}</span>
         {/if}

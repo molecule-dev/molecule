@@ -15,6 +15,6 @@
 </script>
 
 <section class={cm.stack(stackGap)}>
-  <h2 class={cm.cn(cm.textSize('xl'), cm.fontWeight('semibold'))}>{@render title()}</h2>
+  <h2 class={cm.cn(cm.textSize('xl'), cm.fontWeight('semibold'))}>{@render title?.()}</h2>
   {@render children?.()}
 </section>

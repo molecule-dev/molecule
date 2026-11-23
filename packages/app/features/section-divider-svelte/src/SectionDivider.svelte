@@ -37,7 +37,7 @@
     ></span>
   {/if}
   {#if children}
-    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{@render children()}</span>
+    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{@render children?.()}</span>
   {/if}
   {#if align === 'center' || align === 'start'}
     <span

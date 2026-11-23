@@ -84,7 +84,7 @@
 </script>
 
 {#snippet field(value: InboxRowProps['sender'])}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 {#snippet starButton()}

@@ -37,7 +37,7 @@
 <div class={classes} style={gridStyle}>
   {#each items as item (item.id)}
     <div style={itemStyle(item)}>
-      {#if typeof item.content === 'function'}{@render item.content()}{:else}{item.content ??
+      {#if typeof item.content === 'function'}{@render item.content?.()}{:else}{item.content ??
           ''}{/if}
     </div>
   {/each}

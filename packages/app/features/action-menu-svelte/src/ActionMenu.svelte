@@ -120,7 +120,7 @@
     {:else if typeof trigger === 'string'}
       {trigger}
     {:else}
-      {@render trigger()}
+      {@render trigger?.()}
     {/if}
   </Button>
   {#if open}
@@ -142,10 +142,10 @@
               style="opacity: {item.disabled ? 0.5 : 1}"
             >
               {#if item.icon !== undefined && item.icon !== null}
-                {#if typeof item.icon === 'string'}{item.icon}{:else}{@render item.icon()}{/if}
+                {#if typeof item.icon === 'string'}{item.icon}{:else}{@render item.icon?.()}{/if}
               {/if}
               <span>
-                {#if typeof item.label === 'string'}{item.label}{:else}{@render item.label()}{/if}
+                {#if typeof item.label === 'string'}{item.label}{:else}{@render item.label?.()}{/if}
               </span>
             </a>
           {:else}
@@ -158,10 +158,10 @@
               class={buttonClasses(item)}
             >
               {#if item.icon !== undefined && item.icon !== null}
-                {#if typeof item.icon === 'string'}{item.icon}{:else}{@render item.icon()}{/if}
+                {#if typeof item.icon === 'string'}{item.icon}{:else}{@render item.icon?.()}{/if}
               {/if}
               <span>
-                {#if typeof item.label === 'string'}{item.label}{:else}{@render item.label()}{/if}
+                {#if typeof item.label === 'string'}{item.label}{:else}{@render item.label?.()}{/if}
               </span>
             </button>
           {/if}

@@ -56,14 +56,14 @@
         aria-expanded={isOpen ? 'true' : 'false'}
         class={cm.flex({ align: 'center', gap: 'sm' })}
         ><span aria-hidden="true">{isOpen ? '▾' : '▸'}</span><span
-          >{#if typeof title === 'function'}{@render title()}{:else if title !== undefined}{title}{/if}</span
-        >{#if badge}{#if typeof badge === 'function'}{@render badge()}{:else}{badge}{/if}{/if}</button
+          >{#if typeof title === 'function'}{@render title?.()}{:else if title !== undefined}{title}{/if}</span
+        >{#if badge}{#if typeof badge === 'function'}{@render badge?.()}{:else}{badge}{/if}{/if}</button
       >{#if actions}<span
-          >{#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}</span
+          >{#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}</span
         >{/if}</span
     ></svelte:element
   >
   {#if isOpen}<div>
-      {#if children}{@render children()}{/if}
+      {#if children}{@render children?.()}{/if}
     </div>{/if}
 </section>

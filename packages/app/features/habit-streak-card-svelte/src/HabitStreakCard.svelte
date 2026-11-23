@@ -62,9 +62,9 @@
 <Card {className}>
   <div class={cm.stack(3)}>
     <header class={cm.flex({ align: 'center', gap: 'sm' })}>
-      {#if icon}{#if typeof icon === 'function'}{@render icon()}{:else}{icon}{/if}{/if}
+      {#if icon}{#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}{/if}
       <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-        {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}
+        {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
       </h3>
     </header>
     <div class={cm.flex({ align: 'baseline', gap: 'lg' })}>

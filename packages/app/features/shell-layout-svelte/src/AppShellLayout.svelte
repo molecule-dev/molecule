@@ -25,9 +25,9 @@
 </script>
 
 <div class={cm.cn(cm.page, cm.appLayout, className)} data-mol-id={dataMolId}>
-  {#if header}{@render header()}{/if}
+  {#if header}{@render header?.()}{/if}
   <main class={mainClassName}>
-    <Container {maxWidth}>{@render children()}</Container>
+    <Container {maxWidth}>{@render children?.()}</Container>
   </main>
-  {#if footer}{@render footer()}{/if}
+  {#if footer}{@render footer?.()}{/if}
 </div>

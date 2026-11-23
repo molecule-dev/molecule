@@ -41,7 +41,7 @@
 {#snippet trailing()}
   <span class={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
     {#if valueDisplay !== undefined && valueDisplay !== null}
-      {#if typeof valueDisplay === 'function'}{@render valueDisplay()}{:else}{valueDisplay}{/if}
+      {#if typeof valueDisplay === 'function'}{@render valueDisplay?.()}{:else}{valueDisplay}{/if}
     {:else}{value}{/if}
   </span>
 {/snippet}

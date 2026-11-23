@@ -217,11 +217,11 @@
             style={contentStyle(event)}
           >
             <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-              {#if isSnippet(event.title)}{@render event.title()}{:else}{textOf(event.title)}{/if}
+              {#if isSnippet(event.title)}{@render event.title?.()}{:else}{textOf(event.title)}{/if}
             </div>
             {#if event.subtitle}
               <div class={cm.accentCardLabel({ tone: cardTone(event) })}>
-                {#if isSnippet(event.subtitle)}{@render event.subtitle()}{:else}{textOf(
+                {#if isSnippet(event.subtitle)}{@render event.subtitle?.()}{:else}{textOf(
                     event.subtitle,
                   )}{/if}
               </div>
@@ -230,11 +230,11 @@
         {:else}
           <div style={contentStyle(event)}>
             <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-              {#if isSnippet(event.title)}{@render event.title()}{:else}{textOf(event.title)}{/if}
+              {#if isSnippet(event.title)}{@render event.title?.()}{:else}{textOf(event.title)}{/if}
             </div>
             {#if event.subtitle}
               <div class={cm.accentCardLabel({ tone: cardTone(event) })}>
-                {#if isSnippet(event.subtitle)}{@render event.subtitle()}{:else}{textOf(
+                {#if isSnippet(event.subtitle)}{@render event.subtitle?.()}{:else}{textOf(
                     event.subtitle,
                   )}{/if}
               </div>

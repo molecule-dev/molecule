@@ -49,24 +49,24 @@
       <header class={cm.stack(1)}>
         {#if title}
           <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-            {@render title()}
+            {@render title?.()}
           </h3>
         {/if}
         {#if description}
-          <p class={cm.textSize('sm')}>{@render description()}</p>
+          <p class={cm.textSize('sm')}>{@render description?.()}</p>
         {/if}
       </header>
     {/if}
     <CopyLinkField value={url} />
     {#if showQR && qr}
       <div class={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('py', 2))}>
-        {@render qr()}
+        {@render qr?.()}
       </div>
     {/if}
     {#if passwordProtect}
       <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
         <span class={cm.textSize('sm')} id={hasPasswordLabel ? labelId : undefined}>
-          {#if typeof passwordLabel === 'string'}{passwordLabel}{:else}{@render passwordLabel()}{/if}
+          {#if typeof passwordLabel === 'string'}{passwordLabel}{:else}{@render passwordLabel?.()}{/if}
         </span>
         <Switch
           checked={passwordProtect.enabled}

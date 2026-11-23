@@ -249,7 +249,7 @@
           style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 12px; border: none; color: var(--mol-color-text, currentColor); cursor: pointer; font-size: 13px; text-align: left"
           style:background={i === selectedIndex ? selectedBg : 'transparent'}
         >
-          {#if item.icon != null}{#if isSnippet(item.icon)}{@render item.icon()}{:else}{textOf(
+          {#if item.icon != null}{#if isSnippet(item.icon)}{@render item.icon?.()}{:else}{textOf(
                 item.icon,
               )}{/if}{/if}
           <span

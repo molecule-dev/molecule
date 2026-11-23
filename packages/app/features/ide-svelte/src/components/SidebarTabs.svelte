@@ -107,6 +107,6 @@
     </button>
   </div>
   <div style={contentStyle}>
-    {#if children}{@render children()}{/if}
+    {#if children}{@render children?.()}{/if}
   </div>
 </div>

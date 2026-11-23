@@ -29,7 +29,7 @@
     {:else if typeof marker === 'string' || typeof marker === 'number'}
       {marker}
     {:else}
-      {@render marker()}
+      {@render marker?.()}
     {/if}
   </div>
   {#if connector}

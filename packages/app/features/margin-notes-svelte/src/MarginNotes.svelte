@@ -244,7 +244,7 @@
       (activeBlockNotes.has(note.id) || activeNote === note.id) && cm.shadowLifted,
     )}
   >
-    {#if typeof note.content === 'function'}{@render note.content()}{:else if note.content !== undefined && note.content !== null}{note.content}{/if}
+    {#if typeof note.content === 'function'}{@render note.content?.()}{:else if note.content !== undefined && note.content !== null}{note.content}{/if}
   </aside>
 {/snippet}
 
@@ -317,7 +317,7 @@
                   })}
                 ></span>
               {/if}
-              {#if typeof block.content === 'function'}{@render block.content()}{:else if block.content !== undefined && block.content !== null}{block.content}{/if}
+              {#if typeof block.content === 'function'}{@render block.content?.()}{:else if block.content !== undefined && block.content !== null}{block.content}{/if}
               {#if interactive}
                 <div class={cm.cn(cm.hiddenFrom('md'), cm.flex({ justify: 'end' }))}>
                   <button

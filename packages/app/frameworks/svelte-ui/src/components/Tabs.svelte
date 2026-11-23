@@ -120,7 +120,7 @@
         onkeydown={handleKeyDown}
         class={cm.cn(cm.tabsTrigger({ variant, size }), fitted && cm.tabTriggerFitted)}
       >
-        {#if item.icon}<span class={cm.tabTriggerIcon}>{@render item.icon()}</span>{/if}
+        {#if item.icon}<span class={cm.tabTriggerIcon}>{@render item.icon?.()}</span>{/if}
         <ReactNode node={item.label} />
       </button>
     {/each}

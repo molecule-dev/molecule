@@ -678,13 +678,13 @@
               logic.handleUserRetry,
             )}
           {:else if logic.everLoaded}
-            {#if restartingIndicator}{@render restartingIndicator()}{:else if loadingIndicator}{@render loadingIndicator()}{:else}{@render defaultIndicator(
+            {#if restartingIndicator}{@render restartingIndicator?.()}{:else if loadingIndicator}{@render loadingIndicator?.()}{:else}{@render defaultIndicator(
                 null,
                 logic.stuckRetryCount,
                 logic.handleUserRetry,
               )}{/if}
           {:else}
-            {#if loadingIndicator}{@render loadingIndicator()}{:else}{@render defaultIndicator(
+            {#if loadingIndicator}{@render loadingIndicator?.()}{:else}{@render defaultIndicator(
                 null,
                 logic.stuckRetryCount,
                 logic.handleUserRetry,

@@ -111,7 +111,7 @@
         />
       {:else if overlay === 'tests'}
         {#if ctx.props.nativeTests}
-          {@render ctx.props.nativeTests.history()}
+          {@render ctx.props.nativeTests.history?.()}
         {/if}
         <TestsCard
           tests={ctx.tests.testsList}

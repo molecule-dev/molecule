@@ -191,7 +191,7 @@
           onkeydown={(event) => onRowKeydown(event, trayActivate)}
           style={`display: inline-flex; align-items: center; gap: 6px; min-width: 0px${open ? '; box-shadow: inset 0 0 0 1px currentColor' : ''}`}
         >
-          {#if icon != null}{#if isSnippet(icon)}{@render icon()}{:else}{textOf(icon)}{/if}{/if}
+          {#if icon != null}{#if isSnippet(icon)}{@render icon?.()}{:else}{textOf(icon)}{/if}{/if}
           {#if hideLabel}
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16">
               <path
@@ -207,15 +207,15 @@
               style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
             >
               {#if chipLabel != null}
-                {#if isSnippet(chipLabel)}{@render chipLabel()}{:else}{textOf(chipLabel)}{/if}
+                {#if isSnippet(chipLabel)}{@render chipLabel?.()}{:else}{textOf(chipLabel)}{/if}
               {:else}
-                {#if isSnippet(label)}{@render label()}{:else}{textOf(label)}{/if}
+                {#if isSnippet(label)}{@render label?.()}{:else}{textOf(label)}{/if}
               {/if}
             </span>
           {/if}
         </div>
         {#if actions != null}
-          {#if isSnippet(actions)}{@render actions()}{:else}{textOf(actions)}{/if}
+          {#if isSnippet(actions)}{@render actions?.()}{:else}{textOf(actions)}{/if}
         {/if}
       </div></BodyPortal
     >
@@ -225,12 +225,12 @@
       ><div data-mol-id={`${molId}-detail`} style="padding: 2px 10px 8px">
         {#if detailActions != null}
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px">
-            {#if isSnippet(detailActions)}{@render detailActions()}{:else}{textOf(
+            {#if isSnippet(detailActions)}{@render detailActions?.()}{:else}{textOf(
                 detailActions,
               )}{/if}
           </div>
         {/if}
-        {#if children}{@render children()}{/if}
+        {#if children}{@render children?.()}{/if}
       </div></BodyPortal
     >
   {/if}
@@ -258,7 +258,7 @@
         class={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
         style="background: transparent; border: medium; padding: 0px"
       >
-        {#if hideLabel && isSnippet(label)}<span class={cm.srOnly}>{@render label()}</span>{/if}
+        {#if hideLabel && isSnippet(label)}<span class={cm.srOnly}>{@render label?.()}</span>{/if}
       </button>
       <div style="display: flex; align-items: center; gap: 6px; min-width: 0px">
         {#if !onActivate}
@@ -281,7 +281,7 @@
           </svg>
         {/if}
         {#if icon != null}
-          {#if isSnippet(icon)}{@render icon()}{:else}{textOf(icon)}{/if}
+          {#if isSnippet(icon)}{@render icon?.()}{:else}{textOf(icon)}{/if}
         {/if}
         {#if !hideLabel}
           <span
@@ -289,7 +289,7 @@
             class={labelClasses}
             style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
           >
-            {#if isSnippet(label)}{@render label()}{:else}{textOf(label)}{/if}
+            {#if isSnippet(label)}{@render label?.()}{:else}{textOf(label)}{/if}
           </span>
         {/if}
         {#if hint != null}
@@ -297,7 +297,7 @@
             class={labelClasses}
             style="opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0px"
           >
-            {#if isSnippet(hint)}{@render hint()}{:else}{textOf(hint)}{/if}
+            {#if isSnippet(hint)}{@render hint?.()}{:else}{textOf(hint)}{/if}
           </span>
         {/if}
       </div>
@@ -307,10 +307,10 @@
           style="display: flex; align-items: center; gap: 6px; flex-shrink: 0"
         >
           {#if actions != null}
-            {#if isSnippet(actions)}{@render actions()}{:else}{textOf(actions)}{/if}
+            {#if isSnippet(actions)}{@render actions?.()}{:else}{textOf(actions)}{/if}
           {/if}
           {#if detailActions != null}
-            {#if isSnippet(detailActions)}{@render detailActions()}{:else}{textOf(
+            {#if isSnippet(detailActions)}{@render detailActions?.()}{:else}{textOf(
                 detailActions,
               )}{/if}
           {/if}
@@ -318,7 +318,7 @@
       {/if}
     </div>
     {#if !onActivate && expanded && children}
-      <div style="margin-top: 6px; padding-left: 18px">{@render children()}</div>
+      <div style="margin-top: 6px; padding-left: 18px">{@render children?.()}</div>
     {/if}
   </div>
 {/if}

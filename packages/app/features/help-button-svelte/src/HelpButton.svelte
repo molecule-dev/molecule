@@ -56,7 +56,7 @@
 
 {#snippet content()}
   <span class={contentClasses} style="width: 100%; height: 100%">
-    {#if icon}{@render icon()}{:else}<span aria-hidden="true" style={glyphStyle}>?</span>{/if}
+    {#if icon}{@render icon?.()}{:else}<span aria-hidden="true" style={glyphStyle}>?</span>{/if}
     {#if hasNotification}<span
         aria-hidden="true"
         style="position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%; background: currentcolor"

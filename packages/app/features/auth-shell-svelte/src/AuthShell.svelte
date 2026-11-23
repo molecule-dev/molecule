@@ -38,15 +38,15 @@
 
 <AuthShellContainer>
   {#if decoration}
-    <AuthShellDecoration>{@render decoration()}</AuthShellDecoration>
+    <AuthShellDecoration>{@render decoration?.()}</AuthShellDecoration>
   {/if}
   <div>
     <AuthShellCard>
-      {#if brand}{@render brand()}{/if}
+      {#if brand}{@render brand?.()}{/if}
       <AuthShellHeading {heading} {subheading} />
-      {@render children()}
+      {@render children?.()}
       {#if footer}
-        <AuthShellFooter>{@render footer()}</AuthShellFooter>
+        <AuthShellFooter>{@render footer?.()}</AuthShellFooter>
       {/if}
     </AuthShellCard>
     {#if showBackLink}

@@ -58,25 +58,25 @@
       <MessageMeta author={message.author.name} timestamp={message.timestamp} />
     {/if}
     <div class={cm.cn(cm.sp('p', 3))}>
-      {#if isSnippet(message.body)}{@render message.body()}{:else}{textOf(message.body)}{/if}
+      {#if isSnippet(message.body)}{@render message.body?.()}{:else}{textOf(message.body)}{/if}
     </div>
     {#if message.attachments}
       <div class={cm.sp('mt', 1)}>
-        {#if isSnippet(message.attachments)}{@render message.attachments()}{:else}{textOf(
+        {#if isSnippet(message.attachments)}{@render message.attachments?.()}{:else}{textOf(
             message.attachments,
           )}{/if}
       </div>
     {/if}
     {#if message.reactions}
       <div class={cm.sp('mt', 1)}>
-        {#if isSnippet(message.reactions)}{@render message.reactions()}{:else}{textOf(
+        {#if isSnippet(message.reactions)}{@render message.reactions?.()}{:else}{textOf(
             message.reactions,
           )}{/if}
       </div>
     {/if}
     {#if message.thread}
       <div class={cm.sp('mt', 1)}>
-        {#if isSnippet(message.thread)}{@render message.thread()}{:else}{textOf(
+        {#if isSnippet(message.thread)}{@render message.thread?.()}{:else}{textOf(
             message.thread,
           )}{/if}
       </div>

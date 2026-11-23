@@ -64,7 +64,7 @@
   {/if}
   {#if leading}
     <div class={cm.shrink0}>
-      {#if typeof leading === 'function'}{@render leading()}{:else}{leading}{/if}
+      {#if typeof leading === 'function'}{@render leading?.()}{:else}{leading}{/if}
     </div>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
@@ -72,16 +72,16 @@
       id={onClick ? nameId : undefined}
       class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
     >
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </div>
     {#if subtitle}
       <div class={cm.textSize('sm')}>
-        {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+        {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
       </div>
     {/if}
     {#if metadata}
       <div class={cm.textSize('xs')}>
-        {#if typeof metadata === 'function'}{@render metadata()}{:else}{metadata}{/if}
+        {#if typeof metadata === 'function'}{@render metadata?.()}{:else}{metadata}{/if}
       </div>
     {/if}
   </div>
@@ -91,7 +91,7 @@
         <OptimisticToggleButton {...toggle} />
       {/if}
       {#if actions}
-        {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+        {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
       {/if}
     </div>
   {/if}

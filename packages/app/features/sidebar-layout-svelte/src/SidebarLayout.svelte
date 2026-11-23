@@ -156,12 +156,12 @@
         )}
       >
         {#if userMenu}
-          {@render userMenu()}
+          {@render userMenu?.()}
         {:else}
           <span aria-hidden="true"></span>
         {/if}
         {#if themeToggle}
-          {@render themeToggle()}
+          {@render themeToggle?.()}
         {/if}
       </div>
     {/if}
@@ -169,7 +169,7 @@
 
   <main class={cm.cn(cm.pageShellContent)} style="min-width: 0px">
     {#if children}
-      {@render children()}
+      {@render children?.()}
     {:else}
       <RoutedView />
     {/if}

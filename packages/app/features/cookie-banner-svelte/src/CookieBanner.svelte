@@ -86,7 +86,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp, fallback: string)}
-  {#if value === undefined || value === null}{fallback}{:else if typeof value === 'function'}{@render value()}{:else}{value}{/if}
+  {#if value === undefined || value === null}{fallback}{:else if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
 {/snippet}
 
 {#snippet space()}{SPACE}{/snippet}

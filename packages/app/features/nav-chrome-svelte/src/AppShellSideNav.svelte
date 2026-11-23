@@ -38,17 +38,17 @@
     )}
   >
     <span class={cm.flex({ align: 'center', gap: 'sm' })}>
-      {#if typeof it.icon === 'function'}{@render it.icon()}{:else if it.icon != null}{it.icon}{/if}
+      {#if typeof it.icon === 'function'}{@render it.icon?.()}{:else if it.icon != null}{it.icon}{/if}
       <span>
-        {#if typeof it.label === 'function'}{@render it.label()}{:else}{it.label}{/if}
+        {#if typeof it.label === 'function'}{@render it.label?.()}{:else}{it.label}{/if}
       </span>
     </span>
-    {#if typeof it.badge === 'function'}{@render it.badge()}{:else if it.badge != null}{it.badge}{/if}
+    {#if typeof it.badge === 'function'}{@render it.badge?.()}{:else if it.badge != null}{it.badge}{/if}
   </button>
 {/snippet}
 
 <aside class={cm.cn(cm.stack(4), className)}>
-  {#if typeof header === 'function'}{@render header()}{:else if header != null}{header}{/if}
+  {#if typeof header === 'function'}{@render header?.()}{:else if header != null}{header}{/if}
   <nav aria-label={navLabel} class={cm.stack(4)}>
     {#each items ?? [] as it (it.id)}
       {@render navItem(it)}
@@ -57,7 +57,7 @@
       <section class={cm.stack(1)}>
         {#if g.heading}
           <h3 class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.sp('px', 3))}>
-            {#if typeof g.heading === 'function'}{@render g.heading()}{:else}{g.heading}{/if}
+            {#if typeof g.heading === 'function'}{@render g.heading?.()}{:else}{g.heading}{/if}
           </h3>
         {/if}
         {#each g.items as it (it.id)}
@@ -68,7 +68,7 @@
   </nav>
   {#if footer}
     <div class={mountClass}>
-      {#if typeof footer === 'function'}{@render footer()}{:else}{footer}{/if}
+      {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
     </div>
   {/if}
 </aside>

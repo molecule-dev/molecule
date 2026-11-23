@@ -67,7 +67,7 @@
     class={commonClass}
     style={rootStyleText}
   >
-    {#if icon}{@render icon()}{/if}
+    {#if icon}{@render icon?.()}{/if}
   </a>
 {:else}
   <button
@@ -78,6 +78,6 @@
     style={rootStyleText}
     onclick={(event) => onClick?.(event)}
   >
-    {#if icon}{@render icon()}{/if}
+    {#if icon}{@render icon?.()}{/if}
   </button>
 {/if}

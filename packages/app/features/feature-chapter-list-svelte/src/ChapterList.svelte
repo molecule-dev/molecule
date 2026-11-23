@@ -104,7 +104,7 @@
     </div>
     {#if rowTrailing}
       <div class={cm.cn(cm.shrink0)} data-mol-id="chapter-list-row-trailing">
-        {@render rowTrailing(chapter)}
+        {@render rowTrailing?.(chapter)}
       </div>
     {/if}
   </div>

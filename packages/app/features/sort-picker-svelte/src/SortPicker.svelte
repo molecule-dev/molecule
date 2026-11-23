@@ -47,13 +47,13 @@
        run, and splitting it shifts the glyphs by a fraction of a pixel. -->
   <div class={cm.cn(cm.stack(1), className)}>
     <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-      >{#if labelSnippet}{@render labelSnippet()}{:else}{labelText}{/if}</span
+      >{#if labelSnippet}{@render labelSnippet?.()}{:else}{labelText}{/if}</span
     ><Select {options} {value} onValueChange={handleValueChange} aria-label={selectAriaLabel} />
   </div>
 {:else}
   <div class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
     <span class={cm.textSize('sm')}
-      >{#if labelSnippet}{@render labelSnippet()}:{:else}{labelText}:{/if}</span
+      >{#if labelSnippet}{@render labelSnippet?.()}:{:else}{labelText}:{/if}</span
     ><Select {options} {value} onValueChange={handleValueChange} aria-label={selectAriaLabel} />
   </div>
 {/if}

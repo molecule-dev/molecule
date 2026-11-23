@@ -33,7 +33,7 @@
   {#each value as tag, index (`${tag}-${index}`)}
     <li class={itemClassName}>
       {#if renderTag}
-        {@render renderTag(tag, index)}
+        {@render renderTag?.(tag, index)}
       {:else}
         <TagChip>{tag}</TagChip>
       {/if}

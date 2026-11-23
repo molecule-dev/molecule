@@ -274,14 +274,14 @@
         {#each tilesFor(weekday) as tile (tile.event.id)}
           {#snippet tileInner(event: ScheduleEvent, label: string)}
             <span data-mol-id="class-schedule-event-title"
-              >{#if typeof event.title === 'function'}{@render event.title()}{:else}{event.title ??
+              >{#if typeof event.title === 'function'}{@render event.title?.()}{:else}{event.title ??
                   ''}{/if}</span
             >
             {#if event.subtitle}
               <span
                 data-mol-id="class-schedule-event-subtitle"
                 class={cm.cn(cm.textSize('xs'), cm.fontWeight('normal'))}
-                >{#if typeof event.subtitle === 'function'}{@render event.subtitle()}{:else}{event.subtitle}{/if}</span
+                >{#if typeof event.subtitle === 'function'}{@render event.subtitle?.()}{:else}{event.subtitle}{/if}</span
               >
             {/if}
             {#if event.meta}
@@ -290,7 +290,7 @@
                 class={event.accentColor
                   ? cm.accentCardLabel({ tone: 'custom' })
                   : cm.cn(cm.textSize('xs'), cm.fontWeight('normal'))}
-                >{#if typeof event.meta === 'function'}{@render event.meta()}{:else}{event.meta}{/if}</span
+                >{#if typeof event.meta === 'function'}{@render event.meta?.()}{:else}{event.meta}{/if}</span
               >
             {/if}
             <!-- The tile's accessible name is its content — title, subtitle,

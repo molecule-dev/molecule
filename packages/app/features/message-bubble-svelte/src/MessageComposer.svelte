@@ -54,7 +54,7 @@
 </script>
 
 <div class={cm.cn(cm.flex({ align: 'end', gap: 'sm' }), cm.sp('p', 2), className)}>
-  {#if leading}{@render leading()}{/if}
+  {#if leading}{@render leading?.()}{/if}
   <Textarea
     {value}
     onChange={(event: Event) => (value = (event.target as HTMLTextAreaElement).value)}
@@ -63,6 +63,6 @@
     onKeyDown={onKey}
     className={cm.flex1}
   />
-  {#if trailing}{@render trailing()}{/if}
+  {#if trailing}{@render trailing?.()}{/if}
   <Button onClick={submit} disabled={disabled || !value.trim()}>{sendText}</Button>
 </div>

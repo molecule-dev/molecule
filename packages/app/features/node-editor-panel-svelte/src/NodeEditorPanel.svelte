@@ -34,7 +34,7 @@
     )}
   >
     <h2 class={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelTitle)}>
-      {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+      {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h2>
     {#if onClose}
       <button
@@ -50,11 +50,11 @@
     {/if}
   </div>
   <div class={cm.cn(cm.flex1, cm.sp('p', 6), cm.stack(8), cm.nodeEditorPanelBody)}>
-    {#if children}{@render children()}{/if}
+    {#if children}{@render children?.()}{/if}
   </div>
   {#if renders(footer)}
     <div class={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>
-      {#if typeof footer === 'function'}{@render footer()}{:else}{footer}{/if}
+      {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
     </div>
   {/if}
 </aside>

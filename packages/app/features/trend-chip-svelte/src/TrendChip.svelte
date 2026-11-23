@@ -63,7 +63,7 @@
   use:reactStyle={style}
 >
   {#if prefix !== undefined && prefix !== null && prefix !== ''}
-    {#if typeof prefix === 'function'}{@render prefix()}{:else}{prefix}{/if}
+    {#if typeof prefix === 'function'}{@render prefix?.()}{:else}{prefix}{/if}
   {/if}
   <span aria-hidden="true">{ARROW[dir]}</span>
   <span>{abs}{suffix}</span>

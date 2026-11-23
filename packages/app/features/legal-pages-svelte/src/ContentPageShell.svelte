@@ -25,7 +25,7 @@
 </script>
 
 <div class={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), cm.legalPagesShell)}>
-  {#if header}{@render header()}{/if}
+  {#if header}{@render header?.()}{/if}
 
   {#if title}
     <!-- A `<section>`, not `<header>`: the app's own top bar (the `header`
@@ -51,15 +51,15 @@
               cm.legalPagesHeroEyebrow,
             )}
           >
-            {@render eyebrow()}
+            {@render eyebrow?.()}
           </p>
         {/if}
         <h1 class={cm.cn(cm.textSize('4xl'), cm.fontWeight('extrabold'), cm.legalPagesHeroTitle)}>
-          {@render title()}
+          {@render title?.()}
         </h1>
         {#if subtitle}
           <p class={cm.cn(cm.textSize('base'), cm.sp('mt', 3), cm.legalPagesHeroSubtitle)}>
-            {@render subtitle()}
+            {@render subtitle?.()}
           </p>
         {/if}
       </div>
@@ -69,14 +69,14 @@
   <main class={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 10))}>
     <div class={cm.cn(cm.container({ size: containerSize }))}>
       {#if bare}
-        {@render children()}
+        {@render children?.()}
       {:else}
         <div class={cm.cn(cm.surface, cm.sp('p', 8), cm.legalPagesContentCard)}>
-          {@render children()}
+          {@render children?.()}
         </div>
       {/if}
     </div>
   </main>
 
-  {#if footer}{@render footer()}{/if}
+  {#if footer}{@render footer?.()}{/if}
 </div>

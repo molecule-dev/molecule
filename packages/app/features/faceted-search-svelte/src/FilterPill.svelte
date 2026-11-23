@@ -78,7 +78,7 @@
       {#if typeof label === 'string'}
         {label}
       {:else if label}
-        {@render label()}
+        {@render label?.()}
       {/if}
       {#if !hideChevron}
         <span aria-hidden="true" class={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>
@@ -89,7 +89,7 @@
   </button>
   {#if open && children}
     <div class={panelClass}>
-      {@render children()}
+      {@render children?.()}
     </div>
   {/if}
 </div>

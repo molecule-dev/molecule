@@ -230,11 +230,11 @@
           )}
         >
           <div class={cm.fontWeight('medium')}>
-            {#if typeof suggestion.label === 'function'}{@render suggestion.label()}{:else}{suggestion.label}{/if}
+            {#if typeof suggestion.label === 'function'}{@render suggestion.label?.()}{:else}{suggestion.label}{/if}
           </div>
           {#if suggestion.meta}
             <div class={cm.textSize('xs')}>
-              {#if typeof suggestion.meta === 'function'}{@render suggestion.meta()}{:else}{suggestion.meta}{/if}
+              {#if typeof suggestion.meta === 'function'}{@render suggestion.meta?.()}{:else}{suggestion.meta}{/if}
             </div>
           {/if}
         </li>

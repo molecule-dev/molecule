@@ -362,7 +362,7 @@
             </div>
             <div class={cm.cn(cm.cardContent, cm.flex1)}>
               {#if renderLimits}
-                {@render renderLimits(tier.limits)}
+                {@render renderLimits?.(tier.limits)}
               {:else}
                 {@render defaultLimits(tier.limits)}
               {/if}

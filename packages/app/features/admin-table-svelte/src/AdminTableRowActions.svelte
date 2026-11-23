@@ -95,7 +95,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else if value !== undefined && value !== ''}{value}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else if value !== undefined && value !== ''}{value}{/if}
 {/snippet}
 
 <div class={cm.cn(cm.position('relative'))}>

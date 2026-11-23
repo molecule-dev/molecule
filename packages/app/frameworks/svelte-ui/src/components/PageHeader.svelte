@@ -54,6 +54,6 @@
       <h1 class={cm.pageHeaderTitle}>{title}</h1>
       {#if description}<p class={cm.pageHeaderDescription}>{description}</p>{/if}
     </div>
-    {#if actions}<div class={cm.pageHeaderActions}>{@render actions()}</div>{/if}
+    {#if actions}<div class={cm.pageHeaderActions}>{@render actions?.()}</div>{/if}
   </div>
 </div>

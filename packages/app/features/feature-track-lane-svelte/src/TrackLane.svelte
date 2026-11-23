@@ -195,7 +195,7 @@
       <span
         class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
         data-mol-id="track-lane-name"
-        >{#if typeof name === 'function'}{@render name()}{:else if name !== undefined && name !== null}{name}{:else}{headerLabel}{/if}</span
+        >{#if typeof name === 'function'}{@render name?.()}{:else if name !== undefined && name !== null}{name}{:else}{headerLabel}{/if}</span
       >
     </div>
   {/if}
@@ -220,7 +220,7 @@
             data-mol-id="track-lane-clip-label"
             class={cm.cn(cm.textSize('xs'))}
             style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none"
-            >{#if typeof clip.label === 'function'}{@render clip.label()}{:else}{clip.label}{/if}</span
+            >{#if typeof clip.label === 'function'}{@render clip.label?.()}{:else}{clip.label}{/if}</span
           >{/if}
         <div
           role="separator"

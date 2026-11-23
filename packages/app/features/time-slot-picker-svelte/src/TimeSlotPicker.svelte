@@ -59,7 +59,7 @@
 <div class={cm.cn(cm.stack(2), className)}>
   {#if title}
     <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-      {#if typeof title === 'string'}{title}{:else}{@render title()}{/if}
+      {#if typeof title === 'string'}{title}{:else}{@render title?.()}{/if}
     </h3>
   {/if}
   <div
@@ -78,11 +78,11 @@
         style={slot.disabled ? 'opacity: 0.4' : undefined}
       >
         <span>
-          {#if typeof slot.label === 'string'}{slot.label}{:else}{@render slot.label()}{/if}
+          {#if typeof slot.label === 'string'}{slot.label}{:else}{@render slot.label?.()}{/if}
         </span>
         {#if slot.meta}
           <span class={cm.textSize('xs')}>
-            {#if typeof slot.meta === 'string'}{slot.meta}{:else}{@render slot.meta()}{/if}
+            {#if typeof slot.meta === 'string'}{slot.meta}{:else}{@render slot.meta?.()}{/if}
           </span>
         {/if}
       </button>

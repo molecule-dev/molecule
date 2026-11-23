@@ -26,7 +26,7 @@
      them: React renders the two child nodes with nothing in between, so any
      literal whitespace here would show up as an extra text node. -->
 <span class={cm.cn(cm.position('relative'), className)} style="display: inline-block"
-  >{#if children}{@render children()}{/if}{#if status}<PresenceDot
+  >{#if children}{@render children?.()}{/if}{#if status}<PresenceDot
       {status}
       position="overlay"
       {corner}

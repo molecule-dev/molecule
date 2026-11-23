@@ -60,7 +60,7 @@
               cm.weatherCardEyebrow,
             )}
           >
-            {@render eyebrow()}
+            {@render eyebrow?.()}
           </p>
         {/if}
         <h2 class={cm.cn(cm.textSize('2xl'), cm.fontWeight('semibold'), cm.weatherCardLocation)}>
@@ -83,7 +83,7 @@
           )}
         >
           <span class={cm.cn(cm.iconGlyphFont, cm.textSize('sm'))} aria-hidden="true">warning</span>
-          {#if alertLabel}{@render alertLabel()}{:else}{alertLevel}{/if}
+          {#if alertLabel}{@render alertLabel?.()}{:else}{alertLevel}{/if}
         </span>
       {/if}
     </div>
@@ -120,7 +120,7 @@
     <div class={cm.cn(cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }), cm.sp('mt', 4))}>
       {#if feelsLikeLabel}
         <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), cm.weatherCardFeelsLike)}>
-          {@render feelsLikeLabel()}
+          {@render feelsLikeLabel?.()}
         </span>
       {/if}
       {#if highLowLabel}
@@ -135,11 +135,12 @@
             cm.weatherCardHighLowChip,
           )}
         >
-          {@render highLowLabel()}
+          {@render highLowLabel?.()}
         </span>
       {/if}
       {#if updatedLabel}
-        <span class={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}>{@render updatedLabel()}</span
+        <span class={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}
+          >{@render updatedLabel?.()}</span
         >
       {/if}
     </div>

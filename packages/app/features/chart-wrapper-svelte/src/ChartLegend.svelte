@@ -34,11 +34,11 @@
       class={cm.cn(cm.textSize('sm'), item.hidden ? cm.textSize('sm') : undefined)}
       style={item.hidden ? 'opacity: 0.5' : undefined}
     >
-      {#if typeof item.label === 'function'}{@render item.label()}{:else}{item.label}{/if}
+      {#if typeof item.label === 'function'}{@render item.label?.()}{:else}{item.label}{/if}
     </span>
     {#if item.value !== undefined}
       <span class={cm.textSize('sm')}>
-        {#if typeof item.value === 'function'}{@render item.value()}{:else}{item.value}{/if}
+        {#if typeof item.value === 'function'}{@render item.value?.()}{:else}{item.value}{/if}
       </span>
     {/if}
   </span>

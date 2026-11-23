@@ -60,18 +60,18 @@
     )}
   >
     <div class={rowClasses}>
-      {#if typeof icon === 'function'}{@render icon()}{:else if icon !== undefined}{icon}{/if}
-      <span class={cm.textSize('sm')}>{@render children()}</span>
+      {#if typeof icon === 'function'}{@render icon?.()}{:else if icon !== undefined}{icon}{/if}
+      <span class={cm.textSize('sm')}>{@render children?.()}</span>
     </div>
     <div class={rowClasses}>
       {#if action}
         {#if action.href}
           <a href={action.href} class={actionClasses}>
-            {#if typeof action.label === 'function'}{@render action.label()}{:else}{action.label}{/if}
+            {#if typeof action.label === 'function'}{@render action.label?.()}{:else}{action.label}{/if}
           </a>
         {:else}
           <button type="button" onclick={action.onClick} class={actionClasses}>
-            {#if typeof action.label === 'function'}{@render action.label()}{:else}{action.label}{/if}
+            {#if typeof action.label === 'function'}{@render action.label?.()}{:else}{action.label}{/if}
           </button>
         {/if}
       {/if}

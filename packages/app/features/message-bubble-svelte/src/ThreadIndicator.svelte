@@ -62,7 +62,7 @@
   <span class={cm.fontWeight('semibold')}>{replies}</span>
   {#if lastReplyAt}
     <span
-      >{#if isSnippet(lastReplyAt)}{DOT}{@render lastReplyAt()}{:else}{`· ${textOf(lastReplyAt)}`}{/if}</span
+      >{#if isSnippet(lastReplyAt)}{DOT}{@render lastReplyAt?.()}{:else}{`· ${textOf(lastReplyAt)}`}{/if}</span
     >
   {/if}
 </button>

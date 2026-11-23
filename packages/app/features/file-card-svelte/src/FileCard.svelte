@@ -243,7 +243,7 @@
         class={cm.cn(cm.shrink0, cm.position('relative'))}
         data-mol-id="file-card-actions"
       >
-        {@render actions()}
+        {@render actions?.()}
       </div>{/if}
   </div>{:else}<div
     role="group"
@@ -301,6 +301,6 @@
         )}
         data-mol-id="file-card-actions"
       >
-        {@render actions()}
+        {@render actions?.()}
       </div>{/if}
   </div>{/if}

@@ -161,7 +161,7 @@
       {#if shortcut && !value && !focused}<Kbd>{shortcut}</Kbd>{/if}
     </span>
   </div>
-  {#if afterField}{@render afterField()}{/if}
+  {#if afterField}{@render afterField?.()}{/if}
   {#if hasStatus}
     <div class={cm.searchStatusRow}>
       {#each filters as f, i (`${f.field}:${f.values.join(',')}:${i}`)}

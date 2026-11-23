@@ -103,7 +103,7 @@
     <span aria-hidden="true" class={dotClasses} style="background: {color}"></span>
     {#if sourceLabel !== undefined}
       <span class={compactSourceClasses}
-        >{#if typeof sourceLabel === 'function'}{@render sourceLabel()}{:else}{sourceLabel}{/if}</span
+        >{#if typeof sourceLabel === 'function'}{@render sourceLabel?.()}{:else}{sourceLabel}{/if}</span
       >
     {/if}
   </span>
@@ -116,7 +116,7 @@
   >
     {#if sourceLabel !== undefined}
       <span data-mol-id="bias-indicator-source" class={sourceClasses}
-        >{#if typeof sourceLabel === 'function'}{@render sourceLabel()}{:else}{sourceLabel}{/if}</span
+        >{#if typeof sourceLabel === 'function'}{@render sourceLabel?.()}{:else}{sourceLabel}{/if}</span
       >
     {/if}
     <div

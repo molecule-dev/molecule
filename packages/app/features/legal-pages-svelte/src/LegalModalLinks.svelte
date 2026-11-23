@@ -65,11 +65,11 @@
 
 {#if show !== 'terms'}
   <button type="button" class={linkClassName} onclick={openPrivacy}>
-    {#if privacyLabel}{@render privacyLabel()}{:else}{privacyTitle}{/if}
+    {#if privacyLabel}{@render privacyLabel?.()}{:else}{privacyTitle}{/if}
   </button>
 {/if}{#if show !== 'privacy'}
   <button type="button" class={linkClassName} onclick={openTerms}>
-    {#if termsLabel}{@render termsLabel()}{:else}{termsTitle}{/if}
+    {#if termsLabel}{@render termsLabel?.()}{:else}{termsTitle}{/if}
   </button>
 {/if}<Modal
   open={privacyOpen}

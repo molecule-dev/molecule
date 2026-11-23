@@ -22,5 +22,5 @@
     className,
   )}
 >
-  <span class={cm.flex1}>{@render children()}</span>
+  <span class={cm.flex1}>{@render children?.()}</span>
 </div>

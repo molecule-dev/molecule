@@ -78,13 +78,13 @@
       {/if}
       {#if contact.role}
         <span class={cm.textSize('xs')}>
-          {#if typeof contact.role === 'function'}{@render contact.role()}{:else}{contact.role}{/if}
+          {#if typeof contact.role === 'function'}{@render contact.role?.()}{:else}{contact.role}{/if}
         </span>
       {/if}
     </div>
     {#if contact.company}
       <div class={cm.textSize('sm')}>
-        {#if typeof contact.company === 'function'}{@render contact.company()}{:else}{contact.company}{/if}
+        {#if typeof contact.company === 'function'}{@render contact.company?.()}{:else}{contact.company}{/if}
       </div>
     {/if}
     {#if !isCompact && contact.email}
@@ -103,16 +103,16 @@
       <div class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'))}>
         <span aria-hidden="true">⌂</span>
         <span>
-          {#if typeof contact.address === 'function'}{@render contact.address()}{:else}{contact.address}{/if}
+          {#if typeof contact.address === 'function'}{@render contact.address?.()}{:else}{contact.address}{/if}
         </span>
       </div>
     {/if}
   </div>
   {#if onClick && actions}
     <div class={cm.position('relative')}>
-      {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+      {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
     </div>
   {:else if actions}
-    {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
+    {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
   {/if}
 </div>

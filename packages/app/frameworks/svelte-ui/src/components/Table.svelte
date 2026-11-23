@@ -150,7 +150,7 @@
               >
                 {#if column.render}
                   {#if isSnippet(column.render)}
-                    {@render column.render(row[column.key as string], row, rowIndex)}
+                    {@render column.render?.(row[column.key as string], row, rowIndex)}
                   {:else}
                     {column.render(row[column.key as string], row, rowIndex)}
                   {/if}

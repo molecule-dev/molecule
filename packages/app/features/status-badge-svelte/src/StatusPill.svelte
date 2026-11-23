@@ -35,5 +35,5 @@
 >
   {#if dot}<span class={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, DOT_COLOR[kind])} aria-hidden="true"
     ></span>{/if}
-  {@render children()}
+  {@render children?.()}
 </span>

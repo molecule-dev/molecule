@@ -62,7 +62,7 @@
   {:else}
     <div class={cm.avatarFallback}>
       {#if fallback}
-        {@render fallback()}
+        {@render fallback?.()}
       {:else if name}
         <span class={cm.avatarInitials}>{reactInitials(name)}</span>
       {:else}

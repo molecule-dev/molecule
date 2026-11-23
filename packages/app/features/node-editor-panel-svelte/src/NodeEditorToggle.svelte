@@ -42,11 +42,11 @@
         id={titleId}
         class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.nodeEditorPanelToggleTitle)}
       >
-        {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+        {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
       </p>
       {#if renders(subtitle)}
         <p id={subtitleId} class={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>
-          {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+          {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
         </p>
       {/if}
     </div>

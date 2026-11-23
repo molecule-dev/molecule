@@ -190,7 +190,7 @@
 {#snippet content(
   value: AudioPlayerProps['title'],
   fallback: string,
-)}{#if value === undefined || value === null}{fallback}{:else if typeof value === 'function'}{@render value()}{:else}{value}{/if}{/snippet}
+)}{#if value === undefined || value === null}{fallback}{:else if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}{/snippet}
 
 <div class={cm.cn(cm.stack(2), cm.sp('p', 3), className)}>
   <audio

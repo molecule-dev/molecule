@@ -102,7 +102,7 @@
         class={cm.cn(cm.textSize('2xl'), cm.textPrimary, cm.storefrontChromeTopNavBrand)}
         data-mol-id="brand-logo-01"
         to={brandTo}
-        >{#if typeof brand === 'function'}{@render brand()}{:else}{brand}{/if}</Link
+        >{#if typeof brand === 'function'}{@render brand?.()}{:else}{brand}{/if}</Link
       >
     </div>
 
@@ -114,7 +114,7 @@
         {#each links as link (link.to)}
           <li>
             <Link class={linkClasses(link)} data-mol-id={link.dataMolId} to={link.to}
-              >{#if typeof link.label === 'function'}{@render link.label()}{:else}{link.label}{/if}</Link
+              >{#if typeof link.label === 'function'}{@render link.label?.()}{:else}{link.label}{/if}</Link
             >
           </li>
         {/each}
@@ -190,7 +190,7 @@
                 data-mol-id={item.dataMolId}
                 onclick={() => (profileOpen = false)}
                 to={item.to}
-                >{#if typeof item.label === 'function'}{@render item.label()}{:else}{item.label}{/if}</Link
+                >{#if typeof item.label === 'function'}{@render item.label?.()}{:else}{item.label}{/if}</Link
               >
             {/each}
             {#if isAuthenticated && onSignOut}
@@ -208,7 +208,7 @@
                   profileOpen = false
                   onSignOut?.()
                 }}
-                >{#if typeof signOutLabelValue === 'function'}{@render signOutLabelValue()}{:else}{signOutLabelValue}{/if}</button
+                >{#if typeof signOutLabelValue === 'function'}{@render signOutLabelValue?.()}{:else}{signOutLabelValue}{/if}</button
               >
             {/if}
           </div>

@@ -46,11 +46,11 @@
         >
           {sidebarCollapsed ? '▶' : '◀'}
         </button>
-      {/if}{@render sidebar()}
+      {/if}{@render sidebar?.()}
     </aside>
   {/if}
   <div class={cm.flex1}>
-    {#if topbar}<header class={cm.pageShellTopbar}>{@render topbar()}</header>{/if}
+    {#if topbar}<header class={cm.pageShellTopbar}>{@render topbar?.()}</header>{/if}
     <main class={cm.pageShellContent}>{@render children?.()}</main>
   </div>
 </div>

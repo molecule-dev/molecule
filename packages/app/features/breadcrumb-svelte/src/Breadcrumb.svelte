@@ -33,25 +33,25 @@
       {#if i === items.length - 1 || !item.to}
         <span aria-current={i === items.length - 1 ? 'page' : undefined}>
           <span class={cm.flex({ align: 'center', gap: 'xs' })}>
-            {#if typeof item.icon === 'function'}{@render item.icon()}{:else if item.icon != null}{item.icon}{/if}{#if typeof item.label === 'function'}{@render item.label()}{:else}{item.label}{/if}
+            {#if typeof item.icon === 'function'}{@render item.icon?.()}{:else if item.icon != null}{item.icon}{/if}{#if typeof item.label === 'function'}{@render item.label?.()}{:else}{item.label}{/if}
           </span>
         </span>
       {:else if onNavigate}
         <button type="button" class={cm.link} onclick={() => onNavigate(item.to ?? '')}>
           <span class={cm.flex({ align: 'center', gap: 'xs' })}>
-            {#if typeof item.icon === 'function'}{@render item.icon()}{:else if item.icon != null}{item.icon}{/if}{#if typeof item.label === 'function'}{@render item.label()}{:else}{item.label}{/if}
+            {#if typeof item.icon === 'function'}{@render item.icon?.()}{:else if item.icon != null}{item.icon}{/if}{#if typeof item.label === 'function'}{@render item.label?.()}{:else}{item.label}{/if}
           </span>
         </button>
       {:else}
         <a href={item.to} class={cm.link}>
           <span class={cm.flex({ align: 'center', gap: 'xs' })}>
-            {#if typeof item.icon === 'function'}{@render item.icon()}{:else if item.icon != null}{item.icon}{/if}{#if typeof item.label === 'function'}{@render item.label()}{:else}{item.label}{/if}
+            {#if typeof item.icon === 'function'}{@render item.icon?.()}{:else if item.icon != null}{item.icon}{/if}{#if typeof item.label === 'function'}{@render item.label?.()}{:else}{item.label}{/if}
           </span>
         </a>
       {/if}
       {#if i !== items.length - 1}
         <span>
-          {#if typeof separator === 'function'}{@render separator()}{:else if separator != null}{separator}{:else}<span
+          {#if typeof separator === 'function'}{@render separator?.()}{:else if separator != null}{separator}{:else}<span
               aria-hidden="true">/</span
             >{/if}
         </span>

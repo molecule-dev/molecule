@@ -48,7 +48,7 @@
      is brand intro content, not a banner. -->
 <div class={wrapperClass}>
   {#if children}
-    {@render children()}
+    {@render children?.()}
   {:else}
     {#if icon}
       <AuthBrandHeaderChip {icon} {chipGradient} {chipShape} />

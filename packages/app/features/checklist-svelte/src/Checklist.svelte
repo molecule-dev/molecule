@@ -50,7 +50,7 @@
 <div class={cm.cn(cm.stack(3), className)}>
   {#if title}
     <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-      {#if typeof title === 'string'}{title}{:else}{@render title()}{/if}
+      {#if typeof title === 'string'}{title}{:else}{@render title?.()}{/if}
     </h3>
   {/if}
   {#if showProgress}
@@ -88,11 +88,11 @@
             )}
             style={item.completed ? 'text-decoration: line-through; opacity: 0.6' : undefined}
           >
-            {#if typeof item.label === 'string'}{item.label}{:else}{@render item.label()}{/if}
+            {#if typeof item.label === 'string'}{item.label}{:else}{@render item.label?.()}{/if}
           </span>
           {#if item.description}
             <span class={cm.textSize('xs')}>
-              {#if typeof item.description === 'string'}{item.description}{:else}{@render item.description()}{/if}
+              {#if typeof item.description === 'string'}{item.description}{:else}{@render item.description?.()}{/if}
             </span>
           {/if}
         </div>

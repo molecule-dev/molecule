@@ -28,10 +28,10 @@
     className,
   )}
 >
-  {#if typeof message === 'function'}{@render message()}{:else}{message}{/if}{#if cta}{SPACE}<Link
+  {#if typeof message === 'function'}{@render message?.()}{:else}{message}{/if}{#if cta}{SPACE}<Link
       class={cm.cn(cm.storefrontChromeAnnouncementLink)}
       data-mol-id="announcement-link"
       to={cta.to}
-      >{#if typeof cta.label === 'function'}{@render cta.label()}{:else}{cta.label}{/if}</Link
+      >{#if typeof cta.label === 'function'}{@render cta.label?.()}{:else}{cta.label}{/if}</Link
     >{/if}
 </div>

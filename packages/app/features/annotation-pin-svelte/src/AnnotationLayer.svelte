@@ -81,7 +81,7 @@
   class={cm.cn(className)}
   style={rootStyle}
 >
-  {#if children}{@render children()}{/if}
+  {#if children}{@render children?.()}{/if}
   {#if onSurfaceClick}
     <button
       type="button"

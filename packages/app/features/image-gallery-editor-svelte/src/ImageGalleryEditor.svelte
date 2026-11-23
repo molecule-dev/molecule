@@ -140,7 +140,7 @@
   {#if header || counter}
     <div class={cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6))}>
       {#if typeof header === 'function'}
-        {@render header()}
+        {@render header?.()}
       {:else if header != null}
         {header}
       {:else}
@@ -156,7 +156,7 @@
             cm.trackingWide,
           )}
         >
-          {#if typeof counter === 'function'}{@render counter()}{:else}{counter}{/if}
+          {#if typeof counter === 'function'}{@render counter?.()}{:else}{counter}{/if}
         </span>
       {/if}
     </div>
@@ -201,7 +201,7 @@
       </div>
       <p class={cm.cn(cm.fontWeight('bold'))}>
         {#if typeof dropZoneTitle === 'function'}
-          {@render dropZoneTitle()}
+          {@render dropZoneTitle?.()}
         {:else if dropZoneTitle != null}
           {dropZoneTitle}
         {:else}
@@ -210,7 +210,7 @@
       </p>
       <p class={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>
         {#if typeof dropZoneHint === 'function'}
-          {@render dropZoneHint()}
+          {@render dropZoneHint?.()}
         {:else if dropZoneHint != null}
           {dropZoneHint}
         {:else}
@@ -278,7 +278,7 @@
       class={cm.cn(cm.sp('mt', 3), cm.textSize('xs'), cm.textMuted)}
       data-mol-id="image-gallery-editor-status"
     >
-      {#if typeof statusMessage === 'function'}{@render statusMessage()}{:else}{statusMessage}{/if}
+      {#if typeof statusMessage === 'function'}{@render statusMessage?.()}{:else}{statusMessage}{/if}
     </p>
   {/if}
   <!-- Hidden trigger input. `display:none` is the robust, framework-agnostic

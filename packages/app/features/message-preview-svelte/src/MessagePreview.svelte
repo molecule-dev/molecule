@@ -84,7 +84,7 @@
 </script>
 
 {#snippet field(value: MessagePreviewProps['name'])}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 {#snippet body()}

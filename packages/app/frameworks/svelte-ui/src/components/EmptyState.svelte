@@ -30,8 +30,8 @@
   data-testid={testId}
   data-mol-id={automationId}
 >
-  {#if icon}<div class={cm.emptyStateIcon}>{@render icon()}</div>{/if}
+  {#if icon}<div class={cm.emptyStateIcon}>{@render icon?.()}</div>{/if}
   <h3 class={cm.emptyStateTitle}>{title}</h3>
   {#if description}<p class={cm.emptyStateDescription}>{description}</p>{/if}
-  {#if action}<div class={cm.emptyStateAction}>{@render action()}</div>{/if}
+  {#if action}<div class={cm.emptyStateAction}>{@render action?.()}</div>{/if}
 </div>

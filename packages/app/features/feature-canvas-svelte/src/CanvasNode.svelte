@@ -214,7 +214,7 @@
   onpointerup={onPointerUp}
   onpointercancel={onPointerUp}
 >
-  {#if children}{@render children()}{/if}
+  {#if children}{@render children?.()}{/if}
   {#if selected}
     <span id={selectedDescriptionId} hidden>
       {t('canvas.aria.nodeSelected', {}, { defaultValue: 'Selected' })}

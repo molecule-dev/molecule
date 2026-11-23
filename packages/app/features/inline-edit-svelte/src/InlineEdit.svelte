@@ -125,7 +125,7 @@
     }}
   >
     {#if value}
-      {#if renderRead}{@render renderRead(value)}{:else}{value}{/if}
+      {#if renderRead}{@render renderRead?.(value)}{:else}{value}{/if}
     {:else}
       <span style="opacity: 0.5">{placeholderText()}</span>
     {/if}

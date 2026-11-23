@@ -101,7 +101,7 @@
 </script>
 
 {#snippet field(value: Snippet | string | undefined)}
-  {#if isSnippet(value)}{@render value()}{:else}{value ?? ''}{/if}
+  {#if isSnippet(value)}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 <div class={cm.cn(cm.stack(4), className)}>
@@ -115,7 +115,7 @@
     style={bannerStyle}
   >
     <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{statusLabel(overall)}</span>
-    {#if header}{@render header()}{/if}
+    {#if header}{@render header?.()}{/if}
   </div>
   {#each groups as group (group.id)}
     <section class={cm.stack(2)}>
@@ -147,5 +147,5 @@
       </ul>
     </section>
   {/each}
-  {#if footer}{@render footer()}{/if}
+  {#if footer}{@render footer?.()}{/if}
 </div>

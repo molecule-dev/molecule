@@ -25,11 +25,11 @@
 >
   <div class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }))}>
     <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
-      >{#if isSnippet(title)}{@render title()}{:else}{textOf(title)}{/if}</span
+      >{#if isSnippet(title)}{@render title?.()}{:else}{textOf(title)}{/if}</span
     >
     {#if typeof count === 'number'}
       <span class={cm.cn(cm.textSize('xs'))}>({count})</span>
     {/if}
   </div>
-  {#if actions}{@render actions()}{/if}
+  {#if actions}{@render actions?.()}{/if}
 </header>

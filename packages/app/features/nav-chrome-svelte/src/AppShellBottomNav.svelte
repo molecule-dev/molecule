@@ -33,9 +33,9 @@
         it.id === activeId ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
       )}
     >
-      {#if typeof it.icon === 'function'}{@render it.icon()}{:else if it.icon != null}{it.icon}{/if}
+      {#if typeof it.icon === 'function'}{@render it.icon?.()}{:else if it.icon != null}{it.icon}{/if}
       <span>
-        {#if typeof it.label === 'function'}{@render it.label()}{:else}{it.label}{/if}
+        {#if typeof it.label === 'function'}{@render it.label?.()}{:else}{it.label}{/if}
       </span>
     </button>
   {/each}

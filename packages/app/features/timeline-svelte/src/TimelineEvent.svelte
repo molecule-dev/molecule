@@ -22,14 +22,14 @@
       {#if typeof event.timestamp === 'string' || typeof event.timestamp === 'number'}
         {event.timestamp}
       {:else}
-        {@render event.timestamp()}
+        {@render event.timestamp?.()}
       {/if}
     </div>
     <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
       {#if typeof event.title === 'string' || typeof event.title === 'number'}
         {event.title}
       {:else}
-        {@render event.title()}
+        {@render event.title?.()}
       {/if}
     </div>
     {#if event.body}
@@ -37,7 +37,7 @@
         {#if typeof event.body === 'string' || typeof event.body === 'number'}
           {event.body}
         {:else}
-          {@render event.body()}
+          {@render event.body?.()}
         {/if}
       </div>
     {/if}

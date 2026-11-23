@@ -32,9 +32,9 @@
 </script>
 
 {#if state.expired && expired}
-  {@render expired()}
+  {@render expired?.()}
 {:else if render}
-  <span class={className}>{@render render(state)}</span>
+  <span class={className}>{@render render?.(state)}</span>
 {:else}
   <span class={cm.cn(className)}>{display}</span>
 {/if}

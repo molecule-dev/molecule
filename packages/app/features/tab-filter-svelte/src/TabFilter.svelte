@@ -62,9 +62,9 @@
       )}
     >
       <span class={cm.flex({ align: 'center', gap: 'xs' })}>
-        {#if typeof tab.icon === 'function'}{@render tab.icon()}{:else if tab.icon != null}{tab.icon}{/if}
+        {#if typeof tab.icon === 'function'}{@render tab.icon?.()}{:else if tab.icon != null}{tab.icon}{/if}
         <span>
-          {#if typeof tab.label === 'function'}{@render tab.label()}{:else}{tab.label}{/if}
+          {#if typeof tab.label === 'function'}{@render tab.label?.()}{:else}{tab.label}{/if}
         </span>
         {#if tab.count !== undefined}
           <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>

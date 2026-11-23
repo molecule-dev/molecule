@@ -55,7 +55,7 @@
     onCreated={handleShareCreated}
   >
     {#if ctx.props.shareModalContent}
-      {@render ctx.props.shareModalContent()}
+      {@render ctx.props.shareModalContent?.()}
     {/if}
   </ShareModal>
 {/if}

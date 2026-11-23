@@ -74,10 +74,10 @@
 
 <div class={rootClass} style={rootStyle}>
   <div style={CENTER_STYLE}>
-    {#if typeof videoSlot === 'function'}{@render videoSlot()}{:else if videoSlot}{videoSlot}{:else if typeof avatarSlot === 'function'}{@render avatarSlot()}{:else if avatarSlot}{avatarSlot}{/if}
+    {#if typeof videoSlot === 'function'}{@render videoSlot?.()}{:else if videoSlot}{videoSlot}{:else if typeof avatarSlot === 'function'}{@render avatarSlot?.()}{:else if avatarSlot}{avatarSlot}{/if}
   </div>
   <div class={badgeClass} style={BADGE_STYLE}>
-    {#if typeof name === 'function'}{@render name()}{:else}{name}{/if}{#if isLocal}{youSuffix}{/if}
+    {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}{#if isLocal}{youSuffix}{/if}
   </div>
   <div style={INDICATORS_STYLE}>
     {#if !audioEnabled}<span aria-label={mutedLabel} style={ICON_STYLE}>🔇</span>{/if}

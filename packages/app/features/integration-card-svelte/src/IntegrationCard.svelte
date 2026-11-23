@@ -63,16 +63,16 @@
   <div class={cm.flex({ align: 'start', gap: 'md' })}>
     {#if icon}
       <div class={cm.shrink0}>
-        {#if typeof icon === 'function'}{@render icon()}{:else}{icon}{/if}
+        {#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}
       </div>
     {/if}
     <div class={cm.cn(cm.flex1, cm.stack(2))}>
       <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-        {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+        {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
       </h3>
       {#if description}
         <p class={cm.textSize('sm')}>
-          {#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+          {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
         </p>
       {/if}
       <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
@@ -81,7 +81,7 @@
           {#if action.href}
             <a href={action.href}>
               <Button disabled={Boolean(action.disabled)}>
-                {#if typeof action.label === 'function'}{@render action.label()}{:else}{action.label}{/if}
+                {#if typeof action.label === 'function'}{@render action.label?.()}{:else}{action.label}{/if}
               </Button>
             </a>
           {:else}
@@ -89,7 +89,7 @@
               disabled={Boolean(action.disabled) || Boolean(action.loading)}
               onClick={(event: MouseEvent) => action?.onClick?.(event)}
             >
-              {#if action.loading}…{:else if typeof action.label === 'function'}{@render action.label()}{:else}{action.label}{/if}
+              {#if action.loading}…{:else if typeof action.label === 'function'}{@render action.label?.()}{:else}{action.label}{/if}
             </Button>
           {/if}
         {/if}

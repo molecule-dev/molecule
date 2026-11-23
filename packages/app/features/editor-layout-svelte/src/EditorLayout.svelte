@@ -27,17 +27,17 @@
   data-mol-id={dataMolId}
 >
   <div style="position: sticky; top: 0px; z-index: 10">
-    {#if topBar}{@render topBar()}{/if}
+    {#if topBar}{@render topBar?.()}{/if}
   </div>
   <div class={cm.cn(cm.flex({ align: 'stretch' }), cm.flex1)}>
     {#if sidePanel && sidePanelOpen && sidePanelPosition === 'left'}
-      <aside class={cm.shrink0}>{@render sidePanel()}</aside>
+      <aside class={cm.shrink0}>{@render sidePanel?.()}</aside>
     {/if}
     <main class={cm.flex1}>
-      {#if canvas}{@render canvas()}{/if}
+      {#if canvas}{@render canvas?.()}{/if}
     </main>
     {#if sidePanel && sidePanelOpen && sidePanelPosition === 'right'}
-      <aside class={cm.shrink0}>{@render sidePanel()}</aside>
+      <aside class={cm.shrink0}>{@render sidePanel?.()}</aside>
     {/if}
   </div>
 </div>

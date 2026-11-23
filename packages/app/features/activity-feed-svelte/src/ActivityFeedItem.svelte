@@ -58,27 +58,27 @@
 
 <article class={cm.cn(cm.flex({ align: 'start', gap: 'sm' }), className)}>
   <div class={cm.shrink0}>
-    {#if item.icon != null}{#if isSnippet(item.icon)}{@render item.icon()}{:else}{textOf(
+    {#if item.icon != null}{#if isSnippet(item.icon)}{@render item.icon?.()}{:else}{textOf(
           item.icon,
         )}{/if}{:else if item.avatarSrc}<Avatar src={item.avatarSrc} size="sm" />{/if}
   </div>
   <div class={cm.cn(cm.flex1, cm.stack(1))}>
     <div class={cm.cn(cm.textSize('sm'))}>
       <span class={cm.fontWeight('semibold')}
-        >{#if isSnippet(item.actor)}{@render item.actor()}{:else}{textOf(item.actor)}{/if}</span
-      >{#if isSnippet(item.verb)}{SPACE}{@render item.verb()}{SPACE}{:else}{` ${textOf(item.verb)} `}{/if}{#if item.target}<span
+        >{#if isSnippet(item.actor)}{@render item.actor?.()}{:else}{textOf(item.actor)}{/if}</span
+      >{#if isSnippet(item.verb)}{SPACE}{@render item.verb?.()}{SPACE}{:else}{` ${textOf(item.verb)} `}{/if}{#if item.target}<span
           class={cm.fontWeight('medium')}
-          >{#if isSnippet(item.target)}{@render item.target()}{:else}{textOf(
+          >{#if isSnippet(item.target)}{@render item.target?.()}{:else}{textOf(
               item.target,
             )}{/if}</span
         >{/if}<span class={cm.cn(cm.sp('ml', 2), cm.textSize('xs'))}
-        >{#if isSnippet(item.timestamp)}{DOT}{@render item.timestamp()}{:else}{` · ${textOf(
+        >{#if isSnippet(item.timestamp)}{DOT}{@render item.timestamp?.()}{:else}{` · ${textOf(
             item.timestamp,
           )}`}{/if}</span
       >
     </div>
     {#if item.body}<div class={cm.textSize('sm')}>
-        {#if isSnippet(item.body)}{@render item.body()}{:else}{textOf(item.body)}{/if}
+        {#if isSnippet(item.body)}{@render item.body?.()}{:else}{textOf(item.body)}{/if}
       </div>{/if}
   </div>
 </article>

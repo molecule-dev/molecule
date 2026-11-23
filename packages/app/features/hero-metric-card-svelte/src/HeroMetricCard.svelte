@@ -107,7 +107,7 @@
             cm.textMuted,
           )}
         >
-          {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+          {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
         </span>
         {#if loading}
           <span
@@ -122,11 +122,11 @@
             <span
               class={cm.cn(cm.textSize('5xl'), cm.fontWeight('extrabold'), cm.heroMetricCardValue)}
             >
-              {#if typeof value === 'function'}{@render value()}{:else}{value}{/if}
+              {#if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
             </span>
             {#if hasUnit}
               <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}>
-                {#if typeof unit === 'function'}{@render unit()}{:else}{unit}{/if}
+                {#if typeof unit === 'function'}{@render unit?.()}{:else}{unit}{/if}
               </span>
             {/if}
           </div>
@@ -136,13 +136,13 @@
         {/if}
         {#if !loading && subtitle}
           <span class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
-            {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+            {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
           </span>
         {/if}
       </div>
       {#if rightSlot}
         <div class={cm.flex({ align: 'center', justify: 'center' })}>
-          {#if typeof rightSlot === 'function'}{@render rightSlot()}{:else}{rightSlot}{/if}
+          {#if typeof rightSlot === 'function'}{@render rightSlot?.()}{:else}{rightSlot}{/if}
         </div>
       {/if}
     </div>

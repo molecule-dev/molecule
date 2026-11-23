@@ -27,12 +27,12 @@
   {#each fields as field, index (index)}
     <div class={itemClass}>
       <dt class={termClass}>
-        {#if typeof field.icon === 'function'}{@render field.icon()}{:else if field.icon}{field.icon}{/if}<span
-          >{#if typeof field.label === 'function'}{@render field.label()}{:else}{field.label}{/if}</span
+        {#if typeof field.icon === 'function'}{@render field.icon?.()}{:else if field.icon}{field.icon}{/if}<span
+          >{#if typeof field.label === 'function'}{@render field.label?.()}{:else}{field.label}{/if}</span
         >
       </dt>
       <dd class={valueClass}>
-        {#if typeof field.value === 'function'}{@render field.value()}{:else}{field.value}{/if}
+        {#if typeof field.value === 'function'}{@render field.value?.()}{:else}{field.value}{/if}
       </dd>
     </div>
   {/each}

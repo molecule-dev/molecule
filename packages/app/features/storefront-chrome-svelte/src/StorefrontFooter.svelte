@@ -29,11 +29,11 @@
   >
     <div class={cm.cn(cm.storefrontChromeFooterBrandCol)}>
       <div class={cm.cn(cm.textSize('xl'), cm.sp('mb', 4), cm.storefrontChromeFooterBrand)}>
-        {#if typeof brand === 'function'}{@render brand()}{:else}{brand}{/if}
+        {#if typeof brand === 'function'}{@render brand?.()}{:else}{brand}{/if}
       </div>
       {#if tagline}
         <p class={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterTagline)}>
-          {#if typeof tagline === 'function'}{@render tagline()}{:else}{tagline}{/if}
+          {#if typeof tagline === 'function'}{@render tagline?.()}{:else}{tagline}{/if}
         </p>
       {/if}
     </div>
@@ -47,13 +47,13 @@
             cm.storefrontChromeFooterHeading,
           )}
         >
-          {#if typeof col.heading === 'function'}{@render col.heading()}{:else}{col.heading}{/if}
+          {#if typeof col.heading === 'function'}{@render col.heading?.()}{:else}{col.heading}{/if}
         </h4>
         <ul class={cm.stack(2)}>
           {#each col.links as link (link.to)}
             <li>
               <Link class={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterLink)} to={link.to}
-                >{#if typeof link.label === 'function'}{@render link.label()}{:else}{link.label}{/if}</Link
+                >{#if typeof link.label === 'function'}{@render link.label?.()}{:else}{link.label}{/if}</Link
               >
             </li>
           {/each}
@@ -72,7 +72,7 @@
     )}
   >
     <p class={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterCopyright)}>
-      {#if typeof copyright === 'function'}{@render copyright()}{:else}{copyright}{/if}
+      {#if typeof copyright === 'function'}{@render copyright?.()}{:else}{copyright}{/if}
     </p>
   </div>
 </footer>

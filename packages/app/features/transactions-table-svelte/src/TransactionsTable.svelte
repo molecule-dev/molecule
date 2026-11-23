@@ -149,7 +149,7 @@
 </script>
 
 {#snippet node(value: Snippet | string | number | undefined)}
-  {#if typeof value === 'function'}{@render value()}{:else}{value ?? ''}{/if}
+  {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
 {#if loading}

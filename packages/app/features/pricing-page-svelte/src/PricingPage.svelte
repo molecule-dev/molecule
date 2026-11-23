@@ -138,7 +138,7 @@
     </header>
     <div class={cm.cardContent}>
       {#if renderLimits}
-        {@render renderLimits(tier.limits)}
+        {@render renderLimits?.(tier.limits)}
       {:else}
         {@render limitsList(tier.limits)}
       {/if}

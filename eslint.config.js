@@ -13,6 +13,7 @@ import angularTestHostChangeDetection from './eslint-rules/angular-test-host-cha
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
 import noHandPlacedNodes from './eslint-rules/no-hand-placed-nodes.mjs'
+import noRequiredSnippetRender from './eslint-rules/no-required-snippet-render.mjs'
 import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
 import {
   ROUTER_LIBRARY_FIX,
@@ -57,6 +58,11 @@ import {
  * consumer's conditionals stop working. The message names each framework's placement or portal
  * tool. molecule-only, so it is not in the package.
  *
+ * `no-required-snippet-render` makes a Svelte port's render tag call a snippet optionally
+ * (`children?.()`): React renders a node prop the consumer left out as nothing, and a render tag
+ * that calls `children()` throws `invalid_snippet`.
+ * molecule-only, so it is not in the package.
+ *
  * `angular-test-host-change-detection` makes every component an Angular test declares state its
  * change detection: Angular 22 checks one that sets none as OnPush, so a prop the test changes is
  * never rendered and the test asserts the first render. molecule-only, so it is not in the package.
@@ -67,6 +73,7 @@ const moleculeLocal = {
     'no-dom-events-in-angular-check-hooks': noDomEventsInAngularCheckHooks,
     'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
     'no-hand-placed-nodes': noHandPlacedNodes,
+    'no-required-snippet-render': noRequiredSnippetRender,
     'angular-test-host-change-detection': angularTestHostChangeDetection,
   },
 }
@@ -555,6 +562,18 @@ export default tseslint.config(
     ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
     rules: { 'molecule-local/no-hand-placed-nodes': ['error', { framework }] },
   })),
+  {
+    // React renders a node prop the consumer left out (`cond && …`, a list that became empty) as
+    // nothing; a Svelte port's `{@render children()}` throws `invalid_snippet` then. The fix is
+    // `{@render children?.()}`, which the rule applies.
+    files: [
+      'packages/app/features/*-svelte/src/**/*.svelte',
+      'packages/app/frameworks/svelte-ui/src/**/*.svelte',
+      'packages/app/frameworks/svelte/src/**/*.svelte',
+    ],
+    ignores: ['**/__tests__/**'],
+    rules: { 'molecule-local/no-required-snippet-render': 'error' },
+  },
   {
     // Angular 22 checks a component with no changeDetection as OnPush: a test host whose props the
     // test changes never re-renders, and fifteen suites asserted their first render that way.

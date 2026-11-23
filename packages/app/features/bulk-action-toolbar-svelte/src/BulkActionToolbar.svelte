@@ -63,9 +63,9 @@
           onClick={action.onClick}
           disabled={action.disabled}
         >
-          {#if typeof action.icon === 'function'}{@render action.icon()}{:else if action.icon != null}{action.icon}{/if}{#if action.label}
+          {#if typeof action.icon === 'function'}{@render action.icon?.()}{:else if action.icon != null}{action.icon}{/if}{#if action.label}
             <span>
-              {#if typeof action.label === 'function'}{@render action.label()}{:else}{action.label}{/if}
+              {#if typeof action.label === 'function'}{@render action.label?.()}{:else}{action.label}{/if}
             </span>
           {/if}
         </Button>

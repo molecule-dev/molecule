@@ -56,9 +56,9 @@
       aria-label={tl.label}
       title={tl.label}
     >
-      {#if typeof tl.icon === 'function'}{@render tl.icon()}{:else if tl.icon != null}{tl.icon}{:else}{tl
+      {#if typeof tl.icon === 'function'}{@render tl.icon?.()}{:else if tl.icon != null}{tl.icon}{:else}{tl
           .label[0] ?? ''}{/if}
     </Button>
   {/each}
-  {#if typeof extras === 'function'}{@render extras()}{:else if extras != null}{extras}{/if}
+  {#if typeof extras === 'function'}{@render extras?.()}{:else if extras != null}{extras}{/if}
 </div>

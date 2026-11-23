@@ -67,7 +67,7 @@
         <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-text">{trendText}</span>
         {#if trendLabel}
           <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-label"
-            >{#if typeof trendLabel === 'function'}{@render trendLabel()}{:else}{trendLabel}{/if}</span
+            >{#if typeof trendLabel === 'function'}{@render trendLabel?.()}{:else}{trendLabel}{/if}</span
           >
         {/if}
       </div>

@@ -33,7 +33,7 @@
 </script>
 
 {#snippet node(value: string | Snippet)}
-  {#if typeof value === 'string'}{value}{:else}{@render value()}{/if}
+  {#if typeof value === 'string'}{value}{:else}{@render value?.()}{/if}
 {/snippet}
 
 <header data-mol-id={dataMolId} class={cm.cn(cm.stack(3), className)}>

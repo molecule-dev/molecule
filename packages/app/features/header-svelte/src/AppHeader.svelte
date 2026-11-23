@@ -50,17 +50,17 @@
             {#each Object.entries(navigation.links) as [to, { children, className, ...anchor }] (to)}
               <li class={navigation.itemClassName}>
                 <Link class={className} {...anchor} {to}
-                  >{#if typeof children === 'function'}{@render children()}{:else}{children}{/if}</Link
+                  >{#if typeof children === 'function'}{@render children?.()}{:else}{children}{/if}</Link
                 >
               </li>
             {/each}
           </ul>
         {/if}
         {#if themeToggle !== null}
-          {#if themeToggle}{@render themeToggle()}{:else}<DefaultThemeToggle />{/if}
+          {#if themeToggle}{@render themeToggle?.()}{:else}<DefaultThemeToggle />{/if}
         {/if}
-        {#if extraActions}{@render extraActions()}{/if}
-        {#if userMenu}{@render userMenu()}{/if}
+        {#if extraActions}{@render extraActions?.()}{/if}
+        {#if userMenu}{@render userMenu?.()}{/if}
       </Flex>
     </Flex>
   </svelte:element>

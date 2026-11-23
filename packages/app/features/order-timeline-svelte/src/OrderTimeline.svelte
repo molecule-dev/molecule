@@ -120,11 +120,11 @@
               milestone.current ? cm.fontWeight('bold') : cm.fontWeight('medium'),
             )}
           >
-            {#if typeof milestone.label === 'string'}{milestone.label}{:else}{@render milestone.label()}{/if}
+            {#if typeof milestone.label === 'string'}{milestone.label}{:else}{@render milestone.label?.()}{/if}
           </span>
           {#if milestone.detail}
             <span class={cm.textSize('xs')}>
-              {#if typeof milestone.detail === 'string'}{milestone.detail}{:else}{@render milestone.detail()}{/if}
+              {#if typeof milestone.detail === 'string'}{milestone.detail}{:else}{@render milestone.detail?.()}{/if}
             </span>
           {/if}
         </div>
@@ -133,7 +133,7 @@
   </div>
   {#if eta}
     <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-      {#if typeof eta === 'string'}{eta}{:else}{@render eta()}{/if}
+      {#if typeof eta === 'string'}{eta}{:else}{@render eta?.()}{/if}
     </div>
   {/if}
 </div>

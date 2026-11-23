@@ -68,24 +68,24 @@
 
 {#if $view.data === undefined || ($view.isPreviousData && (identified || props.recordKey !== undefined || $view.data === null || (props.empty?.when($view.data) ?? false)))}
   {#if $view.status === 'error' && props.error}
-    {@render props.error($view.error)}
+    {@render props.error?.($view.error)}
   {:else if props.pending}
-    {@render props.pending()}
+    {@render props.pending?.()}
   {/if}
 {:else if $view.data === null}
-  {#if props.missing}{@render props.missing()}{/if}
+  {#if props.missing}{@render props.missing?.()}{/if}
 {:else if identified}
   {#if recordId === undefined}
-    {#if props.pending}{@render props.pending()}{/if}
+    {#if props.pending}{@render props.pending?.()}{/if}
   {:else}
     <!-- Keyed by the ID inside the viewer key, so either change starts the
          loaded branch fresh (React's nested keyed Fragments). -->
     {#key props.recordKey}
       {#key recordId}
         {#if props.empty?.when($view.data)}
-          {@render props.empty.render($view.data)}
+          {@render props.empty.render?.($view.data)}
         {:else}
-          {@render props.children($view.data, recordId)}
+          {@render props.children?.($view.data, recordId)}
         {/if}
       {/key}
     {/key}
@@ -94,13 +94,13 @@
   <!-- Keyed, so a changed record starts the loaded branch fresh (React's keyed Fragment). -->
   {#key props.recordKey}
     {#if props.empty?.when($view.data)}
-      {@render props.empty.render($view.data)}
+      {@render props.empty.render?.($view.data)}
     {:else}
-      {@render props.children($view.data)}
+      {@render props.children?.($view.data)}
     {/if}
   {/key}
 {:else if props.empty?.when($view.data)}
-  {@render props.empty.render($view.data)}
+  {@render props.empty.render?.($view.data)}
 {:else}
-  {@render props.children($view.data)}
+  {@render props.children?.($view.data)}
 {/if}

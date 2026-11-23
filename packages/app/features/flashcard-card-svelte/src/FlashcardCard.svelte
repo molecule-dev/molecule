@@ -37,14 +37,14 @@
   <div class={cm.stack(4)}>
     {#if progress}
       <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}>
-        {#if typeof progress === 'function'}{@render progress()}{:else}{progress}{/if}
+        {#if typeof progress === 'function'}{@render progress?.()}{:else}{progress}{/if}
       </div>
     {/if}
     <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.cn(cm.textSize('xl')))}>
       {#if revealed}
-        {#if typeof back === 'function'}{@render back()}{:else}{back}{/if}
+        {#if typeof back === 'function'}{@render back?.()}{:else}{back}{/if}
       {:else}
-        {#if typeof front === 'function'}{@render front()}{:else}{front}{/if}
+        {#if typeof front === 'function'}{@render front?.()}{:else}{front}{/if}
       {/if}
     </div>
     {#if revealed}

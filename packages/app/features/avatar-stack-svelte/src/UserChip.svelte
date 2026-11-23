@@ -54,9 +54,9 @@
     <!-- React's `{subtitle && …}`: a falsy subtitle renders nothing. -->
     {#if subtitle}
       <span class={cm.textSize('xs')}>
-        {#if typeof subtitle === 'function'}{@render subtitle()}{:else}{subtitle}{/if}
+        {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
       </span>
     {/if}
   </div>
-  {#if trailing}{@render trailing()}{/if}
+  {#if trailing}{@render trailing?.()}{/if}
 </div>

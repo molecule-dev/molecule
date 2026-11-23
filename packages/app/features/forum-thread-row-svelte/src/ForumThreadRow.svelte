@@ -88,7 +88,7 @@
   {/if}
   {#if voteControls}
     <div class={cm.cn(cm.shrink0, onClick ? cm.position('relative') : undefined)}>
-      {#if typeof voteControls === 'function'}{@render voteControls()}{:else}{voteControls}{/if}
+      {#if typeof voteControls === 'function'}{@render voteControls?.()}{:else}{voteControls}{/if}
     </div>
   {/if}
   {#if voteScore !== undefined && !voteControls}
@@ -109,23 +109,23 @@
         id={onClick ? nameId : undefined}
         class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}
       >
-        {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
+        {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
       </h3>
     </header>
     {#if excerpt}
       <p class={cm.textSize('sm')}>
-        {#if typeof excerpt === 'function'}{@render excerpt()}{:else}{excerpt}{/if}
+        {#if typeof excerpt === 'function'}{@render excerpt?.()}{:else}{excerpt}{/if}
       </p>
     {/if}
     <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
       {#if author}
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-          {#if typeof author === 'function'}{@render author()}{:else}{author}{/if}
+          {#if typeof author === 'function'}{@render author?.()}{:else}{author}{/if}
         </span>
       {/if}
       {#if createdAt}
         <span class={cm.textSize('xs')}>
-          · {#if typeof createdAt === 'function'}{@render createdAt()}{:else}{createdAt}{/if}
+          · {#if typeof createdAt === 'function'}{@render createdAt?.()}{:else}{createdAt}{/if}
         </span>
       {/if}
       {#if repliesText() !== undefined}
@@ -142,7 +142,7 @@
           onClick ? cm.position('relative') : undefined,
         )}
       >
-        {#if typeof tags === 'function'}{@render tags()}{:else}{tags}{/if}
+        {#if typeof tags === 'function'}{@render tags?.()}{:else}{tags}{/if}
       </div>
     {/if}
   </div>

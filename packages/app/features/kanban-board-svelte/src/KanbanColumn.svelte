@@ -44,5 +44,5 @@
       />
     {/each}
   </div>
-  {#if footer}{@render footer()}{/if}
+  {#if footer}{@render footer?.()}{/if}
 </section>

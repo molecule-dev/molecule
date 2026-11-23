@@ -18,12 +18,12 @@
 </script>
 
 {#if messages.length === 0 && emptyState}
-  {#if typeof emptyState === 'function'}{@render emptyState()}{:else}{emptyState}{/if}
+  {#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}
 {:else}
   <div class={cm.cn(cm.stack(3), className)}>
     {#each messages as message, index (message.id)}
       <div class={cm.stack(2)}>
-        {#if renderDateSeparator}{@render renderDateSeparator(message, index)}{/if}
+        {#if renderDateSeparator}{@render renderDateSeparator?.(message, index)}{/if}
         <MessageBubble {message} isSelf={message.author.id === selfAuthorId} />
       </div>
     {/each}
