@@ -415,4 +415,14 @@ describe('resolvePiModel', () => {
       /provider "zai"/,
     )
   })
+
+  it('maps the GPT-6.2 catalog models to the OpenAI provider', () => {
+    for (const id of ['gpt-6.2-sol', 'gpt-6.2-astra']) {
+      expect(resolvePiModel(id, DEFAULT_MODEL_MAP, PI_PROVIDERS)).toMatchObject({
+        provider: 'openai',
+        model: id,
+        access: { keyEnv: 'OPENAI_API_KEY', host: 'api.openai.com' },
+      })
+    }
+  })
 })
