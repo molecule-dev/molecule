@@ -9,8 +9,11 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
 
+import angularTestHostChangeDetection from './eslint-rules/angular-test-host-change-detection.mjs'
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
+import noHandPlacedNodes from './eslint-rules/no-hand-placed-nodes.mjs'
+import noVacuousOptionalChainAssertion from './eslint-rules/no-vacuous-optional-chain-assertion.mjs'
 import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
 import {
   ROUTER_LIBRARY_FIX,
@@ -49,12 +52,28 @@ import {
  * `no-camel-case-native-events-in-vue-h` keeps React's listener spelling (`onMouseEnter`) off native
  * elements in a Vue `h()` call: Vue hyphenates the key, so the listener waits for a `mouse-enter`
  * event no browser fires. molecule-only, so it is not in the package.
+ *
+ * `no-hand-placed-nodes` keeps the Angular, Svelte, Solid and Vue ports from moving or removing a
+ * DOM node by hand: the framework then removes its own nodes from the wrong parent and the
+ * consumer's conditionals stop working. The message names each framework's placement or portal
+ * tool. molecule-only, so it is not in the package.
+ *
+ * `angular-test-host-change-detection` makes every component an Angular test declares state its
+ * change detection: Angular 22 checks one that sets none as OnPush, so a prop the test changes is
+ * never rendered and the test asserts the first render. molecule-only, so it is not in the package.
+ *
+ * `no-vacuous-optional-chain-assertion` keeps a test from asserting on `a?.b` with a matcher that
+ * passes on undefined (`.not.toBeNull()`, `.toBeUndefined()` …): the assertion then passes when `a`
+ * is missing, so the test cannot fail on the defect it was written for.
  */
 const moleculeLocal = {
   rules: {
     ...moleculeLocalPlugin.rules,
     'no-dom-events-in-angular-check-hooks': noDomEventsInAngularCheckHooks,
     'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
+    'no-hand-placed-nodes': noHandPlacedNodes,
+    'angular-test-host-change-detection': angularTestHostChangeDetection,
+    'no-vacuous-optional-chain-assertion': noVacuousOptionalChainAssertion,
   },
 }
 
@@ -67,6 +86,28 @@ const APP_CROSS_STACK_IMPORTS = {
   message:
     'App packages cannot import from @molecule/api-* packages. This is a cross-stack boundary violation.',
 }
+
+/**
+ * The slot readers that run from a lifecycle hook. A hook can lag the content: `ngDoCheck` runs
+ * before the consumer's `@if` adds its node, and no hook runs at all when the content comes
+ * through an OnPush component in between, so the wrapper React renders for that content never
+ * appears (2026-11-23: seven ports read their slots once, at view init). Shared by the .ts blocks
+ * below, like {@link APP_CROSS_STACK_IMPORTS}.
+ */
+const ANGULAR_LIFECYCLE_SLOT_READERS = [
+  {
+    name: '@molecule/app-angular',
+    importNames: ['hasContent'],
+    message:
+      "A slot read from a lifecycle hook lags the content. List `hostDirectives: [MolPlacement]`, call `usePlacement((hasContent) => setElementPresent(el, hasContent(el)))` in the constructor and read the slot with the `hasContent` it passes (all from '@molecule/app-angular').",
+  },
+  {
+    name: '@molecule/app-ui-angular',
+    importNames: ['hasNodes', 'SlotWrapper'],
+    message:
+      "A slot read from a lifecycle hook lags the content. List `hostDirectives: [MolPlacement]`, call `usePlacement((hasContent) => setElementPresent(el, hasContent(el)))` in the constructor and read the slot with the `hasContent` it passes (all from '@molecule/app-angular').",
+  },
+]
 
 /**
  * Angular's signal-based component APIs, which these packages' tests cannot see. Each Angular
@@ -298,6 +339,21 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
+        {
+          patterns: [APP_CROSS_STACK_IMPORTS],
+          paths: [...ANGULAR_SIGNAL_COMPONENT_APIS, ...ANGULAR_LIFECYCLE_SLOT_READERS],
+        },
+      ],
+    },
+  },
+  {
+    // The slot-reader entries are about component source. A test reads the binding's namespace to
+    // type a `vi.mock` factory (`import type * as AngularBinding from '@molecule/app-angular'`),
+    // which the rule counts as importing `hasContent`.
+    files: ['packages/app/**/__tests__/**/*.ts', 'packages/app/**/*.{test,spec}.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
         { patterns: [APP_CROSS_STACK_IMPORTS], paths: ANGULAR_SIGNAL_COMPONENT_APIS },
       ],
     },
@@ -307,7 +363,10 @@ export default tseslint.config(
     // ngc and imports the build (vitest.global-setup.ts), so its tests see what consumers get.
     files: ['packages/app/bonds/drag-drop/dndkit-angular/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [APP_CROSS_STACK_IMPORTS] }],
+      'no-restricted-imports': [
+        'error',
+        { patterns: [APP_CROSS_STACK_IMPORTS], paths: ANGULAR_LIFECYCLE_SLOT_READERS },
+      ],
     },
   },
   {
@@ -359,6 +418,7 @@ export default tseslint.config(
                 "A UI component must translate through its framework binding's `useTranslation()` (@molecule/app-vue, -solid, -svelte or -angular): the static `t` does not follow a locale switch. A helper takes `t` from the component that calls it; an error thrown outside rendering is an `I18nError`.",
             },
             ...ANGULAR_SIGNAL_COMPONENT_APIS,
+            ...ANGULAR_LIFECYCLE_SLOT_READERS,
           ],
         },
       ],
@@ -485,6 +545,32 @@ export default tseslint.config(
       'molecule-local/no-camel-case-native-events-in-vue-h': 'error',
     },
   },
+  // A port that moves a node its framework rendered breaks that framework's removal of it: Svelte's
+  // Dropdown lost its trigger on the next render, and Angular throws NG05106 or leaves the node in
+  // the page. Each block names the framework whose placement tool the message gives.
+  ...[
+    ['angular', '{ts,mts}'],
+    ['svelte', '{ts,svelte}'],
+    ['solid', '{ts,tsx}'],
+    ['vue', '{ts,vue}'],
+  ].map(([framework, extensions]) => ({
+    files: [
+      `packages/app/features/*-${framework}/src/**/*.${extensions}`,
+      `packages/app/frameworks/${framework}-ui/src/**/*.${extensions}`,
+    ],
+    ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    rules: { 'molecule-local/no-hand-placed-nodes': ['error', { framework }] },
+  })),
+  {
+    // Angular 22 checks a component with no changeDetection as OnPush: a test host whose props the
+    // test changes never re-renders, and fifteen suites asserted their first render that way.
+    files: [
+      'packages/app/**/*angular*/src/**/__tests__/**/*.ts',
+      'packages/app/**/*angular*/src/**/*.{test,spec}.ts',
+      'packages/app/frameworks/conformance/src/adapters/angular*.ts',
+    ],
+    rules: { 'molecule-local/angular-test-host-change-detection': 'error' },
+  },
   {
     // The vendored lint rules are plain ESM JavaScript, typed through JSDoc
     // (`@param {object} node`): a TS annotation is not valid there, so the
@@ -515,6 +601,7 @@ export default tseslint.config(
       'jsdoc/require-param-description': 'off',
       'jsdoc/require-returns': 'off',
       'jsdoc/require-returns-description': 'off',
+      'molecule-local/no-vacuous-optional-chain-assertion': 'error',
     },
   },
   {
@@ -551,6 +638,28 @@ export default tseslint.config(
         },
       ],
     },
+  },
+  {
+    // JavaScript a package runs as is, outside its TypeScript build: build scripts
+    // (`<package>/scripts/*.mjs`) and CommonJS that Node or a tool requires directly
+    // (a Tailwind preset, which tailwind.config.js loads with require(); module hooks
+    // a test installs). JSDoc types are how these files are typed, a TS return
+    // annotation is not valid JavaScript, and CommonJS loads with require(). As in
+    // scripts/, console/process are imported explicitly, not declared.
+    files: ['packages/**/scripts/**/*.mjs', 'packages/**/*.cjs'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'jsdoc/no-types': 'off',
+    },
+  },
+  {
+    files: ['packages/**/*.cjs'],
+    // The CommonJS wrapper's bindings, as globals: `sourceType: 'commonjs'` crashes
+    // svelte/no-inner-declarations (it reads a strict-mode flag a CommonJS scope lacks).
+    languageOptions: {
+      globals: { require: 'readonly', module: 'writable', __dirname: 'readonly' },
+    },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
     ignores: [
