@@ -8,7 +8,7 @@
 <script lang="ts">
   import { untrack } from 'svelte'
 
-  import { useTranslation } from '@molecule/app-svelte'
+  import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { useGeneratedId } from '../dom.js'
@@ -83,9 +83,7 @@
     void open
     // Comment anchors and empty placeholder text nodes are Svelte bookkeeping,
     // not content: what remains is what the snippet actually rendered.
-    const nodes = Array.from(titleEl?.childNodes ?? []).filter(
-      (n) => n.nodeType !== 8 && (n.nodeType !== 3 || (n.textContent ?? '') !== ''),
-    )
+    const nodes = titleEl ? contentNodes(titleEl) : []
     const text =
       nodes.length === 1 && nodes[0] && nodes[0].nodeType === 3 ? nodes[0].textContent : ''
     inputLabel = text || placeholder

@@ -14,7 +14,7 @@
 </script>
 
 <script lang="ts">
-  import { BodyPortal } from '@molecule/app-svelte'
+  import { BodyPortal, contentNodes } from '@molecule/app-svelte'
   import type { TooltipPlacement } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -232,9 +232,7 @@
   $effect(() => {
     if (!triggerEl) return
     // Comment anchors and empty placeholder text nodes are Svelte bookkeeping.
-    const nodes = Array.from(triggerEl.childNodes).filter(
-      (n) => n.nodeType !== 8 && (n.nodeType !== 3 || (n.textContent ?? '') !== ''),
-    )
+    const nodes = contentNodes(triggerEl)
     const single = nodes.length === 1 && nodes[0]!.nodeType === 1 ? (nodes[0] as HTMLElement) : null
     if (!single) return
     if (isVisible) single.setAttribute('aria-describedby', tooltipId)
