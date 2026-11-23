@@ -1288,6 +1288,7 @@
   "@molecule/app-locales-loyalty-tier-badge",
   "@molecule/app-locales-maps",
   "@molecule/app-locales-margin-notes",
+  "@molecule/app-locales-markdown",
   "@molecule/app-locales-medication-row",
   "@molecule/app-locales-message-bubble",
   "@molecule/app-locales-mind-map-canvas",
