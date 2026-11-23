@@ -107,9 +107,14 @@
  * and public files are exempt. Prerender builds use the same plugin instance
  * for their client and server passes so files used by either pass count.
  *
+ * **The PWA is opt-in.** `vite-plugin-pwa` is an optional peer: the config builds the web
+ * manifest and service worker only when the app installs it, which it does with
+ * `@molecule/app-pwa-default` (the worker registration, and what web push delivers through).
+ * Without it the build has neither, and the app installs none of the worker's build tooling.
+ *
  * **A custom config imports the plugins it needs from their own entries.** The package root
- * and `/framework` load `vite-plugin-pwa`; `@molecule/app-vite-config-default/assets`
- * (`rootRelativeAssetsPlugin`) and `@molecule/app-vite-config-default/dist-sourcemap`
+ * and `/framework` load `vite-plugin-pwa` when it is installed;
+ * `@molecule/app-vite-config-default/assets` (`rootRelativeAssetsPlugin`) and `@molecule/app-vite-config-default/dist-sourcemap`
  * (`moleculeDistWithoutSourcemap`, which serves each `@molecule` package's JavaScript without
  * the sourcemaps that name source files the package does not ship) load only Vite and Node.
  *

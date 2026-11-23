@@ -11,11 +11,12 @@ import {
   type UserConfig,
   version as viteVersion,
 } from 'vite'
-import { type VitePluginPWAAPI, VitePWA, type VitePWAOptions } from 'vite-plugin-pwa'
+import type { VitePluginPWAAPI, VitePWAOptions } from 'vite-plugin-pwa'
 
 import { releaseNotesPlugin } from '@molecule/app-version/build'
 
 import { moleculeDistWithoutSourcemap } from './molecule-dist-sourcemap.js'
+import { vitePwa } from './optional-pwa.js'
 import { moleculePushServiceWorkerPlugin, PUSH_SW_FILENAME } from './push-sw.js'
 import { rootRelativeAssetsPlugin } from './root-relative-assets.js'
 import {
@@ -514,8 +515,14 @@ export function createFrameworkViteConfig(
   // `svelteKitStaticSite`, which runs on the site the adapter wrote: it applies the app's
   // page and site hooks, adds the manifest link, generates the worker, and makes `vite
   // preview` answer from the site as the deployed front does.
+  // Without vite-plugin-pwa installed (an optional peer) the app has no web manifest or service
+  // worker, and the registration and SvelteKit site steps see no PWA.
   let pwa: VitePluginPWAAPI | undefined
-  const pwaPlugins = svelteKit ? svelteKitPwaPlugins(VitePWA(pwaOptions)) : VitePWA(pwaOptions)
+  const pwaPlugins = vitePwa
+    ? svelteKit
+      ? svelteKitPwaPlugins(vitePwa.VitePWA(pwaOptions))
+      : vitePwa.VitePWA(pwaOptions)
+    : []
 
   // Origin-isolate this app so a buggy/looping build can't freeze the IDE that
   // previews it. The IDE and this dev server are the same site (localhost/

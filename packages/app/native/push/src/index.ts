@@ -38,9 +38,11 @@
  *   `setProvider()` BEFORE any push call — otherwise the web fallback gets
  *   bonded and native registration never happens.
  * - **Web `register()` has three hard prerequisites**: (1) HTTPS (secure
- *   context), (2) a registered SERVICE WORKER — dev builds typically don't
- *   ship one, so register() throws "requires the production app build"
- *   (it fails fast instead of hanging), and (3) a VAPID public key
+ *   context), (2) a registered SERVICE WORKER — the one
+ *   `@molecule/app-pwa-default` (a peer of this package) registers in the
+ *   production build, which also shows the delivered notifications; dev
+ *   builds don't ship one, so register() throws "requires the production app
+ *   build" (it fails fast instead of hanging), and (3) a VAPID public key
  *   (pass via `register({ vapidPublicKey })`) matching your API's
  *   `VAPID_PRIVATE_KEY` — without it Chrome may register but delivery
  *   fails.
