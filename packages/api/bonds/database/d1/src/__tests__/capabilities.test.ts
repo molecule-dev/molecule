@@ -24,7 +24,9 @@ describe('sqlCapabilities (d1)', () => {
 
   it('matches the SQLite bond on every support value (D1 is SQLite)', () => {
     for (const feature of SQL_FEATURES) {
-      expect(sqlCapabilities[feature]?.support).toBe(sqliteCapabilities[feature]?.support)
+      const sqlite = sqliteCapabilities[feature]
+      expect(sqlite, feature).toBeDefined()
+      expect(sqlCapabilities[feature]?.support).toBe(sqlite!.support)
     }
   })
 

@@ -89,7 +89,7 @@ describe('createFrameworkViteConfig', () => {
         const proxy = config.server?.proxy as Record<string, { target: string }>
         expect(Object.keys(proxy)).toEqual(['/api', '/health', '/socket.io'])
         for (const route of Object.values(proxy)) expect(route.target).toBe(target)
-        expect(config.preview?.proxy).toBe(config.server?.proxy)
+        expect(config.preview?.proxy).toBe(proxy)
       } finally {
         vi.unstubAllEnvs()
       }

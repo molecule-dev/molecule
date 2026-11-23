@@ -95,8 +95,9 @@ describe('matchRoutePattern follows the native matcher', () => {
             if (end) {
               // A whole match is the native expression's own match, so both report the
               // same matched text. A prefix match consumes its separator instead, so Vue
-              // Router exposes no equivalent of the core's matched prefix.
-              expect(ours?.pathname, label).toBe(native.re.exec(pathname)?.[0])
+              // Router exposes no equivalent of the core's matched prefix. No match is null on
+              // both sides (the assertion above pins that the two agree on whether it matched).
+              expect(ours?.pathname ?? null, label).toBe(native.re.exec(pathname)?.[0] ?? null)
             }
             if (ours && theirs) {
               const ourParams = Object.fromEntries(

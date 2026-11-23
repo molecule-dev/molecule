@@ -15,6 +15,11 @@
  * `.toBeFalsy()`, `.toBe(undefined)`, `.toEqual(undefined)`, `.toStrictEqual(undefined)` and
  * `.toBeTypeOf('undefined')`. A matcher that fails on `undefined` (`.toBeNull()`, `.toBe(v)`,
  * `.not.toBeUndefined()`, `.toContain(…)` …) already fails when the object is missing.
+ *
+ * Also reported: `.toBe(<chain>)`, `.toEqual(<chain>)` and `.toStrictEqual(<chain>)` on a chain,
+ * where the expected value is an optional chain too. Both read `undefined` when their objects are
+ * missing, so `expect(config.preview?.proxy).toBe(config.server?.proxy)` passes when neither
+ * `preview` nor `server` exists.
  */
 
 /** Matchers that pass on `undefined` when negated, unless their argument is `undefined`. */
@@ -53,6 +58,18 @@ const unwrap = (node) => {
   )
     current = current.expression
   return current
+}
+
+/**
+ * The optional chain a matcher argument is (under `!`, `as` and `satisfies`), or undefined.
+ *
+ * @param {object | undefined} node - The argument node.
+ * @returns {object | undefined} The ChainExpression.
+ */
+const chainOf = (node) => {
+  if (node === undefined || node.type === 'SpreadElement') return undefined
+  const inner = unwrap(node)
+  return inner.type === 'ChainExpression' ? inner : undefined
 }
 
 /**
@@ -128,6 +145,8 @@ export default {
     },
     schema: [],
     messages: {
+      bothChains:
+        '`{{chain}}` and `{{expected}}` both read undefined when `{{object}}` and `{{expectedObject}}` are missing, so `{{assertion}}` passes when neither exists. Assert one of them first (`expect({{expectedObject}}).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`.',
       vacuous:
         '`{{chain}}` reads undefined when `{{object}}` is missing, and `{{assertion}}` passes on undefined, so this assertion cannot fail when `{{object}}` is missing. Assert `{{object}}` first (`expect({{object}}).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`. When the case expects `{{object}}` itself to be missing, assert that.',
     },
@@ -150,8 +169,23 @@ export default {
         if (value === undefined || value.type === 'SpreadElement') return
         const chain = unwrap(value)
         if (chain.type !== 'ChainExpression') return
-        if (!passesOnUndefined(matcher, negated, node.arguments[0])) return
         const assertion = `${negated ? '.not' : ''}.${matcher}(${node.arguments.map((a) => sourceCode.getText(a)).join(', ')})`
+        const expected = negated ? undefined : chainOf(node.arguments[0])
+        if (expected !== undefined && PLAIN_IF_UNDEFINED.has(matcher)) {
+          context.report({
+            node,
+            messageId: 'bothChains',
+            data: {
+              chain: sourceCode.getText(chain),
+              object: optionalObject(chain, sourceCode),
+              expected: sourceCode.getText(expected),
+              expectedObject: optionalObject(expected, sourceCode),
+              assertion,
+            },
+          })
+          return
+        }
+        if (!passesOnUndefined(matcher, negated, node.arguments[0])) return
         context.report({
           node,
           messageId: 'vacuous',

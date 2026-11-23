@@ -242,7 +242,9 @@ describe('RelatedItemsCard', () => {
     expect(empty()).toBeNull()
     await m.setProps({ on: true })
     // React: the empty state stands beside the card's <header>, with no capture element around it.
-    expect(empty()?.parentElement).toBe(m.host.querySelector('header')?.parentElement)
+    const shown = empty()
+    expect(shown).not.toBeNull()
+    expect(shown!.parentElement).toBe(m.host.querySelector('header')?.parentElement)
     await m.setProps({ on: false })
     expect(empty()).toBeNull()
   })

@@ -336,7 +336,7 @@ describe('findSubscription', () => {
       productId: 'com.example.pro.monthly',
       entitlementId: 'pro',
     })
-    expect(match?.subscription).toBe(subscriber.subscriptions?.['com.example.pro.monthly'])
+    expect(match!.subscription).toBe(subscriber.subscriptions!['com.example.pro.monthly'])
   })
 
   it('resolves a store PRODUCT identifier and surfaces the entitlement that grants it', () => {

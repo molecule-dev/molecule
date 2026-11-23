@@ -74,6 +74,14 @@ ruleTester.run('no-vacuous-optional-chain-assertion', rule as RuleModule, {
       name: 'resolves and rejects are not checked',
       code: 'await expect(load?.()).resolves.toBeUndefined()',
     },
+    {
+      name: 'an equality whose expected side is asserted first and read without ?.',
+      code: 'expect(config.server).toBeDefined()\nexpect(config.preview?.proxy).toBe(config.server!.proxy)',
+    },
+    {
+      name: 'a subject that is not an optional chain is not checked',
+      code: 'expect(config.preview.proxy).not.toBe(config.server?.proxy)\nexpect(config.preview.proxy).toBe(config.server?.proxy)',
+    },
   ],
   invalid: [
     {
@@ -125,6 +133,25 @@ ruleTester.run('no-vacuous-optional-chain-assertion', rule as RuleModule, {
       name: 'an expect spread over several lines, inside vi.waitFor',
       code: "await vi.waitFor(() =>\n  expect(\n    mounted?.container.querySelector('[data-input]'),\n  ).not.toBeNull(),\n)",
       errors: vacuous,
+    },
+    {
+      name: '.toBe, .toEqual and .toStrictEqual of one optional chain to another',
+      code: 'expect(config.preview?.proxy).toBe(config.server?.proxy)\nexpect(a?.rows).toEqual(b?.rows)\nexpect(a?.[0]).toStrictEqual(b?.[0]!)',
+      errors: [
+        { messageId: 'bothChains' },
+        { messageId: 'bothChains' },
+        { messageId: 'bothChains' },
+      ],
+    },
+    {
+      name: 'the both-chains message names both objects',
+      code: 'expect(repeated?.report).toBe(first?.report)',
+      errors: [
+        {
+          message:
+            '`repeated?.report` and `first?.report` both read undefined when `repeated` and `first` are missing, so `.toBe(first?.report)` passes when neither exists. Assert one of them first (`expect(first).not.toBeNull()` for `T | null`, `.toBeDefined()` for `T | undefined`), then read it with `!.` or `.`.',
+        },
+      ],
     },
     {
       name: 'the message names the chain and the object it reads',

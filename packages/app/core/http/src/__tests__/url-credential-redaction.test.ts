@@ -96,7 +96,7 @@ describe('URL credential redaction', () => {
     expect(remotePayloads).toHaveLength(1)
     expect(error.config?.url).toContain('/auth/refresh?')
     expect(error.config?.url).toContain('view=full')
-    expect(error.response?.config.url).toBe(error.config?.url)
+    expect(error.response?.config.url).toBe(error.config!.url)
     expectNoSecrets(serializedOutputs(error, entries, remotePayloads), secrets)
   })
 
