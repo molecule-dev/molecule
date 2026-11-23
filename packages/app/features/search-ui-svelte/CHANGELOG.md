@@ -1,5 +1,11 @@
 # @molecule/app-search-ui-svelte
 
+## 1.1.2
+
+### Patch Changes
+
+- Closing the quick-search dialog now removes only its own portaled content, leaving other elements in `document.body` (a toast container, a widget, another component's portal) untouched.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/api-uploads-filesystem
 
+## 1.1.3
+
+### Patch Changes
+
+- `FileInfo.filename` may be `undefined`, as multipart parsers such as busboy report it, so their file info is passed to `upload()` as it is; the providers store such a file with an empty name.
+- An absolute `FILE_UPLOAD_PATH` is now used as given instead of being placed under the working directory.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-three-viewer-vue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "WebGL 3D model viewer wrapping three.js — supports GLTF/GLB, OBJ, STL with orbit controls + lighting presets",
   "homepage": "https://www.molecule.dev/packages/app-three-viewer-vue",
   "type": "module",

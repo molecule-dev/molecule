@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.12.0
+
+### Minor Changes
+
+- Add `BodyPortal`, which renders its children in `document.body` (or a given target) exactly as React's `createPortal` does, without moving any node Svelte placed.
+
 ## 3.11.0
 
 ### Minor Changes

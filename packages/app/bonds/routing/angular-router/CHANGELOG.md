@@ -1,5 +1,11 @@
 # @molecule/app-routing-angular-router
 
+## 1.4.1
+
+### Patch Changes
+
+- The routed view renders the matched page where it stands, with no element of its own, as React's Outlet does.
+
 ## 1.4.0
 
 ### Minor Changes

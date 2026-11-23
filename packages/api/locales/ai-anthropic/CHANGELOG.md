@@ -1,5 +1,11 @@
 # @molecule/api-locales-ai-anthropic
 
+## 1.0.4
+
+### Patch Changes
+
+- The description names the package it translates, `@molecule/api-ai-anthropic`.
+
 ## 1.0.3
 
 ### Patch Changes

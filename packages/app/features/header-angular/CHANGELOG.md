@@ -1,5 +1,11 @@
 # @molecule/app-header-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- Wrappers, empty states and slots that depend on projected content now update in the same render pass as that content.
+
 ## 1.2.0
 
 ### Minor Changes

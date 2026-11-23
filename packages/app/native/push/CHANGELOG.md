@@ -1,5 +1,11 @@
 # @molecule/app-push
 
+## 1.2.0
+
+### Minor Changes
+
+- Requires `@molecule/app-pwa-default`, whose service worker web push registers with and delivers through.
+
 ## 1.1.0
 
 ### Minor Changes

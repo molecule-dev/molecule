@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-pi
 
+## 1.0.10
+
+### Patch Changes
+
+- Maps gpt-6.2-sol and gpt-6.2-astra to Pi's OpenAI provider.
+
 ## 1.0.9
 
 ### Patch Changes

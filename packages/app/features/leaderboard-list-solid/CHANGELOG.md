@@ -1,5 +1,12 @@
 # @molecule/app-leaderboard-list-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- The leaderboard list counts rows rendered through a `<For>`, so its empty state appears and disappears with the list.
+- The leaderboard list renders its heading for any title React renders, an empty list included, and builds the title and actions nodes once.
+
 ## 1.1.0
 
 ### Minor Changes

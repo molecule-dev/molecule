@@ -1,5 +1,15 @@
 # @molecule/app-ide-svelte
 
+## 2.0.0
+
+### Major Changes
+
+- `WorkspaceLayout` now takes the panes as data in `items` and renders one entry through its `children` snippet, so a pane that appears later is wrapped and gets its divider.
+
+### Patch Changes
+
+- The dock strip, the file-explorer context menu and the context-usage view now render their portaled content through `BodyPortal`, so it unmounts with its owner instead of moving nodes or removing the UI kit's portals by hand.
+
 ## 1.1.1
 
 ### Patch Changes

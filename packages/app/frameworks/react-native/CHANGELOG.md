@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.3.2
+
+### Patch Changes
+
+- The `useForm` docs now say it needs no setup: until the app bonds a forms provider, the built-in one is used.
+
 ## 4.3.1
 
 ### Patch Changes

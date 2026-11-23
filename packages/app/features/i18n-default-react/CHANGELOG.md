@@ -1,5 +1,12 @@
 # @molecule/app-i18n-default-react
 
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-i18n-default@1.1.1
+
 ## 1.0.9
 
 ### Patch Changes

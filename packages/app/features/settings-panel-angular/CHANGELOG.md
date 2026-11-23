@@ -1,5 +1,12 @@
 # @molecule/app-settings-panel-angular
 
+## 2.0.2
+
+### Patch Changes
+
+- Their providers and sections render with no host element of their own and find their context through the rendered tree.
+- Wrappers, empty states and slots that depend on projected content now update in the same render pass as that content.
+
 ## 2.0.1
 
 ### Patch Changes

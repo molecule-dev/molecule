@@ -1,5 +1,11 @@
 # @molecule/app-breadcrumb-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- A separator given as a list renders every node in each gap, and an empty list leaves the gap empty instead of showing the default `/`.
+
 ## 1.1.1
 
 ### Patch Changes

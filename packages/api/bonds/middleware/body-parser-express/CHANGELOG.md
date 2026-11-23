@@ -1,5 +1,11 @@
 # @molecule/api-middleware-body-parser-express
 
+## 1.0.5
+
+### Patch Changes
+
+- The docs name packages that exist, and the link-preview and oEmbed cache examples convert their millisecond TTL for `@molecule/api-cache`.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-faceted-search-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- `FilterPill` opens its panel whenever children are passed, as React does, an empty list included.
+
 ## 1.1.0
 
 ### Minor Changes

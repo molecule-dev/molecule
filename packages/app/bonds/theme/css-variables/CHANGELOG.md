@@ -1,5 +1,11 @@
 # @molecule/app-theme-css-variables
 
+## 1.0.5
+
+### Patch Changes
+
+- Name `@molecule/app-theme-nativewind` as the theme provider for React Native apps.
+
 ## 1.0.2
 
 ### Patch Changes

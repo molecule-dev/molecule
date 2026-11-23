@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.8.0
+
+### Minor Changes
+
+- The PWA is opt-in: the config builds the web manifest and service worker only when the app installs `vite-plugin-pwa`, now an optional peer.
+
 ## 1.7.0
 
 ### Minor Changes

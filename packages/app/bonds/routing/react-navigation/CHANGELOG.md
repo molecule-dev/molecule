@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-navigation
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `useNavigationTheme()`, which gives `NavigationContainer` the colours of the bonded `@molecule/app-theme` provider.
+
 ## 1.0.10
 
 ### Patch Changes

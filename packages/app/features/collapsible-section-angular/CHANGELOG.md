@@ -1,5 +1,11 @@
 # @molecule/app-collapsible-section-angular
 
+## 1.1.4
+
+### Patch Changes
+
+- Wrappers, empty states and slots that depend on projected content now update in the same render pass as that content.
+
 ## 1.1.3
 
 ### Patch Changes

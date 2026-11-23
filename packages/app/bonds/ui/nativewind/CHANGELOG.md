@@ -1,5 +1,11 @@
 # @molecule/app-ui-nativewind
 
+## 1.4.0
+
+### Minor Changes
+
+- Add the Tailwind preset `@molecule/app-ui-nativewind/preset` (theme colours, fonts, animations and `moleculeContent()`), and rewrite every web class a device cannot apply.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -129,7 +129,7 @@
   "devDependencies": {
     "@molecule/app-bonds-default": "1.2.0",
     "@molecule/app-clipboard": "1.0.5",
-    "@molecule/app-routing": "1.5.2",
+    "@molecule/app-routing": "1.5.3",
     "@molecule/app-routing-vue-router": "1.4.0",
     "@molecule/app-vue": "3.13.0",
     "@types/node": "26.6.5",

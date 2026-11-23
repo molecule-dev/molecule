@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-theme-nativewind",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "NativeWind theme provider for molecule.dev: the web theme palette and light/dark mode on React Native",
   "type": "module",
   "main": "dist/index.js",
@@ -31,9 +31,9 @@
   "devDependencies": {
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-theme": "1.0.4",
-    "@molecule/app-theme-css-variables": "1.0.4",
-    "@molecule/app-ui-nativewind": "1.3.0",
-    "@molecule/app-ui-tailwind": "1.3.0",
+    "@molecule/app-theme-css-variables": "1.0.5",
+    "@molecule/app-ui-nativewind": "1.4.0",
+    "@molecule/app-ui-tailwind": "1.4.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "nativewind": "4.2.7",

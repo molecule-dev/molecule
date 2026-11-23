@@ -1,5 +1,15 @@
 # @molecule/api-uploads
 
+## 1.2.0
+
+### Minor Changes
+
+- `FileInfo.filename` may be `undefined`, as multipart parsers such as busboy report it, so their file info is passed to `upload()` as it is; the providers store such a file with an empty name.
+
+### Patch Changes
+
+- The usage example is now a complete Express route: it parses the upload with busboy, waits for the write to finish, and removes a file that was rejected or over the size cap.
+
 ## 1.1.0
 
 ### Minor Changes

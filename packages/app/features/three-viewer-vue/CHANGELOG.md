@@ -1,5 +1,11 @@
 # @molecule/app-three-viewer-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- Source annotations only; no change to behavior.
+
 ## 1.1.0
 
 ### Minor Changes

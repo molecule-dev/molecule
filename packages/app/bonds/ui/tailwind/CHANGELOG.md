@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.4.0
+
+### Minor Changes
+
+- Export `base.css`'s colour tokens as data (`colorTokens`) and resolve a theme to their CSS variable values (`themeVariables`); `base.css` now defines `font-inherit`.
+
 ## 1.3.0
 
 ### Minor Changes

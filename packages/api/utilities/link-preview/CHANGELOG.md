@@ -1,5 +1,11 @@
 # @molecule/api-link-preview
 
+## 1.0.6
+
+### Patch Changes
+
+- The docs name packages that exist, and the link-preview and oEmbed cache examples convert their millisecond TTL for `@molecule/api-cache`.
+
 ## 1.0.3
 
 ### Patch Changes

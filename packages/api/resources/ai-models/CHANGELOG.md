@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.22.1
+
+### Patch Changes
+
+- Disables grok-build-0.1 — xAI removed it from its API, so it can no longer serve requests.
+
 ## 1.22.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @molecule/app-ui-svelte
 
+## 1.4.0
+
+### Minor Changes
+
+- Dropdown's trigger snippet receives menu-button props to spread on its element; a snippet that does not use them is wrapped in the role="button" fallback.
+
+### Patch Changes
+
+- Portal content (Modal, Drawer, Dropdown menu, Tooltip, ToastContainer) now renders through `BodyPortal` and unmounts with its owner, so opening and closing one no longer removes other nodes in `document.body`, and a Dropdown between keyed siblings no longer leaves its trigger behind.
+- Dropdown switches between the trigger's own element and the role="button" fallback whenever the trigger snippet starts or stops spreading the menu-button props, so an emptied and refilled trigger is wired again.
+
 ## 1.3.0
 
 ### Minor Changes

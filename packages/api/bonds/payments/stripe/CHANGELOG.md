@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.12
+
+### Patch Changes
+
+- The docs name packages that exist, and the link-preview and oEmbed cache examples convert their millisecond TTL for `@molecule/api-cache`.
+
 ## 1.2.11
 
 ### Patch Changes

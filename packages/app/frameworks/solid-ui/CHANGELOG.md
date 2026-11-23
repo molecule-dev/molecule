@@ -1,5 +1,12 @@
 # @molecule/app-ui-solid
 
+## 1.3.1
+
+### Patch Changes
+
+- Portal content (Modal, Dropdown menu, Tooltip, ToastContainer and the app-shell overlays) now renders through `BodyPortal`, so a `<Show>`, `<For>` or text child no longer throws and each portal unmounts with its owner.
+- Dropdown and FormField follow a trigger or children that change after mount, including ones rendered through `<For>` or `<Show>`, and FormField points its label at the field id again once it no longer holds a single control.
+
 ## 1.3.0
 
 ### Minor Changes

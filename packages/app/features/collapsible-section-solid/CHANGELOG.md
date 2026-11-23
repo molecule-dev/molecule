@@ -1,5 +1,11 @@
 # @molecule/app-collapsible-section-solid
 
+## 1.1.3
+
+### Patch Changes
+
+- `ShowMore` counts and slices the items it is given even when they are rendered through a `<For>`, so a growing or shrinking list keeps the right items and toggle label.
+
 ## 1.1.2
 
 ### Patch Changes

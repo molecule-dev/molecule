@@ -1,5 +1,11 @@
 # @molecule/app-analytics-angular
 
+## 1.1.2
+
+### Patch Changes
+
+- Their providers and sections render with no host element of their own and find their context through the rendered tree.
+
 ## 1.1.1
 
 ### Patch Changes

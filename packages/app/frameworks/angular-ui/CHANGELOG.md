@@ -1,5 +1,18 @@
 # @molecule/app-ui-angular
 
+## 1.5.0
+
+### Minor Changes
+
+- Add createDomContext, a context found through the rendered tree that each provider creates for itself (provideDomContext, removeDomContext, findDomContext and findDomContextIncludingSelf are deprecated); Switch, Toast, Tooltip, PanelCloseProvider and ResponsiveAppShell render with no host element, UserMenuPopover's host is its card, FormField places its field with no wrapper, and what a caller binds on the tag of Modal, Switch, Tooltip, LanguagePicker, ConfirmDialog and PromptDialog lands on the element React spreads it onto and follows later changes (Modal's and Tooltip's onDoubleClick input is deprecated: bind (dblclick) on the tag).
+- Components that render without a host element need `provideDomPlacement()` from `@molecule/app-angular` in the application's providers (`provideMolecule()` includes it), and name it in their error when it is missing.
+
+### Patch Changes
+
+- Slot content a consumer adds after the first render now shows with its wrapper (FileCard actions, StatusBadge icon, ListingCardBody rows, ListingCardMedia children and overlay, NowPlayingBar trailing, QuizCard progress and explanation, UserChip subtitle), ListingCardMedia sets no image source while children replace the image, and `hasNodes` is deprecated.
+- Tooltip, Dropdown, UserMenu and SidebarUserCard render their trigger where the component stands with no host element, as React's fragment does; the Dropdown trigger follows its projected content, and the UserMenuPopover panel is a single card element present only while open; a FormField child the consumer adds again is labelled again.
+- `MoleculeToast` now hides when its duration ends, and a delayed `MoleculeTooltip` now shows and takes its position.
+
 ## 1.4.2
 
 ### Patch Changes

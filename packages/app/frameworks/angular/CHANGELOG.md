@@ -1,5 +1,17 @@
 # @molecule/app-angular
 
+## 3.13.0
+
+### Minor Changes
+
+- Add renderedParent, which finds an element's parent in the rendered tree even when a host has left the page, and setHostRoot, which sends what a caller binds on such a host's tag (attributes, classes, styles, listeners) to the element that stands in for it; RoutedView now renders the page with no element of its own.
+- Add usePlacement and its MolPlacement host directive, which rerun a component's placement whenever the projected content it read changes, and placeElementBefore and placeContentBefore, which keep an element or a slot's content in front of the host through inserts, moves and removal; the free hasContent export is deprecated.
+
+### Patch Changes
+
+- Content and elements rendered outside their place now leave the page with the view that held it, including a dialog opened inside a dialog.
+- placeContent accepts an absent element as the node to insert before, a projected component that renders nothing counts as content, and setElementPresent takes an element rendered elsewhere out of the page.
+
 ## 3.12.1
 
 ### Patch Changes
