@@ -134,13 +134,13 @@ export function resolveScreenFromPath(
 /**
  * Resolves a URL path from a screen name using linking config.
  * @param screen - The screen name to resolve.
- * @param params - The navigation params from the current route.
+ * @param params - The navigation params from the current route (React Navigation types them `object`).
  * @param screens - The screen-to-pattern linking configuration map.
  * @returns The resolved URL path.
  */
 export function resolvePathFromScreen(
   screen: string,
-  params: Record<string, unknown> | undefined,
+  params: object | undefined,
   screens: Record<string, string>,
 ): string {
   const pattern = screens[screen]

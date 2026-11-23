@@ -22,16 +22,31 @@ export type {
 } from '@molecule/app-routing'
 
 /**
- * Navigation reference type (from `@react-navigation/native`).
+ * The part of a React Navigation container ref this adapter uses: what
+ * `createNavigationContainerRef()` from `@react-navigation/native` returns must be
+ * assignable to it, so each member is written no narrower than React Navigation 7
+ * declares it. Route params are `object` (React Navigation types them
+ * `Readonly<object | undefined>`), a dispatched action is React Navigation's action
+ * object, and the adapter listens only for the container's `'state'` event.
  */
 export interface NavigationRef {
   navigate: (name: string, params?: Record<string, unknown>) => void
   goBack: () => void
   canGoBack: () => boolean
-  getCurrentRoute: () => { name: string; params?: Record<string, unknown>; key: string } | undefined
+  getCurrentRoute: () => { name: string; params?: object; key: string } | undefined
   getState: () => NavigationState | undefined
-  dispatch: (action: unknown) => void
-  addListener: (event: string, callback: (...args: unknown[]) => void) => () => void
+  dispatch: (action: NavigationAction) => void
+  addListener: (event: 'state', callback: () => void) => () => void
+}
+
+/**
+ * A React Navigation action, as `navigationRef.dispatch` takes it.
+ */
+export interface NavigationAction {
+  type: string
+  payload?: object
+  source?: string
+  target?: string
 }
 
 /**
@@ -41,7 +56,7 @@ export interface NavigationState {
   routes: Array<{
     name: string
     key: string
-    params?: Record<string, unknown>
+    params?: object
     path?: string
   }>
   index: number
