@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-i18n-default-react",
   "version": "1.0.8",
-  "description": "Default i18n bond setup with 80-language definitions, lazy-loading wrapper, and locale persistence via storage bond. Used by every flagship app — 113 lines of byte-identical wiring across the fleet.",
+  "description": "Renamed to @molecule/app-i18n-default, which it re-exports unchanged; import from @molecule/app-i18n-default instead.",
   "homepage": "https://www.molecule.dev/packages/app-i18n-default-react",
   "type": "module",
   "main": "dist/index.js",
@@ -24,14 +24,16 @@
   "keywords": [
     "molecule",
     "i18n",
-    "default",
-    "react"
+    "default"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/features/i18n-default-react"
+  },
+  "dependencies": {
+    "@molecule/app-i18n-default": "1.1.0"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
