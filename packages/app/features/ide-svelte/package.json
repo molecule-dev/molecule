@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-svelte",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Svelte IDE components for molecule.dev workspace",
   "homepage": "https://www.molecule.dev/packages/app-ide-svelte",
   "type": "module",
@@ -56,7 +56,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@molecule/app-ide-panel-logic": "1.4.0",
+    "@molecule/app-ide-panel-logic": "1.4.1",
     "material-file-icons": "2.4.0"
   },
   "peerDependencies": {

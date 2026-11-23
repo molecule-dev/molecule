@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-navigation
 
+## 1.0.10
+
+### Patch Changes
+
+- Accept the ref `createNavigationContainerRef()` returns from React Navigation 7 in `useMoleculeRouter` and `createReactNavigationRouter`.
+
 ## 1.0.9
 
 ### Patch Changes

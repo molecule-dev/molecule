@@ -69,7 +69,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-angular": "1.4.0",
+    "@molecule/app-ui-angular": "1.4.1",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
     "rxjs": "7.8.2",

@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.4.1
+
+### Patch Changes
+
+- Style objects that set a shorthand and a longhand it covers (`gap` then `columnGap`) apply in the order written, as React applies them, instead of Angular's alphabetical order.
+
 ## 1.4.0
 
 ### Minor Changes

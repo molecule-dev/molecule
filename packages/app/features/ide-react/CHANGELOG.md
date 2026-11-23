@@ -1,5 +1,13 @@
 # @molecule/app-ide-react
 
+## 4.3.1
+
+### Patch Changes
+
+- `ActivityCard` deepens its whole border on hover, so the frame keeps a readable value for each side.
+- Updated dependencies
+  - @molecule/app-ide-panel-logic@1.4.1
+
 ## 4.3.0
 
 ### Minor Changes

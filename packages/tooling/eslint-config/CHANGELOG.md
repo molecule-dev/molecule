@@ -1,5 +1,11 @@
 # @molecule/eslint-config
 
+## 1.1.2
+
+### Patch Changes
+
+- Each scaffold rule now lives in its own module under `rules/scaffold/`, and `rules/prefer-declared-clients.mjs` holds only that rule (it still re-exports `scaffoldRules`).
+
 ## 1.1.1
 
 ### Patch Changes

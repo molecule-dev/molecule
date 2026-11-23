@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-react",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "description": "React IDE components — chat, editor, preview, file-explorer panels for an AI-powered workspace",
   "type": "module",
   "main": "dist/index.js",
@@ -55,7 +55,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@molecule/app-ide-panel-logic": "1.4.0",
+    "@molecule/app-ide-panel-logic": "1.4.1",
     "material-file-icons": "2.4.0"
   },
   "devDependencies": {

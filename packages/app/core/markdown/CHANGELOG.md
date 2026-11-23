@@ -1,5 +1,11 @@
 # @molecule/app-markdown
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the rules every markdown provider shares (`isSafeMarkdownUrl`, `isRefusedMarkdownUrl`, `createHeadingSlugger`, `checkElementAttributes`, `escapeAttributeValue`, `MARKDOWN_ELEMENTS`, `MarkdownElement`) and the `elementAttributes` option; `toc` is always returned, and `components` is deprecated.
+
 ## 1.0.4
 
 ### Patch Changes

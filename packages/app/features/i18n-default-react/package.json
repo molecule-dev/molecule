@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-i18n-default-react",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Renamed to @molecule/app-i18n-default, which it re-exports unchanged; import from @molecule/app-i18n-default instead.",
   "homepage": "https://www.molecule.dev/packages/app-i18n-default-react",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/app-i18n-default-react
 
+## 1.0.9
+
+### Patch Changes
+
+- Renamed to `@molecule/app-i18n-default`: this package now re-exports it unchanged; import from `@molecule/app-i18n-default` instead.
+
 ## 1.0.8
 
 ### Patch Changes

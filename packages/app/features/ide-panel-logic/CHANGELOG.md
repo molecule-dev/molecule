@@ -1,5 +1,11 @@
 # @molecule/app-ide-panel-logic
 
+## 1.4.1
+
+### Patch Changes
+
+- `chatCardStyle` takes the border's accent percentage, so a card can deepen its whole border on hover.
+
 ## 1.4.0
 
 ### Minor Changes
