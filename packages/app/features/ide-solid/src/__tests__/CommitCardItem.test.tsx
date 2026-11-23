@@ -23,6 +23,20 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import { type CommitCard, CommitCardItem } from '../parts/CommitCardItem.jsx'
 
+/**
+ * A style value as this DOM serializes it once React's style object writes it (jsdom 31 writes
+ * `8px 8px 0 0` as `8px 8px 0px 0px`, and a bare `background: transparent` as `none`).
+ *
+ * @param property - The CSS property, kebab-case.
+ * @param value - The value React writes.
+ * @returns The serialized value.
+ */
+function asDom(property: string, value: string): string {
+  const probe = document.createElement('div')
+  probe.style.setProperty(property, value)
+  return probe.style.getPropertyValue(property)
+}
+
 /** The exact trailer molecule.dev appends, after a blank line per git convention. */
 const SYNTHASE_TRAILER = 'Co-authored-by: Synthase <synthase@molecule.dev>'
 const SUBJECT = 'feat: add login screen'
@@ -210,10 +224,10 @@ describe('CommitCardItem', () => {
 
     revert.dispatchEvent(new MouseEvent('mouseenter'))
     expect(revert.style.opacity).toBe('0.6')
-    expect(revert.style.background).toBe('rgba(128, 128, 128, 0.2)')
+    expect(revert.style.background).toBe(asDom('background', 'rgba(128, 128, 128, 0.2)'))
 
     revert.dispatchEvent(new MouseEvent('mouseleave'))
     expect(revert.style.opacity).toBe('0')
-    expect(revert.style.background).toBe('transparent')
+    expect(revert.style.background).toBe(asDom('background', 'transparent'))
   })
 })

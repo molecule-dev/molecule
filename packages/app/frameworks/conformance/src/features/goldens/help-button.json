@@ -7,101 +7,101 @@
   "HelpButton": {
    "defaults": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "small size": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 40px; position: fixed; right: 24px; transition: transform 150ms ease; width: 40px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 18px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 40px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 40px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 18px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "medium size": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "large size": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 64px; position: fixed; right: 24px; transition: transform 150ms ease; width: 64px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 28.8px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 64px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 64px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 28.8px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "bottom right position": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "bottom left position": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; left: 24px; position: fixed; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; left: 24px; position: fixed; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "inline position": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"height: 52px; transition: transform 150ms ease; width: 52px\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"height: 52px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "notification dot": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n<span aria-hidden=\"true\" style=\"background: currentcolor; border-radius: 50%; height: 10px; position: absolute; right: 4px; top: 4px; width: 10px\">\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n<span aria-hidden=\"true\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: currentcolor; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-left-radius: 50%; border-bottom-right-radius: 50%; border-top-left-radius: 50%; border-top-right-radius: 50%; height: 10px; position: absolute; right: 4px; top: 4px; width: 10px\">\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "no notification dot": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "custom label": {
     "snapshots": [
-     "<button aria-label=\"Get support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Get support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "empty label": {
     "snapshots": [
-     "<button aria-label style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "custom icon": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span data-icon>\n!\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span data-icon>\n!\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "className passthrough": {
     "snapshots": [
-     "<button aria-label=\"Help\" class=\"cf092994e\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" class=\"cf092994e\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "href renders a link": {
     "snapshots": [
-     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /",
-     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transform: scale(1.05); transition: transform 150ms ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /",
-     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /"
+     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /",
+     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transform: scale(1.05); transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /",
+     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /"
     ],
     "calls": []
    },
    "href wins over onClick": {
     "snapshots": [
-     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /",
-     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /\n@click default kept"
+     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /",
+     "<a aria-label=\"Help\" href=\"/support\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</a>\n@route /\n@click default kept"
     ],
     "calls": []
    },
    "click calls onClick": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": [
      {
@@ -117,23 +117,23 @@
    },
    "hover scales the button": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transform: scale(1.05); transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transform: scale(1.05); transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "prop changes": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 40px; position: fixed; right: 24px; transition: transform 150ms ease; width: 40px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 18px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Need help?\" style=\"height: 64px; transition: transform 150ms ease; width: 64px\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 28.8px; font-weight: 700\">\n?\n</span>\n<span aria-hidden=\"true\" style=\"background: currentcolor; border-radius: 50%; height: 10px; position: absolute; right: 4px; top: 4px; width: 10px\">\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 40px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 40px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 18px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Need help?\" style=\"height: 64px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 64px\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 28.8px; font-weight: 700\">\n?\n</span>\n<span aria-hidden=\"true\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: currentcolor; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-left-radius: 50%; border-bottom-right-radius: 50%; border-top-left-radius: 50%; border-top-right-radius: 50%; height: 10px; position: absolute; right: 4px; top: 4px; width: 10px\">\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
    "defaults, then a locale switch": {
     "snapshots": [
-     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
-     "<button aria-label=\"⟦Help⟧\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition: transform 150ms ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.400000000000002px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
+     "<button aria-label=\"Help\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"⟦Help⟧\" style=\"bottom: 24px; height: 52px; position: fixed; right: 24px; transition-behavior: normal; transition-delay: 0s; transition-duration: 150ms; transition-property: transform; transition-timing-function: ease; width: 52px; z-index: 40\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9052b18c c9773cd2b ccae02ff2 cd9b20003 cfc82911d\" style=\"height: 100%; width: 100%\">\n<span aria-hidden=\"true\" style=\"font-size: 23.4px; font-weight: 700\">\n?\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    }

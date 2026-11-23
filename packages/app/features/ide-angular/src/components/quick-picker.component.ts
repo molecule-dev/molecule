@@ -60,24 +60,6 @@ export interface QuickPickerItem {
 }
 
 /**
- * A tinted row that loses the highlight carries `transparent` in the expanded
- * form React's DOM does (the CSSOM background setter's parsed result, after a
- * tint holding `var()`); a row never tinted carries the bare shorthand. Only
- * these eight longhands: a trailing `background` (or the `-x`/`-y` position
- * longhands) makes the style text read back as the bare shorthand again.
- */
-const TRANSPARENT_EXPANDED = {
-  backgroundAttachment: 'scroll',
-  backgroundClip: 'border-box',
-  backgroundColor: 'transparent',
-  backgroundImage: 'none',
-  backgroundOrigin: 'padding-box',
-  backgroundPosition: '0% 0%',
-  backgroundRepeat: 'repeat',
-  backgroundSize: 'auto',
-} as const
-
-/**
  * Properties for the reusable quick picker overlay — React's contract, the
  * React prop names.
  */
@@ -213,13 +195,6 @@ export class QuickPicker implements OnInit, OnChanges, DoCheck {
 
   /** The highlighted row (the one Enter selects, the one tinted). */
   protected selectedIndex = 0
-
-  /**
-   * The item ids whose background has carried the tint (React's per-node
-   * style history: a tinted row that loses the tint carries the expanded
-   * `transparent`, a never-tinted row the bare shorthand).
-   */
-  private readonly tintedIds = new Set<string>()
 
   /** The row the `scrollIntoView` last ran for (React's `[selectedIndex]` effect). */
   private scrolledIndex = -1
@@ -389,29 +364,8 @@ export class QuickPicker implements OnInit, OnChanges, DoCheck {
       cursor: 'pointer',
       fontSize: 13,
       textAlign: 'left',
-      ...this.rowBackground(item, i),
+      background: i === this.selectedIndex ? this.selectedBg() : 'transparent',
     })
-  }
-
-  /**
-   * A row's background declaration: the theme tint for the highlighted row,
-   * `transparent` otherwise. React writes the row background through the
-   * CSSOM setter when the highlight moves it, and the DOM carries that
-   * write's parsed result — a row that LOSES the tint carries `transparent`
-   * expanded into its longhands, while a row never tinted carries the bare
-   * shorthand. The tinted ids track that per-row history the way the DOM's
-   * own style state does.
-   *
-   * @param item - The row's item (its identity keeps the tracking per row).
-   * @param i - The row's index.
-   * @returns The single-entry style object `styleText` folds into the text.
-   */
-  private rowBackground(item: QuickPickerItem, i: number): Record<string, string> {
-    if (i === this.selectedIndex) {
-      this.tintedIds.add(item.id)
-      return { background: this.selectedBg() }
-    }
-    return this.tintedIds.has(item.id) ? TRANSPARENT_EXPANDED : { background: 'transparent' }
   }
 
   /**

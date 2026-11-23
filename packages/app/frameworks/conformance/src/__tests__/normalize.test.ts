@@ -15,8 +15,10 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { getClassMap } from '@molecule/app-ui'
 
 import {
+  assertNoLostStyleValues,
   currentReadable,
   hashSnapshotClasses,
+  lostStyleValues,
   normalizeDom,
   type NormalizeOptions,
 } from '../ui/normalize.js'
@@ -156,6 +158,42 @@ describe('normalizeDom text', () => {
     expect(norm(spaced)).toContain('\nunread\n')
   })
 
+  it('keeps the space after an absolutely positioned or floated element, which ends no line', () => {
+    // CSS computes display: block for both, but neither is in the flow; a browser draws the space.
+    const label = (build: () => HTMLElement): string =>
+      norm(container((r) => r.append(h('div', [h('span', ['▲']), build(), ' 3.21%']))))
+    const srOnly = label(() => h('span', ['Up'], getClassMap().srOnly))
+    expect(srOnly).toContain('\n 3.21%\n')
+    const floated = label(() => {
+      const el = h('span', ['Up'])
+      el.style.float = 'left'
+      return el
+    })
+    expect(floated).toContain('\n 3.21%\n')
+    expect(label(() => h('div', ['Up']))).toContain('\n3.21%\n')
+  })
+
+  it('draws nothing for whitespace between out-of-flow siblings at a line edge', () => {
+    // A Svelte or Angular template leaves whitespace text between its rows; JSX writes none.
+    const row = (): HTMLElement => {
+      const el = h('div', ['row'])
+      el.style.position = 'absolute'
+      return el
+    }
+    const floated = (): HTMLElement => {
+      const el = h('span', ['tag'])
+      el.style.float = 'left'
+      return el
+    }
+    const templated = container((r) =>
+      r.append(h('div', [' ', row(), '\n  ', row(), ' ', floated(), ' '])),
+    )
+    const tight = container((r) => r.append(h('div', [row(), row(), floated()])))
+    expect(norm(templated)).toBe(norm(tight))
+    // Counterexample: text in the flow on the far side keeps the space.
+    expect(norm(container((r) => r.append(h('div', ['a', row(), ' b']))))).toContain('\n b\n')
+  })
+
   it('keeps raw text verbatim', () => {
     const root = container((r) => r.append(h('pre', [text('a  '), text(' b')])))
     expect(norm(root)).toBe('<pre>\na   b\n</pre>')
@@ -167,7 +205,10 @@ describe('normalizeDom text', () => {
       el.style.whiteSpace = 'pre-wrap'
       r.append(el)
     })
-    expect(norm(root)).toBe('<div style="white-space: pre-wrap">\na   b\n c\n</div>')
+    // jsdom 31 reads white-space as a shorthand, so the kit lists the longhands it sets.
+    expect(norm(root)).toBe(
+      '<div style="text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none">\na   b\n c\n</div>',
+    )
   })
 })
 
@@ -188,6 +229,58 @@ describe('normalizeDom framework bookkeeping attributes', () => {
       root.append(a)
     })
     expect(norm(other)).toContain('data-discovered="true"')
+  })
+})
+
+describe('normalizeDom style longhands', () => {
+  const styled = (style: string): HTMLElement =>
+    container((root) => {
+      const el = document.createElement('div')
+      el.setAttribute('style', style)
+      root.appendChild(el)
+    })
+  const same = (a: string, b: string): boolean => norm(styled(a)) === norm(styled(b))
+
+  it('reads a shorthand and the longhands it expands to as the same style', () => {
+    expect(
+      same(
+        'align-items: center; background: rgb(234, 238, 242); border-color: currentcolor; border-image: none; border-style: none; border-width: medium; color: inherit',
+        'align-items: center; background: rgb(234, 238, 242); border: medium; color: inherit',
+      ),
+    ).toBe(true)
+    expect(
+      same(
+        'background: transparent; border: none; border-top: none',
+        'background: transparent; border: medium',
+      ),
+    ).toBe(true)
+  })
+
+  it('reads an element styled through the CSSOM like the same declarations written as text', () => {
+    const viaCssom = container((root) => {
+      const el = document.createElement('button')
+      el.style.border = 'none'
+      el.style.borderTop = 'none'
+      el.style.background = 'transparent'
+      root.appendChild(el)
+      el.style.background = 'rgb(234, 238, 242)'
+    })
+    const written = container((root) => {
+      const el = document.createElement('button')
+      el.setAttribute('style', 'border: medium; background: rgb(234, 238, 242)')
+      root.appendChild(el)
+    })
+    expect(norm(viaCssom)).toBe(norm(written))
+  })
+
+  it('still tells apart styles that draw differently', () => {
+    expect(same('border: none', 'border: 1px solid rgb(255, 0, 0)')).toBe(false)
+    expect(
+      same('border: none; border-top: none', 'border: none; border-top: 1px solid rgb(1, 2, 3)'),
+    ).toBe(false)
+    expect(same('border: none; background: red', 'border: none; background: blue')).toBe(false)
+    expect(same('background: transparent; border: medium', 'border: medium')).toBe(false)
+    expect(same('padding: 8px 12px', 'padding: 8px')).toBe(false)
   })
 })
 
@@ -213,7 +306,8 @@ describe('normalizeDom style attribute', () => {
       'flex: 1; border: none; padding: 6px 6px 6px 0; color: #d4a017; min-width: 0',
     )
     expect(norm(written)).toBe(norm(viaCssom))
-    expect(norm(written)).toContain('flex: 1 1 0%')
+    expect(norm(written)).toContain('flex-grow: 1')
+    expect(norm(written)).toContain('flex-basis: 0%')
     expect(norm(written)).not.toBe(
       norm(styled('flex: 2; border: none; padding: 6px; color: #d4a017')),
     )
@@ -245,6 +339,186 @@ describe('normalizeDom style attribute', () => {
       norm(styled('filter: grayscale(0.5)')),
     )
     expect(norm(styled('-webkit-backdrop-filter: blur(2px)'))).toContain('-webkit-backdrop-filter')
+  })
+})
+
+describe('normalizeDom var() styles', () => {
+  /** An element whose style attribute is written as text, as Solid's template HTML holds it. */
+  const written = (style: string): HTMLElement =>
+    container((root) => {
+      const el = document.createElement('div')
+      el.setAttribute('style', style)
+      root.append(el)
+    })
+  /** An element styled one property at a time through the CSSOM, as React sets a style object. */
+  const viaCssom = (properties: [string, string][]): HTMLElement =>
+    container((root) => {
+      const el = document.createElement('div')
+      for (const [name, value] of properties) el.style.setProperty(name, value)
+      root.append(el)
+    })
+  // Each row: two styles and whether they must compare equal. A var() longhand reads '' until
+  // the variable is substituted, which a normalizer reading longhands alone would drop.
+  const rows: [string, HTMLElement, HTMLElement, boolean][] = [
+    [
+      'a var() shorthand keeps its value',
+      written('background: var(--a)'),
+      written('background: var(--b)'),
+      false,
+    ],
+    [
+      'var() shorthands, text vs CSSOM',
+      written('background: var(--a); border: 1px solid var(--b); height: 8px'),
+      viaCssom([
+        ['background', 'var(--a)'],
+        ['border', '1px solid var(--b)'],
+        ['height', '8px'],
+      ]),
+      true,
+    ],
+    [
+      'a var() shorthand then one of its longhands, text vs CSSOM',
+      written('background: var(--a); background-image: none'),
+      viaCssom([
+        ['background', 'var(--a)'],
+        ['background-image', 'none'],
+      ]),
+      true,
+    ],
+    [
+      'a var() shorthand then one of its longhands differs from the shorthand alone',
+      written('background: var(--a); background-image: none'),
+      written('background: var(--a)'),
+      false,
+    ],
+    [
+      'a longhand then a var() shorthand is the shorthand alone',
+      written('margin-top: 2px; margin: var(--m)'),
+      written('margin: var(--m)'),
+      true,
+    ],
+    [
+      'two overlapping var() shorthands keep their order',
+      written('border-color: var(--c); border-top: var(--t)'),
+      written('border-top: var(--t); border-color: var(--c)'),
+      false,
+    ],
+    [
+      'a var() shorthand replaced by a plain one is the plain one',
+      written('border: 1px solid var(--b); border: 2px solid red'),
+      written('border: 2px solid red'),
+      true,
+    ],
+    [
+      'min-width and min-height through the CSSOM are the same two as text',
+      viaCssom([
+        ['min-width', '36px'],
+        ['min-height', '36px'],
+      ]),
+      written('min-width: 36px; min-height: 36px'),
+      true,
+    ],
+    [
+      'min-width and min-height through the CSSOM are not min-height: auto',
+      viaCssom([
+        ['min-width', '36px'],
+        ['min-height', '36px'],
+      ]),
+      written('min-width: 36px; min-height: auto'),
+      false,
+    ],
+    [
+      'a longhand after a var() shorthand was seen is still listed',
+      written('background-color: red; background-image: none'),
+      written('background-color: red'),
+      false,
+    ],
+    [
+      'an !important shorthand beats a later plain longhand',
+      written('margin: 1px !important; margin-top: 2px'),
+      written('margin: 1px !important'),
+      true,
+    ],
+    ['!important counts', written('color: red !important'), written('color: red'), false],
+    [
+      'animation then its delay differs from the reverse',
+      written('animation: spin 1s; animation-delay: 150ms'),
+      written('animation-delay: 150ms; animation: spin 1s'),
+      false,
+    ],
+    [
+      'animation and its delay, CSSOM vs text',
+      viaCssom([
+        ['animation', 'spin 1s'],
+        ['animation-delay', '150ms'],
+      ]),
+      written('animation: spin 1s; animation-delay: 150ms'),
+      true,
+    ],
+    [
+      'font: inherit then a weight differs from font: inherit',
+      written('font: inherit; font-weight: 600'),
+      written('font: inherit'),
+      false,
+    ],
+    [
+      'gap with both its longhands cleared differs from gap',
+      viaCssom([
+        ['gap', '6px'],
+        ['column-gap', ''],
+        ['row-gap', ''],
+      ]),
+      written('gap: 6px'),
+      false,
+    ],
+  ]
+  for (const [name, a, b, equal] of rows) {
+    it(`${equal ? 'equal' : 'differ'}: ${name}`, () => {
+      if (equal) expect(norm(a)).toBe(norm(b))
+      else expect(norm(a)).not.toBe(norm(b))
+    })
+  }
+
+  it('reads a Tooltip arrow written as text with its var() shorthands', () => {
+    expect(
+      norm(
+        written(
+          'background: var(--color-surface); border: 1px solid var(--color-border); height: 8px',
+        ),
+      ),
+    ).toContain(
+      'style="background: var(--color-surface); border: 1px solid var(--color-border); height: 8px"',
+    )
+  })
+
+  it('names the declarations whose var() text the CSSOM lost, for a recording to refuse', () => {
+    const broken = norm(
+      viaCssom([
+        ['background', 'var(--a)'],
+        ['background-image', 'none'],
+      ]),
+    )
+    expect(lostStyleValues(broken)).toContain('<div> background-color')
+    expect(lostStyleValues(norm(written('background: var(--a); height: 8px')))).toEqual([])
+    expect(lostStyleValues(norm(written('background: var(--a)')))).toEqual([])
+    expect(lostStyleValues('<a title="x > y" style="color: red; margin-top: ">')).toEqual([
+      '<a> margin-top',
+    ])
+  })
+
+  it('refuses a reference snapshot with a lost var() value, naming the case and the fix', () => {
+    const broken = norm(
+      viaCssom([
+        ['background', 'var(--a)'],
+        ['background-image', 'none'],
+      ]),
+    )
+    expect(() => assertNoLostStyleValues([broken], 'Tooltip / arrow')).toThrow(
+      /^Tooltip \/ arrow: <div> background-attachment, .*<div> background-color, .*Write the shorthand's longhands/,
+    )
+    expect(() =>
+      assertNoLostStyleValues([norm(written('background: var(--a)'))], 'Tooltip / arrow'),
+    ).not.toThrow()
   })
 })
 

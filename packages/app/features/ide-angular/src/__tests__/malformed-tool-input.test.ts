@@ -433,6 +433,8 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
     }
   })
 
+  // Mounts every tool card through Angular's JIT compiler: 0.85s alone, and past the 10s default
+  // in a full test wave on a loaded machine (2026-11-22).
   it('renders every tool card with a wholly wrong-typed input', async () => {
     // The tool names whose cards read fields out of `input`. A new tool that renders
     // input belongs in this list — that is the point of the test.
@@ -486,7 +488,7 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
         })
       }
     }
-  })
+  }, 60_000)
 
   it('renders the EXPANDED IN/OUT sections with wrong-typed input and output', async () => {
     // The collapsed row and the expanded detail read DIFFERENT fields, so a card that

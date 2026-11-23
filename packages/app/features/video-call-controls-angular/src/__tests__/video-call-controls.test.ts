@@ -283,7 +283,7 @@ describe('ParticipantTile', () => {
   })
 
   it('applies the success-tone speaking ring only when speaking is set', async () => {
-    expect(await tile({ name: 'A', speaking: true })).toMatch(/outline:\s*3px solid currentColor/)
+    expect(await tile({ name: 'A', speaking: true })).toMatch(/outline:\s*3px solid currentcolor/i)
     expect(await tile({ name: 'A', speaking: true })).toContain('textTone')
     expect(await tile({ name: 'A' })).not.toMatch(/outline:\s*3px/)
     expect(await tile({ name: 'A' })).not.toContain('textTone')

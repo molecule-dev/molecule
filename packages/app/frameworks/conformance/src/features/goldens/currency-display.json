@@ -109,19 +109,19 @@
    },
    "compact with original price": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$30K\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$50K\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$30K\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$50K\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "original price with savings chip": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "original price rounds the saving": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$1.00\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$3.00\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−67%\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$1.00\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$3.00\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−67%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
@@ -139,7 +139,7 @@
    },
    "original price with showSavings false": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
@@ -151,13 +151,13 @@
    },
    "negative original price (zero percent)": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n-$10.00\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n-$5.00\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−0%\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n-$10.00\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n-$5.00\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−0%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
    "custom savings label": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
@@ -169,7 +169,7 @@
    },
    "custom savings label with showSavings false": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
@@ -182,7 +182,7 @@
    "gains an original price": {
     "snapshots": [
      "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n</span>\n@route /",
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },
@@ -197,10 +197,10 @@
    },
    "toggles the savings chip and the label": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /",
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n</span>\n@route /",
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /",
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration-color: currentcolor; text-decoration-line: line-through; text-decoration-style: solid; text-decoration-thickness: auto\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },

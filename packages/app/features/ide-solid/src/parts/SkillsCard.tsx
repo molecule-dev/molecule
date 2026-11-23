@@ -513,14 +513,14 @@ export function SkillsCard(props: SkillsCardProps): JSX.Element {
                       style={{
                         padding: '0px',
                         margin: '0px',
-                        // `border: none` and `font-weight: 500` serialize as
-                        // `border: medium` + the class's own `font-medium` in
-                        // this DOM's shorthand handling (React's numbers and
-                        // `none` land the same way), so they are written the
-                        // way the DOM takes them.
+                        // `border: none` serializes as `border: medium` in this
+                        // DOM's shorthand handling (React's `none` lands the
+                        // same way), so it is written the way the DOM takes it.
+                        // The weight follows the `font` reset, as React's does.
                         border: 'medium',
                         background: 'transparent',
                         font: 'inherit',
+                        'font-weight': '500',
                         'text-align': 'left',
                         color: 'var(--mol-color-primary, #6366f1)',
                         cursor: 'pointer',

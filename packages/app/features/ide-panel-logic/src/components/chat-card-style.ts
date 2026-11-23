@@ -84,14 +84,23 @@ export interface ChatCardStyle {
  * bottom-margin rhythm at the call site — e.g.
  * `style={{ display: 'flex', gap: 10, marginBottom: TIMELINE_ITEM_GAP, ...chatCardStyle(accent) }}`.
  *
+ * A card that deepens its frame on hover sets the whole `border` to
+ * `chatCardStyle(accent, 70).border`, never `borderColor` alone: the frame is a shorthand
+ * holding a CSS variable, and a longhand written over it leaves its other longhands with no
+ * readable value (`getPropertyValue` returns `''`), in a browser and in the conformance kit.
+ *
  * @param accent - Tint/border source colour. Defaults to the theme primary (neutral cards).
+ * @param borderPct - Opacity of the accent in the border mix (percent). Defaults to the resting 40.
  * @returns The container `style` chrome (border, background, padding, radius).
  */
-export function chatCardStyle(accent: string = CHAT_CARD_NEUTRAL_ACCENT): ChatCardStyle {
+export function chatCardStyle(
+  accent: string = CHAT_CARD_NEUTRAL_ACCENT,
+  borderPct = 40,
+): ChatCardStyle {
   return {
     padding: '10px 12px',
     borderRadius: 8,
-    border: `1px solid ${chatCardBorder(accent)}`,
+    border: `1px solid ${chatCardBorder(accent, borderPct)}`,
     background: chatCardBg(accent),
   }
 }

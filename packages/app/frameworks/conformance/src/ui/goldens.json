@@ -3019,13 +3019,13 @@
    },
    "numeric gap uses inline style": {
     "snapshots": [
-     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\" style=\"gap: 4px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\" style=\"column-gap: 4px; row-gap: 4px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
    "raw string gap uses inline style": {
     "snapshots": [
-     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\" style=\"gap: 13px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\" style=\"column-gap: 13px; row-gap: 13px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -3037,7 +3037,7 @@
    },
    "className, style and testId": {
     "snapshots": [
-     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" data-testid=\"row\" style=\"padding: 4px\">\n<span>\nA\n</span>\n</div>\n@route /"
+     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" data-testid=\"row\" style=\"padding-bottom: 4px; padding-left: 4px; padding-right: 4px; padding-top: 4px\">\n<span>\nA\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -3601,7 +3601,7 @@
    },
    "columns template string": {
     "snapshots": [
-     "<div class=\"c9366def6 caf871a91\" style=\"grid-template-columns: repeat(2, minmax(0, 1fr))\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+     "<div class=\"c9366def6 caf871a91\" style=\"grid-template-columns: repeat(2, minmax(0px, 1fr))\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -3649,13 +3649,13 @@
    },
    "numeric gap uses inline style": {
     "snapshots": [
-     "<div class=\"c9366def6 caf871a91\" style=\"gap: 6px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+     "<div class=\"c9366def6 caf871a91\" style=\"column-gap: 6px; row-gap: 6px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
    "raw string gap uses inline style": {
     "snapshots": [
-     "<div class=\"c9366def6 caf871a91\" style=\"gap: 11px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+     "<div class=\"c9366def6 caf871a91\" style=\"column-gap: 11px; row-gap: 11px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -3673,7 +3673,7 @@
    },
    "the caller's style keeps the gaps and tracks no prop sets": {
     "snapshots": [
-     "<div class=\"c9366def6 caf871a91\" style=\"column-gap: 3px; gap: 9px; grid-template-columns: 1fr 2fr; grid-template-rows: auto\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+     "<div class=\"c9366def6 caf871a91\" style=\"column-gap: 3px; grid-template-columns: 1fr 2fr; grid-template-rows: auto; row-gap: 9px\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -5459,7 +5459,7 @@
    },
    "full": {
     "snapshots": [
-     "<div class=\"cbf033fe8\">\n<div aria-label=\"Progress\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"100\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(-0%)\">\n</div>\n</div>\n</div>\n@route /"
+     "<div class=\"cbf033fe8\">\n<div aria-label=\"Progress\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"100\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(0%)\">\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -5471,7 +5471,7 @@
    },
    "value above max clamps": {
     "snapshots": [
-     "<div class=\"cbf033fe8\">\n<div aria-label=\"Progress\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"100\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(-0%)\">\n</div>\n</div>\n</div>\n@route /"
+     "<div class=\"cbf033fe8\">\n<div aria-label=\"Progress\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"100\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(0%)\">\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -6099,7 +6099,7 @@
    },
    "content overrides": {
     "snapshots": [
-     "<div class=\"c2cbb8333 c42740ba6 c521316b1 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cdde537c9\" data-mol-id=\"shell-root\" style=\"flex-direction: row\">\n<aside class=\"c1af9479c c2cbb8333 c2f1a3c22 c42740ba6 c4b92e3a8 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 ce3fd289a cf2ca6f94\" data-mol-id=\"shell-sidebar\" style=\"overflow-y: auto; top: 0px; width: 240px\">\n<nav aria-label=\"Primary navigation\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a href=\"/dashboard\">\nDashboard\n</a>\n<a href=\"/projects\">\nProjects\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274 cd75bbd18\" data-mol-id=\"page\" data-testid=\"page\" style=\"min-width: 0px; padding: 16px\">\nRouted page\n</main>\n</div>\n@route /"
+     "<div class=\"c2cbb8333 c42740ba6 c521316b1 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cdde537c9\" data-mol-id=\"shell-root\" style=\"flex-direction: row\">\n<aside class=\"c1af9479c c2cbb8333 c2f1a3c22 c42740ba6 c4b92e3a8 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 ce3fd289a cf2ca6f94\" data-mol-id=\"shell-sidebar\" style=\"overflow-y: auto; top: 0px; width: 240px\">\n<nav aria-label=\"Primary navigation\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a href=\"/dashboard\">\nDashboard\n</a>\n<a href=\"/projects\">\nProjects\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274 cd75bbd18\" data-mol-id=\"page\" data-testid=\"page\" style=\"min-width: 0px; padding-bottom: 16px; padding-left: 16px; padding-right: 16px; padding-top: 16px\">\nRouted page\n</main>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -6619,25 +6619,25 @@
    },
    "circle": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 48px; width: 48px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 48px; width: 48px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "circle with width only mirrors height": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 64px; width: 64px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 64px; width: 64px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "numeric border radius": {
     "snapshots": [
-     "<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"border-radius: 8px; height: 20px; width: 100px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; height: 20px; width: 100px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "string border radius": {
     "snapshots": [
-     "<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"border-radius: 0.5rem; height: 20px; width: 100px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; height: 20px; width: 100px\">\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -6682,32 +6682,32 @@
   "SkeletonCircle": {
    "defaults": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "custom size": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 24px; width: 24px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 24px; width: 24px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "className": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cd75bbd18 cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 c9052b18c cd75bbd18 cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "defaults, then a locale switch": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /",
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /",
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
     ],
     "calls": []
    },
    "defaults, with a caller's ref": {
     "snapshots": [
-     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /\n@ref body>div:0"
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-bottom-left-radius: 9999px; border-bottom-right-radius: 9999px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /\n@ref body>div:0"
     ],
     "calls": []
    }
@@ -6919,7 +6919,7 @@
    },
    "custom css color": {
     "snapshots": [
-     "<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\" style=\"border-color: transparent rgb(255, 0, 0) rgb(255, 0, 0)\">\n</div>\n@route /"
+     "<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\" style=\"border-bottom-color: rgb(255, 0, 0); border-left-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-top-color: transparent\">\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -6931,7 +6931,7 @@
    },
    "className, style and testId": {
     "snapshots": [
-     "<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 cd75bbd18 ce99acf9b\" data-testid=\"spinner\" role=\"status\" style=\"margin: 8px\">\n</div>\n@route /"
+     "<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 cd75bbd18 ce99acf9b\" data-testid=\"spinner\" role=\"status\" style=\"margin-bottom: 8px; margin-left: 8px; margin-right: 8px; margin-top: 8px\">\n</div>\n@route /"
     ],
     "calls": []
    },

@@ -26,7 +26,6 @@ import {
   activityStatusLabel,
   activitySummaryLine,
   CHAT_CARD_ICON_SIZE,
-  chatCardBorder,
   chatCardStyle,
 } from '@molecule/app-ide-panel-logic'
 import { getClassMap } from '@molecule/app-ui'
@@ -99,7 +98,7 @@ export const ActivityCard = defineComponent({
        */
       const onEnter = (event: MouseEvent): void => {
         if (!clickable) return
-        ;(event.currentTarget as HTMLElement).style.borderColor = chatCardBorder(undefined, 70)
+        ;(event.currentTarget as HTMLElement).style.border = chatCardStyle(undefined, 70).border
       }
 
       /**
@@ -109,7 +108,7 @@ export const ActivityCard = defineComponent({
        */
       const onLeave = (event: MouseEvent): void => {
         if (!clickable) return
-        ;(event.currentTarget as HTMLElement).style.borderColor = chatCardBorder()
+        ;(event.currentTarget as HTMLElement).style.border = chatCardStyle().border
       }
 
       return h(

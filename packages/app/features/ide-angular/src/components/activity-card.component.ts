@@ -34,7 +34,6 @@ import {
   activityStatusLabel,
   activitySummaryLine,
   CHAT_CARD_ICON_SIZE,
-  chatCardBorder,
   chatCardStyle,
 } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -244,7 +243,7 @@ export class ActivityCard {
    */
   protected onMouseEnter(event: MouseEvent): void {
     if (!this.clickable()) return
-    ;(event.currentTarget as HTMLElement).style.borderColor = chatCardBorder(undefined, 70)
+    ;(event.currentTarget as HTMLElement).style.border = chatCardStyle(undefined, 70).border
   }
 
   /**
@@ -254,6 +253,6 @@ export class ActivityCard {
    */
   protected onMouseLeave(event: MouseEvent): void {
     if (!this.clickable()) return
-    ;(event.currentTarget as HTMLElement).style.borderColor = chatCardBorder()
+    ;(event.currentTarget as HTMLElement).style.border = chatCardStyle().border
   }
 }

@@ -49,7 +49,13 @@ import {
 } from '../features/index.js'
 import { featureCaseFileNames, loadFeatureCases } from '../features/load.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
-import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
+import {
+  assertNoLostStyleValues,
+  caseExports,
+  type CaseResult,
+  onlyFromEnv,
+  writePixelCapture,
+} from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
 import { createReactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
@@ -311,6 +317,10 @@ for (const [name, module] of Object.entries(MODULES)) {
             }
             expect(errors, 'React logged errors or warnings').toEqual([])
             expect(result.snapshots.length).toBe((testCase.interactions ?? []).length + 1)
+            assertNoLostStyleValues(
+              result.snapshots,
+              `${name} / ${family.component} / ${testCase.name}`,
+            )
             const golden: CaseResult = { snapshots: result.snapshots, calls: result.calls }
             ;(recorded[name]!.cases[family.component] ??= {})[testCase.name] = golden
             ;(recordedReadable[name]!.cases[family.component] ??= {})[testCase.name] = {

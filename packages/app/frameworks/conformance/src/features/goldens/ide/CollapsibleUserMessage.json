@@ -1,7 +1,7 @@
 {
  "a short message renders its text and no disclosure strip": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nPlease fix the header.\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -16,7 +16,7 @@
  },
  "an empty message renders an empty body": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -31,7 +31,7 @@
  },
  "a multi-line message keeps its line breaks": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nFirst line.\nSecond line.\nThird line.\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nFirst line.\nSecond line.\nThird line.\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -46,7 +46,7 @@
  },
  "a long message renders its whole text": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\n\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\nline\n\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -61,7 +61,7 @@
  },
  "the light theme renders the same body": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nPlease fix the header.\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -76,8 +76,8 @@
  },
  "a new message replaces the text in place": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n@route /",
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nNow fix the footer too.\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nPlease fix the header.\n</div>\n</div>\n@route /",
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nNow fix the footer too.\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -92,8 +92,8 @@
  },
  "a short message renders its text and no disclosure strip, then a locale switch": {
   "snapshots": [
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n@route /",
-   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow: hidden; white-space: pre-wrap\">\nPlease fix the header.\n</div>\n</div>\n@route /"
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nPlease fix the header.\n</div>\n</div>\n@route /",
+   "<div style=\"position: relative\">\n<div style=\"max-height: 150px; overflow-x: hidden; overflow-y: hidden; text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nPlease fix the header.\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {

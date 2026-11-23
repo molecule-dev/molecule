@@ -33,6 +33,20 @@ import {
   responseOf,
 } from './chat-panel-harness.js'
 
+/**
+ * A style value as this DOM serializes it once React's style object writes it (jsdom 31 writes
+ * `8px 8px 0 0` as `8px 8px 0px 0px`, and a bare `background: transparent` as `none`).
+ *
+ * @param property - The CSS property, kebab-case.
+ * @param value - The value React writes.
+ * @returns The serialized value.
+ */
+function asDom(property: string, value: string): string {
+  const probe = document.createElement('div')
+  probe.style.setProperty(property, value)
+  return probe.style.getPropertyValue(property)
+}
+
 /** One recorded PATCH call. */
 interface PatchCall {
   /** The requested path. */
@@ -168,7 +182,7 @@ describe('ChatPanel composer — the uncontrolled textarea and its container', (
     expect(composer.getAttribute('role')).toBe('presentation')
     expect(composer.hasAttribute('data-mol-viewer')).toBe(false)
     expect(composer.hasAttribute('hidden')).toBe(false)
-    expect(composer.style.borderRadius).toBe('8px 8px 0 0')
+    expect(composer.style.borderRadius).toBe(asDom('border-radius', '8px 8px 0 0'))
     expect(composer.style.padding).toBe('8px 10px')
     expect(composer.style.cursor).toBe('text')
 
@@ -185,12 +199,12 @@ describe('ChatPanel composer — the uncontrolled textarea and its container', (
     expect(textarea.style.display).toBe('block')
     expect(textarea.style.padding).toBe('0px')
     expect(textarea.style.resize).toBe('none')
-    expect(textarea.style.outline).toBe('none')
+    expect(textarea.style.outline).toBe(asDom('outline', 'none'))
     // jsdom serializes the `border: none` shorthand as `border: medium`, so
     // assert the longhand the shorthand sets (both frameworks write the same
     // declaration through the same CSSStyleDeclaration).
     expect(textarea.style.borderStyle).toBe('none')
-    expect(textarea.style.background).toBe('transparent')
+    expect(textarea.style.background).toBe(asDom('background', 'transparent'))
     expect(textarea.style.overflowY).toBe('auto')
     expect(textarea.style.boxSizing).toBe('border-box')
     // Fine pointer, wide viewport: no iOS-zoom override.

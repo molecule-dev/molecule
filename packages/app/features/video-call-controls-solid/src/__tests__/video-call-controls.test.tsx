@@ -158,7 +158,7 @@ describe('ParticipantTile', () => {
 
   it('applies the success-tone speaking ring only when speaking is set', () => {
     const speaking = html(() => <ParticipantTile name="A" speaking />)
-    expect(speaking).toMatch(/outline:\s*3px solid currentColor/)
+    expect(speaking).toMatch(/outline:\s*3px solid currentcolor/i)
     expect(speaking).toContain('textTone')
     const quiet = html(() => <ParticipantTile name="A" />)
     expect(quiet).not.toMatch(/outline:\s*3px/)

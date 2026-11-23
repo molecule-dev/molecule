@@ -25,7 +25,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 
 import type { QueryParams, RouteParams } from '@molecule/app-routing'
 
-import { normalizeDom } from '../ui/normalize.js'
+import { assertNoLostStyleValues, normalizeDom } from '../ui/normalize.js'
 import { nextMillisecond } from '../ui/user-input-time.js'
 
 /** One declared choice, in React's `ListRouteNavItem` spelling with a text label. */
@@ -438,6 +438,12 @@ export function runListRouteNavConformance(
     for (const testCase of listRouteNavCases) {
       it(testCase.name, async () => {
         const records = await recordListRouteNavCase(mount, testCase)
+        if (options.reference === true) {
+          assertNoLostStyleValues(
+            records.map((r) => r.dom),
+            `ListRouteNav / ${testCase.name}`,
+          )
+        }
         if (record) {
           recorded[testCase.name] = records
           return

@@ -26,7 +26,6 @@ import {
   activityStatusLabel,
   activitySummaryLine,
   CHAT_CARD_ICON_SIZE,
-  chatCardBorder,
   chatCardStyle,
 } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-solid'
@@ -123,7 +122,7 @@ export function ActivityCard(props: ActivityCardProps): JSX.Element {
    */
   const onMouseEnter = (event: MouseEvent): void => {
     if (!clickable()) return
-    ;(event.currentTarget as HTMLElement).style.borderColor = chatCardBorder(undefined, 70)
+    ;(event.currentTarget as HTMLElement).style.border = chatCardStyle(undefined, 70).border
   }
 
   /**
@@ -134,7 +133,7 @@ export function ActivityCard(props: ActivityCardProps): JSX.Element {
    */
   const onMouseLeave = (event: MouseEvent): void => {
     if (!clickable()) return
-    ;(event.currentTarget as HTMLElement).style.borderColor = chatCardBorder()
+    ;(event.currentTarget as HTMLElement).style.border = chatCardStyle().border
   }
 
   return (

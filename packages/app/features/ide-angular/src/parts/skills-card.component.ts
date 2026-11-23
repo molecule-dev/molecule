@@ -617,6 +617,7 @@ const STYLES = {
     border: 'medium',
     background: 'transparent',
     font: 'inherit',
+    fontWeight: 500,
     textAlign: 'left',
     color: 'var(--mol-color-primary, #6366f1)',
     cursor: 'pointer',

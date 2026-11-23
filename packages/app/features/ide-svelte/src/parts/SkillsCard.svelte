@@ -423,7 +423,7 @@
               data-mol-id={`skill-open-${skill.name}`}
               onclick={() => onLoad(skill)}
               class={cm.cn(cm.fontWeight('medium'), cm.touchTargetCompact)}
-              style="padding: 0px; margin: 0px; border: medium; background: transparent; font: inherit; text-align: left; color: var(--mol-color-primary, #6366f1); cursor: pointer"
+              style="padding: 0px; margin: 0px; border: medium; background: transparent; font: inherit; font-weight: 500; text-align: left; color: var(--mol-color-primary, #6366f1); cursor: pointer"
             >
               {skill.name}
             </button>

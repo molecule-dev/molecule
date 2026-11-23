@@ -133,6 +133,9 @@ async function mount<H extends { p: Record<string, unknown> }>(
 /**
  * The CSSOM value a browser reads back for a declaration, so a case compares
  * against what React's own style object produces rather than its source text.
+ * The DOM's serialization is then read the way `styleOf` reads the port's: jsdom
+ * 31 writes `#e0a100` inside `color-mix()` as `rgb(224, 161, 0)` and reads that
+ * text back as `rgb(224 161 0)`, where a browser keeps one form.
  *
  * @param property - The kebab-case CSS property.
  * @param value - The value React's style object writes.
@@ -141,7 +144,7 @@ async function mount<H extends { p: Record<string, unknown> }>(
 function css(property: string, value: string): string {
   const probe = document.createElement('div')
   probe.style.setProperty(property, value)
-  return probe.style.getPropertyValue(property)
+  return styleOf(probe, property)
 }
 
 /**

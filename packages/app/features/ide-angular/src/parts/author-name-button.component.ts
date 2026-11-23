@@ -12,10 +12,8 @@
  *
  * The full button reset is written through `[attr.style]`, whose text lands in
  * the DOM as is, so every declaration is pre-serialized the way React's CSSOM
- * writes it (`padding: 0px`, `border: medium`, `font: inherit`). React also
- * passes `fontWeight: 600`, but the CSSOM's `font` shorthand absorbs it and the
- * serialized style has no `font-weight`; the port matches the serialized style,
- * as the other parts do.
+ * writes it (`padding: 0px`, `border: medium`, `font: inherit`), then React's
+ * `fontWeight: 600`, which a browser keeps after the `font` reset.
  *
  * @module
  */
@@ -65,6 +63,7 @@ export class AuthorNameButton {
       border: 'medium',
       background: 'transparent',
       font: 'inherit',
+      fontWeight: 600,
       color: 'inherit',
       cursor: 'pointer',
       textDecoration: 'none',

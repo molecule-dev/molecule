@@ -7,68 +7,68 @@
   "NoteCard": {
    "body only": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nRemember the milk\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "title and body": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nMilk, eggs, coffee\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nMilk, eggs, coffee\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "custom color": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cf974fdf0\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cf974fdf0\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "pinned": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "modified at": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nedited 2h ago\n</span>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nedited 2h ago\n</span>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "actions only": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "modified at and actions": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "node title and node body": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\n<strong>\nShip it\n</strong>\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\n<span data-rich>\nRich body\n</span>\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<h3 class=\"c0d99ed10 c445db9b9\">\n<strong>\nShip it\n</strong>\n</h3>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\n<span data-rich>\nRich body\n</span>\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "everything together": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18 ce2d58fc5\" style=\"border-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<h3 class=\"c0d99ed10 c445db9b9\">\nMeeting notes\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nFollow up with design team on the new dashboard layout.\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18 ce2d58fc5\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<h3 class=\"c0d99ed10 c445db9b9\">\nMeeting notes\n</h3>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nFollow up with design team on the new dashboard layout.\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\nJun 5, 2026\n</span>\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "falsy strings omit their branches": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "click calls onClick": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<h3 class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /",
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<h3 class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: transparent; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-color: currentcolor; border-bottom-style: none; border-bottom-width: medium; border-image-outset: 0; border-image-repeat: stretch; border-image-slice: 100%; border-image-source: none; border-image-width: 1; border-left-color: currentcolor; border-left-style: none; border-left-width: medium; border-right-color: currentcolor; border-right-style: none; border-right-width: medium; border-top-color: currentcolor; border-top-style: none; border-top-width: medium; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px\" type=\"button\">\n</button>\n<h3 class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: transparent; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-color: currentcolor; border-bottom-style: none; border-bottom-width: medium; border-image-outset: 0; border-image-repeat: stretch; border-image-slice: 100%; border-image-source: none; border-image-width: 1; border-left-color: currentcolor; border-left-style: none; border-left-width: medium; border-right-color: currentcolor; border-right-style: none; border-right-width: medium; border-top-color: currentcolor; border-top-style: none; border-top-width: medium; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px\" type=\"button\">\n</button>\n<h3 class=\"c0d99ed10 c445db9b9\" id=\"#id0\">\nGroceries\n</h3>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": [
      {
@@ -79,35 +79,35 @@
    },
    "clickable card forwards className": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: transparent; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-color: currentcolor; border-bottom-style: none; border-bottom-width: medium; border-image-outset: 0; border-image-repeat: stretch; border-image-slice: 100%; border-image-source: none; border-image-width: 1; border-left-color: currentcolor; border-left-style: none; border-left-width: medium; border-right-color: currentcolor; border-right-style: none; border-right-width: medium; border-top-color: currentcolor; border-top-style: none; border-top-width: medium; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "an inner control click records no onClick": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cfc82911d\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /",
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"white-space: pre-wrap\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cfc82911d\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: transparent; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-color: currentcolor; border-bottom-style: none; border-bottom-width: medium; border-image-outset: 0; border-image-repeat: stretch; border-image-slice: 100%; border-image-source: none; border-image-width: 1; border-left-color: currentcolor; border-left-style: none; border-left-width: medium; border-right-color: currentcolor; border-right-style: none; border-right-width: medium; border-top-color: currentcolor; border-top-style: none; border-top-width: medium; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cfc82911d\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"note-card-open\" style=\"background-attachment: scroll; background-blend-mode: normal; background-clip: border-box; background-color: transparent; background-image: none; background-origin: padding-box; background-position-x: 0%; background-position-y: 0%; background-repeat-x: repeat; background-repeat-y: repeat; background-size: auto; border-bottom-color: currentcolor; border-bottom-style: none; border-bottom-width: medium; border-image-outset: 0; border-image-repeat: stretch; border-image-slice: 100%; border-image-source: none; border-image-width: 1; border-left-color: currentcolor; border-left-style: none; border-left-width: medium; border-right-color: currentcolor; border-right-style: none; border-right-width: medium; border-top-color: currentcolor; border-top-style: none; border-top-width: medium; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px\" type=\"button\">\n</button>\n<div class=\"c445db9b9\" id=\"#id0\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cfc82911d\">\n<button data-actions>\nEdit\n</button>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "props change unpins and retints": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cf974fdf0\" style=\"border-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /",
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 cbbe0661c ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nb\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 ccae02ff2 cf974fdf0\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<span aria-label=\"Pinned\" role=\"img\" style=\"position: absolute; right: 6px; top: 6px\">\n📌\n</span>\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c9566e21c c9cd623cf cbaac6b89 cbbe0661c ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nb\n</div>\n</article>\n@route /"
     ],
     "calls": []
    },
    "props change adds a footer and updates the body": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nFirst draft\n</div>\n</article>\n@route /",
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nSecond draft\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\njust now\n</span>\n</footer>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nFirst draft\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nSecond draft\n</div>\n<footer class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690\">\njust now\n</span>\n</footer>\n</article>\n@route /"
     ],
     "calls": []
    },
    "body only, then a locale switch": {
     "snapshots": [
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /",
-     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"white-space: pre-wrap\">\nRemember the milk\n</div>\n</article>\n@route /"
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nRemember the milk\n</div>\n</article>\n@route /",
+     "<article class=\"c1b5cbda6 c290ae666 c2cbb8333 c5224b8ce c9566e21c c9cd623cf cbaac6b89 ccae02ff2\" style=\"border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative\">\n<div class=\"c445db9b9\" style=\"text-wrap-mode: wrap; white-space-collapse: preserve; white-space-trim: none\">\nRemember the milk\n</div>\n</article>\n@route /"
     ],
     "calls": []
    }

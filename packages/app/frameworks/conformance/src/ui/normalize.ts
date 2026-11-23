@@ -84,15 +84,6 @@ const escapeAttr = (s: string): string =>
   s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;')
 
 /**
- * Vendor names every browser treats as the same property, mapped to the standard name. Vue's
- * runtime-dom sets a style object's `filter` through `webkitFilter` whenever the DOM has it (its
- * `autoPrefix` special-cases `filter`), and so writes `-webkit-filter` for any style that reaches
- * it as an object, a string merged through `mergeProps` included. Browsers alias the two, so the
- * style attribute they serialize says `filter`, as React's does; jsdom keeps them apart.
- */
-const STYLE_ALIASES: ReadonlyMap<string, string> = new Map([['-webkit-filter', 'filter']])
-
-/**
  * The declarations of a style attribute, split at the semicolons outside quotes and brackets, so
  * a `url("data:…;base64,…")` stays one declaration.
  *
@@ -121,65 +112,139 @@ const styleDeclarations = (value: string): string[] => {
   return out.map((d) => d.trim()).filter(Boolean)
 }
 
-/** A declaration with its property name lower-cased and aliased and its whitespace collapsed. */
+/** A declaration with its property name lower-cased and its whitespace collapsed. */
 const writtenDeclaration = (d: string): string => {
   const i = d.indexOf(':')
   if (i < 0) return d
-  const name = d.slice(0, i).trim().toLowerCase()
-  return `${STYLE_ALIASES.get(name) ?? name}: ${d
+  return `${d.slice(0, i).trim().toLowerCase()}: ${d
     .slice(i + 1)
     .trim()
     .replace(/\s+/g, ' ')}`
 }
 
-/** One detached element per document, whose CSSOM parses declaration lists. */
-const styleParsers = new WeakMap<Document, HTMLElement>()
-
-/** Normalized style attributes by their written text (the same few thousand repeat in every case). */
-const styleCache = new Map<string, string>()
-const STYLE_CACHE_LIMIT = 20_000
+/** One detached element per document, whose CSSOM reads a declaration list it is given. */
+const scratchElements = new WeakMap<Document, HTMLElement>()
 
 /**
- * A style attribute as the sorted declarations a browser's CSSOM reads from it, so two styles
+ * The CSSOM's reading of a declaration list, on a detached element of the document.
+ *
+ * @param doc - The document whose CSSOM reads it.
+ * @param declarations - A style attribute's text.
+ * @returns The scratch element's style (overwritten by the next call).
+ */
+const scratchStyle = (doc: Document, declarations: string): CSSStyleDeclaration => {
+  let scratch = scratchElements.get(doc)
+  if (!scratch) {
+    scratch = doc.createElement('div')
+    scratchElements.set(doc, scratch)
+  }
+  scratch.setAttribute('style', declarations)
+  return scratch.style
+}
+
+/**
+ * Whether a declaration the CSSOM serialized is a shorthand all of whose longhands wait on a
+ * var() (each reads `''` until the variable is substituted at computed-value time).
+ *
+ * @param declaration - One declaration of a block's `cssText`.
+ * @param doc - The document whose CSSOM reads it.
+ * @returns True for such a shorthand.
+ */
+const isPendingShorthand = (declaration: string, doc: Document): boolean => {
+  const style = scratchStyle(doc, declaration)
+  if (style.length < 2) return false
+  for (let i = 0; i < style.length; i++)
+    if (style.getPropertyValue(style.item(i)) !== '') return false
+  return true
+}
+
+/**
+ * An element's inline style as the sorted longhands its own CSSOM block holds, so two styles
  * that draw the same compare equal however they were written. React sets each property through
  * the CSSOM, which records `flex: 1` as `flex: 1 1 0%`, `border: none` as `border: medium` and
  * `#d4a017` as `rgb(212, 160, 23)`; Solid writes a static style object into its template HTML,
- * where the attribute keeps the text as written. A declaration the CSSOM does not read (an
- * invalid value, or a property jsdom does not implement) is kept as written, so it still counts.
+ * where the attribute keeps the text as written and the CSSOM parses it on read.
  *
- * @param value - The style attribute.
- * @param doc - The document whose CSSOM parses it.
+ * The block is read from the element itself, never by parsing its attribute again: jsdom does
+ * not read its own serialization back (it writes `min-width: 36px; min-height: 36px` as
+ * `min-size: 36px`, which parses as `min-height: auto`), and the same longhands serialize as a
+ * shorthand after one write order and as longhands after another.
+ *
+ * A longhand set by a shorthand written with var() reads `''` until the variable is
+ * substituted. The block still serializes that shorthand as written while all its longhands
+ * stand (`background: var(--a)`), and as empty longhands once a later longhand overrode one
+ * (`background-color: `); either is kept as the block says it. In the second form the var()
+ * text is gone, in a browser too, so {@link lostStyleValues} lets a recording refuse it.
+ * A declaration the CSSOM does not read at all (an invalid value, or a property jsdom does not
+ * implement) is kept as written, so it still counts.
+ *
+ * @param el - The element.
  * @returns The normalized declarations, `; `-joined.
  */
-const normalizeStyle = (value: string, doc: Document): string => {
-  const cached = styleCache.get(value)
-  if (cached !== undefined) return cached
-  let parser = styleParsers.get(doc)
-  if (!parser) {
-    parser = doc.createElement('div')
-    styleParsers.set(doc, parser)
+const normalizeStyle = (el: Element): string => {
+  const doc = el.ownerDocument
+  const written = el.getAttribute('style') ?? ''
+  const style = (el as Partial<ElementCSSInlineStyle>).style ?? scratchStyle(doc, written)
+  const out = new Set<string>()
+  let pending = false
+  for (let i = 0; i < style.length; i++) {
+    const name = style.item(i)
+    const value = style.getPropertyValue(name)
+    if (value === '') pending = true
+    else out.add(`${name}: ${value}${style.getPropertyPriority(name) ? ' !important' : ''}`)
   }
-  const style = parser.style
-  // One property at a time, in order, as React's style object sets them: assigning the list
-  // to `cssText` at once loses declarations in jsdom (`background: transparent` before
-  // `border: medium` is dropped).
-  const read = (declarations: string[]): string => {
-    style.cssText = ''
-    for (const d of declarations) {
-      const i = d.indexOf(':')
-      if (i < 0) continue
-      const important = /\s*!\s*important$/i.exec(d)
-      const end = important ? important.index : d.length
-      style.setProperty(d.slice(0, i), d.slice(i + 1, end).trim(), important ? 'important' : '')
+  // Read before any probe below: on an element with no style of its own, `style` is the scratch.
+  const serialized = pending ? style.cssText : ''
+  for (const d of styleDeclarations(serialized)) {
+    if (/:\s*(!\s*important)?$/i.test(d)) out.add(`${d.slice(0, d.indexOf(':')).trim()}: `)
+    else if (isPendingShorthand(d, doc)) out.add(writtenDeclaration(d))
+  }
+  for (const d of styleDeclarations(written)) {
+    if (/:\s*$/.test(d)) continue
+    if (!scratchStyle(doc, d).length) out.add(writtenDeclaration(d))
+  }
+  return [...out].sort().join('; ')
+}
+
+/**
+ * The style declarations of a normalized snapshot whose value the CSSOM no longer holds: a
+ * shorthand written with var() that a later longhand partly overrode reads as empty longhands
+ * (`background-color: `), so two such styles with different variables compare equal. A
+ * reference recording refuses a snapshot that has any: write the shorthand's longhands, or the
+ * shorthand alone.
+ *
+ * @param snapshot - A snapshot {@link normalizeDom} made.
+ * @returns Each such declaration with its element's tag, as `<tag> name`.
+ */
+export function lostStyleValues(snapshot: string): string[] {
+  const lost: string[] = []
+  // An attribute value escapes `"` and `<` (text escapes `<`), so each value ends at the next
+  // `"`, and the last `<` before it opens its element.
+  for (const style of snapshot.matchAll(/ style="([^"]*)"/g)) {
+    const open = snapshot.lastIndexOf('<', style.index)
+    const tag = /^<([^\s>]+)/.exec(snapshot.slice(open))?.[1] ?? '?'
+    for (const entry of style[1].split(';').map((e) => e.trim())) {
+      if (/^[a-z-]+:$/.test(entry)) lost.push(`<${tag}> ${entry.slice(0, -1)}`)
     }
-    return style.cssText
   }
-  const written = styleDeclarations(value).map(writtenDeclaration)
-  const unread = written.filter((d) => !read([d]))
-  const normalized = [...styleDeclarations(read(written)), ...unread].sort().join('; ')
-  if (styleCache.size >= STYLE_CACHE_LIMIT) styleCache.clear()
-  styleCache.set(value, normalized)
-  return normalized
+  return lost
+}
+
+/**
+ * Refuses reference snapshots that hold a style value the CSSOM lost ({@link lostStyleValues}).
+ * The reference (React) is checked on every run, so such a style fails where it is written.
+ *
+ * @param snapshots - The reference run's snapshots.
+ * @param where - The case, named in the error.
+ */
+export function assertNoLostStyleValues(snapshots: readonly string[], where: string): void {
+  const lost = [...new Set(snapshots.flatMap(lostStyleValues))]
+  if (lost.length === 0) return
+  throw new Error(
+    `${where}: ${lost.join(', ')} come from a var() shorthand that a later longhand overrides. ` +
+      'The CSSOM then drops the var() text, so a port with a different variable would compare equal. ' +
+      "Write the shorthand's longhands, or the shorthand alone.",
+  )
 }
 
 /**
@@ -349,15 +414,49 @@ let computed = documentStyle
 const isItemContainer = (el: Element | null): boolean =>
   !!el && /^(inline-)?(flex|grid)$/.test(computed(el)?.display ?? '')
 
-/** A block-level sibling ends the line: whitespace next to it does not draw. */
+/** A block-level sibling in the flow ends the line: whitespace next to it does not draw. */
 const isBlockLevel = (el: Element): boolean => {
   const display = computed(el)?.display || 'inline'
   return !display.startsWith('inline') && display !== 'contents' && display !== 'none'
 }
 
+/**
+ * An absolutely positioned, fixed or floated element is out of the flow: it neither ends a line
+ * nor starts one, though CSS computes its `display` as `block` (jsdom 31 does; 30 said `inline`
+ * for a span). Whitespace beside it draws exactly when the nearest in-flow neighbour on that side
+ * is not a line edge: an `srOnly` label between `▲` and ` 3.21%` keeps that space, and the
+ * whitespace a template leaves between two absolutely positioned rows draws nothing.
+ */
+const isOutOfFlow = (el: Element): boolean => {
+  const style = computed(el)
+  return /^(absolute|fixed)$/.test(style?.position ?? '') || (style?.cssFloat || 'none') !== 'none'
+}
+
 /** `white-space: pre`, `pre-wrap` or `break-spaces` keeps every space and newline. */
 const preservesWhitespace = (el: Element): boolean =>
   /^(pre|pre-wrap|break-spaces)$/.test(computed(el)?.whiteSpace ?? '')
+
+/**
+ * The nearest sibling of `children[i]` on one side that takes part in the line: a text run with
+ * something besides whitespace, or an in-flow element. Out-of-flow elements are skipped, and so
+ * are whitespace-only runs, which collapse into this one.
+ *
+ * @param children - The rendered children.
+ * @param i - The index of the text run.
+ * @param step - -1 for the sibling before, 1 for the one after.
+ * @returns That sibling, or undefined when the run is at that edge of its parent.
+ */
+const inFlowNeighbour = (
+  children: (Element | string)[],
+  i: number,
+  step: -1 | 1,
+): Element | string | undefined => {
+  for (let k = i + step; k >= 0 && k < children.length; k += step) {
+    const child = children[k]
+    if (typeof child === 'string' ? /\S/.test(child) : !isOutOfFlow(child)) return child
+  }
+  return undefined
+}
 
 const serializeChildren = (
   parent: Element | null,
@@ -383,8 +482,8 @@ const serializeChildren = (
       if (isItemContainer(parent)) {
         text = text.trim()
       } else {
-        const before = children[i - 1]
-        const after = children[i + 1]
+        const before = inFlowNeighbour(children, i, -1)
+        const after = inFlowNeighbour(children, i, 1)
         if (before === undefined || (typeof before !== 'string' && isBlockLevel(before)))
           text = text.trimStart()
         if (after === undefined || (typeof after !== 'string' && isBlockLevel(after)))
@@ -413,7 +512,7 @@ const serializeElement = (
       value = normalizeClass(value, hash)
       if (!value) continue
     } else if (name === 'style') {
-      value = normalizeStyle(value, el.ownerDocument)
+      value = normalizeStyle(el)
       if (!value) continue
     } else if (name === 'id') {
       value = ids.map.get(value) ?? value

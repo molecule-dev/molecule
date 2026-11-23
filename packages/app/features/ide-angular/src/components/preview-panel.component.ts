@@ -529,7 +529,7 @@ class DefaultLoadingIndicator implements AfterViewInit, OnChanges, OnDestroy, On
     <div [class]="previewAreaClass()" [style]="previewAreaStyle()">
       @if (view.iframeSrc) {
         @for (mount of [view.iframeMountKey]; track mount) {
-          <iframe [molPreviewFrame]="adoptFrame" [src]="trustedIframeSrc()" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin" [attr.title]="livePreviewLabel()" [class]="iframeClass()" [style]="iframeStyle()" (load)="view.handleIframeLoad()"></iframe>
+          <iframe [molPreviewFrame]="adoptFrame" [src]="trustedIframeSrc()" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin" [attr.title]="livePreviewLabel()" [class]="iframeClass()" [style]="iframeStyle()" (load)="frameLoaded($event)"></iframe>
         }
       }
 
@@ -761,6 +761,21 @@ export class PreviewPanel implements PreviewPanelProps, OnChanges, OnDestroy, On
    */
   protected readonly adoptFrame = (element: HTMLIFrameElement | null): void => {
     this.session.getState().iframeRef.current = element
+  }
+
+  /**
+   * The preview `<iframe>`'s `load`, passed to the session only once the element has its `src`.
+   * Angular inserts the `@for` view's iframe before it binds `[src]`, and a browser fires the
+   * initial about:blank document's `load` synchronously on that insertion (HTML: "process the
+   * iframe attributes", initial insertion). Counted as the preview's load, it made the stuck
+   * detector stand down: a dead first load was reloaded on the loaded-document schedule, and one
+   * that heartbeated and then went quiet was never reloaded. React, Vue, Solid and Svelte set
+   * `src` before inserting the element and never see that event.
+   * @param event - The iframe's `load` event.
+   */
+  protected frameLoaded(event: Event): void {
+    if (!(event.target as HTMLIFrameElement).getAttribute('src')) return
+    this.view.handleIframeLoad()
   }
 
   /**

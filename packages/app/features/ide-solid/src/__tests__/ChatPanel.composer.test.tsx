@@ -32,6 +32,20 @@ import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import type { ChatPanelProps } from '../components/ChatPanel.jsx'
+
+/**
+ * A style value as this DOM serializes it once React's style object writes it (jsdom 31 writes
+ * `8px 8px 0 0` as `8px 8px 0px 0px`, and a bare `background: transparent` as `none`).
+ *
+ * @param property - The CSS property, kebab-case.
+ * @param value - The value React writes.
+ * @returns The serialized value.
+ */
+function asDom(property: string, value: string): string {
+  const probe = document.createElement('div')
+  probe.style.setProperty(property, value)
+  return probe.style.getPropertyValue(property)
+}
 import { ChatPanel } from '../components/ChatPanel.jsx'
 import { buildThemeProvider } from './theme-test-provider.js'
 
@@ -197,7 +211,7 @@ describe('the composer unit', () => {
     expect(box.getAttribute('role')).toBe('presentation')
     expect(box.hasAttribute('hidden')).toBe(false)
     expect(box.hasAttribute('data-mol-viewer')).toBe(false)
-    expect(box.style.borderRadius).toBe('8px 8px 0 0')
+    expect(box.style.borderRadius).toBe(asDom('border-radius', '8px 8px 0 0'))
     expect(box.style.padding).toBe('8px 10px')
     expect(box.style.cursor).toBe('text')
     expect(box.style.position).toBe('')

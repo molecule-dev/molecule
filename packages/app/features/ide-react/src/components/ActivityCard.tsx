@@ -18,7 +18,6 @@ import {
   activityStatusLabel,
   activitySummaryLine,
   CHAT_CARD_ICON_SIZE,
-  chatCardBorder,
   chatCardStyle,
 } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
@@ -81,14 +80,14 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       onMouseEnter={
         clickable
           ? (e) => {
-              e.currentTarget.style.borderColor = chatCardBorder(undefined, 70)
+              e.currentTarget.style.border = chatCardStyle(undefined, 70).border
             }
           : undefined
       }
       onMouseLeave={
         clickable
           ? (e) => {
-              e.currentTarget.style.borderColor = chatCardBorder()
+              e.currentTarget.style.border = chatCardStyle().border
             }
           : undefined
       }
