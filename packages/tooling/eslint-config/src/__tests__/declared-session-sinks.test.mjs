@@ -7,7 +7,8 @@ import { Linter } from 'eslint'
 import tseslint from 'typescript-eslint'
 import { afterAll, test } from 'vitest'
 
-import clients, { scaffoldRules } from '../rules/prefer-declared-clients.mjs'
+import clients from '../rules/prefer-declared-clients.mjs'
+import { scaffoldRules } from '../rules/scaffold/index.mjs'
 
 const root = mkdtempSync(join(tmpdir(), 'declared-session-sinks-'))
 afterAll(() => rmSync(root, { recursive: true, force: true }))

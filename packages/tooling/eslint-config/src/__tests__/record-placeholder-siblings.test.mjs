@@ -10,7 +10,7 @@ import { test } from 'vitest'
 const { scaffoldRules } = await import(
   process.env.SCAFFOLD_ESLINT_RULE_MODULE
     ? pathToFileURL(process.env.SCAFFOLD_ESLINT_RULE_MODULE).href
-    : '../rules/prefer-declared-clients.mjs'
+    : '../rules/scaffold/index.mjs'
 )
 const rule = scaffoldRules(tseslint.parser)['placeholders-stay-out-of-record-fields']
 const engine = new Linter()

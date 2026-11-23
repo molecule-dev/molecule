@@ -19,7 +19,8 @@ import { noLiteralUiText } from './rules/no-literal-ui-text.mjs'
 import { noRawClassNames } from './rules/no-raw-class-names.mjs'
 import noResourceTableWrites from './rules/no-resource-table-writes.mjs'
 import noStandInQueryRecord from './rules/no-stand-in-query-record.mjs'
-import preferDeclaredClients, { scaffoldRules } from './rules/prefer-declared-clients.mjs'
+import preferDeclaredClients from './rules/prefer-declared-clients.mjs'
+import { scaffoldRules } from './rules/scaffold/index.mjs'
 
 /**
  * The plugin object, registered as `molecule-local` so a rule is named

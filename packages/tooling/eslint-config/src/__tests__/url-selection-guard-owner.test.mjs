@@ -19,7 +19,7 @@ import { test } from 'vitest'
 const { scaffoldRules } = await import(
   process.env.DECLARED_CLIENT_RULE
     ? pathToFileURL(process.env.DECLARED_CLIENT_RULE).href
-    : new URL('../rules/prefer-declared-clients.mjs', import.meta.url).href
+    : new URL('../rules/scaffold/index.mjs', import.meta.url).href
 )
 const rule = scaffoldRules(tseslint.parser)['url-selections-declare-access']
 const linter = new Linter()

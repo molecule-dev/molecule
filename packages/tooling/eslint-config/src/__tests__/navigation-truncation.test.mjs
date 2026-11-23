@@ -9,7 +9,7 @@ import { test } from 'vitest'
 const { scaffoldRules } = await import(
   process.env.DECLARED_CLIENT_RULE
     ? pathToFileURL(process.env.DECLARED_CLIENT_RULE).href
-    : new URL('../rules/prefer-declared-clients.mjs', import.meta.url).href
+    : new URL('../rules/scaffold/index.mjs', import.meta.url).href
 )
 // The old configuration has no diagnostic for this syntax; keep its behavior as
 // a semantic control rather than turning the missing rule into a setup error.
