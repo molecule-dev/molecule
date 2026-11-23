@@ -68,9 +68,11 @@ export interface UploadedFile {
  */
 export interface FileInfo {
   /**
-   * The original filename - e.g., `some-image.jpg`.
+   * The original filename - e.g., `some-image.jpg`. `undefined` when the client sent none (busboy
+   * types it `string | undefined`: a part counts as a file by its `application/octet-stream`
+   * type alone), so a multipart parser's info is passed as it is.
    */
-  filename: string
+  filename: string | undefined
 
   /**
    * The file's encoding - e.g., `7bit`, `binary`.

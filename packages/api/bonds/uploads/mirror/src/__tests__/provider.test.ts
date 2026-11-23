@@ -86,7 +86,7 @@ const fake = (name: string, options: FakeOptions = {}): Fake => {
       const file: UploadedFile & { abort?: () => void } = {
         id,
         fieldname,
-        filename: info.filename,
+        filename: info.filename ?? '',
         encoding: info.encoding,
         mimetype: info.mimeType,
         size: 0,

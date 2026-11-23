@@ -47,7 +47,7 @@ const createMemoryInner = (): UploadProvider & {
       const file: UploadedFile = {
         id,
         fieldname,
-        filename: info.filename,
+        filename: info.filename ?? '',
         encoding: info.encoding,
         mimetype: info.mimeType,
         size: 0,

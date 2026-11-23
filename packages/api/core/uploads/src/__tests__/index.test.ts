@@ -393,7 +393,7 @@ describe('upload types', () => {
         return {
           id: 'generated-id',
           fieldname,
-          filename: info.filename,
+          filename: info.filename ?? '',
           encoding: info.encoding,
           mimetype: info.mimeType,
           size: 0,
@@ -548,7 +548,7 @@ describe('upload types', () => {
         upload: (fieldname, stream, info, _onError) => ({
           id: 'test',
           fieldname,
-          filename: info.filename,
+          filename: info.filename ?? '',
           encoding: info.encoding,
           mimetype: info.mimeType,
           size: 0,
@@ -569,7 +569,7 @@ describe('upload types', () => {
         upload: (fieldname, stream, info, _onError) => ({
           id: 'test',
           fieldname,
-          filename: info.filename,
+          filename: info.filename ?? '',
           encoding: info.encoding,
           mimetype: info.mimeType,
           size: 0,
@@ -750,7 +750,7 @@ describe('edge cases', () => {
         return {
           id: 'error-upload',
           fieldname,
-          filename: info.filename,
+          filename: info.filename ?? '',
           encoding: info.encoding,
           mimetype: info.mimeType,
           size: 0,

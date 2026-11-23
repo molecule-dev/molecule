@@ -66,7 +66,7 @@ export const upload = (
 ): File => {
   const id = uuid()
 
-  const filename = info.filename.substring(0, 1023)
+  const filename = (info.filename ?? '').substring(0, 1023)
   const encoding = info.encoding.substring(0, 1023)
   const mimetype = info.mimeType.substring(0, 255)
 

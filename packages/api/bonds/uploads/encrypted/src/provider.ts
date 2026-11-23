@@ -161,7 +161,7 @@ export const createProvider = (config: EncryptedUploadsConfig): EncryptedUploadP
       return {
         id: '',
         fieldname,
-        filename: info.filename,
+        filename: info.filename ?? '',
         encoding: info.encoding,
         mimetype: info.mimeType,
         size: 0,
@@ -175,7 +175,7 @@ export const createProvider = (config: EncryptedUploadsConfig): EncryptedUploadP
     try {
       const encryption = resolveEncryption()
       context = config.context
-        ? config.context({ fieldname, filename: info.filename, mimeType: info.mimeType })
+        ? config.context({ fieldname, filename: info.filename ?? '', mimeType: info.mimeType })
         : fieldname
       if (typeof context !== 'string' || context.length === 0) {
         throw namedError(
@@ -294,7 +294,7 @@ export const createProvider = (config: EncryptedUploadsConfig): EncryptedUploadP
         return innerFile.id ? encodeEncryptedId(context, innerFile.id) : ''
       },
       fieldname,
-      filename: info.filename,
+      filename: info.filename ?? '',
       encoding: info.encoding,
       mimetype: info.mimeType,
       get size() {

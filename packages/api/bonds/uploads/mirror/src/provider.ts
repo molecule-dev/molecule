@@ -158,7 +158,7 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
         targetFile = {
           id: '',
           fieldname,
-          filename: info.filename,
+          filename: info.filename ?? '',
           encoding: info.encoding,
           mimetype: info.mimeType,
           size: 0,
@@ -295,7 +295,7 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
     const file: UploadedFile = {
       id,
       fieldname,
-      filename: info.filename,
+      filename: info.filename ?? '',
       encoding: info.encoding,
       mimetype: info.mimeType,
       size: 0,
