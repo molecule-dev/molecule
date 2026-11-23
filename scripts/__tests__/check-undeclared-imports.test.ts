@@ -18,6 +18,7 @@ import {
   findUnresolvedTestImports,
   isTestFile,
   loadTimeImports,
+  OPTIONAL_PEER_ENTRY_FILES,
   OPTIONAL_PEERS_SUPPLIED_ELSEWHERE,
   packageNameOf,
   scanFleet,
@@ -340,6 +341,27 @@ describe('findOptionalPeersLoaded', () => {
     const required = { ...pkg, peerDependenciesMeta: { '@molecule/api-jwt': { optional: true } } }
     const imports = at('src/bondAdapter.ts', "import { r } from '@molecule/api-payments'\nr()")
     expect(findOptionalPeersLoaded(required, imports)).toEqual([])
+  })
+
+  it('accepts an optional peer only from the entry files listed for it', () => {
+    const vue = {
+      name: '@molecule/app-vue',
+      peerDependencies: { vitest: '>=3.0.0', vue: '^3.4.20' },
+      peerDependenciesMeta: { vitest: { optional: true } },
+    }
+    const setup = at(
+      'src/testing/setup.ts',
+      "import { afterEach } from 'vitest'\nafterEach(() => {})",
+    )
+    const other = at('src/plugin.ts', "import { vi } from 'vitest'\nvi.fn()")
+    expect(findOptionalPeersLoaded(vue, setup)).toEqual([])
+    expect(findOptionalPeersLoaded(vue, [...setup, ...other])).toEqual([
+      { name: 'vitest', files: ['src/plugin.ts'] },
+    ])
+    expect(findOptionalPeersLoaded(vue, setup, OPTIONAL_PEERS_SUPPLIED_ELSEWHERE, {})).toEqual([
+      { name: 'vitest', files: ['src/testing/setup.ts'] },
+    ])
+    expect(OPTIONAL_PEER_ENTRY_FILES['@molecule/app-vue'].vitest.reason).toMatch(/setupFiles/)
   })
 
   it('exempts only a peer the ledger says is supplied some other way', () => {

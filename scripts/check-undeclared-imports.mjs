@@ -45,7 +45,9 @@
  * devDependency) for express and `@molecule/*` packages the app must share.
  * Fix a load-time optional peer by making the peer required (drop its
  * `optional` flag), or by loading it lazily if the package truly works
- * without it.
+ * without it. A file that is an entry of its own (a `package.json` `exports`
+ * subpath) which only a consumer that has the peer loads is listed, with that
+ * reason, in {@link OPTIONAL_PEER_ENTRY_FILES}.
  *
  * Usage:
  *   node scripts/check-undeclared-imports.mjs            # check (exit 1 on any offender)
@@ -316,15 +318,38 @@ export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
 }
 
 /**
+ * Optional peers a package may load from named files only, by package name and peer. Each file is
+ * an entry of its own (an `exports` subpath) that only a consumer who has the peer loads, and no
+ * other file of the package imports it. A load of the peer from any other file is still flagged.
+ */
+export const OPTIONAL_PEER_ENTRY_FILES = {
+  '@molecule/app-vue': {
+    vitest: {
+      files: ['src/testing/setup.ts'],
+      reason:
+        "The ./testing/setup entry registers a vitest hook; only a vitest config's setupFiles " +
+        "loads it, and the package's other entries never import it.",
+    },
+  },
+}
+
+/**
  * Find the peers a package marks optional but loads when it loads.
  *
  * @param pkg - The parsed package.json.
  * @param imports - `{ specifier, file }` from {@link loadTimeImports} over its shipped source.
  * @param exempt - Peers supplied some other way, by package name.
+ * @param entries - Peers each package may load from its own entry files, by package name.
  * @returns One entry per offending peer: `{ name, files }`.
  */
-export function findOptionalPeersLoaded(pkg, imports, exempt = OPTIONAL_PEERS_SUPPLIED_ELSEWHERE) {
+export function findOptionalPeersLoaded(
+  pkg,
+  imports,
+  exempt = OPTIONAL_PEERS_SUPPLIED_ELSEWHERE,
+  entries = OPTIONAL_PEER_ENTRY_FILES,
+) {
   const supplied = exempt[pkg.name] ?? {}
+  const entryFiles = entries[pkg.name] ?? {}
   const optional = new Set(
     Object.entries(pkg.peerDependenciesMeta ?? {})
       .filter(
@@ -337,6 +362,7 @@ export function findOptionalPeersLoaded(pkg, imports, exempt = OPTIONAL_PEERS_SU
   for (const imp of imports) {
     const name = packageNameOf(imp.specifier)
     if (!name || !optional.has(name)) continue
+    if (entryFiles[name]?.files.includes(imp.file)) continue
     found.set(name, (found.get(name) ?? new Set()).add(imp.file))
   }
   return [...found]

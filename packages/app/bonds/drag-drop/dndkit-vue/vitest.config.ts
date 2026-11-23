@@ -8,6 +8,7 @@ export default defineConfig({
   // tests that same single Vue.
   resolve: { dedupe: ['vue'] },
   test: {
+    setupFiles: ['@molecule/app-vue/testing/setup'],
     globals: true,
     environment: 'node',
     testTimeout: 10000,

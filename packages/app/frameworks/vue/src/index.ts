@@ -11,6 +11,13 @@
  * `status === 'unauthenticated'`, and `'unavailable'` keeps a session candidate
  * for retry — a restore failure other than 401/403 never signs out.
  *
+ * Component tests: list `@molecule/app-vue/testing/setup` in vitest's `setupFiles`. A test's
+ * events then land after the render they follow, as a user's do: Vue skips a listener attached in
+ * the millisecond an event was first handled, so without it a test whose container and item both
+ * listen passes in one run and fails in the next. It also fails a test when the component fires an
+ * event itself (`focus()`, `dispatchEvent()`) into a listener mounted in the same task, which a
+ * browser can skip too.
+ *
  * @example
  * ```ts
  * import { createApp, defineComponent, h } from 'vue'
