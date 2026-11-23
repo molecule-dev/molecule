@@ -1129,6 +1129,14 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
       '$4/$20, not a pro successor — hiding pro would leave no mid-price Google option.',
   },
   {
+    older: 'gemini-3.1-pro-preview',
+    newer: 'gemini-4-neon',
+    why:
+      "Google's only pro-tier id ($2/$12); neon is the mid frontier tier at $3/$15 " +
+      '(between hydrogen and carbon), not a pro successor — hiding pro would leave ' +
+      'no mid-price Google option.',
+  },
+  {
     older: 'kimi-k2.7-code',
     newer: 'kimi-k3.1-pro-highspeed',
     why: 'Coding specialist and the only cheap Moonshot tier ($0.95/$4 vs $4/$20).',

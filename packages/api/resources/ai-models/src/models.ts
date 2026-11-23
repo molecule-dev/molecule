@@ -335,6 +335,24 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   page, what's-new page and model card all silent) — models.dev lead
  *   2026-03, same policy as argon. gemini-4-carbon ($2/$10, 2026-11-10) also
  *   exists but was NOT approved for the catalog.)
+ *   (verified 2026-11-23: gemini-4-neon "Stable" — ADDED (owner ✅), a NEW
+ *   mid tier the what's-new page places "between Gemini 4 Hydrogen and
+ *   Gemini 4 Carbon", NOT a successor of any carried tier (the flash tier
+ *   still supersedes to hydrogen; pro stays per the same-tier rule, with a
+ *   matching INTENTIONAL_FAMILY_OVERLAPS entry). Verified on the provider's
+ *   own pages: /docs/models/gemini-4-neon pricing table Standard $3.00/$15.00
+ *   flat (no launch-promo row, no KNOWN_DIVERGENCES), implicit cache read
+ *   $0.15 (explicit caching unsupported, no write premium/storage fee), search
+ *   grounding $14/1k after the shared 5,000/month free allowance; same page
+ *   specs: 1M unified ctx / 65,536 synchronous out (1M via long decode, not
+ *   requested), text+image+video+audio+PDF input, function calling + search
+ *   grounding + code execution + URL context, Stable id, paid tier only;
+ *   /docs/whats-new-gemini-4-neon: thinking_level low|medium|high|xhigh
+ *   DEFAULT HIGH, "rejects minimal with an error"; in-range temperature /
+ *   top_p / top_k are silently IGNORED (out-of-range 400s), so no
+ *   rejectsTemperature flag. Knowledge cutoff published by neither Google
+ *   nor models.dev for this id — carried from the argon/hydrogen 2026-03
+ *   lead.)
  * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-7 +
  *   /developers/model-capabilities/text/reasoning (re-read 2026-09-30:
  *   grok-4.7 flagship: $2/$6, cached $0.50, 500K ctx, ≥200K prompts bill 2× —
@@ -1668,6 +1686,62 @@ export const MODELS: readonly ModelDefinition[] = [
   // replace outright: the google bond has never been implemented/wired, so no
   // historical usage can reference the old ids.
   // ---------------------------------------------------------------------------
+  {
+    id: 'gemini-4-neon',
+    provider: 'google',
+    label: 'Gemini 4 Neon',
+    description: 'Google mid frontier model — complex engineering, knowledge work & science',
+    // Verified against /docs/models/gemini-4-neon (pricing table + specs) +
+    // /docs/whats-new-gemini-4-neon (2026-11-23).
+    contextWindow: 1_048_576,
+    // "65,536 (default synchronous) / up to 1,048,576" via the long-decode
+    // feature Synthase never requests — the synchronous default is what a
+    // maxOutputTokens cap can rely on (same policy as hydrogen/argon).
+    maxOutputTokens: 65_536,
+    supportsThinking: true,
+    thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
+    // thinking_level low|medium|high|xhigh, DEFAULT HIGH — same surface as
+    // hydrogen (what's-new page: "It supports four thinking levels: low,
+    // medium, high (default), and xhigh"; migration checklist: neon "rejects
+    // minimal with an error"). /docs/thinking's level table has not caught
+    // up to this id yet — the what's-new page is Google's own and explicit.
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'high',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
+    codeExecutionToolType: 'code_execution',
+    webFetchToolType: 'url_context',
+    // "Stable" 2026-11-18 at a flat $3.00/$15.00 — a NEW mid tier, not a
+    // successor of any carried one: the what's-new page places it "between
+    // Gemini 4 Hydrogen and Gemini 4 Carbon for high-frequency complex tasks"
+    // ("Use Neon for complex software engineering, knowledge work, and
+    // science workflows … Keep Hydrogen as the default for everyday coding").
+    // NO launch promo — the model page lists flat rates (like hydrogen, no
+    // KNOWN_DIVERGENCES entry). Implicit cache reads at $0.15 (the page's own
+    // discount math: 95% off → 5% × $3.00); explicit caching UNSUPPORTED
+    // (implicit only); no write premium and no hourly storage fee. Paid tier
+    // only (no free tier). In-range temperature/top_p/top_k are silently
+    // IGNORED by the server (out-of-range values 400) — not a rejectsTemperature
+    // case; the tool-less temperature-0 shape still serves.
+    inputPricePerMTok: 3,
+    outputPricePerMTok: 15,
+    cacheReadPricePerMTok: 0.15,
+    cacheWritePricePerMTok: 3,
+    // Published by neither Google's pages nor models.dev for this id — carried
+    // from the Gemini 4 siblings (argon/hydrogen both carry the models.dev
+    // 2026-03 lead) as a best-effort estimate (same carry-forward policy as
+    // 3.8-flash carrying 3.7-flash's cutoff).
+    knowledgeCutoff: '2026-03-01',
+    // NOT superseding anything: neon is a new mid tier. The flash tier's
+    // successor is still gemini-4-hydrogen (same version 4, cheaper tier);
+    // argon remains the flagship-reasoning tier; the pro tier stays for the
+    // same same-tier reason (see INTENTIONAL_FAMILY_OVERLAPS in
+    // lookup.test.ts for the surviving pro-tier exception).
+  },
   {
     id: 'gemini-4-hydrogen',
     provider: 'google',
