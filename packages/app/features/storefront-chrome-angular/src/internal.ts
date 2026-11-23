@@ -42,23 +42,3 @@ export const nodeText = (value: unknown): string => {
   if (typeof value === 'number') return String(value)
   return ''
 }
-
-/**
- * Whether a DOM node renders anything (an element, or text with content beyond
- * whitespace).
- *
- * @param node - The node.
- * @returns True when it renders.
- */
-const hasRenderable = (node: { nodeType: number; textContent: string | null }): boolean =>
-  node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element has renderable children (projected content landed in it),
- * used to withdraw an optional region nothing was projected into.
- *
- * @param el - The element.
- * @returns True when it renders content.
- */
-export const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)

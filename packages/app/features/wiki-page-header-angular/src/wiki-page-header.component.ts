@@ -4,48 +4,18 @@
  * @module
  */
 
-import type { AfterViewInit, ElementRef } from '@angular/core'
-import { Component, signal, ViewChild } from '@angular/core'
+import type { ElementRef } from '@angular/core'
+import { Component, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node other than the updated-by span's own `·` prefix).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE &&
-    (node.textContent ?? '').trim().length > 0 &&
-    (node.textContent ?? '').trim() !== '·')
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
-
-/**
- * Whether an element carries renderable content beyond its first text node —
- * for the updated-at span, whose first text node is the translated
- * 'Updated' prefix the span always renders when it renders at all (React
- * renders label and content together or not at all).
- *
- * @param el - The element.
- * @returns True when anything besides the prefix renders.
- */
-const hasRenderableBeyondFirst = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).slice(1).some(hasRenderable)
 
 /**
  * WikiPageHeader component.
@@ -61,14 +31,14 @@ const hasRenderableBeyondFirst = (el: HTMLElement): boolean =>
  * defaults. Same props, same DOM as
  * `@molecule/app-wiki-page-header-react`'s `WikiPageHeader`.
  *
- * Angular projection needs the `<ng-content>` capture points mounted, so the
- * optional meta spans render optimistically and
- * {@link WikiPageHeader.ngAfterViewInit} withdraws the ones nothing was
- * projected into (React would not render them at all).
+ * The optional meta spans stay in the template so their `<ng-content>`
+ * captures always exist, and leave the page while they render neither a text
+ * input nor projected content, as React renders no span for a falsy prop.
  */
 @Component({
   selector: 'header[mol-wiki-page-header]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button],
   inputs: [
     'title',
@@ -86,9 +56,9 @@ const hasRenderableBeyondFirst = (el: HTMLElement): boolean =>
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<ng-content select="[slot=breadcrumb]" /><div [class]="cm().flex({ justify: 'between', align: 'start', gap: 'md', wrap: 'wrap' })"><h1 [class]="titleClass()">@if (hasTitle) {<ng-container>{{ title }}</ng-container>}<ng-content select="[slot=title]" /></h1><div [class]="cm().flex({ align: 'center', gap: 'sm' })">@if (onEdit) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="onEdit($event)">{{ editLabel() }}</button>}@if (onHistory) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="onHistory($event)">{{ historyLabel() }}</button>}@if (hasExtraActions) {<ng-container>{{ extraActions }}</ng-container>}<ng-content select="[slot=extraActions]" /></div></div><div [class]="cm().flex({ align: 'center', gap: 'sm', wrap: 'wrap' })">@if (showVersion) {<span #versionEl [class]="versionClass()">@if (hasVersion) {<ng-container>{{ version }}</ng-container>}<ng-content select="[slot=version]" /></span>}@if (showUpdatedAt) {<span #updatedAtEl [class]="metaTextClass()">{{ updatedAtLabel() }} @if (hasUpdatedAt) {<ng-container>{{ updatedAt }}</ng-container>}<ng-content select="[slot=updatedAt]" /></span>}@if (showUpdatedBy) {<span #updatedByEl [class]="metaTextClass()">· @if (hasUpdatedBy) {<ng-container>{{ updatedBy }}</ng-container>}<ng-content select="[slot=updatedBy]" /></span>}@if (showTags) {<span #tagsEl [class]="tagsClass()">@if (hasTags) {<ng-container>{{ tags }}</ng-container>}<ng-content select="[slot=tags]" /></span>}</div>`,
+  template: `<ng-content select="[slot=breadcrumb]" /><div [class]="cm().flex({ justify: 'between', align: 'start', gap: 'md', wrap: 'wrap' })"><h1 [class]="titleClass()">@if (hasTitle) {<ng-container>{{ title }}</ng-container>}<ng-content select="[slot=title]" /></h1><div [class]="cm().flex({ align: 'center', gap: 'sm' })">@if (onEdit) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="onEdit($event)">{{ editLabel() }}</button>}@if (onHistory) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="onHistory($event)">{{ historyLabel() }}</button>}@if (hasExtraActions) {<ng-container>{{ extraActions }}</ng-container>}<ng-content select="[slot=extraActions]" /></div></div><div [class]="cm().flex({ align: 'center', gap: 'sm', wrap: 'wrap' })"><span #versionEl [class]="versionClass()">@if (hasVersion) {<ng-container>{{ version }}</ng-container>}<ng-content select="[slot=version]" /></span><span #updatedAtEl [class]="metaTextClass()">{{ updatedAtLabel() }} @if (hasUpdatedAt) {<ng-container>{{ updatedAt }}</ng-container>}<ng-content select="[slot=updatedAt]" /></span><span #updatedByEl [class]="metaTextClass()">· @if (hasUpdatedBy) {<ng-container>{{ updatedBy }}</ng-container>}<ng-content select="[slot=updatedBy]" /></span><span #tagsEl [class]="tagsClass()">@if (hasTags) {<ng-container>{{ tags }}</ng-container>}<ng-content select="[slot=tags]" /></span></div>`,
 })
-export class WikiPageHeader implements AfterViewInit {
+export class WikiPageHeader {
   /** Page title — a string input, or `[slot=title]` projected content. */
   title?: unknown
   /** Optional breadcrumb trail — a string input, or `[slot=breadcrumb]` content. */
@@ -113,57 +83,42 @@ export class WikiPageHeader implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional version span (projected content lands here; read once). */
-  @ViewChild('versionEl') private versionEl?: ElementRef<HTMLSpanElement>
-  /** The optional updated-at span. */
-  @ViewChild('updatedAtEl') private updatedAtEl?: ElementRef<HTMLSpanElement>
-  /** The optional updated-by span. */
-  @ViewChild('updatedByEl') private updatedByEl?: ElementRef<HTMLSpanElement>
-  /** The optional tags span. */
-  @ViewChild('tagsEl') private tagsEl?: ElementRef<HTMLSpanElement>
+  /** The version span (its text input or projected slot decides its presence). */
+  @ViewChild('versionEl', { static: true }) private versionEl?: ElementRef<HTMLSpanElement>
+  /** The updated-at span (its text input or projected slot decides its presence). */
+  @ViewChild('updatedAtEl', { static: true }) private updatedAtEl?: ElementRef<HTMLSpanElement>
+  /** The updated-by span (its text input or projected slot decides its presence). */
+  @ViewChild('updatedByEl', { static: true }) private updatedByEl?: ElementRef<HTMLSpanElement>
+  /** The tags span (its text input or projected slot decides its presence). */
+  @ViewChild('tagsEl', { static: true }) private tagsEl?: ElementRef<HTMLSpanElement>
 
   /** The i18n provider above the header (the Edit/History/Updated labels). */
   private readonly i18n = useTranslation()
 
   /**
-   * Whether a `[slot=version]` projection landed: true (optimistically) until
-   * the first view proves otherwise, false when nothing was projected, null
-   * while a text version decides the span on its own.
+   * Keeps each optional meta span on the page only while it renders a text
+   * input or projected `[slot=<name>]` content, re-decided whenever either
+   * changes (a slot taken away and given back included). React renders no span
+   * when its prop is falsy. The updated-at and updated-by spans own leading
+   * text (`Updated`, `·`) before their slot, which is not content.
    */
-  private readonly versionProjected = signal<boolean | null>(true)
-  /** The same undecided/projection read for the updated-at span. */
-  private readonly updatedAtProjected = signal<boolean | null>(true)
-  /** The same undecided/projection read for the updated-by span. */
-  private readonly updatedByProjected = signal<boolean | null>(true)
-  /** The same undecided/projection read for the tags span. */
-  private readonly tagsProjected = signal<boolean | null>(true)
-
-  /**
-   * Reads the optional spans' first render: when neither a text input nor
-   * projected content landed, React would not render the span at all, so the
-   * optimistic render is withdrawn. View queries resolve only at view init,
-   * and a projected slot's content is in place by then.
-   */
-  ngAfterViewInit(): void {
-    const version = this.versionEl?.nativeElement
-    if (version) {
-      // A text version decides the span on its own (undecided: a later input
-      // change must be able to withdraw it); otherwise the projection read
-      // decides.
-      this.versionProjected.set(this.hasVersion ? null : hasRenderableContent(version))
-    }
-    const updatedAt = this.updatedAtEl?.nativeElement
-    if (updatedAt) {
-      this.updatedAtProjected.set(this.hasUpdatedAt ? null : hasRenderableBeyondFirst(updatedAt))
-    }
-    const updatedBy = this.updatedByEl?.nativeElement
-    if (updatedBy) {
-      this.updatedByProjected.set(this.hasUpdatedBy ? null : hasRenderableContent(updatedBy))
-    }
-    const tags = this.tagsEl?.nativeElement
-    if (tags) {
-      this.tagsProjected.set(this.hasTags ? null : hasRenderableContent(tags))
-    }
+  constructor() {
+    usePlacement((hasContent) => {
+      const version = this.versionEl?.nativeElement
+      setElementPresent(version, this.hasVersion || (version ? hasContent(version) : false))
+      const updatedAt = this.updatedAtEl?.nativeElement
+      setElementPresent(
+        updatedAt,
+        this.hasUpdatedAt || (updatedAt ? hasContent(updatedAt, 1) : false),
+      )
+      const updatedBy = this.updatedByEl?.nativeElement
+      setElementPresent(
+        updatedBy,
+        this.hasUpdatedBy || (updatedBy ? hasContent(updatedBy, 1) : false),
+      )
+      const tags = this.tagsEl?.nativeElement
+      setElementPresent(tags, this.hasTags || (tags ? hasContent(tags) : false))
+    })
   }
 
   /**
@@ -293,39 +248,5 @@ export class WikiPageHeader implements AfterViewInit {
    */
   get hasExtraActions(): boolean {
     return this.extraActions !== undefined && this.extraActions !== null
-  }
-
-  /**
-   * Whether the version span renders: React's `version && <span>` — a truthy
-   * string input or a projected `[slot=version]` element. A plain getter, so
-   * every change detection pass follows the inputs.
-   * @returns True when the version span shows.
-   */
-  get showVersion(): boolean {
-    return this.hasVersion || this.versionProjected() === true
-  }
-
-  /**
-   * Whether the updated-at span renders: React's `updatedAt && <span>`.
-   * @returns True when the updated-at span shows.
-   */
-  get showUpdatedAt(): boolean {
-    return this.hasUpdatedAt || this.updatedAtProjected() === true
-  }
-
-  /**
-   * Whether the updated-by span renders: React's `updatedBy && <span>`.
-   * @returns True when the updated-by span shows.
-   */
-  get showUpdatedBy(): boolean {
-    return this.hasUpdatedBy || this.updatedByProjected() === true
-  }
-
-  /**
-   * Whether the tags span renders: React's `tags && <span>`.
-   * @returns True when the tags span shows.
-   */
-  get showTags(): boolean {
-    return this.hasTags || this.tagsProjected() === true
   }
 }

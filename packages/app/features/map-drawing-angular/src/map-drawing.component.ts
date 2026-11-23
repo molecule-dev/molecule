@@ -11,7 +11,6 @@
  */
 
 import {
-  type AfterViewInit,
   Component,
   computed,
   type ElementRef,
@@ -22,7 +21,12 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -36,26 +40,6 @@ import type {
   MapShape,
   ScreenPoint,
 } from './types.js'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
 
 /** Default drawing tools shown in the toolbar. */
 const DEFAULT_TOOLS: DrawingTool[] = ['polygon', 'circle', 'pin', 'line']
@@ -112,6 +96,7 @@ interface DraftSelection {
   selector: 'div[mol-map-drawing]',
   standalone: true,
   imports: [MapDrawingToolbar],
+  hostDirectives: [MolPlacement],
   inputs: [
     'initialShapes',
     'onChange',
@@ -128,9 +113,9 @@ interface DraftSelection {
     '[class]': 'rootClasses()',
   },
   // prettier-ignore
-  template: `<div mol-map-drawing-toolbar [tools]="toolsValue()" [activeTool]="activeToolValue()" [onActiveToolChange]="toolChange" [onDeleteSelected]="deleteHandler" [hasSelection]="selection().size > 0" [hasDraft]="hasDraft()" [onCancelDraft]="cancelHandler"></div><div #surface role="img" [attr.aria-label]="surfaceLabel()" data-mol-id="map-drawing-surface" [attr.data-active-tool]="activeToolValue()" (pointerdown)="handlePointerDown($event)" (pointermove)="handlePointerMove($event)" (pointerup)="handlePointerUp()" (dblclick)="handleDoubleClick()" [class]="surfaceClasses()" [style]="surfaceStyleText()">@if (mapSlotProjected()) {<div #slotEl data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px"><ng-content select="[slot=mapSlot]"></ng-content></div>}<svg data-mol-id="map-drawing-overlay" width="100%" height="100%" [style]="overlayStyleText()" preserveAspectRatio="none">@for (shape of shapes(); track shape.id) {@if (isPin(shape)) {@let p = pinPoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="pin" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="p.x" [attr.cy]="p.y" r="6" fill="currentColor"></circle></g>} @else if (isCircleShape(shape)) {@let c = circlePoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="circle" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="c.x" [attr.cy]="c.y" [attr.r]="circleRadius(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></circle></g>} @else if (isLineShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="line" [attr.opacity]="shapeOpacity(shape)"><polyline [attr.points]="linePoints(shape)" fill="none" stroke="currentColor" stroke-width="2"></polyline></g>} @else if (isPolygonShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="polygon" [attr.opacity]="shapeOpacity(shape)"><polygon [attr.points]="polygonPoints(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></polygon></g>}}@if (draftPath(); as draft) {@if (draft.vertices.length > 0) {@let draftPoints = draftPathPoints(draft);<polyline [attr.data-mol-id]="draft.kind === 'polygon' ? 'map-drawing-draft-polygon' : 'map-drawing-draft-line'" [attr.points]="draftPoints" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></polyline>@for (vertex of draft.vertices; track $index) {@let vertexPoint = projectPoint(vertex);<circle data-mol-id="map-drawing-draft-vertex" [attr.cx]="vertexPoint.x" [attr.cy]="vertexPoint.y" r="3" fill="currentColor"></circle>}}}@if (draftCircle(); as circle) {@let center = draftCircleCenter(circle);@let circleR = draftCircleRadius(circle);<circle data-mol-id="map-drawing-draft-circle" [attr.cx]="center.x" [attr.cy]="center.y" [attr.r]="circleR" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></circle>}@if (draftSelection(); as marquee) {<rect data-mol-id="map-drawing-selection-rect" [attr.x]="rectX(marquee)" [attr.y]="rectY(marquee)" [attr.width]="rectWidth(marquee)" [attr.height]="rectHeight(marquee)" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.6" stroke-dasharray="4 2"></rect>}</svg></div>`,
+  template: `<div mol-map-drawing-toolbar [tools]="toolsValue()" [activeTool]="activeToolValue()" [onActiveToolChange]="toolChange" [onDeleteSelected]="deleteHandler" [hasSelection]="selection().size > 0" [hasDraft]="hasDraft()" [onCancelDraft]="cancelHandler"></div><div #surface role="img" [attr.aria-label]="surfaceLabel()" data-mol-id="map-drawing-surface" [attr.data-active-tool]="activeToolValue()" (pointerdown)="handlePointerDown($event)" (pointermove)="handlePointerMove($event)" (pointerup)="handlePointerUp()" (dblclick)="handleDoubleClick()" [class]="surfaceClasses()" [style]="surfaceStyleText()"><div #slotEl data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px"><ng-content select="[slot=mapSlot]"></ng-content></div><svg data-mol-id="map-drawing-overlay" width="100%" height="100%" [style]="overlayStyleText()" preserveAspectRatio="none">@for (shape of shapes(); track shape.id) {@if (isPin(shape)) {@let p = pinPoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="pin" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="p.x" [attr.cy]="p.y" r="6" fill="currentColor"></circle></g>} @else if (isCircleShape(shape)) {@let c = circlePoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="circle" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="c.x" [attr.cy]="c.y" [attr.r]="circleRadius(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></circle></g>} @else if (isLineShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="line" [attr.opacity]="shapeOpacity(shape)"><polyline [attr.points]="linePoints(shape)" fill="none" stroke="currentColor" stroke-width="2"></polyline></g>} @else if (isPolygonShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="polygon" [attr.opacity]="shapeOpacity(shape)"><polygon [attr.points]="polygonPoints(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></polygon></g>}}@if (draftPath(); as draft) {@if (draft.vertices.length > 0) {@let draftPoints = draftPathPoints(draft);<polyline [attr.data-mol-id]="draft.kind === 'polygon' ? 'map-drawing-draft-polygon' : 'map-drawing-draft-line'" [attr.points]="draftPoints" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></polyline>@for (vertex of draft.vertices; track $index) {@let vertexPoint = projectPoint(vertex);<circle data-mol-id="map-drawing-draft-vertex" [attr.cx]="vertexPoint.x" [attr.cy]="vertexPoint.y" r="3" fill="currentColor"></circle>}}}@if (draftCircle(); as circle) {@let center = draftCircleCenter(circle);@let circleR = draftCircleRadius(circle);<circle data-mol-id="map-drawing-draft-circle" [attr.cx]="center.x" [attr.cy]="center.y" [attr.r]="circleR" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></circle>}@if (draftSelection(); as marquee) {<rect data-mol-id="map-drawing-selection-rect" [attr.x]="rectX(marquee)" [attr.y]="rectY(marquee)" [attr.width]="rectWidth(marquee)" [attr.height]="rectHeight(marquee)" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.6" stroke-dasharray="4 2"></rect>}</svg></div>`,
 })
-export class MapDrawing implements OnInit, OnChanges, AfterViewInit {
+export class MapDrawing implements OnInit, OnChanges {
   /** Initial shapes to seed the surface with. */
   initialShapes?: MapShape[]
   /** Called whenever the shape list changes (add / edit / delete). */
@@ -152,11 +137,8 @@ export class MapDrawing implements OnInit, OnChanges, AfterViewInit {
 
   /** The drawing surface element the pointer coordinates are relative to. */
   @ViewChild('surface') private surfaceRef?: ElementRef<HTMLElement>
-  /** The optional map-background wrapper (projected content lands here; read once). */
-  @ViewChild('slotEl') private slotEl?: ElementRef<HTMLDivElement>
-
-  /** Whether a `[slot=mapSlot]` projection landed (true until the first view proves otherwise). */
-  private readonly mapSlotProjected = signal(true)
+  /** The optional map-background wrapper (always in the template; detached while empty). */
+  @ViewChild('slotEl', { static: true }) private slotEl?: ElementRef<HTMLDivElement>
 
   /** The committed shapes. */
   readonly shapes = signal<MapShape[]>([])
@@ -180,6 +162,18 @@ export class MapDrawing implements OnInit, OnChanges, AfterViewInit {
   /** The i18n translator (re-read on every locale switch). */
   private readonly i18n = useTranslation()
 
+  /**
+   * Keeps the map-slot wrapper on the page only while it renders projected
+   * `[slot=mapSlot]` content, re-decided whenever the content changes (a slot
+   * taken away and given back included), as React's `mapSlot ? …` does.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.slotEl?.nativeElement
+      setElementPresent(el, el ? hasContent(el) : false)
+    })
+  }
+
   /** The toolbar's tool-change handler. */
   readonly toolChange = (tool: ActiveTool): void => this.setActiveTool(tool)
   /** The toolbar's delete handler. */
@@ -201,15 +195,6 @@ export class MapDrawing implements OnInit, OnChanges, AfterViewInit {
    */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['activeTool'] && this.activeTool !== undefined) this.clearDrafts()
-  }
-
-  /**
-   * Withdraw the map-slot wrapper when no `[slot=mapSlot]` content landed
-   * (React renders it only while `mapSlot` is truthy).
-   */
-  ngAfterViewInit(): void {
-    const slot = this.slotEl?.nativeElement
-    if (slot) this.mapSlotProjected.set(hasRenderableContent(slot))
   }
 
   /**

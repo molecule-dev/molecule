@@ -25,6 +25,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Class tokens echo their own name, so the assertion reads the attribute alone.
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -79,7 +81,7 @@ async function render(template: string, component: Type<unknown>): Promise<{ hos
     template,
   })(class SpecHost {})
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,

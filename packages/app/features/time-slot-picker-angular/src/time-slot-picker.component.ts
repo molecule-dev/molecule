@@ -5,34 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TimeSlot } from './types.js'
-
-/**
- * Whether a wrapper element renders anything besides its static content: an
- * element child (a projected `[slot=title]` landed) or non-empty text.
- *
- * @param node - The wrapper element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (node: Node): boolean =>
-  Array.from(node.childNodes).some(
-    (child) =>
-      child.nodeType === Node.ELEMENT_NODE ||
-      (child.nodeType === Node.TEXT_NODE && (child.textContent ?? '').trim().length > 0),
-  )
 
 /**
  * TimeSlotPicker component.
@@ -52,15 +36,16 @@ const hasRenderableContent = (node: Node): boolean =>
 @Component({
   selector: 'div[mol-time-slot-picker]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['slots', 'selectedId', 'onSelect', 'layout', 'columns', 'title', 'className'],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `@if (showTitle()) {<h3 #titleEl [class]="titleClasses()">@if (hasTextTitle()) {<ng-container>{{ title }}</ng-container>}@if (titleTemplate()) {<ng-container [ngTemplateOutlet]="titleTemplate()"></ng-container>}<ng-content select="[slot=title]"></ng-content></h3>}<div role="radiogroup" [attr.aria-label]="ariaLabel()" [class]="groupClasses()">@for (slot of slots; track slot.id) {<button type="button" role="radio" [attr.aria-checked]="slot.id === selectedId ? 'true' : 'false'" [attr.disabled]="slot.disabled ? '' : null" (click)="pick(slot)" [class]="buttonClasses(slot)" [style.opacity]="slot.disabled ? 0.4 : null"><span>@if (isText(slot.label)) {<ng-container>{{ slot.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(slot.label)"></ng-container>}</span>@if (slot.meta) {<span [class]="cm().textSize('xs')">@if (isText(slot.meta)) {<ng-container>{{ slot.meta }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(slot.meta)"></ng-container>}</span>}</button>}</div>`,
+  template: `<h3 #titleEl [class]="titleClasses()">@if (hasTextTitle()) {<ng-container>{{ title }}</ng-container>}@if (titleTemplate()) {<ng-container [ngTemplateOutlet]="titleTemplate()"></ng-container>}<ng-content select="[slot=title]"></ng-content></h3><div role="radiogroup" [attr.aria-label]="ariaLabel()" [class]="groupClasses()">@for (slot of slots; track slot.id) {<button type="button" role="radio" [attr.aria-checked]="slot.id === selectedId ? 'true' : 'false'" [attr.disabled]="slot.disabled ? '' : null" (click)="pick(slot)" [class]="buttonClasses(slot)" [style.opacity]="slot.disabled ? 0.4 : null"><span>@if (isText(slot.label)) {<ng-container>{{ slot.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(slot.label)"></ng-container>}</span>@if (slot.meta) {<span [class]="cm().textSize('xs')">@if (isText(slot.meta)) {<ng-container>{{ slot.meta }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(slot.meta)"></ng-container>}</span>}</button>}</div>`,
 })
-export class TimeSlotPicker implements AfterViewInit {
+export class TimeSlotPicker {
   /** The selectable slots, rendered in order. */
   slots: TimeSlot[] = []
   /** Currently selected slot id. */
@@ -76,14 +61,27 @@ export class TimeSlotPicker implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The rendered `<h3>` (its content decides whether a title exists at all). */
-  @ViewChild('titleEl') private titleEl?: ElementRef<HTMLHeadingElement>
-
-  /** Whether a `[slot=title]` projection landed (true until the first view proves otherwise). */
-  private readonly titleProjected = signal(true)
+  /** The title `<h3>` (its text input, template or projected slot decides its presence). */
+  @ViewChild('titleEl', { static: true }) private titleEl?: ElementRef<HTMLHeadingElement>
 
   /** i18n state; its `t` reads the provider on every call. */
   private readonly i18n = useTranslation()
+
+  /**
+   * Keeps the title `<h3>` on the page only while it renders a text input, a
+   * title template or projected `[slot=title]` content, re-decided whenever
+   * they change (a slot taken away and given back included). React renders no
+   * heading when its `title` is falsy.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.titleEl?.nativeElement
+      setElementPresent(
+        el,
+        this.hasTextTitle() || this.titleTemplate() !== null || (el ? hasContent(el) : false),
+      )
+    })
+  }
 
   /**
    * The current class map.
@@ -170,28 +168,6 @@ export class TimeSlotPicker implements AfterViewInit {
    */
   titleTemplate(): TemplateRef<unknown> | null {
     return this.templateOf(this.title)
-  }
-
-  /**
-   * Whether the `<h3>` renders: React's `title &&` on the text input, a title
-   * template, or projected `[slot=title]` content (withdrawn at view init when
-   * none of the three is present).
-   * @returns True when the title shows.
-   */
-  showTitle(): boolean {
-    return this.hasTextTitle() || this.titleTemplate() !== null || this.titleProjected()
-  }
-
-  /**
-   * Reads the rendered `<h3>` once: when neither a title input nor projected
-   * content landed, React would not render the element at all, so the
-   * optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const el = this.titleEl?.nativeElement
-    if (el && !this.hasTextTitle() && this.titleTemplate() === null && !hasRenderableContent(el)) {
-      this.titleProjected.set(false)
-    }
   }
 
   /**

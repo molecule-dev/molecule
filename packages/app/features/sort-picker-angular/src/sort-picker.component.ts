@@ -4,26 +4,14 @@
  * @module
  */
 
-import type { AfterViewInit } from '@angular/core'
 import { Component, ElementRef, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { MolPlacement, usePlacement, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Select } from '@molecule/app-ui-angular'
 
 import type { SortOption } from './types.js'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
 
 /**
  * SortPicker component.
@@ -35,13 +23,14 @@ const hasRenderable = (node: Node): boolean =>
  * string `label` renders as text.
  *
  * Angular projection needs the `<ng-content>` capture point mounted, so the
- * projected label is assumed present until
- * {@link SortPicker.ngAfterViewInit} proves nothing was projected and the
- * translated default is rendered instead (React would never render both).
+ * label span always stays in the template and the placement function re-decides
+ * whether to show the projected label or the translated default (React would
+ * never render both).
  */
 @Component({
   selector: 'div[mol-sort-picker]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Select],
   inputs: ['value', 'onChange', 'options', 'label', 'ariaLabel', 'labelPosition', 'className'],
   host: {
@@ -50,7 +39,7 @@ const hasRenderable = (node: Node): boolean =>
   // prettier-ignore
   template: `<span #labelEl [class]="labelClasses()">{{ labelText() }}<ng-content select="[slot=label]" />{{ colon() }}</span><div #selectHost mol-select [options]="options ?? []" [value]="value" (valueChange)="handleValueChange($event)"></div>{{ syncAccessibleName() }}`,
 })
-export class SortPicker implements AfterViewInit {
+export class SortPicker {
   /** The currently selected option value. */
   value?: string
   /** Called with the selected value when the user picks an option. */
@@ -66,16 +55,15 @@ export class SortPicker implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The label span (projected content lands here; read once). */
-  @ViewChild('labelEl') private labelEl?: ElementRef<HTMLSpanElement>
+  /** The label span (its projected nodes from the slot decide the text). */
+  @ViewChild('labelEl', { static: true }) private labelEl?: ElementRef<HTMLSpanElement>
   /** The `Select` host, whose rest attributes belong on its native `<select>`. */
   @ViewChild('selectHost', { read: ElementRef }) private selectHost?: ElementRef<HTMLElement>
 
   /**
-   * Whether a `[slot=label]` projection landed: true (optimistically) until
-   * the first view proves otherwise.
+   * Whether a `[slot=label]` projection landed, re-decided as the slot changes.
    */
-  private readonly labelProjected = signal<boolean>(true)
+  private readonly labelProjected = signal(false)
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -84,20 +72,19 @@ export class SortPicker implements AfterViewInit {
   private readonly i18n = useTranslation()
 
   /**
-   * Reads the label span's first render: when neither a string input nor
-   * projected content landed, React would render the translated default, so
-   * the optimistic "projected" assumption is withdrawn. A projection is an
-   * element child, or text the component's own two interpolations cannot
-   * account for. Also writes the select's accessible name once, because the
-   * first render happens before the view query resolves.
+   * Re-decides the label text: when neither a string input nor projected
+   * content landed, React would render the translated default, so the
+   * projection check runs on every slot change (taken away and given back
+   * included). Also keeps the select's accessible name in step.
    */
-  ngAfterViewInit(): void {
-    const el = this.labelEl?.nativeElement
-    if (!el) return
-    const own = (typeof this.label === 'string' ? this.label : '') + this.colon()
-    const projected = Array.from(el.children).some(hasRenderable) || (el.textContent ?? '') !== own
-    this.labelProjected.set(projected)
-    this.syncAccessibleName()
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.labelEl?.nativeElement
+      this.labelProjected.set(
+        el ? hasContent.nodes(el).some((node) => node.nodeType === Node.ELEMENT_NODE) : false,
+      )
+      this.syncAccessibleName()
+    })
   }
 
   /**

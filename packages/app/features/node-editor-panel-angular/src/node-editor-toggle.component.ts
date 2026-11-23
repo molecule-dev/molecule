@@ -6,7 +6,6 @@
 
 import {
   type AfterViewChecked,
-  type AfterViewInit,
   Component,
   ElementRef,
   inject,
@@ -14,11 +13,12 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-angular'
 
-import { hasRenderableContent, renders } from './utilities.js'
+import { renders } from './utilities.js'
 
 /**
  * Next value of the module-wide toggle id counter.
@@ -44,14 +44,14 @@ let nextToggleId = 0
  * The switch is named by the visible title paragraph (`aria-labelledby`) and
  * described by the subtitle (`aria-describedby`) — the same text a sighted user
  * reads beside it. An explicit `ariaLabel` overrides the title as the name.
- * Angular needs the `<ng-content>` capture point mounted, so the optional
- * subtitle renders optimistically and
- * {@link NodeEditorToggle.ngAfterViewInit} withdraws it when nothing was
- * projected.
+ * Angular needs the `<ng-content>` capture point mounted, so the subtitle
+ * paragraph stays in the template and leaves the page while it has nothing to
+ * render; the placement function re-decides it whenever the slot changes.
  */
 @Component({
   selector: 'div[mol-node-editor-toggle]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Switch],
   inputs: ['title', 'subtitle', 'icon', 'checked', 'onChange', 'ariaLabel'],
   host: {
@@ -70,14 +70,12 @@ let nextToggleId = 0
           }
           <ng-content select="[slot=title]" />
         </p>
-        @if (showSubtitle()) {
-          <p #subtitleEl [attr.id]="subtitleId" [class]="subtitleClasses()">
-            @if (rendersSubtitle()) {
-              {{ subtitle }}
-            }
-            <ng-content select="[slot=subtitle]" />
-          </p>
-        }
+        <p #subtitleEl [attr.id]="subtitleId" [class]="subtitleClasses()">
+          @if (rendersSubtitle()) {
+            {{ subtitle }}
+          }
+          <ng-content select="[slot=subtitle]" />
+        </p>
       </div>
     </div>
     <mol-switch
@@ -87,7 +85,7 @@ let nextToggleId = 0
       (change)="handleChange($event)"
     ></mol-switch>`,
 })
-export class NodeEditorToggle implements AfterViewInit, AfterViewChecked {
+export class NodeEditorToggle implements AfterViewChecked {
   /** Row title — a string input, or `[slot=title]` projected content. */
   title?: unknown
   /** Optional second line — a string input, or `[slot=subtitle]` projected content. */
@@ -111,11 +109,24 @@ export class NodeEditorToggle implements AfterViewInit, AfterViewChecked {
   /** The host element (the root `<div>`). */
   private readonly host = inject(ElementRef)
 
-  /** The optional subtitle paragraph (projected content lands here; read once). */
-  @ViewChild('subtitleEl') private subtitleEl?: ElementRef<HTMLElement>
+  /** The optional subtitle paragraph (its projected nodes decide whether it shows). */
+  @ViewChild('subtitleEl', { static: true }) private subtitleEl?: ElementRef<HTMLElement>
 
-  /** Whether a `[slot=subtitle]` projection landed (optimistic until the first view). */
-  private readonly subtitleProjected = signal(true)
+  /** Whether the subtitle paragraph renders (placement decides, so a refilled slot returns). */
+  private readonly subtitleShown = signal(false)
+
+  /**
+   * Keeps the subtitle paragraph on the page only while it renders a text input
+   * or projected `[slot=subtitle]` content, re-decided whenever either changes.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const subtitleEl = this.subtitleEl?.nativeElement
+      const showSubtitle = renders(this.subtitle) || (subtitleEl ? hasContent(subtitleEl) : false)
+      this.subtitleShown.set(showSubtitle)
+      setElementPresent(subtitleEl, showSubtitle)
+    })
+  }
 
   /**
    * The current class map.
@@ -147,17 +158,7 @@ export class NodeEditorToggle implements AfterViewInit, AfterViewChecked {
    * @returns True when the subtitle shows.
    */
   showSubtitle(): boolean {
-    return renders(this.subtitle) || this.subtitleProjected()
-  }
-
-  /**
-   * Reads the subtitle's first render: when nothing was projected and no text
-   * input is set, React would not render the paragraph at all, so the
-   * optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const element = this.subtitleEl?.nativeElement
-    if (element) this.subtitleProjected.set(hasRenderableContent(element))
+    return renders(this.subtitle) || this.subtitleShown()
   }
 
   /**

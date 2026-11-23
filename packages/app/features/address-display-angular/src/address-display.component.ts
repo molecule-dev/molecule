@@ -4,33 +4,13 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { Address } from './types.js'
-
-/**
- * Whether a projected node renders anything (an element, or text with
- * content beyond whitespace).
- *
- * @param node - The projected node.
- * @returns True when it renders.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
 
 /**
  * Converts an Address object into an ordered array of non-empty display lines.
@@ -64,19 +44,20 @@ function joinAddress(a: Address): string[] {
   selector: 'div[mol-address-display]',
   standalone: true,
   inputs: ['address', 'name', 'phone', 'inline', 'className'],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
   template: `<ng-content select="[slot=leading]" />
     <div [class]="innerClass()">
-      @if (showName) {<span #nameSpan [class]="nameClass()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>}
+      <span #nameSpan [class]="nameClass()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>
       @if (inline) {<span>{{ inlineText() }}</span>} @else {<address [style.font-style]="'normal'">@for (line of lines(); track $index) {<span [style.display]="'block'">{{ line }}</span>}</address>}
       @if (hasPhone) {<a [attr.href]="'tel:' + phone" [class]="linkClass()">{{ phone }}</a>}
     </div>
     <ng-content select="[slot=actions]" />`,
 })
-export class AddressDisplay implements AfterViewInit {
+export class AddressDisplay {
   /** Address fields. */
   address?: Address
   /** Optional name / label preceding the address: text, or `[slot=name]` content. */
@@ -88,24 +69,19 @@ export class AddressDisplay implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional name span (projected content lands here; read once). */
-  @ViewChild('nameSpan') private nameSpan?: ElementRef<HTMLSpanElement>
+  /** The name span (always in the body; detached while it has nothing to render). */
+  @ViewChild('nameSpan', { static: true }) private nameSpan?: ElementRef<HTMLSpanElement>
 
   /**
-   * Whether a `[slot=name]` projection landed (true until the first view
-   * proves otherwise).
+   * Keeps the name span on the page only while it renders a text input or
+   * projected `[slot=name]` content, re-decided whenever either changes (a
+   * name taken away and given back included).
    */
-  private readonly nameProjected = signal(true)
-
-  /**
-   * Whether the name span renders: React's `name && …` on the text input, or
-   * projected `[slot=name]` content. A plain getter, so every change
-   * detection pass follows the inputs (a computed would cache on its signal
-   * dependency alone and miss a later text input).
-   * @returns True when the name shows.
-   */
-  get showName(): boolean {
-    return this.hasName || this.nameProjected()
+  constructor() {
+    usePlacement((hasContent) => {
+      const span = this.nameSpan?.nativeElement
+      setElementPresent(span, this.hasName || (span ? hasContent(span) : false))
+    })
   }
 
   /**
@@ -124,19 +100,6 @@ export class AddressDisplay implements AfterViewInit {
    */
   get hasPhone(): boolean {
     return this.phone !== undefined && this.phone !== null && this.phone !== ''
-  }
-
-  /**
-   * Reads the optional name span's first render: when neither a text input
-   * nor projected content landed, React would not render the span at all, so
-   * the optimistic render is withdrawn. View queries resolve only at view
-   * init, and a projected slot's content is in place by then.
-   */
-  ngAfterViewInit(): void {
-    const span = this.nameSpan?.nativeElement
-    if (span && !this.hasName && !hasRenderableContent(span)) {
-      this.nameProjected.set(false)
-    }
   }
 
   /**

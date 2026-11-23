@@ -4,26 +4,12 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-angular'
-
-/**
- * Whether a wrapper element renders anything besides its static content: an
- * element child (a projected `[slot=<name>]` landed — the projection moves
- * into the view at render time) or non-empty text.
- *
- * @param el - The wrapper element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(
-    (node) =>
-      node.nodeType === Node.ELEMENT_NODE ||
-      (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0),
-  )
 
 /** The medal emoji rendered in place of the rank for the top three. */
 const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
@@ -41,15 +27,15 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
  * falls back to hardcoded 'Player'. Same props, same DOM as
  * `@molecule/app-leaderboard-row-react`'s `LeaderboardRow`. Node-valued
  * `name`, `score` and `subtitle` content is projected (`[slot=<name>]`); a
- * string or number input renders as text. The optional subtitle span renders
- * optimistically so a projection can land, then withdraws at view init when
- * neither a text input nor a projection is present — React renders no span at
- * all for an absent or empty subtitle.
+ * string or number input renders as text. The optional subtitle span stays in
+ * the template, so its `<ng-content>` always captures, and leaves the page
+ * while it has nothing to render, as React's `subtitle && …` renders no span.
  */
 @Component({
   selector: 'div[mol-leaderboard-row]',
   standalone: true,
   imports: [Avatar],
+  hostDirectives: [MolPlacement],
   inputs: [
     'rank',
     'name',
@@ -72,11 +58,11 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
   // prettier-ignore
   template: `<span [class]="rankClass()" style="min-width: 32px">{{ rankText() }}</span>
     <div mol-avatar [src]="avatarSrc" [alt]="displayName()" [name]="displayName()" [size]="'sm'"></div>
-    <div [class]="nameColumnClass()"><span [class]="nameClass()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>@if (showSubtitle) {<span #subtitleEl [class]="subtitleClass()">@if (hasSubtitle) {<ng-container>{{ subtitle }}</ng-container>}<ng-content select="[slot=subtitle]" /></span>}</div>
+    <div [class]="nameColumnClass()"><span [class]="nameClass()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span><span #subtitleEl [class]="subtitleClass()">@if (hasSubtitle) {<ng-container>{{ subtitle }}</ng-container>}<ng-content select="[slot=subtitle]" /></span></div>
     @if (hasDelta) {<span [class]="deltaClass()">{{ deltaArrow() + ' ' + deltaText() }}</span>}
     <span [class]="scoreClass()">@if (hasScore) {<ng-container>{{ score }}</ng-container>}<ng-content select="[slot=score]" /></span>`,
 })
-export class LeaderboardRow implements AfterViewInit {
+export class LeaderboardRow {
   /** 1-based rank. */
   rank?: number
   /** Display name: text, or `[slot=name]` content. */
@@ -96,23 +82,19 @@ export class LeaderboardRow implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional subtitle span (projected content lands here). */
-  @ViewChild('subtitleEl') private subtitleEl?: ElementRef<HTMLSpanElement>
-
-  /** Whether a `[slot=subtitle]` projection landed (true until proven otherwise). */
-  private readonly subtitleProjected = signal(true)
+  /** The optional subtitle span (always in the template; detached while empty). */
+  @ViewChild('subtitleEl', { static: true }) private subtitleEl?: ElementRef<HTMLSpanElement>
 
   /**
-   * Withdraws the optimistic subtitle span when its slot projection did not
-   * land: when neither a text input nor projected content is present, React
-   * renders no span at all. View queries resolve at view init, and a
-   * projected slot's content is in place by then.
+   * Keeps the subtitle span on the page only while it renders a text input or
+   * projected `[slot=subtitle]` content, re-decided whenever either changes (a
+   * subtitle taken away and given back included).
    */
-  ngAfterViewInit(): void {
-    const subtitle = this.subtitleEl?.nativeElement
-    if (subtitle && !this.hasSubtitle && !hasRenderableContent(subtitle)) {
-      this.subtitleProjected.set(false)
-    }
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.subtitleEl?.nativeElement
+      setElementPresent(el, this.hasSubtitle || (el ? hasContent(el) : false))
+    })
   }
 
   /**
@@ -259,15 +241,6 @@ export class LeaderboardRow implements AfterViewInit {
    */
   get hasSubtitle(): boolean {
     return this.subtitle !== undefined && this.subtitle !== null && this.subtitle !== ''
-  }
-
-  /**
-   * Whether the subtitle span renders at all: the text input or projected
-   * `[slot=subtitle]` content.
-   * @returns True when the subtitle shows.
-   */
-  get showSubtitle(): boolean {
-    return this.hasSubtitle || this.subtitleProjected()
   }
 
   /**

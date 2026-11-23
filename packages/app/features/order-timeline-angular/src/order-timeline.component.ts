@@ -5,33 +5,13 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, TemplateRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { OrderMilestone } from './types.js'
-
-/**
- * Whether a wrapper element renders anything besides its static content: an
- * element child (a projected `[slot=eta]` landed) or non-empty text.
- *
- * @param node - The wrapper element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (node: Node): boolean =>
-  Array.from(node.childNodes).some(
-    (child) =>
-      child.nodeType === Node.ELEMENT_NODE ||
-      (child.nodeType === Node.TEXT_NODE && (child.textContent ?? '').trim().length > 0),
-  )
 
 /**
  * The status node's class: current wins over completed (its semantic tone),
@@ -80,15 +60,16 @@ const connectorClass = (cm: UIClassMap, milestone: OrderMilestone): string =>
 @Component({
   selector: 'div[mol-order-timeline]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['milestones', 'eta', 'orientation', 'className'],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<div [class]="listClasses()">@for (milestone of milestones; track milestone.id; let i = $index) {<div [class]="rowClasses()"><div [class]="cm().flex({ align: 'center', justify: 'center' })"><span aria-hidden="true" [class]="nodeClass(milestone)" [style]="dotStyle(milestone)"></span>@if (i < milestones.length - 1) {<span aria-hidden="true" [class]="lineClass(milestone)" [style]="connectorStyle()"></span>}</div><div [class]="cm().cn(cm().stack(0))"><span [class]="labelClasses(milestone)">@if (isText(milestone.label)) {<ng-container>{{ milestone.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.label)"></ng-container>}</span>@if (milestone.detail) {<span [class]="cm().textSize('xs')">@if (isText(milestone.detail)) {<ng-container>{{ milestone.detail }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.detail)"></ng-container>}</span>}</div></div>}</div>@if (showEta()) {<div #etaEl [class]="cm().cn(cm().textSize('sm'), cm().fontWeight('semibold'))">@if (hasTextEta()) {<ng-container>{{ eta }}</ng-container>}<ng-content select="[slot=eta]"></ng-content></div>}`,
+  template: `<div [class]="listClasses()">@for (milestone of milestones; track milestone.id; let i = $index) {<div [class]="rowClasses()"><div [class]="cm().flex({ align: 'center', justify: 'center' })"><span aria-hidden="true" [class]="nodeClass(milestone)" [style]="dotStyle(milestone)"></span>@if (i < milestones.length - 1) {<span aria-hidden="true" [class]="lineClass(milestone)" [style]="connectorStyle()"></span>}</div><div [class]="cm().cn(cm().stack(0))"><span [class]="labelClasses(milestone)">@if (isText(milestone.label)) {<ng-container>{{ milestone.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.label)"></ng-container>}</span>@if (milestone.detail) {<span [class]="cm().textSize('xs')">@if (isText(milestone.detail)) {<ng-container>{{ milestone.detail }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(milestone.detail)"></ng-container>}</span>}</div></div>}</div><div #etaEl [class]="cm().cn(cm().textSize('sm'), cm().fontWeight('semibold'))">@if (hasTextEta()) {<ng-container>{{ eta }}</ng-container>}<ng-content select="[slot=eta]"></ng-content></div>`,
 })
-export class OrderTimeline implements AfterViewInit {
+export class OrderTimeline {
   /** The milestones, rendered in order from earliest to latest. */
   milestones: OrderMilestone[] = []
   /** Optional ETA / summary line: text, or projected `[slot=eta]` content. */
@@ -98,11 +79,24 @@ export class OrderTimeline implements AfterViewInit {
   /** Extra classes on the outer wrapper. */
   className?: string
 
-  /** The rendered ETA `<div>` (its content decides whether it exists at all). */
-  @ViewChild('etaEl') private etaEl?: ElementRef<HTMLDivElement>
+  /** The rendered ETA `<div>` (its projected nodes decide whether it shows). */
+  @ViewChild('etaEl', { static: true }) private etaEl?: ElementRef<HTMLDivElement>
 
-  /** Whether a `[slot=eta]` projection landed (true until the first view proves otherwise). */
-  private readonly etaProjected = signal(true)
+  /** Whether the ETA line's projected content renders (placement decides). */
+  private readonly etaShown = signal(false)
+
+  /**
+   * Keeps the ETA `<div>` on the page only while it renders a text input or
+   * projected `[slot=eta]` content, re-decided whenever either changes.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const etaEl = this.etaEl?.nativeElement
+      const showEta = this.hasTextEta() || (etaEl ? hasContent(etaEl) : false)
+      this.etaShown.set(showEta)
+      setElementPresent(etaEl, showEta)
+    })
+  }
 
   /**
    * The current class map.
@@ -249,25 +243,10 @@ export class OrderTimeline implements AfterViewInit {
 
   /**
    * Whether the ETA `<div>` renders: React's `eta &&` on the text input or a
-   * projected `[slot=eta]` (withdrawn at view init when neither is present).
+   * projected `[slot=eta]`, re-decided as the slot changes.
    * @returns True when the ETA line shows.
    */
   showEta(): boolean {
-    return this.hasTextEta() || this.etaProjected()
-  }
-
-  /**
-   * Reads the rendered ETA `<div>` once: the text input renders as a text node
-   * of this component's own, so an ELEMENT child is projected `[slot=eta]`
-   * content. When neither is present, React would not render the element at
-   * all, so the optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const el = this.etaEl?.nativeElement
-    const projected =
-      el !== undefined &&
-      Array.from(el.childNodes).some((child) => child.nodeType === Node.ELEMENT_NODE) &&
-      hasRenderableContent(el)
-    this.etaProjected.set(projected)
+    return this.hasTextEta() || this.etaShown()
   }
 }

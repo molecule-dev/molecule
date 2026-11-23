@@ -4,29 +4,12 @@
  * @module
  */
 
-import { type AfterViewInit, Component, ElementRef, inject, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-angular'
-
-/**
- * Whether a wrapper element renders anything besides its static content: an
- * element child (a projected `[slot=<name>]` landed — the projection moves
- * into the view at render time) or text beyond the wrapper's own prefix. The
- * `·` prefix is the member-since span's own static text, never content.
- *
- * @param el - The wrapper element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(
-    (node) =>
-      node.nodeType === Node.ELEMENT_NODE ||
-      (node.nodeType === Node.TEXT_NODE &&
-        (node.textContent ?? '').trim().length > 0 &&
-        (node.textContent ?? '').trim() !== '·'),
-  )
 
 /**
  * VendorCard component.
@@ -45,13 +28,14 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
  * `VendorCard`. Node-valued `name`, `description`, `memberSince`, `badges`
  * and `actions` content is projected (`[slot=<name>]`); a string or number
  * input renders as text. The optional wrappers (`description`, `memberSince`,
- * `actions`) render optimistically so a projection can land, then withdraw at
- * view init when neither a text input nor a projection is present — React
- * renders no wrapper at all for them.
+ * `actions`) stay in the template so their `<ng-content>` always captures, and
+ * leave the page while they render neither a text input nor a projection, as
+ * React renders no wrapper for a falsy prop.
  */
 @Component({
   selector: 'div[mol-vendor-card]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Avatar],
   inputs: [
     'name',
@@ -72,13 +56,13 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
     <div mol-avatar [src]="logoSrc" [alt]="displayName()" [name]="displayName()" [size]="'lg'"></div>
     <div [class]="cm().cn(cm().flex1, cm().stack(2))">
       <header>
-        <h3 [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></h3>@if (showDescription) {<p #descriptionEl [class]="cm().textSize('sm')">@if (hasDescription) {<ng-container>{{ description }}</ng-container>}<ng-content select="[slot=description]" /></p>}
+        <h3 [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></h3><p #descriptionEl [class]="cm().textSize('sm')">@if (hasDescription) {<ng-container>{{ description }}</ng-container>}<ng-content select="[slot=description]" /></p>
       </header>
-      <div [class]="cm().flex({ align: 'center', gap: 'sm', wrap: 'wrap' })">@if (hasRating) {<span [class]="ratingClass()"><span aria-hidden="true">★</span><span [class]="cm().fontWeight('semibold')">{{ ratingText() }}</span>@if (hasReviewCount) {<span>{{ reviewText() }}</span>}</span>}@if (showMemberSince) {<span #memberSinceEl [class]="cm().textSize('xs')">· @if (hasMemberSince) {<ng-container>{{ memberSince }}</ng-container>}<ng-content select="[slot=memberSince]" /></span>}@if (hasBadges) {<ng-container>{{ badges }}</ng-container>}<ng-content select="[slot=badges]" /></div>@if (showActions) {<div #actionsEl [class]="cm().flex({ align: 'center', gap: 'sm' })">@if (hasActions) {<ng-container>{{ actions }}</ng-container>}<ng-content select="[slot=actions]" /></div>}
+      <div [class]="cm().flex({ align: 'center', gap: 'sm', wrap: 'wrap' })">@if (hasRating) {<span [class]="ratingClass()"><span aria-hidden="true">★</span><span [class]="cm().fontWeight('semibold')">{{ ratingText() }}</span>@if (hasReviewCount) {<span>{{ reviewText() }}</span>}</span>}<span #memberSinceEl [class]="cm().textSize('xs')">· @if (hasMemberSince) {<ng-container>{{ memberSince }}</ng-container>}<ng-content select="[slot=memberSince]" /></span>@if (hasBadges) {<ng-container>{{ badges }}</ng-container>}<ng-content select="[slot=badges]" /></div><div #actionsEl [class]="cm().flex({ align: 'center', gap: 'sm' })">@if (hasActions) {<ng-container>{{ actions }}</ng-container>}<ng-content select="[slot=actions]" /></div>
     </div>
   </div>`,
 })
-export class VendorCard implements AfterViewInit {
+export class VendorCard {
   /** Vendor / seller display name: text, or `[slot=name]` content. */
   name?: unknown
   /** Optional logo URL — falls back to Avatar text initials. */
@@ -98,42 +82,36 @@ export class VendorCard implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional description paragraph (projected content lands here). */
-  @ViewChild('descriptionEl') private descriptionEl?: ElementRef<HTMLParagraphElement>
-  /** The optional member-since span (projected content lands here). */
-  @ViewChild('memberSinceEl') private memberSinceEl?: ElementRef<HTMLSpanElement>
-  /** The optional actions row (projected content lands here). */
-  @ViewChild('actionsEl') private actionsEl?: ElementRef<HTMLDivElement>
-
-  /** The host element, scanned for projected `[slot=<name>]` content. */
-  private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef)
-
-  /** Whether a `[slot=description]` projection landed (true until proven otherwise). */
-  private readonly descriptionProjected = signal(true)
-  /** Whether a `[slot=memberSince]` projection landed (true until proven otherwise). */
-  private readonly memberSinceProjected = signal(true)
-  /** Whether a `[slot=actions]` projection landed (true until proven otherwise). */
-  private readonly actionsProjected = signal(true)
+  /** The description paragraph (its text input or projected slot decides its presence). */
+  @ViewChild('descriptionEl', { static: true })
+  private descriptionEl?: ElementRef<HTMLParagraphElement>
+  /** The member-since span (its text input or projected slot decides its presence). */
+  @ViewChild('memberSinceEl', { static: true })
+  private memberSinceEl?: ElementRef<HTMLSpanElement>
+  /** The actions row (its text input or projected slot decides its presence). */
+  @ViewChild('actionsEl', { static: true }) private actionsEl?: ElementRef<HTMLDivElement>
 
   /**
-   * Withdraws the optimistic optional wrappers whose slot projections did not
-   * land: when neither a text input nor projected content is present, React
-   * renders no wrapper at all. View queries resolve at view init, and a
-   * projected slot's content is in place by then.
+   * Keeps each optional wrapper on the page only while it renders a text input
+   * or projected `[slot=<name>]` content, re-decided whenever either changes
+   * (a slot taken away and given back included). React renders no wrapper when
+   * its prop is falsy. The member-since span's own `·` prefix is not content.
    */
-  ngAfterViewInit(): void {
-    const description = this.descriptionEl?.nativeElement
-    if (description && !this.hasDescription && !hasRenderableContent(description)) {
-      this.descriptionProjected.set(false)
-    }
-    const memberSince = this.memberSinceEl?.nativeElement
-    if (memberSince && !this.hasMemberSince && !hasRenderableContent(memberSince)) {
-      this.memberSinceProjected.set(false)
-    }
-    const actions = this.actionsEl?.nativeElement
-    if (actions && !this.hasActions && !hasRenderableContent(actions)) {
-      this.actionsProjected.set(false)
-    }
+  constructor() {
+    usePlacement((hasContent) => {
+      const description = this.descriptionEl?.nativeElement
+      setElementPresent(
+        description,
+        this.hasDescription || (description ? hasContent(description) : false),
+      )
+      const memberSince = this.memberSinceEl?.nativeElement
+      setElementPresent(
+        memberSince,
+        this.hasMemberSince || (memberSince ? hasContent(memberSince, 1) : false),
+      )
+      const actions = this.actionsEl?.nativeElement
+      setElementPresent(actions, this.hasActions || (actions ? hasContent(actions) : false))
+    })
   }
 
   /**
@@ -264,15 +242,6 @@ export class VendorCard implements AfterViewInit {
   }
 
   /**
-   * Whether the description paragraph renders at all: the text input or
-   * projected `[slot=description]` content.
-   * @returns True when the tagline shows.
-   */
-  get showDescription(): boolean {
-    return this.hasDescription || this.descriptionProjected()
-  }
-
-  /**
    * Whether a rating renders: React's `rating !== undefined` (a zero rating
    * still renders).
    * @returns True when the ★ chip shows.
@@ -300,15 +269,6 @@ export class VendorCard implements AfterViewInit {
   }
 
   /**
-   * Whether the member-since span renders at all: the text input or projected
-   * `[slot=memberSince]` content.
-   * @returns True when the date shows.
-   */
-  get showMemberSince(): boolean {
-    return this.hasMemberSince || this.memberSinceProjected()
-  }
-
-  /**
    * Whether the badges text renders: React's `badges && …` truthiness (the
    * `[slot=badges]` projection renders regardless).
    * @returns True when the badges text shows.
@@ -323,14 +283,5 @@ export class VendorCard implements AfterViewInit {
    */
   get hasActions(): boolean {
     return this.actions !== undefined && this.actions !== null && this.actions !== ''
-  }
-
-  /**
-   * Whether the actions row renders at all: the text input or projected
-   * `[slot=actions]` content.
-   * @returns True when the actions row shows.
-   */
-  get showActions(): boolean {
-    return this.hasActions || this.actionsProjected()
   }
 }

@@ -4,9 +4,15 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, ViewChild } from '@angular/core'
 
-import { useLocale, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  useLocale,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -29,27 +35,6 @@ let nextNameId = 0
 const nameId = (): string => `_r_${(nextNameId++).toString(32)}_`
 
 /**
- * Whether a projected node renders anything (an element, or text with
- * content beyond whitespace).
- *
- * @param node - The projected node.
- * @returns True when it renders.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
-
-/**
  * TickerRow component.
  *
  * Financial ticker row — symbol + price + change% + optional icon, sparkline
@@ -70,6 +55,7 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
 @Component({
   selector: 'div[mol-ticker-row]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'symbol',
     'name',
@@ -86,9 +72,9 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `@if (onClick) {<button type="button" [attr.aria-labelledby]="instanceNameId" data-mol-id="ticker-row-open" (click)="handleClick()" [class]="openButtonClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button>}@if (showIcon) {<div #iconDiv [class]="iconClasses()">@if (hasIcon) {<ng-container>{{ icon }}</ng-container>}<ng-content select="[slot=icon]" /></div>}<div [class]="symbolClasses()"><span [attr.id]="symbolId()" [class]="symbolTextClasses()">@if (hasSymbol) {<ng-container>{{ symbol }}</ng-container>}<ng-content select="[slot=symbol]" /></span>@if (showName) {<span #nameSpan [class]="nameClasses()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>}</div>@if (showSparkline) {<div #sparkDiv [class]="sparkClasses()">@if (hasSparkline) {<ng-container>{{ sparkline }}</ng-container>}<ng-content select="[slot=sparkline]" /></div>}<div [class]="priceClasses()"><span [class]="priceTextClasses()">@if (hasPrice) {<ng-container>{{ price }}</ng-container>}<ng-content select="[slot=price]" /></span>@if (showChange) {<span [class]="changeTextClasses()"><span aria-hidden="true">{{ arrow() }}</span><span [class]="srOnlyClasses()">{{ directionLabel() }}</span>{{ ' ' }}@if (hasChangeDisplay) {<ng-container>{{ changeDisplay }}</ng-container>}@else {<ng-container>{{ formattedChange() }}</ng-container>}</span>}</div>@if (showMeta) {<div #metaDiv [class]="metaClasses()">@if (hasMeta) {<ng-container>{{ meta }}</ng-container>}<ng-content select="[slot=meta]" /></div>}`,
+  template: `@if (onClick) {<button type="button" [attr.aria-labelledby]="instanceNameId" data-mol-id="ticker-row-open" (click)="handleClick()" [class]="openButtonClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button>}<div #iconDiv [class]="iconClasses()">@if (hasIcon) {<ng-container>{{ icon }}</ng-container>}<ng-content select="[slot=icon]" /></div><div [class]="symbolClasses()"><span [attr.id]="symbolId()" [class]="symbolTextClasses()">@if (hasSymbol) {<ng-container>{{ symbol }}</ng-container>}<ng-content select="[slot=symbol]" /></span><span #nameSpan [class]="nameClasses()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span></div><div #sparkDiv [class]="sparkClasses()">@if (hasSparkline) {<ng-container>{{ sparkline }}</ng-container>}<ng-content select="[slot=sparkline]" /></div><div [class]="priceClasses()"><span [class]="priceTextClasses()">@if (hasPrice) {<ng-container>{{ price }}</ng-container>}<ng-content select="[slot=price]" /></span>@if (showChange) {<span [class]="changeTextClasses()"><span aria-hidden="true">{{ arrow() }}</span><span [class]="srOnlyClasses()">{{ directionLabel() }}</span>{{ ' ' }}@if (hasChangeDisplay) {<ng-container>{{ changeDisplay }}</ng-container>}@else {<ng-container>{{ formattedChange() }}</ng-container>}</span>}</div><div #metaDiv [class]="metaClasses()">@if (hasMeta) {<ng-container>{{ meta }}</ng-container>}<ng-content select="[slot=meta]" /></div>`,
 })
-export class TickerRow implements AfterViewInit {
+export class TickerRow {
   /** Symbol / ticker display ("BTC", "AAPL"): text, or `[slot=symbol]` content. */
   symbol?: unknown
   /** Full name display: text, or `[slot=name]` content. */
@@ -117,51 +103,32 @@ export class TickerRow implements AfterViewInit {
   /** This instance's name id (the open button's `aria-labelledby`). */
   private readonly instanceNameId = nameId()
 
-  /** The optional icon wrapper div (projected content lands here; read once). */
-  @ViewChild('iconDiv') private iconDiv?: ElementRef<HTMLDivElement>
-  /** The optional name span (projected content lands here; read once). */
-  @ViewChild('nameSpan') private nameSpan?: ElementRef<HTMLSpanElement>
-  /** The optional sparkline wrapper div (projected content lands here; read once). */
-  @ViewChild('sparkDiv') private sparkDiv?: ElementRef<HTMLDivElement>
-  /** The optional meta wrapper div (projected content lands here; read once). */
-  @ViewChild('metaDiv') private metaDiv?: ElementRef<HTMLDivElement>
+  /** The icon wrapper div (its text input or projected slot decides its presence). */
+  @ViewChild('iconDiv', { static: true }) private iconDiv?: ElementRef<HTMLDivElement>
+  /** The name span (its text input or projected slot decides its presence). */
+  @ViewChild('nameSpan', { static: true }) private nameSpan?: ElementRef<HTMLSpanElement>
+  /** The sparkline wrapper div (its text input or projected slot decides its presence). */
+  @ViewChild('sparkDiv', { static: true }) private sparkDiv?: ElementRef<HTMLDivElement>
+  /** The meta wrapper div (its text input or projected slot decides its presence). */
+  @ViewChild('metaDiv', { static: true }) private metaDiv?: ElementRef<HTMLDivElement>
 
   /**
-   * Whether a `[slot=icon]` projection landed (true until the first view
-   * proves otherwise).
+   * Keeps each optional wrapper on the page only while it renders a text input
+   * or projected `[slot=<name>]` content, re-decided whenever either changes
+   * (a slot taken away and given back included). React renders no wrapper when
+   * its prop is falsy.
    */
-  private readonly iconProjected = signal(true)
-  /**
-   * Whether a `[slot=name]` projection landed (true until the first view
-   * proves otherwise).
-   */
-  private readonly nameProjected = signal(true)
-  /**
-   * Whether a `[slot=sparkline]` projection landed (true until the first view
-   * proves otherwise).
-   */
-  private readonly sparkProjected = signal(true)
-  /**
-   * Whether a `[slot=meta]` projection landed (true until the first view
-   * proves otherwise).
-   */
-  private readonly metaProjected = signal(true)
-
-  /**
-   * Reads the optional wrappers' first render: when neither a text input nor
-   * projected content landed, React would not render the wrapper at all, so
-   * the optimistic render is withdrawn. View queries resolve only at view
-   * init, and a projected slot's content is in place by then.
-   */
-  ngAfterViewInit(): void {
-    const icon = this.iconDiv?.nativeElement
-    if (icon && !this.hasIcon && !hasRenderableContent(icon)) this.iconProjected.set(false)
-    const name = this.nameSpan?.nativeElement
-    if (name && !this.hasName && !hasRenderableContent(name)) this.nameProjected.set(false)
-    const spark = this.sparkDiv?.nativeElement
-    if (spark && !this.hasSparkline && !hasRenderableContent(spark)) this.sparkProjected.set(false)
-    const meta = this.metaDiv?.nativeElement
-    if (meta && !this.hasMeta && !hasRenderableContent(meta)) this.metaProjected.set(false)
+  constructor() {
+    usePlacement((hasContent) => {
+      const icon = this.iconDiv?.nativeElement
+      setElementPresent(icon, this.hasIcon || (icon ? hasContent(icon) : false))
+      const name = this.nameSpan?.nativeElement
+      setElementPresent(name, this.hasName || (name ? hasContent(name) : false))
+      const spark = this.sparkDiv?.nativeElement
+      setElementPresent(spark, this.hasSparkline || (spark ? hasContent(spark) : false))
+      const meta = this.metaDiv?.nativeElement
+      setElementPresent(meta, this.hasMeta || (meta ? hasContent(meta) : false))
+    })
   }
 
   /**
@@ -429,31 +396,11 @@ export class TickerRow implements AfterViewInit {
   }
 
   /**
-   * Whether the name span renders: React's truthy `name`, or projected
-   * `[slot=name]` content. A plain getter, so every change detection pass
-   * follows the inputs (a computed would cache on its signal dependency alone
-   * and miss a later text input).
-   * @returns True when the name span shows.
-   */
-  get showName(): boolean {
-    return this.hasName || this.nameProjected()
-  }
-
-  /**
    * Whether a text icon input is present (React's `icon && …` truthiness).
    * @returns True when the icon input renders as text.
    */
   get hasIcon(): boolean {
     return this.icon !== undefined && this.icon !== null && this.icon !== ''
-  }
-
-  /**
-   * Whether the icon wrapper renders: React's truthy `icon`, or projected
-   * `[slot=icon]` content.
-   * @returns True when the icon wrapper shows.
-   */
-  get showIcon(): boolean {
-    return this.hasIcon || this.iconProjected()
   }
 
   /**
@@ -465,28 +412,10 @@ export class TickerRow implements AfterViewInit {
   }
 
   /**
-   * Whether the sparkline wrapper renders: React's truthy `sparkline`, or
-   * projected `[slot=sparkline]` content.
-   * @returns True when the sparkline wrapper shows.
-   */
-  get showSparkline(): boolean {
-    return this.hasSparkline || this.sparkProjected()
-  }
-
-  /**
    * Whether a text meta input is present (React's `meta && …` truthiness).
    * @returns True when the meta input renders as text.
    */
   get hasMeta(): boolean {
     return this.meta !== undefined && this.meta !== null && this.meta !== ''
-  }
-
-  /**
-   * Whether the meta div renders: React's truthy `meta`, or projected
-   * `[slot=meta]` content.
-   * @returns True when the meta div shows.
-   */
-  get showMeta(): boolean {
-    return this.hasMeta || this.metaProjected()
   }
 }

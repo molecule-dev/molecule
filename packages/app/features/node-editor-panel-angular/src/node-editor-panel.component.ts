@@ -4,13 +4,18 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, renders } from './utilities.js'
+import { renders } from './utilities.js'
 
 /**
  * NodeEditorPanel component.
@@ -25,13 +30,14 @@ import { hasRenderableContent, renders } from './utilities.js'
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture point mounted, so the
- * optional footer renders optimistically and
- * {@link NodeEditorPanel.ngAfterViewInit} withdraws it when nothing was
- * projected (React would not render it at all).
+ * footer row stays in the template and leaves the page while it has nothing to
+ * render (React would not render it at all); the placement function re-decides
+ * it whenever the slot changes.
  */
 @Component({
   selector: 'aside[mol-node-editor-panel]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['title', 'children', 'footer', 'onClose', 'closeAriaLabel', 'widthClass'],
   host: {
     '[class]': 'classes()',
@@ -56,16 +62,14 @@ import { hasRenderableContent, renders } from './utilities.js'
       }
     </div>
     <div [class]="bodyClasses()"><ng-content /></div>
-    @if (showFooter()) {
-      <div #footerEl [class]="footerClasses()">
-        @if (rendersFooter()) {
-          {{ footer }}
-        }
-        <ng-content select="[slot=footer]" />
-      </div>
-    }`,
+    <div #footerEl [class]="footerClasses()">
+      @if (rendersFooter()) {
+        {{ footer }}
+      }
+      <ng-content select="[slot=footer]" />
+    </div>`,
 })
-export class NodeEditorPanel implements AfterViewInit {
+export class NodeEditorPanel {
   /** Panel title — a string input, or `[slot=title]` projected content. */
   title?: unknown
   /** Body content is projected; the input is accepted for prop parity. */
@@ -79,12 +83,26 @@ export class NodeEditorPanel implements AfterViewInit {
   /** Width class fragment (React's default `w-80` applied at read time). */
   widthClass?: string
 
-  /** The optional footer wrapper (projected content lands here; read once). */
-  @ViewChild('footerEl') private footerEl?: ElementRef<HTMLElement>
+  /** The optional footer wrapper (its projected nodes decide whether it shows). */
+  @ViewChild('footerEl', { static: true }) private footerEl?: ElementRef<HTMLElement>
 
-  /** Whether a `[slot=footer]` projection landed (optimistic until the first view). */
-  private readonly footerProjected = signal(true)
+  /** Whether the footer row renders (placement decides, so a refilled slot returns). */
+  private readonly footerShown = signal(false)
+
   private readonly i18n = useTranslation()
+
+  /**
+   * Keeps the footer row on the page only while it renders a text input or
+   * projected `[slot=footer]` content, re-decided whenever either changes.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const footerEl = this.footerEl?.nativeElement
+      const showFooter = renders(this.footer) || (footerEl ? hasContent(footerEl) : false)
+      this.footerShown.set(showFooter)
+      setElementPresent(footerEl, showFooter)
+    })
+  }
 
   /**
    * The current class map.
@@ -116,7 +134,7 @@ export class NodeEditorPanel implements AfterViewInit {
    * @returns True when the footer shows.
    */
   showFooter(): boolean {
-    return renders(this.footer) || this.footerProjected()
+    return renders(this.footer) || this.footerShown()
   }
 
   /**
@@ -128,16 +146,6 @@ export class NodeEditorPanel implements AfterViewInit {
       this.closeAriaLabel ??
       this.i18n.t('nodeEditorPanel.close', {}, { defaultValue: 'Close panel' })
     )
-  }
-
-  /**
-   * Reads the footer's first render: when nothing was projected and no text
-   * input is set, React would not render the row at all, so the optimistic
-   * render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const element = this.footerEl?.nativeElement
-    if (element) this.footerProjected.set(hasRenderableContent(element))
   }
 
   /**

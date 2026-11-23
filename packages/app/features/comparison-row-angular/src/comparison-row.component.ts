@@ -5,15 +5,9 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -24,27 +18,6 @@ const ARROW = (n: number): string => (n > 0 ? '▲' : n < 0 ? '▼' : '–')
  * rise, its error red for a fall, its secondary grey for no change.
  */
 const TONE = (n: number): ColorVariant => (n > 0 ? 'success' : n < 0 ? 'error' : 'secondary')
-
-/**
- * Whether a projected node renders anything (an element, or text with
- * content beyond whitespace).
- *
- * @param node - The projected node.
- * @returns True when it renders.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
 
 /**
  * ComparisonRow component.
@@ -65,18 +38,19 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
   standalone: true,
   imports: [NgTemplateOutlet],
   inputs: ['label', 'current', 'previous', 'deltaPct', 'formatDelta', 'periodLabel', 'className'],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
   template: `<div [class]="stackClass()">
-      <span [class]="labelClass()">@if (hasLabel) {<ng-container>{{ label }}</ng-container>}<ng-content select="[slot=label]" /></span>@if (showPeriodLabel) {<span #periodSpan [class]="cm().textSize('xs')">@if (hasPeriodLabel) {<ng-container>{{ periodLabel }}</ng-container>}<ng-content select="[slot=periodLabel]" /></span>}
+      <span [class]="labelClass()">@if (hasLabel) {<ng-container>{{ label }}</ng-container>}<ng-content select="[slot=label]" /></span><span #periodSpan [class]="cm().textSize('xs')">@if (hasPeriodLabel) {<ng-container>{{ periodLabel }}</ng-container>}<ng-content select="[slot=periodLabel]" /></span>
     </div>
     <div [class]="valuesClass()">
-      <span [class]="currentClass()">@if (hasCurrent) {<ng-container>{{ current }}</ng-container>}<ng-content select="[slot=current]" /></span>@if (showPrevious) {<span #previousSpan [class]="cm().cn(cm().textSize('xs'))" [style.text-decoration]="'line-through'" [style.opacity]="0.6">@if (hasPrevious) {<ng-container>{{ previous }}</ng-container>}<ng-content select="[slot=previous]" /></span>}@if (hasDelta) {<span [class]="deltaClass()">@if (formatDelta) {<ng-container [ngTemplateOutlet]="formatDelta" [ngTemplateOutletContext]="deltaContext()" />}@else {<ng-container>{{ arrow() }} {{ pct() }}%</ng-container>}</span>}
+      <span [class]="currentClass()">@if (hasCurrent) {<ng-container>{{ current }}</ng-container>}<ng-content select="[slot=current]" /></span><span #previousSpan [class]="cm().cn(cm().textSize('xs'))" [style.text-decoration]="'line-through'" [style.opacity]="0.6">@if (hasPrevious) {<ng-container>{{ previous }}</ng-container>}<ng-content select="[slot=previous]" /></span>@if (hasDelta) {<span [class]="deltaClass()">@if (formatDelta) {<ng-container [ngTemplateOutlet]="formatDelta" [ngTemplateOutletContext]="deltaContext()" />}@else {<ng-container>{{ arrow() }} {{ pct() }}%</ng-container>}</span>}
     </div>`,
 })
-export class ComparisonRow implements AfterViewInit {
+export class ComparisonRow {
   /** Label for the metric (e.g. "Revenue"): text, or `[slot=label]` content. */
   label?: unknown
   /** Current period value (formatted): text, or `[slot=current]` content. */
@@ -92,57 +66,23 @@ export class ComparisonRow implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional period-label span (projected content lands here; read once). */
-  @ViewChild('periodSpan') private periodSpan?: ElementRef<HTMLSpanElement>
-  /** The optional previous-value span (projected content lands here; read once). */
-  @ViewChild('previousSpan') private previousSpan?: ElementRef<HTMLSpanElement>
+  /** The period-label span (always in the label stack; detached while it has nothing to render). */
+  @ViewChild('periodSpan', { static: true }) private periodSpan?: ElementRef<HTMLSpanElement>
+  /** The previous-value span (always in the values row; detached while it has nothing to render). */
+  @ViewChild('previousSpan', { static: true }) private previousSpan?: ElementRef<HTMLSpanElement>
 
   /**
-   * Whether a `[slot=periodLabel]` projection landed (true until the first
-   * view proves otherwise).
+   * Keeps each optional span on the page only while it renders a text input or
+   * projected content, re-decided whenever either changes (a slot taken away
+   * and given back included).
    */
-  private readonly periodProjected = signal(true)
-  /**
-   * Whether a `[slot=previous]` projection landed (true until the first view
-   * proves otherwise).
-   */
-  private readonly previousProjected = signal(true)
-
-  /**
-   * Whether the period-label span renders: React's `periodLabel && …` on the
-   * text input, or projected `[slot=periodLabel]` content. A plain getter, so
-   * every change detection pass follows the inputs (a computed would cache on
-   * its signal dependency alone and miss a later text input).
-   * @returns True when the sub-text shows.
-   */
-  get showPeriodLabel(): boolean {
-    return this.hasPeriodLabel || this.periodProjected()
-  }
-
-  /**
-   * Whether the previous-value span renders: React's `previous !== undefined`
-   * on the text input, or projected `[slot=previous]` content.
-   * @returns True when the struck-through value shows.
-   */
-  get showPrevious(): boolean {
-    return this.hasPrevious || this.previousProjected()
-  }
-
-  /**
-   * Reads the optional spans' first render: when neither a text input nor
-   * projected content landed, React would not render the span at all, so the
-   * optimistic render is withdrawn. View queries resolve only at view init,
-   * and a projected slot's content is in place by then.
-   */
-  ngAfterViewInit(): void {
-    const period = this.periodSpan?.nativeElement
-    if (period && !this.hasPeriodLabel && !hasRenderableContent(period)) {
-      this.periodProjected.set(false)
-    }
-    const previous = this.previousSpan?.nativeElement
-    if (previous && !this.hasPrevious && !hasRenderableContent(previous)) {
-      this.previousProjected.set(false)
-    }
+  constructor() {
+    usePlacement((hasContent) => {
+      const period = this.periodSpan?.nativeElement
+      setElementPresent(period, this.hasPeriodLabel || (period ? hasContent(period) : false))
+      const previous = this.previousSpan?.nativeElement
+      setElementPresent(previous, this.hasPrevious || (previous ? hasContent(previous) : false))
+    })
   }
 
   /**

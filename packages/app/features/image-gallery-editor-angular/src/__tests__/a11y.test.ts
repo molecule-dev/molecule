@@ -20,6 +20,8 @@ import { type ApplicationRef, provideZonelessChangeDetection } from '@angular/co
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // Same cm / Icon / ConfirmDialog mocks as smoke.test.ts: class tokens echo
 // their own name, Icon records its glyph, ConfirmDialog renders only when open.
 vi.mock('@molecule/app-ui', () => ({
@@ -129,7 +131,7 @@ async function renderEditor(slots: (string | null)[]): Promise<{ container: HTML
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,

@@ -5,15 +5,7 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, type TemplateRef, ViewChild } from '@angular/core'
 
 import {
   MolPlacement,
@@ -25,21 +17,6 @@ import {
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-angular'
-
-/** Whether a node renders anything (an element, or text with content beyond whitespace). */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
 
 /**
  * Whether a node-valued prop is an Angular template (a projected node) rather
@@ -89,9 +66,9 @@ const textOf = (value: unknown): string =>
   // nodes inside inline / flex parents, so the DOM React renders is reproduced
   // by gluing the tags (see the ported unit tests).
   // prettier-ignore
-  template: `@if (submitted() && successContent !== undefined) {<div [class]="className ?? null">@if (successTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (successContent !== null) {<ng-container>{{ textOf(successContent) }}</ng-container>}</div>}@else {<form (submit)="handle($event)" [class]="formClasses()">@if (showHeader()) {<header [class]="headerClasses()">@if (showTitle()) {<h3 #titleEl [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h3>}@if (showDescription()) {<p #descriptionEl [class]="messageClasses()">@if (descriptionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p>}</header>}<div mol-input [attr.aria-label]="nameLabel()" [id]="'contact-form-name'" [type]="'text'" [value]="name()" (change)="onNameChange($event)" [placeholder]="namePlaceholder()" [required]="true"></div><div mol-input [attr.aria-label]="emailLabel()" [id]="'contact-form-email'" [type]="'email'" [value]="email()" (change)="onEmailChange($event)" [placeholder]="emailPlaceholder()" [required]="true"></div><ng-content select="[slot=extraFields]"></ng-content><div mol-textarea [attr.aria-label]="messageLabel()" [id]="'contact-form-message'" [value]="message()" (change)="onMessageChange($event)" [placeholder]="messagePlaceholder()" [required]="true" [rows]="5"></div>@if (error()) {<p [class]="messageClasses()">{{ error() }}</p>}<button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting()">@if (submitting()) {<ng-container>{{ sendingText() }}</ng-container>}@else if (submitLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasSubmitLabelText()) {<ng-container>{{ textOf(submitLabel) }}</ng-container>}@else {<ng-container>{{ sendText() }}</ng-container>}</button></form>}`,
+  template: `@if (submitted() && successContent !== undefined) {<div [class]="className ?? null">@if (successTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (successContent !== null) {<ng-container>{{ textOf(successContent) }}</ng-container>}</div>}@else {<form (submit)="handle($event)" [class]="formClasses()"><header #headerEl [class]="headerClasses()"><h3 #titleEl [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h3><p #descriptionEl [class]="messageClasses()">@if (descriptionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p></header><div mol-input [attr.aria-label]="nameLabel()" [id]="'contact-form-name'" [type]="'text'" [value]="name()" (change)="onNameChange($event)" [placeholder]="namePlaceholder()" [required]="true"></div><div mol-input [attr.aria-label]="emailLabel()" [id]="'contact-form-email'" [type]="'email'" [value]="email()" (change)="onEmailChange($event)" [placeholder]="emailPlaceholder()" [required]="true"></div><ng-content select="[slot=extraFields]"></ng-content><div mol-textarea [attr.aria-label]="messageLabel()" [id]="'contact-form-message'" [value]="message()" (change)="onMessageChange($event)" [placeholder]="messagePlaceholder()" [required]="true" [rows]="5"></div>@if (error()) {<p [class]="messageClasses()">{{ error() }}</p>}<button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting()">@if (submitting()) {<ng-container>{{ sendingText() }}</ng-container>}@else if (submitLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasSubmitLabelText()) {<ng-container>{{ textOf(submitLabel) }}</ng-container>}@else {<ng-container>{{ sendText() }}</ng-container>}</button></form>}`,
 })
-export class ContactForm implements AfterViewInit {
+export class ContactForm {
   /** Called with the form values on submit (React's `onSubmit`). */
   onSubmit?: (values: Record<string, string>) => void | Promise<void>
   /** Form heading: text, a template, or projected `[slot=title]` content. */
@@ -105,15 +82,12 @@ export class ContactForm implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional heading element (projected content lands here; read once). */
+  /** The heading (always in the form; detached while it has nothing to render). */
   @ViewChild('titleEl') private titleEl?: ElementRef<HTMLElement>
-  /** The optional description paragraph (projected content lands here; read once). */
+  /** The description paragraph (always in the form; detached while it has nothing to render). */
   @ViewChild('descriptionEl') private descriptionEl?: ElementRef<HTMLElement>
-
-  /** Whether a `[slot=title]` projection landed (`null`: decided by the text input). */
-  private readonly titleProjected = signal<boolean | null>(true)
-  /** Whether a `[slot=description]` projection landed (`null`: decided by the text input). */
-  private readonly descriptionProjected = signal<boolean | null>(true)
+  /** The header wrapping the heading and description (always in the form; detached while empty). */
+  @ViewChild('headerEl') private headerEl?: ElementRef<HTMLElement>
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -128,7 +102,22 @@ export class ContactForm implements AfterViewInit {
   constructor() {
     // React's root is the `<form>` (or the `<div>` after success) itself: it renders in
     // front of the host's place and the host leaves the page.
-    usePlacement(() => {
+    usePlacement((hasContent) => {
+      // The heading, its description and the header around them stay in the template so
+      // their `<ng-content>` captures always mount; each leaves the page while React's
+      // `{title && …}` / `{description && …}` / `{(title || description) && <header>}`
+      // would render nothing.
+      const title = this.titleEl?.nativeElement
+      const description = this.descriptionEl?.nativeElement
+      const hasTitle =
+        this.hasTitleText() || isTemplate(this.title) || (title ? hasContent(title) : false)
+      const hasDescription =
+        this.hasDescriptionText() ||
+        isTemplate(this.description) ||
+        (description ? hasContent(description) : false)
+      setElementPresent(title, hasTitle)
+      setElementPresent(description, hasDescription)
+      setElementPresent(this.headerEl?.nativeElement, hasTitle || hasDescription)
       placeContentBefore(this.host.nativeElement, this.host.nativeElement)
       setElementPresent(this.host.nativeElement, false)
     })
@@ -146,22 +135,6 @@ export class ContactForm implements AfterViewInit {
   protected readonly submitted = signal(false)
   /** The last submit's error message. */
   protected readonly error = signal<string | null>(null)
-
-  /**
-   * Reads the optional regions' first render: when neither a text input nor
-   * projected content landed, React would not render the region at all, so the
-   * optimistic render is withdrawn. A text input leaves the decision to itself
-   * (`null`), so a later `title: null` prop change still hides its heading.
-   */
-  ngAfterViewInit(): void {
-    const title = this.titleEl?.nativeElement
-    if (title) this.titleProjected.set(this.hasTitleText() ? null : hasRenderableContent(title))
-    const description = this.descriptionEl?.nativeElement
-    if (description)
-      this.descriptionProjected.set(
-        this.hasDescriptionText() ? null : hasRenderableContent(description),
-      )
-  }
 
   /**
    * The current class map.
@@ -240,36 +213,6 @@ export class ContactForm implements AfterViewInit {
    */
   hasSubmitLabelText(): boolean {
     return this.submitLabel !== undefined && this.submitLabel !== null
-  }
-
-  /**
-   * Whether the heading renders: React's `title && …` / `description && …` on
-   * the text inputs, a template, or projected content. A plain getter, so
-   * every change detection pass follows the inputs.
-   * @returns True when the heading shows.
-   */
-  showHeader(): boolean {
-    return this.showTitle() || this.showDescription()
-  }
-
-  /**
-   * Whether the title element renders.
-   * @returns True when the heading line shows.
-   */
-  showTitle(): boolean {
-    return this.hasTitleText() || isTemplate(this.title) || this.titleProjected() === true
-  }
-
-  /**
-   * Whether the description element renders.
-   * @returns True when the paragraph shows.
-   */
-  showDescription(): boolean {
-    return (
-      this.hasDescriptionText() ||
-      isTemplate(this.description) ||
-      this.descriptionProjected() === true
-    )
   }
 
   /**

@@ -5,20 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, hasText, isNodeTemplate } from './internal.js'
+import { hasText, isNodeTemplate } from './internal.js'
 import type { NavGroup, NavItem } from './types.js'
 
 /**
@@ -32,14 +30,14 @@ import type { NavGroup, NavItem } from './types.js'
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture point mounted, so the
- * optional footer region renders optimistically and
- * {@link AppShellSideNav.ngAfterViewInit} withdraws it when nothing was
- * projected into it (React would not render it at all).
+ * optional footer region stays in the template and leaves the page when
+ * nothing was projected into it, as React's `{footer && …}`, renders no div.
  */
 @Component({
   selector: 'aside[mol-nav-side]',
   standalone: true,
   imports: [NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['items', 'groups', 'activeId', 'onItemClick', 'header', 'footer', 'className'],
   host: { '[class]': 'classes()' },
   template: `@if (hasHeader) {
@@ -73,14 +71,12 @@ import type { NavGroup, NavItem } from './types.js'
         </section>
       }
     </nav>
-    @if (showFooter) {
-      <div #footerEl [class]="mountClass()">
-        @if (hasTextFooter) {
-          <ng-container>{{ footer }}</ng-container>
-        }
-        <ng-content select="[slot=footer]"></ng-content>
-      </div>
-    }
+    <div #footerEl [class]="mountClass()">
+      @if (hasTextFooter) {
+        <ng-container>{{ footer }}</ng-container>
+      }
+      <ng-content select="[slot=footer]"></ng-content>
+    </div>
     <ng-template #itemTpl let-it
       ><button
         type="button"
@@ -111,7 +107,7 @@ import type { NavGroup, NavItem } from './types.js'
       </button></ng-template
     >`,
 })
-export class AppShellSideNav implements AfterViewInit {
+export class AppShellSideNav {
   /** Nav content: either a flat list of items or grouped sections. */
   items?: NavItem[]
   /** Grouped nav sections. */
@@ -127,26 +123,22 @@ export class AppShellSideNav implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
+  /** The optional footer wrapper (always in the template; detached while empty). */
+  @ViewChild('footerEl', { static: true }) private footerEl?: ElementRef<HTMLDivElement>
+
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
-  /** The optional footer wrapper (projected content lands here; read once). */
-  @ViewChild('footerEl') private footerEl?: ElementRef<HTMLDivElement>
-
   /**
-   * Whether a `[slot=footer]` projection landed: true (optimistically) until
-   * the first view proves otherwise.
+   * Keeps the footer wrapper on the page only while it renders a text input or
+   * projected `[slot=footer]` content, re-decided whenever either changes (a
+   * footer taken away and given back included).
    */
-  private readonly footerProjected = signal(true)
-
-  /**
-   * Reads the footer wrapper's first render: when neither a text input nor
-   * projected content landed, React would not render the region at all, so
-   * the optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const footer = this.footerEl?.nativeElement
-    if (footer) this.footerProjected.set(hasRenderableContent(footer))
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.footerEl?.nativeElement
+      setElementPresent(el, this.hasTextFooter || (el ? hasContent(el) : false))
+    })
   }
 
   /**
@@ -247,14 +239,6 @@ export class AppShellSideNav implements AfterViewInit {
    */
   get hasTextFooter(): boolean {
     return hasText(this.footer)
-  }
-
-  /**
-   * Whether the footer wrapper renders: a text input or a projected slot.
-   * @returns True when the footer shows.
-   */
-  get showFooter(): boolean {
-    return this.hasTextFooter || this.footerProjected()
   }
 
   /**

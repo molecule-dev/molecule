@@ -5,19 +5,13 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, hasText, isTemplate } from './slots.js'
+import { hasText, isTemplate } from './slots.js'
 
 /**
  * One configuration section inside a settings page.
@@ -34,6 +28,7 @@ import { hasRenderableContent, hasText, isTemplate } from './slots.js'
 @Component({
   selector: 'div[mol-settings-section]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['title', 'description', 'footer', 'className', 'dataMolId'],
   host: {
@@ -41,9 +36,9 @@ import { hasRenderableContent, hasText, isTemplate } from './slots.js'
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
   // prettier-ignore
-  template: `<div [class]="innerClasses()"><header [class]="headerClasses()"><h2 [class]="titleClasses()">@if (titleTemplate(); as titleTpl) {<ng-container [ngTemplateOutlet]="titleTpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h2>@if (showDescription()) {<p #descriptionEl [class]="descriptionClasses()">@if (descriptionTemplate(); as descriptionTpl) {<ng-container [ngTemplateOutlet]="descriptionTpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p>}</header><div><ng-content></ng-content></div>@if (showFooter()) {<footer #footerEl [class]="footerClasses()">@if (footerTemplate(); as footerTpl) {<ng-container [ngTemplateOutlet]="footerTpl" />}@else if (hasFooterText()) {<ng-container>{{ textOf(footer) }}</ng-container>}<ng-content select="[slot=footer]"></ng-content></footer>}</div>`,
+  template: `<div [class]="innerClasses()"><header [class]="headerClasses()"><h2 [class]="titleClasses()">@if (titleTemplate(); as titleTpl) {<ng-container [ngTemplateOutlet]="titleTpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h2><p #descriptionEl [class]="descriptionClasses()">@if (descriptionTemplate(); as descriptionTpl) {<ng-container [ngTemplateOutlet]="descriptionTpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p></header><div><ng-content></ng-content></div><footer #footerEl [class]="footerClasses()">@if (footerTemplate(); as footerTpl) {<ng-container [ngTemplateOutlet]="footerTpl" />}@else if (hasFooterText()) {<ng-container>{{ textOf(footer) }}</ng-container>}<ng-content select="[slot=footer]"></ng-content></footer></div>`,
 })
-export class SettingsSection implements AfterViewInit {
+export class SettingsSection {
   /** Section heading — a projected node template, or plain text. */
   title?: unknown
   /** Optional description under the heading — a projected node template, or plain text. */
@@ -57,28 +52,37 @@ export class SettingsSection implements AfterViewInit {
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
 
-  /** The optional description paragraph (projected content lands here; read once). */
-  @ViewChild('descriptionEl') private descriptionEl?: ElementRef<HTMLElement>
-  /** The optional footer row (projected content lands here; read once). */
-  @ViewChild('footerEl') private footerEl?: ElementRef<HTMLElement>
+  /** The optional description paragraph (its projected nodes decide whether it shows). */
+  @ViewChild('descriptionEl', { static: true })
+  private descriptionEl?: ElementRef<HTMLElement>
+  /** The optional footer row (its projected nodes decide whether it shows). */
+  @ViewChild('footerEl', { static: true }) private footerEl?: ElementRef<HTMLElement>
 
-  /** Whether a `[slot=description]` projection landed (`null`: decided by the text input). */
-  private readonly descriptionProjected = signal<boolean | null>(true)
-  /** Whether a `[slot=footer]` projection landed (`null`: decided by the text input). */
-  private readonly footerProjected = signal<boolean | null>(true)
+  /** Whether a `[slot=description]` projection landed (placement decides). */
+  private readonly descriptionShown = signal(false)
+  /** Whether a `[slot=footer]` projection landed (placement decides). */
+  private readonly footerShown = signal(false)
 
   /**
-   * Reads the optional regions' first render: when neither a text input nor
-   * projected content landed, React would not render the region at all, so the
-   * optimistic render is withdrawn.
+   * Keeps the optional regions on the page only while they render a text
+   * input, a node template or projected content, re-decided whenever any of
+   * them changes (a slot taken away and given back included).
    */
-  ngAfterViewInit(): void {
-    this.descriptionProjected.set(
-      this.hasDescriptionText() ? null : hasRenderableContent(this.descriptionEl?.nativeElement),
-    )
-    this.footerProjected.set(
-      this.hasFooterText() ? null : hasRenderableContent(this.footerEl?.nativeElement),
-    )
+  constructor() {
+    usePlacement((hasContent) => {
+      const descriptionEl = this.descriptionEl?.nativeElement
+      const footerEl = this.footerEl?.nativeElement
+      const showDescription =
+        this.hasDescriptionText() ||
+        isTemplate(this.description) ||
+        (descriptionEl ? hasContent(descriptionEl) : false)
+      const showFooter =
+        this.hasFooterText() || isTemplate(this.footer) || (footerEl ? hasContent(footerEl) : false)
+      this.descriptionShown.set(showDescription)
+      this.footerShown.set(showFooter)
+      setElementPresent(descriptionEl, showDescription)
+      setElementPresent(footerEl, showFooter)
+    })
   }
 
   /**
@@ -205,11 +209,7 @@ export class SettingsSection implements AfterViewInit {
    * @returns True when the paragraph shows.
    */
   showDescription(): boolean {
-    return (
-      this.hasDescriptionText() ||
-      isTemplate(this.description) ||
-      this.descriptionProjected() === true
-    )
+    return this.hasDescriptionText() || isTemplate(this.description) || this.descriptionShown()
   }
 
   /**
@@ -218,6 +218,6 @@ export class SettingsSection implements AfterViewInit {
    * @returns True when the footer shows.
    */
   showFooter(): boolean {
-    return this.hasFooterText() || isTemplate(this.footer) || this.footerProjected() === true
+    return this.hasFooterText() || isTemplate(this.footer) || this.footerShown()
   }
 }

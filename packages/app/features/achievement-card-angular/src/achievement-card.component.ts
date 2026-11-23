@@ -4,47 +4,20 @@
  * @module
  */
 
-import type { AfterViewInit, ElementRef } from '@angular/core'
-import { Component, signal, ViewChild } from '@angular/core'
+import type { ElementRef } from '@angular/core'
+import { Component, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
 import type { AchievementCardProps } from './types.js'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
-
-/**
- * Whether an element carries renderable content after its first child — for a
- * region whose own label the component interpolates as the first text node, so
- * only what the caller projected counts.
- *
- * @param el - The element.
- * @returns True when a projected child renders anything.
- */
-const hasRenderableProjection = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).slice(1).some(hasRenderable)
 
 /**
  * AchievementCard component.
@@ -59,10 +32,10 @@ const hasRenderableProjection = (el: HTMLElement): boolean =>
  * This is the Angular counterpart of `@molecule/app-achievement-card-react`.
  *
  * @remarks
- * Angular projection needs the `<ng-content>` capture points mounted, so the
- * optional tier / description / earned-at regions render optimistically and
- * {@link AchievementCard.ngAfterViewInit} withdraws the ones nothing was
- * projected into (React would not render them at all).
+ * The optional tier / description / earned-at regions stay in the template so
+ * their `<ng-content>` capture points always mount, and leave the page while
+ * nothing renders in them, as React's `{tier && …}`, `{description && …}` and
+ * `{earnedAt && …}` render no such element.
  */
 @Component({
   selector: 'div[mol-achievement-card]',
@@ -79,14 +52,15 @@ const hasRenderableProjection = (el: HTMLElement): boolean =>
     'tier',
     'className',
   ],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'classes()',
     '[style]': 'hostStyleText()',
   },
   // prettier-ignore
-  template: `<div [class]="rowClasses()"><div [class]="iconBoxClasses()" style="font-size: 36px">@if (hasIcon) {{{ icon }}}<ng-content select="[slot=icon]" /></div><div [class]="bodyClasses()"><header [class]="headerClasses()"><h3 [class]="nameClasses()">@if (hasName) {{{ name }}}<ng-content select="[slot=name]" /></h3>@if (showTier) {<span #tierEl [class]="tierClasses()">@if (hasTier) {{{ tier }}}<ng-content select="[slot=tier]" /></span>}</header>@if (showDescription) {<p #descriptionEl [class]="descriptionClasses()">@if (hasDescription) {{{ description }}}<ng-content select="[slot=description]" /></p>}@if (earned) {@if (showEarnedAt) {<span #earnedAtEl [class]="earnedAtClasses()">{{ earnedLine() }}@if (hasEarnedAt) {{{ earnedAt }}}<ng-content select="[slot=earnedAt]" /></span>}} @else if (progress) {<div [class]="progressClasses()"><div [class]="progressBarClasses()" [style]="progressStyleText()"></div></div>} @else {<span [class]="lockedClasses()">{{ lockedText() }}</span>}</div></div>`,
+  template: `<div [class]="rowClasses()"><div [class]="iconBoxClasses()" style="font-size: 36px">@if (hasIcon) {{{ icon }}}<ng-content select="[slot=icon]" /></div><div [class]="bodyClasses()"><header [class]="headerClasses()"><h3 [class]="nameClasses()">@if (hasName) {{{ name }}}<ng-content select="[slot=name]" /></h3><span #tierEl [class]="tierClasses()">@if (hasTier) {{{ tier }}}<ng-content select="[slot=tier]" /></span></header><p #descriptionEl [class]="descriptionClasses()">@if (hasDescription) {{{ description }}}<ng-content select="[slot=description]" /></p>@if (earned) {<span #earnedAtEl [class]="earnedAtClasses()">{{ earnedLine() }}@if (hasEarnedAt) {{{ earnedAt }}}<ng-content select="[slot=earnedAt]" /></span>} @else if (progress) {<div [class]="progressClasses()"><div [class]="progressBarClasses()" [style]="progressStyleText()"></div></div>} @else {<span [class]="lockedClasses()">{{ lockedText() }}</span>}</div></div>`,
 })
-export class AchievementCard implements AfterViewInit {
+export class AchievementCard {
   /** Achievement name — a string input, or `[slot=name]` projected content. */
   name?: unknown
   /** Description / what it took to earn — a string input, or `[slot=description]` content. */
@@ -108,47 +82,36 @@ export class AchievementCard implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional tier span (projected content lands here; read once). */
-  @ViewChild('tierEl') private tierEl?: ElementRef<HTMLSpanElement>
-  /** The optional description paragraph (projected content lands here; read once). */
-  @ViewChild('descriptionEl') private descriptionEl?: ElementRef<HTMLParagraphElement>
-  /** The optional earned-at span (projected content lands here; read once). */
+  /** The tier span (always in the header; detached while it has nothing to render). */
+  @ViewChild('tierEl', { static: true }) private tierEl?: ElementRef<HTMLSpanElement>
+  /** The description paragraph (always in the body; detached while it has nothing to render). */
+  @ViewChild('descriptionEl', { static: true })
+  private descriptionEl?: ElementRef<HTMLParagraphElement>
+  /** The earned-at span (in the earned row; detached while it has nothing to render). */
   @ViewChild('earnedAtEl') private earnedAtEl?: ElementRef<HTMLSpanElement>
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
   /**
-   * Whether a `[slot=tier]` projection landed: true (optimistically) until the
-   * first view proves otherwise.
+   * Keeps each optional region on the page only while it renders a text input
+   * or projected content, re-decided whenever either changes (a slot taken
+   * away and given back included).
    */
-  private readonly tierProjected = signal(true)
-  /**
-   * Whether a `[slot=description]` projection landed (true until the first
-   * view proves otherwise).
-   */
-  private readonly descriptionProjected = signal(true)
-  /**
-   * Whether a `[slot=earnedAt]` projection landed (true until the first view
-   * proves otherwise; an earned-at span that is not mounted yet keeps the
-   * optimistic answer, so flipping `earned` on later reveals it).
-   */
-  private readonly earnedAtProjected = signal(true)
-
-  /**
-   * Reads the optional regions' first render: when neither a text input nor
-   * projected content landed, React would not render the region at all, so
-   * the optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const tier = this.tierEl?.nativeElement
-    if (tier) this.tierProjected.set(hasRenderableContent(tier))
-    const description = this.descriptionEl?.nativeElement
-    if (description) this.descriptionProjected.set(hasRenderableContent(description))
-    const earnedAt = this.earnedAtEl?.nativeElement
-    // The region interpolates its own label first, so only the children after
-    // it can be the caller's projection.
-    if (earnedAt) this.earnedAtProjected.set(hasRenderableProjection(earnedAt))
+  constructor() {
+    usePlacement((hasContent) => {
+      const tier = this.tierEl?.nativeElement
+      setElementPresent(tier, this.hasTier || (tier ? hasContent(tier) : false))
+      const description = this.descriptionEl?.nativeElement
+      setElementPresent(
+        description,
+        this.hasDescription || (description ? hasContent(description) : false),
+      )
+      const earnedAt = this.earnedAtEl?.nativeElement
+      // The span interpolates its own label first, so only the children after
+      // it can be the caller's projection.
+      setElementPresent(earnedAt, this.hasEarnedAt || (earnedAt ? hasContent(earnedAt, 1) : false))
+    })
   }
 
   /**
@@ -207,31 +170,6 @@ export class AchievementCard implements AfterViewInit {
       this.earnedAt !== false &&
       this.earnedAt !== ''
     )
-  }
-
-  /**
-   * Whether the tier span renders: a truthy string input or a projected
-   * `[slot=tier]` element.
-   * @returns True when the tier shows.
-   */
-  get showTier(): boolean {
-    return this.hasTier || this.tierProjected()
-  }
-
-  /**
-   * Whether the description paragraph renders.
-   * @returns True when the description shows.
-   */
-  get showDescription(): boolean {
-    return this.hasDescription || this.descriptionProjected()
-  }
-
-  /**
-   * Whether the earned-at span renders.
-   * @returns True when the earned-at line shows.
-   */
-  get showEarnedAt(): boolean {
-    return this.hasEarnedAt || this.earnedAtProjected()
   }
 
   /**

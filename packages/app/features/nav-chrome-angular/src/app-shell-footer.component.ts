@@ -5,20 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, hasText, isNodeTemplate } from './internal.js'
+import { hasText, isNodeTemplate } from './internal.js'
 import type { FooterLink } from './types.js'
 
 /**
@@ -32,14 +30,14 @@ import type { FooterLink } from './types.js'
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture point mounted, so the
- * optional copyright span renders optimistically and
- * {@link AppShellFooter.ngAfterViewInit} withdraws it when nothing was
- * projected into it (React would not render it at all).
+ * optional copyright span stays in the template and leaves the page when
+ * nothing was projected into it, as React's `{copyright && …}` renders no span.
  */
 @Component({
   selector: 'footer[mol-nav-footer]',
   standalone: true,
   imports: [NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['logo', 'copyright', 'links', 'right', 'className'],
   host: { '[class]': 'classes()' },
   template: `<div [class]="rowClasses()">
@@ -47,14 +45,12 @@ import type { FooterLink } from './types.js'
         <ng-container>{{ logo }}</ng-container>
       }
       <ng-content select="[slot=logo]"></ng-content>
-      @if (showCopyright) {
-        <span #copyrightEl [class]="copyrightClass()">
-          @if (hasTextCopyright) {
-            <ng-container>{{ copyright }}</ng-container>
-          }
-          <ng-content select="[slot=copyright]"></ng-content
-        ></span>
-      }
+      <span #copyrightEl [class]="copyrightClass()">
+        @if (hasTextCopyright) {
+          <ng-container>{{ copyright }}</ng-container>
+        }
+        <ng-content select="[slot=copyright]"></ng-content
+      ></span>
     </div>
     @if (links && links.length > 0) {
       <nav [attr.aria-label]="navLabel()" [class]="linksClasses()">
@@ -74,7 +70,7 @@ import type { FooterLink } from './types.js'
     }
     <ng-content select="[slot=right]"></ng-content>`,
 })
-export class AppShellFooter implements AfterViewInit {
+export class AppShellFooter {
   /** Optional brand / logo — a string input or `[slot=logo]` content. */
   logo?: unknown
   /** Optional copyright text — a string input or `[slot=copyright]` content. */
@@ -86,26 +82,22 @@ export class AppShellFooter implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
+  /** The optional copyright span (always in the template; detached while empty). */
+  @ViewChild('copyrightEl', { static: true }) private copyrightEl?: ElementRef<HTMLSpanElement>
+
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
-  /** The optional copyright span (projected content lands here; read once). */
-  @ViewChild('copyrightEl') private copyrightEl?: ElementRef<HTMLSpanElement>
-
   /**
-   * Whether a `[slot=copyright]` projection landed: true (optimistically)
-   * until the first view proves otherwise.
+   * Keeps the copyright span on the page only while it renders a text input
+   * or projected `[slot=copyright]` content, re-decided whenever either
+   * changes (a copyright taken away and given back included).
    */
-  private readonly copyrightProjected = signal(true)
-
-  /**
-   * Reads the copyright span's first render: when neither a text input nor
-   * projected content landed, React would not render the span at all, so the
-   * optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const span = this.copyrightEl?.nativeElement
-    if (span) this.copyrightProjected.set(hasRenderableContent(span))
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.copyrightEl?.nativeElement
+      setElementPresent(el, this.hasTextCopyright || (el ? hasContent(el) : false))
+    })
   }
 
   /**
@@ -183,14 +175,6 @@ export class AppShellFooter implements AfterViewInit {
    */
   get hasTextCopyright(): boolean {
     return hasText(this.copyright)
-  }
-
-  /**
-   * Whether the copyright span renders: a text input or a projected slot.
-   * @returns True when the copyright shows.
-   */
-  get showCopyright(): boolean {
-    return this.hasTextCopyright || this.copyrightProjected()
   }
 
   /**

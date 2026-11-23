@@ -222,8 +222,8 @@ async function mount(
   document.body.appendChild(host)
   appRef.attachView(ref.hostView)
   appRef.tick()
-  // A second pass settles the optional regions' first render (their
-  // projection read runs in ngAfterViewInit and withdraws an empty wrapper).
+  // A second pass settles the optional regions' first render (the placement
+  // function detaches a region it finds nothing in).
   appRef.tick()
   return {
     host,

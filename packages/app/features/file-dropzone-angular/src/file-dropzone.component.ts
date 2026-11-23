@@ -4,30 +4,17 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
 
 /**
  * FileDropzone component.
@@ -44,13 +31,14 @@ const hasRenderable = (node: Node): boolean =>
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture point mounted, so the
- * default copy renders optimistically and {@link FileDropzone} withdraws it
- * once it sees that the caller projected content (React renders one or the
- * other, never both).
+ * projected content's capture span stays in the template and its content
+ * renders in the span's place; the default copy renders only while nothing is
+ * projected, and comes back when projected content is taken away.
  */
 @Component({
   selector: 'div[mol-file-dropzone]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['onFiles', 'accept', 'multiple', 'maxSize', 'onRejected', 'disabled', 'className'],
   host: {
     role: 'button',
@@ -69,9 +57,9 @@ const hasRenderable = (node: Node): boolean =>
     '(keydown)': 'onKeyDown($event)',
   },
   // prettier-ignore
-  template: `<input #fileInput type="file" [attr.accept]="accept ?? null" [attr.multiple]="multiple ? '' : null" [attr.disabled]="disabled ? '' : null" (change)="onInputChange($event)" style="display: none" /><ng-content></ng-content>@if (!childrenProjected()) {<p #defaultDropHere [class]="dropHereClasses()">{{ dropHereText() }}</p>@if (accept) {<p #defaultAccepts [class]="acceptsClasses()">{{ acceptsText() }}</p>}}`,
+  template: `<input #fileInput type="file" [attr.accept]="accept ?? null" [attr.multiple]="multiple ? '' : null" [attr.disabled]="disabled ? '' : null" (change)="onInputChange($event)" style="display: none" /><span #contentSlot><ng-content></ng-content></span>@if (defaultCopyShown()) {<p [class]="dropHereClasses()">{{ dropHereText() }}</p>@if (accept) {<p [class]="acceptsClasses()">{{ acceptsText() }}</p>}}`,
 })
-export class FileDropzone implements AfterViewInit, DoCheck {
+export class FileDropzone {
   /** Called with the File[] the user selected or dropped. */
   onFiles?: (files: File[]) => void
   /** Accept attribute (e.g. `'image/*'` or `'.pdf,.docx'`). */
@@ -89,21 +77,30 @@ export class FileDropzone implements AfterViewInit, DoCheck {
 
   /** The hidden file input (opened by a click or Enter/Space on the zone). */
   @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>
-  /** The default "drop here" paragraph, while it renders. */
-  @ViewChild('defaultDropHere') private defaultDropHere?: ElementRef<HTMLParagraphElement>
-  /** The default accept-hint paragraph, while it renders. */
-  @ViewChild('defaultAccepts') private defaultAccepts?: ElementRef<HTMLParagraphElement>
+  /** The projected-content capture (its span never renders; `placeContentBefore` stands in its place). */
+  @ViewChild('contentSlot', { static: true }) private contentSlot?: ElementRef<HTMLSpanElement>
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
-  /** The host element (the root `<div>`). */
-  private readonly el = inject(ElementRef)
   /** Whether a drag is over the zone (React's `useState`). */
   private readonly dragging = signal(false)
-  /** Whether the caller projected content (React's `children`). */
-  private readonly projected = signal(false)
-  /** Whether the view (and its template nodes / queries) exists yet. */
-  private viewReady = false
+  /** Whether the default copy renders (React's `children ?? default`). */
+  readonly defaultCopyShown = signal(true)
+
+  /**
+   * Renders the projected content in the capture's place and withdraws the
+   * capture, then shows the default copy only while nothing is projected, as
+   * React's `children ?? default` does — re-decided whenever the content
+   * changes (children taken away and given back included).
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const slot = this.contentSlot?.nativeElement
+      placeContentBefore(slot, slot)
+      setElementPresent(slot, false)
+      this.defaultCopyShown.set(!(slot ? hasContent(slot) : false))
+    })
+  }
 
   /** The drag-over fill, a theme token mixed into transparency. */
   readonly backgroundStyle = 'color-mix(in srgb, var(--mol-color-primary, #3366ff) 6%, transparent)'
@@ -183,15 +180,6 @@ export class FileDropzone implements AfterViewInit, DoCheck {
       { accept: this.accept ?? '' },
       { defaultValue: 'Accepts: {{accept}}' },
     )
-  }
-
-  /**
-   * Whether the default copy is withdrawn because the caller projected
-   * content.
-   * @returns True when projected content replaces the default copy.
-   */
-  childrenProjected(): boolean {
-    return this.projected()
   }
 
   /**
@@ -313,39 +301,5 @@ export class FileDropzone implements AfterViewInit, DoCheck {
   onInputChange(event: Event): void {
     const files = (event.target as HTMLInputElement).files
     if (files) this.dispatch(files)
-  }
-
-  /**
-   * Whether the caller projected any content (React's `children ?? default`).
-   * Latching: children cannot change after mount, so the first answer stands —
-   * without the latch, withdrawing the default copy would leave no node to
-   * compare against and the answer would oscillate.
-   *
-   * Runs only once the view is initialized: an earlier `ngDoCheck` runs before
-   * the template's nodes and the view queries exist, so every node would look
-   * like the caller's projection.
-   */
-  syncProjection(): void {
-    if (!this.viewReady || this.projected()) return
-    const host = this.el.nativeElement as HTMLElement
-    const own = new Set<Node>()
-    if (this.fileInput) own.add(this.fileInput.nativeElement)
-    if (this.defaultDropHere) own.add(this.defaultDropHere.nativeElement)
-    if (this.defaultAccepts) own.add(this.defaultAccepts.nativeElement)
-    const projected = Array.from(host.childNodes).some(
-      (node) => !own.has(node) && hasRenderable(node),
-    )
-    if (projected) this.projected.set(true)
-  }
-
-  /** Reads the first render's projection once the view (and its content) exist. */
-  ngAfterViewInit(): void {
-    this.viewReady = true
-    this.syncProjection()
-  }
-
-  /** Re-reconciles the default copy with the projection after input writes. */
-  ngDoCheck(): void {
-    this.syncProjection()
   }
 }

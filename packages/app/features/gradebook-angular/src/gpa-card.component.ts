@@ -4,16 +4,14 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,27 +20,6 @@ import { defaultGpaMax, formatGpa } from './utilities.js'
 
 /** A node-valued field (React's `ReactNode`): text, or an `ng-template` reference. */
 type GradeNode = TemplateRef<unknown> | string | number
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: Element | undefined | null): boolean =>
-  el ? Array.from(el.childNodes).some(hasRenderable) : false
 
 /**
  * Whether a string/number input renders as text (React renders nothing for
@@ -61,21 +38,22 @@ const hasText = (value: unknown): boolean =>
  * and optional trend chip. The host IS the Card `div` (`div[mol-gpa-card]`),
  * matching React's root exactly: same classes, same region role, same aria
  * label. The `trendLabel` node prop is a text input or projected content
- * (`[slot=trendLabel]`); Angular projection needs its capture point mounted, so
- * the label region renders optimistically and
- * {@link GpaCard.ngAfterViewChecked} reconciles it with React's conditional DOM.
+ * (`[slot=trendLabel]`). The label span stays in the template, so its
+ * `<ng-content>` always captures, and leaves the page while it has nothing to
+ * render, as React's `trendLabel && …` renders no span.
  */
 @Component({
   selector: 'div[mol-gpa-card]',
   standalone: true,
   inputs: ['gpa', 'scale', 'max', 'trend', 'trendLabel', 'className'],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<div [class]="innerClasses()" data-mol-id="gpa-card" role="region" [attr.aria-label]="titleText()"><span [class]="titleClasses()" data-mol-id="gpa-card-title">{{ titleText() }}</span><div [class]="valueRowClasses()"><span [class]="valueClasses()" data-mol-id="gpa-card-value">{{ formatted() }}</span><span [class]="outOfClasses()" data-mol-id="gpa-card-out-of">{{ outOfText() }}</span></div>@if (trendText()) {<div [class]="trendRowClasses()" data-mol-id="gpa-card-trend" [attr.data-trend]="trend"><span aria-hidden="true">{{ trendGlyph() }}</span><span [class]="smallClasses()" data-mol-id="gpa-card-trend-text">{{ trendText() }}</span>@if (showTrendLabel()) {<span #trendLabelWrap [class]="smallClasses()" data-mol-id="gpa-card-trend-label">@if (hasTrendLabelInput) {{{ trendLabel }}}<ng-content select="[slot=trendLabel]"></ng-content></span>}</div>}`,
+  template: `<div [class]="innerClasses()" data-mol-id="gpa-card" role="region" [attr.aria-label]="titleText()"><span [class]="titleClasses()" data-mol-id="gpa-card-title">{{ titleText() }}</span><div [class]="valueRowClasses()"><span [class]="valueClasses()" data-mol-id="gpa-card-value">{{ formatted() }}</span><span [class]="outOfClasses()" data-mol-id="gpa-card-out-of">{{ outOfText() }}</span></div>@if (trendText()) {<div [class]="trendRowClasses()" data-mol-id="gpa-card-trend" [attr.data-trend]="trend"><span aria-hidden="true">{{ trendGlyph() }}</span><span [class]="smallClasses()" data-mol-id="gpa-card-trend-text">{{ trendText() }}</span><span #trendLabelWrap [class]="smallClasses()" data-mol-id="gpa-card-trend-label">@if (hasTrendLabelInput) {{{ trendLabel }}}<ng-content select="[slot=trendLabel]"></ng-content></span></div>}`,
 })
-export class GpaCard implements AfterViewChecked {
+export class GpaCard {
   /** The numeric GPA value (or percentage when `scale='percentage'`). */
   gpa = 0
   /** Which scale `gpa` is expressed on. */
@@ -89,25 +67,22 @@ export class GpaCard implements AfterViewChecked {
   /** Extra classes merged onto the root element. */
   className?: string
 
-  /** The trend-label wrapper (its projected content is read each check). */
+  /** The trend-label span (always in the trend row; detached while it has nothing to render). */
   @ViewChild('trendLabelWrap') private trendLabelWrap?: ElementRef<HTMLElement>
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
-  /** Whether a `[slot=trendLabel]` projection landed (true until the view proves otherwise). */
-  private readonly trendLabelProjected = signal(true)
-
   /**
-   * Reconciles the trend-label region with React's conditional DOM: React
-   * renders the label span only when `trendLabel` is supplied, and Angular
-   * projection needs its capture point mounted first.
+   * Keeps the trend-label span on the page only while it renders a text input
+   * or projected `[slot=trendLabel]` content, re-decided whenever either
+   * changes (a label taken away and given back included).
    */
-  ngAfterViewChecked(): void {
-    const wrap = this.trendLabelWrap?.nativeElement
-    if (!wrap) return
-    const has = hasRenderableContent(wrap)
-    if (has !== this.trendLabelProjected()) this.trendLabelProjected.set(has)
+  constructor() {
+    usePlacement((hasContent) => {
+      const wrap = this.trendLabelWrap?.nativeElement
+      setElementPresent(wrap, this.hasTrendLabelInput || (wrap ? hasContent(wrap) : false))
+    })
   }
 
   /**
@@ -116,14 +91,6 @@ export class GpaCard implements AfterViewChecked {
    */
   get hasTrendLabelInput(): boolean {
     return hasText(this.trendLabel)
-  }
-
-  /**
-   * Whether the label span renders: a text input, or a projected slot.
-   * @returns True when the label shows.
-   */
-  showTrendLabel(): boolean {
-    return this.hasTrendLabelInput || this.trendLabelProjected()
   }
 
   /**

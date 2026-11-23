@@ -4,16 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  EventEmitter,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, EventEmitter, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -27,27 +27,6 @@ import type { ImageGalleryEditorProps } from './types.js'
  * is a documented inline-style exception (molecule Rule 5).
  */
 const SLOT_RADIUS = '0.75rem'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
 
 /**
  * ImageGalleryEditor component.
@@ -65,15 +44,15 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
  * This is the Angular counterpart of `@molecule/app-image-gallery-editor-react`.
  *
  * @remarks
- * Angular projection needs the `<ng-content>` capture points mounted, so the
- * optional regions render optimistically and are withdrawn once the first
- * view shows that nothing was projected into them (React would not render
- * them at all).
+ * The optional regions keep their capture points mounted and leave the page
+ * while they have nothing to render, so content projected later comes back
+ * (React would not render the region at all).
  */
 @Component({
   selector: 'section[mol-image-gallery-editor]',
   standalone: true,
   imports: [ConfirmDialog, Icon],
+  hostDirectives: [MolPlacement],
   outputs: ['change'],
   inputs: [
     'slots',
@@ -87,25 +66,19 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
     'statusMessage',
     'emptySlotIcon',
   ],
-  template: `@if (showHeaderRow) {
-      <div #headerRowEl [class]="headerRowClasses()">
-        @if (headerTextPresent) {
-          {{ header }}
-        } @else if (headerProjected()) {
-          <ng-content select="[slot=header]" />
-        } @else {
-          <div #placeholderEl></div>
+  template: `<div #headerRowEl [class]="headerRowClasses()">
+      @if (headerTextPresent) {
+        {{ header }}
+      }
+      <span #headerCapt><ng-content select="[slot=header]" /></span>
+      <div #placeholderEl></div>
+      <span #counterEl [class]="counterClasses()">
+        @if (counterTextPresent) {
+          {{ counter }}
         }
-        @if (showCounter) {
-          <span #counterEl [class]="counterClasses()">
-            @if (counterTextPresent) {
-              {{ counter }}
-            }
-            <ng-content select="[slot=counter]"
-          /></span>
-        }
-      </div>
-    }
+        <ng-content select="[slot=counter]"
+      /></span>
+    </div>
     <div [class]="gridClasses()">
       <div
         role="button"
@@ -124,18 +97,18 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
         <p #titleEl [class]="titleClasses()">
           @if (titleTextPresent) {
             {{ dropZoneTitle }}
-          } @else if (titleProjected()) {
-            <ng-content select="[slot=dropZoneTitle]" />
-          } @else {
+          }
+          <span #titleCapt><ng-content select="[slot=dropZoneTitle]" /></span>
+          @if (titleFallbackShown()) {
             {{ titleText() }}
           }
         </p>
         <p #hintEl [class]="hintClasses()">
           @if (hintTextPresent) {
             {{ dropZoneHint }}
-          } @else if (hintProjected()) {
-            <ng-content select="[slot=dropZoneHint]" />
-          } @else {
+          }
+          <span #hintCapt><ng-content select="[slot=dropZoneHint]" /></span>
+          @if (hintFallbackShown()) {
             {{ hintText() }}
           }
         </p>
@@ -171,14 +144,12 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
         }
       </div>
     </div>
-    @if (showStatus) {
-      <p #statusEl [class]="statusClasses()" data-mol-id="image-gallery-editor-status">
-        @if (statusTextPresent) {
-          {{ statusMessage }}
-        }
-        <ng-content select="[slot=statusMessage]" />
-      </p>
-    }
+    <p #statusEl [class]="statusClasses()" data-mol-id="image-gallery-editor-status">
+      @if (statusTextPresent) {
+        {{ statusMessage }}
+      }
+      <ng-content select="[slot=statusMessage]" />
+    </p>
     <input
       #fileInput
       type="file"
@@ -195,7 +166,7 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
       }}</ng-container></mol-confirm-dialog
     >`,
 })
-export class ImageGalleryEditor implements AfterViewInit {
+export class ImageGalleryEditor {
   /** Ordered slots, `null` for empty. Length determines slot count. */
   slots?: (string | null)[]
   /** Called when the user picks files; defaults to a local object URL. */
@@ -220,18 +191,24 @@ export class ImageGalleryEditor implements AfterViewInit {
   /** Called with the next slots array when a slot is filled or removed. */
   readonly change = new EventEmitter<(string | null)[]>()
 
-  /** The header row (its children tell whether a header was projected). */
-  @ViewChild('headerRowEl') private headerRowEl?: ElementRef<HTMLDivElement>
-  /** The placeholder div (React's `{header ?? <div />}`). */
-  @ViewChild('placeholderEl') private placeholderEl?: ElementRef<HTMLDivElement>
-  /** The counter span (projected content lands here; read once). */
-  @ViewChild('counterEl') private counterEl?: ElementRef<HTMLSpanElement>
-  /** The drop-zone title paragraph (projected content lands here; read once). */
-  @ViewChild('titleEl') private titleEl?: ElementRef<HTMLParagraphElement>
-  /** The drop-zone hint paragraph (projected content lands here; read once). */
-  @ViewChild('hintEl') private hintEl?: ElementRef<HTMLParagraphElement>
-  /** The status paragraph (projected content lands here; read once). */
-  @ViewChild('statusEl') private statusEl?: ElementRef<HTMLParagraphElement>
+  /** The header row (always in the template; detached while empty). */
+  @ViewChild('headerRowEl', { static: true }) private headerRowEl?: ElementRef<HTMLDivElement>
+  /** The placeholder div (React's `{header ?? <div />}`; detached while a header renders). */
+  @ViewChild('placeholderEl', { static: true }) private placeholderEl?: ElementRef<HTMLDivElement>
+  /** The projected header capture (its span never renders; `placeContentBefore` stands in its place). */
+  @ViewChild('headerCapt', { static: true }) private headerCapt?: ElementRef<HTMLSpanElement>
+  /** The counter span (always in the template; detached while empty). */
+  @ViewChild('counterEl', { static: true }) private counterEl?: ElementRef<HTMLSpanElement>
+  /** The drop-zone title paragraph (always in the template). */
+  @ViewChild('titleEl', { static: true }) private titleEl?: ElementRef<HTMLParagraphElement>
+  /** The projected title capture (its span never renders). */
+  @ViewChild('titleCapt', { static: true }) private titleCapt?: ElementRef<HTMLSpanElement>
+  /** The drop-zone hint paragraph (always in the template). */
+  @ViewChild('hintEl', { static: true }) private hintEl?: ElementRef<HTMLParagraphElement>
+  /** The projected hint capture (its span never renders). */
+  @ViewChild('hintCapt', { static: true }) private hintCapt?: ElementRef<HTMLSpanElement>
+  /** The status paragraph (always in the template; detached while empty). */
+  @ViewChild('statusEl', { static: true }) private statusEl?: ElementRef<HTMLParagraphElement>
   /** The hidden file input (opened by a click or Enter/Space). */
   @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>
 
@@ -243,64 +220,19 @@ export class ImageGalleryEditor implements AfterViewInit {
   /** The slot asking for removal, or null (React's `removeIndex`). */
   readonly removeIndex = signal<number | null>(null)
 
-  /** Whether a `[slot=header]` projection landed (true until proven otherwise). */
-  private readonly headerProjected = signal(true)
-  /** Whether a `[slot=counter]` projection landed (true until proven otherwise). */
-  private readonly counterProjected = signal(true)
-  /** Whether a `[slot=dropZoneTitle]` projection landed (true until proven otherwise). */
-  private readonly titleProjected = signal(true)
-  /** Whether a `[slot=dropZoneHint]` projection landed (true until proven otherwise). */
-  private readonly hintProjected = signal(true)
-  /** Whether a `[slot=statusMessage]` projection landed (true until proven otherwise). */
-  private readonly statusProjected = signal(true)
+  /** Whether the drop-zone title falls back to the translated default text. */
+  readonly titleFallbackShown = signal(false)
+  /** Whether the drop-zone hint falls back to the translated default text. */
+  readonly hintFallbackShown = signal(false)
 
   /**
-   * Reads each optional region's first render, once, at view init — the
-   * projected content is in place by then, and it never changes afterwards
-   * (a case projects a node prop at mount or it never does). When the region's
-   * TEXT input is present at init there is no projection to find (a case
-   * passes a node prop as a text input or as projected content, never both —
-   * React's `??` / truthiness would render only the prop), so the optimistic
-   * `true` is replaced with `false`: a text input that later clears then
-   * withdraws the region in the very tick that clears it, the way React's
-   * truthiness does. Without a text input, a region whose projection landed
-   * nothing renders nothing where React would render the region at all, so
-   * the optimistic render is withdrawn. (Plain reads here would re-run on
-   * every dirty check and read a region's own first render — its fallback
-   * text, its optimistic render — as a projection.)
+   * Reconciles every optional region with React's conditional DOM, re-decided
+   * whenever its inputs or its projected content change (a region taken away
+   * and given back included): the header row and its placeholder, the counter,
+   * the drop-zone title and hint fallbacks, and the status line.
    */
-  ngAfterViewInit(): void {
-    const row = this.headerRowEl?.nativeElement
-    if (row) {
-      if (this.headerTextPresent) {
-        this.headerProjected.set(false)
-      } else {
-        const own = new Set<Node>()
-        const placeholder = this.placeholderEl?.nativeElement
-        const counter = this.counterEl?.nativeElement
-        if (placeholder) own.add(placeholder)
-        if (counter) own.add(counter)
-        this.headerProjected.set(
-          Array.from(row.childNodes).some((node) => !own.has(node) && hasRenderable(node)),
-        )
-      }
-    }
-    const counter = this.counterEl?.nativeElement
-    if (counter) {
-      this.counterProjected.set(this.counterTextPresent ? false : hasRenderableContent(counter))
-    }
-    const title = this.titleEl?.nativeElement
-    if (title) {
-      this.titleProjected.set(this.titleTextPresent ? false : hasRenderableContent(title))
-    }
-    const hint = this.hintEl?.nativeElement
-    if (hint) {
-      this.hintProjected.set(this.hintTextPresent ? false : hasRenderableContent(hint))
-    }
-    const status = this.statusEl?.nativeElement
-    if (status) {
-      this.statusProjected.set(this.statusTextPresent ? false : hasRenderableContent(status))
-    }
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
   }
 
   /**
@@ -368,32 +300,37 @@ export class ImageGalleryEditor implements AfterViewInit {
   }
 
   /**
-   * React's `(header || counter)` row guard.
-   * @returns True when the header row renders.
+   * Applies React's conditions to every optional region: the header row
+   * renders while `header || counter`; its placeholder while no header renders;
+   * the counter while `counter`; the status line while `statusMessage`. Each
+   * capture that is not a React element in its own right (the projected header,
+   * title and hint) renders its content in the capture's place and leaves the
+   * page, so only React's DOM remains.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  get showHeaderRow(): boolean {
-    return (
-      this.truthy(this.header) ||
-      this.headerProjected() ||
-      this.counterTruthy ||
-      this.counterProjected()
-    )
-  }
-
-  /**
-   * React's `counter ? <span>…` guard.
-   * @returns True when the counter span renders.
-   */
-  get showCounter(): boolean {
-    return this.counterTruthy || this.counterProjected()
-  }
-
-  /**
-   * React's `statusMessage ? <p>…` guard.
-   * @returns True when the status line renders.
-   */
-  get showStatus(): boolean {
-    return this.statusTextTruthy || this.statusProjected()
+  private reconcile(hasContent: SlotReader): void {
+    const headerCapt = this.headerCapt?.nativeElement
+    const headerGranted = this.headerTextPresent || (headerCapt ? hasContent(headerCapt) : false)
+    placeContentBefore(headerCapt, headerCapt)
+    setElementPresent(headerCapt, false)
+    const counter = this.counterEl?.nativeElement
+    const counterGranted = counter ? hasContent(counter) : false
+    setElementPresent(counter, counterGranted)
+    setElementPresent(this.headerRowEl?.nativeElement, headerGranted || counterGranted)
+    setElementPresent(this.placeholderEl?.nativeElement, !headerGranted)
+    const titleCapt = this.titleCapt?.nativeElement
+    const titleGranted = this.titleTextPresent || (titleCapt ? hasContent(titleCapt) : false)
+    this.titleFallbackShown.set(!titleGranted)
+    placeContentBefore(titleCapt, titleCapt)
+    setElementPresent(titleCapt, false)
+    const hintCapt = this.hintCapt?.nativeElement
+    const hintGranted = this.hintTextPresent || (hintCapt ? hasContent(hintCapt) : false)
+    this.hintFallbackShown.set(!hintGranted)
+    placeContentBefore(hintCapt, hintCapt)
+    setElementPresent(hintCapt, false)
+    const status = this.statusEl?.nativeElement
+    setElementPresent(status, status ? hasContent(status) : false)
   }
 
   /**

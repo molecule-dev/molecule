@@ -4,9 +4,14 @@
  * @module
  */
 
-import { Component } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -29,21 +34,16 @@ import { AuthBrandHeaderWordmark } from './app-auth-brand-header-wordmark.compon
   standalone: true,
   imports: [AuthBrandHeaderChip, AuthBrandHeaderTagline, AuthBrandHeaderWordmark],
   inputs: ['className', 'appName', 'tagline', 'icon', 'chipGradient', 'chipShape', 'wordmarkColor'],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'classes()',
   },
-  template: `<ng-content>
-    @if (icon) {
-      <div
-        mol-auth-brand-header-chip
-        [icon]="icon"
-        [chipGradient]="chipGradient"
-        [chipShape]="chipShape"
-      ></div>
-    }
-    <h1 mol-auth-brand-header-wordmark [color]="wordmarkColor">{{ appNameText() }}</h1>
-    <p mol-auth-brand-header-tagline>{{ taglineText() }}</p>
-  </ng-content>`,
+  // The preset nodes come first and the projected children after them, so the
+  // placement function asks the host whether the caller projected any child
+  // below a fixed three-node preset. Only one set ever renders at a time, as
+  // React's `{children ?? preset}` renders one.
+  // prettier-ignore
+  template: `<div #chip mol-auth-brand-header-chip [icon]="icon" [chipGradient]="chipGradient" [chipShape]="chipShape"></div><h1 #wordmark mol-auth-brand-header-wordmark [color]="wordmarkColor">{{ appNameText() }}</h1><p #tagline mol-auth-brand-header-tagline>{{ taglineText() }}</p><ng-content></ng-content>`,
 })
 export class AuthBrandHeader {
   /** Extra classes appended to the wrapper `<div>`. */
@@ -61,11 +61,39 @@ export class AuthBrandHeader {
   /** Inline color for the default wordmark `<h1>`. */
   wordmarkColor?: string
 
+  /** The preset chip (always in the template; detached while it does not render). */
+  @ViewChild('chip', { static: true, read: ElementRef }) private chipEl?: ElementRef<HTMLElement>
+  /** The preset wordmark (always in the template; detached while children render instead). */
+  @ViewChild('wordmark', { static: true, read: ElementRef })
+  private wordmarkEl?: ElementRef<HTMLElement>
+  /** The preset tagline (always in the template; detached while children render instead). */
+  @ViewChild('tagline', { static: true, read: ElementRef })
+  private taglineEl?: ElementRef<HTMLElement>
+
+  /** The component's host element, which holds the projected children. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   /**
    * i18n state. Its `t` reads the locale notifications, so the view refreshes
    * the text on a locale switch the way React re-renders on one.
    */
   readonly i18n = useTranslation()
+
+  /**
+   * Keeps the preset chip, wordmark and tagline on the page only while the
+   * caller projects no children (and the chip only while `icon` is set), as
+   * React's `{children ?? preset}` renders the preset only then. The preset
+   * nodes are the host's first three children, so the projected children are
+   * read after them; a preset taken away and put back follows the same rule.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const children = hasContent(this.host.nativeElement, 3)
+      setElementPresent(this.chipEl?.nativeElement, !children && Boolean(this.icon))
+      setElementPresent(this.wordmarkEl?.nativeElement, !children)
+      setElementPresent(this.taglineEl?.nativeElement, !children)
+    })
+  }
 
   /**
    * The current class map.

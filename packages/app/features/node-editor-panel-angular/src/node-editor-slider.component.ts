@@ -4,12 +4,13 @@
  * @module
  */
 
-import { type AfterViewInit, Component, type ElementRef, signal, ViewChild } from '@angular/core'
+import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
+import { MolPlacement, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, renders } from './utilities.js'
+import { renders } from './utilities.js'
 
 /**
  * Next value of the module-wide slider id counter.
@@ -34,13 +35,13 @@ let nextSliderId = 0
  * @remarks
  * React renders `valueDisplay ?? value`, so a projected value display replaces
  * the numeric text. Angular needs the `<ng-content>` capture point mounted, so
- * the numeric text renders optimistically and
- * {@link NodeEditorSlider.ngAfterViewInit} withdraws it when a projection
- * landed.
+ * the chip stays in the template and the placement function re-decides whether
+ * to show the numeric fallback as the slot changes.
  */
 @Component({
   selector: 'div[mol-node-editor-slider]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['label', 'value', 'onChange', 'min', 'max', 'step', 'valueDisplay'],
   host: {
     '[class]': 'classes()',
@@ -74,7 +75,7 @@ let nextSliderId = 0
       (change)="handleChange($event)"
     />`,
 })
-export class NodeEditorSlider implements AfterViewInit {
+export class NodeEditorSlider {
   /** Slider label — a string input, or `[slot=label]` projected content. */
   label?: unknown
   /** Current numeric value. */
@@ -96,13 +97,28 @@ export class NodeEditorSlider implements AfterViewInit {
    */
   readonly inputId = `node-editor-slider-${nextSliderId++}`
 
-  /** The value chip span (projected content lands here; read once). */
-  @ViewChild('valueEl') private valueEl?: ElementRef<HTMLElement>
+  /** The value chip span (projected content lands here; placement reads it). */
+  @ViewChild('valueEl', { static: true }) private valueEl?: ElementRef<HTMLElement>
   /** The range input (React's controlled restore target). */
   @ViewChild('rangeInput') private rangeInput?: ElementRef<HTMLInputElement>
 
-  /** Whether a `[slot=valueDisplay]` projection landed (optimistic until the first view). */
-  private readonly valueDisplayProjected = signal(true)
+  /** Whether a `[slot=valueDisplay]` projection landed, re-decided as the slot changes. */
+  private readonly valueDisplayProjected = signal(false)
+
+  /**
+   * Renders the numeric fallback only while nothing is projected into the chip:
+   * a projected child is an element (the chip's own fallback text is not).
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const valueEl = this.valueEl?.nativeElement
+      this.valueDisplayProjected.set(
+        valueEl
+          ? hasContent.nodes(valueEl).some((node) => node.nodeType === Node.ELEMENT_NODE)
+          : false,
+      )
+    })
+  }
 
   /**
    * The current class map.
@@ -126,15 +142,6 @@ export class NodeEditorSlider implements AfterViewInit {
    */
   get hasValueDisplay(): boolean {
     return this.valueDisplay !== undefined && this.valueDisplay !== null
-  }
-
-  /**
-   * Reads the value chip's first render: when nothing was projected, React
-   * would render the numeric value instead, so the numeric text appears.
-   */
-  ngAfterViewInit(): void {
-    const element = this.valueEl?.nativeElement
-    if (element) this.valueDisplayProjected.set(hasRenderableContent(element))
   }
 
   /**

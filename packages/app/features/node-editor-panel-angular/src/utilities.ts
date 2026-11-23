@@ -1,7 +1,6 @@
 /**
  * Helpers shared by the Angular properties-panel primitives: React's
- * truthiness rule for an optional region, a projection check for a region
- * React would not render at all, the generated radio-group name, and a
+ * truthiness rule for an optional region, the generated radio-group name, and a
  * controlled radio's `checked` state written the way React writes it.
  *
  * @module
@@ -18,26 +17,6 @@ import { Directive, ElementRef, inject, type OnChanges } from '@angular/core'
  */
 export const renders = (value: unknown): boolean =>
   value !== null && value !== undefined && value !== false && value !== ''
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content — a projected slot landed.
- *
- * @param element - The element.
- * @returns True when its children render anything.
- */
-export const hasRenderableContent = (element: HTMLElement | undefined): boolean =>
-  !!element && Array.from(element.childNodes).some(hasRenderable)
 
 /**
  * Source of the generated per-group radio name. The name only ties one group's

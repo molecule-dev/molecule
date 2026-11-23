@@ -4,40 +4,20 @@
  * @module
  */
 
-import type { AfterViewInit, ElementRef } from '@angular/core'
+import type { ElementRef } from '@angular/core'
 import { Component, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
 
 import type { ProgressBarProps } from './types.js'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether a projected region landed: the region's own children after the
- * label the component interpolated itself (React would not render the region
- * at all without one).
- *
- * @param el - The element.
- * @param ownText - Whether the element's first child is the component's own interpolated text.
- * @returns True when the caller projected content into it.
- */
-const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
-  Array.from(el.childNodes)
-    .slice(ownText ? 1 : 0)
-    .some(hasRenderable)
 
 /**
  * ProgressBar component.
@@ -59,13 +39,14 @@ const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
  *
  * @remarks
  * Angular projection needs the `<ng-content>` capture points mounted, so the
- * optional header regions render optimistically and
- * {@link ProgressBar.ngAfterViewInit} withdraws the ones nothing was projected
- * into (React would not render them at all).
+ * optional header regions stay in the template and leave the page while they
+ * have nothing to render; the placement function re-decides them whenever a
+ * slot changes (React would not render them at all).
  */
 @Component({
   selector: 'div[mol-progress-bar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'value',
     'max',
@@ -81,9 +62,9 @@ const hasProjection = (el: HTMLElement, ownText: boolean): boolean =>
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `@if (showHeader) {<div [class]="headerClasses()">@if (showLabel) {<span #labelEl [attr.id]="nameByLabel ? labelId : null" [class]="labelClasses()">@if (hasLabel) {{{ label }}}<ng-content select="[slot=label]" /></span>}@if (showValueLabel) {<span #valueLabelEl [class]="valueLabelClasses()">@if (hasValueLabel) {{{ valueLabel }}}<ng-content select="[slot=valueLabel]" /></span>}</div>}<div [class]="trackClasses()" role="progressbar" [attr.aria-valuenow]="value" [attr.aria-valuemin]="0" [attr.aria-valuemax]="maxValue()" [attr.aria-labelledby]="trackLabelledBy" [attr.aria-label]="trackAriaLabel" [attr.aria-describedby]="describedBy"><div [class]="fillClasses()" [style]="fillStyleText()"></div></div>`,
+  template: `<div #headerEl [class]="headerClasses()"><span #labelEl [attr.id]="nameByLabel ? labelId : null" [class]="labelClasses()">@if (hasLabel) {{{ label }}}<ng-content select="[slot=label]" /></span><span #valueLabelEl [class]="valueLabelClasses()">@if (hasValueLabel) {{{ valueLabel }}}<ng-content select="[slot=valueLabel]" /></span></div><div [class]="trackClasses()" role="progressbar" [attr.aria-valuenow]="value" [attr.aria-valuemin]="0" [attr.aria-valuemax]="maxValue()" [attr.aria-labelledby]="trackLabelledBy" [attr.aria-label]="trackAriaLabel" [attr.aria-describedby]="describedBy"><div [class]="fillClasses()" [style]="fillStyleText()"></div></div>`,
 })
-export class ProgressBar implements AfterViewInit {
+export class ProgressBar {
   /** Current numeric value. */
   value!: number
   /** Maximum (defaults to `100` at read time). */
@@ -110,26 +91,35 @@ export class ProgressBar implements AfterViewInit {
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
-  /** The optional label span (projected content lands here; read once). */
-  @ViewChild('labelEl') private labelEl?: ElementRef<HTMLSpanElement>
-  /** The optional value-label span (projected content lands here; read once). */
-  @ViewChild('valueLabelEl') private valueLabelEl?: ElementRef<HTMLSpanElement>
+  /** The header row (present while either optional region renders). */
+  @ViewChild('headerEl', { static: true }) private headerEl?: ElementRef<HTMLElement>
+  /** The optional label span (its projected nodes decide whether it shows). */
+  @ViewChild('labelEl', { static: true }) private labelEl?: ElementRef<HTMLSpanElement>
+  /** The optional value-label span (its projected nodes decide whether it shows). */
+  @ViewChild('valueLabelEl', { static: true }) private valueLabelEl?: ElementRef<HTMLSpanElement>
 
-  /** Whether a `[slot=label]` projection landed (true until the first view proves otherwise). */
-  private readonly labelProjected = signal(true)
-  /** Whether a `[slot=valueLabel]` projection landed (true until the first view proves otherwise). */
-  private readonly valueLabelProjected = signal(true)
+  /** Whether a `[slot=label]` projection landed (placement decides). */
+  private readonly labelShown = signal(false)
+  /** Whether a `[slot=valueLabel]` projection landed (placement decides). */
+  private readonly valueLabelShown = signal(false)
 
   /**
-   * Reads the optional header regions' first render: when neither a text input
-   * nor projected content landed, React would not render the region at all, so
-   * the optimistic render is withdrawn.
+   * Keeps the header row and its two optional regions on the page only while
+   * they render a text input or projected content, re-decided whenever either
+   * changes (a slot taken away and given back included).
    */
-  ngAfterViewInit(): void {
-    const label = this.labelEl?.nativeElement
-    if (label) this.labelProjected.set(hasProjection(label, this.hasLabel))
-    const valueLabel = this.valueLabelEl?.nativeElement
-    if (valueLabel) this.valueLabelProjected.set(hasProjection(valueLabel, this.hasValueLabel))
+  constructor() {
+    usePlacement((hasContent) => {
+      const labelEl = this.labelEl?.nativeElement
+      const valueLabelEl = this.valueLabelEl?.nativeElement
+      const showLabel = this.hasLabel || (labelEl ? hasContent(labelEl) : false)
+      const showValueLabel = this.hasValueLabel || (valueLabelEl ? hasContent(valueLabelEl) : false)
+      this.labelShown.set(showLabel)
+      this.valueLabelShown.set(showValueLabel)
+      setElementPresent(labelEl, showLabel)
+      setElementPresent(valueLabelEl, showValueLabel)
+      setElementPresent(this.headerEl?.nativeElement, showLabel || showValueLabel)
+    })
   }
 
   /**
@@ -161,7 +151,7 @@ export class ProgressBar implements AfterViewInit {
    * @returns True when the label shows.
    */
   get showLabel(): boolean {
-    return this.hasLabel || this.labelProjected()
+    return this.hasLabel || this.labelShown()
   }
 
   /**
@@ -169,7 +159,7 @@ export class ProgressBar implements AfterViewInit {
    * @returns True when the value label shows.
    */
   get showValueLabel(): boolean {
-    return this.hasValueLabel || this.valueLabelProjected()
+    return this.hasValueLabel || this.valueLabelShown()
   }
 
   /**

@@ -5,35 +5,19 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Checkbox } from '@molecule/app-ui-angular'
 
 import type { ChecklistItem } from './types.js'
-
-/**
- * Whether a wrapper element renders anything besides its static content: an
- * element child (a projected `[slot=title]` landed) or non-empty text.
- *
- * @param node - The wrapper element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (node: Node): boolean =>
-  Array.from(node.childNodes).some(
-    (child) =>
-      child.nodeType === Node.ELEMENT_NODE ||
-      (child.nodeType === Node.TEXT_NODE && (child.textContent ?? '').trim().length > 0),
-  )
 
 /**
  * Checklist component.
@@ -53,14 +37,15 @@ const hasRenderableContent = (node: Node): boolean =>
   selector: 'div[mol-checklist]',
   standalone: true,
   imports: [Checkbox, NgTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: ['items', 'onToggle', 'showProgress', 'title', 'className'],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `@if (showTitle()) {<h3 #titleEl [class]="titleClasses()">@if (hasTextTitle()) {<ng-container>{{ title }}</ng-container>}@if (titleTemplate()) {<ng-container [ngTemplateOutlet]="titleTemplate()"></ng-container>}<ng-content select="[slot=title]"></ng-content></h3>}@if (showProgressEnabled()) {<div [class]="cm().stack(1)"><div [class]="cm().flex({ justify: 'between', align: 'center' })"><span [class]="cm().textSize('xs')">{{ progressText() }}</span><span [class]="cm().cn(cm().textSize('xs'), cm().fontWeight('semibold'))">{{ pct() }}%</span></div><div [class]="cm().cn(cm().progress(), cm().progressHeight('sm'))"><div [class]="cm().cn(cm().progressBar(), cm().progressColor('primary'))" [style.width]="pct() + '%'"></div></div></div>}<ul [class]="cm().stack(2)">@for (item of items; track item.id) {<li [class]="cm().flex({ align: 'start', gap: 'sm' })"><span [class]="cm().shrink0"><div mol-checkbox [checked]="item.completed" [disabled]="item.disabled" [attr.aria-label]="ariaLabel(item)" (change)="toggle(item, $event)"></div></span><div [class]="cm().cn(cm().flex1, cm().stack(0))"><span [class]="labelClasses(item)" [style.text-decoration]="item.completed ? 'line-through' : null" [style.opacity]="item.completed ? 0.6 : null">@if (isText(item.label)) {<ng-container>{{ item.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)"></ng-container>}</span>@if (item.description) {<span [class]="cm().textSize('xs')">@if (isText(item.description)) {<ng-container>{{ item.description }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.description)"></ng-container>}</span>}</div></li>}</ul>`,
+  template: `<h3 #titleEl [class]="titleClasses()">@if (hasTextTitle()) {<ng-container>{{ title }}</ng-container>}@if (titleTemplate()) {<ng-container [ngTemplateOutlet]="titleTemplate()"></ng-container>}<ng-content select="[slot=title]"></ng-content></h3>@if (showProgressEnabled()) {<div [class]="cm().stack(1)"><div [class]="cm().flex({ justify: 'between', align: 'center' })"><span [class]="cm().textSize('xs')">{{ progressText() }}</span><span [class]="cm().cn(cm().textSize('xs'), cm().fontWeight('semibold'))">{{ pct() }}%</span></div><div [class]="cm().cn(cm().progress(), cm().progressHeight('sm'))"><div [class]="cm().cn(cm().progressBar(), cm().progressColor('primary'))" [style.width]="pct() + '%'"></div></div></div>}<ul [class]="cm().stack(2)">@for (item of items; track item.id) {<li [class]="cm().flex({ align: 'start', gap: 'sm' })"><span [class]="cm().shrink0"><div mol-checkbox [checked]="item.completed" [disabled]="item.disabled" [attr.aria-label]="ariaLabel(item)" (change)="toggle(item, $event)"></div></span><div [class]="cm().cn(cm().flex1, cm().stack(0))"><span [class]="labelClasses(item)" [style.text-decoration]="item.completed ? 'line-through' : null" [style.opacity]="item.completed ? 0.6 : null">@if (isText(item.label)) {<ng-container>{{ item.label }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)"></ng-container>}</span>@if (item.description) {<span [class]="cm().textSize('xs')">@if (isText(item.description)) {<ng-container>{{ item.description }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.description)"></ng-container>}</span>}</div></li>}</ul>`,
 })
-export class Checklist implements AfterViewInit {
+export class Checklist {
   /** The checklist items, rendered in order. */
   items: ChecklistItem[] = []
   /** Called when an item is toggled, with its id and the checkbox's new state. */
@@ -72,14 +57,26 @@ export class Checklist implements AfterViewInit {
   /** Extra classes on the outer wrapper. */
   className?: string
 
-  /** The rendered `<h3>` (its content decides whether a title exists at all). */
-  @ViewChild('titleEl') private titleEl?: ElementRef<HTMLHeadingElement>
-
-  /** Whether a `[slot=title]` projection landed (true until the first view proves otherwise). */
-  private readonly titleProjected = signal(true)
+  /** The `<h3>` (always in the template; detached while it has nothing to render). */
+  @ViewChild('titleEl', { static: true }) private titleEl?: ElementRef<HTMLHeadingElement>
 
   /** i18n state; its `t` reads the provider on every call. */
   private readonly i18n = useTranslation()
+
+  /**
+   * Keeps the `<h3>` on the page only while it renders a title input, a title
+   * template or projected `[slot=title]` content, re-decided whenever any of
+   * them changes (a title taken away and given back included).
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const el = this.titleEl?.nativeElement
+      setElementPresent(
+        el,
+        this.hasTextTitle() || this.titleTemplate() !== null || (el ? hasContent(el) : false),
+      )
+    })
+  }
 
   /**
    * The current class map.
@@ -175,28 +172,6 @@ export class Checklist implements AfterViewInit {
    */
   titleTemplate(): TemplateRef<unknown> | null {
     return this.templateOf(this.title)
-  }
-
-  /**
-   * Whether the `<h3>` renders: React's `title &&` on the text input, a title
-   * template, or projected `[slot=title]` content (withdrawn at view init when
-   * none of the three is present).
-   * @returns True when the title shows.
-   */
-  showTitle(): boolean {
-    return this.hasTextTitle() || this.titleTemplate() !== null || this.titleProjected()
-  }
-
-  /**
-   * Reads the rendered `<h3>` once: when neither a title input nor projected
-   * content landed, React would not render the element at all, so the
-   * optimistic render is withdrawn.
-   */
-  ngAfterViewInit(): void {
-    const el = this.titleEl?.nativeElement
-    if (el && !this.hasTextTitle() && this.titleTemplate() === null && !hasRenderableContent(el)) {
-      this.titleProjected.set(false)
-    }
   }
 
   /**

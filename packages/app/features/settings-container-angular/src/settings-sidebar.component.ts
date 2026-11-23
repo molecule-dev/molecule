@@ -5,20 +5,18 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { hasRenderableContent, hasText, isTemplate, isText } from './slots.js'
+import { hasText, isTemplate, isText } from './slots.js'
 import type { SettingsSidebarItem } from './types.js'
 
 /**
@@ -35,6 +33,7 @@ import type { SettingsSidebarItem } from './types.js'
 @Component({
   selector: 'nav[mol-settings-sidebar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [NgTemplateOutlet],
   inputs: ['items', 'activeId', 'onSelect', 'footer', 'ariaLabel', 'className'],
   host: {
@@ -42,9 +41,9 @@ import type { SettingsSidebarItem } from './types.js'
     '[attr.aria-label]': 'navLabel()',
   },
   // prettier-ignore
-  template: `@for (item of items; track item.id) {<button type="button" [attr.aria-current]="item.id === activeId ? 'page' : null" [class]="itemClasses(item)" (click)="select(item)">@if (item.icon != null) {@if (isText(item.icon)) {<ng-container>{{ textOf(item.icon) }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.icon)" />}}<span>@if (isText(item.label)) {<ng-container>{{ textOf(item.label) }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)" />}</span></button>}@if (showFooter()) {<div #footerEl [class]="footerClasses()">@if (footerTemplate(); as footerTpl) {<ng-container [ngTemplateOutlet]="footerTpl" />}@else if (hasFooterText()) {<ng-container>{{ textOf(footer) }}</ng-container>}<ng-content select="[slot=footer]"></ng-content></div>}`,
+  template: `@for (item of items; track item.id) {<button type="button" [attr.aria-current]="item.id === activeId ? 'page' : null" [class]="itemClasses(item)" (click)="select(item)">@if (item.icon != null) {@if (isText(item.icon)) {<ng-container>{{ textOf(item.icon) }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.icon)" />}}<span>@if (isText(item.label)) {<ng-container>{{ textOf(item.label) }}</ng-container>}@else {<ng-container [ngTemplateOutlet]="templateOf(item.label)" />}</span></button>}<div #footerEl [class]="footerClasses()">@if (footerTemplate(); as footerTpl) {<ng-container [ngTemplateOutlet]="footerTpl" />}@else if (hasFooterText()) {<ng-container>{{ textOf(footer) }}</ng-container>}<ng-content select="[slot=footer]"></ng-content></div>`,
 })
-export class SettingsSidebar implements AfterViewInit {
+export class SettingsSidebar {
   /** Items to render, in order. */
   items: SettingsSidebarItem[] = []
   /** The id of the active item (controlled — the caller owns it). */
@@ -58,24 +57,28 @@ export class SettingsSidebar implements AfterViewInit {
   /** Extra classes. */
   className?: string
 
-  /** The optional footer container (projected content lands here; read once). */
-  @ViewChild('footerEl') private footerEl?: ElementRef<HTMLElement>
+  /** The optional footer container (its projected nodes decide whether it shows). */
+  @ViewChild('footerEl', { static: true }) private footerEl?: ElementRef<HTMLElement>
 
-  /** Whether a `[slot=footer]` projection landed (`null`: decided by the text input). */
-  private readonly footerProjected = signal<boolean | null>(true)
+  /** Whether a `[slot=footer]` projection landed (placement decides). */
+  private readonly footerShown = signal(false)
 
   /** The i18n provider access (locale-reactive through the notifications signal). */
   private readonly i18n = useTranslation()
 
   /**
-   * Reads the optional footer's first render: when neither text nor projected
-   * content landed, React would not render it at all, so the optimistic render
-   * is withdrawn.
+   * Keeps the optional footer on the page only while it renders a text input, a
+   * node template or projected content, re-decided whenever any of them changes
+   * (a slot taken away and given back included).
    */
-  ngAfterViewInit(): void {
-    this.footerProjected.set(
-      this.hasFooterText() ? null : hasRenderableContent(this.footerEl?.nativeElement),
-    )
+  constructor() {
+    usePlacement((hasContent) => {
+      const footerEl = this.footerEl?.nativeElement
+      const showFooter =
+        this.hasFooterText() || isTemplate(this.footer) || (footerEl ? hasContent(footerEl) : false)
+      this.footerShown.set(showFooter)
+      setElementPresent(footerEl, showFooter)
+    })
   }
 
   /**
@@ -179,7 +182,7 @@ export class SettingsSidebar implements AfterViewInit {
    * @returns True when the footer shows.
    */
   showFooter(): boolean {
-    return this.hasFooterText() || isTemplate(this.footer) || this.footerProjected() === true
+    return this.hasFooterText() || isTemplate(this.footer) || this.footerShown()
   }
 
   /**

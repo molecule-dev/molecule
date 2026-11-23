@@ -4,33 +4,13 @@
  * @module
  */
 
-import type { AfterViewInit, ElementRef } from '@angular/core'
-import { Component, signal, ViewChild } from '@angular/core'
+import type { ElementRef } from '@angular/core'
+import { Component, ViewChild } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
-
-/**
- * Whether a node is something a caller can see (an element, or a non-blank
- * text node).
- *
- * @param node - The DOM node.
- * @returns True when it renders anything.
- */
-const hasRenderable = (node: Node): boolean =>
-  node.nodeType === Node.ELEMENT_NODE ||
-  (node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim().length > 0)
-
-/**
- * Whether an element carries renderable content (a projected slot landed, or
- * its text input rendered).
- *
- * @param el - The element.
- * @returns True when its children render anything.
- */
-const hasRenderableContent = (el: HTMLElement): boolean =>
-  Array.from(el.childNodes).some(hasRenderable)
 
 /**
  * ChartCard component.
@@ -46,10 +26,11 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
  * This is the Angular counterpart of `@molecule/app-chart-wrapper-react`.
  *
  * @remarks
- * Angular projection needs the `<ng-content>` capture points mounted, so the
- * optional description / actions / summary / footer regions render
- * optimistically and {@link ChartCard.ngAfterViewInit} withdraws the ones
- * nothing was projected into (React would not render them at all).
+ * The optional description / actions / summary / footer regions stay in the
+ * template so their `<ng-content>` capture points always mount, and leave the
+ * page while nothing renders in them, as React's `{description && …}`,
+ * `{actions && …}`, `{summary && …}` and `{footer && …}` render no such
+ * element.
  */
 @Component({
   selector: 'div[mol-chart-card]',
@@ -64,14 +45,15 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
     'className',
     'dataMolId',
   ],
+  hostDirectives: [MolPlacement],
   host: {
     '[class]': 'classes()',
     '[attr.data-mol-id]': 'dataMolId ?? null',
   },
   // prettier-ignore
-  template: `<div [class]="stackClasses()"><header [class]="headerClasses()"><div [class]="titleBlockClasses()"><h3 [class]="titleClasses()">@if (hasTitle) {{{ title }}}<ng-content select="[slot=title]" /></h3>@if (showDescription) {<p #descriptionEl [class]="descriptionClasses()">@if (hasDescription) {{{ description }}}<ng-content select="[slot=description]" /></p>}</div>@if (showActions) {<div #actionsEl [class]="actionsClasses()">@if (hasActions) {{{ actions }}}<ng-content select="[slot=actions]" /></div>}</header>@if (showSummary) {<div #summaryEl [class]="summaryClasses()">@if (hasSummary) {{{ summary }}}<ng-content select="[slot=summary]" /></div>}<div [style]="chartHeightStyle()"><ng-content></ng-content></div>@if (showFooter) {<div #footerEl>@if (hasFooter) {{{ footer }}}<ng-content select="[slot=footer]" /></div>}</div>`,
+  template: `<div [class]="stackClasses()"><header [class]="headerClasses()"><div [class]="titleBlockClasses()"><h3 [class]="titleClasses()">@if (hasTitle) {{{ title }}}<ng-content select="[slot=title]" /></h3><p #descriptionEl [class]="descriptionClasses()">@if (hasDescription) {{{ description }}}<ng-content select="[slot=description]" /></p></div><div #actionsEl [class]="actionsClasses()">@if (hasActions) {{{ actions }}}<ng-content select="[slot=actions]" /></div></header><div #summaryEl [class]="summaryClasses()">@if (hasSummary) {{{ summary }}}<ng-content select="[slot=summary]" /></div><div [style]="chartHeightStyle()"><ng-content></ng-content></div><div #footerEl>@if (hasFooter) {{{ footer }}}<ng-content select="[slot=footer]" /></div></div>`,
 })
-export class ChartCard implements AfterViewInit {
+export class ChartCard {
   /** Card heading — a string input, or `[slot=title]` projected content. */
   title?: unknown
   /** Optional supporting description — a string input, or `[slot=description]` content. */
@@ -89,38 +71,35 @@ export class ChartCard implements AfterViewInit {
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
 
-  /** The optional description paragraph (projected content lands here; read once). */
-  @ViewChild('descriptionEl') private descriptionEl?: ElementRef<HTMLParagraphElement>
-  /** The optional actions row (projected content lands here; read once). */
-  @ViewChild('actionsEl') private actionsEl?: ElementRef<HTMLDivElement>
-  /** The optional summary strip (projected content lands here; read once). */
-  @ViewChild('summaryEl') private summaryEl?: ElementRef<HTMLDivElement>
-  /** The optional footer (projected content lands here; read once). */
-  @ViewChild('footerEl') private footerEl?: ElementRef<HTMLDivElement>
-
-  /** Whether a `[slot=description]` projection landed (true until the first view proves otherwise). */
-  private readonly descriptionProjected = signal(true)
-  /** Whether a `[slot=actions]` projection landed (true until the first view proves otherwise). */
-  private readonly actionsProjected = signal(true)
-  /** Whether a `[slot=summary]` projection landed (true until the first view proves otherwise). */
-  private readonly summaryProjected = signal(true)
-  /** Whether a `[slot=footer]` projection landed (true until the first view proves otherwise). */
-  private readonly footerProjected = signal(true)
+  /** The description paragraph (always in the title block; detached while it has nothing to render). */
+  @ViewChild('descriptionEl', { static: true })
+  private descriptionEl?: ElementRef<HTMLParagraphElement>
+  /** The actions row (always in the header; detached while it has nothing to render). */
+  @ViewChild('actionsEl', { static: true }) private actionsEl?: ElementRef<HTMLDivElement>
+  /** The summary strip (always in the stack; detached while it has nothing to render). */
+  @ViewChild('summaryEl', { static: true }) private summaryEl?: ElementRef<HTMLDivElement>
+  /** The footer (always in the stack; detached while it has nothing to render). */
+  @ViewChild('footerEl', { static: true }) private footerEl?: ElementRef<HTMLDivElement>
 
   /**
-   * Reads the optional regions' first render: when neither a text input nor
-   * projected content landed, React would not render the region at all, so the
-   * optimistic render is withdrawn.
+   * Keeps each optional region on the page only while it renders a text input
+   * or projected content, re-decided whenever either changes (a slot taken
+   * away and given back included).
    */
-  ngAfterViewInit(): void {
-    const description = this.descriptionEl?.nativeElement
-    if (description) this.descriptionProjected.set(hasRenderableContent(description))
-    const actions = this.actionsEl?.nativeElement
-    if (actions) this.actionsProjected.set(hasRenderableContent(actions))
-    const summary = this.summaryEl?.nativeElement
-    if (summary) this.summaryProjected.set(hasRenderableContent(summary))
-    const footer = this.footerEl?.nativeElement
-    if (footer) this.footerProjected.set(hasRenderableContent(footer))
+  constructor() {
+    usePlacement((hasContent) => {
+      const description = this.descriptionEl?.nativeElement
+      setElementPresent(
+        description,
+        this.hasDescription || (description ? hasContent(description) : false),
+      )
+      const actions = this.actionsEl?.nativeElement
+      setElementPresent(actions, this.hasActions || (actions ? hasContent(actions) : false))
+      const summary = this.summaryEl?.nativeElement
+      setElementPresent(summary, this.hasSummary || (summary ? hasContent(summary) : false))
+      const footer = this.footerEl?.nativeElement
+      setElementPresent(footer, this.hasFooter || (footer ? hasContent(footer) : false))
+    })
   }
 
   /**
@@ -189,38 +168,6 @@ export class ChartCard implements AfterViewInit {
       this.footer !== false &&
       this.footer !== ''
     )
-  }
-
-  /**
-   * Whether the description paragraph renders.
-   * @returns True when the description shows.
-   */
-  get showDescription(): boolean {
-    return this.hasDescription || this.descriptionProjected()
-  }
-
-  /**
-   * Whether the actions row renders.
-   * @returns True when the actions show.
-   */
-  get showActions(): boolean {
-    return this.hasActions || this.actionsProjected()
-  }
-
-  /**
-   * Whether the summary strip renders.
-   * @returns True when the summary shows.
-   */
-  get showSummary(): boolean {
-    return this.hasSummary || this.summaryProjected()
-  }
-
-  /**
-   * Whether the footer renders.
-   * @returns True when the footer shows.
-   */
-  get showFooter(): boolean {
-    return this.hasFooter || this.footerProjected()
   }
 
   /**

@@ -22,6 +22,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
@@ -101,7 +102,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -349,5 +350,22 @@ describe('<GpaCard>', () => {
     expect(m.host.querySelector('[data-mol-id="gpa-card-trend-label"]')?.textContent).toBe(
       'vs last semester',
     )
+  })
+
+  it('shows a projected trendLabel again after the consumer stops and starts passing it', async () => {
+    const m = await mount(
+      GpaCard,
+      `<div mol-gpa-card [gpa]="3.5" trend="up">@if (p['show']) {<span slot="trendLabel">vs last semester</span>}</div>`,
+      { show: true },
+    )
+    mounted.push(m)
+    const label = (): Element | null => m.host.querySelector('[data-mol-id="gpa-card-trend-label"]')
+    expect(label()).not.toBeNull()
+    expect(label()!.textContent).toBe('vs last semester')
+    await m.setProps({ show: false })
+    expect(label()).toBeNull()
+    await m.setProps({ show: true })
+    expect(label()).not.toBeNull()
+    expect(label()!.textContent).toBe('vs last semester')
   })
 })
