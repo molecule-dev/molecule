@@ -1811,6 +1811,7 @@
   "@molecule/app-theme",
   "@molecule/app-theme-css-variables",
   "@molecule/app-theme-css-variables-liquid-glass",
+  "@molecule/app-theme-nativewind",
   "@molecule/app-three-viewer-angular",
   "@molecule/app-three-viewer-react",
   "@molecule/app-three-viewer-solid",
