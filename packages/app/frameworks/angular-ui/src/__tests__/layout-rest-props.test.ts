@@ -22,6 +22,8 @@ import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { fireEvent } from '@testing-library/dom'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     // Tokens the layout templates CALL as functions; every other token must be
@@ -112,7 +114,7 @@ const SpacerHost = Component({
 function render<T>(host: Type<T>): ComponentFixture<T> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(host)
   fixture.detectChanges()

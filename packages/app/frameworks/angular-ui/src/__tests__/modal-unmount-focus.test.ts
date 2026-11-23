@@ -19,6 +19,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -93,7 +94,9 @@ const apps: ApplicationRef[] = []
 const mountModal = async (isOpen: boolean): Promise<() => Promise<void>> => {
   shown.set(true)
   open.set(isOpen)
-  const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  const appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   apps.push(appRef)
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   document.body.appendChild(ref.location.nativeElement as HTMLElement)

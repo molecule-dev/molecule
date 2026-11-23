@@ -4,15 +4,9 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
-} from '@angular/core'
+import { Component } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -36,9 +30,8 @@ const VARIANT_BG: Record<NonNullable<NotificationBadgeProps['variant']>, string>
  * Small count pill — typically attached to a nav item, icon button, or inbox
  * entry. The host IS the root `<span>` (`span[mol-notification-badge]`),
  * matching React's root exactly. React renders null while the badge is hidden
- * (`hideOnZero` with a count of 0 or less); Angular's host element always
- * exists, so it is detached from the DOM in that state and restored when the
- * count shows it again.
+ * (`hideOnZero` with a count of 0 or less); `useHostPresence` takes the host out
+ * of the page in that state, so a hidden badge leaves no element behind.
  *
  * This is the Angular counterpart of `@molecule/app-notification-badge-react`'s
  * `NotificationBadge`: the same props (React names), the same ClassMap tokens,
@@ -56,7 +49,7 @@ const VARIANT_BG: Record<NonNullable<NotificationBadgeProps['variant']>, string>
   },
   template: `{{ display() }}`,
 })
-export class NotificationBadge implements AfterViewInit, DoCheck, OnDestroy {
+export class NotificationBadge {
   /** Numeric count — renders as a pill. */
   count!: number
   /** Hide the badge when `count` is 0 (defaults to true at read time). */
@@ -68,12 +61,10 @@ export class NotificationBadge implements AfterViewInit, DoCheck, OnDestroy {
   /** Extra classes. */
   className?: string
 
-  /** The host element (the root `<span>`), for the null-render detach. */
-  private readonly el = inject(ElementRef)
-  /** Where the detached host lives, for the restore. */
-  private detachedParent: Node | null = null
-  /** The node the detached host is restored before. */
-  private detachedAnchor: Node | null = null
+  constructor() {
+    // Leaves no element in the page while the badge is hidden (React renders null).
+    useHostPresence(() => this.isVisible())
+  }
 
   /**
    * The current class map.
@@ -123,49 +114,5 @@ export class NotificationBadge implements AfterViewInit, DoCheck, OnDestroy {
    */
   isVisible(): boolean {
     return !((this.hideOnZero ?? true) && this.count <= 0)
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null, and
-   * restores it when the badge is shown again.
-   */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (!this.isVisible()) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /**
-   * Reconciles host visibility once the view is in the document: the first
-   * ngDoCheck of a cycle runs before Angular has inserted a freshly created
-   * view, so the mount-time decision is applied here.
-   */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles host visibility after input writes. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

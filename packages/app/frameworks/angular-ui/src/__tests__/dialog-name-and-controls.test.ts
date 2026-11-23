@@ -33,6 +33,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     // The variant factories the templates CALL (`modal({ size })`,
@@ -168,7 +170,10 @@ let appRef: ApplicationRef
 const views: Array<{ destroy: () => void }> = []
 
 beforeEach(async () => {
-  if (!appRef) appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  if (!appRef)
+    appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
   document.body.innerHTML = ''
 })
 

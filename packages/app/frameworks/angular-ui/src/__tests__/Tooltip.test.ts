@@ -19,6 +19,8 @@ import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -115,7 +117,7 @@ const SingleHost = Component({
 function mount<H>(host: Type<H>): ComponentFixture<H> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(host)
   fixture.detectChanges()

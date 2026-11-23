@@ -5,17 +5,9 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  type TemplateRef,
-} from '@angular/core'
+import { Component, type TemplateRef } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, styleText } from '@molecule/app-ui-angular'
@@ -37,9 +29,9 @@ const STICKY_TOP = { position: 'sticky', top: 16, zIndex: 30 } as const
  * (`div[mol-bulk-action-toolbar]`), matching React's root exactly.
  *
  * React renders null while `count <= 0` — Angular's host element always
- * exists, so it is detached from the DOM in that state (the same approach
- * `@molecule/app-auth-ui-angular` takes for its no-providers render), and
- * restored when rows are selected again. `position` defaults to
+ * exists, so `useHostPresence` takes it out of the page in that state (no
+ * element is left behind, matching React's null) and puts it back when rows
+ * are selected again. `position` defaults to
  * `'sticky-bottom'` (16px inset, z-30); `'sticky-top'` and `'inline'` are
  * also supported. Destructive actions render as solid error-colored
  * buttons.
@@ -91,8 +83,8 @@ const STICKY_TOP = { position: 'sticky', top: 16, zIndex: 30 } as const
       }
     </div>`,
 })
-export class BulkActionToolbar implements AfterViewInit, DoCheck, OnDestroy {
-  /** Selection count — the toolbar hides (the host detaches) when 0. */
+export class BulkActionToolbar {
+  /** Selection count — the toolbar leaves the page when 0. */
   count = 0
   /** Action buttons. */
   actions: BulkAction[] = []
@@ -105,12 +97,11 @@ export class BulkActionToolbar implements AfterViewInit, DoCheck, OnDestroy {
 
   /** The translation function, captured in the injection context. */
   private readonly i18n = useTranslation()
-  /** The host element (the root `<div>`), for the null-render detach. */
-  private readonly el = inject(ElementRef)
-  /** Where the detached host lives, for the restore. */
-  private detachedParent: Node | null = null
-  /** The node the detached host is restored before. */
-  private detachedAnchor: Node | null = null
+
+  constructor() {
+    // Leaves no element in the page while nothing is selected (React renders null).
+    useHostPresence(() => this.count > 0)
+  }
 
   /**
    * The current class map.
@@ -216,50 +207,5 @@ export class BulkActionToolbar implements AfterViewInit, DoCheck, OnDestroy {
    */
   runAction(action: BulkAction, event: MouseEvent): void {
     action.onClick(event)
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null
-   * (count <= 0), and restores it when rows are selected again.
-   */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (this.count <= 0) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /**
-   * Reconciles host visibility once the view is in the document: the first
-   * ngDoCheck of a cycle runs before Angular has inserted a freshly created
-   * view, so the mount-time decision (React renders null for count <= 0) is
-   * applied here, where the host is connected and can be detached.
-   */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles host visibility after input writes and resets. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

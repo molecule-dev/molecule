@@ -95,6 +95,13 @@
  *   Molecule service whose token was never provided fails at DI time.
  *   Per-concern helpers (`provideAuth`, `provideTheme`, ...) exist for
  *   piecemeal setup.
+ * - The Molecule Angular components render through `provideDomPlacement()`,
+ *   which `provideMolecule` includes. An app or test that mounts them without
+ *   `provideMolecule` adds `provideDomPlacement()` to its providers; a component
+ *   that needs it throws a message naming it. A component never moves a node
+ *   Angular rendered (`appendChild`, `insertBefore`, `remove`): it uses
+ *   `useHostPresence`, `setElementPresent`, `placeElement`, `placeContent` or
+ *   `WrappedChildren`, which keep Angular's own inserts working (NG05106).
  * - In-app links use the `Link` directive (`<a molLink="/settings">`, `imports: [Link]`): it
  *   navigates through the molecule router with react-router `<Link>`'s click rules. A bare
  *   `<a href>` reloads the page; a hand-written `(click)` handler that calls `navigate()`
@@ -105,8 +112,8 @@
 
 export * from './agent-identity.js'
 export * from './chat.js'
+export * from './dom-placement.js'
 export * from './hooks/index.js'
-export * from './host-presence.js'
 export * from './i18n-reactive.js'
 export * from './link.js'
 export * from './maybe-signal.js'

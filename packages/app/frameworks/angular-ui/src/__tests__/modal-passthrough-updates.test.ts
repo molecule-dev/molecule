@@ -24,6 +24,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import {
   addTranslations,
   createSimpleI18nProvider,
@@ -118,7 +119,10 @@ let appRef: ApplicationRef
 const views: Array<{ destroy: () => void }> = []
 
 beforeEach(async () => {
-  if (!appRef) appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  if (!appRef)
+    appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
   await setLocale('en')
   document.body.innerHTML = ''
 })

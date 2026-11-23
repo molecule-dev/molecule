@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => {
   // The class map's variant factories (called with options); every other property is a class token.
   const factories = new Set([
@@ -174,7 +176,9 @@ async function mount(
       }
     },
   )
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   Object.assign(ref.instance, props)
   document.body.appendChild(ref.location.nativeElement as HTMLElement)

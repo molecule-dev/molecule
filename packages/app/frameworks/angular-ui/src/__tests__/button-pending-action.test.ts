@@ -25,7 +25,7 @@ import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { usePromise } from '@molecule/app-angular'
+import { provideDomPlacement, usePromise } from '@molecule/app-angular'
 
 vi.mock('@molecule/app-ui', () => {
   // Only the resolvers the component CALLS may be functions; a class binding
@@ -165,7 +165,11 @@ interface Mounted {
 function renderBookmark(save: SaveBookmark, disabled?: boolean): Mounted {
   TestBed.configureTestingModule({
     imports: [BookmarkButton],
-    providers: [provideZonelessChangeDetection(), { provide: SAVE, useValue: save }],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      { provide: SAVE, useValue: save },
+    ],
   })
   const fixture = TestBed.createComponent(BookmarkButton)
   fixture.componentInstance.disabled = disabled ?? false

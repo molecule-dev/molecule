@@ -24,6 +24,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // `getClassMap()` → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields its key as a string token, so emitted classNames are inspectable —
 // the same mock the React tests use.
@@ -88,7 +90,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -159,12 +161,14 @@ describe('NotificationBadge', () => {
 
   it('renders nothing when count is 0 (hideOnZero default)', async () => {
     const m = await render(BADGE, NotificationBadge, { count: 0 })
-    expect(m.host.innerHTML).toBe('')
+    // useHostPresence leaves an empty comment where the host was, where React leaves ''.
+    expect(m.host.innerHTML.replace('<!---->', '')).toBe('')
   })
 
   it('renders nothing for a negative count under the default hideOnZero', async () => {
     const m = await render(BADGE, NotificationBadge, { count: -3 })
-    expect(m.host.innerHTML).toBe('')
+    // useHostPresence leaves an empty comment where the host was, where React leaves ''.
+    expect(m.host.innerHTML.replace('<!---->', '')).toBe('')
   })
 
   it('renders a 0 badge when hideOnZero is false', async () => {
@@ -235,7 +239,8 @@ describe('NotificationDot', () => {
 
   it('renders nothing when visible is false', async () => {
     const m = await render(DOT, NotificationDot, { visible: false })
-    expect(m.host.innerHTML).toBe('')
+    // useHostPresence leaves an empty comment where the host was, where React leaves ''.
+    expect(m.host.innerHTML.replace('<!---->', '')).toBe('')
   })
 
   it('is aria-hidden (presence indicator, not announced)', async () => {

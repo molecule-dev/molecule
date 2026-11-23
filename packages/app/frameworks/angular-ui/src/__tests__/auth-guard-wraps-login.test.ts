@@ -20,6 +20,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 
 import type * as AppAngular from '@molecule/app-angular'
 import type { RouteLocation } from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 
 /** Navigation options the guard passes (a subset of the routing contract). */
 interface NavigateOptions {
@@ -130,7 +131,7 @@ function renderWrapped(initial: string, loginPath?: string): ComponentFixture<un
   controls.reset(initial)
   TestBed.configureTestingModule({
     imports: [GuardHost],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(GuardHost)
   fixture.componentInstance.loginPath = loginPath

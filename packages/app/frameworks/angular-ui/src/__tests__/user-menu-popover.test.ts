@@ -28,7 +28,12 @@ import { fireEvent, within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type * as AppAngular from '@molecule/app-angular'
-import { provideRouter, type RouteLocation, type Router } from '@molecule/app-angular'
+import {
+  provideDomPlacement,
+  provideRouter,
+  type RouteLocation,
+  type Router,
+} from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 // A mutable auth state the mocked `useAuth` reports; tests swap it to exercise
@@ -256,7 +261,7 @@ const ClosingHost = Component({
 function render<T>(host: Type<T>, router: Router): ComponentFixture<T> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection(), provideRouter(router)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideRouter(router)],
   })
   const fixture = TestBed.createComponent(host)
   fixture.detectChanges()

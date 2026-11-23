@@ -23,7 +23,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useRouter, useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useRouter, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -365,7 +365,7 @@ class ShellContextValueImpl implements ShellContextValue {
       >{{ nodeText(actions) }}
     </div>`,
 })
-export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck {
   /** Brand/title node (React's `brand`), rendered after the menu trigger. */
   brand?: ResponsiveAppShellTopBarProps['brand']
   /** Trailing actions node (React's `actions`). */
@@ -404,8 +404,12 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck,
   private actionsParent: HTMLElement | null = null
   private hasBrand = false
   private hasActions = false
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
+
+  /** Prepares the header's mount condition (React's `mobileOnly`). */
+  constructor() {
+    // Leaves no element in the page while the bar is hidden on desktop (React renders null).
+    useHostPresence(() => !(this.mobileOnly && this.shell().isDesktop))
+  }
 
   /**
    * The nearest shell context.
@@ -494,52 +498,20 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck,
     requireShell(this.host.nativeElement, 'ResponsiveAppShell.TopBar')
   }
 
-  /** Reads slot presence and applies the `mobileOnly` mount condition. */
+  /** Reads slot presence and applies the conditional brand/actions wrappers. */
   ngAfterViewInit(): void {
     this.brandParent = this.brandSlot?.nativeElement.parentElement ?? null
     this.actionsParent = this.actionsSlot?.nativeElement.parentElement ?? null
     this.hasBrand = isGiven(this.brand) || hasNodes(this.brandSlot?.nativeElement)
     this.hasActions = isGiven(this.actions) || hasNodes(this.actionsSlot?.nativeElement)
     this.syncWrappers()
-    this.syncVisibility()
   }
 
-  /** Re-reconciles the wrappers and the mount condition. */
+  /** Re-reconciles the wrappers. */
   ngDoCheck(): void {
     this.hasBrand = isGiven(this.brand) || hasNodes(this.brandSlot?.nativeElement)
     this.hasActions = isGiven(this.actions) || hasNodes(this.actionsSlot?.nativeElement)
     this.syncWrappers()
-    this.syncVisibility()
-  }
-
-  /** Restores a detached header (unmount). */
-  ngOnDestroy(): void {
-    this.reattach()
-  }
-
-  /** Applies React's `{mobileOnly && isDesktop ? null : <header>}`. */
-  private syncVisibility(): void {
-    const hidden = this.mobileOnly && this.shell().isDesktop
-    const host = this.host.nativeElement
-    if (hidden && host.isConnected) {
-      this.detachedParent = host.parentNode
-      this.detachedAnchor = host.nextSibling
-      host.parentNode?.removeChild(host)
-    } else if (!hidden && !host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /** Restores the header into its parent (Angular's removal needs it there). */
-  private reattach(): void {
-    const host = this.host.nativeElement
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /** Applies React's conditional brand/actions wrappers. */
@@ -589,7 +561,7 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck,
       ><ng-container [molTemplateOutlet]="asTemplate(footer)"></ng-container>{{ nodeText(footer) }}
     </div>`,
 })
-export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck {
   /** Accessible name for the `<nav>` landmark. */
   navLabel?: ResponsiveAppShellSidebarProps['navLabel']
   /** Below-nav content (React's `footer` node value). */
@@ -622,8 +594,12 @@ export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   private footerParent: HTMLElement | null = null
   private hasFooter = false
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
+
+  /** Prepares the aside's mount condition (React's breakpoint check). */
+  constructor() {
+    // Leaves no element in the page below the breakpoint (React renders null).
+    useHostPresence(() => this.shell().isDesktop)
+  }
 
   /**
    * The nearest shell context.
@@ -688,49 +664,17 @@ export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck
     requireShell(this.host.nativeElement, 'ResponsiveAppShell.Sidebar')
   }
 
-  /** Applies the initial mount condition and footer presence. */
+  /** Reads footer presence and applies the conditional footer wrapper. */
   ngAfterViewInit(): void {
     this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
     this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
     this.syncWrapper()
-    this.syncVisibility()
   }
 
-  /** Re-reconciles the mount condition and the footer wrapper. */
+  /** Re-reconciles the footer wrapper. */
   ngDoCheck(): void {
     this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
     this.syncWrapper()
-    this.syncVisibility()
-  }
-
-  /** Restores a detached aside (unmount). */
-  ngOnDestroy(): void {
-    this.reattach()
-  }
-
-  /** Applies React's `{!isDesktop ? null : <aside>}`. */
-  private syncVisibility(): void {
-    const hidden = !this.shell().isDesktop
-    const host = this.host.nativeElement
-    if (hidden && host.isConnected) {
-      this.detachedParent = host.parentNode
-      this.detachedAnchor = host.nextSibling
-      host.parentNode?.removeChild(host)
-    } else if (!hidden && !host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /** Restores the aside into its parent. */
-  private reattach(): void {
-    const host = this.host.nativeElement
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /** Applies React's conditional footer wrapper. */

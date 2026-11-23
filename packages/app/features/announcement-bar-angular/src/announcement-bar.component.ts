@@ -5,18 +5,9 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common'
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  signal,
-  type TemplateRef,
-} from '@angular/core'
+import { Component, signal, type TemplateRef } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -54,8 +45,8 @@ const textOf = (value: unknown): string =>
  * `data-kind` and `data-mol-id` live on it.
  *
  * React renders null while the bar is hidden — Angular's host element always
- * exists, so it is detached from the DOM in that state (the same approach
- * `@molecule/app-bulk-action-toolbar-angular` takes) and restored when the
+ * exists, so `useHostPresence` takes it out of the page in that state (no
+ * element is left behind, matching React's null) and puts it back when the
  * controlled `visible` input or the internal dismissal state shows it again.
  *
  * `kind` is exposed as `data-kind` only; it does not change the bar's colors
@@ -121,7 +112,7 @@ const textOf = (value: unknown): string =>
       }
     </div>`,
 })
-export class AnnouncementBar implements AfterViewInit, DoCheck, OnDestroy {
+export class AnnouncementBar {
   /** Optional leading icon: text, a template ref, or `[slot=icon]` content. */
   icon?: TemplateRef<unknown> | string | null
   /** Optional call-to-action (link or button). */
@@ -145,14 +136,13 @@ export class AnnouncementBar implements AfterViewInit, DoCheck, OnDestroy {
    * does not).
    */
   private readonly i18n = useTranslation()
-  /** The host element (the root `<div>`), for the null-render detach. */
-  private readonly el = inject(ElementRef)
   /** Whether the bar is visible when `visible` is not given (React's `useState`). */
   private readonly internalVisible = signal(true)
-  /** Where the detached host lives, for the restore. */
-  private detachedParent: Node | null = null
-  /** The node the detached host is restored before. */
-  private detachedAnchor: Node | null = null
+
+  constructor() {
+    // Leaves no element in the page while the bar is hidden (React renders null).
+    useHostPresence(() => this.isVisible())
+  }
 
   /**
    * The current class map.
@@ -281,50 +271,5 @@ export class AnnouncementBar implements AfterViewInit, DoCheck, OnDestroy {
    */
   runAction(event: MouseEvent): void {
     this.action?.onClick?.(event)
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null, and
-   * restores it when the bar is shown again.
-   */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (!this.isVisible()) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /**
-   * Reconciles host visibility once the view is in the document: the first
-   * ngDoCheck of a cycle runs before Angular has inserted a freshly created
-   * view, so the mount-time decision (React renders null while hidden) is
-   * applied here, where the host is connected and can be detached.
-   */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles host visibility after input writes. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

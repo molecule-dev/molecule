@@ -21,6 +21,8 @@ import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     // Only `cn` is CALLED; the class tokens are plain strings — what Angular's
@@ -69,7 +71,7 @@ const ControlledHost = Component({
 function renderControlled(submitError: unknown): ComponentFixture<unknown> {
   TestBed.configureTestingModule({
     imports: [ControlledHost],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(ControlledHost)
   fixture.componentInstance.submitError = submitError

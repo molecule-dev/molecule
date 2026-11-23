@@ -28,6 +28,7 @@ import { createApplication } from '@angular/platform-browser'
 import { within } from '@testing-library/dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider, LocaleConfig } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -95,7 +96,9 @@ let appRef: ApplicationRef | null = null
  * @returns The mounted spinner controls.
  */
 async function mountSpinner(): Promise<MountedSpinner> {
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   const host = ref.location.nativeElement as HTMLElement
   document.body.appendChild(host)

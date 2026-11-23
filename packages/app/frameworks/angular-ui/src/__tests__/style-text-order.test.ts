@@ -16,6 +16,8 @@ import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import { styleText } from '../utilities/style.js'
 
 /** A component binding one div's `[style]` to its `text`. */
@@ -33,7 +35,7 @@ const StyleProbe = Component({
 function bound(style: Record<string, unknown>): CSSStyleDeclaration {
   TestBed.configureTestingModule({
     imports: [StyleProbe],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(StyleProbe)
   ;(fixture.componentInstance as { text: string | null }).text = styleText(style)

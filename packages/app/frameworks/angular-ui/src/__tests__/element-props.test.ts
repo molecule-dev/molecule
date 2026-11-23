@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 import { ElementPropsWriter } from '../utilities/element-props.js'
 
 let appRef: ApplicationRef
@@ -33,7 +35,9 @@ let writer: ElementPropsWriter
 beforeAll(async () => {
   // The platform's own renderer, not a stub: these tests are about what
   // reaches the element.
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   // `Renderer2` is a per-view service; the platform's factory is what makes one.
   renderer = appRef.injector.get(RendererFactory2).createRenderer(null, null)
 })

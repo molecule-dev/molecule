@@ -21,6 +21,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -84,7 +85,10 @@ let appRef: ApplicationRef
 const views: Array<{ destroy: () => void }> = []
 
 beforeEach(async () => {
-  if (!appRef) appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  if (!appRef)
+    appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
   document.body.innerHTML = ''
 })
 

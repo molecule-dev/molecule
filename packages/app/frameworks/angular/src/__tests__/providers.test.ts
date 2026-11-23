@@ -48,6 +48,9 @@ vi.mock('@molecule/app-state', () => ({
 }))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
+// provideMolecule always includes the renderer rules the ports' components need.
+const DOM_PLACEMENT = { _domPlacement: true }
+vi.mock('../dom-placement.js', () => ({ provideDomPlacement: () => DOM_PLACEMENT }))
 
 import type { StateProvider } from '@molecule/app-state'
 import {
@@ -217,9 +220,10 @@ describe('providers', () => {
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
       const providersArg = makeEnvProvidersCalls[0]
-      // 8 value providers, the environment initializer for i18n locale reactivity and the
-      // app initializer that holds bootstrap for the session (the default with `auth`)
-      expect(providersArg).toHaveLength(10)
+      // The DOM placement rules, 8 value providers, the environment initializer for i18n locale
+      // reactivity and the app initializer that holds bootstrap for the session (the default with `auth`)
+      expect(providersArg).toHaveLength(11)
+      expect(providersArg[0]).toBe(DOM_PLACEMENT)
       expect(providersArg).toContainEqual({ _appInitializer: expect.any(Function) })
       expect(providersArg).toContainEqual({ provide: STATE_PROVIDER, useValue: config.state })
       expect(providersArg).toContainEqual({ provide: AUTH_CLIENT, useValue: config.auth })
@@ -240,8 +244,8 @@ describe('providers', () => {
       provideMolecule(config)
 
       const providersArg = makeEnvProvidersCalls[0]
-      // The two value providers and the session hold `auth` brings by default.
-      expect(providersArg).toHaveLength(3)
+      // The DOM placement rules, the two value providers and the session hold `auth` brings by default.
+      expect(providersArg).toHaveLength(4)
       expect(providersArg).toContainEqual({ provide: STATE_PROVIDER, useValue: config.state })
       expect(providersArg).toContainEqual({ provide: AUTH_CLIENT, useValue: config.auth })
       expect(providersArg).toContainEqual({ _appInitializer: expect.any(Function) })
@@ -250,14 +254,18 @@ describe('providers', () => {
     it('holds bootstrap for the session only while awaitSession is not false', () => {
       const auth = createTestAuthClient()
       provideMolecule({ auth, awaitSession: false })
-      expect(makeEnvProvidersCalls[0]).toEqual([{ provide: AUTH_CLIENT, useValue: auth }])
+      expect(makeEnvProvidersCalls[0]).toEqual([
+        DOM_PLACEMENT,
+        { provide: AUTH_CLIENT, useValue: auth },
+      ])
     })
 
     it('should handle empty configuration', () => {
       provideMolecule({})
 
+      // Only the DOM placement rules, which every app gets.
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(0)
+      expect(providersArg).toEqual([DOM_PLACEMENT])
     })
 
     it('should fall back to the bonded state provider when none is configured', () => {
@@ -268,8 +276,10 @@ describe('providers', () => {
       provideMolecule({})
 
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(1)
-      expect(providersArg[0]).toEqual({ provide: STATE_PROVIDER, useValue: bondedProvider })
+      expect(providersArg).toEqual([
+        DOM_PLACEMENT,
+        { provide: STATE_PROVIDER, useValue: bondedProvider },
+      ])
     })
 
     it('should handle single provider configuration', () => {
@@ -280,8 +290,10 @@ describe('providers', () => {
       provideMolecule(config)
 
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(1)
-      expect(providersArg[0]).toEqual({ provide: THEME_PROVIDER, useValue: config.theme })
+      expect(providersArg).toEqual([
+        DOM_PLACEMENT,
+        { provide: THEME_PROVIDER, useValue: config.theme },
+      ])
     })
 
     it('should not include undefined providers', () => {
@@ -294,9 +306,11 @@ describe('providers', () => {
       provideMolecule(config)
 
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(2)
-      expect(providersArg[0]).toEqual({ provide: AUTH_CLIENT, useValue: config.auth })
-      expect(providersArg[1]).toEqual({ _appInitializer: expect.any(Function) })
+      expect(providersArg).toEqual([
+        DOM_PLACEMENT,
+        { provide: AUTH_CLIENT, useValue: config.auth },
+        { _appInitializer: expect.any(Function) },
+      ])
     })
   })
 })

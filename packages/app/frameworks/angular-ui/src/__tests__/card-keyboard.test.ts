@@ -21,6 +21,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -76,7 +78,9 @@ async function mountCard(interactive: boolean, withInput = false): Promise<HTMLE
       clicked = (): void => {}
     },
   )
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   document.body.appendChild(ref.location.nativeElement as HTMLElement)
   appRef.attachView(ref.hostView)
@@ -104,7 +108,9 @@ async function mountTemplate(template: string, state: object): Promise<HTMLEleme
       }
     },
   )
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   document.body.appendChild(ref.location.nativeElement)
   appRef.attachView(ref.hostView)

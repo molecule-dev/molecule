@@ -24,7 +24,12 @@ import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { fireEvent, within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { provideRouter, type RouteLocation, type Router } from '@molecule/app-angular'
+import {
+  provideDomPlacement,
+  provideRouter,
+  type RouteLocation,
+  type Router,
+} from '@molecule/app-angular'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -208,7 +213,7 @@ function render<T>(
 ): ComponentFixture<T> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection(), provideRouter(router)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideRouter(router)],
   })
   const fixture = TestBed.createComponent(host)
   if (configure) configure(fixture.componentInstance)

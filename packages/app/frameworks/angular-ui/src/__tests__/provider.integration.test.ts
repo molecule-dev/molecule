@@ -35,7 +35,13 @@ import { createApplication } from '@angular/platform-browser'
 import { fireEvent, screen } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideI18n, provideRouter, type RouteLocation, type Router } from '@molecule/app-angular'
+import {
+  provideDomPlacement,
+  provideI18n,
+  provideRouter,
+  type RouteLocation,
+  type Router,
+} from '@molecule/app-angular'
 import { bond } from '@molecule/app-bond'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import type { IconData, IconSet } from '@molecule/app-icons'
@@ -452,6 +458,7 @@ beforeEach(async () => {
   appRef = await createApplication({
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideI18n(createSimpleI18nProvider()),
       provideRouter(memoryRouter('/').router),
     ],

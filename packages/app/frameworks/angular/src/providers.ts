@@ -30,6 +30,7 @@ import {
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { provideDomPlacement } from './dom-placement.js'
 import { bumpLocaleVersion } from './i18n-reactive.js'
 import { ROUTED_VIEW } from './routed-view-token.js'
 import {
@@ -206,7 +207,8 @@ export function providePreview(provider: PreviewProvider): EnvironmentProviders 
  * ```
  */
 export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProviders {
-  const providers: (Provider | EnvironmentProviders)[] = []
+  // The ports' components render through it (host presence, wrapped children, portals).
+  const providers: (Provider | EnvironmentProviders)[] = [provideDomPlacement()]
 
   // Like React's MoleculeProvider: fall back to the provider bonded under
   // `@molecule/app-state` (the singleton every `createStore()` reads), so a

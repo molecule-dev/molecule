@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -176,7 +178,7 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -184,10 +186,8 @@ async function mount(
   const host = ref.location.nativeElement as HTMLElement
   document.body.appendChild(host)
   appRef.attachView(ref.hostView)
-  /** Runs a check, lets effects settle, and checks again (the slide count lands in between). */
+  /** Runs one check: slides, dots and widths land in the same pass, as in one React render. */
   const flush = async (): Promise<void> => {
-    appRef.tick()
-    await Promise.resolve()
     appRef.tick()
   }
   await flush()
@@ -333,5 +333,115 @@ describe('Carousel', () => {
   it('forwards className', async () => {
     const m = await render({ className: 'car-cls' }, 2)
     expect(openTag(m.host)).toContain('car-cls')
+  })
+
+  it('shows slides that arrive after it rendered nothing, in its own place', async () => {
+    // React re-renders on new children wherever the carousel sits. The port left the page
+    // with no slides and came back appended after its last sibling (2026-11-23).
+    const m = await mount(
+      `<i data-before=""></i><div mol-carousel>@for (s of p['slides']; track s) {<div>slide-{{ s }}</div>}</div><i data-after=""></i>`,
+      Carousel as Type<unknown>,
+      { slides: [] },
+    )
+    mounted.push(m)
+    expect(m.host.querySelector('[mol-carousel]')).toBeNull()
+    await m.setProps({ slides: [0, 1] })
+    const carousel = m.host.querySelector('[mol-carousel]')
+    expect(carousel?.previousElementSibling?.hasAttribute('data-before')).toBe(true)
+    expect(carousel?.nextElementSibling?.hasAttribute('data-after')).toBe(true)
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual(['slide-0', 'slide-1'])
+  })
+
+  it('wraps a slide added between two others and drops the wrapper of a removed one', async () => {
+    const m = await mount(
+      `<div mol-carousel>@for (s of p['slides']; track s) {<div>slide-{{ s }}</div>}</div>`,
+      Carousel as Type<unknown>,
+      { slides: [0, 2] },
+    )
+    mounted.push(m)
+    await m.setProps({ slides: [0, 1, 2] })
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual(['slide-0', 'slide-1', 'slide-2'])
+    expect(m.host.querySelectorAll('[data-mol-id="carousel-dot"]')).toHaveLength(3)
+    await m.setProps({ slides: [0, 2] })
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual(['slide-0', 'slide-2'])
+    expect(m.host.querySelectorAll('[data-mol-id="carousel-dot"]')).toHaveLength(2)
+  })
+
+  it('never moves a slide that is already placed when its neighbours change', async () => {
+    const m = await mount(
+      `<div mol-carousel>@for (s of p['slides']; track s) {<div [attr.data-s]="s">slide-{{ s }}</div>}</div>`,
+      Carousel as Type<unknown>,
+      { slides: [0, 2] },
+    )
+    mounted.push(m)
+    const first = m.host.querySelector('[data-s="0"]') as HTMLElement
+    const last = m.host.querySelector('[data-s="2"]') as HTMLElement
+    const removed: Node[] = []
+    const observer = new MutationObserver((records) => {
+      for (const r of records) removed.push(...Array.from(r.removedNodes))
+    })
+    observer.observe(m.host, { childList: true, subtree: true })
+    await m.setProps({ slides: [-1, 0, 1, 2, 3] })
+    await Promise.resolve()
+    observer.disconnect()
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual([
+      'slide--1',
+      'slide-0',
+      'slide-1',
+      'slide-2',
+      'slide-3',
+    ])
+    expect(m.host.querySelector('[data-s="0"]')).toBe(first)
+    expect(m.host.querySelector('[data-s="2"]')).toBe(last)
+    expect(removed).toEqual([])
+    expect(wrappers(m.host).map((w) => w.getAttribute('aria-hidden'))).toEqual([
+      'false',
+      'true',
+      'true',
+      'true',
+      'true',
+    ])
+    expect(wrappers(m.host).every((w) => (w as HTMLElement).style.width === '20%')).toBe(true)
+  })
+
+  it('follows a reorder, a text slide, an @if slide and a single tick', async () => {
+    const Host = `<div mol-carousel>@for (s of p['slides']; track s) {<div>slide-{{ s }}</div>}@if (p['extra']) {plain {{ p['extra'] }}}</div>`
+    const m = await mount(Host, Carousel as Type<unknown>, { slides: [0, 1, 2], extra: '' })
+    mounted.push(m)
+    await m.setProps({ slides: [2, 0, 1] })
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual(['slide-2', 'slide-0', 'slide-1'])
+    await m.setProps({ extra: 'text' })
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual([
+      'slide-2',
+      'slide-0',
+      'slide-1',
+      'plain text',
+    ])
+    expect(m.host.querySelectorAll('[data-mol-id="carousel-dot"]')).toHaveLength(4)
+    await m.setProps({ slides: [], extra: '' })
+    expect(m.host.querySelector('[mol-carousel]')).toBeNull()
+    await m.setProps({ slides: [5] })
+    expect(wrappers(m.host).map((w) => w.textContent)).toEqual(['slide-5'])
+    // Everything inside the track is a wrapper or one of Angular's anchors.
+    const track = wrappers(m.host)[0].parentElement as HTMLElement
+    expect(
+      Array.from(track.childNodes).every(
+        (n) => n.nodeType === 8 || wrappers(m.host).includes(n as Element),
+      ),
+    ).toBe(true)
+  })
+
+  it('fails loudly without provideDomPlacement', async () => {
+    const Host = Component({
+      selector: 'mol-bare-host',
+      standalone: true,
+      imports: [Carousel as Type<unknown>],
+      template: `<div mol-carousel><i></i></div>`,
+    })(class BareHost {})
+    const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+    expect(() => createComponent(Host, { environmentInjector: appRef.injector })).toThrow(
+      /provideDomPlacement\(\)/,
+    )
+    appRef.destroy()
   })
 })

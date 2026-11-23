@@ -25,6 +25,8 @@ import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { fireEvent } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => {
   // Tokens the switch template CALLS; every other token is a plain string
   // (Angular's class binding rejects function values).
@@ -89,7 +91,7 @@ function mountSwitch(
 ): ComponentFixture<SwitchHostInstance> {
   TestBed.configureTestingModule({
     imports: [SwitchHost],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(SwitchHost)
   configure(fixture.componentInstance)

@@ -1,17 +1,15 @@
 import {
   Component,
   computed,
-  ElementRef,
   EventEmitter,
   inject,
   Injector,
-  type OnDestroy,
   Output,
   runInInjectionContext,
   signal,
 } from '@angular/core'
 
-import { useOAuth, type UseOAuthConfig } from '@molecule/app-angular'
+import { useHostPresence, useOAuth, type UseOAuthConfig } from '@molecule/app-angular'
 import { OAuthButtons as OAuthButtonRow, OAuthDivider } from '@molecule/app-oauth-buttons-angular'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
@@ -21,9 +19,8 @@ import { getClassMap, type UIClassMap } from '@molecule/app-ui'
  *
  * The host IS the wrapper `<div>` (`div[mol-auth-oauth-buttons]`),
  * matching React's root. React renders `null` when the config yields no
- * providers, so the host is detached from the DOM in that state (the
- * same pattern `@molecule/app-ui-angular`'s `Toast` uses) and restored
- * before Angular removes it.
+ * providers, so `useHostPresence` keeps no element in the page in that
+ * state.
  *
  * @module
  */
@@ -77,7 +74,7 @@ import { getClassMap, type UIClassMap } from '@molecule/app-ui'
       (success)="handleRowSuccess()"
     ></div>`,
 })
-export class OAuthButtons implements OnDestroy {
+export class OAuthButtons {
   /** The current `oauthConfig` input, as a signal the hook follows. */
   private readonly config = signal<UseOAuthConfig | undefined>(undefined)
 
@@ -124,11 +121,6 @@ export class OAuthButtons implements OnDestroy {
   /** The visible exchange failure, when the callback exchange failed. */
   private readonly errorMessage = signal<string | null>(null)
 
-  /** The element ref of the host (the wrapper div). */
-  private readonly el = inject(ElementRef)
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
-
   /**
    * This component's own injector, captured in the injection context so the
    * `useOAuth` call below can run in it once the inputs exist (an Angular
@@ -141,6 +133,11 @@ export class OAuthButtons implements OnDestroy {
 
   /** The `useOAuth` result: providers, redirect and the callback flow. */
   private oauth?: ReturnType<typeof useOAuth>
+
+  constructor() {
+    // Leaves no element in the page while there are no providers (React renders null).
+    useHostPresence(() => this.oauthProviders().length > 0)
+  }
 
   /**
    * The current class map.
@@ -201,50 +198,5 @@ export class OAuthButtons implements OnDestroy {
         })),
       ),
     )
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null
-   * (no providers), and restores it when providers appear.
-   */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (this.oauthProviders().length === 0) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /**
-   * Reconciles host visibility once the view is in the document: the first
-   * ngDoCheck of a cycle runs before Angular has inserted a freshly created
-   * view, so the mount-time decision (React renders null for no providers)
-   * is applied here, where the host is connected and can be detached.
-   */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles host visibility after input writes and resets. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

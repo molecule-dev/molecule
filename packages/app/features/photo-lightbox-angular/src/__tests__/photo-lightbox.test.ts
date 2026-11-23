@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -106,7 +108,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -158,13 +160,15 @@ describe('PhotoLightbox', () => {
   it('renders nothing when closed', async () => {
     const m = await render({ photos, open: false, onClose: () => {} })
     expect(m.innerHTML).not.toContain('role="dialog"')
-    expect(m.innerHTML).toBe('')
+    // useHostPresence leaves an empty comment where the host was, where React leaves ''.
+    expect(m.innerHTML.replace('<!---->', '')).toBe('')
   })
 
   it('renders nothing when there are no photos', async () => {
     const m = await render({ photos: [], open: true, onClose: () => {} })
     expect(m.innerHTML).not.toContain('role="dialog"')
-    expect(m.innerHTML).toBe('')
+    // useHostPresence leaves an empty comment where the host was, where React leaves ''.
+    expect(m.innerHTML.replace('<!---->', '')).toBe('')
   })
 
   it('renders the active photo and a modal dialog when open', async () => {

@@ -8,16 +8,13 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   type AfterViewInit,
   Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
+  type ElementRef,
   type OnInit,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, styleText, Switch } from '@molecule/app-ui-angular'
@@ -61,7 +58,8 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * host's.
  *
  * React renders `null` while `visible` is false — Angular's host element always
- * exists, so it is detached from the DOM in that state and restored when the
+ * exists, so `useHostPresence` takes it out of the page in that state (no
+ * element is left behind, matching React's null) and puts it back when the
  * banner is shown again. The node props are projected slots: `title` renders
  * inside the `<h3>`, `description` inside the `<p>`; plain string inputs render
  * as text instead, the same values React renders.
@@ -91,7 +89,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
   // prettier-ignore
   template: `<header [class]="cm().stack(1)"><h3 [class]="titleClasses()"><span #titleFallback>{{ titleText() }}</span><span #titleSlot><ng-content select="[slot=title]"></ng-content></span></h3><p [class]="cm().textSize('sm')"><span #descriptionFallback>{{ descriptionText() }}</span><span #descriptionSlot><ng-content select="[slot=description]"></ng-content></span>@if (policyHref) {<ng-container>{{ leadingSpace }}</ng-container><a [class]="cm().link" [attr.href]="policyHref">{{ learnMoreText() }}</a>.}</p></header>@if (showDetails && hasCategories()) {<div [attr.id]="detailsId" [class]="cm().stack(2)">@for (category of categories ?? []; track category.id; let i = $index) {<div [class]="rowClasses()"><div [class]="textColumnClasses()"><span [attr.id]="labelId(i)" [class]="labelClasses()">@if (isTemplate(category.label)) {<ng-container [ngTemplateOutlet]="asTemplate(category.label)" />} @else {{{ category.label }}}</span>@if (category.description) {<span [attr.id]="descriptionId(i)" [class]="cm().textSize('xs')">@if (isTemplate(category.description)) {<ng-container [ngTemplateOutlet]="asTemplate(category.description)" />} @else {{{ category.description }}}</span>}</div><mol-switch [checked]="isChecked(category)" [disabled]="category.required === true" [attr.aria-labelledby]="labelId(i)" [attr.aria-describedby]="category.description ? descriptionId(i) : null" (change)="toggle(category, $event)"></mol-switch></div>}</div>}<footer [class]="footerClasses()">@if (hasCategories()) {<button mol-button [variant]="'ghost'" [size]="'sm'" [attr.aria-expanded]="showDetails" [attr.aria-controls]="showDetails && hasCategories() ? detailsId : null" (click)="toggleDetails()">{{ detailsLabel() }}</button>}<button mol-button [variant]="'ghost'" (click)="reject()">{{ rejectText() }}</button>@if (saveVisible()) {<button mol-button [variant]="'outline'" (click)="save()">{{ saveText() }}</button>}<button mol-button [variant]="'solid'" [color]="'primary'" (click)="accept()">{{ acceptText() }}</button></footer>`,
 })
-export class CookieBanner implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+export class CookieBanner implements OnInit, AfterViewInit {
   /** Cookie categories to offer (omit for a simple accept/reject banner). */
   categories?: CookieCategory[]
   /** Called when accept-all is clicked. */
@@ -138,9 +136,6 @@ export class CookieBanner implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /** The reactive i18n binding, read in the injection context. */
   private readonly i18n = useTranslation()
 
-  /** The host element (the root `<div>`), for the null-render detach. */
-  private readonly el = inject(ElementRef)
-
   /** React's `useState` map: captured once, at mount. */
   private readonly enabled = new Map<string, boolean>()
 
@@ -150,10 +145,11 @@ export class CookieBanner implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   private hasDescriptionSlot = false
   /** Whether the node-props layout was applied (React renders it once). */
   private nodeLayoutApplied = false
-  /** Where the detached host lives, for the restore. */
-  private detachedParent: Node | null = null
-  /** The node the detached host is restored before. */
-  private detachedAnchor: Node | null = null
+
+  constructor() {
+    // Leaves no element in the page while `visible` is false (React renders null).
+    useHostPresence(() => this.visible !== false)
+  }
 
   /**
    * The current class map.
@@ -171,29 +167,12 @@ export class CookieBanner implements OnInit, AfterViewInit, DoCheck, OnDestroy {
 
   /**
    * Reads the projected slots' presence (view queries resolve only at view
-   * init), applies the node-prop layout and the visible-state host detach.
+   * init) and applies the node-prop layout.
    */
   ngAfterViewInit(): void {
     this.hasTitleSlot = hasNodes(this.titleSlot?.nativeElement)
     this.hasDescriptionSlot = hasNodes(this.descriptionSlot?.nativeElement)
     this.applyNodeProps()
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles after input writes (a props step) and state changes. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /**
@@ -459,24 +438,5 @@ export class CookieBanner implements OnInit, AfterViewInit, DoCheck, OnDestroy {
       this.descriptionSlot?.nativeElement,
       this.hasDescriptionSlot,
     )
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null
-   * (`visible === false`), and restores it when the banner is shown again.
-   */
-  private syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (this.visible === false) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

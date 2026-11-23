@@ -22,6 +22,8 @@ import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { fireEvent, within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     // Tokens the banner templates CALL as functions; every other token must be
@@ -116,7 +118,7 @@ const RetryHost = Component({
 function render<T>(host: Type<T>, configure?: (instance: T) => void): ComponentFixture<T> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(host)
   if (configure) configure(fixture.componentInstance)

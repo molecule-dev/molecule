@@ -33,6 +33,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -96,7 +98,9 @@ const keydown = (key: string): KeyboardEvent =>
 
 beforeEach(async () => {
   document.body.innerHTML = ''
-  appRef ??= await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef ??= await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
 })
 
 afterEach(() => {

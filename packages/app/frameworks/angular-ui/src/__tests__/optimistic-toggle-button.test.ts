@@ -26,6 +26,8 @@ import { createApplication } from '@angular/platform-browser'
 import { within } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     // Tokens the button templates CALL; every other token is read as a plain
@@ -165,7 +167,10 @@ let appRef: ApplicationRef
 const views: Array<{ destroy: () => void }> = []
 
 beforeEach(async () => {
-  if (!appRef) appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  if (!appRef)
+    appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
   document.body.innerHTML = ''
 })
 

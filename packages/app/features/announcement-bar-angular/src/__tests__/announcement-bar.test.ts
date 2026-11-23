@@ -23,6 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `textSize`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -88,7 +90,7 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -168,7 +170,8 @@ describe('AnnouncementBar', () => {
   it('renders nothing when controlled visible is false', async () => {
     const m = await render({ visible: false })
     expect(m.innerHTML).not.toContain('role="status"')
-    expect(m.innerHTML).toBe('')
+    // useHostPresence leaves an empty comment where the host was, where React leaves ''.
+    expect(m.innerHTML.replace('<!---->', '')).toBe('')
   })
 
   it('sets data-mol-id and forwards className', async () => {

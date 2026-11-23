@@ -34,7 +34,12 @@ import { fireEvent, within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AppAngular from '@molecule/app-angular'
-import { provideRouter, type RouteLocation, type Router } from '@molecule/app-angular'
+import {
+  provideDomPlacement,
+  provideRouter,
+  type RouteLocation,
+  type Router,
+} from '@molecule/app-angular'
 import type { DropdownItem } from '@molecule/app-ui'
 
 vi.mock('@molecule/app-ui', () => {
@@ -278,7 +283,7 @@ let nav: MemoryRouter
 function mount<T>(host: Type<T>, configure?: (instance: T) => void): ComponentFixture<T> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection(), provideRouter(router)],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement(), provideRouter(router)],
   })
   const fixture = TestBed.createComponent(host)
   if (configure) configure(fixture.componentInstance)

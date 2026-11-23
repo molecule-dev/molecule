@@ -20,7 +20,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useTranslation } from '@molecule/app-angular'
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, ToastProps, UIClassMap } from '@molecule/app-ui'
@@ -207,11 +207,11 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
   private childrenParent: HTMLElement | null = null
   private hasChildren = false
   private adoptedChildren: Node[] = []
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
 
   /** Prepares the countdown state (the timer starts at view init). */
   constructor() {
+    // Leaves no element in the page while the toast is hidden (React renders null).
+    useHostPresence(() => this.visible())
     this.remaining = this.duration
     this.lastDuration = this.duration
   }
@@ -345,19 +345,12 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
       this.restart()
     }
     this.syncDescription()
-    this.syncHostVisibility()
   }
 
   /** Stops the countdown (React's unmount cleanup). */
   ngOnDestroy(): void {
     this.clearTimer()
     this.adoptedChildren = []
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!this.host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(this.host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /** React's effect body: reset the remaining time and start counting. */
@@ -404,25 +397,6 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
     }
     this.sync.sync(span, false, this.childrenParent ?? undefined)
     this.syncDescription()
-  }
-
-  /**
-   * Removes the host element from the DOM when React renders null (the toast
-   * dismissed itself), and restores it before Angular removes it on destroy.
-   */
-  private syncHostVisibility(): void {
-    const host = this.host
-    if (!this.visible()) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 
   /** Applies React's `{!!(description || children) && <div>…</div>}`. */

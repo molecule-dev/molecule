@@ -232,6 +232,8 @@ export interface AngularBinding extends BindingCaseResets {
   /** The router, with the routing bond's routed view (`mol-routed-view` renders it). */
   provideRouter(router: Router, options?: { routedView?: Type<unknown> }): EnvironmentProviders
   provideTheme(provider: ThemeProvider): EnvironmentProviders
+  /** The renderer rules the ports' components need (`provideMolecule` includes them). */
+  provideDomPlacement(): EnvironmentProviders
   /** Auth state; the session gate holds its content until `status` leaves `'loading'`. */
   useAuth(): { status: Signal<AuthStatus> }
   /** The full composition root, for feature cases that mount with every service (`RunOptions.app`). */
@@ -258,8 +260,15 @@ export function createAngularAdapter({
   exports: exportsOf,
   binding,
 }: AngularAdapterOptions): FrameworkAdapter {
-  const { provideAuth, provideI18n, provideMolecule, provideRouter, provideTheme, useAuth } =
-    binding
+  const {
+    provideAuth,
+    provideDomPlacement,
+    provideI18n,
+    provideMolecule,
+    provideRouter,
+    provideTheme,
+    useAuth,
+  } = binding
 
   const renderNodes = (nodes: NodeSpec[] | undefined, built: Built, scope: Scope): string =>
     (nodes ?? []).map((node) => renderNode(node, built, scope)).join('')
@@ -610,6 +619,7 @@ export function createAngularAdapter({
                   ]
                 : [
                     provideZonelessChangeDetection(),
+                    provideDomPlacement(),
                     provideI18n(services.i18n),
                     provideRouter(services.router, { routedView: routedPage }),
                     provideTheme(services.theme),

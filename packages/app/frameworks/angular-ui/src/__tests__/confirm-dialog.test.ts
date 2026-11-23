@@ -72,6 +72,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { fireEvent, within } from '@testing-library/dom'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 const { ConfirmDialog } = await import('../components/confirm-dialog.component.js')
 
 /** Host component projecting the title/description slots into ConfirmDialog. */
@@ -98,7 +100,9 @@ afterEach(() => {
 
 /** Bootstraps the host (zoneless, like the conformance adapter) and returns the dialog. */
 async function mountDialog(): Promise<HTMLElement> {
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   document.body.appendChild(ref.location.nativeElement as HTMLElement)
   appRef.attachView(ref.hostView)
@@ -193,7 +197,9 @@ async function mountHost<T>(
   host: Type<T>,
   configure?: (instance: T) => void,
 ): Promise<MountedDialog<T>> {
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(host, { environmentInjector: appRef.injector })
   document.body.appendChild(ref.location.nativeElement as HTMLElement)
   appRef.attachView(ref.hostView)

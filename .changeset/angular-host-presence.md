@@ -2,4 +2,4 @@
 '@molecule/app-angular': minor
 ---
 
-Add useHostPresence, which keeps a component's host element out of the page while it renders nothing.
+Add provideDomPlacement with useHostPresence, setElementPresent, placeElement, placeContent and WrappedChildren, so components render React's DOM without moving nodes Angular placed.

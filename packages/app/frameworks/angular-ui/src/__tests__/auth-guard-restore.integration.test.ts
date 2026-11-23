@@ -19,6 +19,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 
 import {
   provideAuth,
+  provideDomPlacement,
   provideI18n,
   provideRouter,
   type RouteLocation,
@@ -182,6 +183,7 @@ function renderGuard(client: AuthClient<UserProfile>, router: Router): Component
     imports: [AuthHost],
     providers: [
       provideZonelessChangeDetection(),
+      provideDomPlacement(),
       provideAuth(client),
       provideI18n(createSimpleI18nProvider()),
       provideRouter(router),

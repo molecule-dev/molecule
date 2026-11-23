@@ -23,7 +23,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useTranslation } from '@molecule/app-angular'
+import { provideDomPlacement, useTranslation } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
@@ -118,7 +118,7 @@ async function mountField(component: Type<unknown>, selector: string): Promise<M
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const ref: ComponentRef<unknown> = createComponent(Host, {
     environmentInjector: appRef.injector,

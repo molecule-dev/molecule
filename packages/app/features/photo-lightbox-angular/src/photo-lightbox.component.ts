@@ -6,11 +6,7 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewInit,
   Component,
-  type DoCheck,
-  ElementRef,
-  inject,
   type OnChanges,
   type OnDestroy,
   type OnInit,
@@ -19,7 +15,7 @@ import {
   type TemplateRef,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -57,9 +53,8 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * as in React's DOM.
  *
  * React renders null while the lightbox is closed or the gallery is empty —
- * Angular's host element always exists, so it is detached from the DOM in that
- * state (the same approach `@molecule/app-announcement-bar-angular` takes) and
- * restored when it opens again. The document keydown listener (← → Esc) is
+ * `useHostPresence` takes the host out of the page in that state, so a closed
+ * lightbox leaves no element behind. The document keydown listener (← → Esc) is
  * mounted with the component, as React's effect is while open.
  */
 @Component({
@@ -156,7 +151,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
     </div>
   }`,
 })
-export class PhotoLightbox implements OnChanges, OnInit, AfterViewInit, DoCheck, OnDestroy {
+export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
   /** Photos to browse. */
   photos: LightboxPhoto[] = []
   /** Whether the lightbox is open. */
@@ -191,12 +186,11 @@ export class PhotoLightbox implements OnChanges, OnInit, AfterViewInit, DoCheck,
    * locale, so the view re-renders the labels on a locale switch.
    */
   private readonly i18n = useTranslation()
-  /** The host element (the root `<div>`), for the null-render detach. */
-  private readonly el = inject(ElementRef)
-  /** Where the detached host lives, for the restore. */
-  private detachedParent: Node | null = null
-  /** The node the detached host is restored before. */
-  private detachedAnchor: Node | null = null
+
+  constructor() {
+    // Leaves no element in the page while the lightbox is closed (React renders null).
+    useHostPresence(() => this.isVisible())
+  }
 
   /**
    * The current class map.
@@ -381,44 +375,8 @@ export class PhotoLightbox implements OnChanges, OnInit, AfterViewInit, DoCheck,
     document.addEventListener('keydown', this.onKey)
   }
 
-  /** Removes the host element from the DOM while React would render null. */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (!this.isVisible()) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /**
-   * Applies the mount-time visibility decision once the host is in the
-   * document (a closed lightbox renders nothing, as React's `null` does).
-   */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles host visibility after input writes. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Detaches the keydown listener and restores the host before removal. */
+  /** Detaches the keydown listener (the host's visibility is `useHostPresence`'s). */
   ngOnDestroy(): void {
     document.removeEventListener('keydown', this.onKey)
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

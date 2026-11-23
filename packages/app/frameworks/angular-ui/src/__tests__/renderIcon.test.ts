@@ -21,6 +21,7 @@ import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { IconData, IconName } from '@molecule/app-icons'
 
 import type { ResolvedIcon } from '../utilities/render-icon.js'
@@ -85,7 +86,7 @@ function svgOf(fixture: ComponentFixture<IconHostInstance>): SVGSVGElement {
 function mountIcon(name: IconName, className?: string): SVGSVGElement {
   TestBed.configureTestingModule({
     imports: [IconHost],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(IconHost)
   fixture.componentInstance.icon = resolveIcon(name, className)

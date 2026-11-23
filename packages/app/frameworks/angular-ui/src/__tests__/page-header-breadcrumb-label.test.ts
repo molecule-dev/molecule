@@ -15,6 +15,8 @@ import { createComponent, provideZonelessChangeDetection } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -59,7 +61,9 @@ afterEach(() => {
 
 describe('PageHeader breadcrumb landmark', () => {
   it('PageHeader names its breadcrumb landmark through t()', async () => {
-    const appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+    const appRef = await createApplication({
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
     apps.push(appRef)
     const ref = createComponent(PageHeader, { environmentInjector: appRef.injector })
     document.body.appendChild(ref.location.nativeElement as HTMLElement)

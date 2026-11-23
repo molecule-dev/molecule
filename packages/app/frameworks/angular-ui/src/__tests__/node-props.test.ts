@@ -21,6 +21,7 @@ import { fireEvent, within } from '@testing-library/dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type * as AppAngular from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 
 vi.mock('@molecule/app-ui', () => {
   /**
@@ -123,7 +124,7 @@ const {
 function render<T>(host: Type<T>, configure?: (instance: T) => void): ComponentFixture<T> {
   TestBed.configureTestingModule({
     imports: [host],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(host)
   fixture.detectChanges()

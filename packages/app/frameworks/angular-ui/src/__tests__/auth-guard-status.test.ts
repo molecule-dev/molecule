@@ -21,6 +21,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 
 import type * as AppAngular from '@molecule/app-angular'
 import type { RouteLocation } from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
 import type { AuthState } from '@molecule/app-auth'
 import { I18nError } from '@molecule/app-i18n'
 
@@ -134,7 +135,7 @@ beforeEach(() => {
 function renderGuard(): ComponentFixture<unknown> {
   TestBed.configureTestingModule({
     imports: [GuardHost],
-    providers: [provideZonelessChangeDetection()],
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })
   const fixture = TestBed.createComponent(GuardHost)
   fixture.detectChanges()
@@ -197,7 +198,7 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
     try {
       TestBed.configureTestingModule({
         imports: [NoChildrenHost],
-        providers: [provideZonelessChangeDetection()],
+        providers: [provideZonelessChangeDetection(), provideDomPlacement()],
       })
       const fixture = TestBed.createComponent(NoChildrenHost)
       fixture.detectChanges()

@@ -1,14 +1,6 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  inject,
-  type OnDestroy,
-  Output,
-  Renderer2,
-} from '@angular/core'
+import { Component, EventEmitter, inject, Output, Renderer2 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import { useHostPresence, useTranslation } from '@molecule/app-angular'
 import { OAuthProviderLogo } from '@molecule/app-oauth-logos-angular'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 import { styleText } from '@molecule/app-ui-angular'
@@ -23,9 +15,8 @@ import type { OAuthButtonsLayout } from './types.js'
  *
  * The host IS the button-group `<div>` (`div[mol-oauth-buttons]`),
  * matching React's root. React renders `null` when the de-duplicated
- * provider list is empty, so the host is detached from the DOM in that
- * state (the same pattern `@molecule/app-ui-angular`'s `Toast` uses) and
- * restored before Angular removes it.
+ * provider list is empty, so `useHostPresence` keeps no element in the
+ * page in that state.
  *
  * @module
  */
@@ -90,7 +81,7 @@ import type { OAuthButtonsLayout } from './types.js'
     </button>
   }`,
 })
-export class OAuthButtons implements OnDestroy {
+export class OAuthButtons {
   /**
    * Ordered list of provider ids to render (see `OAuthButtonsProps.providers`).
    */
@@ -119,11 +110,7 @@ export class OAuthButtons implements OnDestroy {
   /** Extra class composed onto the button-group element. */
   className?: string
 
-  /** The element ref of the host (the button-group div). */
-  private readonly el = inject(ElementRef)
   private readonly renderer = inject(Renderer2)
-  private detachedParent: Node | null = null
-  private detachedAnchor: Node | null = null
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -131,6 +118,11 @@ export class OAuthButtons implements OnDestroy {
    * does not).
    */
   private readonly i18n = useTranslation()
+
+  constructor() {
+    // Leaves no element in the page while there are no providers (React renders null).
+    useHostPresence(() => this.ordered().length > 0)
+  }
 
   /**
    * The current class map.
@@ -266,41 +258,6 @@ export class OAuthButtons implements OnDestroy {
           // success. Swallowing here is the documented, correct noop.
         },
       )
-    }
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null
-   * (no providers), and restores it when providers appear.
-   */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (this.ordered().length === 0) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /** Re-reconciles host visibility after input writes and resets. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
     }
   }
 }

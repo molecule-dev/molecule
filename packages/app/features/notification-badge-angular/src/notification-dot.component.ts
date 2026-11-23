@@ -4,15 +4,9 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
-} from '@angular/core'
+import { Component } from '@angular/core'
 
+import { useHostPresence } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -37,8 +31,8 @@ const VARIANT_BG: Record<NonNullable<NotificationDotProps['variant']>, string> =
  * (`span[mol-notification-dot]`), matching React's root exactly, with
  * `aria-hidden` and every inline declaration applied through host bindings
  * (the CSSOM, as react-dom does). React renders null when `visible` is false;
- * Angular's host element always exists, so it is detached from the DOM in that
- * state and restored when the dot is shown again.
+ * `useHostPresence` takes the host out of the page in that state, so a hidden
+ * dot leaves no element behind.
  *
  * This is the Angular counterpart of `@molecule/app-notification-badge-react`'s
  * `NotificationDot`: the same props (React names), the same DOM for the same
@@ -60,7 +54,7 @@ const VARIANT_BG: Record<NonNullable<NotificationDotProps['variant']>, string> =
   },
   template: '',
 })
-export class NotificationDot implements AfterViewInit, DoCheck, OnDestroy {
+export class NotificationDot {
   /** When false, nothing is rendered (defaults to true at read time). */
   visible?: boolean
   /** Color variant (defaults to `'error'` at read time). */
@@ -72,12 +66,10 @@ export class NotificationDot implements AfterViewInit, DoCheck, OnDestroy {
   /** Extra classes. */
   className?: string
 
-  /** The host element (the root `<span>`), for the null-render detach. */
-  private readonly el = inject(ElementRef)
-  /** Where the detached host lives, for the restore. */
-  private detachedParent: Node | null = null
-  /** The node the detached host is restored before. */
-  private detachedAnchor: Node | null = null
+  constructor() {
+    // Leaves no element in the page while the dot is hidden (React renders null).
+    useHostPresence(() => this.isVisible())
+  }
 
   /**
    * The current class map.
@@ -138,49 +130,5 @@ export class NotificationDot implements AfterViewInit, DoCheck, OnDestroy {
    */
   isVisible(): boolean {
     return this.visible ?? true
-  }
-
-  /**
-   * Removes the host element from the DOM while React would render null, and
-   * restores it when the dot is shown again.
-   */
-  syncHostVisibility(): void {
-    const host = this.el.nativeElement as HTMLElement
-    if (!this.isVisible()) {
-      if (host.isConnected) {
-        this.detachedParent = host.parentNode
-        this.detachedAnchor = host.nextSibling
-        host.parentNode?.removeChild(host)
-      }
-    } else if (this.detachedParent && !host.isConnected) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
-  }
-
-  /**
-   * Reconciles host visibility once the view is in the document: the first
-   * ngDoCheck of a cycle runs before Angular has inserted a freshly created
-   * view, so the mount-time decision is applied here.
-   */
-  ngAfterViewInit(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Re-reconciles host visibility after input writes. */
-  ngDoCheck(): void {
-    this.syncHostVisibility()
-  }
-
-  /** Restores the host before Angular removes it (unmount). */
-  ngOnDestroy(): void {
-    const host = this.el.nativeElement as HTMLElement
-    // The host must be inside its parent for Angular's own removal to succeed.
-    if (!host.isConnected && this.detachedParent) {
-      this.detachedParent.insertBefore(host, this.detachedAnchor)
-      this.detachedParent = null
-      this.detachedAnchor = null
-    }
   }
 }

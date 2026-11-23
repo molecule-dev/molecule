@@ -4,22 +4,19 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  effect,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, type DoCheck, effect, inject, type OnDestroy, signal } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolWrapEachChild,
+  useHostPresence,
+  useTranslation,
+  WrappedChildren,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
+
+// PROTOTYPE: these three come from '@molecule/app-angular' once dom-placement.ts lives there.
 
 // Arrow offsets + vertical centering, exactly as React writes them: the
 // ClassMap contract exposes no left/right/top or translate resolver (only
@@ -35,32 +32,14 @@ const ARROW_RIGHT_STYLE = { right: '8px', top: '50%', transform: 'translateY(-50
 const DOT_STYLE = 'background: transparent; border: none; padding: 4px'
 
 /**
- * Reads the projected slide nodes out of the track: everything the component
- * has not wrapped yet, in render order.
- *
- * @param track - The flex track element.
- * @param wrappers - The slide wrappers already created, in render order.
- * @returns The nodes still to wrap, in order.
- */
-const unwrapped = (track: HTMLElement, wrappers: readonly HTMLElement[]): Node[] =>
-  Array.from(track.childNodes).filter(
-    (node) =>
-      !wrappers.includes(node as HTMLElement) &&
-      // Angular anchors structural blocks with comment nodes; React renders
-      // none, and the conformance normalizer strips them.
-      node.nodeType !== Node.COMMENT_NODE &&
-      // The template's indentation can leave whitespace-only text nodes.
-      !(node.nodeType === Node.TEXT_NODE && (node.textContent ?? '').trim() === ''),
-  )
-
-/**
  * Carousel component.
  *
  * Generic image / card carousel with arrows + dots + optional autoplay, fully
  * controlled-optional. The host IS the root `<div>` (`div[mol-carousel]`),
  * matching React's root exactly; the slides are the element's projected
- * content, and each one is moved into its own `[data-mol-id="carousel-slide"]`
- * wrapper — React's per-child wrapper — once the view exists. Same props (React
+ * content, and Angular places each one inside its own
+ * `[data-mol-id="carousel-slide"]` wrapper — React's per-child wrapper — through
+ * `WrappedChildren`. Same props (React
  * names), same DOM, same `onChange(index)` calls as
  * `@molecule/app-carousel-react`'s `Carousel`. Omit `index` for internal
  * state; pass `index` + `onChange` to own it.
@@ -68,7 +47,8 @@ const unwrapped = (track: HTMLElement, wrappers: readonly HTMLElement[]): Node[]
 @Component({
   selector: 'div[mol-carousel]',
   standalone: true,
-  imports: [Button],
+  imports: [Button, MolWrapEachChild],
+  providers: [WrappedChildren],
   inputs: [
     'index',
     'onChange',
@@ -85,9 +65,9 @@ const unwrapped = (track: HTMLElement, wrappers: readonly HTMLElement[]): Node[]
     '(mouseleave)': 'leave()',
   },
   // prettier-ignore
-  template: `<div style="overflow: hidden"><div #track [style]="trackStyle()"><ng-content></ng-content></div></div>@if (arrowsShown()) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="previous()" [attr.aria-label]="previousLabel()" [className]="absoluteClass()" [style]="arrowLeftStyle">‹</button><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="next()" [attr.aria-label]="nextLabel()" [className]="absoluteClass()" [style]="arrowRightStyle">›</button>}@if (dotsShown()) {<div [class]="dotsClasses()">@for (i of dotIndexes(); track i) {<button type="button" data-mol-id="carousel-dot" [attr.data-active]="i === activeIndex() ? 'true' : 'false'" [attr.aria-label]="goToLabel(i)" [attr.aria-current]="i === activeIndex() ? 'true' : null" (click)="goTo(i)" [class]="dotClasses()" [style]="dotStyle"><span aria-hidden="true" [style]="dotFill(i)"></span></button>}</div>}`,
+  template: `<div style="overflow: hidden"><div molWrapEachChild [style]="trackStyle()"><ng-content></ng-content></div></div>@if (arrowsShown()) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="previous()" [attr.aria-label]="previousLabel()" [className]="absoluteClass()" [style]="arrowLeftStyle">‹</button><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="next()" [attr.aria-label]="nextLabel()" [className]="absoluteClass()" [style]="arrowRightStyle">›</button>}@if (dotsShown()) {<div [class]="dotsClasses()">@for (i of dotIndexes(); track i) {<button type="button" data-mol-id="carousel-dot" [attr.data-active]="i === activeIndex() ? 'true' : 'false'" [attr.aria-label]="goToLabel(i)" [attr.aria-current]="i === activeIndex() ? 'true' : null" (click)="goTo(i)" [class]="dotClasses()" [style]="dotStyle"><span aria-hidden="true" [style]="dotFill(i)"></span></button>}</div>}`,
 })
-export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
+export class Carousel implements DoCheck, OnDestroy {
   /** Controlled active index — caller owns state. */
   index?: number
   /** Called when the active index changes. */
@@ -112,12 +92,6 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
   /** The dot button's inline style text. */
   readonly dotStyle = DOT_STYLE
 
-  /** The flex track holding the slide wrappers. */
-  @ViewChild('track') private track?: ElementRef<HTMLElement>
-
-  /** The host element — React's root `<div>`. */
-  private readonly host = inject(ElementRef<HTMLElement>)
-
   /** i18n state; its `t` reads the provider on every call. */
   private readonly i18n = useTranslation()
 
@@ -125,20 +99,18 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
   private readonly internal = signal(0)
   /** React's `useState(false)`: the pointer-over state autoplay pauses on. */
   private readonly hovered = signal(false)
-  /** How many slides the projected content holds — React's `children.length`. */
-  private readonly slideCount = signal(0)
-
-  /** The slide wrappers, in render order. */
-  private readonly wrappers: HTMLElement[] = []
-  /** Where the host sat before a no-slides render detached it. */
-  private hostParent: Node | null = null
+  /** The slide wrappers Angular placed the projected children in — React's `children`. */
+  private readonly slides = inject(WrappedChildren)
   /** The autoplay interval, and the dependency key it was started for. */
   private timer: ReturnType<typeof setInterval> | null = null
   private timerKey = ''
-  /** The slide count whose publication is queued for after the current check. */
-  private pendingCount = -1
 
   constructor() {
+    this.slides.wrapWith((document) => {
+      const wrapper = document.createElement('div')
+      wrapper.setAttribute('data-mol-id', 'carousel-slide')
+      return wrapper
+    })
     // Every wrapper's `aria-hidden` and width follow the active index, as
     // React's render does — a signal effect, so a targeted (zoneless) update
     // that re-evaluates the template bindings runs it too.
@@ -158,6 +130,9 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
       this.slideCount()
       this.syncTimer()
     })
+
+    // No element at all without slides (React renders null).
+    useHostPresence(() => this.slideCount() > 0)
   }
 
   /**
@@ -166,7 +141,6 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
    * slide count, the active index or the `setIdx` inputs change.
    */
   ngDoCheck(): void {
-    this.wrapSlides()
     this.syncWrappers()
     this.syncTimer()
   }
@@ -185,7 +159,7 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
   private syncWrappers(): void {
     const active = this.activeIndex()
     const total = this.slideCount()
-    for (const [i, wrapper] of this.wrappers.entries()) {
+    for (const [i, wrapper] of this.slides.wrappers().entries()) {
       wrapper.setAttribute('aria-hidden', i === active ? 'false' : 'true')
       wrapper.style.width = total === 0 ? '0%' : `${100 / total}%`
       wrapper.style.flexShrink = '0'
@@ -227,6 +201,14 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
    */
   cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * React's `children.length`.
+   * @returns How many slides the projected content holds.
+   */
+  private slideCount(): number {
+    return this.slides.wrappers().length
   }
 
   /**
@@ -396,58 +378,5 @@ export class Carousel implements AfterViewInit, DoCheck, OnDestroy {
       (this.loop ?? true) ? (index + total) % total : Math.max(0, Math.min(total - 1, index))
     if (this.index === undefined) this.internal.set(clamped)
     this.onChange?.(clamped)
-  }
-
-  /**
-   * Wraps the projected slides once the view (and its track query) exists —
-   * the projected content is created with the view, and a zoneless app does not
-   * re-check a clean view.
-   */
-  ngAfterViewInit(): void {
-    this.wrapSlides()
-  }
-
-  /**
-   * Wraps every projected slide that is not wrapped yet, keeps the host element
-   * to React's rule (no element at all without slides) and publishes the count.
-   * Idempotent: the first check wraps, later checks only reconcile.
-   */
-  private wrapSlides(): void {
-    const track = this.track?.nativeElement
-    if (track) {
-      for (const node of unwrapped(track, this.wrappers)) {
-        const wrapper = document.createElement('div')
-        wrapper.setAttribute('data-mol-id', 'carousel-slide')
-        track.insertBefore(wrapper, node)
-        wrapper.appendChild(node)
-        this.wrappers.push(wrapper)
-      }
-    }
-    const host = this.host.nativeElement
-    if (this.wrappers.length === 0) {
-      if (host.isConnected) {
-        this.hostParent = host.parentNode
-        host.remove()
-      }
-    } else if (!host.isConnected && this.hostParent) {
-      this.hostParent.appendChild(host)
-    }
-    this.publishCount(this.wrappers.length)
-  }
-
-  /**
-   * Publishes the slide count after the current check when it changed: the
-   * projected content exists only after the view is created, and a write during
-   * this check would change a binding the check already read.
-   *
-   * @param total - The count read from the rendered wrappers.
-   */
-  private publishCount(total: number): void {
-    if (total === this.slideCount() || total === this.pendingCount) return
-    this.pendingCount = total
-    queueMicrotask(() => {
-      this.pendingCount = -1
-      this.slideCount.set(total)
-    })
   }
 }

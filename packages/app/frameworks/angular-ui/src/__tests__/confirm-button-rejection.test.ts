@@ -22,6 +22,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { provideDomPlacement } from '@molecule/app-angular'
+
 vi.mock('@molecule/app-ui', () => {
   // Only the resolvers the component CALLS may be functions; a class binding
   // rejects a function value, so every other token is the plain string.
@@ -87,7 +89,9 @@ async function mountConfirm(onConfirm: OnConfirm): Promise<Mounted> {
       onConfirm = onConfirm
     },
   )
-  appRef = await createApplication({ providers: [provideZonelessChangeDetection()] })
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
   const ref = createComponent(Host, { environmentInjector: appRef.injector })
   document.body.appendChild(ref.location.nativeElement as HTMLElement)
   appRef.attachView(ref.hostView)
