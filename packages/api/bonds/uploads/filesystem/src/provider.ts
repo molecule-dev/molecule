@@ -27,8 +27,11 @@ if (!process.env.FILE_UPLOAD_PATH) {
   logger.warn('FILE_UPLOAD_PATH is not set, defaulting to "uploads"')
 }
 
-/** The absolute path where uploaded files are stored. Reads from `FILE_UPLOAD_PATH` env var, defaults to `'uploads'` in the CWD. */
-export const uploadPath = path.join(process.cwd(), process.env.FILE_UPLOAD_PATH || `uploads`)
+/**
+ * The absolute path where uploaded files are stored: `FILE_UPLOAD_PATH` (an absolute path as given,
+ * a relative one under the working directory), default `uploads` in the working directory.
+ */
+export const uploadPath = path.resolve(process.env.FILE_UPLOAD_PATH || `uploads`)
 
 // Ensure upload directory exists — fail fast with an actionable message if it
 // cannot be created (read-only filesystem, bad FILE_UPLOAD_PATH) instead of a
