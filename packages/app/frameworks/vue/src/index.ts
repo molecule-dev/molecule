@@ -133,6 +133,7 @@
  */
 
 export * from './agent-identity.js'
+export * from './children.js'
 export * from './composables/index.js'
 export * from './injection-keys.js'
 export * from './link.js'

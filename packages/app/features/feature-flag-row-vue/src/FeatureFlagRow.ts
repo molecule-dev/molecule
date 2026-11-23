@@ -9,11 +9,11 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, toRaw, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { FeatureFlag, FeatureFlagRowProps, FlagType } from './types.js'
 
@@ -42,27 +42,6 @@ function flagTypeLabel(type: FlagType, t: Translate): string {
     case 'string':
       return t('flagType.string', {}, { defaultValue: 'String' })
   }
-}
-
-/**
- * Normalizes a node-valued prop to a child list: an array stays as it is, a
- * single node becomes a one-item list, and the values React renders as nothing
- * (`null`, `undefined`, `false`) contribute nothing.
- *
- * The value is unwrapped with `toRaw` first: a node carried inside a data prop
- * may sit in a reactive object (Vue deep-proxies props an app keeps reactive),
- * and rendering a proxied VNode both tracks its properties in the render effect
- * and writes them back while the VNode mounts — a reactive loop. Vue keeps
- * VNodes out of reactivity (its own `markRaw` guidance), so render the
- * underlying node.
- *
- * @param value - The node-valued prop.
- * @returns The children to render.
- */
-const childList = (value: VNodeChild | null | undefined): VNodeChild[] => {
-  const raw = toRaw(value)
-  if (raw === null || raw === undefined || raw === false) return []
-  return Array.isArray(raw) ? raw : [raw]
 }
 
 /**
@@ -102,7 +81,7 @@ export const FeatureFlagRow = defineComponent({
         [
           h('div', { class: cm.cn(cm.flex1, cm.stack(0 as const)) }, [
             h('div', { class: cm.flex({ align: 'center', gap: 'sm' }) }, [
-              h('span', { class: cm.cn(cm.fontWeight('semibold')) }, childList(props.flag.name)),
+              h('span', { class: cm.cn(cm.fontWeight('semibold')) }, toChildArray(props.flag.name)),
               h(
                 'span',
                 { class: cm.cn(cm.textSize('xs'), cm.fontWeight('medium')) },
@@ -111,7 +90,7 @@ export const FeatureFlagRow = defineComponent({
             ]),
             h('span', { class: cm.cn(cm.textSize('xs')) }, props.flag.key),
             props.flag.description
-              ? h('p', { class: cm.textSize('sm') }, childList(props.flag.description))
+              ? h('p', { class: cm.textSize('sm') }, toChildArray(props.flag.description))
               : null,
           ]),
           h(
@@ -128,7 +107,7 @@ export const FeatureFlagRow = defineComponent({
                   h(
                     'span',
                     { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) },
-                    childList(env.label),
+                    toChildArray(env.label),
                   ),
                   h('div', { class: cm.flex({ align: 'center', gap: 'xs' }) }, [
                     h(Switch, {

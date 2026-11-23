@@ -10,9 +10,10 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild, withDirectives } from 'vue'
+import { defineComponent, h, type PropType, type VNode, withDirectives } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { NodeEditorRadioGroupProps, NodeEditorRadioOption } from './types.js'
 import { vControlledChecked } from './utilities.js'
@@ -30,18 +31,6 @@ let nextGeneratedName = 0
  * @returns The generated name.
  */
 const generatedName = (): string => `mol-node-editor-radio-${nextGeneratedName++}`
-
-/**
- * Normalizes a node-valued label to a child list: a reactive proxy is unwrapped
- * (`toRaw`) so rendering it never writes back into the effect that produced it.
- *
- * @param value - The label.
- * @returns The children to render.
- */
-const childList = (value: VNodeChild | null | undefined): VNodeChild[] => {
-  if (value === null || value === undefined || value === false) return []
-  return Array.isArray(value) ? value : [value]
-}
 
 /**
  * Radio list — the Vue counterpart of
@@ -126,7 +115,7 @@ export const NodeEditorRadioGroup = defineComponent({
                       : cm.nodeEditorPanelOptionLabel,
                   ),
                 },
-                childList(opt.label),
+                toChildArray(opt.label),
               ),
               h(
                 'div',

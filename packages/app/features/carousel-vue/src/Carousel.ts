@@ -7,20 +7,11 @@
  * @module
  */
 
-import {
-  computed,
-  defineComponent,
-  h,
-  type PropType,
-  ref,
-  type VNode,
-  type VNodeChild,
-  watchEffect,
-} from 'vue'
+import { computed, defineComponent, h, type PropType, ref, type VNode, watchEffect } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { CarouselProps } from './types.js'
 
@@ -32,18 +23,6 @@ import type { CarouselProps } from './types.js'
 // sit at the vertical middle.
 const arrowLeftStyle = { left: '8px', top: '50%', transform: 'translateY(-50%)' }
 const arrowRightStyle = { right: '8px', top: '50%', transform: 'translateY(-50%)' }
-
-/**
- * Normalizes the slides to a child list: an array stays as it is, and the values
- * React renders as nothing (`null`, `undefined`, `false`) contribute nothing.
- *
- * @param value - The children, from the default slot or the `children` prop.
- * @returns The slide nodes, in order.
- */
-const childList = (value: VNodeChild[] | VNodeChild | null | undefined): VNodeChild[] => {
-  const list = Array.isArray(value) ? value : value == null || value === false ? [] : [value]
-  return list.filter((child) => child !== null && child !== undefined && child !== false)
-}
 
 /**
  * Generic image / card carousel with arrows + dots + optional autoplay.
@@ -90,8 +69,8 @@ export const Carousel = defineComponent({
     const internal = ref(0)
     // React's `useState(false)`: the pointer-over state autoplay pauses on.
     const hovered = ref(false)
-    // React's `children.length`, read during render and used by `setIdx` when a
-    // control is clicked.
+    // React's `children.length`: each top-level child is a slide, with a
+    // `v-for` Fragment flattened to its items and a false `v-if` dropped.
     const total = ref(0)
     /** React's `const active = index ?? internal`. */
     const active = computed(() => props.index ?? internal.value)
@@ -127,7 +106,7 @@ export const Carousel = defineComponent({
     })
 
     return (): VNode | null => {
-      const kids = childList(slots.default?.() ?? props.children)
+      const kids = toChildArray(slots.default?.() ?? props.children)
       total.value = kids.length
       if (kids.length === 0) return null
       const count = kids.length

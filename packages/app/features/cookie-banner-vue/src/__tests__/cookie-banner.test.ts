@@ -73,7 +73,15 @@ vi.mock('@molecule/app-ui-vue', async () => {
   }
 })
 
-import { type App, createApp, defineComponent, h, nextTick } from 'vue'
+import {
+  type App,
+  createApp,
+  createCommentVNode,
+  defineComponent,
+  Fragment,
+  h,
+  nextTick,
+} from 'vue'
 
 import { CookieBanner } from '../CookieBanner.js'
 
@@ -223,5 +231,18 @@ describe('CookieBanner', () => {
     expect(details.getAttribute('aria-expanded')).toBe('false')
     expect(details.getAttribute('aria-controls')).toBeNull()
     expect(host.querySelectorAll('input[data-switch]')).toHaveLength(0)
+  })
+
+  it('renders every part of a node-valued category label and skips a false v-if branch', async () => {
+    const label = h(Fragment, null, [
+      h('b', null, 'Anal'),
+      createCommentVNode('v-if', true),
+      h('b', null, 'ytics'),
+    ])
+    const host = await renderOpen({
+      categories: [{ id: 'analytics', label, description: 'Helps us improve.' }],
+    })
+    const namedBy = host.querySelector('input[data-switch]')!.getAttribute('aria-labelledby')!
+    expect(document.getElementById(namedBy)!.innerHTML).toBe('<b>Anal</b><b>ytics</b>')
   })
 })

@@ -9,7 +9,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createApp, defineComponent, h, type VNode } from 'vue'
+import { createApp, createCommentVNode, defineComponent, Fragment, h, type VNode } from 'vue'
 
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
@@ -120,5 +120,20 @@ describe('<NodeEditorRadioGroup>', () => {
     const host = render({ value: 'structured', onChange: () => {}, options: OPTIONS })
     const tile = query(host, '[data-mol-id="node-editor-radio-structured"]')
     expect(tile.querySelector('[aria-hidden="true"]')).toBeTruthy()
+  })
+
+  it('renders every part of a node-valued option label and skips a false v-if branch', () => {
+    const label = h(Fragment, null, [
+      h('b', null, 'Hy'),
+      createCommentVNode('v-if', true),
+      h('b', null, 'brid'),
+    ])
+    const host = render({
+      value: 'hybrid',
+      onChange: () => {},
+      options: [{ value: 'hybrid', label }],
+    })
+    const tile = query(host, '[data-mol-id="node-editor-radio-hybrid"]')
+    expect(tile.querySelector('span')!.innerHTML).toBe('<b>Hy</b><b>brid</b>')
   })
 })

@@ -9,43 +9,13 @@
  * @module
  */
 
-import {
-  defineComponent,
-  h,
-  type PropType,
-  ref,
-  toRaw,
-  useId,
-  type VNode,
-  type VNodeChild,
-} from 'vue'
+import { defineComponent, h, type PropType, ref, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Switch } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { CookieBannerProps, CookieCategory } from './types.js'
-
-/**
- * Normalizes a node-valued prop to a child list: an array stays as it is, a
- * single node becomes a one-item list, and the values React renders as nothing
- * (`null`, `undefined`, `false`) contribute nothing.
- *
- * The value is unwrapped with `toRaw` first: a node carried inside a data prop
- * may sit in a reactive object (Vue deep-proxies props an app keeps reactive),
- * and rendering a proxied VNode both tracks its properties in the render effect
- * and writes them back while the VNode mounts — a reactive loop. Vue keeps
- * VNodes out of reactivity (its own `markRaw` guidance), so render the
- * underlying node.
- *
- * @param value - The node-valued field.
- * @returns The children to render.
- */
-const childList = (value: VNodeChild | null | undefined): VNodeChild[] => {
-  const raw = toRaw(value)
-  if (raw === null || raw === undefined || raw === false) return []
-  return Array.isArray(raw) ? raw : [raw]
-}
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -258,7 +228,7 @@ export const CookieBanner = defineComponent({
                           id: `${nameId}-${index}`,
                           class: cm.cn(cm.textSize('sm'), cm.fontWeight('semibold')),
                         },
-                        childList(category.label),
+                        toChildArray(category.label),
                       ),
                       category.description
                         ? h(
@@ -267,7 +237,7 @@ export const CookieBanner = defineComponent({
                               id: `${nameId}-${index}-description`,
                               class: cm.textSize('xs'),
                             },
-                            childList(category.description),
+                            toChildArray(category.description),
                           )
                         : null,
                     ]),

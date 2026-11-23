@@ -81,7 +81,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
   }
 })
 
-import { createApp, defineComponent, h } from 'vue'
+import { createApp, createCommentVNode, defineComponent, Fragment, h } from 'vue'
 
 import { FeatureFlagRow } from '../FeatureFlagRow.js'
 import type { FeatureFlag, FeatureFlagRowProps, FlagType } from '../types.js'
@@ -161,6 +161,17 @@ describe('FeatureFlagRow', () => {
   it('forwards className', () => {
     const markup = html({ flag, onToggle: () => {}, className: 'ffr-cls' })
     expect(markup).toContain('ffr-cls')
+  })
+
+  it('renders every part of a node-valued flag name and skips a false v-if branch', () => {
+    const name = h(Fragment, null, [
+      h('b', null, 'New'),
+      createCommentVNode('v-if', true),
+      h('b', null, 'checkout'),
+    ])
+    const markup = html({ flag: { ...flag, name }, onToggle: () => {} })
+    expect(markup).toContain('<span class="fontWeight"><b>New</b><b>checkout</b></span>')
+    expect(markup).not.toContain('<!--v-if-->')
   })
 })
 

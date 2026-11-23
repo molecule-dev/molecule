@@ -83,7 +83,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
   }
 })
 
-import { createApp, defineComponent, h, type VNodeChild } from 'vue'
+import { createApp, createCommentVNode, defineComponent, Fragment, h, type VNodeChild } from 'vue'
 
 const { Carousel } = await import('../Carousel.js')
 
@@ -201,5 +201,22 @@ describe('Carousel', () => {
   it('forwards className', () => {
     const markup = html({ className: 'car-cls' }, slides(2))
     expect(markup).toContain('car-cls')
+  })
+
+  it('wraps each slide of a v-for child list in its own wrapper and skips a false v-if', () => {
+    // `<Carousel><img v-for="s in slides" /></Carousel>` compiles the v-for to
+    // one Fragment vnode holding three slides; React sees three children.
+    const fromVFor = html({ showArrows: false }, [h(Fragment, null, slides(3))])
+    expect(fromVFor.split('data-mol-id="carousel-slide"').length - 1).toBe(3)
+    expect(fromVFor.split('data-mol-id="carousel-dot"').length - 1).toBe(3)
+
+    // A false `v-if` (a Comment vnode) is not a slide: React renders one
+    // wrapper and no dot strip for it.
+    const withFalseBranch = html({ showArrows: false }, [
+      h('img', { 'data-slide': 'only' }),
+      createCommentVNode('v-if', true),
+    ])
+    expect(withFalseBranch.split('data-mol-id="carousel-slide"').length - 1).toBe(1)
+    expect(withFalseBranch).not.toContain('data-mol-id="carousel-dot"')
   })
 })
