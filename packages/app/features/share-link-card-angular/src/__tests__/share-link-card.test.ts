@@ -66,6 +66,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
     Button: Component({
+      changeDetection: ChangeDetectionStrategy.Default,
       selector: 'button[mol-button]',
       standalone: true,
       inputs: ['variant', 'size'],

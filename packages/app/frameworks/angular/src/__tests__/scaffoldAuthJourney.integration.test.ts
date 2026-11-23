@@ -23,7 +23,13 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -350,6 +356,7 @@ class SettingsPageComponent {
 
 /** The authenticated shell, read from the same client every page uses. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-test-profile-summary',
   template: '<p data-testid="profile-name">{{ name() }}</p>',
 })
