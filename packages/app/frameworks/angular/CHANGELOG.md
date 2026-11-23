@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.12.1
+
+### Patch Changes
+
+- A projected component that injects its view container no longer throws while its host is outside the DOM.
+
 ## 3.12.0
 
 ### Minor Changes
