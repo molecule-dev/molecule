@@ -17,6 +17,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -106,6 +107,7 @@ const favoriteOptions = signal<OptimisticValueOptions<Favorite>>({
 
 /** A favorite button rendered with the app's own markup, like React's. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-favorite-button',
   template: `<button
     type="button"
@@ -142,7 +144,11 @@ const quantityOptions = signal<OptimisticValueOptions<number>>({
 })
 
 /** A quantity controller with no markup, like React's `renderHook`. */
-@Component({ selector: 'app-test-quantity-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-quantity-probe',
+  template: '',
+})
 class QuantityProbeComponent {
   readonly quantity: UseOptimisticValueResult<number> = useOptimisticValue<number>(quantityOptions)
 }
@@ -154,7 +160,11 @@ const booleanOptions = signal<OptimisticValueOptions<boolean>>({
 })
 
 /** A boolean controller with no markup, like React's `renderHook`. */
-@Component({ selector: 'app-test-boolean-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-boolean-probe',
+  template: '',
+})
 class BooleanProbeComponent {
   readonly value: UseOptimisticValueResult<boolean> = useOptimisticValue<boolean>(booleanOptions)
 }
@@ -172,7 +182,11 @@ const flagsOptions = signal<OptimisticValueOptions<Flags>>({
 })
 
 /** A two-field controller with no markup, like React's `renderHook`. */
-@Component({ selector: 'app-test-flags-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-flags-probe',
+  template: '',
+})
 class FlagsProbeComponent {
   readonly state: UseOptimisticValueResult<Flags> = useOptimisticValue<Flags>(flagsOptions)
 }
@@ -187,7 +201,11 @@ const layoutOptions = signal<OptimisticValueOptions<number>>({
 const layoutActive = signal(false)
 
 /** A probe whose own effect makes a change, like React's `useLayoutEffect`. */
-@Component({ selector: 'app-test-layout-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-layout-probe',
+  template: '',
+})
 class LayoutProbeComponent {
   readonly state: UseOptimisticValueResult<number> = useOptimisticValue<number>(layoutOptions)
 
@@ -199,7 +217,11 @@ class LayoutProbeComponent {
 }
 
 /** A child whose effect makes a change through the parent's exposed `set`. */
-@Component({ selector: 'app-test-layout-child', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-layout-child',
+  template: '',
+})
 class LayoutChildComponent {
   /** The parent's `set`, bound before the case flips the shared active signal. */
   @Input() setter: (next: number) => void = () => {}
@@ -213,6 +235,7 @@ class LayoutChildComponent {
 
 /** A parent that owns the value and hands `set` to a descendant. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-layout-parent',
   template: '<app-test-layout-child [setter]="state.set" />',
   imports: [LayoutChildComponent],
@@ -229,7 +252,11 @@ const strictOptions = signal<OptimisticValueOptions<Favorite>>({
 })
 
 /** A favorite controller re-rendered with an inline comparator, like React's StrictMode case. */
-@Component({ selector: 'app-test-strict-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-strict-probe',
+  template: '',
+})
 class StrictProbeComponent {
   readonly state: UseOptimisticValueResult<Favorite> = useOptimisticValue<Favorite>(strictOptions)
 }

@@ -10,7 +10,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -23,6 +28,7 @@ import { provideI18n } from '../providers.js'
 
 /** Renders a translation through a method, the shape every UI component uses. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-greeting',
   template: '<p>{{ greeting() }}</p>',
 })
@@ -36,6 +42,7 @@ class GreetingComponent {
 
 /** The same through `useT`, with the string-default shorthand. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-greeting-short',
   template: '<p>{{ greeting() }}</p>',
 })

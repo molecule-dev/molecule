@@ -16,6 +16,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -177,6 +178,7 @@ async function waitFor(
 
 /** The contact form: one required email field and a submit status. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-form-contact',
   template: `
     <form aria-label="Contact" (submit)="onSubmit($event)">
@@ -207,13 +209,18 @@ class ContactFormComponent {
 }
 
 /** A probe that creates a form in an injection context and exposes it. */
-@Component({ selector: 'app-test-form-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-probe',
+  template: '',
+})
 class FormProbeComponent {
   readonly form = useForm<EmailValues>(activeFormOptions)
 }
 
 /** The bonded profile form: one required name field and a dirty status. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-form-profile',
   template: `
     <form aria-label="Profile" (submit)="onSubmit($event)">
@@ -240,7 +247,11 @@ class ProfileFormComponent {
 }
 
 /** A probe that follows switchable controller/name signals with `useFieldState`. */
-@Component({ selector: 'app-test-field-state-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-field-state-probe',
+  template: '',
+})
 class FieldStateProbeComponent {
   private readonly sources = requireFieldSources()
   readonly field = useFieldState(this.sources.form, this.sources.name)
@@ -258,6 +269,7 @@ function requireFieldSources(): NonNullable<typeof activeFieldSources> {
 
 /** A probe that reads a field updated during its own construction. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-late-field',
   template: '<p role="status">{{ state().value }}</p>',
 })
@@ -279,7 +291,11 @@ class LateFieldComponent {
 }
 
 /** A probe that follows switchable controller/name signals with `useWatch`. */
-@Component({ selector: 'app-test-watch-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-watch-probe',
+  template: '',
+})
 class WatchProbeComponent {
   private readonly sources = requireWatchSources()
   readonly watched = useWatch(this.sources.form, this.sources.name)

@@ -5,23 +5,21 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  effect,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
-import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  useAuth,
+  usePlacement,
+  useRouter,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { getInitials } from '../utilities/initials.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { Modal } from './modal.component.js'
 import { PanelCloseProvider } from './panel-close.component.js'
@@ -61,15 +59,16 @@ export interface SidebarUserCardProps {
 /**
  * SidebarUserCard component.
  *
- * React's root is a FRAGMENT (the trigger button plus a drawer), so the host
- * is unwrapped (`data-parity-unwrap`, `display: contents`) and the trigger
- * button is adopted beside it. Identity comes from `useAuth()` unless the
+ * React's root is a FRAGMENT (the trigger button plus a drawer), so the trigger
+ * button renders in front of the host (`placeElementBefore`) and the host
+ * itself leaves the DOM. Identity comes from `useAuth()` unless the
  * matching props override it.
  */
 @Component({
   selector: 'mol-sidebar-user-card',
   standalone: true,
   imports: [Modal, PanelCloseProvider],
+  hostDirectives: [MolPlacement],
   inputs: [
     'name',
     'secondaryLine',
@@ -79,10 +78,6 @@ export interface SidebarUserCardProps {
     'dataMolId',
     'className',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<button
       #trigger
       type="button"
@@ -113,7 +108,7 @@ export interface SidebarUserCardProps {
         ><ng-content></ng-content></mol-panel-close-provider
     ></mol-modal>`,
 })
-export class SidebarUserCard implements AfterViewInit, OnDestroy {
+export class SidebarUserCard {
   /** Display name override (falls back to the auth user, then the guest label). */
   name?: SidebarUserCardProps['name']
   /** Secondary line under the name (falls back to the auth user's email). */
@@ -147,8 +142,15 @@ export class SidebarUserCard implements AfterViewInit, OnDestroy {
   @ViewChild('trigger') trigger?: ElementRef<HTMLButtonElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  private adopted = false
-  private movedRest = false
+
+  constructor() {
+    usePlacement(() => {
+      const trigger = this.trigger?.nativeElement
+      if (!trigger) return
+      placeElementBefore(trigger, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
   private readonly routeEffect = effect(() => {
     const location = this.router.location()
     void `${location.pathname}${location.search}`
@@ -287,25 +289,5 @@ export class SidebarUserCard implements AfterViewInit, OnDestroy {
   /** Closes the drawer (the panel-close context's callback). */
   closePanel = (): void => {
     this.isOpen.set(false)
-  }
-
-  /** Adopts the trigger beside the host and moves rest props onto it. */
-  ngAfterViewInit(): void {
-    const trigger = this.trigger?.nativeElement
-    const host = this.host.nativeElement
-    if (!trigger) return
-    if (host.parentNode) {
-      host.parentNode.insertBefore(trigger, host)
-      this.adopted = true
-    }
-    if (!this.movedRest) {
-      moveRestAttributes(host, trigger)
-      this.movedRest = true
-    }
-  }
-
-  /** Restores the adopted trigger (unmount). */
-  ngOnDestroy(): void {
-    if (this.adopted) this.host.nativeElement.appendChild(this.trigger?.nativeElement as Node)
   }
 }

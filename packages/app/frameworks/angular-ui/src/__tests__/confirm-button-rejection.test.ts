@@ -14,6 +14,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -78,6 +79,7 @@ afterEach(() => {
  */
 async function mountConfirm(onConfirm: OnConfirm): Promise<Mounted> {
   const Host: Type<unknown> = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-test-host]',
     standalone: true,
     imports: [ConfirmButton],
@@ -101,12 +103,64 @@ async function mountConfirm(onConfirm: OnConfirm): Promise<Mounted> {
 }
 
 /**
+ * Renders a `button[mol-confirm-button]` whose idle label is projected from a
+ * consumer list, so inserting into the middle of that list exercises the slot's
+ * placement.
+ *
+ * @returns The mounted control and a setter that runs one pass.
+ */
+async function mountConfirmList(): Promise<Mounted & { setXs: (xs: string[]) => void }> {
+  const Host: Type<unknown> = Component({
+    selector: 'div[data-test-list-host]',
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [ConfirmButton],
+    template: `<button mol-confirm-button
+      >@for (x of xs; track x) {<b slot="label">{{ x }}</b>}</button
+    >`,
+  })(
+    class ConfirmButtonListHostComponent {
+      xs: string[] = ['a', 'c']
+    },
+  )
+  appRef = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  const ref = createComponent(Host, { environmentInjector: appRef.injector })
+  document.body.appendChild(ref.location.nativeElement as HTMLElement)
+  appRef.attachView(ref.hostView)
+  appRef.tick()
+  const button = document.querySelector('button[mol-confirm-button]') as HTMLButtonElement
+  return {
+    button,
+    tick: () => appRef?.tick(),
+    setXs: (xs) => {
+      ;(ref.instance as { xs: string[] }).xs = xs
+      ref.changeDetectorRef.markForCheck()
+    },
+  }
+}
+
+/**
  * Lets pending microtasks and timers run.
  *
  * @param ms - Milliseconds to wait.
  * @returns A promise that resolves after the wait.
  */
 const flush = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
+
+describe('ConfirmButton label slot', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of label', async () => {
+    const view = await mountConfirmList()
+    expect(view.button.textContent?.replace(/\s/g, '')).toBe('ac')
+    view.setXs(['a', 'b', 'c'])
+    expect(() => view.tick()).not.toThrow()
+    expect(view.button.textContent?.replace(/\s/g, '')).toBe('abc')
+    view.setXs(['a', 'c'])
+    expect(() => view.tick()).not.toThrow()
+    expect(view.button.textContent?.replace(/\s/g, '')).toBe('ac')
+  })
+})
 
 describe('ConfirmButton with a rejecting onConfirm', () => {
   it('returns to idle and leaves no unhandled rejection', async () => {

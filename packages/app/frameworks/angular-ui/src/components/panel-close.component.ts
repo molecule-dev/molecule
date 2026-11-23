@@ -3,16 +3,23 @@
  *
  * React provides the close callback through a React context, which follows
  * the rendered tree — including projected children. Angular DI does not reach
- * projected content, so the value is registered on the provider's host
- * element and looked up through the DOM ancestors
- * (`utilities/dom-context.ts`), the same way React's context resolves.
+ * projected content, so the value is registered on a DOM element and looked
+ * up through the DOM ancestors (`utilities/dom-context.ts`), the same way
+ * React's context resolves.
  *
  * @module
  */
 
 import { Component, ElementRef, inject, type OnDestroy } from '@angular/core'
 
-import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
+
+import { createDomContext } from '../utilities/dom-context.js'
 
 /**
  * Props for {@link PanelCloseProvider} (React's `PanelCloseProviderProps`, in
@@ -28,18 +35,18 @@ export interface PanelCloseProviderProps {
  * Provides the drawer-close callback to descendants.
  *
  * Rendered internally by `UserMenu` and `SidebarUserCard` around their panel
- * content; apps do not normally render it directly. The host is unwrapped
- * (`data-parity-unwrap`, React's context provider renders no DOM) and the
- * projected children render directly inside it.
+ * content; apps do not normally render it directly. React's context provider
+ * renders its children and no DOM of its own, so the projected children
+ * render in front of the host (`placeContentBefore`) and the host itself
+ * leaves the page. The context is registered on the parent element — the one
+ * whose child list the content now belongs to — so a consumer in the content
+ * still resolves it from its DOM ancestors.
  */
 @Component({
   selector: 'mol-panel-close-provider',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['close'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<ng-content></ng-content>`,
 })
 export class PanelCloseProvider implements OnDestroy {
@@ -47,14 +54,22 @@ export class PanelCloseProvider implements OnDestroy {
   close?: PanelCloseProviderProps['close']
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  /** Registers the context value on the host (before any projected child resolves it). */
+  /** The value consumers read; its closure keeps the CURRENT `close` prop. */
+  private readonly value = { close: (): void => this.close?.() }
+
+  /** Renders the children in front of the host and registers the context where they render. */
   constructor() {
-    provideDomContext(this.host.nativeElement, { close: () => this.close?.() })
+    const host = this.host.nativeElement
+    PanelCloseDomContext.provide(host, this.value)
+    usePlacement(() => {
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+    })
   }
 
   /** Removes the context registration (unmount). */
   ngOnDestroy(): void {
-    removeDomContext(this.host.nativeElement)
+    PanelCloseDomContext.remove(this.host.nativeElement)
   }
 }
 
@@ -73,7 +88,10 @@ export function usePanelClose(): () => void {
   // its constructor, before Angular has inserted its host into the DOM, so the
   // provider is only reachable from the ancestor walk once the tree is built.
   return () => {
-    const found = findDomContext<{ close: () => void }>(el?.nativeElement ?? null)
+    const found = PanelCloseDomContext.find(el?.nativeElement ?? null)
     found?.close()
   }
 }
+
+/** The context a provider registers and its consumers find. */
+const PanelCloseDomContext = createDomContext<{ close: () => void }>('PanelCloseDomContext')

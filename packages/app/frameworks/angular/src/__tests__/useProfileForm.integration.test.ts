@@ -17,7 +17,14 @@
 import { createServer, type Server } from 'node:http'
 
 import '@angular/compiler'
-import { Component, effect, provideZonelessChangeDetection, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  provideZonelessChangeDetection,
+  signal,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -187,6 +194,7 @@ async function setup(signedIn = true): Promise<{
 
 /** The managed profile form: controlled values over the shared account. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-form',
   template: `
     <form aria-label="Profile" (submit)="form.formProps.onSubmit($event)">
@@ -269,6 +277,7 @@ class ProfileFormComponent {
  * controls.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-legacy-form',
   template: `
     <form aria-label="Profile" (submit)="onSubmit($event)">

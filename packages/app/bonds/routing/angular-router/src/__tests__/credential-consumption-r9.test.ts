@@ -10,7 +10,7 @@
  */
 
 import '@angular/compiler'
-import { Component, DestroyRef, inject, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core'
 import { afterEach, expect, it } from 'vitest'
 
 import { useConsumedSearchParam, useMoleculeRouter } from '../index.js'
@@ -18,6 +18,7 @@ import { bootApp, type BootedApp, Empty, historyMove } from './angular-app.js'
 
 /** The mounted page: the consumed credential and the committed location. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-consumed-r9-page',
   standalone: true,
   template: '',

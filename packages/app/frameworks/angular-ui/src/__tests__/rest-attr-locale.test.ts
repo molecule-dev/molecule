@@ -104,7 +104,7 @@ async function mountField(component: Type<unknown>, selector: string): Promise<M
     selector: 'mol-spec-host',
     standalone: true,
     imports: [component],
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div ${selector} [id]="'spec-field'" [attr.aria-label]="lbl()"></div>`,
   })(
     class SpecHost {

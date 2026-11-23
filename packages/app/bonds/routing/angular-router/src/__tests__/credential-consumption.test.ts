@@ -12,7 +12,7 @@
  */
 
 import '@angular/compiler'
-import { Component, DestroyRef, inject, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { useConsumedSearchParam, useMoleculeRouter } from '../index.js'
@@ -20,6 +20,7 @@ import { bootApp, type BootedApp, Empty } from './angular-app.js'
 
 /** The page React's `renderHook` mounted: the consumed credential and the committed location. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-consumed-page',
   standalone: true,
   template: '',

@@ -13,7 +13,7 @@
  */
 
 import '@angular/compiler'
-import { Component, computed, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { useListRoute, useMoleculeRouter } from '../index.js'
@@ -29,6 +29,7 @@ const selections = {
 
 /** The member page: the list's link to the saved view, its collection, and a local panel. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-members',
   standalone: true,
   template: `

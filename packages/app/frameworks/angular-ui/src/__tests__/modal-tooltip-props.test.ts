@@ -79,7 +79,7 @@ describe('MoleculeModal.wrapperStyle', () => {
   })
 
   it('delegates to getModalWrapperStyle() using the instance centered value', () => {
-    expect(wrapperStyleGetter?.call({ centered: true })).toBeUndefined()
+    expect(wrapperStyleGetter!.call({ centered: true })).toBeUndefined()
     expect(wrapperStyleGetter?.call({ centered: false })).toEqual({ alignItems: 'flex-start' })
   })
 })
@@ -118,6 +118,6 @@ describe('MoleculeTooltip hasArrow', () => {
 
   it('positionStyle starts empty until updatePosition() runs', () => {
     const tooltip = new MoleculeTooltip()
-    expect(tooltip.positionStyle).toEqual({})
+    expect(tooltip.positionStyle()).toEqual({})
   })
 })

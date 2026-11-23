@@ -11,32 +11,38 @@ import {
   EventEmitter,
   inject,
   Output,
-  Renderer2,
   signal,
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  setHostRoot,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ColorVariant, MouseEventHandler, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
-import { adoptHostDataMolId, moveRestAttributes } from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
 
 /**
  * Switch component.
  *
- * React's root is a fragment (hidden native checkbox + label); the host
- * element is unwrapped by the DOM normalizer (`data-parity-unwrap`) and
- * `display: contents` keeps real layout fragment-like. Clicking the visible
- * button clicks the hidden checkbox, whose GENUINE native `change` event is
+ * React's root is a fragment (hidden native checkbox + label): both elements
+ * render in front of the host, which leaves the page, so the rendered tree is
+ * React's — no wrapper element around the pair. Clicking the visible button
+ * clicks the hidden checkbox, whose GENUINE native `change` event is
  * forwarded as the `change` output.
  */
 @Component({
   selector: 'mol-switch',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolControlledChecked],
   inputs: [
     'label',
@@ -51,10 +57,6 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
     'dataMolId: data-mol-id',
     'onClick',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<input
       type="checkbox"
       [molChecked]="!!checked"
@@ -138,7 +140,23 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
   private hasLabel = false
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the trigger). */
   private externalMolId: string | undefined
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
+
+  /**
+   * Renders the host's content (the checkbox and the label) in front of the
+   * host, which leaves the page, and applies React's `{!!label && <span>}`
+   * label condition.
+   */
+  constructor() {
+    usePlacement((hasContent) => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+      // React spreads the rest props on the switch button.
+      setHostRoot(host, this.trigger?.nativeElement, { except: ['data-mol-id'] })
+      this.hasLabel = !!this.label || hasContent(this.labelSlot?.nativeElement)
+      setElementPresent(this.labelSlot?.nativeElement, this.hasLabel)
+    })
+  }
 
   /**
    * The current class map.
@@ -221,8 +239,7 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
   }
 
   /**
-   * Moves rest attributes onto the button and applies React's
-   * `{!!label && <span>}` label condition after queries resolve.
+   * Moves rest attributes onto the button after queries resolve.
    */
   ngAfterViewChecked(): void {
     adoptHostDataMolId(
@@ -232,13 +249,6 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
         this.externalMolId = id
       },
       () => this.molId(),
-    )
-    moveRestAttributes(this.host.nativeElement, this.trigger?.nativeElement)
-    this.hasLabel = !!this.label || hasNodes(this.labelSlot?.nativeElement)
-    this.sync.sync(
-      this.labelSlot?.nativeElement,
-      this.hasLabel,
-      this.labelSlot?.nativeElement.parentElement ?? undefined,
     )
   }
 }

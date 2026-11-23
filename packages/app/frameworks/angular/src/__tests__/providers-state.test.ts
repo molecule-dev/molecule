@@ -11,7 +11,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -85,7 +90,11 @@ describe(suite, { shuffle: false }, () => {
     const getUiStore = (): Store<typeof initialState> => (uiStore ??= createStore({ initialState }))
 
     /** Reads the lazily created store the scaffold's page subscribes to. */
-    @Component({ selector: 'app-test-lazy-store-probe', template: '<p>{{ open() }}</p>' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-lazy-store-probe',
+      template: '<p>{{ open() }}</p>',
+    })
     class LazyStoreProbeComponent {
       readonly sidebar = useStore(getUiStore())
 
@@ -113,7 +122,11 @@ describe(suite, { shuffle: false }, () => {
     const store = createStore({ initialState: { sidebarOpen: false } })
 
     /** Reads a store handed to it, with no `state` option registered. */
-    @Component({ selector: 'app-test-store-default-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-store-default-probe',
+      template: '',
+    })
     class StoreDefaultProbeComponent {
       readonly state = useStore(store)
     }
@@ -128,7 +141,11 @@ describe(suite, { shuffle: false }, () => {
     const explicitProvider = createSimpleStateProvider()
 
     /** Reads the state registration an explicit `state` option supplies. */
-    @Component({ selector: 'app-test-state-override-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-state-override-probe',
+      template: '',
+    })
     class StateOverrideProbeComponent {
       readonly provider = useStateProvider()
     }

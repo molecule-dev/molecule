@@ -4,21 +4,42 @@
  * @module
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core'
 
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
  * Angular Button UI component with UIClassMap-driven styling.
+ *
+ * React's root is the native `<button>`, so the button element of the
+ * template renders in front of the host (`placeElementBefore`) and the host
+ * itself leaves the page: the rendered tree is React's, with no wrapper
+ * element around the button.
  */
 @Component({
   selector: 'mol-button',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  hostDirectives: [MolPlacement],
   template: `
     <button
+      #root
       [type]="type"
       [class]="classes"
       [style]="style"
@@ -56,6 +77,21 @@ export class MoleculeButton {
   @Input() type: 'button' | 'submit' | 'reset' = 'button'
 
   @Output() handleClick = new EventEmitter<MouseEvent>()
+
+  /** The native button React renders as the component's root. */
+  @ViewChild('root') root?: ElementRef<HTMLButtonElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Renders the button in front of the host, which leaves the page. */
+  constructor() {
+    usePlacement(() => {
+      const root = this.root?.nativeElement
+      if (!root) return
+      placeElementBefore(root, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
 
   /**
    * Retrieves the current UI class map.

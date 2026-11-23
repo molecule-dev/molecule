@@ -11,11 +11,11 @@ import {
   EventEmitter,
   inject,
   Output,
-  Renderer2,
   signal,
   ViewChild,
 } from '@angular/core'
 
+import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type {
   FocusEventHandler,
   KeyboardEventHandler,
@@ -30,7 +30,6 @@ import { fieldContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { adoptHostDataMolId, moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolControlledChecked } from './controlled-checked.directive.js'
 
 /**
@@ -44,6 +43,7 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
 @Component({
   selector: 'div[mol-checkbox]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolControlledChecked],
   inputs: [
     'label',
@@ -169,9 +169,16 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
   private restDescribedByCaptured = false
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the input). */
   private externalMolId: string | undefined
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private hasLabel = false
   private syncIndeterminate = false
+
+  /** Applies React's `{!!label && <span>}` label condition. */
+  constructor() {
+    usePlacement((hasContent) => {
+      this.hasLabel = !!this.label || hasContent(this.labelSlot?.nativeElement)
+      setElementPresent(this.labelSlot?.nativeElement, this.hasLabel)
+    })
+  }
 
   /**
    * The current class map.
@@ -275,8 +282,7 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
   private justClicked = false
 
   /**
-   * Applies the indeterminate DOM flag (a property, not an attribute) and
-   * React's `{!!label && <span>}` label condition.
+   * Applies the indeterminate DOM flag (a property, not an attribute).
    */
   ngAfterViewChecked(): void {
     const input = this.input?.nativeElement
@@ -299,11 +305,5 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
         this.syncIndeterminate = !!this.indeterminate
       }
     }
-    this.hasLabel = !!this.label || hasNodes(this.labelSlot?.nativeElement)
-    this.sync.sync(
-      this.labelSlot?.nativeElement,
-      this.hasLabel,
-      this.labelSlot?.nativeElement.parentElement ?? undefined,
-    )
   }
 }

@@ -18,6 +18,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   provideZonelessChangeDetection,
   signal,
@@ -209,6 +210,7 @@ function clickSwitch(fixture: ComponentFixture<unknown>): void {
  * key, its value and its ready flag together so a stale first render is visible.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-preference-probe',
   template: `
     <button type="button" (click)="switchKey()">switch</button>
@@ -240,6 +242,7 @@ class PreferenceProbeComponent {
  * Switches the catalog scope from unscoped to `project-1` on a click.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-models-probe',
   template: `
     <button type="button" (click)="scopeProject()">scope</button>
@@ -274,6 +277,7 @@ class ModelsProbeComponent {
  * Records the tab paths of the current provider.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-editor-probe',
   template: '<span data-line>{{ line() }}</span>',
 })
@@ -297,6 +301,7 @@ class EditorProbeComponent {
  * Reads one storage key, switchable without remounting the component.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-value-probe',
   template: '',
 })

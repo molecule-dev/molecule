@@ -62,6 +62,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -78,6 +79,7 @@ const { ConfirmDialog } = await import('../components/confirm-dialog.component.j
 
 /** Host component projecting the title/description slots into ConfirmDialog. */
 const Host = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ConfirmDialog],
   template: `<mol-confirm-dialog [open]="true" (close)="noop()" (confirm)="noop()">
@@ -127,6 +129,7 @@ describe('ConfirmDialog', () => {
  * recording the close/confirm callbacks.
  */
 const DialogHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-confirm-host',
   standalone: true,
   imports: [ConfirmDialog],
@@ -164,6 +167,7 @@ const DialogHost = Component({
 
 /** The same host with an extra child between the description and the footer. */
 const DialogWithChildHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-confirm-child-host',
   standalone: true,
   imports: [ConfirmDialog],

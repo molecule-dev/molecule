@@ -20,7 +20,12 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -187,6 +192,7 @@ function memoryRouter(initial: string): MemoryRouter {
 
 /** The popover with a trigger and a panel holding one nav link. */
 const BasicHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-popover-basic',
   standalone: true,
   imports: [UserMenuPopover, UserMenuPopoverTrigger, UserMenuPopoverPanel],
@@ -198,6 +204,7 @@ const BasicHost = Component({
 
 /** The popover whose guest label is supplied by its owner. */
 const GuestHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-popover-guest',
   standalone: true,
   imports: [UserMenuPopover, UserMenuPopoverTrigger, UserMenuPopoverPanel],
@@ -209,6 +216,7 @@ const GuestHost = Component({
 
 /** The popover with a nav link and the sign-out item in its panel. */
 const SignOutHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-popover-sign-out',
   standalone: true,
   imports: [UserMenuPopover, UserMenuPopoverTrigger, UserMenuPopoverPanel, UserMenuPopoverSignOut],
@@ -223,6 +231,7 @@ const SignOutHost = Component({
 
 /** Panel content that closes its own popover through `useUserMenuPopoverClose`. */
 const ClosingLink = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-popover-closing-link',
   standalone: true,
   template: `<button type="button" (click)="close()">go</button>`,
@@ -240,6 +249,7 @@ const ClosingLink = Component({
 
 /** The popover with a nav child that dismisses it. */
 const ClosingHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-popover-closing',
   standalone: true,
   imports: [UserMenuPopover, UserMenuPopoverTrigger, UserMenuPopoverPanel, ClosingLink],
@@ -345,6 +355,38 @@ describe('UserMenuPopoverPanel', () => {
     expect(document.getElementById(controlsId as string)).toBe(
       body.getByRole('navigation', { name: 'Account menu' }).parentElement,
     )
+  })
+
+  it('is one card element beside the trigger while open and no element at all while closed, through every reopen', () => {
+    const router = memoryRouter('/')
+    const fixture = render(BasicHost, router.router)
+    const body = within(document.body)
+    const root = (fixture.nativeElement as HTMLElement).firstElementChild as HTMLElement
+    const trigger = body.getByRole('button', { name: 'Open user menu' })
+    /** The root's element children: `b` for the trigger, `p` for the card. */
+    const children = (): string =>
+      Array.from(root.children)
+        .map((el) =>
+          el === trigger
+            ? 'b'
+            : el.getAttribute('data-mol-id') === 'user-menu-panel'
+              ? 'p'
+              : el.tagName,
+        )
+        .join(' ')
+    for (let round = 0; round < 2; round++) {
+      expect(children()).toBe('b')
+      fireEvent.click(trigger)
+      fixture.detectChanges()
+      expect(children()).toBe('b p')
+      const card = root.lastElementChild as HTMLElement
+      expect(card.id).toBe(trigger.getAttribute('aria-controls'))
+      expect(card.className).toBe('userMenuPopoverPanel')
+      expect(card.firstElementChild?.tagName).toBe('HEADER')
+      fireEvent.click(trigger)
+      fixture.detectChanges()
+    }
+    expect(children()).toBe('b')
   })
 })
 

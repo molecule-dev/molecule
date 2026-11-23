@@ -13,7 +13,7 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -98,7 +98,11 @@ const createMockProvider = (initialState?: Partial<VersionState>): MockVersionPr
 }
 
 /** The probe every case mounts: it reads `useVersion` like a component does. */
-@Component({ selector: 'app-test-version-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-version-probe',
+  template: '',
+})
 class VersionProbe {
   readonly version = useVersion()
 }

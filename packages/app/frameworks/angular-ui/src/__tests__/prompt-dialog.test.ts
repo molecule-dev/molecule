@@ -17,6 +17,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -78,6 +79,7 @@ const { PromptDialog } = await import('../components/prompt-dialog.component.js'
 
 /** Host the tests drive: the props the React test renders. */
 const PromptHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-prompt-host',
   standalone: true,
   imports: [PromptDialog],

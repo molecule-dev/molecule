@@ -10,6 +10,7 @@ import {
   type ElementRef,
   Input,
   type OnDestroy,
+  signal,
   ViewChild,
 } from '@angular/core'
 
@@ -105,7 +106,7 @@ export function getTooltipArrowStyle(placement: TooltipPlacement): Record<string
     >
       <ng-content></ng-content>
     </div>
-    @if (isVisible) {
+    @if (isVisible()) {
       <!--
         Outer positioned wrapper carries the top/left/z-index placement; the
         arrow renders as its SIBLING (not nested inside the visible box),
@@ -113,7 +114,7 @@ export function getTooltipArrowStyle(placement: TooltipPlacement): Record<string
         past the box's own edge would be clipped invisible if it were a
         descendant of that element instead.
       -->
-      <div [style]="positionStyle">
+      <div [style]="positionStyle()">
         <div
           #tooltipEl
           role="tooltip"
@@ -146,8 +147,10 @@ export class MoleculeTooltip implements OnDestroy {
   @ViewChild('trigger') triggerRef?: ElementRef<HTMLDivElement>
   @ViewChild('tooltipEl') tooltipRef?: ElementRef<HTMLDivElement>
 
-  isVisible = false
-  positionStyle: Record<string, string> = {}
+  /** Whether the tooltip shows; a signal, so the delay timer's change renders (OnPush). */
+  readonly isVisible = signal(false)
+  /** The measured placement; a signal, so the animation frame's measurement renders (OnPush). */
+  readonly positionStyle = signal<Record<string, string>>({})
   private timeoutId?: ReturnType<typeof setTimeout>
 
   /**
@@ -180,11 +183,12 @@ export class MoleculeTooltip implements OnDestroy {
   show(): void {
     if (this.delay > 0) {
       this.timeoutId = setTimeout(() => {
-        this.isVisible = true
-        this.updatePosition()
+        this.isVisible.set(true)
+        // Measured once the tooltip has rendered.
+        requestAnimationFrame(() => this.updatePosition())
       }, this.delay)
     } else {
-      this.isVisible = true
+      this.isVisible.set(true)
       requestAnimationFrame(() => this.updatePosition())
     }
   }
@@ -196,7 +200,7 @@ export class MoleculeTooltip implements OnDestroy {
     if (this.timeoutId) {
       clearTimeout(this.timeoutId)
     }
-    this.isVisible = false
+    this.isVisible.set(false)
   }
 
   /**
@@ -258,11 +262,11 @@ export class MoleculeTooltip implements OnDestroy {
     }
 
     const pos = positions[this.placement]
-    this.positionStyle = {
+    this.positionStyle.set({
       position: 'absolute',
       top: `${pos.top}px`,
       left: `${pos.left}px`,
       zIndex: '9999',
-    }
+    })
   }
 }

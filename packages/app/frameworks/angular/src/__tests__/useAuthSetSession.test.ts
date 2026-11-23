@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -116,7 +117,11 @@ function mountAuth(storage: ReturnType<typeof createMockStorage>): {
   const client = createJWTAuthClient<AppUser>({ storage })
 
   /** Reads the auth state the pages render from. */
-  @Component({ selector: 'app-test-session-probe', template: '' })
+  @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'app-test-session-probe',
+    template: '',
+  })
   class SessionProbeComponent {
     readonly auth = useAuth<AppUser>()
   }

@@ -20,6 +20,7 @@
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   provideZonelessChangeDetection,
@@ -61,6 +62,7 @@ const { Form } = await import('../components/form.component.js')
 
 /** A form whose async `onFormSubmit` a test drives. */
 const AsyncSaveHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-async-save-form',
   standalone: true,
   imports: [Form],
@@ -77,6 +79,7 @@ const AsyncSaveHost = Component({
 
 /** A form driven by the real `useForm` submit runner, with no app-owned catch. */
 const HandlerSwapHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-handler-swap-form',
   standalone: true,
   imports: [Form],
@@ -91,6 +94,7 @@ const HandlerSwapHost = Component({
 )
 
 const RealFormHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-real-form',
   standalone: true,
   imports: [Form],
@@ -111,6 +115,7 @@ const RealFormHost = Component({
 
 /** A pending submission the test settles itself. */
 const PendingHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-pending-form',
   standalone: true,
   imports: [Form],
@@ -126,6 +131,7 @@ const PendingHost = Component({
 
 /** A native action/method form: submission stays native. */
 const NativeHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-native-form',
   standalone: true,
   imports: [Form],
@@ -136,6 +142,7 @@ const NativeHost = Component({
 
 /** A form whose data handler rejects while its native handler also throws. */
 const BothHandlersHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-both-handlers-form',
   standalone: true,
   imports: [Form],
@@ -158,6 +165,7 @@ const BothHandlersHost = Component({
 
 /** A form saving through a real HTTP client. */
 const HttpHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-http-form',
   standalone: true,
   imports: [Form],

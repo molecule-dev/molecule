@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -135,7 +136,11 @@ function mount<P>(
  */
 function renderChat(provider: ChatProvider): ReturnType<typeof useChat> {
   /** Reads the chat whose stream drops. */
-  @Component({ selector: 'app-test-chat-lifecycle-probe', template: '' })
+  @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'app-test-chat-lifecycle-probe',
+    template: '',
+  })
   class ChatLifecycleProbeComponent {
     readonly chat = useChat({ endpoint: '/chat', projectId: 'proj-1', loadOnMount: false })
   }

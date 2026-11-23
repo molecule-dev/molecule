@@ -27,7 +27,17 @@ import {
   ViewContainerRef,
 } from '@angular/core'
 
-import { useRouter } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  placeElement,
+  placeElementBefore,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useRouter,
+} from '@molecule/app-angular'
 import type { DropdownItem, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -119,14 +129,17 @@ type DropdownAlign = 'start' | 'center' | 'end'
  * `document.body` (React's portal) and carries the position, width and
  * roving-tabindex behavior.
  *
- * The React root is a FRAGMENT (trigger + portal), so the host element is
- * unwrapped (`data-parity-unwrap`) and `display: contents` keeps it
- * fragment-like.
+ * The React root is a FRAGMENT (trigger + portal), so the trigger renders in
+ * front of the host (`placeContentBefore` / `placeElementBefore`) and the
+ * host itself leaves the DOM. The trigger follows the projected content: an
+ * element that replaces it becomes the new trigger, text next to it switches
+ * to the fallback wrapper.
  */
 @Component({
   selector: 'mol-dropdown',
   standalone: true,
   imports: [MolTemplateOutlet],
+  hostDirectives: [MolPlacement],
   inputs: [
     'trigger',
     'items',
@@ -141,12 +154,10 @@ type DropdownAlign = 'start' | 'center' | 'end'
     'disabled',
   ],
   outputs: ['select', 'openChange'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
-  template: `<span #triggerCapture><ng-content select="[slot=trigger]"></ng-content></span
-    ><ng-container #menuAnchor></ng-container
+  template: `<div #fallback role="button" aria-haspopup="menu" [class]="cm().dropdownTrigger">
+      <span #triggerCapture><ng-content select="[slot=trigger]"></ng-content></span>
+    </div>
+    <ng-container #menuAnchor></ng-container
     ><ng-template #menuTpl
       ><div
         [attr.id]="menuId"
@@ -222,6 +233,8 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
 
   /** The trigger projection capture point (removed once the trigger is adopted). */
   @ViewChild('triggerCapture') triggerCapture?: ElementRef<HTMLSpanElement>
+  /** React's fallback `role="button"` wrapper, for a trigger that is not one element. */
+  @ViewChild('fallback') fallback?: ElementRef<HTMLDivElement>
   /** The menu's view anchor. */
   @ViewChild('menuAnchor', { read: ViewContainerRef }) menuAnchor?: ViewContainerRef
   /** The menu markup template. */
@@ -257,6 +270,10 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   private triggerOwnDisabled = false
   /** Whether the adopted trigger is the fallback `role="button"` wrapper (not a cloned element). */
   private triggerIsFallback = false
+  /** The cloned trigger's own `tabindex`, restored when it stops being the trigger. */
+  private triggerOwnTabindex: string | null = null
+  /** The trigger's click and keydown listeners. */
+  private triggerListeners: (() => void)[] = []
   /** The menu's embedded view, while open. */
   private menuView?: EmbeddedViewRef<unknown>
   /** The portal menu element, while open. */
@@ -526,12 +543,8 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     this.triggerEl?.focus()
   }
 
-  /**
-   * Adopts the projected trigger at view init (React's cloneElement), then
-   * reconciles the menu once.
-   */
+  /** Reconciles the menu once the view queries exist. */
   ngAfterViewInit(): void {
-    this.adoptTrigger()
     this.syncMenu()
   }
 
@@ -547,69 +560,84 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
 
   /** Removes the document listeners and the menu view (unmount). */
   ngOnDestroy(): void {
+    this.release()
     this.removeListeners()
     this.destroyMenu()
   }
 
   /**
-   * Moves the projected trigger out of its capture span and makes it the real
-   * control: a single element is adopted bare; anything else is wrapped in
-   * React's fallback `role="button"` container.
+   * Renders the trigger in front of the host and makes it the real control,
+   * like React's cloneElement: a single projected element is the trigger
+   * itself; anything else renders inside the fallback `role="button"`
+   * wrapper. Runs whenever the projected trigger changes.
+   *
+   * @param hasContent - The slot reader `usePlacement` passes.
    */
-  private adoptTrigger(): void {
+  private placeTrigger(hasContent: SlotReader): void {
     const capture = this.triggerCapture?.nativeElement
-    if (!capture) return
-    const host = this.host
-    // React's root is a fragment, so the trigger is a sibling of the host
-    // element's content, not a child of a wrapper: the adopted trigger is
-    // placed beside the (display: contents) host so the rendered tree and the
-    // focus path match React's exactly.
-    const parent = host.parentElement
-    // Insert BEFORE the host so the trigger is the parent's first element
-    // child — the host is display: contents and unwrapped in snapshots, so
-    // the rendered tree and the focus path match React's fragment exactly.
-    const anchor = host
-    const children = Array.from(capture.childNodes)
-    const elements = children.filter((n) => n.nodeType === 1)
-    const hasText = children.some((n) => n.nodeType === 3 && (n.textContent ?? '').trim())
-    const single = elements.length === 1 && !hasText
-    if (!parent) return
-    if (single) {
-      const target = elements[0] as HTMLElement
-      for (const node of children) parent.insertBefore(node, anchor)
-      this.triggerEl = target
-      this.triggerIsFallback = false
-      this.triggerOwnTestId = target.getAttribute('data-testid')
-      this.triggerOwnMolId = target.getAttribute('data-mol-id')
-      this.triggerOwnDisabled = target.hasAttribute('disabled')
-      this.listen(target)
+    const fallback = this.fallback?.nativeElement
+    if (!capture || !fallback) return
+    const children = hasContent.nodes(capture)
+    const only =
+      children.length === 1 && children[0]!.nodeType === 1 ? (children[0] as HTMLElement) : null
+    if (only) {
+      placeContentBefore(capture, this.host)
+      setElementPresent(fallback, false)
     } else {
-      const wrapper = this.renderer.createElement('div') as HTMLDivElement
-      this.renderer.setAttribute(wrapper, 'role', 'button')
-      this.renderer.setAttribute(wrapper, 'aria-haspopup', 'menu')
-      this.renderer.addClass(wrapper, this.cm().dropdownTrigger)
-      this.triggerEl = wrapper
-      this.triggerIsFallback = true
-      parent.insertBefore(wrapper, anchor)
-      for (const node of children) wrapper.appendChild(node)
-      this.listen(wrapper)
+      placeElementBefore(fallback, this.host)
+      placeContent(capture, fallback)
     }
-    this.renderer.removeChild(host, capture)
-    this.syncTrigger()
+    setElementPresent(capture, false)
+    setElementPresent(this.host, false)
+    this.adopt(only ?? fallback, only === null)
   }
 
   /**
-   * Attaches the click and keydown listeners to the adopted trigger.
+   * Makes `target` the trigger: listens to it and applies the clone's
+   * attributes. The previous trigger gets its own attributes back.
    *
-   * @param target - The trigger element.
+   * @param target - The projected element, or the fallback wrapper.
+   * @param isFallback - Whether `target` is the fallback wrapper.
    */
-  private listen(target: HTMLElement): void {
-    this.removedListeners.push(
-      this.renderer.listen(target, 'click', () => this.handleTriggerClick()),
-      this.renderer.listen(target, 'keydown', (event: KeyboardEvent) =>
-        this.handleTriggerKeyDown(event),
-      ),
-    )
+  private adopt(target: HTMLElement, isFallback: boolean): void {
+    if (target !== this.triggerEl) {
+      this.release()
+      this.triggerEl = target
+      this.triggerIsFallback = isFallback
+      this.triggerOwnTestId = isFallback ? null : target.getAttribute('data-testid')
+      this.triggerOwnMolId = isFallback ? null : target.getAttribute('data-mol-id')
+      this.triggerOwnDisabled = !isFallback && target.hasAttribute('disabled')
+      this.triggerOwnTabindex = isFallback ? null : target.getAttribute('tabindex')
+      this.triggerListeners = [
+        this.renderer.listen(target, 'click', () => this.handleTriggerClick()),
+        this.renderer.listen(target, 'keydown', (event: KeyboardEvent) =>
+          this.handleTriggerKeyDown(event),
+        ),
+      ]
+    }
+    this.syncTrigger()
+  }
+
+  /** Stops listening to the trigger and gives a cloned element its own attributes back. */
+  private release(): void {
+    for (const off of this.triggerListeners) off()
+    this.triggerListeners = []
+    const old = this.triggerEl
+    this.triggerEl = null
+    if (!old || this.triggerIsFallback) return
+    for (const name of ['aria-haspopup', 'aria-expanded', 'aria-controls']) {
+      this.renderer.removeAttribute(old, name)
+    }
+    const own: [string, string | null][] = [
+      ['tabindex', this.triggerOwnTabindex],
+      ['data-testid', this.triggerOwnTestId],
+      ['data-mol-id', this.triggerOwnMolId],
+      ['disabled', this.triggerOwnDisabled ? '' : null],
+    ]
+    for (const [name, value] of own) {
+      if (value === null) this.renderer.removeAttribute(old, name)
+      else this.renderer.setAttribute(old, name, value)
+    }
   }
 
   /** The non-separator, non-disabled item indexes (React's `focusableItemIndexes`). */
@@ -663,6 +691,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
    * moved elsewhere stays there, as in React.
    */
   constructor() {
+    usePlacement((hasContent) => this.placeTrigger(hasContent))
     afterEveryRender({ write: () => this.restoreItemFocus() })
   }
 
@@ -676,6 +705,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     }
     if (!itemsChanged || !this.itemHadFocus || !this.menuEl) return
     const restore = this.focusedItemEl
+    // An element outside this component: the menu lives in document.body.
     if (restore?.isConnected && document.activeElement !== restore) restore.focus()
   }
 
@@ -714,7 +744,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
         HTMLDivElement | undefined
       if (root) {
         this.menuEl = root
-        document.body.appendChild(root)
+        placeElement(root, document.body)
         this.inner.set(root)
       }
       // The view is created in "create" mode; run its first update now so the
@@ -743,7 +773,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   private destroyMenu(): void {
     this.removeListeners()
     this.activeIndex.set(-1)
-    if (this.menuEl?.parentNode === document.body) this.host.appendChild(this.menuEl)
+    if (this.menuEl) placeElement(this.menuEl, null)
     this.menuView?.destroy()
     this.menuView = undefined
     this.menuEl = null
@@ -791,7 +821,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     )
   }
 
-  /** Removes every listener added while open. */
+  /** Removes the document listeners added while open. */
   private removeListeners(): void {
     for (const off of this.removedListeners) off()
     this.removedListeners = []
@@ -804,7 +834,6 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     const open = this.isOpen()
     if (this.triggerIsFallback) {
       // The fallback wrapper: React's own attributes (it is not a clone).
-      this.renderer.setAttribute(target, 'role', 'button')
       this.renderer.setAttribute(target, 'tabindex', this.disabled ? '-1' : '0')
     } else if (!target.hasAttribute('tabindex')) {
       this.renderer.setAttribute(target, 'tabindex', '0')

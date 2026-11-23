@@ -10,6 +10,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -131,7 +132,13 @@ async function mount(
   template: string,
   imports: Type<unknown>[],
 ): Promise<{ tick: () => void; setId: (id: string) => void }> {
-  const Host = Component({ selector: 'div[data-test-host]', standalone: true, imports, template })(
+  const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'div[data-test-host]',
+    standalone: true,
+    imports,
+    template,
+  })(
     class HostDataMolIdHost {
       readonly id = signal('host-id')
       readonly options = [{ value: 'free', label: 'Free' }]

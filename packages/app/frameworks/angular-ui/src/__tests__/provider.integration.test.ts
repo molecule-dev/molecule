@@ -23,6 +23,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   type ComponentRef,
@@ -55,14 +56,18 @@ import { setClassMap } from '@molecule/app-ui'
 const {
   Accordion,
   Alert,
+  Avatar,
   Button,
   Checkbox,
   Dropdown,
+  EmptyState,
   FloatingInput,
   FormField,
   Icon,
   Input,
   Modal,
+  PageHeader,
+  PageShell,
   Progress,
   RadioGroup,
   Select,
@@ -71,6 +76,7 @@ const {
   Tabs,
   Textarea,
   Toast,
+  ToastProvider,
   Tooltip,
 } = await import('../index.js')
 
@@ -335,6 +341,7 @@ function mount(
   class Host extends SpecHost {}
   hostCount += 1
   const Decorated = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-spec-host-${hostCount}`,
     standalone: true,
     imports,
@@ -417,6 +424,7 @@ function mountFailure(template: string, imports: Type<unknown>[]): string {
   class Host extends SpecHost {}
   hostCount += 1
   const Decorated = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: `mol-spec-fail-${hostCount}`,
     standalone: true,
     imports,
@@ -480,6 +488,7 @@ afterEach(() => {
 describe('@molecule/app-ui-angular × REAL Angular + REAL @molecule/app-ui bonds', () => {
   it('CONSUMER PROPERTY: full Modal lifecycle — open locks scroll, Escape closes, scroll is RESTORED', async () => {
     const Harness = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-modal-lifecycle',
       standalone: true,
       imports: [Modal],
@@ -558,6 +567,36 @@ describe('@molecule/app-ui-angular × REAL Angular + REAL @molecule/app-ui bonds
     await flush()
     expect(screen.queryByRole('status')).toBeNull()
     expect(dismissed).toBe(1)
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of children', async () => {
+    const view = mount(
+      `<div mol-toast [duration]="0">@for (x of xs; track x) {<b>{{ x }}</b>}</div>`,
+      [Toast],
+      { xs: ['a', 'c'] },
+    )
+    const text = (): string => view.host.textContent?.replace(/\s/g, '') ?? ''
+    expect(text()).toBe('ac')
+    view.update({ xs: ['a', 'b', 'c'] })
+    expect(text()).toBe('abc')
+    view.update({ xs: ['a', 'c'] })
+    expect(text()).toBe('ac')
+  })
+
+  describe('ToastProvider children slot', () => {
+    it('keeps a consumer list in order when an item is inserted in the middle of children', async () => {
+      const view = mount(
+        `<mol-toast-provider>@for (x of xs; track x) {<b>{{ x }}</b>}</mol-toast-provider>`,
+        [ToastProvider],
+        { xs: ['a', 'c'] },
+      )
+      const text = (): string => view.host.textContent?.replace(/\s/g, '') ?? ''
+      expect(text()).toBe('ac')
+      view.update({ xs: ['a', 'b', 'c'] })
+      expect(text()).toBe('abc')
+      view.update({ xs: ['a', 'c'] })
+      expect(text()).toBe('ac')
+    })
   })
 
   it('Toast duration={0} is persistent, and manual dismissal is a separate labeled path', async () => {
@@ -960,6 +999,22 @@ describe('@molecule/app-ui-angular × REAL Angular + REAL @molecule/app-ui bonds
       'descending',
     )
   })
+  it('keeps a consumer list in order when an item is inserted in the middle of emptyContent', async () => {
+    const view = mount(
+      `<div mol-table [data]="rows" [columns]="columns"
+        >@for (x of xs; track x) {<b slot="emptyContent">{{ x }}</b>}</div
+      >`,
+      [Table],
+      { rows: [], columns: [{ key: 'name', header: 'Name' }], xs: ['a', 'c'] },
+    )
+    const text = (): string =>
+      document.querySelector('tbody td')?.textContent?.replace(/\s/g, '') ?? ''
+    expect(text()).toBe('ac')
+    view.update({ xs: ['a', 'b', 'c'] })
+    expect(text()).toBe('abc')
+    view.update({ xs: ['a', 'c'] })
+    expect(text()).toBe('ac')
+  })
 })
 
 describe('a11y contract — what assistive technology actually receives', () => {
@@ -1078,6 +1133,20 @@ describe('a11y contract — what assistive technology actually receives', () => 
     expect(describedBy).toBeTruthy()
     expect(document.getElementById(describedBy)?.textContent).toBe('Required')
     expect(input.getAttribute('aria-invalid')).toBe('true')
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of children', async () => {
+    const view = mount(
+      `<div mol-form-field>@for (x of xs; track x) {<b>{{ x }}</b>}</div>`,
+      [FormField],
+      { xs: ['a', 'c'] },
+    )
+    const text = (): string => view.host.textContent?.replace(/\s/g, '') ?? ''
+    expect(text()).toBe('ac')
+    view.update({ xs: ['a', 'b', 'c'] })
+    expect(text()).toBe('abc')
+    view.update({ xs: ['a', 'c'] })
+    expect(text()).toBe('ac')
   })
 
   it('FormField: two id-less fields never collide on "undefined-error"', async () => {
@@ -1248,6 +1317,7 @@ describe('a11y contract — what assistive technology actually receives', () => 
 describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
   it('CONSUMER PROPERTY: opening moves focus into the dialog; Escape closes it AND restores focus to the trigger', async () => {
     const Harness = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-modal-focus',
       standalone: true,
       imports: [Modal],
@@ -1338,6 +1408,7 @@ describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
 
   it('reference-counts the body scroll lock: closing one of two open dialogs keeps scroll locked', async () => {
     const Harness = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-scroll-lock',
       standalone: true,
       imports: [Modal],
@@ -1607,5 +1678,99 @@ describe('bond misconfiguration disambiguation', () => {
       setClassMap(classMap)
       setIconSet(iconSet)
     }
+  })
+})
+
+describe('slot wrappers keep a consumer list in order', () => {
+  /** The text of the first element matching `selector`, whitespace removed. */
+  const textOf = (selector: string): string =>
+    document.querySelector(selector)?.textContent?.replace(/\s/g, '') ?? ''
+
+  /**
+   * Mounts one host, runs the middle insert and the removal, and asserts the
+   * slot text stays in order without throwing.
+   *
+   * @param template - The host template.
+   * @param imports - The component the template uses.
+   * @param slot - The element to read.
+   * @param suffix - Text the component itself renders after the slot.
+   */
+  const keepsOrder = (
+    template: string,
+    imports: Type<unknown>[],
+    slot: string,
+    suffix = '',
+  ): void => {
+    const view = mount(template, imports, { xs: ['a', 'c'] })
+    expect(textOf(slot)).toBe(`ac${suffix}`)
+    view.update({ xs: ['a', 'b', 'c'] })
+    expect(textOf(slot)).toBe(`abc${suffix}`)
+    view.update({ xs: ['a', 'c'] })
+    expect(textOf(slot)).toBe(`ac${suffix}`)
+  }
+
+  it('keeps a consumer list in order when an item is inserted in the middle of leftIcon', () => {
+    keepsOrder(
+      `<button mol-button>@for (x of xs; track x) {<b slot="leftIcon">{{ x }}</b>}Save</button>`,
+      [Button],
+      'button[mol-button]',
+      'Save',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of icon', () => {
+    keepsOrder(
+      `<div mol-alert [status]="'info'">@for (x of xs; track x) {<b slot="icon">{{ x }}</b>}</div>`,
+      [Alert],
+      'div[mol-alert]',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of fallback', () => {
+    keepsOrder(
+      `<div mol-avatar>@for (x of xs; track x) {<b slot="fallback">{{ x }}</b>}</div>`,
+      [Avatar],
+      'div[mol-avatar]',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of label', () => {
+    keepsOrder(
+      `<div mol-checkbox>@for (x of xs; track x) {<b slot="label">{{ x }}</b>}</div>`,
+      [Checkbox],
+      'div[mol-checkbox]',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of label', () => {
+    keepsOrder(
+      `<mol-switch>@for (x of xs; track x) {<b slot="label">{{ x }}</b>}</mol-switch>`,
+      [Switch],
+      'label > span',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of icon', () => {
+    keepsOrder(
+      `<div mol-empty-state>@for (x of xs; track x) {<b slot="icon">{{ x }}</b>}</div>`,
+      [EmptyState],
+      'div[mol-empty-state]',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of actions', () => {
+    keepsOrder(
+      `<div mol-page-header>@for (x of xs; track x) {<b slot="actions">{{ x }}</b>}</div>`,
+      [PageHeader],
+      'div[mol-page-header]',
+    )
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of sidebar', () => {
+    keepsOrder(
+      `<div mol-page-shell>@for (x of xs; track x) {<b slot="sidebar">{{ x }}</b>}</div>`,
+      [PageShell],
+      'div[mol-page-shell]',
+    )
   })
 })

@@ -10,6 +10,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -55,6 +56,7 @@ const shown = signal(true)
 const open = signal(true)
 
 const Host: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-modal-unmount-focus',
   standalone: true,
   imports: [Modal],

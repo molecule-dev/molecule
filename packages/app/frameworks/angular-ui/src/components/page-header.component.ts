@@ -5,23 +5,20 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 
 /** One breadcrumb entry. */
 interface Breadcrumb {
@@ -43,6 +40,7 @@ interface Breadcrumb {
 @Component({
   selector: 'div[mol-page-header]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['title', 'description', 'breadcrumbs', 'className', 'style', 'testId', 'automationId'],
   host: {
     // `title` is this component's heading, which React renders as text; Angular would also keep a
@@ -79,7 +77,7 @@ interface Breadcrumb {
       </div>
     </div>`,
 })
-export class PageHeader implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
+export class PageHeader implements HasElement<HTMLDivElement> {
   /** Page title. */
   title = ''
   /** Page description. */
@@ -105,12 +103,15 @@ export class PageHeader implements AfterViewInit, DoCheck, HasElement<HTMLDivEle
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
   private hasActions = false
-  private actionsParent: HTMLElement | null = null
+
+  /** Applies React's `{actions ? <div>…</div> : null}`. */
+  constructor() {
+    usePlacement((hasContent) => this.syncActions(hasContent))
+  }
 
   /**
    * The current class map.
@@ -145,29 +146,12 @@ export class PageHeader implements AfterViewInit, DoCheck, HasElement<HTMLDivEle
   }
 
   /**
-   * Reads actions presence at view init (view queries resolve only then).
-   */
-  ngAfterViewInit(): void {
-    this.actionsParent = this.actionsSlot?.nativeElement.parentElement ?? null
-    this.hasActions = hasNodes(this.actionsSlot?.nativeElement)
-    this.syncActions()
-  }
-
-  /**
-   * Re-reconciles the actions wrapper on later passes.
-   */
-  ngDoCheck(): void {
-    this.syncActions()
-  }
-
-  /**
    * Applies React's `{actions ? <div>…</div> : null}`.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncActions(): void {
-    this.sync.sync(
-      this.actionsSlot?.nativeElement,
-      this.hasActions,
-      this.actionsParent ?? undefined,
-    )
+  private syncActions(hasContent: SlotReader): void {
+    this.hasActions = hasContent(this.actionsSlot?.nativeElement)
+    setElementPresent(this.actionsSlot?.nativeElement, this.hasActions)
   }
 }

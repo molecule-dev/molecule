@@ -17,6 +17,7 @@ import '@angular/compiler'
 import { APP_BASE_HREF, Location } from '@angular/common'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   provideZonelessChangeDetection,
   type Type,
@@ -52,6 +53,7 @@ import {
 
 /** A route target with no markup; the port matches routes, it never renders them. */
 const Empty: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-index-empty',
   standalone: true,
   template: '',
@@ -59,6 +61,7 @@ const Empty: Type<unknown> = Component({
 
 /** The bootstrap root: an outlet, so Angular can activate the route it matched. */
 const Root: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-index-root',
   standalone: true,
   imports: [RouterOutlet],

@@ -16,6 +16,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -164,7 +165,11 @@ function mountVerify(
   http: HttpClient,
 ): { fixture: ComponentFixture<unknown>; result: UseVerifyPaymentReturnResult } {
   /** Host whose only job is to call the function where injection works. */
-  @Component({ selector: 'app-test-verify-payment-return', template: '' })
+  @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'app-test-verify-payment-return',
+    template: '',
+  })
   class VerifyPaymentReturnProbe {
     readonly result = useVerifyPaymentReturn(options)
   }

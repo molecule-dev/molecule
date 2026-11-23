@@ -13,7 +13,14 @@
  */
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -91,8 +98,23 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
 const { AuthGuard } = await import('../components/auth-guard.component.js')
 const { useRouter } = await import('@molecule/app-angular')
 
+/** Host projecting a consumer list into the real guard's children slot. */
+const ListGuardHost = Component({
+  selector: 'div[data-guard-list]',
+  standalone: true,
+  imports: [AuthGuard],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<mol-auth-guard>@for (x of xs; track x) {<b>{{ x }}</b>}</mol-auth-guard>`,
+})(
+  class ListGuardHostComponent {
+    /** The projected pages. */
+    xs: string[] = ['a', 'c']
+  },
+)
+
 /** Host projecting the routed page into the real guard. */
 const GuardHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-guard-host]',
   standalone: true,
   imports: [AuthGuard],
@@ -143,6 +165,25 @@ function renderGuard(): ComponentFixture<unknown> {
 }
 
 describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of children', () => {
+    TestBed.configureTestingModule({
+      imports: [ListGuardHost],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const fixture = TestBed.createComponent(ListGuardHost)
+    fixture.detectChanges()
+    const text = (): string => document.body.textContent?.replace(/\s/g, '') ?? ''
+    expect(text()).toBe('ac')
+    fixture.componentInstance.xs = ['a', 'b', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(text()).toBe('abc')
+    fixture.componentInstance.xs = ['a', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(text()).toBe('ac')
+  })
+
   it('renders the page when a restored session is authenticated before `initialized`', () => {
     // The optimistic restore: a stored token AND user are the session, and the
     // first render must not wait for a background verification.
@@ -188,6 +229,7 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
      * the mocked binding provides no routed view, so it throws.
      */
     const NoChildrenHost = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[data-no-children]',
       standalone: true,
       imports: [AuthGuard],
@@ -211,5 +253,49 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
     }
     expect(thrown).toBeInstanceOf(I18nError)
     expect(thrown).toMatchObject({ i18nKey: 'angular.error.noRoutedView' })
+  })
+})
+
+const FallbackGuardHost = Component({
+  selector: 'div[data-guard-fallback]',
+  standalone: true,
+  imports: [AuthGuard],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<mol-auth-guard
+    >@if (on) {<i slot="loadingFallback">Restoring…</i>}<p>protected page</p></mol-auth-guard
+  >`,
+})(
+  class FallbackGuardHostComponent {
+    /** Whether the consumer renders its own loading fallback. */
+    on = false
+  },
+)
+
+describe('AuthGuard loading fallback slot', () => {
+  it('swaps the default loading text and the consumer fallback in the pass where the consumer @if adds and removes it', () => {
+    controls.setStatus('loading', false)
+    TestBed.configureTestingModule({
+      imports: [FallbackGuardHost],
+      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    })
+    const fixture = TestBed.createComponent(FallbackGuardHost)
+    fixture.detectChanges()
+    const set = (on: boolean): void => {
+      fixture.componentInstance.on = on
+      fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+      fixture.componentRef.injector.get(ApplicationRef).tick()
+    }
+    const defaultLoading = (): Element | null =>
+      document.querySelector('[data-mol-id="auth-guard-loading"]')
+    for (let round = 0; round < 2; round++) {
+      // React: `if (status === 'loading') return loadingFallback ?? <div>Loading…</div>`.
+      expect(defaultLoading()).not.toBeNull()
+      expect(document.body.textContent).not.toContain('Restoring…')
+      set(true)
+      expect(defaultLoading()).toBeNull()
+      expect(document.body.textContent).toContain('Restoring…')
+      set(false)
+    }
+    expect(document.body.textContent).not.toContain('protected page')
   })
 })

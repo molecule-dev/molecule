@@ -11,7 +11,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -40,6 +45,8 @@ interface BodyRun {
 
 /** Records one `BodyRun` on every render. */
 @Component({
+  // Counts renders as a port component (checked as OnPush) renders, as React counts them.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-test-body-runs',
   template: '<span data-testid="text">{{ render() }}</span><span>{{ nonce() }}</span>',
 })

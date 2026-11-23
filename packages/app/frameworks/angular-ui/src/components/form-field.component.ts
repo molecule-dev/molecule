@@ -4,29 +4,28 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  Renderer2,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, type OnDestroy, signal, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { provideDomContext, removeDomContext } from '../utilities/dom-context.js'
 import { type HasElement, hostElement } from '../utilities/element.js'
-import type { FormFieldContext } from '../utilities/form-field-context.js'
+import { type FormFieldContext, FormFieldDomContext } from '../utilities/form-field-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { styleText } from '../utilities/style.js'
-import { SlotWrapper } from './button.component.js'
 
 /** The native controls a single field child may render. */
 const FIELD_SELECTOR = 'input, select, textarea'
+
+/** The attributes React's cloneElement sets on a single native control child. */
+const PATCHED_ATTRIBUTES = ['id', 'aria-describedby', 'aria-invalid'] as const
 
 /**
  * FormField component.
@@ -40,6 +39,7 @@ const FIELD_SELECTOR = 'input, select, textarea'
 @Component({
   selector: 'div[mol-form-field]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'label',
     'name',
@@ -73,7 +73,7 @@ const FIELD_SELECTOR = 'input, select, textarea'
       <p [attr.id]="hintId" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivElement> {
+export class FormField implements OnDestroy, HasElement<HTMLDivElement> {
   /** Field label. */
   label?: string
   /** Field name (drives the ids). */
@@ -106,14 +106,26 @@ export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivEl
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
-  /** Cached single-child determination (the capture empties at view init). */
-  private singleCache: boolean | null = null
+  /**
+   * Whether the children are one element (React clones only a single child), as
+   * the last placement run read them; null before it. A signal, so a child that
+   * reads the field context (Input's id) renders again when it changes.
+   */
+  private readonly singleState = signal<boolean | null>(null)
+  /** The native control this field patched, with the attributes it had before. */
+  private patched: {
+    control: HTMLElement
+    attributes: Record<(typeof PATCHED_ATTRIBUTES)[number], string | null>
+  } | null = null
+  /** The first projected node the last adoption saw: a different one is adopted again. */
+  private adopted: Node | null = null
+  /** Whether the adopted content was a single element child. */
+  private single = false
 
   /** Registers the field context before any projected child resolves it. */
   constructor() {
-    provideDomContext(this.host.nativeElement, new FormFieldContextValue(this))
+    FormFieldDomContext.provide(this.host.nativeElement, new FormFieldContextValue(this))
+    usePlacement((hasContent) => this.reconcile(hasContent))
   }
 
   /**
@@ -188,8 +200,9 @@ export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivEl
   }
 
   /**
-   * The capture span (a view query before view init, a DOM lookup after —
-   * the span lives directly under the host and is removed at view init).
+   * The capture span (a view query before the first render, a DOM lookup
+   * after — the span lives directly under the host and is detached once its
+   * content is adopted).
    * @returns The capture element, or null.
    */
   private captureEl(): HTMLElement | null {
@@ -201,35 +214,63 @@ export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivEl
 
   /**
    * Whether the projected content is exactly one element (React clones only a
-   * single child). Cached: the children leave the capture span at view init.
+   * single child). Set by each placement run, which reads the children where
+   * they render; before the first run they are still inside the capture span.
    * @returns True for a single element child.
    */
   singleChild(): boolean {
-    if (this.singleCache !== null) return this.singleCache
+    const single = this.singleState()
+    if (single !== null) return single
     const capture = this.captureEl()
     if (!capture) return false
     const children = Array.from(capture.childNodes)
     const elements = children.filter((node) => node.nodeType === 1)
     const hasText = children.some((node) => node.nodeType === 3 && (node.textContent ?? '').trim())
-    this.singleCache = elements.length === 1 && !hasText
-    return this.singleCache
+    return elements.length === 1 && !hasText
   }
 
   /**
    * Adopts the projected children bare into the host (React renders them
    * directly), resolves the label target from the single child's control and
    * patches a plain native control child (React's cloneElement props).
+   *
+   * @param hasContent - Reads whether the slot has content.
    */
-  ngAfterViewInit(): void {
+  private reconcile(hasContent: SlotReader): void {
     const capture = this.captureEl()
     if (!capture) return
+    const children = hasContent.nodes(capture)
+    if (children.length === 0) {
+      this.adopted = null
+      this.single = false
+      this.singleState.set(null)
+      this.unpatchNativeControl()
+      this.labelFor.set(this.fieldId())
+      setElementPresent(capture, false)
+      return
+    }
+    const first = children[0]!
+    // Angular inserts a list's nodes one at a time, and this runs after each:
+    // a second child arriving after the first makes the field "not single" again.
+    const single = children.length === 1 && first.nodeType === 1
+    if (this.adopted === first && this.single === single) {
+      // The adopted control's own id may bind after the first run; keep the
+      // label pointed at it as it settles (React adopts the child's id).
+      const control = this.single
+        ? this.host.nativeElement.querySelector<HTMLElement>(FIELD_SELECTOR)
+        : null
+      this.labelFor.set(control?.id || this.fieldId())
+      setElementPresent(capture, false)
+      return
+    }
     const host = this.host.nativeElement
-    const children = Array.from(capture.childNodes)
-    const elements = children.filter((node) => node.nodeType === 1)
-    const single = this.singleChild()
-    for (const node of children) host.insertBefore(node, capture)
+    this.singleState.set(single)
+    this.single = single
+    placeContent(capture, host, capture)
+    // React renders a child it no longer clones with its own props.
+    this.unpatchNativeControl()
     if (single) {
-      const child = elements[0] as HTMLElement
+      const child = first as HTMLElement
       const control = child.matches(FIELD_SELECTOR)
         ? child
         : child.querySelector<HTMLElement>(FIELD_SELECTOR)
@@ -238,7 +279,8 @@ export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivEl
     } else {
       this.labelFor.set(this.fieldId())
     }
-    this.sync.sync(capture, false, host)
+    setElementPresent(capture, false)
+    this.adopted = first
   }
 
   /**
@@ -246,6 +288,12 @@ export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivEl
    * @param control - The native control element.
    */
   private patchNativeControl(control: HTMLElement): void {
+    this.patched = {
+      control,
+      attributes: Object.fromEntries(
+        PATCHED_ATTRIBUTES.map((name) => [name, control.getAttribute(name)]),
+      ) as Record<(typeof PATCHED_ATTRIBUTES)[number], string | null>,
+    }
     control.setAttribute('id', this.fieldId())
     const describedBy = this.describedByTarget()
     if (describedBy) {
@@ -255,9 +303,21 @@ export class FormField implements AfterViewInit, OnDestroy, HasElement<HTMLDivEl
     if (this.error) control.setAttribute('aria-invalid', 'true')
   }
 
+  /** Puts back the attributes a patched control had before this field cloned it. */
+  private unpatchNativeControl(): void {
+    if (this.patched === null) return
+    const { control, attributes } = this.patched
+    this.patched = null
+    for (const name of PATCHED_ATTRIBUTES) {
+      const value = attributes[name]
+      if (value === null) control.removeAttribute(name)
+      else control.setAttribute(name, value)
+    }
+  }
+
   /** Removes the context registration (unmount). */
   ngOnDestroy(): void {
-    removeDomContext(this.host.nativeElement)
+    FormFieldDomContext.remove(this.host.nativeElement)
   }
 }
 

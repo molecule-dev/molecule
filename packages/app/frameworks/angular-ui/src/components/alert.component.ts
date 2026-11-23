@@ -4,19 +4,15 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  EventEmitter,
-  inject,
-  Output,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, Output, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -25,7 +21,6 @@ import { type HasElement, hostElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
-import { SlotWrapper } from './button.component.js'
 
 /** Alert status → class-map variant. */
 const STATUS_VARIANT: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
@@ -55,13 +50,14 @@ const STATUS_ICON: Record<string, IconName> = {
  * the icon wrapper span exists only when a custom icon is given or the status
  * has a default glyph, and its content is the custom icon XOR the default
  * glyph. Here the span and the default glyph both always exist in the
- * template (projection capture points) and are detached from the DOM when
- * React would not render them ({@link SlotWrapper}); the decision is made at
- * view init, when view queries resolve.
+ * template (projection capture points) and are taken out of the DOM when
+ * React would not render them (`setElementPresent`); the decision is made in
+ * the placement function, where projected content is current.
  */
 @Component({
   selector: 'div[mol-alert]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg],
   inputs: [
     'title',
@@ -108,7 +104,7 @@ const STATUS_ICON: Record<string, IconName> = {
       </button>
     }`,
 })
-export class Alert implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
+export class Alert implements HasElement<HTMLDivElement> {
   /** Alert title. */
   title?: string
   /** Status color. */
@@ -142,6 +138,11 @@ export class Alert implements AfterViewInit, DoCheck, HasElement<HTMLDivElement>
 
   private hasCustomIcon = false
 
+  /** Places the icon wrapper and the default glyph as React renders them. */
+  constructor() {
+    usePlacement((hasContent) => this.syncIcon(hasContent))
+  }
+
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
    * locale, so the view re-renders the text on a locale switch (the static `t`
@@ -149,7 +150,6 @@ export class Alert implements AfterViewInit, DoCheck, HasElement<HTMLDivElement>
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
@@ -248,55 +248,16 @@ export class Alert implements AfterViewInit, DoCheck, HasElement<HTMLDivElement>
   }
 
   /**
-   * Decides icon presence at view init (view queries resolve only then) and
-   * applies React's conditions.
+   * Applies React's `{(icon || defaultIcon) && <span>{icon || defaultIcon}</span>}`.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private syncIcon(hasContent: SlotReader): void {
     const span = this.iconSlot?.nativeElement
     const glyph = this.defaultGlyph?.nativeElement
-    // Projected nodes are the span's children other than the default glyph.
-    this.hasCustomIcon = !!span && hasNodesExcept(span, glyph)
-    this.syncIcon()
+    // The capture holds the always-mounted default glyph first, then the slot.
+    this.hasCustomIcon = hasContent(span, 1)
+    setElementPresent(glyph, !this.hasCustomIcon && this.defaultIcon() !== null)
+    setElementPresent(span, this.hasCustomIcon || this.defaultIcon() !== null)
   }
-
-  /**
-   * Re-reconciles on later passes.
-   */
-  ngDoCheck(): void {
-    this.syncIcon()
-  }
-
-  /**
-   * Applies React's `{(icon || defaultIcon) && <span>{icon || defaultIcon}</span>}`.
-   */
-  private syncIcon(): void {
-    const span = this.iconSlot?.nativeElement
-    this.sync.sync(
-      this.defaultGlyph?.nativeElement,
-      !this.hasCustomIcon && this.defaultIcon() !== null,
-      span,
-    )
-    this.sync.sync(span, this.hasCustomIcon || this.defaultIcon() !== null)
-  }
-}
-
-/**
- * Whether an element captured any element or text node other than one
- * excluded element (the always-mounted default glyph).
- *
- * @param el - The wrapper element.
- * @param except - The element to ignore.
- * @returns True when at least one other projected node exists.
- */
-function hasNodesExcept(
-  el: Element | undefined | null,
-  except: Element | undefined | null,
-): boolean {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node === except) continue
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
 }

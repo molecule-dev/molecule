@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -166,7 +167,11 @@ describe('useLogin', () => {
 
   it('should start in idle state', () => {
     /** Reads the tracked login state. */
-    @Component({ selector: 'app-test-login-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-login-probe',
+      template: '',
+    })
     class LoginProbeComponent {
       readonly login = useLogin<User>()
     }
@@ -181,7 +186,11 @@ describe('useLogin', () => {
 
   it('should transition idle -> pending -> resolved on successful login', async () => {
     /** Reads the tracked login state. */
-    @Component({ selector: 'app-test-login-success-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-login-success-probe',
+      template: '',
+    })
     class LoginSuccessProbeComponent {
       readonly login = useLogin<User>()
     }
@@ -204,7 +213,11 @@ describe('useLogin', () => {
     vi.mocked(client.login).mockRejectedValue(new Error('Invalid credentials'))
 
     /** Reads the tracked login state. */
-    @Component({ selector: 'app-test-login-failure-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-login-failure-probe',
+      template: '',
+    })
     class LoginFailureProbeComponent {
       readonly login = useLogin<User>()
     }
@@ -228,7 +241,11 @@ describe('useLogin', () => {
 
   it('should reset state to idle', async () => {
     /** Reads the tracked login state. */
-    @Component({ selector: 'app-test-login-reset-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-login-reset-probe',
+      template: '',
+    })
     class LoginResetProbeComponent {
       readonly login = useLogin<User>()
     }
@@ -257,7 +274,11 @@ describe('useSignup', () => {
 
   it('should start in idle state', () => {
     /** Reads the tracked signup state. */
-    @Component({ selector: 'app-test-signup-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-signup-probe',
+      template: '',
+    })
     class SignupProbeComponent {
       readonly signup = useSignup<User>()
     }
@@ -272,7 +293,11 @@ describe('useSignup', () => {
 
   it('should transition idle -> pending -> resolved on successful signup', async () => {
     /** Reads the tracked signup state. */
-    @Component({ selector: 'app-test-signup-success-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-signup-success-probe',
+      template: '',
+    })
     class SignupSuccessProbeComponent {
       readonly signup = useSignup<User>()
     }
@@ -301,7 +326,11 @@ describe('useSignup', () => {
     vi.mocked(client.register).mockRejectedValue(new Error('Email already exists'))
 
     /** Reads the tracked signup state. */
-    @Component({ selector: 'app-test-signup-failure-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-signup-failure-probe',
+      template: '',
+    })
     class SignupFailureProbeComponent {
       readonly signup = useSignup<User>()
     }
@@ -330,7 +359,11 @@ describe('useChangePassword', () => {
 
   it('should start in idle state', () => {
     /** Reads the tracked change-password state. */
-    @Component({ selector: 'app-test-change-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-change-probe',
+      template: '',
+    })
     class ChangeProbeComponent {
       readonly change = useChangePassword()
     }
@@ -344,7 +377,11 @@ describe('useChangePassword', () => {
 
   it('should transition idle -> pending -> resolved on successful change', async () => {
     /** Reads the tracked change-password state. */
-    @Component({ selector: 'app-test-change-success-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-change-success-probe',
+      template: '',
+    })
     class ChangeSuccessProbeComponent {
       readonly change = useChangePassword()
     }
@@ -363,7 +400,11 @@ describe('useChangePassword', () => {
     vi.mocked(client.changePassword).mockRejectedValue(new Error('Incorrect old password'))
 
     /** Reads the tracked change-password state. */
-    @Component({ selector: 'app-test-change-failure-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-change-failure-probe',
+      template: '',
+    })
     class ChangeFailureProbeComponent {
       readonly change = useChangePassword()
     }
@@ -392,7 +433,11 @@ describe('usePasswordReset', () => {
 
   it('should start with both states idle', () => {
     /** Reads both halves of the reset flow. */
-    @Component({ selector: 'app-test-reset-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-reset-probe',
+      template: '',
+    })
     class ResetProbeComponent {
       readonly reset = usePasswordReset()
     }
@@ -408,7 +453,11 @@ describe('usePasswordReset', () => {
 
   it('should track request and confirm steps independently', async () => {
     /** Reads both halves of the reset flow. */
-    @Component({ selector: 'app-test-reset-steps-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-reset-steps-probe',
+      template: '',
+    })
     class ResetStepsProbeComponent {
       readonly reset = usePasswordReset()
     }
@@ -436,7 +485,11 @@ describe('usePasswordReset', () => {
 
   it('should reset both states', async () => {
     /** Reads both halves of the reset flow. */
-    @Component({ selector: 'app-test-reset-clear-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-reset-clear-probe',
+      template: '',
+    })
     class ResetClearProbeComponent {
       readonly reset = usePasswordReset()
     }
@@ -482,7 +535,11 @@ describe('useOAuth', () => {
 
   it('should return providers from config', () => {
     /** Reads the configured OAuth providers. */
-    @Component({ selector: 'app-test-oauth-providers-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-providers-probe',
+      template: '',
+    })
     class OAuthProvidersProbeComponent {
       readonly oauth = useOAuth({ oauthProviders: ['github', 'google', 'gitlab'] })
     }
@@ -494,7 +551,11 @@ describe('useOAuth', () => {
 
   it('should return empty providers when none configured', () => {
     /** Reads the configured OAuth providers. */
-    @Component({ selector: 'app-test-oauth-empty-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-empty-probe',
+      template: '',
+    })
     class OAuthEmptyProbeComponent {
       readonly oauth = useOAuth()
     }
@@ -506,7 +567,11 @@ describe('useOAuth', () => {
 
   it('should build correct OAuth URL', () => {
     /** Builds OAuth initiation URLs from the config. */
-    @Component({ selector: 'app-test-oauth-url-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-url-probe',
+      template: '',
+    })
     class OAuthUrlProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -524,7 +589,11 @@ describe('useOAuth', () => {
 
   it('should use default oauth endpoint', () => {
     /** Builds OAuth initiation URLs from the config. */
-    @Component({ selector: 'app-test-oauth-default-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-default-probe',
+      template: '',
+    })
     class OAuthDefaultProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -541,7 +610,11 @@ describe('useOAuth', () => {
 
   it('should redirect to provider URL', () => {
     /** Builds OAuth initiation URLs from the config. */
-    @Component({ selector: 'app-test-oauth-redirect-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-redirect-probe',
+      template: '',
+    })
     class OAuthRedirectProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -558,7 +631,11 @@ describe('useOAuth', () => {
 
   it('should store oauth_provider in sessionStorage on redirect', () => {
     /** Builds OAuth initiation URLs from the config. */
-    @Component({ selector: 'app-test-oauth-stash-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-stash-probe',
+      template: '',
+    })
     class OAuthStashProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -629,7 +706,11 @@ describe('useOAuth callback detection', () => {
     sessionStorage.setItem('oauth_provider', 'github')
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-detect-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-detect-probe',
+      template: '',
+    })
     class OAuthDetectProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -664,7 +745,11 @@ describe('useOAuth callback detection', () => {
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-token-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-token-probe',
+      template: '',
+    })
     class OAuthTokenProbeComponent {
       readonly oauth = useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] })
     }
@@ -683,7 +768,11 @@ describe('useOAuth callback detection', () => {
     sessionStorage.setItem('oauth_provider', 'github')
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-clean-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-clean-probe',
+      template: '',
+    })
     class OAuthCleanProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -706,7 +795,11 @@ describe('useOAuth callback detection', () => {
     // Intentionally NOT setting sessionStorage oauth_provider
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-noprovider-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-noprovider-probe',
+      template: '',
+    })
     class OAuthNoProviderProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -735,7 +828,11 @@ describe('useOAuth callback detection', () => {
     const onError = vi.fn()
 
     /** Runs the OAuth callback detection with the error callback. */
-    @Component({ selector: 'app-test-oauth-error-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-error-probe',
+      template: '',
+    })
     class OAuthErrorProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -765,7 +862,11 @@ describe('useOAuth callback detection', () => {
     const onSuccess = vi.fn()
 
     /** Runs the OAuth callback detection with the success callback. */
-    @Component({ selector: 'app-test-oauth-success-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-success-probe',
+      template: '',
+    })
     class OAuthSuccessProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -790,7 +891,11 @@ describe('useOAuth callback detection', () => {
     const onError = vi.fn()
 
     /** Runs the OAuth callback detection with the error callback. */
-    @Component({ selector: 'app-test-oauth-network-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-network-probe',
+      template: '',
+    })
     class OAuthNetworkProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -811,7 +916,11 @@ describe('useOAuth callback detection', () => {
     sessionStorage.setItem('oauth_provider', 'github')
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-remove-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-remove-probe',
+      template: '',
+    })
     class OAuthRemoveProbeComponent {
       readonly oauth = useOAuth({
         baseURL: 'https://api.example.com',
@@ -839,7 +948,11 @@ describe('useOAuth callback detection', () => {
     )
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-session-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-session-probe',
+      template: '',
+    })
     class OAuthSessionProbeComponent {
       readonly oauth = useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] })
     }
@@ -863,7 +976,11 @@ describe('useOAuth callback detection', () => {
     )
 
     /** Runs the OAuth callback detection on mount. */
-    @Component({ selector: 'app-test-oauth-props-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-oauth-props-probe',
+      template: '',
+    })
     class OAuthPropsProbeComponent {
       readonly oauth = useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] })
     }

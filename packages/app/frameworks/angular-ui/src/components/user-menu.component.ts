@@ -5,18 +5,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  effect,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
-import { useRouter, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElementBefore,
+  setElementPresent,
+  usePlacement,
+  useRouter,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -54,9 +52,9 @@ export interface UserMenuProps {
 /**
  * UserMenu component.
  *
- * React's root is a FRAGMENT (the trigger button plus a drawer), so the host
- * is unwrapped (`data-parity-unwrap`, `display: contents`) and the trigger
- * button is adopted beside it — the rendered tree and focus paths match
+ * React's root is a FRAGMENT (the trigger button plus a drawer), so the trigger
+ * button renders in front of the host (`placeElementBefore`) and the host
+ * itself leaves the DOM — the rendered tree and focus paths match
  * React's (a route change must restore focus to the trigger). The panel
  * content is projected inside the drawer through `PanelCloseProvider`.
  */
@@ -64,6 +62,7 @@ export interface UserMenuProps {
   selector: 'mol-user-menu',
   standalone: true,
   imports: [Button, Icon, Modal, PanelCloseProvider],
+  hostDirectives: [MolPlacement],
   inputs: [
     'ariaLabelKey',
     'ariaLabelDefault',
@@ -75,10 +74,6 @@ export interface UserMenuProps {
     'onClick',
     'side',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<button
       #trigger
       mol-button
@@ -104,7 +99,7 @@ export interface UserMenuProps {
         ><ng-content></ng-content></mol-panel-close-provider
     ></mol-modal>`,
 })
-export class UserMenu implements AfterViewInit, OnDestroy {
+export class UserMenu {
   /** i18n key for the trigger's aria-label (default `userMenu.open`). */
   ariaLabelKey?: UserMenuProps['ariaLabelKey']
   /** Fallback aria-label (default `Open user menu`). */
@@ -140,7 +135,15 @@ export class UserMenu implements AfterViewInit, OnDestroy {
   @ViewChild('trigger', { read: ElementRef }) trigger?: ElementRef<HTMLButtonElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  private adopted = false
+
+  constructor() {
+    usePlacement(() => {
+      const trigger = this.trigger?.nativeElement
+      if (!trigger) return
+      placeElementBefore(trigger, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
   private readonly routeEffect = effect(() => {
     const location = this.router.location()
     void `${location.pathname}${location.search}`
@@ -210,20 +213,5 @@ export class UserMenu implements AfterViewInit, OnDestroy {
   handleTriggerClick(event: MouseEvent): void {
     if (this.onClick) (this.onClick as (e: MouseEvent) => void)(event)
     else this.isOpen.set(true)
-  }
-
-  /** Adopts the trigger beside the host (React's fragment root). */
-  ngAfterViewInit(): void {
-    const trigger = this.trigger?.nativeElement
-    const host = this.host.nativeElement
-    if (trigger && host.parentNode) {
-      host.parentNode.insertBefore(trigger, host)
-      this.adopted = true
-    }
-  }
-
-  /** Restores the adopted trigger (unmount). */
-  ngOnDestroy(): void {
-    if (this.adopted) this.host.nativeElement.appendChild(this.trigger?.nativeElement as Node)
   }
 }

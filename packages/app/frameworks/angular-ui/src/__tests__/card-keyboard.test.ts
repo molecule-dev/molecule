@@ -13,6 +13,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -61,6 +62,7 @@ afterEach(() => {
  */
 async function mountCard(interactive: boolean, withInput = false): Promise<HTMLElement> {
   const Host: Type<unknown> = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-test-host]',
     standalone: true,
     imports: [Card],
@@ -97,6 +99,7 @@ async function mountCard(interactive: boolean, withInput = false): Promise<HTMLE
  */
 async function mountTemplate(template: string, state: object): Promise<HTMLElement> {
   const Host: Type<unknown> = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-test-host]',
     standalone: true,
     imports: [Card],

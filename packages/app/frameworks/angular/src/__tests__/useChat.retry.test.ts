@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -97,7 +98,11 @@ function mount<P>(
  */
 function renderChat(provider: ChatProvider): ReturnType<typeof useChat> {
   /** Reads the chat whose turn is scripted. */
-  @Component({ selector: 'app-test-chat-retry-probe', template: '' })
+  @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'app-test-chat-retry-probe',
+    template: '',
+  })
   class ChatRetryProbeComponent {
     readonly chat = useChat({ endpoint: '/chat', projectId: 'proj-1', loadOnMount: false })
   }

@@ -54,6 +54,7 @@ const probes: PresenceProbe[] = []
 
 /** Renders its content only while `shown`, a signal it owns. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-presence-probe',
   standalone: true,
   template: `@if (shown()) {
@@ -72,6 +73,7 @@ class PresenceProbe {
 
 /** Keeps a field rendered while its host leaves the page, the way a dialog's form does. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-presence-field',
   standalone: true,
   template: `<input data-probe-field="" />`,
@@ -91,6 +93,7 @@ const fields: PresenceField[] = []
 
 /** Places the probe between two neighbours; `present` takes the probe out of the view. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-presence-host',
   standalone: true,
   imports: [PresenceProbe, PresenceField],
@@ -115,6 +118,7 @@ class PresenceHost {
 
 /** An item that renders its name only while `visible`, a plain input, as notification badges do. */
 const ListItem = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[mol-list-item]',
   standalone: true,
   inputs: ['visible', 'name'],
@@ -173,7 +177,7 @@ async function mount(
     selector: 'mol-placement-host',
     standalone: true,
     imports,
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template,
   })(
     class PlacementHost {
@@ -221,7 +225,7 @@ describe('provideDomPlacement', () => {
   const WithContainer = Component({
     selector: 'i[mol-with-container]',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `inner`,
   })(
     class WithContainer {
@@ -231,7 +235,7 @@ describe('provideDomPlacement', () => {
   const Projecting = Component({
     selector: 'div[mol-projecting]',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<ng-content></ng-content>`,
   })(class Projecting {})
 
@@ -357,7 +361,12 @@ describe('useHostPresence', () => {
 
   it('builds content that a plain input turns on inside the document', async () => {
     const connected: boolean[] = []
-    const Kid = Component({ selector: 'i[mol-kid]', standalone: true, template: `k` })(
+    const Kid = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'i[mol-kid]',
+      standalone: true,
+      template: `k`,
+    })(
       class Kid {
         private readonly el = inject(ElementRef).nativeElement as HTMLElement
         ngAfterViewInit(): void {
@@ -366,6 +375,7 @@ describe('useHostPresence', () => {
       },
     )
     const Box = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-box]',
       standalone: true,
       inputs: ['open'],
@@ -396,7 +406,12 @@ describe('useHostPresence with a predicate that renders no new node', () => {
   it('checks the content once more inside the page after a late restore', async () => {
     const seen: boolean[] = []
     // Like a Button that hides an empty icon slot only while it is in the page.
-    const Kid = Component({ selector: 'i[mol-late-kid]', standalone: true, template: `k` })(
+    const Kid = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'i[mol-late-kid]',
+      standalone: true,
+      template: `k`,
+    })(
       class LateKid {
         private readonly el = inject(ElementRef).nativeElement as HTMLElement
         ngAfterViewChecked(): void {
@@ -406,6 +421,7 @@ describe('useHostPresence with a predicate that renders no new node', () => {
     )
     // The template does not depend on `count`: showing it inserts and updates nothing.
     const Bar = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-late-bar]',
       standalone: true,
       inputs: ['count'],
@@ -466,6 +482,7 @@ describe('setElementPresent', () => {
 describe('placeElement', () => {
   /** Renders its panel in the body while `portal` is set, as a dropdown's menu does. */
   const Portal = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-portal',
     standalone: true,
     inputs: ['portal', 'label'],
@@ -499,6 +516,7 @@ describe('placeElement', () => {
 
   /** Renders each item's panel in the body, the panels being the roots of its `@for` views. */
   const PortalList = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-portal-list',
     standalone: true,
     inputs: ['items'],
@@ -557,6 +575,7 @@ describe('placeElement', () => {
 describe('placeContent', () => {
   /** React: `bare ? <>{label}</> : <span>{label}</span>`, before a fixed `<em>`. */
   const Label = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-label]',
     standalone: true,
     inputs: ['bare'],
@@ -614,6 +633,59 @@ describe('placeContent', () => {
     m.set({ xs: [7, 8] })
     expect(html(m.root)).toBe('<button mol-label=""><b>7</b><b>8</b><em>end</em></button>')
   })
+
+  /** React: `{on && actions}` rendered bare, before a fixed `<i>`; the capture lives in an `@if`. */
+  const Actions = Component({
+    selector: 'div[mol-actions]',
+    standalone: true,
+    inputs: ['on'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@if (on) {<span #capture><ng-content select="[slot=actions]"></ng-content></span>}<i>tail</i>`,
+  })(
+    class Actions {
+      on = true
+      capture?: ElementRef<HTMLElement>
+      private readonly host = inject(ElementRef).nativeElement as HTMLElement
+      ngAfterViewChecked(): void {
+        const capture = this.capture?.nativeElement
+        if (!capture) return
+        placeContent(capture, this.host, capture)
+        setElementPresent(capture, false)
+      }
+    },
+  )
+  ViewChild('capture')(Actions.prototype, 'capture')
+
+  it('removes content rendered elsewhere with the view that holds its capture', async () => {
+    const m = await mount(
+      `<div mol-actions [on]="p['on']"><b slot="actions">a</b></div>`,
+      [Actions as Type<unknown>],
+      { on: true },
+    )
+    m.set({})
+    expect(html(m.root)).toBe('<div mol-actions=""><b slot="actions">a</b><i>tail</i></div>')
+    m.set({ on: false })
+    expect(html(m.root)).toBe('<div mol-actions=""><i>tail</i></div>')
+    m.set({ on: true })
+    m.set({})
+    expect(html(m.root)).toBe('<div mol-actions=""><b slot="actions">a</b><i>tail</i></div>')
+  })
+
+  it('renders a projected node that arrives after the content moved, in the moved run', async () => {
+    const m = await mount(
+      `<div mol-actions [on]="true">@if (p['show']) {<b slot="actions">a</b>}</div>`,
+      [Actions as Type<unknown>],
+      { show: false },
+    )
+    m.set({})
+    expect(html(m.root)).toBe('<div mol-actions=""><i>tail</i></div>')
+    m.set({ show: true })
+    expect(html(m.root)).toBe('<div mol-actions=""><b slot="actions">a</b><i>tail</i></div>')
+    m.set({ show: false })
+    expect(html(m.root)).toBe('<div mol-actions=""><i>tail</i></div>')
+    m.set({ show: true })
+    expect(html(m.root)).toBe('<div mol-actions=""><b slot="actions">a</b><i>tail</i></div>')
+  })
 })
 
 describe('hasContent', () => {
@@ -650,6 +722,7 @@ describe('hasContent', () => {
 describe('WrappedChildren', () => {
   /** React: `<div data-track>{children.map((c) => <div data-wrapper>{c}</div>)}</div><p>{n}</p>`. */
   const Track = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-track',
     standalone: true,
     providers: [WrappedChildren],
@@ -674,6 +747,7 @@ describe('WrappedChildren', () => {
 
   it('wraps each child once when the app provides the placement rules twice', async () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-twice-host',
       standalone: true,
       imports: [Track as Type<unknown>],

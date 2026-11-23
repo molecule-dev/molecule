@@ -8,18 +8,22 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   type AfterViewChecked,
   Component,
-  type DoCheck,
   ElementRef,
   EventEmitter,
   inject,
   Output,
-  Renderer2,
   signal,
   TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,7 +38,6 @@ import {
   reapplyRestAttributes,
 } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 
 /**
  * Input component.
@@ -45,12 +48,13 @@ import { hasNodes, SlotWrapper } from './button.component.js'
  *
  * The adornment wrappers React renders conditionally
  * (`{!!leftElement && <div …>}` / `{(rightElement || (clearable && value)) && …}`)
- * are always-mounted `<ng-content>` capture points that are detached from the
- * DOM whenever React would render nothing (see {@link SlotWrapper}).
+ * are always-mounted `<ng-content>` capture points that are taken out of the
+ * DOM whenever React would render nothing (`setElementPresent`).
  */
 @Component({
   selector: 'div[mol-input]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg, NgTemplateOutlet],
   inputs: [
     'type',
@@ -147,7 +151,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <p [attr.id]="inputId() + '-hint'" [class]="cm().formHint">{{ hint }}</p>
     }`,
 })
-export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputElement> {
+export class Input implements AfterViewChecked, HasElement<HTMLInputElement> {
   /** Input type. */
   type?: string
   /** Input size. */
@@ -226,6 +230,15 @@ export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputEle
 
   private readonly host = inject(ElementRef)
 
+  /** Whether an adornment wrapper renders on each side (signals the class list reads). */
+  private readonly hasLeft = signal(false)
+  private readonly hasRight = signal(false)
+
+  /** Attaches or detaches each adornment wrapper exactly when React renders it. */
+  constructor() {
+    usePlacement((hasContent) => this.syncAdornments(hasContent))
+  }
+
   /** The per-instance id used when the caller gives no `id` or `name` (React's `useId`). */
   private readonly generatedId = nextInstanceId()
 
@@ -236,11 +249,6 @@ export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputEle
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
-  private readonly parents = new Map<Node, HTMLElement>()
-
-  private hasLeft = false
-  private hasRight = false
   private movedRest = false
   /** The `aria-describedby` the caller spread onto the host (React's rest). */
   private restDescribedBy: string | null = null
@@ -304,8 +312,8 @@ export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputEle
         size: this.size ?? 'md',
         align: this.align === 'right' ? undefined : this.align,
       }),
-      this.hasLeft && this.cm().inputPadLeft,
-      (this.hasRight || this.clearable) && this.cm().inputPadRight,
+      this.hasLeft() && this.cm().inputPadLeft,
+      (this.hasRight() || this.clearable) && this.cm().inputPadRight,
       this.className,
     )
   }
@@ -383,13 +391,34 @@ export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputEle
   }
 
   /**
-   * Reconciles the adornment wrappers every check: detects projected slot
-   * content (view queries resolve only at view init, so the very first pass —
-   * which runs before the view's bindings — falls back to structural sibling
-   * lookup), then attaches/detaches each wrapper exactly when React renders
-   * it. The input's class list depends on this detection, and `ngDoCheck`
-   * runs before the template bindings of the same pass, so the first render
-   * already carries the right padding classes.
+   * Attaches or detaches each adornment wrapper exactly when React renders
+   * it. The input's class list reads the presence signals, so the padding
+   * classes follow.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private syncAdornments(hasContent: SlotReader): void {
+    // The placement function runs after the view exists (MolPlacement's
+    // after-view-init), so the view queries are set here.
+    const left = this.leftSlot?.nativeElement
+    const right = this.rightSlot?.nativeElement
+    const inner =
+      this.rightInner?.nativeElement ??
+      (right ? (right.querySelector('span') as HTMLElement | null) : null) ??
+      undefined
+    const hasLeft = this.isGiven(this.leftElement) || hasContent(left)
+    const hasRight = this.isGiven(this.rightElement) || hasContent(inner)
+    this.hasLeft.set(hasLeft)
+    this.hasRight.set(hasRight)
+    const clear = !!(this.clearable && this.value)
+    setElementPresent(left, hasLeft)
+    setElementPresent(inner, hasRight && !clear)
+    setElementPresent(right, hasRight || clear)
+  }
+
+  /**
+   * Moves the caller's rest attributes onto the input and keeps its controlled
+   * value in step with the `value` input.
    */
   ngDoCheck(): void {
     // Registering this view against the locale: a switch marks it for check,
@@ -400,24 +429,6 @@ export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputEle
     void this.i18n.locale()
     const host = this.host.nativeElement as HTMLElement
     const input = this.inputEl?.nativeElement ?? host.querySelector('input')
-    const left =
-      this.leftSlot?.nativeElement ??
-      (input?.previousElementSibling as HTMLElement | null) ??
-      undefined
-    const right =
-      this.rightSlot?.nativeElement ??
-      (input?.nextElementSibling as HTMLElement | null) ??
-      undefined
-    const inner =
-      this.rightInner?.nativeElement ??
-      (right ? (right.querySelector('span') as HTMLElement | null) : null) ??
-      undefined
-    this.hasLeft = this.isGiven(this.leftElement) || hasNodes(left)
-    this.hasRight = this.isGiven(this.rightElement) || hasNodes(inner)
-    const clear = !!(this.clearable && this.value)
-    this.sync.sync(left, this.hasLeft, this.parentOf(left))
-    this.sync.sync(inner, this.hasRight && !clear, this.parentOf(inner))
-    this.sync.sync(right, this.hasRight || clear, this.parentOf(right))
     if (!this.movedRest && input) {
       this.restDescribedBy = host.getAttribute('aria-describedby')
       this.movedRest = true
@@ -447,24 +458,6 @@ export class Input implements AfterViewChecked, DoCheck, HasElement<HTMLInputEle
     // moved by the browser on an uncontrolled edit).
     if (this.value !== undefined && input && input.value !== String(this.value))
       input.value = String(this.value)
-  }
-
-  /**
-   * Remembers where an element lives while connected, so a re-attach after a
-   * detach lands in the original parent (never the component host).
-   *
-   * @param el - The wrapper element.
-   * @returns The original parent, if known.
-   */
-  private parentOf(el: HTMLElement | undefined | null): HTMLElement | undefined {
-    if (!el) return undefined
-    const cached = this.parents.get(el)
-    if (cached) return cached
-    if (el.parentElement) {
-      this.parents.set(el, el.parentElement)
-      return el.parentElement
-    }
-    return undefined
   }
 
   /**

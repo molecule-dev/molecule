@@ -141,7 +141,11 @@ describe('providers', () => {
       const result = provideRouter(mockRouter)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
-      expect(makeEnvProvidersCalls[0]).toEqual([{ provide: ROUTER, useValue: mockRouter }])
+      // With the DOM placement rules: RoutedView renders the page with no element of its own.
+      expect(makeEnvProvidersCalls[0]).toEqual([
+        { provide: ROUTER, useValue: mockRouter },
+        DOM_PLACEMENT,
+      ])
       expect(result).toBeDefined()
     })
 
@@ -151,7 +155,10 @@ describe('providers', () => {
       provideRouter(build)
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
-      expect(makeEnvProvidersCalls[0]).toEqual([{ provide: ROUTER, useFactory: build }])
+      expect(makeEnvProvidersCalls[0]).toEqual([
+        { provide: ROUTER, useFactory: build },
+        DOM_PLACEMENT,
+      ])
     })
   })
 

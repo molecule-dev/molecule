@@ -19,6 +19,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -74,6 +75,7 @@ const LOCALES: LocaleConfig[] = [
 
 /** A host rendering the spinner, like an app's template does. */
 const Host: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-spinner-host',
   standalone: true,
   imports: [Spinner],

@@ -13,7 +13,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -121,7 +126,11 @@ function createMockPreviewProvider(initialUrl = ''): PreviewProvider {
 }
 
 /** The probe component that calls `usePreview` in an injection context. */
-@Component({ selector: 'app-test-preview-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-preview-probe',
+  template: '',
+})
 class PreviewProbeComponent {
   readonly preview: UsePreviewResult = usePreview()
 }

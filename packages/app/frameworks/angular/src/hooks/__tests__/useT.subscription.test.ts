@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   type OnInit,
@@ -95,7 +96,11 @@ function trackSubscriptions(provider: I18nProvider): () => number {
 }
 
 /** Registers English translations from its mount hook (`ngOnInit`). */
-@Component({ selector: 'app-test-sub-add-on-mount', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-sub-add-on-mount',
+  template: '',
+})
 class AddOnMountComponent implements OnInit {
   private readonly i18n = useI18nProvider()
 
@@ -106,6 +111,7 @@ class AddOnMountComponent implements OnInit {
 
 /** Reads the greeting through `useT()`. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-sub-greeting',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -124,6 +130,7 @@ class GreetingComponent {
 
 /** Reads a key registered after the view may exist. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-sub-late-key',
   template: '<span data-testid="late">{{ late() }}</span>',
 })
@@ -142,6 +149,7 @@ class LateKeyComponent {
 
 /** Reads the text registered later through `useTranslation()`. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-sub-late-translation',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -175,7 +183,11 @@ describe('a notification fired before the hook subscribes', () => {
     const provider = createSimpleI18nProvider('en', LOCALES)
 
     /** Switches the locale before the later sibling is constructed. */
-    @Component({ selector: 'app-test-sub-switch-first', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-sub-switch-first',
+      template: '',
+    })
     class SwitchFirstComponent implements OnInit {
       private readonly i18n = useI18nProvider()
 
@@ -186,6 +198,7 @@ describe('a notification fired before the hook subscribes', () => {
 
     /** The two siblings: the switch, then the reader. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-first-sibling-host',
       imports: [SwitchFirstComponent, GreetingComponent],
       template: '<app-test-sub-switch-first /><app-test-sub-greeting />',
@@ -201,7 +214,11 @@ describe('a notification fired before the hook subscribes', () => {
     const provider = createSimpleI18nProvider('en', LOCALES)
 
     /** Switches the locale from its mount hook, after its parent subscribed. */
-    @Component({ selector: 'app-test-sub-switch-in-child', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-sub-switch-in-child',
+      template: '',
+    })
     class SwitchInChildComponent implements OnInit {
       private readonly i18n = useI18nProvider()
 
@@ -212,6 +229,7 @@ describe('a notification fired before the hook subscribes', () => {
 
     /** Reads the locale after its child switched it. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-parent-shell',
       imports: [SwitchInChildComponent],
       template: '<span data-testid="title">{{ title() }}</span><app-test-sub-switch-in-child />',
@@ -238,7 +256,11 @@ describe('a notification fired before the hook subscribes', () => {
     const provider = createSimpleI18nProvider('en', LOCALES)
 
     /** Switches to the right-to-left locale before the reader exists. */
-    @Component({ selector: 'app-test-sub-switch-arabic', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-sub-switch-arabic',
+      template: '',
+    })
     class SwitchArabicComponent implements OnInit {
       private readonly i18n = useI18nProvider()
 
@@ -249,6 +271,7 @@ describe('a notification fired before the hook subscribes', () => {
 
     /** Reads text, locale and direction together. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-translation-probe',
       template: '<span data-testid="text">{{ line() }}</span>',
     })
@@ -273,6 +296,7 @@ describe('a notification fired before the hook subscribes', () => {
 
     /** The switch, then the reader. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-arabic-host',
       imports: [SwitchArabicComponent, TranslationProbe],
       template: '<app-test-sub-switch-arabic /><app-test-sub-translation-probe />',
@@ -289,6 +313,7 @@ describe('a notification fired before the hook subscribes', () => {
 
     /** Reads the key its child registered. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-parent-add-shell',
       imports: [AddOnMountComponent],
       template: '<span data-testid="title">{{ title() }}</span><app-test-sub-add-on-mount />',
@@ -316,6 +341,7 @@ describe('a notification fired before the hook subscribes', () => {
 
     /** The registrar, then the reader. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-late-sibling-host',
       imports: [AddOnMountComponent, LateTranslationComponent],
       template: '<app-test-sub-add-on-mount /><app-test-sub-late-translation />',
@@ -335,6 +361,7 @@ describe('a provider replaced in place (no remount)', () => {
 
     /** Records one frame per render: locale, direction and text together. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-sub-frame-probe',
       template: '<span data-testid="text">{{ line() }}</span>',
     })
@@ -432,6 +459,8 @@ describe('translations the rendered text depends on', () => {
 
     /** Re-registers the same translations from its own render-driven work. */
     @Component({
+      // Counts renders as a port component (checked as OnPush) renders, as React counts them.
+      changeDetection: ChangeDetectionStrategy.OnPush,
       selector: 'app-test-sub-self-registering',
       template: '<span data-testid="own">{{ own() }}</span>',
     })

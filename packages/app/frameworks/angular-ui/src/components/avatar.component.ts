@@ -4,17 +4,15 @@
  * @module
  */
 
-import {
-  type AfterViewChecked,
-  Component,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,7 +20,6 @@ import { type HasElement, hostElement } from '../utilities/element.js'
 import { getInitials } from '../utilities/initials.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
-import { SlotWrapper } from './button.component.js'
 
 /**
  * Avatar component.
@@ -31,12 +28,13 @@ import { SlotWrapper } from './button.component.js'
  * fallback: projected `[slot=fallback]` content, the name's initials, or a
  * user glyph. The image/fallback swap is a signal-driven `@if` (an error
  * re-renders); the three fallback variants are always-mounted capture points
- * detached from the DOM per React's ternary, since projected-content presence
- * is only knowable at view init ({@link SlotWrapper}).
+ * taken out of the DOM per React's ternary, since projected-content presence
+ * is read in the placement function (`setElementPresent`).
  */
 @Component({
   selector: 'div[mol-avatar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg],
   inputs: [
     'src',
@@ -65,13 +63,13 @@ import { SlotWrapper } from './button.component.js'
       />
     } @else {
       <div [class]="cm().avatarFallback" #fallbackEl>
-        <ng-content select="[slot=fallback]"></ng-content>
         <span [class]="cm().avatarInitials" #initialsEl>{{ initials() }}</span>
         <svg mol-icon [data]="userIcon()" #userGlyph />
+        <ng-content select="[slot=fallback]"></ng-content>
       </div>
     }`,
 })
-export class Avatar implements AfterViewChecked, HasElement<HTMLDivElement> {
+export class Avatar implements HasElement<HTMLDivElement> {
   /** Image source. */
   src?: string
   /** Image alt text. */
@@ -110,10 +108,14 @@ export class Avatar implements AfterViewChecked, HasElement<HTMLDivElement> {
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
+
+  /** Applies the fallback ternary; projected content wins over initials and glyph. */
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -195,20 +197,16 @@ export class Avatar implements AfterViewChecked, HasElement<HTMLDivElement> {
 
   /**
    * Applies React's fallback ternary (`fallback ? fallback : name ? initials
-   * : glyph`) after view queries have resolved for this pass. Projected
-   * fallback nodes are exactly the container's children that are not the two
-   * always-mounted template children.
+   * : glyph`). The capture holds the initials span and the user glyph first,
+   * then the projected fallback.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewChecked(): void {
+  private reconcile(hasContent: SlotReader): void {
     const fallbackHost = this.fallbackEl?.nativeElement
     if (!fallbackHost) return
-    const projected = Array.from(fallbackHost.childNodes).some(
-      (node) =>
-        node !== this.initialsEl?.nativeElement &&
-        node !== this.userGlyph?.nativeElement &&
-        (node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim())),
-    )
-    this.sync.sync(this.initialsEl?.nativeElement, !projected && !!this.name, fallbackHost)
-    this.sync.sync(this.userGlyph?.nativeElement, !projected && !this.name, fallbackHost)
+    const projected = hasContent(fallbackHost, 2)
+    setElementPresent(this.initialsEl?.nativeElement, !projected && !!this.name)
+    setElementPresent(this.userGlyph?.nativeElement, !projected && !this.name)
   }
 }

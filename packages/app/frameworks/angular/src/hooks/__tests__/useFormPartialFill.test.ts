@@ -9,7 +9,7 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -37,6 +37,7 @@ interface AccountValues {
  * the way React's mount effect fills them.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-inventory-editor',
   template: `
     <output data-testid="name">{{ form.getValue('name') }}</output>
@@ -58,7 +59,11 @@ class InventoryEditorComponent {
 }
 
 /** The account editor driven through the hook directly. */
-@Component({ selector: 'app-test-account-editor', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-account-editor',
+  template: '',
+})
 class AccountEditorComponent {
   readonly form: UseFormResult<AccountValues> = useForm<AccountValues>({
     defaultValues: { name: '', email: '', bio: '' },
@@ -66,7 +71,11 @@ class AccountEditorComponent {
 }
 
 /** The two-field editor whose whole record is replaced. */
-@Component({ selector: 'app-test-record-editor', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-record-editor',
+  template: '',
+})
 class RecordEditorComponent {
   readonly form: UseFormResult<{ name: string; email: string }> = useForm<{
     name: string

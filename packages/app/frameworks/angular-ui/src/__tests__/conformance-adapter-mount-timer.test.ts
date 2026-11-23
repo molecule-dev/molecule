@@ -12,14 +12,18 @@
 
 import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
-import { Component, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
 import { describe, expect, it } from 'vitest'
 
 import * as AppAngular from '@molecule/app-angular'
 import { createAngularAdapter } from '@molecule/app-framework-conformance/adapters/angular'
 
 /** Restores its label in a timer as it mounts. */
-const RestoresInTimer = Component({ selector: 'mol-restores', template: '{{ label() }}' })(
+const RestoresInTimer = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-restores',
+  template: '{{ label() }}',
+})(
   class {
     label = signal('empty')
     constructor() {
@@ -29,7 +33,11 @@ const RestoresInTimer = Component({ selector: 'mol-restores', template: '{{ labe
 )
 
 /** The counterexample: sets its label while it is created. */
-const RestoresAtOnce = Component({ selector: 'mol-at-once', template: '{{ label() }}' })(
+const RestoresAtOnce = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-at-once',
+  template: '{{ label() }}',
+})(
   class {
     label = signal('restored')
   },

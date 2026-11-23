@@ -33,7 +33,7 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { provideDomPlacement } from '@molecule/app-angular'
+import { MolPlacement, provideDomPlacement } from '@molecule/app-angular'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -88,6 +88,9 @@ const injectionContext = (): Injector =>
       // The renderer is only touched by slot/portal management, which these
       // handler tests never reach.
       { provide: Renderer2, useValue: {} as Renderer2 },
+      // `usePlacement` asks for the component's moments; directly constructed
+      // components have no node injector carrying the host directive.
+      { provide: MolPlacement, useValue: new MolPlacement() },
     ],
     parent: appRef.injector,
   })
@@ -105,6 +108,8 @@ beforeEach(async () => {
 
 afterEach(() => {
   document.body.innerHTML = ''
+  // The outside-a-shell context is one shared object, so a spy on it must not outlive its test.
+  vi.restoreAllMocks()
 })
 
 describe('Card keyboard activation', () => {

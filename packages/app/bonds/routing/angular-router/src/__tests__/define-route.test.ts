@@ -13,7 +13,12 @@
 import '@angular/compiler'
 import { Location } from '@angular/common'
 import { provideLocationMocks, SpyLocation } from '@angular/common/testing'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { provideRouter, type Route, Router, RouterOutlet } from '@angular/router'
 import { expect, expectTypeOf, it } from 'vitest'
@@ -23,6 +28,7 @@ import type { AngularRouteParams } from '../types.js'
 
 /** A page that shows the shelf its route names and a fixed suffix. */
 const AllPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-all-page',
   standalone: true,
   template: '<h1>{{ params().shelf }}: all</h1>',
@@ -33,6 +39,7 @@ const AllPage: Type<unknown> = Component({
 )
 
 const SavedPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-saved-page',
   standalone: true,
   template: '<h1>{{ params().shelf }}: saved</h1>',
@@ -46,6 +53,7 @@ const SavedPage: Type<unknown> = Component({
 )
 
 const FilterPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-filter-page',
   standalone: true,
   template: '<h1>{{ params().shelf }}: {{ params().view }}</h1>',
@@ -61,6 +69,7 @@ const FilterPage: Type<unknown> = Component({
 )
 
 const UnfilteredPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-unfiltered-page',
   standalone: true,
   template: '<h1>{{ params().shelf }}: all views</h1>',
@@ -75,6 +84,7 @@ const UnfilteredPage: Type<unknown> = Component({
  * React seeds the page from its `params` prop; the port seeds it from `injectRouteParams`.
  */
 const ShelfForm: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-shelf-form',
   standalone: true,
   template: '<input aria-label="Shelf title" [value]="title" />',
@@ -87,6 +97,7 @@ const ShelfForm: Type<unknown> = Component({
 
 /** The page that shows the shelf parameter of the href case. */
 const DetailPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-detail-page',
   standalone: true,
   template: '<h1>{{ params().shelf }}</h1>',
@@ -98,6 +109,7 @@ const DetailPage: Type<unknown> = Component({
 
 /** The page `/library` mounts, so a mount can be seen after its link is built. */
 const LibraryPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-library-page',
   standalone: true,
   template: '<h1>library</h1>',
@@ -105,12 +117,14 @@ const LibraryPage: Type<unknown> = Component({
 
 /** A route target with no markup for the paths a case only builds links for. */
 const EmptyPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-empty-page',
   standalone: true,
   template: '',
 })(class EmptyPageComponent {})
 
 const Root: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-define-route-root',
   standalone: true,
   imports: [RouterOutlet],

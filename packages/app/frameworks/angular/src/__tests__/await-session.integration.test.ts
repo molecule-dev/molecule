@@ -14,7 +14,7 @@
  */
 
 import '@angular/compiler'
-import { ApplicationInitStatus, Component, inject } from '@angular/core'
+import { ApplicationInitStatus, ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -82,6 +82,7 @@ function returningVisitor(): { client: AuthClient<UserProfile>; answer: () => Pr
  * is null, read through the package's own auth service.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-follow',
   template: '<button type="button" (click)="follow()">Follow</button>',
 })
@@ -99,6 +100,7 @@ class FollowComponent {
 
 /** A page that reads no auth — the "no auth client given" case must still render it. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-public',
   template: '<p>Public page</p>',
 })

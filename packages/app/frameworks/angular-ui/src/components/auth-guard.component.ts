@@ -4,22 +4,22 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  effect,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { RoutedView, useAuth, useRouter, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  RoutedView,
+  setElementPresent,
+  type SlotReader,
+  useAuth,
+  usePlacement,
+  useRouter,
+  useTranslation,
+} from '@molecule/app-angular'
 
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /**
@@ -60,26 +60,23 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
  * `loginPath` (state `from` carries the attempted location); otherwise it
  * renders the projected children, or `<mol-routed-view />` without them (the
  * matched child route, through whichever routing bond the app wired; it throws
- * when the bond has none: project the page then). The host is unwrapped by the DOM normalizer
- * (`data-parity-unwrap`) and `display: contents` keeps it fragment-like —
- * React's root is a fragment. On the login path itself the guard renders its
- * children, so a guard wrapping the whole route tree does not redirect in a
- * loop.
+ * when the bond has none: project the page then). React's root is a fragment
+ * (or nothing at all while redirecting), so everything the host holds renders
+ * in front of the host and the host itself leaves the page. On the login path
+ * itself the guard renders its children, so a guard wrapping the whole route
+ * tree does not redirect in a loop.
  *
- * The projected children need one stable capture point, so they live in an
- * always-mounted wrapper the guard moves into (or out of) the host itself:
- * React renders them bare, never inside a wrapper element, and renders
- * nothing at all while redirecting.
+ * The projected children (and the loading fallback's content) need one stable
+ * capture point, so each lives in an always-mounted wrapper whose content is
+ * rendered in its own place and whose element leaves the page: React renders
+ * them bare, never inside a wrapper element.
  */
 @Component({
   selector: 'mol-auth-guard',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolTemplateOutlet, RoutedView],
   inputs: ['loadingFallback', 'loadingKey', 'loadingDefault', 'loginPath', 'onAuthenticated'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<div data-mol-id="auth-guard-loading" #defaultLoading>{{ loadingText() }}</div>
     <span #dataFallback
       ><ng-container [molTemplateOutlet]="asTemplate(loadingFallback)"></ng-container
@@ -91,7 +88,7 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
       <mol-routed-view />
     }`,
 })
-export class AuthGuard implements AfterViewInit {
+export class AuthGuard {
   /**
    * Element rendered while the auth status is `loading` (a node value, or the
    * projected `[slot=loadingFallback]`). Overrides the default loading tag.
@@ -118,9 +115,9 @@ export class AuthGuard implements AfterViewInit {
   @ViewChild('defaultLoading') defaultLoading?: ElementRef<HTMLDivElement>
   /** The node-valued fallback (shown when the input is given). */
   @ViewChild('dataFallback') dataFallback?: ElementRef<HTMLSpanElement>
-  /** The `loadingFallback` slot capture (always mounted). */
+  /** The `loadingFallback` slot capture (its content renders in its own place). */
   @ViewChild('fallbackWrap') fallbackWrap?: ElementRef<HTMLSpanElement>
-  /** The children capture; its nodes are moved bare into the host to render. */
+  /** The children capture (their content renders in its own place). */
   @ViewChild('childrenWrap') childrenWrap?: ElementRef<HTMLSpanElement>
 
   /** Auth state, read in the component's injection context. */
@@ -135,10 +132,9 @@ export class AuthGuard implements AfterViewInit {
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host = inject(ElementRef)
   private hasFallback = false
-  /** Whether the guard was given children to project (known by view init). */
+  /** Whether the guard was given children to project (read in the placement function). */
   private hasChildren = false
   /** Whether the view queries have resolved, so the children capture can be read. */
   private viewReady = false
@@ -150,38 +146,27 @@ export class AuthGuard implements AfterViewInit {
   private lastAuthenticated = false
   /** The login path the guard navigated to for the current redirect state. */
   private redirectedTo: string | null = null
-  /** The children nodes currently adopted into the host. */
-  private adopted: Node[] = []
 
   /**
-   * Runs the first reconciliation after the view init (slot detection) and
-   * again whenever the auth status or the location changes — the effect
-   * tracks both signals directly, so the guard re-evaluates even though no
-   * template binding reads them.
+   * Re-evaluates the guard whenever the auth status, the location or the
+   * projected slots change. The placement function reads both signals, so its
+   * effect tracks them even though no template binding does.
    */
-  private readonly guardEffect = effect(() => {
-    this.auth.status()
-    this.router.location()
-    this.reconcile()
-  })
-
-  /**
-   * Detects the `loadingFallback` slot and the children (view queries resolve
-   * only by view init).
-   */
-  ngAfterViewInit(): void {
-    this.hasFallback = hasNodes(this.fallbackWrap?.nativeElement)
-    this.hasChildren = hasNodes(this.childrenWrap?.nativeElement)
-    this.viewReady = true
-    this.reconcile()
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
   }
 
   /**
    * Applies React's branch for the current auth status and location, fires
    * `onAuthenticated` on its rising edge, and redirects once per entry into
    * the redirect state.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private reconcile(): void {
+  private reconcile(hasContent: SlotReader): void {
+    this.hasFallback = hasContent(this.fallbackWrap?.nativeElement)
+    this.hasChildren = hasContent(this.childrenWrap?.nativeElement)
+    this.viewReady = this.childrenWrap !== undefined
     const status = this.auth.status()
     const authenticated = this.auth.isAuthenticated()
     if (this.onAuthenticated && authenticated && !this.lastAuthenticated) this.onAuthenticated()
@@ -209,33 +194,40 @@ export class AuthGuard implements AfterViewInit {
   /**
    * Shows exactly one branch's content, the way React's early returns do.
    *
+   * React's branch elements render in front of the host, which leaves the
+   * page; each capture that holds projected content renders that content in its
+   * own place and leaves the page, so the projected nodes are bare, as React
+   * renders them.
+   *
    * @param branch - The branch to render.
    */
   private renderBranch(branch: 'loading' | 'redirect' | 'children'): void {
     const host = this.host.nativeElement as HTMLElement
-    const wrap = this.childrenWrap?.nativeElement
-    if (wrap) {
-      if (branch === 'children') {
-        while (wrap.firstChild) {
-          const node = wrap.firstChild
-          host.appendChild(node)
-          this.adopted.push(node)
-        }
-      } else {
-        for (const node of this.adopted) {
-          if (node.parentElement === host) wrap.appendChild(node)
-        }
-        this.adopted = []
-      }
-      // The capture span itself never renders (React's children are bare).
-      this.sync.sync(this.childrenWrap?.nativeElement, false)
-    }
+    // React's root is a fragment (or nothing): everything the host holds renders in front of it.
+    placeContentBefore(host, host)
+    setElementPresent(host, false)
     this.routed.set(this.viewReady && branch === 'children' && !this.hasChildren)
     const loading = branch === 'loading'
     const hasNode = isGiven(this.loadingFallback)
-    this.sync.sync(this.defaultLoading?.nativeElement, loading && !hasNode && !this.hasFallback)
-    this.sync.sync(this.fallbackWrap?.nativeElement, loading && !hasNode && this.hasFallback)
-    this.sync.sync(this.dataFallback?.nativeElement, loading && hasNode)
+    this.placeSlot(this.childrenWrap?.nativeElement, branch === 'children')
+    this.placeSlot(this.fallbackWrap?.nativeElement, loading && !hasNode && this.hasFallback)
+    this.placeSlot(this.dataFallback?.nativeElement, loading && hasNode)
+    setElementPresent(this.defaultLoading?.nativeElement, loading && !hasNode && !this.hasFallback)
+  }
+
+  /**
+   * Renders a capture's content in the capture's own place while `shown`, and
+   * leaves the capture element itself out of the page either way: React
+   * renders the content bare, never inside the capture's span.
+   *
+   * @param capture - The capture element (its own template content, projected or not).
+   * @param shown - Whether React would render that content now.
+   */
+  private placeSlot(capture: HTMLElement | undefined, shown: boolean): void {
+    if (!capture) return
+    if (shown) placeContentBefore(capture, capture)
+    else placeContent(capture, null)
+    setElementPresent(capture, false)
   }
 
   /**

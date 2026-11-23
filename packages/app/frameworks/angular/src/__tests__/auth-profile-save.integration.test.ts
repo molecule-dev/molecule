@@ -11,7 +11,13 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -151,6 +157,7 @@ async function waitFor(
 
 /** Exposes the `useAuth` instance a page's actions run through. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-auth-host',
   template: '',
 })
@@ -160,6 +167,7 @@ class AuthHostComponent {
 
 /** A form that seeds its draft from the shared user once, at mount. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-account-editor',
   template: '<input aria-label="Account name" [value]="name" />',
 })
@@ -170,6 +178,7 @@ class AccountEditorComponent {
 
 /** A form that loads the server itself on each visit. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-server-account-editor',
   template: '<input aria-label="Account name" [value]="name()" />',
 })
@@ -188,6 +197,7 @@ class ServerAccountEditorComponent {
 
 /** The managed profile form: controlled values over the shared account. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-managed-account-editor',
   template: `
     <form aria-label="Account" (submit)="form.formProps.onSubmit($event)">

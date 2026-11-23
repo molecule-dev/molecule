@@ -13,6 +13,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -125,7 +126,11 @@ function renderEditor(provider: EditorProvider): ComponentFixture<EditorProbeCom
 }
 
 /** Reads the editor the probe mounted. */
-@Component({ selector: 'app-test-editor-tabs-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-editor-tabs-probe',
+  template: '',
+})
 class EditorProbeComponent {
   readonly editor = useEditor()
 }

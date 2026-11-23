@@ -16,6 +16,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   provideZonelessChangeDetection,
@@ -76,7 +77,11 @@ let initialOptions: { endpoint: string; projectId: string; loadOnMount: boolean 
 }
 
 /** Reads a chat whose conversation is a signal. */
-@Component({ selector: 'app-test-chat-progress-queue-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-chat-progress-queue-probe',
+  template: '',
+})
 class ChatProgressQueueProbeComponent {
   readonly endpoint: WritableSignal<string> = signal(initialOptions.endpoint)
   readonly chat = useChat(

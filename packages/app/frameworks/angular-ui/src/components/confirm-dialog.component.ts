@@ -6,21 +6,28 @@
 
 import {
   Component,
-  type DoCheck,
-  type ElementRef,
+  ElementRef,
   EventEmitter,
+  inject,
   Output,
+  signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  setHostRoot,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { nextInstanceId } from '../utilities/ids.js'
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
-import { Button, hasNodes } from './button.component.js'
+import { Button } from './button.component.js'
 import { Modal } from './modal.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
@@ -62,24 +69,23 @@ export interface ConfirmDialogProps {
  *
  * Composed from `Modal` and `Button` exactly as React composes them; the
  * dialog's own title/description/children are projected content (`[slot=title]`,
- * `[slot=description]`, default) or node-valued inputs. The host is unwrapped
- * (`data-parity-unwrap`, React's `Modal` root is a fragment/portal).
+ * `[slot=description]`, default) or node-valued inputs. React's root is a
+ * `Modal`, which renders a portal while open and nothing while closed, so the
+ * host element leaves the page and the portal renders in `document.body`.
  */
 @Component({
   selector: 'mol-confirm-dialog',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, Modal, MolTemplateOutlet],
   inputs: ['open', 'title', 'description', 'confirmLabel', 'cancelLabel', 'destructive', 'loading'],
   outputs: ['close', 'confirm'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<mol-modal
+    #modal
     [open]="open"
     (close)="close.emit($event)"
     [attr.aria-labelledby]="titleId"
-    [attr.aria-describedby]="ariaDescribedBy"
+    [attr.aria-describedby]="ariaDescribedBy()"
     ><div [class]="cm().stack(3)">
       <h2 [attr.id]="titleId" [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))">
         @if (isGiven(title)) {
@@ -121,11 +127,11 @@ export interface ConfirmDialogProps {
     </div></mol-modal
   >`,
 })
-export class ConfirmDialog implements DoCheck {
+export class ConfirmDialog {
   /**
    * Per-instance id of the rendered title heading, wired as the dialog's
-   * accessible name: the binding on `<mol-modal>` lands on its host element,
-   * which Modal's rest-attribute move copies onto the dialog `<div>` —
+   * accessible name: the binding on `<mol-modal>` reaches the dialog `<div>`,
+   * React's `{...rest}` target (Modal names it with `setHostRoot`) —
    * `aria-labelledby` pointing at the visible `<h2>` (WAI-ARIA dialog
    * pattern; axe `aria-dialog-name`).
    */
@@ -133,8 +139,7 @@ export class ConfirmDialog implements DoCheck {
 
   /**
    * Per-instance id of the rendered description paragraph, wired as the
-   * dialog's accessible description through the same rest-attribute move as
-   * the title (only bound when projected description content renders — a
+   * dialog's accessible description the same way as the title (only bound when projected description content renders — a
    * reference to an empty paragraph describes nothing, axe
    * `aria-dialog-name`/`aria-valid-attr-value`).
    */
@@ -191,22 +196,31 @@ export class ConfirmDialog implements DoCheck {
 
   /**
    * The dialog's accessible description id, or null when no description
-   * content renders. A FIELD, not a template method call: Angular memoizes a
-   * no-argument method binding, so it would keep the first (pre-view-init)
-   * value forever. Re-read each pass from the projected description nodes.
+   * content renders. A signal the template reads, so the association follows
+   * the projected description in the pass where it changes.
    */
-  ariaDescribedBy: string | null = null
+  readonly ariaDescribedBy = signal<string | null>(null)
+
+  /** The composed Modal's element: what the caller binds on this tag lands there, and Modal passes it to its dialog. */
+  @ViewChild('modal', { read: ElementRef }) modalElement?: ElementRef<HTMLElement>
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /**
-   * Recomputes {@link ariaDescribedBy} before each view check. The query is
-   * static, so the projected nodes are readable on the first pass already; a
-   * later change to what renders is picked up on the next pass.
+   * Recomputes {@link ariaDescribedBy} from the projected description nodes in
+   * the placement function, and takes the host out of the page (React renders
+   * the composed `Modal`'s portal in `document.body`, nothing here).
    */
-  ngDoCheck(): void {
-    this.ariaDescribedBy =
-      isGiven(this.description) || hasNodes(this.descriptionSlot?.nativeElement)
-        ? this.descriptionId
-        : null
+  constructor() {
+    usePlacement((hasContent) => {
+      this.ariaDescribedBy.set(
+        isGiven(this.description) || hasContent(this.descriptionSlot?.nativeElement)
+          ? this.descriptionId
+          : null,
+      )
+      setElementPresent(this.host.nativeElement, false)
+      setHostRoot(this.host.nativeElement, this.modalElement?.nativeElement)
+    })
   }
 
   /**

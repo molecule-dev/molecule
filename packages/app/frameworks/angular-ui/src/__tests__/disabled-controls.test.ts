@@ -12,6 +12,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -136,6 +137,7 @@ async function mount(
   props: Record<string, unknown> = {},
 ): Promise<ApplicationRef> {
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-test-host]',
     standalone: true,
     imports,

@@ -20,7 +20,12 @@
 import { join } from 'node:path'
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -91,7 +96,11 @@ interface RuntimeFields {
 }
 
 /** A probe that creates a form in an injection context and exposes it. */
-@Component({ selector: 'app-test-typed-form-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-typed-form-probe',
+  template: '',
+})
 class TypedFormProbeComponent {
   readonly form = useForm<RuntimeFields>({
     defaultValues: { email: 'reader@example.test', age: 40 },

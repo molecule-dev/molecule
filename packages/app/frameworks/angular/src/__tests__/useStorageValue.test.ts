@@ -10,7 +10,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -64,6 +69,7 @@ function heldStorage(contents: Record<string, unknown> = {}): {
  * Reads the `theme` key with a string default; the write-before-read case.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-value-theme-probe',
   template: '',
 })
@@ -75,6 +81,7 @@ class StorageValueThemeProbeComponent {
  * Reads a switchable key, so a new key can start over on the same component.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-value-key-probe',
   template: '',
 })
@@ -87,6 +94,7 @@ class StorageValueKeyProbeComponent {
  * Reads a key whose default is written inline as an object.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-value-object-probe',
   template: '',
 })

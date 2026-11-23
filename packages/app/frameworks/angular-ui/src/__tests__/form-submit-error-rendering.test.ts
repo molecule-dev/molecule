@@ -14,7 +14,7 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -49,6 +49,7 @@ const { Form } = await import('../components/form.component.js')
 
 /** A controlled form carrying a server error body (React's `submitError`). */
 const ControlledHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-controlled-form',
   standalone: true,
   imports: [Form],

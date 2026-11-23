@@ -12,7 +12,15 @@
  */
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal, type Type } from '@angular/core'
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -50,6 +58,7 @@ const tooltip = (content: string, label: string, delay = 0): string =>
 
 /** Three triggers, each with its own help (the toolbar hand-off case). */
 const ToolbarHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-tooltip-host="toolbar"]',
   standalone: true,
   imports: [Tooltip],
@@ -61,6 +70,7 @@ const ToolbarHost = Component({
 
 /** A visible tooltip replaced by a delayed one, then by an immediate one. */
 const HandoffHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-tooltip-host="handoff"]',
   standalone: true,
   imports: [Tooltip],
@@ -73,6 +83,7 @@ const HandoffHost = Component({
 
 /** An older tooltip that unmounts while a newer one owns the page. */
 const ReplaceHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-tooltip-host="replace"]',
   standalone: true,
   imports: [Tooltip],
@@ -89,6 +100,7 @@ const ReplaceHost = Component({
 
 /** A pointer-only tooltip beside a focused text control. */
 const EscapeHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-tooltip-host="escape"]',
   standalone: true,
   imports: [Tooltip],
@@ -97,6 +109,7 @@ const EscapeHost = Component({
 
 /** One tooltip whose content and delay the test drives. */
 const SingleHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-tooltip-host="single"]',
   standalone: true,
   imports: [Tooltip],
@@ -110,6 +123,20 @@ const SingleHost = Component({
     readonly content = signal('Context summary')
     /** Delay before showing. */
     readonly delay = signal(0)
+  },
+)
+
+/** A tooltip whose trigger content is a consumer list. */
+const ListHost = Component({
+  selector: 'div[data-tooltip-host="list"]',
+  standalone: true,
+  imports: [Tooltip],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<mol-tooltip>@for (x of xs; track x) {<b>{{ x }}</b>}</mol-tooltip>`,
+})(
+  class ListHostComponent {
+    /** The trigger content items. */
+    xs: string[] = ['a', 'c']
   },
 )
 
@@ -164,6 +191,20 @@ afterEach(() => {
 })
 
 describe('tooltip hover interactions', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of children', () => {
+    const fixture = mount(ListHost)
+    const text = (): string => document.body.textContent?.replace(/\s/g, '') ?? ''
+    expect(text()).toBe('ac')
+    fixture.componentInstance.xs = ['a', 'b', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(text()).toBe('abc')
+    fixture.componentInstance.xs = ['a', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(text()).toBe('ac')
+  })
+
   it('hands off immediately across toolbar buttons without leaving a tooltip trail', () => {
     const fixture = mount(ToolbarHost)
     for (const label of ['Share', 'Report', 'Settings']) {
@@ -301,5 +342,49 @@ describe('tooltip hover interactions', () => {
     fixture.componentInstance.content.set('Loaded context and allowance details')
     fixture.detectChanges()
     expect(getTooltip().parentElement?.style.top).toBe('172px')
+  })
+
+  /** A consumer list of tooltips between two fixed siblings. */
+  const RowsHost = Component({
+    selector: 'div[data-tooltip-host="rows"]',
+    standalone: true,
+    imports: [Tooltip],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `<i>head</i>@for (x of xs; track x) {<mol-tooltip><span slot="content">help</span><button type="button">{{ x }}</button></mol-tooltip>}<i>tail</i>`,
+  })(
+    class RowsHostComponent {
+      /** The triggers. */
+      xs: string[] = ['a', 'c']
+    },
+  )
+
+  /** The host's children: each trigger wrapper as `[x]`, each tooltip host as `h`, the rest by tag. */
+  const row = (fixture: ComponentFixture<unknown>): string =>
+    Array.from((fixture.nativeElement as HTMLElement).children)
+      .map((el) =>
+        el.tagName === 'MOL-TOOLTIP'
+          ? el.childElementCount === 0
+            ? 'h'
+            : 'H(' + el.textContent + ')'
+          : el.tagName === 'DIV'
+            ? '[' + el.textContent?.trim() + ']'
+            : el.textContent,
+      )
+      .join(' ')
+
+  it('renders each trigger wrapper in front of its own host while a list of tooltips inserts, reorders and removes', () => {
+    const fixture = mount(RowsHost)
+    const set = (xs: string[]): string => {
+      ;(fixture.componentInstance as { xs: string[] }).xs = xs
+      fixture.changeDetectorRef.markForCheck()
+      fixture.detectChanges()
+      return row(fixture)
+    }
+    expect(row(fixture)).toBe('head [a] [c] tail')
+    expect(set(['a', 'b', 'c'])).toBe('head [a] [b] [c] tail')
+    expect(set(['c', 'b', 'a'])).toBe('head [c] [b] [a] tail')
+    expect(set(['b'])).toBe('head [b] tail')
+    expect(set([])).toBe('head tail')
+    expect(set(['a', 'c'])).toBe('head [a] [c] tail')
   })
 })

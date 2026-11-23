@@ -10,7 +10,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -40,6 +45,7 @@ function failureText(error: unknown): string {
  * A form whose local draft and failure must survive an unsuccessful sign-in.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-login-page',
   template: `
     <form aria-label="Sign in" (submit)="submit($event)">
@@ -89,6 +95,7 @@ class LoginPageComponent {
  * A route shell that waits only while the initial session decision is unknown.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-guarded-shell',
   imports: [LoginPageComponent],
   template: `

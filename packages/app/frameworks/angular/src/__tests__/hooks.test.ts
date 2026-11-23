@@ -13,6 +13,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   type EnvironmentProviders,
@@ -455,7 +456,11 @@ describe('useStore', () => {
     const stateProvider = createMockStateProvider()
 
     /** Reads the whole store state. */
-    @Component({ selector: 'app-test-store-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-store-probe',
+      template: '',
+    })
     class StoreProbeComponent {
       readonly state = useStore(store)
     }
@@ -470,7 +475,11 @@ describe('useStore', () => {
     const stateProvider = createMockStateProvider()
 
     /** Reads the whole store state. */
-    @Component({ selector: 'app-test-store-update-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-store-update-probe',
+      template: '',
+    })
     class StoreUpdateProbeComponent {
       readonly state = useStore(store)
     }
@@ -489,7 +498,11 @@ describe('useStore', () => {
     const stateProvider = createMockStateProvider()
 
     /** Selects a derived value from the store. */
-    @Component({ selector: 'app-test-store-selector-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-store-selector-probe',
+      template: '',
+    })
     class StoreSelectorProbeComponent {
       readonly selected = useStore(store, { selector: (state) => state.count * 2 })
     }
@@ -505,7 +518,11 @@ describe('useAuth', () => {
     const authClient = createMockAuthClient<{ id: string }>()
 
     /** Reads the auth state. */
-    @Component({ selector: 'app-test-auth-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-auth-probe',
+      template: '',
+    })
     class AuthProbeComponent {
       readonly auth = useAuth<{ id: string }>()
     }
@@ -522,7 +539,11 @@ describe('useAuth', () => {
     })
 
     /** Reads the auth state. */
-    @Component({ selector: 'app-test-auth-login-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-auth-login-probe',
+      template: '',
+    })
     class AuthLoginProbeComponent {
       readonly auth = useAuth<{ id: string; email: string }>()
     }
@@ -542,7 +563,11 @@ describe('useAuth', () => {
     const authClient = createMockAuthClient<{ id: string }>({ status: 'loading' })
 
     /** Reads the auth state. */
-    @Component({ selector: 'app-test-auth-status-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-auth-status-probe',
+      template: '',
+    })
     class AuthStatusProbeComponent {
       readonly auth = useAuth<{ id: string }>()
     }
@@ -567,7 +592,11 @@ describe('useTheme', () => {
     const themeProvider = createMockThemeProvider()
 
     /** Reads the theme state. */
-    @Component({ selector: 'app-test-theme-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-theme-probe',
+      template: '',
+    })
     class ThemeProbeComponent {
       readonly theme = useTheme()
     }
@@ -583,7 +612,11 @@ describe('useTheme', () => {
     const toggleModeSpy = vi.spyOn(themeProvider, 'toggleMode')
 
     /** Reads the theme state. */
-    @Component({ selector: 'app-test-theme-toggle-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-theme-toggle-probe',
+      template: '',
+    })
     class ThemeToggleProbeComponent {
       readonly theme = useTheme()
     }
@@ -625,7 +658,11 @@ describe('useTheme', () => {
     Reflect.deleteProperty(legacyProvider, 'subscribe')
 
     /** Reads the theme state. */
-    @Component({ selector: 'app-test-theme-legacy-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-theme-legacy-probe',
+      template: '',
+    })
     class ThemeLegacyProbeComponent {
       readonly theme = useTheme()
     }
@@ -662,6 +699,7 @@ describe('useTheme', () => {
 
     /** Renders the mode and name React's hydration probe renders. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-theme-mode-probe',
       template: `<span [attr.data-mode]="theme.mode()"
         >{{ theme.mode() }}{{ theme.themeName() }}</span
@@ -703,7 +741,11 @@ describe('useRouter', () => {
     const router = createMockRouter()
 
     /** Reads the router state. */
-    @Component({ selector: 'app-test-router-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-router-probe',
+      template: '',
+    })
     class RouterProbeComponent {
       readonly routing = useRouter()
     }
@@ -717,7 +759,11 @@ describe('useRouter', () => {
     const router = createMockRouter()
 
     /** Reads the router state. */
-    @Component({ selector: 'app-test-router-navigate-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-router-navigate-probe',
+      template: '',
+    })
     class RouterNavigateProbeComponent {
       readonly routing = useRouter()
     }
@@ -736,6 +782,7 @@ describe('useHttp', () => {
 
     /** Calls the parent's action whenever its inputs change, like React's child layout effect. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-http-child-probe',
       template: '<span>{{ token }}</span>',
     })
@@ -750,6 +797,7 @@ describe('useHttp', () => {
 
     /** Reads a request whose options follow the token signal. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-http-parent-probe',
       imports: [HttpChildProbeComponent],
       template: '<app-test-http-child-probe [token]="token()" [execute]="request.execute" />',
@@ -783,7 +831,11 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
 
     /** Holds the action a committed tree handed down. */
-    @Component({ selector: 'app-test-http-captured-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-captured-probe',
+      template: '',
+    })
     class HttpCapturedProbeComponent {
       readonly token = signal('committed')
       readonly request = useHttp<{ id: number }>(
@@ -812,7 +864,11 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
 
     /** Reads a request whose options follow the nonce signal. */
-    @Component({ selector: 'app-test-http-stable-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-stable-probe',
+      template: '',
+    })
     class HttpStableProbeComponent {
       readonly nonce = signal(0)
       readonly request = useHttp(
@@ -837,7 +893,11 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
 
     /** Reads a request whose options are rebuilt from the nonce signal. */
-    @Component({ selector: 'app-test-http-inline-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-inline-probe',
+      template: '',
+    })
     class HttpInlineProbeComponent {
       readonly nonce = signal(0)
       readonly request = useHttp<{ id: number }>(
@@ -871,7 +931,11 @@ describe('useHttp', () => {
     const successes: string[] = []
 
     /** Runs its load work once, bounded so a replaced action fails rather than spins. */
-    @Component({ selector: 'app-test-http-consumer-probe', template: '<p>{{ line() }}</p>' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-consumer-probe',
+      template: '<p>{{ line() }}</p>',
+    })
     class HttpConsumerProbeComponent implements OnInit {
       private attempts = 0
       readonly request = useHttp<{ id: number }>(
@@ -922,7 +986,11 @@ describe('useHttp', () => {
     const secondSuccess = vi.fn()
 
     /** Reads a POST whose options and callback follow signals. */
-    @Component({ selector: 'app-test-http-later-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-later-probe',
+      template: '',
+    })
     class HttpLaterProbeComponent {
       readonly version = signal('one')
       readonly callback = signal<(data: { id: number }) => void>(firstSuccess)
@@ -999,7 +1067,11 @@ describe('useHttp', () => {
     )
 
     /** Reads a request whose method and url follow signals. */
-    @Component({ selector: 'app-test-http-switch-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-switch-probe',
+      template: '',
+    })
     class HttpSwitchProbeComponent {
       readonly method = signal<'GET' | 'DELETE'>('GET')
       readonly url = signal('/api/one')
@@ -1030,7 +1102,11 @@ describe('useHttp', () => {
     const onError = vi.fn()
 
     /** Reads a request that fails. */
-    @Component({ selector: 'app-test-http-failure-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-failure-probe',
+      template: '',
+    })
     class HttpFailureProbeComponent {
       readonly request = useHttp('GET', '/api/test', { onError })
     }
@@ -1058,7 +1134,11 @@ describe('useHttp', () => {
     )
 
     /** Reads a request whose response outlives the view. */
-    @Component({ selector: 'app-test-http-unmounted-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-unmounted-probe',
+      template: '',
+    })
     class HttpUnmountedProbeComponent {
       readonly request = useHttp<{ id: number }>('GET', '/api/test', { onSuccess })
     }
@@ -1079,7 +1159,11 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
 
     /** Reads a request with the reset control. */
-    @Component({ selector: 'app-test-http-reset-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-reset-probe',
+      template: '',
+    })
     class HttpResetProbeComponent {
       readonly request = useHttp<{ id: number }>('GET', '/api/test')
     }
@@ -1103,7 +1187,11 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
 
     /** Runs its load work once, bounded so a replaced action fails rather than spins. */
-    @Component({ selector: 'app-test-http-finite-probe', template: '<p>{{ line() }}</p>' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-finite-probe',
+      template: '<p>{{ line() }}</p>',
+    })
     class HttpFiniteProbeComponent implements OnInit {
       private attempts = 0
       readonly request = useHttp<{ id: number }>('GET', '/api/test')
@@ -1143,7 +1231,11 @@ describe('useHttp', () => {
     const httpClient = createMockHttpClient()
 
     /** Reads a GET request. */
-    @Component({ selector: 'app-test-http-get-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-get-probe',
+      template: '',
+    })
     class HttpGetProbeComponent {
       readonly request = useHttp<{ id: number }>('GET', '/api/test')
     }
@@ -1165,7 +1257,11 @@ describe('useHttp', () => {
     const seen: unknown[] = []
 
     /** Reads a request with a success callback. */
-    @Component({ selector: 'app-test-http-newest-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-newest-probe',
+      template: '',
+    })
     class HttpNewestProbeComponent {
       readonly request = useHttp<string>('GET', '/api/tags', {
         onSuccess: (data) => seen.push(data),
@@ -1191,7 +1287,11 @@ describe('useHttp', () => {
     const held = heldGets()
 
     /** Reads a request. */
-    @Component({ selector: 'app-test-http-inflight-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-inflight-probe',
+      template: '',
+    })
     class HttpInFlightProbeComponent {
       readonly request = useHttp<string>('GET', '/api/tags')
     }
@@ -1213,7 +1313,11 @@ describe('useHttp', () => {
     const held = heldGets()
 
     /** Reads a request with the reset control. */
-    @Component({ selector: 'app-test-http-late-reset-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-late-reset-probe',
+      template: '',
+    })
     class HttpLateResetProbeComponent {
       readonly request = useHttp<string>('GET', '/api/tags')
     }
@@ -1234,7 +1338,11 @@ describe('useHttp', () => {
     const held = heldGets()
 
     /** Reads a request. */
-    @Component({ selector: 'app-test-http-single-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-single-probe',
+      template: '',
+    })
     class HttpSingleProbeComponent {
       readonly request = useHttp<string>('GET', '/api/tags')
     }
@@ -1256,7 +1364,11 @@ describe('useHttp', () => {
     const onError = vi.fn()
 
     /** Reads a request with an error callback. */
-    @Component({ selector: 'app-test-http-outcomes-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-outcomes-probe',
+      template: '',
+    })
     class HttpOutcomesProbeComponent {
       readonly request = useHttp<string>('GET', '/api/tags', { onError })
     }
@@ -1293,7 +1405,11 @@ describe('useHttp', () => {
     const navigate = vi.fn()
 
     /** Reads a POST with a success callback. */
-    @Component({ selector: 'app-test-http-submit-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-submit-probe',
+      template: '',
+    })
     class HttpSubmitProbeComponent {
       readonly request = useHttp<string>('POST', '/api/items', { onSuccess: navigate })
     }
@@ -1318,7 +1434,11 @@ describe('useHttp', () => {
       const onError = vi.fn()
 
       /** Reads a request with both callbacks and the reset control. */
-      @Component({ selector: 'app-test-http-reset-late-probe', template: '' })
+      @Component({
+        changeDetection: ChangeDetectionStrategy.Eager,
+        selector: 'app-test-http-reset-late-probe',
+        template: '',
+      })
       class HttpResetLateProbeComponent {
         readonly request = useHttp<string>('GET', '/api/tags', { onSuccess, onError })
       }
@@ -1359,7 +1479,11 @@ describe('useHttp', () => {
       const onError = vi.fn()
 
       /** Reads a request whose answer outlives the view. */
-      @Component({ selector: 'app-test-http-unmount-return-probe', template: '' })
+      @Component({
+        changeDetection: ChangeDetectionStrategy.Eager,
+        selector: 'app-test-http-unmount-return-probe',
+        template: '',
+      })
       class HttpUnmountReturnProbeComponent {
         readonly request = useHttp<string>('GET', '/api/tags', { onSuccess, onError })
       }
@@ -1389,7 +1513,11 @@ describe('useHttp', () => {
     const onSuccess = vi.fn()
 
     /** Reads an immediate request. */
-    @Component({ selector: 'app-test-http-immediate-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-http-immediate-probe',
+      template: '',
+    })
     class HttpImmediateProbeComponent {
       readonly request = useHttp<string>('GET', '/api/tags', { immediate: true, onSuccess })
     }
@@ -1419,7 +1547,11 @@ describe('useStorageValue', () => {
     const storageProvider = createMockStorageProvider()
 
     /** Reads one storage key. */
-    @Component({ selector: 'app-test-storage-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-storage-probe',
+      template: '',
+    })
     class StorageProbeComponent {
       readonly storage = useStorageValue<string>('theme', { defaultValue: 'light' })
     }
@@ -1445,7 +1577,11 @@ describe('useLogger', () => {
     const loggerProvider = createMockLoggerProvider()
 
     /** Reads a named logger. */
-    @Component({ selector: 'app-test-logger-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-logger-probe',
+      template: '',
+    })
     class LoggerProbeComponent {
       readonly logger = useLogger('TestComponent')
     }
@@ -1471,7 +1607,11 @@ describe('Provider errors', () => {
     const store = createMockStore({ count: 0 })
 
     /** Selects from a store handed to it directly. */
-    @Component({ selector: 'app-test-store-no-provider-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-store-no-provider-probe',
+      template: '',
+    })
     class StoreNoProviderProbeComponent {
       readonly selected = useStore(store, { selector: (state) => state.count })
     }
@@ -1486,7 +1626,11 @@ describe('Provider errors', () => {
 
   it('should name the fix when useStateProvider is used outside StateProvider', () => {
     /** Reads the state registration without one being registered. */
-    @Component({ selector: 'app-test-state-provider-error-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-state-provider-error-probe',
+      template: '',
+    })
     class StateProviderErrorProbeComponent {
       readonly provider = useStateProvider()
     }
@@ -1510,7 +1654,11 @@ describe('Provider errors', () => {
 
   it('should throw when useAuth is used outside AuthProvider', () => {
     /** Reads the auth client without one being registered. */
-    @Component({ selector: 'app-test-auth-provider-error-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-auth-provider-error-probe',
+      template: '',
+    })
     class AuthProviderErrorProbeComponent {
       readonly auth = useAuth()
     }

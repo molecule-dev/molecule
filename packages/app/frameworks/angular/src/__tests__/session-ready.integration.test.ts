@@ -19,6 +19,7 @@
 import '@angular/compiler'
 import {
   ApplicationInitStatus,
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -121,6 +122,7 @@ function returningVisitor(initialize = true): {
 
 /** The page a first click must not reach while the session is undecided. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-session-page',
   template: '<h1>{{ line() }}</h1>',
 })
@@ -141,6 +143,7 @@ class SessionPageComponent {
 
 /** The handler shape the runs wrote: a signed-in action that bails out when `user` is null. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-follow-button',
   template: '<button type="button" (click)="follow()">Follow</button>',
 })
@@ -157,6 +160,7 @@ class FollowButtonComponent {
 
 /** An unauthenticated public page. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-public-page',
   template: '<p>Public page</p>',
 })
@@ -164,6 +168,7 @@ class PublicPageComponent {}
 
 /** A synchronous server shell. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-server-page',
   template: '<p>Server page</p>',
 })
@@ -171,6 +176,7 @@ class ServerPageComponent {}
 
 /** A page whose content is held until the session is decided. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-session-page-host',
   imports: [SessionReady, SessionPageComponent],
   template: `
@@ -184,6 +190,7 @@ class SessionPageHostComponent {}
 
 /** A public page whose content is held until the session is decided. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-public-host',
   imports: [SessionReady],
   template: `
@@ -197,6 +204,7 @@ class PublicHostComponent {}
 
 /** A synchronous server shell whose content is held until the session is decided. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-server-host',
   imports: [SessionReady],
   template: `
@@ -210,6 +218,7 @@ class ServerHostComponent {}
 
 /** The signed-in action held behind the session boundary. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-follow-host',
   imports: [SessionReady, FollowButtonComponent],
   template: `
@@ -223,6 +232,7 @@ class FollowHostComponent {}
 
 /** A fallback that renders the provided theme and translations. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-theme-fallback-host',
   imports: [SessionReady],
   template: `
@@ -248,6 +258,7 @@ class ThemeFallbackHostComponent {
 
 /** A child that reads the restored user. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-session-name',
   template: '<p>{{ line() }}</p>',
 })
@@ -266,6 +277,7 @@ class SessionNameComponent {
 
 /** The name child behind the session boundary. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-session-name-host',
   imports: [SessionReady, SessionNameComponent],
   template: `
@@ -279,6 +291,7 @@ class SessionNameHostComponent {}
 
 /** The returning operator's first signed-in action. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-inventory-action',
   template: '<button type="button" (click)="reserve()">Reserve stock</button>',
 })
@@ -295,6 +308,7 @@ class InventoryActionComponent {
 
 /** The inventory action held behind the session boundary. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-inventory-action-host',
   imports: [SessionReady, InventoryActionComponent],
   template: `
@@ -311,6 +325,7 @@ class InventoryActionHostComponent {}
  * React's `defaultValue={user?.name}` seeds an uncontrolled control.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-draft',
   template: '<input aria-label="Display name" [value]="seed" />',
 })
@@ -329,6 +344,7 @@ class ProfileDraftComponent {
  * the draft then seeds from the restored user.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-draft-host',
   imports: [ProfileDraftComponent],
   template: `
@@ -348,6 +364,7 @@ class ProfileDraftHostComponent {
  * user change cannot overwrite an unsaved draft (React's `defaultValue`).
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-name-input',
   template: '<input aria-label="Profile name" [value]="seed" />',
 })
@@ -362,6 +379,7 @@ class ProfileNameInputComponent {
  * the restore has been decided (see {@link ProfileDraftHostComponent}).
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-name-input-host',
   imports: [ProfileNameInputComponent],
   template: `

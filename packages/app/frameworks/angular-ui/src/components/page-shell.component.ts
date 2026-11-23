@@ -5,25 +5,20 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  EventEmitter,
-  inject,
-  Output,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, Output, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 
 /**
  * PageShell component.
@@ -41,6 +36,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
 @Component({
   selector: 'div[mol-page-shell]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['sidebar', 'topbar', 'sidebarCollapsed', 'className', 'style', 'testId', 'automationId'],
   outputs: ['sidebarToggle'],
   host: {
@@ -69,7 +65,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <main [class]="cm().pageShellContent"><ng-content></ng-content></main>
     </div>`,
 })
-export class PageShell implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
+export class PageShell implements HasElement<HTMLDivElement> {
   /** Sidebar content (node-valued prop). */
   sidebar?: unknown
   /** Top bar content (node-valued prop). */
@@ -100,14 +96,16 @@ export class PageShell implements AfterViewInit, DoCheck, HasElement<HTMLDivElem
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
   private hasSidebar = false
   private hasTopbar = false
-  private sidebarParent: HTMLElement | null = null
-  private topbarParent: HTMLElement | null = null
+
+  /** Applies React's `{sidebar ? … : null}` / `{topbar ? … : null}`. */
+  constructor() {
+    usePlacement((hasContent) => this.syncWrappers(hasContent))
+  }
 
   /**
    * The current class map.
@@ -164,32 +162,14 @@ export class PageShell implements AfterViewInit, DoCheck, HasElement<HTMLDivElem
   }
 
   /**
-   * Reads slot presence at view init (view queries resolve only then).
-   */
-  ngAfterViewInit(): void {
-    this.sidebarParent = this.sidebarSlot?.nativeElement.parentElement ?? null
-    this.topbarParent = this.topbarSlot?.nativeElement.parentElement ?? null
-    this.hasSidebar = hasNodes(this.sidebarSlot?.nativeElement)
-    this.hasTopbar = hasNodes(this.topbarSlot?.nativeElement)
-    this.syncWrappers()
-  }
-
-  /**
-   * Re-reconciles the wrappers on later passes.
-   */
-  ngDoCheck(): void {
-    this.syncWrappers()
-  }
-
-  /**
    * Applies React's `{sidebar ? … : null}` / `{topbar ? … : null}`.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncWrappers(): void {
-    this.sync.sync(
-      this.sidebarSlot?.nativeElement,
-      this.hasSidebar,
-      this.sidebarParent ?? undefined,
-    )
-    this.sync.sync(this.topbarSlot?.nativeElement, this.hasTopbar, this.topbarParent ?? undefined)
+  private syncWrappers(hasContent: SlotReader): void {
+    this.hasSidebar = hasContent(this.sidebarSlot?.nativeElement)
+    this.hasTopbar = hasContent(this.topbarSlot?.nativeElement)
+    setElementPresent(this.sidebarSlot?.nativeElement, this.hasSidebar)
+    setElementPresent(this.topbarSlot?.nativeElement, this.hasTopbar)
   }
 }

@@ -13,7 +13,13 @@
  */
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -166,6 +172,7 @@ afterEach(() => {
 describe('ConfirmDialog node props', () => {
   it('renders the title, description and labels given as inputs', () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-confirm-node',
       standalone: true,
       imports: [ConfirmDialog],
@@ -199,6 +206,7 @@ describe('ConfirmDialog node props', () => {
 describe('PromptDialog node props', () => {
   it('renders the title, description and labels given as inputs', () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-prompt-node',
       standalone: true,
       imports: [PromptDialog],
@@ -235,6 +243,7 @@ describe('PromptDialog node props', () => {
 describe('LoadErrorBanner node props', () => {
   it('renders the message, detail and retry label given as inputs', () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-banner-node',
       standalone: true,
       imports: [LoadErrorBanner],
@@ -264,6 +273,7 @@ describe('OptimisticToggleButton node props', () => {
   it('renders both labels given as inputs and switches on save', () => {
     const commit = vi.fn(async (desired: boolean) => desired)
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-optimistic-node',
       standalone: true,
       imports: [OptimisticToggleButton],
@@ -293,6 +303,7 @@ describe('ConfirmButton node labels', () => {
   it('renders the label inputs and walks idle → armed → pending → idle', async () => {
     const onConfirm = vi.fn(async () => {})
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-confirm-button-node',
       standalone: true,
       imports: [ConfirmButton],
@@ -328,6 +339,7 @@ describe('ConfirmButton node labels', () => {
 describe('AuthGuard loadingFallback', () => {
   it('renders the fallback input instead of the default loading tag', () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-guard-node',
       standalone: true,
       imports: [AuthGuard],
@@ -342,6 +354,7 @@ describe('AuthGuard loadingFallback', () => {
 describe('ResponsiveAppShell node props', () => {
   it('renders the top bar brand/actions and the mobile drawer header/footer', () => {
     const Host = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-shell-node',
       standalone: true,
       imports: [

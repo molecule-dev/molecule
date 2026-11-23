@@ -19,7 +19,7 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -122,6 +122,7 @@ function deferredProvider(initial: Record<string, unknown> = {}): {
  * late convergence is visible in one line.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-preference-probe',
   template: '<span data-line>{{ line() }}</span>',
 })
@@ -142,6 +143,7 @@ class StoragePreferenceProbeComponent {
  * A `null` key, with a string default, for the purely-local case.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-preference-null-key-probe',
   template: '',
 })
@@ -153,6 +155,7 @@ class NullKeyPreferenceProbeComponent {
  * The value and actions of `useStorageValue` over the DI-provided provider.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-value-probe',
   template: '',
 })
@@ -164,6 +167,7 @@ class StorageValueProbeComponent {
  * The same, with cross-tab sync requested.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-storage-value-sync-probe',
   template: '',
 })

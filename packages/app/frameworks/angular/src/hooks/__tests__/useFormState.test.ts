@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -81,7 +82,11 @@ function type(fixture: ComponentFixture<unknown>, label: string, next: string): 
 }
 
 /** A pair-valued form whose options the case replaces. */
-@Component({ selector: 'app-test-form-external-values-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-external-values-probe',
+  template: '',
+})
 class ExternalValuesProbeComponent {
   readonly options = signal<UseFormOptions<PairValues>>({
     defaultValues: { name: '', email: '' },
@@ -91,7 +96,11 @@ class ExternalValuesProbeComponent {
 }
 
 /** A form that replaces its whole record from outside. */
-@Component({ selector: 'app-test-form-replacement-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-replacement-probe',
+  template: '',
+})
 class ReplacementProbeComponent {
   readonly options = signal<UseFormOptions<{ name: string }>>({
     defaultValues: { name: '' },
@@ -106,6 +115,7 @@ class ReplacementProbeComponent {
  * delivers loaded values, and typing marks the field dirty first.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-form-preferences-probe',
   template: `
     <input aria-label="Name" [value]="form.formState().values.name" (input)="typeName($event)" />
@@ -145,19 +155,31 @@ class PreferencesProbeComponent {
 }
 
 /** One numeric field driven through the single-field tuple. */
-@Component({ selector: 'app-test-form-quantity-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-quantity-probe',
+  template: '',
+})
 class QuantityProbeComponent {
   readonly form = useForm<{ quantity: number }>({ defaultValues: { quantity: 1 } })
 }
 
 /** The whole-form tuple over two fields. */
-@Component({ selector: 'app-test-form-pair-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-pair-probe',
+  template: '',
+})
 class PairProbeComponent {
   readonly form = useForm<PairValues>({ defaultValues: { name: '', email: '' } })
 }
 
 /** A form whose controller is replaced when the record identity changes. */
-@Component({ selector: 'app-test-form-record-key-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-record-key-probe',
+  template: '',
+})
 class RecordKeyProbeComponent {
   readonly identity = signal<'first' | 'second'>('first')
   readonly options = computed<UseFormOptions<{ title: string }>>(() => ({
@@ -182,7 +204,11 @@ const clonedGetterForm = (
 }
 
 /** A form over the cloned-getter provider, keyed by record identity. */
-@Component({ selector: 'app-test-form-cloned-records-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-cloned-records-probe',
+  template: '',
+})
 class ClonedRecordsProbeComponent {
   readonly identity = signal<'first' | 'second'>('first')
   readonly options = computed<UseFormOptions<{ title: string }>>(() => ({
@@ -195,19 +221,31 @@ class ClonedRecordsProbeComponent {
 }
 
 /** A form whose default is replaced by an explicit reset. */
-@Component({ selector: 'app-test-form-explicit-reset-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-explicit-reset-probe',
+  template: '',
+})
 class ExplicitResetProbeComponent {
   readonly form = useForm<{ title: string }>({ defaultValues: { title: 'Initial' } })
 }
 
 /** One field whose verbs are read before and after a notification. */
-@Component({ selector: 'app-test-form-stable-actions-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-stable-actions-probe',
+  template: '',
+})
 class StableActionsProbeComponent {
   readonly form = useForm<{ title: string }>({ defaultValues: { title: '' } })
 }
 
 /** One whole-form tuple over a pristine and a dirty field. */
-@Component({ selector: 'app-test-form-functional-fill-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-functional-fill-probe',
+  template: '',
+})
 class FunctionalFillProbeComponent {
   readonly form = useForm<{ name: string; quantity: number }>({
     defaultValues: { name: '', quantity: 0 },
@@ -215,7 +253,11 @@ class FunctionalFillProbeComponent {
 }
 
 /** A form over a provider that clones every `getState` result. */
-@Component({ selector: 'app-test-form-cloned-getters-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-form-cloned-getters-probe',
+  template: '',
+})
 class ClonedGettersProbeComponent {
   readonly form = useForm<{ name: string }>({
     defaultValues: { name: '' },

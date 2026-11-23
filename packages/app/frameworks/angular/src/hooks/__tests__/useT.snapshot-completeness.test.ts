@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   type OnInit,
@@ -95,7 +96,11 @@ function trackSubscriptions(provider: I18nProvider): () => number {
 }
 
 /** Registers translations from its mount hook: React's layout effect. */
-@Component({ selector: 'app-test-snap-add-in-layout', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-snap-add-in-layout',
+  template: '',
+})
 class AddInLayoutComponent implements OnInit {
   private readonly i18n = useI18nProvider()
 
@@ -105,7 +110,11 @@ class AddInLayoutComponent implements OnInit {
 }
 
 /** Registers translations from its mount hook (`ngOnInit`, Angular's only one). */
-@Component({ selector: 'app-test-snap-add-in-effect', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-snap-add-in-effect',
+  template: '',
+})
 class AddInEffectComponent implements OnInit {
   private readonly i18n = useI18nProvider()
 
@@ -116,6 +125,7 @@ class AddInEffectComponent implements OnInit {
 
 /** Reads the greeting through `useT()`. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-snap-greeting',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -134,6 +144,7 @@ class GreetingComponent {
 
 /** Reads a key registered after the view may exist. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-snap-late',
   template: '<span data-testid="late">{{ late() }}</span>',
 })
@@ -152,6 +163,7 @@ class LateTextComponent {
 
 /** Reads the locale, direction and two texts together. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-snap-detail',
   template: '<span data-testid="detail">{{ detail() }}</span>',
 })
@@ -172,6 +184,7 @@ class DetailComponent {
 
 /** Holds the detail view behind `@if`, so hiding unmounts its effects. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-snap-hidden-host',
   imports: [DetailComponent],
   template: '@if (visible()) { <app-test-snap-detail /> }',
@@ -198,6 +211,7 @@ describe("a same-locale add in a child's layout effect", () => {
 
     /** Reads the key its child registers from the child's mount hook. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-parent-shell',
       imports: [AddInLayoutComponent],
       template: '<span data-testid="shell">{{ shell() }}</span><app-test-snap-add-in-layout />',
@@ -225,6 +239,7 @@ describe("a same-locale add in a child's layout effect", () => {
 
     /** Reads locale, direction and the key its child registers. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-translation-shell',
       imports: [AddInLayoutComponent],
       template: '<span data-testid="shell">{{ shell() }}</span><app-test-snap-add-in-layout />',
@@ -256,6 +271,7 @@ describe("a same-locale add in an earlier sibling's layout effect", () => {
 
     /** The registrar, then the reader. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-late-sibling-host',
       imports: [AddInLayoutComponent, LateTextComponent],
       template: '<app-test-snap-add-in-layout /><app-test-snap-late />',
@@ -272,6 +288,7 @@ describe("a same-locale add in an earlier sibling's layout effect", () => {
 
     /** The registrar, then the detail reader. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-detail-sibling-host',
       imports: [AddInLayoutComponent, DetailComponent],
       template: '<app-test-snap-add-in-layout /><app-test-snap-detail />',
@@ -328,7 +345,11 @@ describe('a locale switch before the listener exists', () => {
     const provider = createSimpleI18nProvider('en', LOCALES)
 
     /** Switches the locale while the parent's first render is in flight. */
-    @Component({ selector: 'app-test-snap-switch-in-layout', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-snap-switch-in-layout',
+      template: '',
+    })
     class SwitchInLayoutComponent implements OnInit {
       private readonly i18n = useI18nProvider()
 
@@ -339,6 +360,7 @@ describe('a locale switch before the listener exists', () => {
 
     /** Reads the greeting its child switched. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-switch-shell',
       imports: [SwitchInLayoutComponent],
       template: '<span data-testid="shell">{{ shell() }}</span><app-test-snap-switch-in-layout />',
@@ -368,6 +390,7 @@ describe('ordinary effects and notifications stay green', () => {
 
     /** Reads the key its child registers. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-effect-shell',
       imports: [AddInEffectComponent],
       template: '<span data-testid="shell">{{ shell() }}</span><app-test-snap-add-in-effect />',
@@ -416,6 +439,8 @@ describe('ordinary effects and notifications stay green', () => {
 
     /** Re-registers the same translations on every render-driven pass. */
     @Component({
+      // Counts renders as a port component (checked as OnPush) renders, as React counts them.
+      changeDetection: ChangeDetectionStrategy.OnPush,
       selector: 'app-test-snap-self-registering',
       template: '<span data-testid="own">{{ own() }}</span>',
     })
@@ -465,6 +490,7 @@ describe('identity, lifecycle and provider replacement', () => {
 
     /** Records the identity on each render and runs one identity-bound effect. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-snap-identity',
       template: '<span data-testid="text">{{ text() }}</span>',
     })

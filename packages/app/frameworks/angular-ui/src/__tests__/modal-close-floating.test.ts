@@ -13,6 +13,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -59,6 +60,7 @@ const { Modal } = await import('../components/modal.component.js')
 
 /** A Modal with no title (the floating-X case). */
 const NoTitleHost: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-modal-no-title',
   standalone: true,
   imports: [Modal],
@@ -67,6 +69,7 @@ const NoTitleHost: Type<unknown> = Component({
 
 /** A Modal named "Settings" (the header-row case). */
 const TitleHost: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-modal-title',
   standalone: true,
   imports: [Modal],
@@ -75,6 +78,7 @@ const TitleHost: Type<unknown> = Component({
 
 /** A title-less Modal with the close button turned off. */
 const NoCloseHost: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-modal-no-close',
   standalone: true,
   imports: [Modal],

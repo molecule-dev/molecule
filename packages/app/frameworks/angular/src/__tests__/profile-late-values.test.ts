@@ -12,7 +12,13 @@
  */
 
 import '@angular/compiler'
-import { Component, computed, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -88,6 +94,7 @@ let activeValidate: ((values: Fields) => Promise<Partial<Record<keyof Fields, st
 
 /** The managed profile form React's `Settings` component renders. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-settings-page',
   template: `
     <form aria-label="Settings" (submit)="form.formProps.onSubmit($event)">
@@ -464,6 +471,7 @@ it('the base form submits loaded fields with typed edits', async () => {
 
   /** The base form: defaults plus externally loaded values, keeping dirty fields. */
   @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'app-test-base-settings',
     template: `
       <form aria-label="Settings" (submit)="runSubmit($event)">

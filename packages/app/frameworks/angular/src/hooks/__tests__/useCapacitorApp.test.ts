@@ -10,7 +10,7 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -70,6 +70,7 @@ vi.mock('@molecule/app-platform', () => ({
  * Exposes the hook's signals for the mounted component.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-capacitor-app-probe',
   template: '',
 })

@@ -10,7 +10,7 @@
 
 import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
-import { ApplicationRef, Component, inject } from '@angular/core'
+import { ApplicationRef, ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { describe, expect, it } from 'vitest'
 
 import * as AppAngular from '@molecule/app-angular'
@@ -20,7 +20,11 @@ import { createAngularAdapter } from '@molecule/app-framework-conformance/adapte
 const destroyed: string[] = []
 
 /** Registers for its application's teardown, as a long-lived subscription does, then throws. */
-const Thrower = Component({ selector: 'mol-thrower', template: '' })(
+const Thrower = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-thrower',
+  template: '',
+})(
   class {
     constructor() {
       inject(ApplicationRef).onDestroy(() => destroyed.push('Thrower'))
@@ -30,7 +34,11 @@ const Thrower = Component({ selector: 'mol-thrower', template: '' })(
 )
 
 /** The counterexample: registers for its application's teardown and renders. */
-const Renders = Component({ selector: 'mol-renders', template: 'rendered' })(
+const Renders = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-renders',
+  template: 'rendered',
+})(
   class {
     constructor() {
       inject(ApplicationRef).onDestroy(() => destroyed.push('Renders'))

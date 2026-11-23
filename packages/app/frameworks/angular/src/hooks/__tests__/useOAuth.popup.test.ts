@@ -16,7 +16,7 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -40,7 +40,11 @@ let activeOAuth: UseOAuthReturn | null = null
 let client: AuthClient<unknown>
 
 /** Runs the OAuth function once for the module's providers. */
-@Component({ selector: 'app-test-oauth-popup-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-oauth-popup-probe',
+  template: '',
+})
 class OAuthPopupProbeComponent {
   readonly oauth: UseOAuthReturn = useOAuth(activeConfig)
 

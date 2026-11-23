@@ -8,16 +8,21 @@ import {
   type AfterViewChecked,
   type AfterViewInit,
   Component,
-  type DoCheck,
   ElementRef,
   inject,
-  Renderer2,
   signal,
   TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { TableColumn, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -30,7 +35,6 @@ import {
   reapplyRestAttributes,
 } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { Spinner } from './spinner.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
@@ -45,6 +49,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
 @Component({
   selector: 'div[mol-table]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg, MolTemplateOutlet, Spinner],
   inputs: [
     'data',
@@ -144,9 +149,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
       </tbody>
     </table>`,
 })
-export class Table
-  implements AfterViewInit, AfterViewChecked, DoCheck, HasElement<HTMLTableElement>
-{
+export class Table implements AfterViewInit, AfterViewChecked, HasElement<HTMLTableElement> {
   /** The rows. */
   data: Record<string, unknown>[] = []
   /** The columns. */
@@ -200,10 +203,15 @@ export class Table
   /** The element a caller's ref receives: the `<table>`, not its scroll wrapper. */
   readonly element = this.inner.asReadonly()
 
-  /** Whether the projected empty content is present (read after view init). */
+  /** Whether the projected empty content is present (set by the placement function). */
   readonly hasEmpty = signal(false)
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** Reconciles the empty state and adopts its projected content. */
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -212,12 +220,8 @@ export class Table
    */
   private readonly i18n = useTranslation()
 
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the table). */
   private externalMolId: string | undefined
-  private emptyParent: HTMLElement | null = null
-  private adoptedEmpty: Node[] = []
 
   /**
    * The current class map.
@@ -431,22 +435,11 @@ export class Table
   }
 
   /**
-   * Reads the empty-slot presence at view init (view queries resolve only
-   * then), adopts the projected empty content into the empty cell, and moves
-   * the host's rest attributes (`aria-*`, `data-*`, `id`, …) onto the
-   * `<table>`, where React spreads them.
+   * Adopts the projected empty content into the empty cell, and moves the
+   * host's rest attributes (`aria-*`, `data-*`, `id`, …) onto the `<table>`,
+   * where React spreads them.
    */
   ngAfterViewInit(): void {
-    const slot = this.emptySlot?.nativeElement
-    this.emptyParent = slot?.parentElement ?? null
-    const present = hasNodes(slot)
-    this.hasEmpty.set(present)
-    const cell = this.emptyCell?.nativeElement
-    if (slot && cell && present) {
-      this.adoptedEmpty = Array.from(slot.childNodes)
-      for (const node of this.adoptedEmpty) cell.appendChild(node)
-    }
-    this.sync.sync(slot, false, this.emptyParent ?? undefined)
     adoptHostDataMolId(
       this.host.nativeElement,
       this.inner(),
@@ -476,8 +469,7 @@ export class Table
   }
 
   /**
-   * Re-reconciles the empty content (the empty cell is re-created when the
-   * data length changes).
+   * Puts a `data-mol-id` bound on the host onto the table in the pass that bound it.
    */
   ngDoCheck(): void {
     adoptHostDataMolId(
@@ -488,10 +480,27 @@ export class Table
       },
       () => this.molId(),
     )
+  }
+
+  /**
+   * Reads whether the empty state renders and adopts its projected content.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private reconcile(hasContent: SlotReader): void {
+    const slot = this.emptySlot?.nativeElement
+    this.hasEmpty.set(hasContent(slot))
+    setElementPresent(slot, false)
+    this.placeEmptyContent()
+  }
+
+  /**
+   * Renders the projected empty content inside the empty cell, wherever the
+   * cell now is (it is re-created when the data length changes).
+   */
+  private placeEmptyContent(): void {
     const cell = this.emptyCell?.nativeElement
     if (!cell || !this.hasEmpty()) return
-    if (this.adoptedEmpty.some((node) => node.parentNode !== cell)) {
-      for (const node of this.adoptedEmpty) cell.appendChild(node)
-    }
+    placeContent(this.emptySlot?.nativeElement, cell)
   }
 }

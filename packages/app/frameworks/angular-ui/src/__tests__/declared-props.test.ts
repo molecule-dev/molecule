@@ -14,6 +14,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -152,6 +153,7 @@ async function mount(
   props: Record<string, unknown> = {},
 ): Promise<{ captured: unknown }> {
   const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-test-host]',
     standalone: true,
     imports,
@@ -227,7 +229,7 @@ const elementCases: Array<[string, string, Type<unknown>[], Record<string, unkno
   ],
   [
     'Modal',
-    `<mol-modal [open]="true" [title]="t" [automationId]="a" [attr.id]="i" [onDoubleClick]="onDoubleClick"></mol-modal>`,
+    `<mol-modal [open]="true" [title]="t" [automationId]="a" [attr.id]="i" (dblclick)="onDoubleClick()"></mol-modal>`,
     [ui.Modal],
   ],
   [
@@ -369,7 +371,7 @@ describe('declared props reach the DOM', () => {
   it('Tooltip forwards its declared props and its ref to the tooltip box', async () => {
     const onDoubleClick = vi.fn()
     const host = await mount(
-      `<mol-tooltip [content]="content" [automationId]="a" [id]="i" [title]="t" [onDoubleClick]="onDoubleClick" #ref><button>Share</button></mol-tooltip><span>{{ capture(ref.element()) }}</span>`,
+      `<mol-tooltip [content]="content" [automationId]="a" [id]="i" [title]="t" (dblclick)="onDoubleClick()" #ref><button>Share</button></mol-tooltip><span>{{ capture(ref.element()) }}</span>`,
       [ui.Tooltip],
       { onDoubleClick, content: 'Copy link' },
     )
@@ -421,6 +423,7 @@ describe('declared props reach the DOM', () => {
   it('useToast keeps the id a caller gives, as the element id and the removeToast handle', async () => {
     let api: ReturnType<typeof useToast> | undefined
     const Probe = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[data-toast-probe]',
       standalone: true,
       template: '',
@@ -449,6 +452,7 @@ describe('declared props reach the DOM', () => {
   it('useToast gives toasts in two providers different generated ids', async () => {
     const apis: Array<ReturnType<typeof useToast>> = []
     const Probe = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[data-toast-probe]',
       standalone: true,
       template: '',

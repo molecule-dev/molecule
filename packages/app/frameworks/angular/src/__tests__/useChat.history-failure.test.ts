@@ -9,6 +9,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -78,7 +79,11 @@ describe('useChat history load failure', () => {
     }
 
     /** Reads the chat whose history fails to load. */
-    @Component({ selector: 'app-test-chat-history-probe', template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-test-chat-history-probe',
+      template: '',
+    })
     class ChatHistoryProbeComponent {
       readonly chat = useChat({ endpoint: '/chat', projectId: 'proj-1', loadOnMount: true })
     }

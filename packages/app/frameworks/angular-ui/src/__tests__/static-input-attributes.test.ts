@@ -13,6 +13,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -134,9 +135,13 @@ async function mount(
   imports: Type<unknown>[],
   props: Record<string, unknown> = {},
 ): Promise<HTMLElement> {
-  const Host = Component({ selector: 'div[data-test-host]', standalone: true, imports, template })(
-    class StaticInputAttributesHost {},
-  )
+  const Host = Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'div[data-test-host]',
+    standalone: true,
+    imports,
+    template,
+  })(class StaticInputAttributesHost {})
   appRef = await createApplication({
     providers: [provideZonelessChangeDetection(), provideDomPlacement()],
   })

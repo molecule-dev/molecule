@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -104,6 +105,7 @@ const pageFor = (options: MountOptions): Type<unknown> => {
     : ''
   const template = `${children}<nav mol-list-route-nav${idAttr} [attr.aria-label]="ariaLabel" [selections]="navSelections" [defaultSelection]="defaultSelection" [pageParam]="pageParam" [list]="listMarkup" [linkClassName]="linkClassName"${withChildren ? ' [children]="rowsTpl"' : ''}></nav><output data-testid="url">{{ url() }}</output><output data-testid="page">{{ listRoute.page() }}</output><button type="button" (click)="openDetails()">Local details panel</button><output data-testid="panel">{{ panel() }}</output>`
   return Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[mol-nav-test-page]',
     standalone: true,
     imports: [ListRouteNav],
@@ -196,6 +198,7 @@ const library = {
  * inside the choice's own anchor.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[mol-nav-template-page]',
   standalone: true,
   imports: [ListRouteNav],

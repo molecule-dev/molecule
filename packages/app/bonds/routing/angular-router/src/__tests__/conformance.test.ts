@@ -17,6 +17,7 @@
 import '@angular/compiler'
 import { APP_BASE_HREF } from '@angular/common'
 import {
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -53,6 +54,7 @@ import { bootApp, historyMove } from './angular-app.js'
 
 /** A route target with no markup; routes are matched, never rendered. */
 const Empty: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-empty',
   standalone: true,
   template: '',
@@ -60,6 +62,7 @@ const Empty: Type<unknown> = Component({
 
 /** A routed page that shows `page one`. */
 const PageOne: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-page-one',
   standalone: true,
   template: '<p>page one</p>',
@@ -67,6 +70,7 @@ const PageOne: Type<unknown> = Component({
 
 /** A routed page that shows `page two`. */
 const PageTwo: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-page-two',
   standalone: true,
   template: '<p>page two</p>',
@@ -75,6 +79,7 @@ const PageTwo: Type<unknown> = Component({
 /** Angular's own link to the URL tree it is given, whose href the harness reads. */
 /** Stays mounted beside the page and shows the pathname `@molecule/app-angular`'s `useLocation` reads. */
 const LocationReader: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-location',
   standalone: true,
   template: '<output data-location="">{{ location().pathname }}</output>',
@@ -86,6 +91,7 @@ const LocationReader: Type<unknown> = Component({
 
 /** The page of `users/:id`: the id `@molecule/app-angular`'s `useParams` reads. */
 const UserPage: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-user-page',
   standalone: true,
   template: '<p>user {{ params().id }}</p>',
@@ -96,6 +102,7 @@ const UserPage: Type<unknown> = Component({
 )
 
 const HrefProbe: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-href-probe',
   standalone: true,
   imports: [RouterLink],
@@ -109,6 +116,7 @@ const HrefProbe: Type<unknown> = Component({
 
 /** The bootstrap root: an outlet so Angular can activate matched routes. */
 const Root: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-conformance-root',
   standalone: true,
   imports: [LocationReader, RouterOutlet],
@@ -260,6 +268,7 @@ const listRouteNavCasePage = (props: ListRouteNavCaseProps): Type<unknown> => {
     : ''
   const template = `<nav mol-list-route-nav aria-label="${templateAttr(props['aria-label'])}"${attrs} [selections]="selections" [defaultSelection]="defaultSelection" [pageParam]="pageParam" [list]="list" [linkClassName]="linkClassName"${withChildren ? ' [children]="childrenTpl"' : ''}></nav>${children}`
   return Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'div[data-parity-unwrap]',
     standalone: true,
     imports: [ListRouteNav],

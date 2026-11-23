@@ -16,14 +16,13 @@ import {
   inject,
   type OnDestroy,
   signal,
-  ViewChild,
 } from '@angular/core'
 
-import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
+import { useAuth, useHostPresence, useRouter, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
+import { createDomContext } from '../utilities/dom-context.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { getInitials } from '../utilities/initials.js'
 import { styleText } from '../utilities/style.js'
@@ -167,7 +166,7 @@ export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
 
   /** Registers the context on the host before any projected child resolves it. */
   constructor() {
-    provideDomContext(this.host.nativeElement, new UserMenuPopoverContextValue(this))
+    PopoverDomContext.provide(this.host.nativeElement, new UserMenuPopoverContextValue(this))
   }
 
   /**
@@ -225,7 +224,7 @@ export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
   /** Removes listeners and the context registration (unmount). */
   ngOnDestroy(): void {
     this.removeDocumentListeners()
-    removeDomContext(this.host.nativeElement)
+    PopoverDomContext.remove(this.host.nativeElement)
   }
 
   /** Adds the outside-click and Escape dismiss listeners while open. */
@@ -359,7 +358,7 @@ export class UserMenuPopoverTrigger {
    * @returns The context, or null outside a popover.
    */
   context(): UserMenuPopoverContext | null {
-    return findDomContext<UserMenuPopoverContext>(this.host.nativeElement) ?? null
+    return PopoverDomContext.find(this.host.nativeElement) ?? null
   }
 
   /**
@@ -465,19 +464,20 @@ export class UserMenuPopoverTrigger {
 
 /**
  * The popover panel: an absolutely-positioned card with an identity header
- * and a `<nav>` wrapping the caller's items. Renders nothing while closed.
+ * and a `<nav>` wrapping the caller's items. The host element is the card
+ * (React's one `<div>`), and it is out of the DOM while the popover is closed
+ * (React renders `null`).
  */
 @Component({
   selector: 'div[mol-user-menu-popover-panel]',
   standalone: true,
   inputs: ['ariaLabelKey', 'ariaLabelDefault', 'dataMolId', 'className'],
   host: {
-    'data-parity-unwrap': '',
-    '[attr.data-open]': 'open() ? "true" : null',
-    style: 'display: contents',
+    '[attr.id]': 'panelId()',
+    '[attr.data-mol-id]': 'dataMolId',
+    '[class]': 'classes()',
   },
-  template: `<div #panel [id]="panelId()" [attr.data-mol-id]="dataMolId" [class]="classes()">
-    <header [class]="cm().cn(cm().sp('pb', 4), cm().userMenuPopoverHeader)">
+  template: `<header [class]="cm().cn(cm().sp('pb', 4), cm().userMenuPopoverHeader)">
       <p [class]="cm().cn(cm().textSize('sm'), cm().fontWeight('semibold'))">{{ displayName() }}</p>
       @if (email(); as accountEmail) {
         <p [class]="cm().cn(cm().textSize('xs'), cm().textMuted)">{{ accountEmail }}</p>
@@ -485,10 +485,9 @@ export class UserMenuPopoverTrigger {
     </header>
     <nav [class]="cm().cn(cm().sp('mt', 4), cm().stack(1))" [attr.aria-label]="navLabel()">
       <ng-content></ng-content>
-    </nav>
-  </div>`,
+    </nav>`,
 })
-export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
+export class UserMenuPopoverPanel {
   /** i18n key for the panel's aria-label (default `userMenu.panelLabel`). */
   ariaLabelKey?: UserMenuPopoverPanelProps['ariaLabelKey']
   /** Fallback aria-label (default `Account menu`). */
@@ -497,9 +496,6 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
   dataMolId?: UserMenuPopoverPanelProps['dataMolId'] = 'user-menu-panel'
   /** Extra classes for the panel. */
   className?: UserMenuPopoverPanelProps['className']
-
-  /** The panel element (removed from the DOM while closed). */
-  @ViewChild('panel') panel?: ElementRef<HTMLDivElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
@@ -510,9 +506,9 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
    */
   private readonly i18n = useTranslation()
 
-  private panelParent: Node | null = null
-  private panelAnchor: Node | null = null
-  private lastOpen = false
+  constructor() {
+    useHostPresence(() => this.open())
+  }
 
   /**
    * The current class map.
@@ -527,7 +523,7 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
    * @returns The context, or null outside a popover.
    */
   context(): UserMenuPopoverContext | null {
-    return findDomContext<UserMenuPopoverContext>(this.host.nativeElement) ?? null
+    return PopoverDomContext.find(this.host.nativeElement) ?? null
   }
 
   /**
@@ -573,27 +569,6 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
    */
   classes(): string {
     return this.cm().cn(this.cm().userMenuPopoverPanel, this.className)
-  }
-
-  /** Records where the panel lives and applies the initial open state. */
-  ngAfterViewInit(): void {
-    const panel = this.panel?.nativeElement
-    if (!panel) return
-    this.panelParent = panel.parentNode
-    this.panelAnchor = panel.nextSibling
-    this.lastOpen = this.open()
-    if (!this.lastOpen) panel.remove()
-  }
-
-  /** Attaches or detaches the panel to match the open state (React renders null). */
-  ngDoCheck(): void {
-    const open = this.open()
-    if (open === this.lastOpen) return
-    this.lastOpen = open
-    const panel = this.panel?.nativeElement
-    if (!panel || !this.panelParent) return
-    if (open) this.panelParent.insertBefore(panel, this.panelAnchor)
-    else panel.remove()
   }
 }
 
@@ -647,7 +622,7 @@ export class UserMenuPopoverSignOut {
    * @returns The context, or null outside a popover.
    */
   context(): UserMenuPopoverContext | null {
-    return findDomContext<UserMenuPopoverContext>(this.host.nativeElement) ?? null
+    return PopoverDomContext.find(this.host.nativeElement) ?? null
   }
 
   /**
@@ -708,6 +683,9 @@ export function useUserMenuPopoverClose(): () => void {
   // Resolved at call time: a probe resolves its context in its constructor,
   // before Angular has inserted its host into the DOM.
   return () => {
-    findDomContext<UserMenuPopoverContext>(el?.nativeElement ?? null)?.setOpen(false)
+    PopoverDomContext.find(el?.nativeElement ?? null)?.setOpen(false)
   }
 }
+
+/** The context a provider registers and its consumers find. */
+const PopoverDomContext = createDomContext<UserMenuPopoverContext>('PopoverDomContext')

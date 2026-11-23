@@ -13,6 +13,7 @@ import { APP_BASE_HREF, Location } from '@angular/common'
 import { provideLocationMocks } from '@angular/common/testing'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   type EnvironmentInjector,
@@ -39,6 +40,7 @@ import {
 
 /** A route target with no markup; a test path that only needs to match renders nothing. */
 export const Empty: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-empty',
   standalone: true,
   template: '',
@@ -46,6 +48,7 @@ export const Empty: Type<unknown> = Component({
 
 /** The default bootstrap root: an outlet, so Angular can activate the matched route. */
 export const Root: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-root',
   standalone: true,
   imports: [RouterOutlet],

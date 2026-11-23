@@ -14,7 +14,7 @@
  */
 
 import '@angular/compiler'
-import { Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ROUTER } from '@molecule/app-angular'
@@ -37,6 +37,7 @@ const firstRenderPaths: string[] = []
  * `@molecule/app-angular`'s `useRouter` does — once, when the component is created.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-lifecycle-page',
   standalone: true,
   template: '<p>page</p>',

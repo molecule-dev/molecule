@@ -21,6 +21,7 @@
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   provideZonelessChangeDetection,
   signal,
@@ -62,10 +63,6 @@ vi.mock('@molecule/app-ui', () => {
       'button',
       'spinner',
       'label',
-      'dropdownContent',
-      'dropdownItem',
-      'dropdownSeparator',
-      'dropdownTrigger',
     ])
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -198,6 +195,7 @@ interface DropdownHostInstance {
 
 /** Host the tests drive: React's `<Dropdown trigger items open onOpenChange />`. */
 const DropdownHost: Type<DropdownHostInstance> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-dropdown-render-host',
   standalone: true,
   imports: [Dropdown],
@@ -241,6 +239,7 @@ interface PromptHostInstance {
 
 /** Host the tests drive: React's `<PromptDialog open initialValue … />`. */
 const PromptHost: Type<PromptHostInstance> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-prompt-reopen-host',
   standalone: true,
   imports: [PromptDialog],

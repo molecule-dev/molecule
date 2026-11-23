@@ -5,26 +5,29 @@
  */
 
 import {
-  type AfterViewInit,
   Component,
-  type DoCheck,
   effect,
   ElementRef,
   inject,
   type OnDestroy,
-  Renderer2,
   signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /**
@@ -85,6 +88,7 @@ export interface ConfirmButtonProps {
 @Component({
   selector: 'button[mol-confirm-button]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolTemplateOutlet],
   inputs: [
     'variant',
@@ -114,10 +118,10 @@ export interface ConfirmButtonProps {
     '[class]': 'classes()',
     '[style]': 'hostStyle()',
   },
-  template: `@if (phase() === 'armed' && !hasConfirmLabel && !isGiven(confirmLabel)) {
+  template: `@if (phase() === 'armed' && !hasConfirmLabel() && !isGiven(confirmLabel)) {
       Confirm?
     }
-    @if (phase() === 'pending' && !hasPendingLabel && !isGiven(pendingLabel)) {
+    @if (phase() === 'pending' && !hasPendingLabel() && !isGiven(pendingLabel)) {
       Working…
     }
     @if (phase() === 'idle' && isGiven(label)) {
@@ -135,9 +139,7 @@ export interface ConfirmButtonProps {
     ><span #confirmSlot><ng-content select="[slot=confirmLabel]"></ng-content></span
     ><span #pendingSlot><ng-content select="[slot=pendingLabel]"></ng-content></span>`,
 })
-export class ConfirmButton
-  implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLButtonElement>
-{
+export class ConfirmButton implements OnDestroy, HasElement<HTMLButtonElement> {
   /** Button variant (passed through to the button classes). */
   variant?: ConfirmButtonProps['variant']
   /** Button color; the armed state always shows the error color. */
@@ -185,10 +187,10 @@ export class ConfirmButton
   /** The pending-state label capture span. */
   @ViewChild('pendingSlot') pendingSlot?: ElementRef<HTMLSpanElement>
 
-  /** Whether the armed label slot carries content (read at view init). */
-  hasConfirmLabel = false
-  /** Whether the pending label slot carries content (read at view init). */
-  hasPendingLabel = false
+  /** Whether the armed label slot carries content (a signal the template reads). */
+  readonly hasConfirmLabel = signal(false)
+  /** Whether the pending label slot carries content (a signal the template reads). */
+  readonly hasPendingLabel = signal(false)
 
   /** The current phase: idle → armed → pending → idle. */
   readonly phase = signal<'idle' | 'armed' | 'pending'>('idle')
@@ -196,16 +198,14 @@ export class ConfirmButton
   private readonly el: ElementRef<HTMLButtonElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<button>`. */
   readonly element = hostElement(this.el)
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.el, this.renderer)
   private disarmTimer: ReturnType<typeof setTimeout> | null = null
-  private anchor: Comment | null = null
 
   /**
    * Arms the auto-disarm timer for the armed phase (React's `useEffect` on
    * `[phase, disarmSeconds]`).
    */
   constructor() {
+    usePlacement((hasContent) => this.syncLabels(hasContent))
     effect(() => {
       if (this.disarmTimer) {
         clearTimeout(this.disarmTimer)
@@ -308,42 +308,27 @@ export class ConfirmButton
     this.phase.set('idle')
   }
 
-  /**
-   * Reads slot presence at view init (view queries resolve only then) and
-   * takes the capture spans out of the DOM.
-   */
-  ngAfterViewInit(): void {
-    this.hasConfirmLabel = hasNodes(this.confirmSlot?.nativeElement)
-    this.hasPendingLabel = hasNodes(this.pendingSlot?.nativeElement)
-    for (const span of [this.labelSlot, this.confirmSlot, this.pendingSlot])
-      this.sync.sync(span?.nativeElement, false)
-    this.syncLabels()
-  }
-
-  /**
-   * Re-reconciles the visible label on every pass (phase changes and later
-   * `props` steps both go through a refresh).
-   */
-  ngDoCheck(): void {
-    this.syncLabels()
-  }
-
-  /** The nodes currently shown on the button, and the slot they came from. */
-  private visibleNodes: Node[] = []
+  /** The slot whose content is currently shown on the button. */
   private visibleFrom: HTMLSpanElement | null = null
 
   /**
    * Shows exactly the visible phase's projected children on the button —
    * React renders exactly one label and no wrapper element.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncLabels(): void {
+  private syncLabels(hasContent: SlotReader): void {
+    this.hasConfirmLabel.set(hasContent(this.confirmSlot?.nativeElement))
+    this.hasPendingLabel.set(hasContent(this.pendingSlot?.nativeElement))
+    for (const span of [this.labelSlot, this.confirmSlot, this.pendingSlot])
+      setElementPresent(span?.nativeElement, false)
     const phase = this.phase()
     const target =
       phase === 'idle'
         ? (this.labelSlot?.nativeElement ?? null)
-        : phase === 'armed' && this.hasConfirmLabel
+        : phase === 'armed' && this.hasConfirmLabel()
           ? (this.confirmSlot?.nativeElement ?? null)
-          : phase === 'pending' && this.hasPendingLabel
+          : phase === 'pending' && this.hasPendingLabel()
             ? (this.pendingSlot?.nativeElement ?? null)
             : null
     this.showSlot(target)
@@ -358,30 +343,10 @@ export class ConfirmButton
   private showSlot(span: HTMLSpanElement | null): void {
     const host = this.el.nativeElement
     if (span === this.visibleFrom) return
-    for (const node of this.visibleNodes) {
-      if (node.parentElement === host) this.visibleFrom?.appendChild(node)
-    }
-    this.visibleNodes = []
-    this.visibleFrom = null
-    if (!span) return
-    const nodes = Array.from(span.childNodes)
-    for (const node of nodes) host.insertBefore(node, this.labelAnchor())
-    this.visibleNodes = nodes
+    if (this.visibleFrom) placeContent(this.visibleFrom, null)
     this.visibleFrom = span
-  }
-
-  /**
-   * The insertion point for the visible projected label (a comment the DOM
-   * normalizer strips), kept before the fallback texts.
-   * @returns The anchor comment.
-   */
-  private labelAnchor(): Comment {
-    if (this.anchor) return this.anchor
-    const anchor = this.renderer.createComment('label') as Comment
-    const host = this.el.nativeElement
-    host.insertBefore(anchor, host.firstChild)
-    this.anchor = anchor
-    return anchor
+    if (!span) return
+    placeContent(span, host)
   }
 
   /** Clears the auto-disarm timer (React's unmount cleanup). */

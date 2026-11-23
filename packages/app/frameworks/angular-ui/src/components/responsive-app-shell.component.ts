@@ -17,25 +17,32 @@ import {
   Injector,
   type OnDestroy,
   type OnInit,
-  Renderer2,
   signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useHostPresence, useRouter, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElement,
+  setElementPresent,
+  type SlotReader,
+  useHostPresence,
+  usePlacement,
+  useRouter,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useIsDesktop } from '../hooks/use-is-desktop.js'
-import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
+import { createDomContext } from '../utilities/dom-context.js'
 import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /**
@@ -225,7 +232,7 @@ export class ResponsiveAppShell implements DoCheck, OnDestroy {
 
   /** Registers the shell context on the host before any projected child resolves it. */
   constructor() {
-    provideDomContext(this.host.nativeElement, new ShellContextValueImpl(this))
+    ShellDomContext.provide(this.host.nativeElement, new ShellContextValueImpl(this))
   }
 
   /**
@@ -264,7 +271,7 @@ export class ResponsiveAppShell implements DoCheck, OnDestroy {
 
   /** Removes the context registration (unmount). */
   ngOnDestroy(): void {
-    removeDomContext(this.host.nativeElement)
+    ShellDomContext.remove(this.host.nativeElement)
   }
 }
 
@@ -328,6 +335,7 @@ class ShellContextValueImpl implements ShellContextValue {
 @Component({
   selector: 'header[mol-responsive-app-shell-topbar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg, MolTemplateOutlet],
   inputs: ['brand', 'actions', 'mobileOnly', 'className', 'dataMolId', 'testId'],
   host: {
@@ -365,7 +373,7 @@ class ShellContextValueImpl implements ShellContextValue {
       >{{ nodeText(actions) }}
     </div>`,
 })
-export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck {
+export class ResponsiveAppShellTopBar implements OnInit {
   /** Brand/title node (React's `brand`), rendered after the menu trigger. */
   brand?: ResponsiveAppShellTopBarProps['brand']
   /** Trailing actions node (React's `actions`). */
@@ -398,32 +406,38 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck 
    */
   private readonly i18n = useTranslation()
 
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
-  private brandParent: HTMLElement | null = null
-  private actionsParent: HTMLElement | null = null
   private hasBrand = false
   private hasActions = false
 
   /** Prepares the header's mount condition (React's `mobileOnly`). */
   constructor() {
+    usePlacement((hasContent) => {
+      // Resolve the shell context while the host is still in the page: a mobileOnly header
+      // leaves it on desktop, and its ancestors are the only way to the shell root.
+      void this.shell()
+      this.syncWrappers(hasContent)
+    })
     // Leaves no element in the page while the bar is hidden on desktop (React renders null).
     useHostPresence(() => !(this.mobileOnly && this.shell().isDesktop))
   }
 
   /**
    * The nearest shell context.
-   * @returns The context (null outside the shell).
+   * @returns The context (its defaults outside the shell).
    */
   shell(): ShellContextValue {
     // Cached: a detached (mobileOnly) header loses its DOM ancestors, so the
     // lookup must not be repeated after the element leaves the tree.
-    this.context ??= contextOrDefault(this.host.nativeElement)
-    return this.context
+    return this.readContext() ?? contextOrDefault(null)
   }
 
-  /** The resolved shell context. */
-  private context: ShellContextValue | null = null
+  /**
+   * Reads the shell context from the host's place in the rendered tree.
+   * @returns The context, or null outside the shell.
+   */
+  private readContext(): ShellContextValue | null {
+    return ShellDomContext.find(this.host.nativeElement) ?? null
+  }
 
   /**
    * The current class map.
@@ -495,36 +509,15 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck 
    * Refuses to render outside a shell (React's `useShellContext` throws).
    */
   ngOnInit(): void {
-    requireShell(this.host.nativeElement, 'ResponsiveAppShell.TopBar')
-  }
-
-  /** Reads slot presence and applies the conditional brand/actions wrappers. */
-  ngAfterViewInit(): void {
-    this.brandParent = this.brandSlot?.nativeElement.parentElement ?? null
-    this.actionsParent = this.actionsSlot?.nativeElement.parentElement ?? null
-    this.hasBrand = isGiven(this.brand) || hasNodes(this.brandSlot?.nativeElement)
-    this.hasActions = isGiven(this.actions) || hasNodes(this.actionsSlot?.nativeElement)
-    this.syncWrappers()
-  }
-
-  /** Re-reconciles the wrappers. */
-  ngDoCheck(): void {
-    this.hasBrand = isGiven(this.brand) || hasNodes(this.brandSlot?.nativeElement)
-    this.hasActions = isGiven(this.actions) || hasNodes(this.actionsSlot?.nativeElement)
-    this.syncWrappers()
+    requireShell(this.readContext(), 'ResponsiveAppShell.TopBar')
   }
 
   /** Applies React's conditional brand/actions wrappers. */
-  private syncWrappers(): void {
-    // While the header is detached (mobileOnly on desktop) every node reads as
-    // disconnected; attempting a re-attach would append it in the wrong place.
-    if (!this.host.nativeElement.isConnected) return
-    this.sync.sync(this.brandSlot?.nativeElement, this.hasBrand, this.brandParent ?? undefined)
-    this.sync.sync(
-      this.actionsSlot?.nativeElement,
-      this.hasActions,
-      this.actionsParent ?? undefined,
-    )
+  private syncWrappers(hasContent: SlotReader): void {
+    this.hasBrand = isGiven(this.brand) || hasContent(this.brandSlot?.nativeElement)
+    this.hasActions = isGiven(this.actions) || hasContent(this.actionsSlot?.nativeElement)
+    setElementPresent(this.brandSlot?.nativeElement, this.hasBrand)
+    setElementPresent(this.actionsSlot?.nativeElement, this.hasActions)
   }
 }
 
@@ -535,6 +528,7 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck 
 @Component({
   selector: 'aside[mol-responsive-app-shell-sidebar]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolTemplateOutlet],
   inputs: ['navLabel', 'footer', 'className', 'dataMolId', 'testId'],
   host: {
@@ -561,7 +555,7 @@ export class ResponsiveAppShellTopBar implements OnInit, AfterViewInit, DoCheck 
       ><ng-container [molTemplateOutlet]="asTemplate(footer)"></ng-container>{{ nodeText(footer) }}
     </div>`,
 })
-export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck {
+export class ResponsiveAppShellSidebar implements OnInit {
   /** Accessible name for the `<nav>` landmark. */
   navLabel?: ResponsiveAppShellSidebarProps['navLabel']
   /** Below-nav content (React's `footer` node value). */
@@ -590,29 +584,36 @@ export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck
    */
   private readonly i18n = useTranslation()
 
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
-  private footerParent: HTMLElement | null = null
   private hasFooter = false
 
   /** Prepares the aside's mount condition (React's breakpoint check). */
   constructor() {
+    usePlacement((hasContent) => {
+      // Resolve the shell context while the host is still in the page: below the breakpoint
+      // it leaves the page, and its ancestors are the only way to the shell root.
+      void this.shell()
+      this.syncWrapper(hasContent)
+    })
     // Leaves no element in the page below the breakpoint (React renders null).
     useHostPresence(() => this.shell().isDesktop)
   }
 
   /**
    * The nearest shell context.
-   * @returns The context (defaults outside the shell).
+   * @returns The context (its defaults outside the shell).
    */
   shell(): ShellContextValue {
     // Cached: a detached (mobile) sidebar loses its DOM ancestors.
-    this.context ??= contextOrDefault(this.host.nativeElement)
-    return this.context
+    return this.readContext() ?? contextOrDefault(null)
   }
 
-  /** The resolved shell context. */
-  private context: ShellContextValue | null = null
+  /**
+   * Reads the shell context from the host's place in the rendered tree.
+   * @returns The context, or null outside the shell.
+   */
+  private readContext(): ShellContextValue | null {
+    return ShellDomContext.find(this.host.nativeElement) ?? null
+  }
 
   /**
    * The current class map.
@@ -661,27 +662,13 @@ export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck
    * Refuses to render outside a shell (React's `useShellContext` throws).
    */
   ngOnInit(): void {
-    requireShell(this.host.nativeElement, 'ResponsiveAppShell.Sidebar')
-  }
-
-  /** Reads footer presence and applies the conditional footer wrapper. */
-  ngAfterViewInit(): void {
-    this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
-    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
-    this.syncWrapper()
-  }
-
-  /** Re-reconciles the footer wrapper. */
-  ngDoCheck(): void {
-    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
-    this.syncWrapper()
+    requireShell(this.readContext(), 'ResponsiveAppShell.Sidebar')
   }
 
   /** Applies React's conditional footer wrapper. */
-  private syncWrapper(): void {
-    // While the aside is detached (mobile) every node reads as disconnected.
-    if (!this.host.nativeElement.isConnected) return
-    this.sync.sync(this.footerSlot?.nativeElement, this.hasFooter, this.footerParent ?? undefined)
+  private syncWrapper(hasContent: SlotReader): void {
+    this.hasFooter = isGiven(this.footer) || hasContent(this.footerSlot?.nativeElement)
+    setElementPresent(this.footerSlot?.nativeElement, this.hasFooter)
   }
 }
 
@@ -692,6 +679,7 @@ export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck
 @Component({
   selector: 'mol-responsive-app-shell-drawer',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg, MolTemplateOutlet],
   inputs: [
     'header',
@@ -703,11 +691,6 @@ export class ResponsiveAppShellSidebar implements OnInit, AfterViewInit, DoCheck
     'closeDataMolId',
     'testId',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-    '[attr.data-open]': 'shell().drawerOpen ? "true" : null',
-  },
   template: `<div #overlay [class]="cm().overlay" aria-hidden="true"></div>
     <div
       #wrapper
@@ -827,34 +810,46 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
    */
   private readonly i18n = useTranslation()
 
-  private readonly renderer = inject(Renderer2)
   /** Schedules the deferred focus moves from the change-detection hooks. */
   private readonly injector = inject(Injector)
   /** Schedules the focus restore of a destroyed open drawer (the component's own injector is gone). */
   private readonly environmentInjector = inject(EnvironmentInjector)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
   private readonly scrollLock = createScrollLock()
   private hasFooter = false
-  private footerParent: HTMLElement | null = null
-  private headerParent: HTMLElement | null = null
-  private headerRowParent: HTMLElement | null = null
-  private attached = false
   private locked = false
   private lastOpen = false
   private previouslyFocused: HTMLElement | null = null
   private listeners: (() => void)[] = []
 
-  /**
-   * The nearest shell context.
-   * @returns The context (defaults outside the shell).
-   */
-  shell(): ShellContextValue {
-    this.context ??= contextOrDefault(this.host.nativeElement)
-    return this.context
+  /** Applies React's conditional header/footer wrappers, and takes the host out of the page. */
+  constructor() {
+    usePlacement((hasContent) => {
+      // Resolve the shell context while the host is still in the page: it leaves the page
+      // below, and its ancestors are the only way to the shell root.
+      void this.shell()
+      this.syncWrappers(hasContent)
+      // Read through the placement function so the drawer's portal follows the shell's open
+      // state: the state is a signal on the shell root, and only a read here (or in the
+      // template) marks this component for a check.
+      this.syncOpen()
+    })
   }
 
-  /** The resolved shell context. */
-  private context: ShellContextValue | null = null
+  /**
+   * The nearest shell context.
+   * @returns The context (its defaults outside the shell).
+   */
+  shell(): ShellContextValue {
+    return this.readContext() ?? contextOrDefault(null)
+  }
+
+  /**
+   * Reads the shell context from the host's place in the rendered tree.
+   * @returns The context, or null outside the shell.
+   */
+  private readContext(): ShellContextValue | null {
+    return ShellDomContext.find(this.host.nativeElement) ?? null
+  }
 
   /**
    * The current class map.
@@ -948,38 +943,31 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
   }
 
   /**
-   * Refuses to render outside a shell (React's `useShellContext` throws).
+   * Refuses to render outside a shell (React's `useShellContext` throws). The
+   * host may already have left the page (the placement function runs first), so
+   * the context resolved there is the one to check.
    */
   ngOnInit(): void {
-    requireShell(this.host.nativeElement, 'ResponsiveAppShell.Drawer')
+    requireShell(this.readContext(), 'ResponsiveAppShell.Drawer')
   }
 
   /** Registers the drawer, reads slots and applies the initial open state. */
   ngAfterViewInit(): void {
     this.shell().registerDrawer(true)
-    this.headerParent = this.headerSlot?.nativeElement.parentElement ?? null
-    this.headerRowParent = this.headerRow?.nativeElement.parentElement ?? null
-    this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
-    this.headerPresent.set(isGiven(this.header) || hasNodes(this.headerSlot?.nativeElement))
-    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
-    this.syncWrappers()
     const open = this.shell().drawerOpen && !this.shell().isDesktop
     this.lastOpen = open
     if (open) this.openPanel()
     else this.detachPortal()
   }
 
-  /** Reconciles the open state, the wrappers and the drawer registration. */
+  /** Reconciles the open state and the drawer registration. */
   ngDoCheck(): void {
-    this.headerPresent.set(isGiven(this.header) || hasNodes(this.headerSlot?.nativeElement))
-    this.hasFooter = isGiven(this.footer) || hasNodes(this.footerSlot?.nativeElement)
-    this.syncWrappers()
     this.syncOpen()
   }
 
   /**
-   * Unregisters the drawer, unlocks scroll, restores the portal nodes and, when it was open, puts
-   * focus back on whatever opened it (React's effect cleanup does on unmount).
+   * Unregisters the drawer, unlocks scroll and, when it was open, puts focus back on whatever
+   * opened it (React's effect cleanup does on unmount).
    */
   ngOnDestroy(): void {
     this.shell().registerDrawer(false)
@@ -999,32 +987,21 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
       this.scrollLock.unlock()
       this.locked = false
     }
-    const host = this.host.nativeElement
-    if (this.attached) {
-      const overlay = this.overlay?.nativeElement
-      const wrapper = this.wrapper?.nativeElement
-      if (overlay?.parentNode === document.body) host.appendChild(overlay)
-      if (wrapper?.parentNode === document.body) host.appendChild(wrapper)
-      this.attached = false
-    }
   }
 
-  /** Applies React's conditional header/footer wrappers. */
-  private syncWrappers(): void {
-    // The whole panel lives in a detached portal while the drawer is closed;
-    // a "re-attach" there would append the wrapper at the panel's end.
-    if (!this.attached) return
-    this.sync.sync(
+  /** Applies React's conditional header/footer wrappers, and takes the host out of the page. */
+  private syncWrappers(hasContent: SlotReader): void {
+    this.headerPresent.set(isGiven(this.header) || hasContent(this.headerSlot?.nativeElement))
+    this.hasFooter = isGiven(this.footer) || hasContent(this.footerSlot?.nativeElement)
+    setElementPresent(
       this.headerRow?.nativeElement,
       this.headerPresent() || (this.showCloseButton ?? true),
-      this.headerRowParent ?? undefined,
     )
-    this.sync.sync(
-      this.headerSlot?.nativeElement,
-      this.headerPresent(),
-      this.headerParent ?? undefined,
-    )
-    this.sync.sync(this.footerSlot?.nativeElement, this.hasFooter, this.footerParent ?? undefined)
+    setElementPresent(this.headerSlot?.nativeElement, this.headerPresent())
+    setElementPresent(this.footerSlot?.nativeElement, this.hasFooter)
+    // React renders the drawer's portal in `document.body` while open and nothing while closed:
+    // no element at the sub-component's place either way.
+    setElementPresent(this.host.nativeElement, false)
   }
 
   /** Applies the open transition (portal mounting, focus, scroll lock). */
@@ -1058,9 +1035,6 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
   private openPanel(): void {
     this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
     this.attachPortal()
-    // The wrappers could not be reconciled while the portal was detached
-    // (every node read as disconnected); apply them now that it is mounted.
-    this.syncWrappers()
     // After the render, so the panel's `focusin` listeners settle after the
     // view check (a state change made during it is never rendered).
     afterNextRender(
@@ -1077,21 +1051,23 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
     this.addListeners()
   }
 
-  /** Moves the portal nodes into `document.body`. */
+  /** Renders the portal nodes in `document.body`. */
   private attachPortal(): void {
     const overlay = this.overlay?.nativeElement
     const wrapper = this.wrapper?.nativeElement
     if (!overlay || !wrapper) return
-    document.body.appendChild(overlay)
-    document.body.appendChild(wrapper)
-    this.attached = true
+    placeElement(overlay, document.body)
+    placeElement(wrapper, document.body)
   }
 
   /** Removes the portal nodes (React renders null). */
   private detachPortal(): void {
-    this.overlay?.nativeElement.remove()
-    this.wrapper?.nativeElement.remove()
-    this.attached = false
+    const overlay = this.overlay?.nativeElement
+    const wrapper = this.wrapper?.nativeElement
+    placeElement(overlay, null)
+    setElementPresent(overlay, false)
+    placeElement(wrapper, null)
+    setElementPresent(wrapper, false)
   }
 
   /** Adds Escape and the Tab focus trap while open. */
@@ -1192,25 +1168,26 @@ export class ResponsiveAppShellContent {
   }
 }
 
+/** The safe default a sub-component reads outside a shell (one object, so a spy sees its methods). */
+const NO_SHELL_CONTEXT: ShellContextValue = {
+  isDesktop: false,
+  sidebarWidthPx: SIDEBAR_WIDTH_PX.md,
+  drawerOpen: false,
+  openDrawer: () => undefined,
+  closeDrawer: () => undefined,
+  drawerId: '',
+  hasDrawer: false,
+  registerDrawer: () => undefined,
+}
+
 /**
  * The nearest shell context, or a safe default outside the shell.
  *
- * @param element - The reading element.
+ * @param element - The reading element, or null.
  * @returns The context.
  */
 function contextOrDefault(element: Element | null): ShellContextValue {
-  return (
-    findDomContext<ShellContextValue>(element) ?? {
-      isDesktop: false,
-      sidebarWidthPx: SIDEBAR_WIDTH_PX.md,
-      drawerOpen: false,
-      openDrawer: () => undefined,
-      closeDrawer: () => undefined,
-      drawerId: '',
-      hasDrawer: false,
-      registerDrawer: () => undefined,
-    }
-  )
+  return ShellDomContext.find(element) ?? NO_SHELL_CONTEXT
 }
 
 /**
@@ -1218,13 +1195,17 @@ function contextOrDefault(element: Element | null): ShellContextValue {
  * `useShellContext`, which throws `<…> must be rendered inside
  * <ResponsiveAppShell>`. Angular has no context consumer to throw from during
  * render, so the same refusal happens in the component's `ngOnInit` (its
- * first render pass).
+ * first render pass), from the context the sub-component read while its host
+ * was still in the page.
  *
- * @param element - The sub-component's host element.
+ * @param context - The sub-component's shell context, or null outside a shell.
  * @param name - The React component name the error names.
  */
-function requireShell(element: Element, name: string): void {
-  if (!findDomContext<ShellContextValue>(element)) {
+function requireShell(context: ShellContextValue | null, name: string): void {
+  if (context === null) {
     throw new Error(`<${name}> must be rendered inside <ResponsiveAppShell>`)
   }
 }
+
+/** The context a provider registers and its consumers find. */
+const ShellDomContext = createDomContext<ShellContextValue>('ShellDomContext')

@@ -12,7 +12,7 @@
 import { createServer, type Server } from 'node:http'
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -51,6 +51,7 @@ let activeGetIdentity: ((user: Profile) => string) | undefined
 
 /** The managed profile form React's `Settings` component renders. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-session-settings',
   template: `
     <form aria-label="Settings" (submit)="form.formProps.onSubmit($event)">

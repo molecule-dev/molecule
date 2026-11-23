@@ -6,18 +6,23 @@
  */
 
 import {
-  type AfterViewInit,
   Component,
   type DoCheck,
   ElementRef,
   inject,
   type OnDestroy,
-  Renderer2,
   signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -26,7 +31,6 @@ import { asTemplate, nodeText } from '../utilities/node-value.js'
 import type { OptimisticValue, OptimisticValueState } from '../utilities/optimistic-value.js'
 import { createOptimisticValue } from '../utilities/optimistic-value.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /**
@@ -85,6 +89,7 @@ export interface OptimisticToggleButtonProps {
 @Component({
   selector: 'button[mol-optimistic-toggle-button]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolTemplateOutlet],
   inputs: [
     'value',
@@ -137,9 +142,7 @@ export interface OptimisticToggleButtonProps {
       >{{ nodeText(rightIcon) }}</span
     >`,
 })
-export class OptimisticToggleButton
-  implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTMLButtonElement>
-{
+export class OptimisticToggleButton implements DoCheck, OnDestroy, HasElement<HTMLButtonElement> {
   /** The loaded server value. */
   value: OptimisticToggleButtonProps['value'] = false
   /** Saves the desired boolean and returns the server-confirmed boolean. */
@@ -201,15 +204,12 @@ export class OptimisticToggleButton
   private readonly host: ElementRef<HTMLButtonElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<button>`. */
   readonly element = hostElement(this.host)
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
   private unsubscribe?: () => void
   private lastReceived = false
   private hasLeft = false
   private hasRight = false
-  private visibleNodes: Node[] = []
+  /** The slot whose content is currently shown on the button. */
   private visibleFrom: HTMLSpanElement | null = null
-  private anchor: Comment | null = null
 
   /** Creates the optimistic controller and mirrors its state into the signal. */
   constructor() {
@@ -220,6 +220,7 @@ export class OptimisticToggleButton
     })
     this.unsubscribe = this.controller.subscribe((next) => this.state.set({ ...next }))
     this.state.set(this.controller.getState())
+    usePlacement((hasContent) => this.reconcile(hasContent))
   }
 
   /**
@@ -274,84 +275,53 @@ export class OptimisticToggleButton
   }
 
   /**
-   * Reads slot presence at view init (view queries resolve only then) and
-   * takes the label capture spans out of the DOM.
+   * Reads slot presence and takes the label capture spans out of the DOM,
+   * then shows the visible label.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.hasLeft = hasNodes(this.leftSlot?.nativeElement)
-    this.hasRight = hasNodes(this.rightSlot?.nativeElement)
-    this.sync.sync(this.activeSlot?.nativeElement, false)
-    this.sync.sync(this.inactiveSlot?.nativeElement, false)
-    this.sync.sync(this.leftSlot?.nativeElement, this.hasLeft)
-    this.sync.sync(this.rightSlot?.nativeElement, this.hasRight)
+  private reconcile(hasContent: SlotReader): void {
+    this.hasLeft = hasContent(this.leftSlot?.nativeElement)
+    this.hasRight = hasContent(this.rightSlot?.nativeElement)
+    setElementPresent(this.activeSlot?.nativeElement, false)
+    setElementPresent(this.inactiveSlot?.nativeElement, false)
+    setElementPresent(this.leftSlot?.nativeElement, this.hasLeft)
+    setElementPresent(this.rightSlot?.nativeElement, this.hasRight)
     this.syncLabels()
   }
 
   /**
    * Takes a newer server value the way React's effect does (only when it
-   * differs from the last one received) and re-reconciles the label.
+   * differs from the last one received).
    */
   ngDoCheck(): void {
     if (this.value !== this.lastReceived) {
       this.lastReceived = this.value
       this.controller.sync(this.value)
     }
-    this.syncLabels()
   }
 
   /** Stops mirroring controller state into the signal (unmount). */
   ngOnDestroy(): void {
     this.unsubscribe?.()
-    this.visibleNodes = []
-    this.visibleFrom = null
   }
 
   /**
    * Shows exactly the displayed value's projected children on the button —
-   * React renders exactly one label and no wrapper element.
+   * React renders exactly one label and no wrapper element, with the right
+   * icon (or nothing) after it.
    */
   private syncLabels(): void {
     const state = this.controller.getState()
-    this.showSlot(
-      state.value
-        ? (this.activeSlot?.nativeElement ?? null)
-        : (this.inactiveSlot?.nativeElement ?? null),
-    )
-  }
-
-  /**
-   * Shows one slot's projected children on the button, parking whatever
-   * another slot was showing back inside its capture span.
-   *
-   * @param span - The capture span to show (null parks everything).
-   */
-  private showSlot(span: HTMLSpanElement | null): void {
-    const host = this.host.nativeElement
-    if (span === this.visibleFrom) return
-    for (const node of this.visibleNodes) {
-      if (node.parentNode === host) this.visibleFrom?.appendChild(node)
-    }
-    this.visibleNodes = []
-    this.visibleFrom = null
-    if (!span) return
-    const nodes = Array.from(span.childNodes)
-    for (const node of nodes) host.insertBefore(node, this.labelAnchor())
-    this.visibleNodes = nodes
-    this.visibleFrom = span
-  }
-
-  /**
-   * The insertion point for the visible projected label (a comment the DOM
-   * normalizer strips), kept after the left icon wrapper.
-   * @returns The anchor comment.
-   */
-  private labelAnchor(): Comment {
-    if (this.anchor?.isConnected) return this.anchor
-    const anchor = this.renderer.createComment('label') as Comment
-    const host = this.host.nativeElement
-    const left = this.leftSlot?.nativeElement
-    host.insertBefore(anchor, left ? left.nextSibling : host.firstChild)
-    this.anchor = anchor
-    return anchor
+    const shown = state.value
+      ? (this.activeSlot?.nativeElement ?? null)
+      : (this.inactiveSlot?.nativeElement ?? null)
+    const hidden = state.value
+      ? (this.inactiveSlot?.nativeElement ?? null)
+      : (this.activeSlot?.nativeElement ?? null)
+    if (hidden) placeContent(hidden, null)
+    // The label goes before the right icon's place (its placeholder while the
+    // icon is absent, which placeContent resolves), else at the end.
+    if (shown) placeContent(shown, this.host.nativeElement, this.rightSlot?.nativeElement ?? null)
   }
 }

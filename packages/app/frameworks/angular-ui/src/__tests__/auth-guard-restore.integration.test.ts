@@ -11,7 +11,7 @@
  */
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection } from '@angular/core'
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -143,6 +143,7 @@ function bearerClient(profile?: UserProfile): { client: AuthClient<UserProfile>;
  * route shows (`/private` protected, `/login` the login page).
  */
 const AuthHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-auth-host]',
   standalone: true,
   imports: [AuthGuard],

@@ -11,7 +11,7 @@ import {
   type AfterViewInit,
   Component,
   type DoCheck,
-  type ElementRef,
+  ElementRef,
   EventEmitter,
   inject,
   Injector,
@@ -21,7 +21,13 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  setElementPresent,
+  setHostRoot,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -74,12 +80,14 @@ export interface PromptDialogProps {
  *
  * Composed from `Modal`, `Input` and `Button` exactly as React composes
  * them. Resolving `onSubmit` closes the dialog and resets it; a rejection
- * keeps it open with the value intact. The host is unwrapped
- * (`data-parity-unwrap`, React's `Modal` root is a fragment/portal).
+ * keeps it open with the value intact. React's root is a `Modal`, which
+ * renders a portal while open and nothing while closed, so the host element
+ * leaves the page and the portal renders in `document.body`.
  */
 @Component({
   selector: 'mol-prompt-dialog',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Button, Input, Modal, MolTemplateOutlet],
   inputs: [
     'open',
@@ -96,11 +104,8 @@ export interface PromptDialogProps {
     'cancelMolId',
   ],
   outputs: ['close'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<mol-modal
+    #modal
     [open]="open"
     (close)="onModalClose()"
     [attr.aria-labelledby]="titleId"
@@ -217,11 +222,13 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   @ViewChild('titleSlot') titleSlot?: ElementRef<HTMLHeadingElement>
   /** The composed input (its native element receives React's aria-label). */
   @ViewChild(Input) inputComponent?: Input
+  /** The composed Modal's element: what the caller binds on this tag lands there, and Modal passes it to its dialog. */
+  @ViewChild('modal', { read: ElementRef }) modalElement?: ElementRef<HTMLElement>
 
   /**
    * Per-instance id of the rendered title heading, wired as the dialog's
-   * accessible name: the binding on `<mol-modal>` lands on its host element,
-   * which Modal's rest-attribute move copies onto the dialog `<div>` —
+   * accessible name: the binding on `<mol-modal>` reaches the dialog `<div>`,
+   * React's `{...rest}` target (Modal names it with `setHostRoot`) —
    * `aria-labelledby` pointing at the visible `<h2>` (WAI-ARIA dialog
    * pattern; axe `aria-dialog-name`).
    */
@@ -246,12 +253,25 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
    */
   private readonly i18n = useTranslation()
 
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
   private lastOpen = false
   private lastInitial = ''
   /** Whether an open transition is waiting for the after-view input focus. */
   private pendingInputFocus = false
   /** Schedules the deferred focus from the view hook (outside an injection context). */
   private readonly injector = inject(Injector)
+
+  /**
+   * Takes the host out of the page (React renders the composed `Modal`'s
+   * portal, nothing here); what the caller binds on the tag lands on the Modal.
+   */
+  constructor() {
+    usePlacement(() => {
+      setElementPresent(this.host.nativeElement, false)
+      setHostRoot(this.host.nativeElement, this.modalElement?.nativeElement)
+    })
+  }
 
   /**
    * The current class map.

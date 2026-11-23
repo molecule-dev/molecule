@@ -21,7 +21,15 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeElement,
+  setElementPresent,
+  setHostRoot,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ModalSize, MouseEventHandler, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -29,11 +37,7 @@ import type { HasElement } from '../utilities/element.js'
 import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
-import {
-  adoptHostDataMolId,
-  moveRestAttributes,
-  reapplyRestAttributes,
-} from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** Module-level open-modal stack (Escape/Tab act only for the topmost). */
@@ -60,15 +64,17 @@ let modalInstance = 0
  * Modal component.
  *
  * React's root is a FRAGMENT portaled into `document.body` (an overlay
- * `<div>` and a centering wrapper `<div>`), so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and both elements are moved
- * into the body. Implements the WAI-ARIA APG modal dialog pattern (focus
+ * `<div>` and a centering wrapper `<div>`), so the host element leaves the
+ * page and both elements are moved into the body while open: the rendered
+ * tree is React's, with no wrapper at the component's place. Implements the
+ * WAI-ARIA APG modal dialog pattern (focus
  * into the dialog on open, trapped Tab, focus restored on close, Escape for
  * the topmost dialog only, reference-counted body scroll lock).
  */
 @Component({
   selector: 'mol-modal',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg],
   inputs: [
     'open',
@@ -89,10 +95,6 @@ let modalInstance = 0
     'onDoubleClick',
   ],
   outputs: ['close'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<div #overlay [class]="cm().dialogOverlay" aria-hidden="true"></div>
     <div
       #wrapper
@@ -181,7 +183,11 @@ export class Modal
   automationId?: string
   /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
   dataMolId?: string
-  /** A caller's double-click handler on the dialog (React spreads rest onto it). */
+  /**
+   * A caller's double-click handler on the dialog (React spreads rest onto it).
+   *
+   * @deprecated Bind `(dblclick)` on the tag: what a caller binds there lands on the dialog.
+   */
   onDoubleClick?: MouseEventHandler
 
   /** Fires when the dialog asks to close (React's `onClose`). */
@@ -210,6 +216,11 @@ export class Modal
   /** The element a caller's ref receives: the dialog, or `null` while closed. */
   readonly element = this.inner.asReadonly()
 
+  /** Applies React's `{!!footer && <div className={dialogFooter}>…</div>}`. */
+  constructor() {
+    usePlacement((hasContent) => this.reconcileFooter(hasContent))
+  }
+
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
    * locale, so the view re-renders the text on a locale switch (the static `t`
@@ -220,11 +231,9 @@ export class Modal
   private readonly sync = createScrollLock()
   private lastOpen = false
   private lastFooter = false
-  private footerParent: HTMLElement | null = null
   private previouslyFocused: HTMLElement | null = null
   private listeners: (() => void)[] = []
   private locked = false
-  private moved = false
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the dialog). */
   private externalMolId: string | undefined
 
@@ -323,7 +332,6 @@ export class Modal
     const overlay = this.overlay?.nativeElement
     const wrapper = this.wrapper?.nativeElement
     const dialog = this.dialog?.nativeElement
-    this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
     if (dialog) {
       adoptHostDataMolId(
         this.host.nativeElement,
@@ -333,10 +341,7 @@ export class Modal
         },
         () => this.molId(),
       )
-      moveRestAttributes(this.host.nativeElement, dialog)
     }
-    this.lastFooter = this.hasFooter()
-    this.syncFooter()
     const open = !!this.open
     if (open) {
       this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
@@ -351,9 +356,8 @@ export class Modal
     this.syncScrollLock()
     this.lastOpen = open
   }
-
   /**
-   * Reconciles the open state and the footer on later passes.
+   * Reconciles the open state on later passes.
    */
   ngDoCheck(): void {
     const open = !!this.open
@@ -361,19 +365,14 @@ export class Modal
       this.lastOpen = open
       this.transition(open)
     }
-    this.lastFooter = this.hasFooter()
-    this.syncFooter()
     this.syncScrollLock()
   }
 
   /**
-   * Applies React's `{...rest}` spread on EVERY pass, not just at view init.
-   * Angular writes a changed `[attr.aria-label]`/`[attr.aria-describedby]`/
-   * `[attr.data-*]` binding back onto the host after the initial
-   * {@link moveRestAttributes}, so without this the inner dialog keeps the
-   * first value while the host accumulates the new one. Modal spreads those
-   * attributes straight onto the dialog (it merges `aria-describedby` with
-   * nothing), so it re-moves that attribute too.
+   * Follows a `data-mol-id` the caller binds on the tag on every pass: React
+   * merges it with `automationId` on the dialog. Every other attribute, class,
+   * style and listener on the tag reaches the dialog through
+   * {@link setHostRoot}.
    */
   ngAfterViewChecked(): void {
     adoptHostDataMolId(
@@ -384,9 +383,6 @@ export class Modal
       },
       () => this.molId(),
     )
-    reapplyRestAttributes(this.host.nativeElement, this.dialog?.nativeElement, {
-      includeDescribedBy: true,
-    })
   }
 
   /** Removes listeners, unlocks scroll and restores the portal nodes (unmount). */
@@ -409,43 +405,21 @@ export class Modal
       this.sync.unlock()
       this.locked = false
     }
-    // The portal nodes must be children of the host again for Angular's own
-    // removal to succeed.
-    const host = this.host.nativeElement
-    if (this.moved) {
-      const overlay = this.overlay?.nativeElement
-      const wrapper = this.wrapper?.nativeElement
-      if (overlay?.parentNode === document.body) host.appendChild(overlay)
-      if (wrapper?.parentNode === document.body) host.appendChild(wrapper)
-      this.moved = false
-    }
   }
 
   /**
-   * Whether the footer slot carries nodes (read each pass so a later props
-   * step adding it still renders).
-   * @returns True when the footer wrapper should render.
+   * Applies React's `{!!footer && <div className={dialogFooter}>…</div>}`, and
+   * takes the host out of the page: everything React renders lives in the
+   * `document.body` portal, nothing at the component's place. What the caller
+   * binds on the tag lands on the dialog, React's `{...rest}` target.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private hasFooter(): boolean {
-    const slot = this.footerSlot?.nativeElement
-    if (!slot) return false
-    for (const node of Array.from(slot.childNodes)) {
-      if (node.nodeType === 1) return true
-      if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-    }
-    return false
-  }
-
-  /** Applies React's `{!!footer && <div className={dialogFooter}>…</div>}`. */
-  private syncFooter(): void {
-    const slot = this.footerSlot?.nativeElement
-    if (!slot) return
-    const shouldRender = this.lastFooter
-    if (shouldRender && !slot.isConnected) {
-      ;(this.footerParent ?? this.dialog?.nativeElement ?? null)?.appendChild(slot)
-    } else if (!shouldRender && slot.isConnected) {
-      slot.remove()
-    }
+  private reconcileFooter(hasContent: SlotReader): void {
+    this.lastFooter = hasContent(this.footerSlot?.nativeElement)
+    setElementPresent(this.footerSlot?.nativeElement, this.lastFooter)
+    setElementPresent(this.host.nativeElement, false)
+    setHostRoot(this.host.nativeElement, this.dialog?.nativeElement, { except: ['data-mol-id'] })
   }
 
   /**
@@ -502,18 +476,18 @@ export class Modal
     const overlay = this.overlay?.nativeElement
     const wrapper = this.wrapper?.nativeElement
     if (!overlay || !wrapper) return
-    document.body.appendChild(overlay)
-    document.body.appendChild(wrapper)
+    placeElement(overlay, document.body)
+    placeElement(wrapper, document.body)
     this.inner.set(this.dialog?.nativeElement ?? null)
-    this.moved = true
   }
 
   /** Removes the portal nodes from the document (React renders null). */
   private detachPortal(): void {
-    this.overlay?.nativeElement.remove()
-    this.wrapper?.nativeElement.remove()
+    placeElement(this.overlay?.nativeElement, null)
+    setElementPresent(this.overlay?.nativeElement, false)
+    placeElement(this.wrapper?.nativeElement, null)
+    setElementPresent(this.wrapper?.nativeElement, false)
     this.inner.set(null)
-    this.moved = false
   }
 
   /** Locks or unlocks body scroll for React's `open && preventScroll`. */

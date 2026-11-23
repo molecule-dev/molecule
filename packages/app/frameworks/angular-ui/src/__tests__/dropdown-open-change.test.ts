@@ -17,7 +17,14 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -142,6 +149,7 @@ function memoryRouter(initial: string): MemoryRouter {
  * `open={open} onOpenChange={setOpen}` wiring), starting closed.
  */
 const ControlledOwner = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-dropdown-controlled',
   standalone: true,
   imports: [Dropdown],
@@ -171,6 +179,7 @@ const ControlledOwner = Component({
 
 /** The uncontrolled dropdown under test. */
 const UncontrolledOwner = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-dropdown-uncontrolled',
   standalone: true,
   imports: [Dropdown],
@@ -192,6 +201,24 @@ const UncontrolledOwner = Component({
     report(next: boolean): void {
       this.reports.push(next)
     }
+  },
+)
+
+/** A dropdown whose trigger is projected from a consumer list. */
+const ListOwner = Component({
+  selector: 'mol-spec-dropdown-list',
+  standalone: true,
+  imports: [Dropdown],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<mol-dropdown [items]="items"
+    >@for (x of xs; track x) {<button slot="trigger" type="button">{{ x }}</button>}</mol-dropdown
+  >`,
+})(
+  class ListOwnerComponent {
+    /** The menu items. */
+    items = ITEMS
+    /** The trigger content items. */
+    xs: string[] = ['a', 'c']
   },
 )
 
@@ -235,6 +262,22 @@ afterEach(() => {
 })
 
 describe('Dropdown onOpenChange with an owner that follows it', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of trigger', () => {
+    const router = memoryRouter('/')
+    const fixture = render(ListOwner, router.router)
+    const trigger = (): string =>
+      document.querySelector('[role="button"]')?.textContent?.replace(/\s/g, '') ?? ''
+    expect(trigger()).toBe('ac')
+    fixture.componentInstance.xs = ['a', 'b', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(trigger()).toBe('abc')
+    fixture.componentInstance.xs = ['a', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(trigger()).toBe('ac')
+  })
+
   it('keeps a menu mounted open open, and reports nothing on mount', () => {
     const router = memoryRouter('/')
     const fixture = render(ControlledOwner, router.router, (instance) => {

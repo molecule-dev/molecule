@@ -89,7 +89,8 @@ export function provideTheme(provider: ThemeProvider): EnvironmentProviders {
  * @param options.routedView - The component that renders the matched child route where a layout
  * or guard puts it. Left out when the bond has none, and `RoutedView` then throws an error saying
  * so.
- * @returns Environment providers
+ * @returns Environment providers, {@link provideDomPlacement} included: `RoutedView` and a bond's
+ * routed view render the page with no element of their own.
  */
 export function provideRouter(
   router: Router | (() => Router),
@@ -100,6 +101,7 @@ export function provideRouter(
       ? { provide: ROUTER, useFactory: router }
       : { provide: ROUTER, useValue: router },
     ...(options.routedView ? [{ provide: ROUTED_VIEW, useValue: options.routedView }] : []),
+    provideDomPlacement(),
   ])
 }
 

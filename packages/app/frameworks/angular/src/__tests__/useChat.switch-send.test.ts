@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   type EnvironmentProviders,
@@ -64,7 +65,11 @@ const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 
 let activeSwitchLoadOnMount = false
 
 /** Reads a chat whose conversation is a signal. */
-@Component({ selector: 'app-test-chat-switch-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-chat-switch-probe',
+  template: '',
+})
 class ChatSwitchProbeComponent {
   readonly endpoint: WritableSignal<string> = signal('/chat?conversationId=a')
   readonly chat = useChat(

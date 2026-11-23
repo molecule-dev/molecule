@@ -13,6 +13,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   provideZonelessChangeDetection,
@@ -97,13 +98,18 @@ let markupCommit: (desired: boolean) => Promise<boolean> = async () => false
 let remountCommit: (desired: boolean) => Promise<boolean> = async () => false
 
 /** A toggle with no markup, whose options the case replaces. */
-@Component({ selector: 'app-test-toggle-probe', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-toggle-probe',
+  template: '',
+})
 class ToggleProbeComponent {
   readonly toggleState: UseOptimisticToggleResult = useOptimisticToggle(toggleOptions)
 }
 
 /** A star button whose markup the application owns. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-star-toggle',
   template: `<button type="button" [attr.aria-pressed]="star.value()" (click)="star.toggle()">
     <span data-icon="star"></span>{{ star.value() ? 'Unstar repository' : 'Star repository' }}
@@ -118,6 +124,7 @@ class StarToggleComponent {
 
 /** A subscription button that never disables itself while a save is pending. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-subscription-toggle',
   template: `<button
     type="button"
@@ -139,6 +146,7 @@ const remountEnabled = signal(false)
 
 /** The saved subscription remounted over a fresh asynchronous server snapshot. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-alert-subscription',
   template: `<button type="button" (click)="subscription.toggle()">
     {{ subscription.value() ? 'Unsubscribe from stock alerts' : 'Subscribe to stock alerts' }}
@@ -155,6 +163,7 @@ class AlertSubscriptionComponent {
 
 /** A plain local UI switch with no server commit. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-local-switch',
   template: `<button type="button" (click)="flip()">{{ open() }}</button>`,
 })

@@ -18,7 +18,14 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { ApplicationRef, Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -105,6 +112,7 @@ interface ShellHostInstance {
 
 /** The canonical shell composition (React's `<Shell />`). */
 const ShellHost: Type<ShellHostInstance> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-shell-host',
   standalone: true,
   imports: [
@@ -139,6 +147,7 @@ const ShellHost: Type<ShellHostInstance> = Component({
 
 /** A composition with no `Drawer` (React's "hides the menu trigger" case). */
 const NoDrawerShellHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-no-drawer-shell-host',
   standalone: true,
   imports: [
@@ -156,6 +165,7 @@ const NoDrawerShellHost = Component({
 
 /** A `TopBar` with no enclosing shell (React throws for this). */
 const OrphanTopBarHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-orphan-topbar-host',
   standalone: true,
   imports: [ResponsiveAppShellTopBar],
@@ -164,6 +174,7 @@ const OrphanTopBarHost = Component({
 
 /** A `Drawer` with no enclosing shell (React throws for this). */
 const OrphanDrawerHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-orphan-drawer-host',
   standalone: true,
   imports: [ResponsiveAppShellDrawer],
@@ -178,6 +189,7 @@ interface ProbeHostInstance {
 
 /** A component that paints `useIsDesktop()`'s current value. */
 const ProbeHost: Type<ProbeHostInstance> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-desktop-probe',
   standalone: true,
   template: `<span data-mol-id="is-desktop">{{ isDesktop() ? 'true' : 'false' }}</span>`,
@@ -685,6 +697,91 @@ describe('useIsDesktop', () => {
         configurable: true,
         value: original,
       })
+    }
+  })
+})
+
+/** A shell whose optional slots a consumer `@if` adds and removes. */
+const SlotsShellHost = Component({
+  selector: 'mol-spec-shell-slots-host',
+  standalone: true,
+  imports: [
+    ResponsiveAppShell,
+    ResponsiveAppShellTopBar,
+    ResponsiveAppShellSidebar,
+    ResponsiveAppShellDrawer,
+    ResponsiveAppShellContent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<div mol-responsive-app-shell>
+    <header mol-responsive-app-shell-topbar>
+      @if (on) {<span slot="brand" data-slot>Brand</span>}@if (on) {<b slot="actions" data-slot>Act</b>}
+    </header>
+    <aside mol-responsive-app-shell-sidebar>
+      <a href="/a">A</a>@if (on) {<i slot="footer" data-slot>Side footer</i>}
+    </aside>
+    <mol-responsive-app-shell-drawer
+      ><a href="/a">A</a>@if (on) {<i slot="header" data-slot>Head</i>}@if (on) {<i slot="footer" data-slot>Foot</i>}</mol-responsive-app-shell-drawer
+    >
+    <main mol-responsive-app-shell-content></main>
+  </div>`,
+})(
+  class SpecShellSlotsHost {
+    /** Whether the consumer renders the optional slots. */
+    on = false
+  },
+)
+
+/**
+ * Sets whether the consumer renders the optional slots, and renders it.
+ *
+ * @param fixture - The mounted slots host.
+ * @param on - The new value.
+ */
+function setSlots(fixture: ComponentFixture<{ on: boolean }>, on: boolean): void {
+  fixture.componentInstance.on = on
+  fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+  fixture.componentRef.injector.get(ApplicationRef).tick()
+}
+
+describe('ResponsiveAppShell optional slots', () => {
+  it('adds and removes the top bar brand and actions wrappers and the sidebar footer with the consumer @if (desktop)', () => {
+    setDesktop(true)
+    const fixture = mount(SlotsShellHost) as ComponentFixture<{ on: boolean }>
+    const banner = within(document.body).getByRole('banner')
+    const aside = within(document.body).getByRole('complementary')
+    const emptyBanner = banner.innerHTML
+    const emptyAside = aside.innerHTML
+    for (let round = 0; round < 2; round++) {
+      setSlots(fixture, true)
+      expect(banner.querySelectorAll('[data-slot]')).toHaveLength(2)
+      for (const slot of banner.querySelectorAll('[data-slot]')) {
+        // React: `{brand && <div>{brand}</div>}` — the wrapper is the slot's parent.
+        expect(slot.parentElement!.parentElement).not.toBe(null)
+        expect(slot.parentElement).not.toBe(banner)
+      }
+      expect(aside.querySelector('[data-slot]')!.parentElement!.parentElement).toBe(aside)
+      setSlots(fixture, false)
+      expect(banner.innerHTML).toBe(emptyBanner)
+      expect(aside.innerHTML).toBe(emptyAside)
+    }
+  })
+
+  it('adds and removes the drawer header and footer wrappers with the consumer @if (mobile)', () => {
+    const fixture = mount(SlotsShellHost) as ComponentFixture<{ on: boolean }>
+    fireEvent.click(trigger())
+    fixture.componentRef.injector.get(ApplicationRef).tick()
+    const empty = dialog().innerHTML
+    for (let round = 0; round < 2; round++) {
+      setSlots(fixture, true)
+      // Each in its own wrapper, outside the nav (React: `{header && <div>{header}</div>}`).
+      for (const text of ['Head', 'Foot']) {
+        const slot = within(dialog()).getByText(text)
+        expect(slot.closest('nav')).toBeNull()
+        expect(slot.parentElement).not.toBe(dialog())
+      }
+      setSlots(fixture, false)
+      expect(dialog().innerHTML).toBe(empty)
     }
   })
 })

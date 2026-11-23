@@ -12,7 +12,12 @@
  */
 
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -114,6 +119,7 @@ const pushOptions = signal<UsePushOptions>({})
 
 /** Exposes the hook's result for the mounted component. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-push-probe',
   template: '',
 })

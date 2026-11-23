@@ -5,26 +5,21 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  type OnDestroy,
-  Renderer2,
-  signal,
-  type TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import { Alert } from './alert.component.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /**
@@ -59,6 +54,7 @@ export interface LoadErrorBannerProps {
 @Component({
   selector: 'div[mol-load-error-banner]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Alert, MolTemplateOutlet],
   inputs: ['message', 'detail', 'retryLabel', 'retryMolId', 'onRetry'],
   host: {
@@ -96,7 +92,7 @@ export interface LoadErrorBannerProps {
     </div>
   </div>`,
 })
-export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
+export class LoadErrorBanner {
   /** The primary error line (node-valued prop). */
   message?: LoadErrorBannerProps['message']
   /** Secondary line under the message (node-valued prop). */
@@ -134,12 +130,13 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
-  private hasDetail = false
-  /** Whether the projected retry label exists (a signal: it is read after view init). */
+  /** Whether the projected retry label exists (a signal the placement function sets). */
   private readonly hasRetryLabel = signal(false)
-  private detailParent: HTMLElement | null = null
-  private retryParent: HTMLElement | null = null
+
+  /** Reconciles the detail/retry wrappers and the projected retry label. */
+  constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
+  }
 
   /**
    * The current class map.
@@ -189,45 +186,30 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
   }
 
   /**
-   * Reads detail/label presence at view init (view queries resolve only then).
+   * Applies React's detail/retry conditions and moves the projected retry
+   * label onto the retry button.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
-    this.detailParent = this.detailSlot?.nativeElement.parentElement ?? null
-    this.retryParent = this.retrySlot?.nativeElement.parentElement ?? null
-    this.hasDetail = this.detailPresent()
-    this.hasRetryLabel.set(hasNodes(this.retryLabelSlot?.nativeElement))
-    this.sync.sync(
-      this.retryLabelSlot?.nativeElement,
-      false,
-      this.retryLabelSlot?.nativeElement.parentElement ?? undefined,
-    )
-    this.ngDoCheck()
-  }
-
-  /**
-   * Re-reconciles the conditional wrappers on later passes.
-   */
-  ngDoCheck(): void {
-    this.hasDetail = this.detailPresent()
-    this.sync.sync(this.detailSlot?.nativeElement, this.hasDetail, this.detailParent ?? undefined)
+  private reconcile(hasContent: SlotReader): void {
+    const retryLabelSlot = this.retryLabelSlot?.nativeElement
+    this.hasRetryLabel.set(hasContent(retryLabelSlot))
+    setElementPresent(retryLabelSlot, false)
+    setElementPresent(this.detailSlot?.nativeElement, this.detailPresent(hasContent))
     // React renders the retry row exactly when `onRetry` is given.
-    this.sync.sync(this.retrySlot?.nativeElement, !!this.onRetry, this.retryParent ?? undefined)
+    setElementPresent(this.retrySlot?.nativeElement, !!this.onRetry)
     this.showRetryLabel()
   }
 
   /**
    * Whether React would render the detail paragraph (a given node value or
    * projected slot content).
+   *
+   * @param hasContent - Reads whether a slot has content.
    * @returns True when the detail renders.
    */
-  private detailPresent(): boolean {
-    return isGiven(this.detail) || hasNodes(this.detailSlot?.nativeElement)
-  }
-
-  /** Restores the retry-label capture span on unmount. */
-  ngOnDestroy(): void {
-    this.visibleNodes = []
-    this.visibleFrom = null
+  private detailPresent(hasContent: SlotReader): boolean {
+    return isGiven(this.detail) || hasContent(this.detailSlot?.nativeElement)
   }
 
   /** Moves the projected retry label onto the retry button (React: no wrapper). */
@@ -236,33 +218,9 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
     const span = this.retryLabelSlot?.nativeElement
     if (!host || !span) return
     if (!this.hasRetryLabel()) {
-      this.showNodes(host, null)
+      placeContent(span, null)
       return
     }
-    this.showNodes(host, span)
-  }
-
-  private visibleNodes: Node[] = []
-  private visibleFrom: HTMLSpanElement | null = null
-
-  /**
-   * Shows one capture span's children inside a target element, parking any
-   * previously shown nodes back in their span.
-   *
-   * @param target - The element to show the nodes in.
-   * @param span - The capture span (null parks everything).
-   */
-  private showNodes(target: HTMLElement, span: HTMLSpanElement | null): void {
-    if (span === this.visibleFrom) return
-    for (const node of this.visibleNodes) {
-      if (node.parentNode === target) this.visibleFrom?.appendChild(node)
-    }
-    this.visibleNodes = []
-    this.visibleFrom = null
-    if (!span) return
-    const nodes = Array.from(span.childNodes)
-    for (const node of nodes) target.appendChild(node)
-    this.visibleNodes = nodes
-    this.visibleFrom = span
+    placeContent(span, host)
   }
 }

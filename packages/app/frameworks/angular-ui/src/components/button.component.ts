@@ -4,16 +4,16 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, type Renderer2, ViewChild } from '@angular/core'
 
+import {
+  // eslint-disable-next-line no-restricted-imports -- the deprecated hasNodes below delegates to it; both go in the next major
+  hasContent,
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,71 +22,48 @@ import { styleText } from '../utilities/style.js'
 import { Spinner } from './spinner.component.js'
 
 /**
- * Whether an ng-content wrapper captured any element or text node.
+ * Whether an ng-content wrapper captured any element or text node, read from a
+ * lifecycle hook, which can lag the content: a hook runs before the consumer's
+ * `@if` adds its node, and no hook runs at all when the content comes through an
+ * `OnPush` component in between.
  *
  * @param el - The wrapper element.
  * @returns True when at least one projected node exists.
+ * @deprecated Read the slot with the reader `usePlacement` from `@molecule/app-angular` passes to the placement function.
  */
 export function hasNodes(el: Element | undefined | null): boolean {
-  if (!el) return false
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === 1) return true
-    if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
-  }
-  return false
+  return hasContent(el)
 }
 
 /**
  * Attaches or detaches an always-mounted projection wrapper element from its
- * parent, remembering the re-insertion position with a comment anchor the DOM
- * normalizer strips.
+ * parent. React renders `{cond && <span>{slot}</span>}` — nothing when the
+ * condition is false. Angular needs the `<ng-content>` capture point to stay
+ * mounted, so the wrapper span always exists in the template and this helper
+ * removes it from the DOM whenever React would not render it.
  *
- * React renders `{cond && <span>{slot}</span>}` — nothing when the condition
- * is false. Angular needs the `<ng-content>` capture point to stay mounted,
- * so the wrapper span always exists in the template and this helper removes
- * it from the DOM whenever React would not render it.
+ * It is a thin delegate to `setElementPresent`, kept for callers' signatures.
+ *
+ * @deprecated Use setElementPresent from `@molecule/app-angular`.
  */
 export class SlotWrapper {
-  private readonly anchors = new Map<Node, Comment>()
-
   /**
    * Creates the wrapper helper.
    *
-   * @param host - The component host element (default detach parent).
-   * @param renderer - The DOM renderer.
+   * @param _host - Kept for callers' constructor signature.
+   * @param _renderer - Kept for callers' constructor signature.
    */
-  constructor(
-    private readonly host: ElementRef<HTMLElement>,
-    private readonly renderer: Renderer2,
-  ) {}
+  constructor(_host: ElementRef<HTMLElement>, _renderer: Renderer2) {}
 
   /**
-   * Attaches or detaches the element (default parent: the component host).
+   * Attaches or detaches the element.
    *
    * @param el - The wrapper element.
    * @param shouldAttach - Whether it should be in the DOM.
-   * @param parent - Where the element lives when attached (default: host).
+   * @param _parent - Ignored; the element's own place holds it.
    */
-  sync(el: Element | undefined | null, shouldAttach: boolean, parent?: Node): void {
-    if (!el) return
-    const host: Node = parent ?? this.host.nativeElement
-    if (shouldAttach && !el.isConnected) {
-      const anchor = this.anchors.get(el)
-      if (anchor?.isConnected) {
-        host.insertBefore(el, anchor)
-        this.renderer.removeChild(host, anchor)
-        this.anchors.delete(el)
-      } else {
-        host.appendChild(el)
-      }
-    } else if (!shouldAttach && el.isConnected) {
-      // Placeholder comment keeps the re-insertion position stable; the
-      // normalizer strips comment nodes, so it never shows in snapshots.
-      const placeholder = this.renderer.createComment('slot')
-      host.insertBefore(placeholder, el)
-      this.anchors.set(el, placeholder)
-      this.renderer.removeChild(host, el)
-    }
+  sync(el: Element | undefined | null, shouldAttach: boolean, _parent?: Node): void {
+    setElementPresent(el, shouldAttach)
   }
 }
 
@@ -105,6 +82,7 @@ export class SlotWrapper {
 @Component({
   selector: 'button[mol-button]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Spinner],
   inputs: [
     'variant',
@@ -145,7 +123,7 @@ export class SlotWrapper {
       ><ng-content select="[slot=rightIcon]"></ng-content
     ></span>`,
 })
-export class Button implements AfterViewInit, DoCheck, HasElement<HTMLButtonElement> {
+export class Button implements HasElement<HTMLButtonElement> {
   /** Button variant. */
   variant: ButtonVariant = 'solid'
   /** Button color. */
@@ -181,7 +159,6 @@ export class Button implements AfterViewInit, DoCheck, HasElement<HTMLButtonElem
   /** The right icon wrapper. */
   @ViewChild('rightSlot') rightSlot?: ElementRef<HTMLSpanElement>
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host: ElementRef<HTMLButtonElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<button>`. */
   readonly element = hostElement(this.host)
@@ -236,31 +213,22 @@ export class Button implements AfterViewInit, DoCheck, HasElement<HTMLButtonElem
   private hasLeft = false
   private hasRight = false
 
-  /**
-   * Detects slot content and detaches the wrappers React would not render.
-   * View queries resolve only by view init (the first pass), so presence is
-   * read here rather than at content init.
-   */
-  ngAfterViewInit(): void {
-    const left = this.leftSlot?.nativeElement
-    const right = this.rightSlot?.nativeElement
-    this.hasLeft = left ? hasNodes(left) : false
-    this.hasRight = right ? hasNodes(right) : false
-    this.syncWrappers()
-  }
-
-  /**
-   * Re-reconciles the wrappers when `loading` changes.
-   */
-  ngDoCheck(): void {
-    this.syncWrappers()
+  /** Detaches the icon wrappers React would not render. */
+  constructor() {
+    usePlacement((hasContent) => this.syncWrappers(hasContent))
   }
 
   /**
    * Applies React's `{!loading && !!icon}` wrapper conditions.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  private syncWrappers(): void {
-    this.sync.sync(this.leftSlot?.nativeElement, this.hasLeft && !this.loading)
-    this.sync.sync(this.rightSlot?.nativeElement, this.hasRight && !this.loading)
+  private syncWrappers(hasContent: SlotReader): void {
+    const left = this.leftSlot?.nativeElement
+    const right = this.rightSlot?.nativeElement
+    this.hasLeft = left ? hasContent(left) : false
+    this.hasRight = right ? hasContent(right) : false
+    setElementPresent(left, this.hasLeft && !this.loading)
+    setElementPresent(right, this.hasRight && !this.loading)
   }
 }

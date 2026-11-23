@@ -16,6 +16,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -119,6 +120,7 @@ const listPageType = <Filter extends string, Selection extends string>(
   options: ListRouteOptionsInput<Filter, Selection>,
 ): Type<ListPage<Filter, Selection>> =>
   Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'mol-test-list-page',
     standalone: true,
     template: `
@@ -308,6 +310,7 @@ describe('URL-backed list consumer transitions', () => {
   it('paginates a route-param path without selections, filters or a path option', async () => {
     /** A category page whose only control is a real Next link. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-test-category-page',
       standalone: true,
       template: ` <a id="next" [href]="list.href({ page: 2 })" (click)="stop($event)">Next</a> `,
@@ -358,6 +361,7 @@ describe('URL-backed list consumer transitions', () => {
   it('keeps a one-time token beside list pagination while removing it from the address', async () => {
     /** An invitations page holding a one-time token beside the list. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-test-invitations-page',
       standalone: true,
       template: ` <a id="next" [href]="list.href({ page: 3 })" (click)="stop($event)">Next</a> `,
@@ -648,6 +652,7 @@ describe('URL-backed list consumer transitions', () => {
   it('serves query views and a path view from one config, so every view link is built by href', async () => {
     /** A feed page serving query views and a path view from one config. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-test-feed-page',
       standalone: true,
       template: `

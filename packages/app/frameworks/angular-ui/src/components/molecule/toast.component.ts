@@ -12,6 +12,7 @@ import {
   type OnDestroy,
   type OnInit,
   Output,
+  signal,
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
@@ -39,7 +40,7 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'success' | 'warning' |
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (isVisible) {
+    @if (isVisible()) {
       <div
         role="alert"
         data-state="open"
@@ -97,7 +98,8 @@ export class MoleculeToast implements OnInit, OnDestroy {
 
   @Output() dismiss = new EventEmitter<void>()
 
-  isVisible = true
+  /** Whether the toast shows; a signal, so the auto-dismiss timer's change renders (OnPush). */
+  readonly isVisible = signal(true)
   private timer?: ReturnType<typeof setTimeout>
 
   /**
@@ -202,7 +204,7 @@ export class MoleculeToast implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.duration > 0) {
       this.timer = setTimeout(() => {
-        this.isVisible = false
+        this.isVisible.set(false)
         this.dismiss.emit()
       }, this.duration)
     }
@@ -221,7 +223,7 @@ export class MoleculeToast implements OnInit, OnDestroy {
    * Handles the dismiss action by hiding the toast.
    */
   onDismiss(): void {
-    this.isVisible = false
+    this.isVisible.set(false)
     this.dismiss.emit()
   }
 }

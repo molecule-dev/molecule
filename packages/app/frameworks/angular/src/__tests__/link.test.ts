@@ -35,7 +35,7 @@ runLinkConformance('@molecule/app-angular', async (container, router, props) => 
     standalone: true,
     imports: [Link],
     // The host re-renders on a field write (Angular 22 defaults to OnPush).
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<a #anchor [molLink]="to" [replace]="replace" [state]="state" (click)="clicked($event)" ${attrs}>{{ text }}</a>`,
   })(
     class LinkHost {

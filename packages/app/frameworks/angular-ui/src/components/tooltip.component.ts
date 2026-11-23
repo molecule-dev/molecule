@@ -19,6 +19,15 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import {
+  MolPlacement,
+  placeContent,
+  placeElement,
+  placeElementBefore,
+  setElementPresent,
+  setHostRoot,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { MouseEventHandler, TooltipPlacement, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -146,16 +155,17 @@ function calculatePosition(
  * Tooltip component.
  *
  * React's root is a FRAGMENT (a trigger wrapper `<div>` plus a portal), so
- * the host is unwrapped (`data-parity-unwrap`, `display: contents`); the
- * wrapper is adopted beside the host (so the rendered tree and focus paths
- * match React's) and the portal element is moved into `document.body` while
- * visible. A single-element trigger receives `aria-describedby` while the
+ * the trigger wrapper renders in front of the host (`placeElementBefore`),
+ * the host itself leaves the DOM, and the portal element renders in
+ * `document.body` while visible: the rendered tree and focus paths are
+ * React's. A single-element trigger receives `aria-describedby` while the
  * tooltip shows; show/hide are coordinated across instances exactly like
  * React's module-level `activeTooltips` map.
  */
 @Component({
   selector: 'mol-tooltip',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'content',
     'placement',
@@ -170,10 +180,6 @@ function calculatePosition(
     'title',
     'onDoubleClick',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<div
       #triggerWrap
       [class]="cm().tooltipTrigger"
@@ -233,7 +239,11 @@ export class Tooltip
   id?: string
   /** The visible box's `title` attribute (React's rest spread). */
   title?: string
-  /** A caller's double-click handler on the visible box (React spreads it there). */
+  /**
+   * A caller's double-click handler on the visible box (React spreads it there).
+   *
+   * @deprecated Bind `(dblclick)` on the tag: what a caller binds there lands on the box.
+   */
   onDoubleClick?: MouseEventHandler
 
   /** The generated tooltip id (the normalizer renumbers it). */
@@ -280,14 +290,12 @@ export class Tooltip
     if (event.key === 'Escape') this.hide()
   }
   private escapeBound = false
-  private attached = false
   private lastVisible = false
   /** The rendered content the current position was measured for. */
   private lastContentText: string | null = null
   /** The placement the current position was measured for. */
   private lastPlacement: TooltipPlacement | null = null
   private associateEl: HTMLElement | null = null
-  private hostParent: Node | null = null
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the tooltip box). */
   private externalMolId: string | undefined
 
@@ -300,6 +308,30 @@ export class Tooltip
    */
   constructor() {
     afterEveryRender(() => this.repositionForContentChange())
+    // React's root is a fragment: the trigger wrapper renders in front of the host, the
+    // children inside it. A lone element child is the one `aria-describedby` goes on.
+    usePlacement((hasContent) => {
+      const wrap = this.triggerWrap?.nativeElement
+      const capture = this.childrenCapture?.nativeElement
+      if (!wrap || !capture) return
+      placeElementBefore(wrap, this.host.nativeElement)
+      setElementPresent(this.host.nativeElement, false)
+      // React spreads the rest props on the tooltip box, not on the trigger wrapper.
+      setHostRoot(this.host.nativeElement, this.contentEl?.nativeElement, {
+        except: ['data-mol-id'],
+      })
+      placeContent(capture, wrap)
+      setElementPresent(capture, false)
+      const children = hasContent.nodes(capture)
+      const only =
+        children.length === 1 && children[0].nodeType === 1 ? (children[0] as HTMLElement) : null
+      if (only === this.associateEl) return
+      if (this.visible()) {
+        this.associateEl?.removeAttribute('aria-describedby')
+        only?.setAttribute('aria-describedby', this.boxId())
+      }
+      this.associateEl = only
+    })
   }
 
   /**
@@ -428,30 +460,12 @@ export class Tooltip
   }
 
   /**
-   * Adopts the trigger wrapper beside the host, moves the projected children
-   * into it and records the single-element trigger for `aria-describedby`.
+   * Starts hidden (the trigger wrapper and its children are placed by the
+   * placement function in the constructor).
    */
   ngAfterViewInit(): void {
-    const wrap = this.triggerWrap?.nativeElement
-    const host = this.host.nativeElement
-    const capture = this.childrenCapture?.nativeElement
-    this.hostParent = host.parentNode
-    if (wrap) {
-      this.hostParent?.insertBefore(wrap, host)
-    }
-    if (capture && wrap) {
-      const children = Array.from(capture.childNodes)
-      for (const node of children) wrap.appendChild(node)
-      const elements = children.filter((node) => node.nodeType === 1)
-      const hasText = children.some(
-        (node) => node.nodeType === 3 && (node.textContent ?? '').trim(),
-      )
-      this.associateEl = elements.length === 1 && !hasText ? (elements[0] as HTMLElement) : null
-      capture.remove()
-    }
     // React renders nothing while hidden.
-    this.portalWrap?.nativeElement.remove()
-    this.attached = false
+    setElementPresent(this.portalWrap?.nativeElement, false)
     this.lastVisible = false
   }
 
@@ -491,7 +505,7 @@ export class Tooltip
     else this.detachPortal()
   }
 
-  /** Removes listeners/timers and restores the adopted nodes (unmount). */
+  /** Removes listeners/timers and drops the trigger association (unmount). */
   ngOnDestroy(): void {
     clearTimeout(this.showTimer)
     clearTimeout(this.hideTimer)
@@ -499,13 +513,6 @@ export class Tooltip
       activeTooltips.delete(document)
     }
     if (this.escapeBound) document.removeEventListener('keydown', this.escapeListener)
-    const host = this.host.nativeElement
-    const wrap = this.triggerWrap?.nativeElement
-    // The adopted nodes must be children of the host again for Angular's own
-    // removal to succeed.
-    if (wrap && wrap.parentElement !== host) host.appendChild(wrap)
-    const portal = this.portalWrap?.nativeElement
-    if (portal && portal.parentElement !== host) host.appendChild(portal)
     this.associateEl = null
   }
 
@@ -513,9 +520,8 @@ export class Tooltip
   private attachPortal(): void {
     const portal = this.portalWrap?.nativeElement
     if (!portal) return
-    document.body.appendChild(portal)
+    placeElement(portal, document.body)
     this.inner.set(this.contentEl?.nativeElement ?? null)
-    this.attached = true
     this.updatePosition()
     this.associateEl?.setAttribute('aria-describedby', this.boxId())
     if (!this.escapeBound) {
@@ -526,9 +532,10 @@ export class Tooltip
 
   /** Detaches the portal and removes the trigger association. */
   private detachPortal(): void {
-    this.portalWrap?.nativeElement.remove()
+    const portal = this.portalWrap?.nativeElement
+    placeElement(portal, null)
+    setElementPresent(portal, false)
     this.inner.set(null)
-    this.attached = false
     this.associateEl?.removeAttribute('aria-describedby')
     if (this.escapeBound) {
       document.removeEventListener('keydown', this.escapeListener)

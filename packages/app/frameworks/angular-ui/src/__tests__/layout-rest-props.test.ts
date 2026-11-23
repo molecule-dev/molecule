@@ -15,7 +15,12 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -50,6 +55,7 @@ const { Container, Flex, Grid, Spacer } = await import('../components/layout.com
 
 /** Flex with rest attributes and handled props. */
 const FlexAttrsHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-flex-attrs',
   standalone: true,
   imports: [Flex],
@@ -58,6 +64,7 @@ const FlexAttrsHost = Component({
 
 /** Flex as a clickable box: role, tabIndex and the listeners a caller spreads. */
 const FlexClickHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-flex-click',
   standalone: true,
   imports: [Flex],
@@ -83,6 +90,7 @@ const FlexClickHost = Component({
 
 /** Container with a rest attribute. */
 const ContainerHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-container',
   standalone: true,
   imports: [Container],
@@ -91,6 +99,7 @@ const ContainerHost = Component({
 
 /** Grid with a rest attribute and a handled prop. */
 const GridHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-grid',
   standalone: true,
   imports: [Grid],
@@ -99,6 +108,7 @@ const GridHost = Component({
 
 /** Spacer with a rest attribute and a handled prop. */
 const SpacerHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-spacer',
   standalone: true,
   imports: [Spacer],

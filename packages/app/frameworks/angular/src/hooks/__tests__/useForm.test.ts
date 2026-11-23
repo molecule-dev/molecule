@@ -10,6 +10,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   provideZonelessChangeDetection,
@@ -85,7 +86,11 @@ let articleInitialKeepDirtyValues = true
  * The article editor React's tests drive: default values, late `values`, and
  * the `keepDirtyValues` switch.
  */
-@Component({ selector: 'app-test-article-editor', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-article-editor',
+  template: '',
+})
 class ArticleEditorComponent {
   readonly values = signal<ArticleValues | undefined>(articleInitialValues)
   readonly keepDirtyValues = signal(articleInitialKeepDirtyValues)
@@ -102,13 +107,21 @@ class ArticleEditorComponent {
 }
 
 /** A form whose `values` is either a record or `undefined`, as an editor's. */
-@Component({ selector: 'app-test-inventory-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-inventory-form',
+  template: '',
+})
 class InventoryFormComponent {
   readonly form: UseFormResult<InventoryValues> = useForm<InventoryValues>({ defaultValues })
 }
 
 /** The nested-record probe. */
-@Component({ selector: 'app-test-nested-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-nested-form',
+  template: '',
+})
 class NestedFormComponent {
   readonly values = signal<NestedValues>({ details: { title: 'A' } })
   readonly revision = signal(0)
@@ -120,7 +133,11 @@ class NestedFormComponent {
 }
 
 /** The in-flight-submission probe: late values with a gated validator. */
-@Component({ selector: 'app-test-late-submission-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-late-submission-form',
+  template: '',
+})
 class LateSubmissionFormComponent {
   readonly values = signal<ArticleValues>({ title: '', body: '' })
   readonly revision = signal(0)
@@ -137,7 +154,11 @@ class LateSubmissionFormComponent {
 }
 
 /** The same-account refresh probe: a typed field validated through a gate. */
-@Component({ selector: 'app-test-account-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-account-form',
+  template: '',
+})
 class AccountFormComponent {
   readonly values = signal<AccountValues>({ id: 'same-account', bio: 'Initial', name: 'Before' })
   readonly revision = signal(0)
@@ -154,7 +175,11 @@ class AccountFormComponent {
 }
 
 /** The editor probe whose tags and text are both edited. */
-@Component({ selector: 'app-test-editor-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-editor-form',
+  template: '',
+})
 class EditorFormComponent {
   readonly values = signal<EditorValues>({ title: 'Server title', tags: ['old'], body: '' })
   readonly revision = signal(0)
@@ -170,7 +195,11 @@ class EditorFormComponent {
 }
 
 /** The replacement-record probe: a record may omit fields. */
-@Component({ selector: 'app-test-replacement-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-replacement-form',
+  template: '',
+})
 class ReplacementFormComponent {
   readonly values = signal<Partial<ReplacementValues>>({ title: 'A', subtitle: 'Old' })
   readonly revision = signal(0)
@@ -186,7 +215,11 @@ class ReplacementFormComponent {
 }
 
 /** The composite probe: arrays and nested objects edited then reverted. */
-@Component({ selector: 'app-test-composite-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-composite-form',
+  template: '',
+})
 class CompositeFormComponent {
   readonly values = signal<CompositeValues>({ tags: [], metadata: { category: 'none' } })
   readonly revision = signal(0)
@@ -202,7 +235,11 @@ class CompositeFormComponent {
 }
 
 /** The attachment probe: a pristine file field. */
-@Component({ selector: 'app-test-attachment-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-attachment-form',
+  template: '',
+})
 class AttachmentFormComponent {
   readonly values = signal<AttachmentValues>({
     attachment: new File(['first'], 'first.txt'),
@@ -216,7 +253,11 @@ class AttachmentFormComponent {
 }
 
 /** The disposal probe: a gated validator and a removable component. */
-@Component({ selector: 'app-test-disposal-form', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-disposal-form',
+  template: '',
+})
 class DisposalFormComponent {
   readonly form: UseFormResult<{ title: string }> = useForm<{ title: string }>({
     defaultValues: { title: 'Article' },

@@ -12,7 +12,7 @@
  * @module
  */
 
-import { findDomContext } from './dom-context.js'
+import { createDomContext } from './dom-context.js'
 
 /** The values `FormField` injects into its single child field. */
 export interface FormFieldContext {
@@ -35,5 +35,8 @@ export interface FormFieldContext {
  * @returns The context, or null outside a `FormField`.
  */
 export function fieldContext(host: Element | null): FormFieldContext | null {
-  return findDomContext<FormFieldContext>(host) ?? null
+  return FormFieldDomContext.find(host) ?? null
 }
+
+/** The context `FormField` registers on its host. */
+export const FormFieldDomContext = createDomContext<FormFieldContext>('FormField')

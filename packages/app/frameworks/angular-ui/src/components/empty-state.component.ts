@@ -4,22 +4,19 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
+import {
+  MolPlacement,
+  setElementPresent,
+  type SlotReader,
+  usePlacement,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 
 /**
  * EmptyState component.
@@ -27,12 +24,13 @@ import { hasNodes, SlotWrapper } from './button.component.js'
  * Shown when a list or section has no data: an optional icon badge, a title,
  * a description, and an optional action slot. React renders the icon/action
  * wrapper divs only when those node props exist; here the wrappers always
- * exist as projection capture points and are detached when empty
- * ({@link SlotWrapper}).
+ * exist as projection capture points and are taken out of the DOM when empty
+ * (`setElementPresent`).
  */
 @Component({
   selector: 'div[mol-empty-state]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: [
     'icon',
     'title',
@@ -63,7 +61,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
       <ng-content select="[slot=action]"></ng-content>
     </div>`,
 })
-export class EmptyState implements AfterViewInit, DoCheck, HasElement<HTMLDivElement> {
+export class EmptyState implements HasElement<HTMLDivElement> {
   /** An `icon` node prop (TemplateRef), when passed as a prop instead of a slot. */
   icon?: unknown
   /** Heading text. */
@@ -89,10 +87,14 @@ export class EmptyState implements AfterViewInit, DoCheck, HasElement<HTMLDivEle
   private hasIcon = false
   private hasAction = false
 
-  private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
+
+  /** Detaches the icon and action wrappers React would not render. */
+  constructor() {
+    usePlacement((hasContent) => this.syncWrappers(hasContent))
+  }
 
   /**
    * The current class map.
@@ -119,31 +121,20 @@ export class EmptyState implements AfterViewInit, DoCheck, HasElement<HTMLDivEle
   }
 
   /**
-   * Detects slot content and detaches the wrappers React would not render.
-   * View queries resolve only by view init, so presence is read here.
+   * Applies React's `{icon && <div>…}` / `{action && <div>…}` conditions.
+   *
+   * @param hasContent - Reads whether a slot has content.
    */
-  ngAfterViewInit(): void {
+  private syncWrappers(hasContent: SlotReader): void {
     this.hasIcon =
-      this.icon !== undefined && this.icon !== null ? true : hasNodes(this.iconSlot?.nativeElement)
+      this.icon !== undefined && this.icon !== null
+        ? true
+        : hasContent(this.iconSlot?.nativeElement)
     this.hasAction =
       this.action !== undefined && this.action !== null
         ? true
-        : hasNodes(this.actionSlot?.nativeElement)
-    this.syncWrappers()
-  }
-
-  /**
-   * Re-reconciles wrappers on later passes.
-   */
-  ngDoCheck(): void {
-    this.syncWrappers()
-  }
-
-  /**
-   * Applies React's `{icon && <div>…}` / `{action && <div>…}` conditions.
-   */
-  private syncWrappers(): void {
-    this.sync.sync(this.iconSlot?.nativeElement, this.hasIcon)
-    this.sync.sync(this.actionSlot?.nativeElement, this.hasAction)
+        : hasContent(this.actionSlot?.nativeElement)
+    setElementPresent(this.iconSlot?.nativeElement, this.hasIcon)
+    setElementPresent(this.actionSlot?.nativeElement, this.hasAction)
   }
 }

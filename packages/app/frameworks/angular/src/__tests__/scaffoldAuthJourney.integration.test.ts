@@ -133,6 +133,7 @@ interface SignupValues extends Record<string, unknown> {
  * `useForm` for the fields — the shared pair a generated app is expected to use.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-signup-page',
   template: `
     <form aria-label="Create account" (submit)="runSubmit($event)">
@@ -210,6 +211,7 @@ interface LoginValues extends Record<string, unknown> {
  * error body, not a generic message.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-login-page',
   template: `
     <form aria-label="Sign in" (submit)="runSubmit($event)">
@@ -287,6 +289,7 @@ const seededUser: AppUser = {
  * reading `useAuth().user` sees the new profile at once.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-settings-page',
   template: `
     <p role="status" data-testid="settings-saved">{{ savedLine() }}</p>
@@ -356,7 +359,7 @@ class SettingsPageComponent {
 
 /** The authenticated shell, read from the same client every page uses. */
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-summary',
   template: '<p data-testid="profile-name">{{ name() }}</p>',
 })
@@ -375,6 +378,7 @@ class ProfileSummaryComponent {
 
 /** The settings page beside the summary, both reading the same client. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-profile-shell',
   imports: [ProfileSummaryComponent, SettingsPageComponent],
   template: '<app-test-profile-summary /><app-test-settings-page />',
@@ -383,6 +387,7 @@ class ProfileShellComponent {}
 
 /** CONTROL: a guard that remounts the page whenever a request starts. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-remounting-guard',
   imports: [LoginPageComponent],
   template: `

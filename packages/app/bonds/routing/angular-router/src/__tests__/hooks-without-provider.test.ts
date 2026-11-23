@@ -16,7 +16,7 @@
  */
 
 import '@angular/compiler'
-import { Component, DestroyRef, inject, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -48,6 +48,7 @@ const json = (value: unknown): string => JSON.stringify(value)
 
 /** A page that shows only the query, so a case can read it from the document. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-query-probe',
   standalone: true,
   template: '<output aria-label="query">{{ json(query()) }}</output>',
@@ -60,6 +61,7 @@ class QueryProbeComponent {
 
 /** A page whose navigate function and location the case drives together. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-navigate-probe',
   standalone: true,
   template: '',
@@ -84,6 +86,7 @@ class NavigateProbeComponent {
 
 /** A page that asks three active-path questions at once. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-active-probe',
   standalone: true,
   template: '',
@@ -96,6 +99,7 @@ class ActiveProbeComponent {
 
 /** An app root with an outlet that holds the router a consumer gets without a provider. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-router-probe',
   standalone: true,
   imports: [RouterOutlet],
@@ -107,6 +111,7 @@ class RouterProbeComponent {
 
 /** The settings page the `it.each` rows drive through all four hooks. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-settings',
   standalone: true,
   template: `

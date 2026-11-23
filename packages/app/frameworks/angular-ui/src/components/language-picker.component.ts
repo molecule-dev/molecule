@@ -5,24 +5,20 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type DoCheck,
-  ElementRef,
-  inject,
-  Renderer2,
-  signal,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, signal, TemplateRef, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  setHostRoot,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { Icon } from './icon.component.js'
 import { Modal } from './modal.component.js'
@@ -63,14 +59,17 @@ export interface LanguagePickerProps {
 /**
  * LanguagePicker component.
  *
- * React's root is a FRAGMENT (trigger button + locale modal), so the host is
- * unwrapped (`data-parity-unwrap`, `display: contents`). Rest props (`title`,
+ * React's root is a FRAGMENT (trigger button + locale modal), so everything
+ * the host holds renders in front of the host (`placeContentBefore`) and the
+ * host itself leaves the page: the rendered tree is React's, with no wrapper
+ * element around the trigger. Rest props (`title`,
  * `data-*`, `aria-*`, native event handlers) are spread onto the trigger
  * button in React; here they land on the host and are moved onto it.
  */
 @Component({
   selector: 'mol-language-picker',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Icon, Modal, MolTemplateOutlet],
   inputs: [
     'labelKey',
@@ -84,10 +83,6 @@ export interface LanguagePickerProps {
     'style',
     'renderTrigger',
   ],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `@if (asTemplate(renderTrigger); as customTrigger) {
       <ng-container
         [molTemplateOutlet]="customTrigger"
@@ -131,7 +126,7 @@ export interface LanguagePickerProps {
       </div></mol-modal
     >`,
 })
-export class LanguagePicker implements AfterViewInit, DoCheck {
+export class LanguagePicker {
   /** i18n key for the trigger label / aria-label (default `footer.language`). */
   labelKey?: LanguagePickerProps['labelKey']
   /** Fallback label if the i18n key is missing (default `Language`). */
@@ -176,8 +171,20 @@ export class LanguagePicker implements AfterViewInit, DoCheck {
   readonly i18n = useTranslation()
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  private readonly renderer = inject(Renderer2)
-  private movedRest = false
+  /**
+   * Renders everything the host holds (the trigger, or the caller's
+   * `renderTrigger` output, and the locale modal) in front of the host, which
+   * leaves the page: React's root is a fragment. What the caller binds on the
+   * tag lands on the trigger button, React's `{...rest}` target.
+   */
+  constructor() {
+    usePlacement(() => {
+      const host = this.host.nativeElement
+      placeContentBefore(host, host)
+      setElementPresent(host, false)
+      setHostRoot(host, this.trigger?.nativeElement)
+    })
+  }
 
   /**
    * The current class map.
@@ -280,28 +287,5 @@ export class LanguagePicker implements AfterViewInit, DoCheck {
   async pick(code: string): Promise<void> {
     await this.i18n.setLocale(code)
     this.isOpen.set(false)
-  }
-
-  /**
-   * Moves React's rest props (title, data-*, aria-*, native handlers) from
-   * the host onto the trigger button, and drops the capture wrapper.
-   */
-  ngAfterViewInit(): void {
-    this.syncRest()
-  }
-
-  /**
-   * Re-applies rest attributes on later passes (a props step may add them).
-   */
-  ngDoCheck(): void {
-    this.syncRest()
-  }
-
-  /** Moves any host rest attributes onto the trigger button. */
-  private syncRest(): void {
-    const trigger = this.trigger?.nativeElement
-    if (!trigger || this.movedRest) return
-    moveRestAttributes(this.host.nativeElement, trigger)
-    this.movedRest = true
   }
 }

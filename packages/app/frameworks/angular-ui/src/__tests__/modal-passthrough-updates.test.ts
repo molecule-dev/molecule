@@ -15,6 +15,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -68,6 +69,7 @@ const { useTranslation } = await import('@molecule/app-angular')
 
 /** Host binding a Modal's `aria-label` / `data-state` to signals. */
 const StateHost: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-modal-passthrough-state',
   standalone: true,
   imports: [Modal],
@@ -100,6 +102,7 @@ const StateHost: Type<unknown> = Component({
 
 /** Host binding a Modal's `aria-label` to a translation. */
 const LocaleHost: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-modal-passthrough-locale',
   standalone: true,
   imports: [Modal],
@@ -160,7 +163,7 @@ describe('Modal pass-through attributes follow updates', () => {
   it('a data-mol-id bound on the host is on the dialog after the first pass, and follows changes', async () => {
     await mountHost(StateHost)
     expect(dialog().getAttribute('data-mol-id')).toBe('search-dialog')
-    expect(document.querySelector('mol-modal')?.hasAttribute('data-mol-id')).toBe(false)
+    expect(document.querySelector('mol-modal')).toBeNull()
 
     document.querySelector<HTMLElement>('button')!.click()
     appRef.tick()

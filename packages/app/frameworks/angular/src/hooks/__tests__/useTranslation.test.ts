@@ -14,6 +14,7 @@
 
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   Component,
   type EnvironmentProviders,
   type Provider,
@@ -108,13 +109,18 @@ const createMockProvider = (tFn?: I18nProvider['t']): I18nProvider => ({
 })
 
 /** Reads the bonded provider alone. */
-@Component({ selector: 'app-test-bonded-provider', template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-test-bonded-provider',
+  template: '',
+})
 class BondedProviderProbe {
   readonly provider = useI18nProvider()
 }
 
 /** Renders both translation forms, the shapes a component uses. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-bonded-locale',
   template:
     '<span data-testid="translation">{{ translationText() }}</span>' +
@@ -145,6 +151,7 @@ class BondedLocaleProbe {
 
 /** Reads a translation through the provider an enclosing `provideI18n` supplies. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-scoped-provider',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -173,7 +180,11 @@ function mountI18nError(
   error: Error | null | undefined,
 ): ComponentFixture<MessageProbe> {
   /** Exposes the translated error message. */
-  @Component({ selector: 'app-test-i18n-error', template: '' })
+  @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    selector: 'app-test-i18n-error',
+    template: '',
+  })
   class I18nErrorProbe implements MessageProbe {
     readonly message = useI18nError(error)
   }

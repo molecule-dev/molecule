@@ -15,6 +15,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
@@ -84,6 +85,7 @@ function deferred<T>(): Deferred<T> {
 
 /** A toggle whose inputs the test drives. */
 const ToggleHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-toggle-host',
   standalone: true,
   imports: [OptimisticToggleButton],
@@ -115,6 +117,7 @@ const ToggleHost = Component({
 
 /** A page-level gate around the toggle (React's `signedIn && !self` render). */
 const GatedHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-toggle-gated',
   standalone: true,
   imports: [OptimisticToggleButton],
@@ -137,6 +140,7 @@ const GatedHost = Component({
 
 /** A disabled toggle whose native element the caller holds. */
 const DisabledHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-toggle-disabled',
   standalone: true,
   imports: [OptimisticToggleButton],
@@ -152,6 +156,7 @@ const DisabledHost = Component({
 
 /** A plain local UI button. */
 const LocalButtonHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-local-button',
   standalone: true,
   imports: [Button],
@@ -160,6 +165,49 @@ const LocalButtonHost = Component({
   class SpecLocalButtonHost {
     /** The click handler under test. */
     onClick = (): void => {}
+  },
+)
+
+/** A toggle whose active label is projected from a consumer list. */
+const ListLabelHost = Component({
+  selector: 'mol-spec-toggle-list',
+  standalone: true,
+  imports: [OptimisticToggleButton],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<button mol-optimistic-toggle-button [value]="true" [commit]="commit"
+    >@for (x of xs; track x) {<b slot="activeLabel">{{ x }}</b>}<span slot="inactiveLabel"
+      >Off</span
+    ></button
+  >`,
+})(
+  class SpecListLabelHost {
+    /** Saves the desired boolean. */
+    commit: Commit = async (next) => next
+    /** The projected active-label items. */
+    xs: string[] = ['a', 'c']
+  },
+)
+
+/** A toggle mounted between two fixed neighbours, its value drivable. */
+const SiblingsHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-spec-toggle-siblings',
+  standalone: true,
+  imports: [OptimisticToggleButton],
+  template: `<i>a</i><button mol-optimistic-toggle-button [value]="value()" [commit]="commit"
+    ><span slot="activeLabel">{{ active }}</span
+    ><span slot="inactiveLabel">{{ inactive }}</span></button
+  ><i>b</i>`,
+})(
+  class SpecSiblingsHost {
+    /** The displayed value. */
+    readonly value = signal(false)
+    /** Saves the desired boolean. */
+    commit: Commit = async (next) => next
+    /** Label when the value is true. */
+    active = 'Unstar'
+    /** Label when the value is false. */
+    inactive = 'Star'
   },
 )
 
@@ -228,6 +276,20 @@ const localButton = (): HTMLButtonElement =>
   document.querySelector<HTMLButtonElement>('button[mol-button]')!
 
 describe('OptimisticToggleButton', () => {
+  it('keeps a consumer list in order when an item is inserted in the middle of activeLabel', async () => {
+    const ref = await mount(ListLabelHost)
+    const text = (): string => toggleButton().textContent?.replace(/\s/g, '') ?? ''
+    expect(text()).toBe('ac')
+    ref.instance.xs = ['a', 'b', 'c']
+    ref.changeDetectorRef.markForCheck()
+    expect(() => appRef.tick()).not.toThrow()
+    expect(text()).toBe('abc')
+    ref.instance.xs = ['a', 'c']
+    ref.changeDetectorRef.markForCheck()
+    expect(() => appRef.tick()).not.toThrow()
+    expect(text()).toBe('ac')
+  })
+
   it.each([
     ['Favorite Article', 'Unfavorite Article'],
     ['Watch equipment', 'Stop watching equipment'],
@@ -436,5 +498,30 @@ describe('OptimisticToggleButton', () => {
     })
     localButton().click()
     expect(click).toHaveBeenCalledOnce()
+  })
+
+  it("renders React's elements with no host or capture element of its own", async () => {
+    const ref = await mount(SiblingsHost)
+    const hostEl = ref.location.nativeElement as HTMLElement
+    // The consumer's children are exactly React's: the two neighbours and the
+    // button (its root, so the host element itself), with no extra host or capture.
+    const shape = (): string =>
+      Array.from(hostEl.childNodes)
+        .filter(
+          (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+        )
+        .map((n) => (n.nodeType === 1 ? (n as Element).tagName : '#text'))
+        .join(',')
+    const button = toggleButton()
+    // Only the shown label's projected node sits bare on the button — the other
+    // label and both capture spans are out of the page.
+    const labels = (): (string | null)[] =>
+      Array.from(button.children).map((el) => el.getAttribute('slot'))
+    expect(shape()).toBe('I,BUTTON,I')
+    expect(labels()).toEqual(['inactiveLabel'])
+    ref.instance.value.set(true)
+    await flush()
+    expect(shape()).toBe('I,BUTTON,I')
+    expect(labels()).toEqual(['activeLabel'])
   })
 })

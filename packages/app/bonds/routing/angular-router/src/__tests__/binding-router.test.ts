@@ -14,7 +14,7 @@
  */
 
 import '@angular/compiler'
-import { Component, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -45,11 +45,21 @@ const boot = async (options: Parameters<typeof bootApp>[0]): Promise<BootedApp> 
 }
 
 /** A page whose text says which. */
-@Component({ selector: 'mol-test-page-one', standalone: true, template: '<p>page one</p>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-page-one',
+  standalone: true,
+  template: '<p>page one</p>',
+})
 class PageOne {}
 
 /** The second page. */
-@Component({ selector: 'mol-test-page-two', standalone: true, template: '<p>page two</p>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-page-two',
+  standalone: true,
+  template: '<p>page two</p>',
+})
 class PageTwo {}
 
 /** What the binding's own hooks read: React's `Probe`. */
@@ -57,6 +67,7 @@ const probed: { routers: Router[] } = { routers: [] }
 
 /** Reads the router through `@molecule/app-angular`'s hooks and shows the path. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-probe',
   standalone: true,
   template: '<span data-probe="">{{ location().pathname }}</span>',
@@ -71,6 +82,7 @@ class Probe {
 
 /** The root of the first case: the probe beside Angular's outlet. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-probe-root',
   standalone: true,
   imports: [Probe, RouterOutlet],
@@ -80,6 +92,7 @@ class ProbeRoot {}
 
 /** A layout route that renders its page with the binding's `RoutedView`. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-layout',
   standalone: true,
   imports: [RoutedView],
@@ -91,7 +104,12 @@ class Layout {}
 const paramsSeen: { router: RouteParams; binding: RouteParams }[] = []
 
 /** React's params `Page`: reads the bond's router and the binding's `useParams`. */
-@Component({ selector: 'mol-test-params-page', standalone: true, template: '<p>{{ read() }}</p>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-params-page',
+  standalone: true,
+  template: '<p>{{ read() }}</p>',
+})
 class ParamsPage {
   private readonly router = useMoleculeRouter()
   private readonly binding = useParams()
@@ -114,7 +132,12 @@ const returned: Router[] = []
 const count = signal(0)
 
 /** React's shares `Page`: keeps the router `useMoleculeRouter` returned. */
-@Component({ selector: 'mol-test-shares-page', standalone: true, template: '<p>{{ show() }}</p>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-shares-page',
+  standalone: true,
+  template: '<p>{{ show() }}</p>',
+})
 class SharesPage {
   private readonly router = useMoleculeRouter()
 
@@ -183,6 +206,38 @@ describe('MoleculeRouterProvider and the framework binding', () => {
     await app.router.navigateByUrl('/two')
     await app.settle()
     expect(text(app, '[data-layout]')).toBe('page two')
+  })
+
+  it("renders the matched page with no element of the routed view's own, through every navigation", async () => {
+    const app = await boot({
+      routes: [
+        {
+          path: '',
+          component: Layout,
+          children: [
+            { path: 'one', component: PageOne },
+            { path: 'two', component: PageTwo },
+          ],
+        },
+      ],
+      initialPath: '/one',
+      providers: [provideMoleculeRouter()],
+    })
+    // React: <main><p>page one</p></main>. Angular adds only the page component's own host.
+    const shown = (): string =>
+      Array.from(
+        app.host.querySelector('[data-layout]')?.children ?? [],
+        (el) => el.outerHTML,
+      ).join('')
+    expect(shown()).toBe('<mol-test-page-one><p>page one</p></mol-test-page-one>')
+
+    await app.router.navigateByUrl('/two')
+    await app.settle()
+    expect(shown()).toBe('<mol-test-page-two><p>page two</p></mol-test-page-two>')
+
+    await app.router.navigateByUrl('/one')
+    await app.settle()
+    expect(shown()).toBe('<mol-test-page-one><p>page one</p></mol-test-page-one>')
   })
 
   it('a provider inside another uses the outer router, registers its routes and calls onRouterReady once', async () => {

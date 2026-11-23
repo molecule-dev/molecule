@@ -25,6 +25,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
@@ -109,6 +110,7 @@ const TABS_ITEMS = [
 
 /** Renders the two dialogs over their projected slots. */
 const DialogsHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-dialogs',
   standalone: true,
   imports: [ConfirmDialog, PromptDialog],
@@ -137,6 +139,7 @@ const DialogsHost = Component({
 
 /** Renders a ConfirmDialog with no projected description. */
 const NoDescriptionConfirmHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-confirm-no-description',
   standalone: true,
   imports: [ConfirmDialog],
@@ -147,6 +150,7 @@ const NoDescriptionConfirmHost = Component({
 
 /** Renders the Tabs over an items array with and without content. */
 const TabsHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-tabs',
   standalone: true,
   imports: [Tabs],
@@ -160,6 +164,7 @@ const TabsHost = Component({
 
 /** Renders the account card with a settings panel body. */
 const SidebarHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-sidebar',
   standalone: true,
   imports: [SidebarUserCard],
@@ -291,6 +296,7 @@ describe('Tabs aria-controls', () => {
 
   it('an active tab without content has no aria-controls', async () => {
     const NoContentHost = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-tabs-no-content',
       standalone: true,
       imports: [Tabs],
@@ -314,6 +320,7 @@ describe('Tabs aria-controls', () => {
 
   it('no tab carries aria-controls when no item has content', async () => {
     const EmptyHost = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-spec-tabs-empty',
       standalone: true,
       imports: [Tabs],

@@ -12,7 +12,13 @@
  */
 
 import '@angular/compiler'
-import { Component, effect, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -75,6 +81,7 @@ function rendered(fixture: ComponentFixture<unknown>, id: string): string {
 
 /** A probe whose only locale dependency is `useT()`. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-uset-only',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -93,6 +100,7 @@ class OnlyUseTProbe {
 
 /** Records the function identity it saw on each render. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-useT-identity',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -113,6 +121,7 @@ class UseTIdentityProbe {
 
 /** Runs an effect that depends on the returned function's identity. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-useT-effect',
   template: '<span data-testid="text">{{ text() }}</span>',
 })
@@ -143,6 +152,7 @@ class UseTEffectProbe {
 
 /** Renders every documented `useT` call shape at once. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-useT-shapes',
   template: `
     <span data-testid="values">{{ values() }}</span>
@@ -193,6 +203,7 @@ class UseTShapesProbe {
 
 /** Renders every inline-fallback `useT` call shape at once. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-useT-shorthand',
   template: `
     <span data-testid="fallback">{{ fallback() }}</span>
@@ -243,6 +254,7 @@ class UseTShorthandProbe {
 
 /** Renders the locale together with text read through `useTranslation().t`. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-useTranslation-control',
   template: '<span data-testid="text">{{ line() }}</span>',
 })
@@ -290,6 +302,7 @@ describe('useT', () => {
 
     /** Reads a key registered after the view exists. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-useT-late-key',
       template: '<span data-testid="late">{{ late() }}</span>',
     })
@@ -364,6 +377,7 @@ describe('useT', () => {
 
     /** Reads the greeting through `useT()`. */
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'app-test-useT-provider-probe',
       template: '<span data-testid="text">{{ text() }}</span>',
     })

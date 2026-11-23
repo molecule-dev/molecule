@@ -12,6 +12,7 @@
 import '@angular/compiler'
 import {
   type ApplicationRef,
+  ChangeDetectionStrategy,
   Component,
   createComponent,
   DestroyRef,
@@ -46,6 +47,7 @@ afterEach(() => {
 
 /** A routed page that shows the feed. */
 const Feed: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-feed',
   standalone: true,
   imports: [RouterLink],
@@ -54,6 +56,7 @@ const Feed: Type<unknown> = Component({
 
 /** A routed page that shows the article. */
 const Article: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-article',
   standalone: true,
   imports: [RouterLink],
@@ -62,6 +65,7 @@ const Article: Type<unknown> = Component({
 
 /** The layout route's page: a shell around the router's outlet. */
 const Shell: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-shell',
   standalone: true,
   imports: [RouterOutlet],
@@ -70,6 +74,7 @@ const Shell: Type<unknown> = Component({
 
 /** The URL the app reports, beside the routes and outside the page's own area. */
 const Path: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-path',
   standalone: true,
   template: '<output data-path>{{ path() }}</output>',
@@ -86,6 +91,7 @@ const Path: Type<unknown> = Component({
 
 /** What the page's area shows while its code loads. */
 const Fallback: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-fallback',
   standalone: true,
   template: '<p data-fallback>loading</p>',
@@ -100,6 +106,7 @@ const Fallback: Type<unknown> = Component({
 
 /** The bootstrap root: the URL, then the routes. */
 const Root: Type<unknown> = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-lazy-root',
   standalone: true,
   imports: [Path, RouterOutlet],
@@ -296,11 +303,13 @@ const acceptsProps = <Props>(props: Props): Props => props
 describe('lazyPage types', () => {
   it('keeps the loaded page props, including for a page that takes none', () => {
     const About = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-test-about',
       standalone: true,
       template: '<p>about</p>',
     })(class AboutComponent {})
     const Post = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-test-post',
       standalone: true,
       inputs: ['slug'],
@@ -333,6 +342,7 @@ describe('lazyPage types', () => {
     // React's `function Draft({ initial }: { initial?: string } = {})` is an Angular page
     // whose `initial` input is optional.
     const Draft = Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-test-draft',
       standalone: true,
       inputs: ['initial'],

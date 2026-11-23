@@ -14,24 +14,32 @@ import {
   inject,
   type OnDestroy,
   Output,
-  Renderer2,
   signal,
   TemplateRef,
   ViewChild,
 } from '@angular/core'
 
-import { useHostPresence, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContent,
+  placeContentBefore,
+  placeElement,
+  setElementPresent,
+  type SlotReader,
+  useHostPresence,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, ToastProps, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { findDomContext, provideDomContext, removeDomContext } from '../utilities/dom-context.js'
+import { createDomContext } from '../utilities/dom-context.js'
 import { type HasElement, hostElement } from '../utilities/element.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
-import { hasNodes, SlotWrapper } from './button.component.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
 
 /** Toast status → class-map variant. */
@@ -86,6 +94,7 @@ type ToastPosition = ToastProps['position']
 @Component({
   selector: 'div[mol-toast]',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [MolIconSvg, MolTemplateOutlet],
   inputs: [
     'title',
@@ -196,20 +205,16 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
    */
   private readonly i18n = useTranslation()
 
-  private readonly renderer = inject(Renderer2)
   private readonly host: HTMLElement = this.el.nativeElement
-  private readonly sync = new SlotWrapper(this.el, this.renderer)
   private remaining: number
   private startedAt: number | null = null
   private timer: ReturnType<typeof setTimeout> | undefined
   private lastDuration: number
-  private descriptionParent: HTMLElement | null = null
-  private childrenParent: HTMLElement | null = null
   private hasChildren = false
-  private adoptedChildren: Node[] = []
 
   /** Prepares the countdown state (the timer starts at view init). */
   constructor() {
+    usePlacement((hasContent) => this.reconcile(hasContent))
     // Leaves no element in the page while the toast is hidden (React renders null).
     useHostPresence(() => this.visible())
     this.remaining = this.duration
@@ -329,28 +334,23 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
    * countdown (React's mount effect, with `[duration]` deps).
    */
   ngAfterViewInit(): void {
-    this.descriptionParent = this.descriptionSlot?.nativeElement.parentElement ?? null
-    this.childrenParent = this.childrenSlot?.nativeElement.parentElement ?? null
-    this.hasChildren = hasNodes(this.childrenSlot?.nativeElement)
-    this.adoptChildren()
     this.restart()
   }
 
   /**
-   * Re-reconciles children visibility on later passes.
+   * Restarts the countdown when the `duration` input changes (React's
+   * `[duration]` effect).
    */
   ngDoCheck(): void {
     if (this.duration !== this.lastDuration) {
       this.lastDuration = this.duration
       this.restart()
     }
-    this.syncDescription()
   }
 
   /** Stops the countdown (React's unmount cleanup). */
   ngOnDestroy(): void {
     this.clearTimer()
-    this.adoptedChildren = []
   }
 
   /** React's effect body: reset the remaining time and start counting. */
@@ -383,6 +383,18 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
   }
 
   /**
+   * Reads the children slot and moves the projected children into the
+   * description wrapper (React renders them there) unless the description
+   * prop wins.
+   *
+   * @param hasContent - Reads whether a slot has content.
+   */
+  private reconcile(hasContent: SlotReader): void {
+    this.hasChildren = hasContent(this.childrenSlot?.nativeElement)
+    this.adoptChildren()
+  }
+
+  /**
    * Moves the projected children into the description wrapper (React renders
    * them there) unless the description prop wins.
    */
@@ -391,11 +403,9 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
     if (!span) return
     const wrapper = this.descriptionSlot?.nativeElement
     const descWins = this.descriptionText() !== null || this.descriptionTemplate() !== null
-    if (wrapper && !descWins && this.hasChildren) {
-      this.adoptedChildren = Array.from(span.childNodes)
-      for (const node of this.adoptedChildren) wrapper.appendChild(node)
-    }
-    this.sync.sync(span, false, this.childrenParent ?? undefined)
+    setElementPresent(span, false)
+    if (wrapper && !descWins && this.hasChildren) placeContent(span, wrapper)
+    else placeContent(span, null)
     this.syncDescription()
   }
 
@@ -404,28 +414,25 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
     const wrapper = this.descriptionSlot?.nativeElement
     if (!wrapper) return
     const hasDescription = this.descriptionText() !== null || this.descriptionTemplate() !== null
-    this.sync.sync(wrapper, hasDescription || this.hasChildren, this.descriptionParent ?? undefined)
+    setElementPresent(wrapper, hasDescription || this.hasChildren)
   }
 }
 
 /**
  * Toast container: positions toasts on screen via a body portal.
  *
- * React's root is a portal, so the host is unwrapped
- * (`data-parity-unwrap`, `display: contents`) and the container `<div>` is
- * moved into `document.body`.
+ * React's root is a portal: the container `<div>` is moved into
+ * `document.body` and the host element leaves the page, so nothing is left at
+ * the component's place.
  */
 @Component({
   selector: 'mol-toast-container',
   standalone: true,
+  hostDirectives: [MolPlacement],
   inputs: ['position', 'className'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<div #container [class]="classes()"><ng-content></ng-content></div>`,
 })
-export class ToastContainer implements AfterViewInit, OnDestroy, HasElement<HTMLDivElement> {
+export class ToastContainer implements HasElement<HTMLDivElement> {
   /** The container position (default `bottom-right`). */
   position: ToastPosition = 'bottom-right'
   /** Extra classes. */
@@ -446,6 +453,15 @@ export class ToastContainer implements AfterViewInit, OnDestroy, HasElement<HTML
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
+  /** Renders the container in `document.body` (React's portal) and takes the host out of the page. */
+  constructor() {
+    usePlacement(() => {
+      if (typeof document !== 'undefined')
+        placeElement(this.container?.nativeElement, document.body)
+      setElementPresent(this.host.nativeElement, false)
+    })
+  }
+
   /**
    * The current class map.
    * @returns The UIClassMap.
@@ -461,37 +477,26 @@ export class ToastContainer implements AfterViewInit, OnDestroy, HasElement<HTML
   classes(): string {
     return this.cm().cn(this.cm().toastContainer({ position: this.position }), this.className)
   }
-
-  /** Moves the container to `document.body` (React's portal). */
-  ngAfterViewInit(): void {
-    const el = this.container?.nativeElement
-    if (el && typeof document !== 'undefined') document.body.appendChild(el)
-  }
-
-  /** Moves the container back under the host so Angular can remove it. */
-  ngOnDestroy(): void {
-    const el = this.container?.nativeElement
-    if (el && this.host.nativeElement.parentNode) this.host.nativeElement.appendChild(el)
-  }
 }
 
 /**
  * ToastProvider: manages global toast state and renders children plus a
  * positioned toast container (React's context provider + portal).
  *
- * The context value is registered on the host element (React context flows
+ * The context value is registered on a DOM element (React context flows
  * through the rendered tree, which Angular DI cannot reach for projected
- * content); `useToast()` reads it through the DOM ancestors.
+ * content); `useToast()` reads it through the DOM ancestors. React's provider
+ * renders its children and the container's portal, no element of its own, so
+ * the children render in front of the host and the host leaves the page; the
+ * context is registered on the parent element, the one whose child list the
+ * children now belong to.
  */
 @Component({
   selector: 'mol-toast-provider',
   standalone: true,
+  hostDirectives: [MolPlacement],
   imports: [Toast],
   inputs: ['position'],
-  host: {
-    'data-parity-unwrap': '',
-    style: 'display: contents',
-  },
   template: `<span #childrenCapture><ng-content></ng-content></span>
     <div #container [class]="containerClasses()">
       @for (toast of toasts(); track toast.id) {
@@ -513,7 +518,7 @@ export class ToastContainer implements AfterViewInit, OnDestroy, HasElement<HTML
       }
     </div>`,
 })
-export class ToastProvider implements AfterViewInit, OnDestroy {
+export class ToastProvider implements OnDestroy {
   /** The default position for toasts (default `bottom-right`). */
   position: ToastPosition = 'bottom-right'
 
@@ -526,13 +531,26 @@ export class ToastProvider implements AfterViewInit, OnDestroy {
   readonly toasts = signal<(ToastProps & { id: string })[]>([])
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  private readonly renderer = inject(Renderer2)
-  private readonly sync = new SlotWrapper(this.host, this.renderer)
-  private adopted: Node[] = []
+  /** The value consumers read; its closures keep the live toast state. */
+  private readonly value = new ToastContextImplementation(this)
 
-  /** Registers the toast context on the host (before any projected child resolves it). */
+  /**
+   * Renders the children in front of the host (which leaves the page),
+   * registers the context where they render, and portals the container.
+   */
   constructor() {
-    provideDomContext(this.host.nativeElement, new ToastContextImplementation(this))
+    ToastDomContext.provide(this.host.nativeElement, this.value)
+    usePlacement(() => {
+      const capture = this.childrenCapture?.nativeElement
+      const host = this.host.nativeElement
+      if (capture) {
+        placeContentBefore(capture, host)
+        setElementPresent(capture, false)
+      }
+      setElementPresent(host, false)
+      if (typeof document !== 'undefined')
+        placeElement(this.container?.nativeElement, document.body)
+    })
   }
 
   /**
@@ -571,29 +589,9 @@ export class ToastProvider implements AfterViewInit, OnDestroy {
     this.toasts.update((prev) => prev.filter((toast) => toast.id !== id))
   }
 
-  /**
-   * Adopts the children bare into the host and moves the container to
-   * `document.body` (React's portal).
-   */
-  ngAfterViewInit(): void {
-    const capture = this.childrenCapture?.nativeElement
-    const host = this.host.nativeElement
-    if (capture) {
-      this.adopted = Array.from(capture.childNodes)
-      for (const node of this.adopted) host.appendChild(node)
-      this.sync.sync(capture, false, host)
-    }
-    const container = this.container?.nativeElement
-    if (container && typeof document !== 'undefined') document.body.appendChild(container)
-  }
-
-  /** Removes the context registration and restores the container (unmount). */
+  /** Removes the context registration (unmount). */
   ngOnDestroy(): void {
-    removeDomContext(this.host.nativeElement)
-    const container = this.container?.nativeElement
-    if (container && this.host.nativeElement.parentNode)
-      this.host.nativeElement.appendChild(container)
-    this.adopted = []
+    ToastDomContext.remove(this.host.nativeElement)
   }
 }
 
@@ -641,7 +639,7 @@ class ToastContextImplementation implements ToastContextValue {
 export function useToast(): ToastContextValue {
   const el = inject(ElementRef, { optional: true }) as ElementRef<HTMLElement> | null
   const resolve = (): ToastContextValue => {
-    const found = findDomContext<ToastContextValue>(el?.nativeElement ?? null)
+    const found = ToastDomContext.find(el?.nativeElement ?? null)
     if (!found) {
       // Thrown outside rendering (a hook used outside its provider), so the
       // English fallback travels with the error instead of the static `t`.
@@ -663,3 +661,6 @@ export function useToast(): ToastContextValue {
     removeToast: (id) => resolve().removeToast(id),
   }
 }
+
+/** The context a provider registers and its consumers find. */
+const ToastDomContext = createDomContext<ToastContextValue>('ToastDomContext')

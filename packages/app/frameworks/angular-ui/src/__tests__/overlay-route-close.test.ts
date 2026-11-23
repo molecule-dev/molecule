@@ -15,7 +15,12 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -165,6 +170,7 @@ function memoryRouter(initial: string): MemoryRouter {
 
 /** The UserMenu with a panel body. */
 const UserMenuHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-user-menu-host',
   standalone: true,
   imports: [UserMenu],
@@ -173,6 +179,7 @@ const UserMenuHost = Component({
 
 /** The account card with a panel body. */
 const SidebarHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-sidebar-host',
   standalone: true,
   imports: [SidebarUserCard],
@@ -181,6 +188,7 @@ const SidebarHost = Component({
 
 /** Panel content that dismisses its own drawer through `usePanelClose`. */
 const ClosingPanel = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-closing-panel',
   standalone: true,
   template: `<button type="button" (click)="dismiss()">dismiss</button>`,
@@ -198,6 +206,7 @@ const ClosingPanel = Component({
 
 /** The UserMenu with a closing panel body. */
 const PanelHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-panel-host',
   standalone: true,
   imports: [UserMenu, ClosingPanel],
@@ -206,6 +215,7 @@ const PanelHost = Component({
 
 /** The dropdown with a trigger whose click opens it. */
 const DropdownHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-dropdown-host',
   standalone: true,
   imports: [Dropdown],

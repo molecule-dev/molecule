@@ -12,7 +12,12 @@
  */
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, signal } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -75,6 +80,7 @@ const { useRouter } = await import('@molecule/app-angular')
 
 /** Host wrapping the routed tree, with the login page inside the guard. */
 const GuardHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-wrapped-host]',
   standalone: true,
   imports: [AuthGuard],

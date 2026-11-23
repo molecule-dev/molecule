@@ -44,7 +44,7 @@ export function moveRestAttributes(host: Element, target: Element | undefined | 
    * (the input/select/textarea family, see below) has already applied it on
    * an inner binding, and re-moving the re-bound value would erase that
    * merge. A component that spreads `aria-describedby` straight onto its
-   * `...rest` target (Modal) has no merge to protect, so it opts in.
+   * `...rest` target has no merge to protect, so it opts in.
    */
   includeDescribedBy?: boolean
 }
@@ -59,7 +59,7 @@ export function moveRestAttributes(host: Element, target: Element | undefined | 
  * captured the host's value once and merges it with the field context's own
  * target on its inner binding, so re-moving a re-bound value would erase that
  * merge. A component that spreads the attribute onto `...rest` with no merge
- * (Modal) passes {@link ReapplyRestAttributesOptions.includeDescribedBy}.
+ * passes {@link ReapplyRestAttributesOptions.includeDescribedBy}.
  *
  * Idempotent: a host with nothing re-bound moves nothing.
  *

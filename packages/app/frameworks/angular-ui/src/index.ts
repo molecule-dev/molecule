@@ -4,8 +4,8 @@
  * Provides standalone Angular components at parity with `@molecule/app-ui-react`:
  * every React export exists here under the same name, with the same props, the
  * same rendered DOM (ClassMap classes, attributes, inline styles, text) and the
- * same behaviour. The shared conformance kit
- * (`@molecule/app-framework-conformance`) proves the parity.
+ * same behaviour. Molecule's conformance tests render each component in React and
+ * Angular and compare the two.
  *
  * React-named exports include `Button`, `Card` (+ `CardHeader`, `CardTitle`,
  * `CardDescription`, `CardContent`, `CardFooter`), `Input`, `Select`,
@@ -57,9 +57,9 @@
  * - Components are standalone — add them to the `imports` array of the consuming component or
  *   route; there is no NgModule.
  * - A component's selector names the native element React renders at its root (an attribute
- *   selector such as `button[mol-button]`), so the host IS the root element. Components whose
- *   React root is a fragment or portal use an element selector whose host is
- *   `display: contents`.
+ *   selector such as `button[mol-button]`), so the host IS the root element. A component whose
+ *   React root is a fragment or a portal renders its template in the host's place and leaves the
+ *   page itself, so no wrapper element stands among React's nodes.
  * - Hooks (`useToast`, `usePanelClose`, `useIsDesktop`, `useUserMenuPopoverClose`) are called in
  *   an injection context (a component field initializer or constructor).
  * - Every component whose React export forwards a ref implements `HasElement`: take it with a

@@ -14,6 +14,7 @@
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   inject,
@@ -93,6 +94,7 @@ const SAVE = new InjectionToken<SaveBookmark>('test-save-bookmark')
  * config does not compile legacy decorators in test files).
  */
 const BookmarkButton = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'div[data-test-host]',
   standalone: true,
   imports: [Button],

@@ -15,7 +15,14 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-import { Component, provideZonelessChangeDetection, type Type } from '@angular/core'
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  provideZonelessChangeDetection,
+  type Type,
+} from '@angular/core'
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -71,6 +78,7 @@ const { LoadErrorBanner } = await import('../components/load-error-banner.compon
 
 /** Message only: the display-only banner. */
 const MessageHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-banner-message',
   standalone: true,
   imports: [LoadErrorBanner],
@@ -81,6 +89,7 @@ const MessageHost = Component({
 
 /** Message, detail, children and a rest-prop locator on the root. */
 const FullHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-banner-full',
   standalone: true,
   imports: [LoadErrorBanner],
@@ -93,6 +102,7 @@ const FullHost = Component({
 
 /** Message plus a caller-owned retry callback (and an optional mol id). */
 const RetryHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-spec-banner-retry',
   standalone: true,
   imports: [LoadErrorBanner],
@@ -105,6 +115,25 @@ const RetryHost = Component({
     onRetry?: () => void | Promise<void>
     /** The retry button's mol id. */
     retryMolId = 'load-error-retry'
+  },
+)
+
+/** Message plus a retry label projected as a consumer list. */
+const ListRetryHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-spec-banner-list-retry',
+  standalone: true,
+  imports: [LoadErrorBanner],
+  template: `<div mol-load-error-banner [onRetry]="onRetry">
+    <span slot="message">Could not load decks.</span>
+    @for (x of xs; track x) {<b slot="retryLabel">{{ x }}</b>}
+  </div>`,
+})(
+  class ListRetryHostComponent {
+    /** The retry callback. */
+    onRetry = (): void => {}
+    /** The projected retry-label items. */
+    xs: string[] = ['a', 'c']
   },
 )
 
@@ -203,6 +232,20 @@ describe('LoadErrorBanner', () => {
     })
     fireEvent.click(within(document.body).getByText('Retry'))
     expect(onRetry).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps a consumer list in order when an item is inserted in the middle of retryLabel', () => {
+    const fixture = render(ListRetryHost)
+    const retry = retryButton()
+    expect(retry?.textContent?.replace(/\s/g, '')).toBe('ac')
+    fixture.componentInstance.xs = ['a', 'b', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(retry?.textContent?.replace(/\s/g, '')).toBe('abc')
+    fixture.componentInstance.xs = ['a', 'c']
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck()
+    expect(() => fixture.componentRef.injector.get(ApplicationRef).tick()).not.toThrow()
+    expect(retry?.textContent?.replace(/\s/g, '')).toBe('ac')
   })
 
   it('retry button carries retryMolId (default and custom)', () => {

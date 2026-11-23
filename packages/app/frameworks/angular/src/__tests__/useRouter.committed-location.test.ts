@@ -14,7 +14,13 @@
  */
 
 import '@angular/compiler'
-import { Component, inject, type OnInit, provideZonelessChangeDetection } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type OnInit,
+  provideZonelessChangeDetection,
+} from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { platformBrowser } from '@angular/platform-browser'
 import { BrowserTestingModule } from '@angular/platform-browser/testing'
@@ -63,7 +69,12 @@ function configure(router: Router, imports: unknown[]): void {
 }
 
 /** A page that stays mounted across the navigation. */
-@Component({ selector: 'mol-test-location-page', standalone: true, template: '{{ record() }}' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-location-page',
+  standalone: true,
+  template: '{{ record() }}',
+})
 class LocationPageComponent {
   readonly location = useLocation()
   readonly params = useParams<{ id: string }>()
@@ -82,7 +93,12 @@ class LocationPageComponent {
 }
 
 /** A page that only reads the location. */
-@Component({ selector: 'mol-test-path-page', standalone: true, template: '{{ record() }}' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-path-page',
+  standalone: true,
+  template: '{{ record() }}',
+})
 class PathPageComponent {
   readonly location = useLocation()
 
@@ -98,7 +114,12 @@ class PathPageComponent {
 }
 
 /** Redirects as it is initialized, as a guard does. */
-@Component({ selector: 'mol-test-redirects', standalone: true, template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-redirects',
+  standalone: true,
+  template: '',
+})
 class RedirectsComponent implements OnInit {
   private readonly navigate = useNavigate()
 
@@ -110,6 +131,7 @@ class RedirectsComponent implements OnInit {
 
 /** Shows the path, as a layout computing its active item does, with a child that redirects. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-shows-path',
   standalone: true,
   imports: [RedirectsComponent],
@@ -120,11 +142,17 @@ class ShowsPathComponent {
 }
 
 /** The routing bond's outlet. */
-@Component({ selector: 'mol-test-outlet', standalone: true, template: '<p>routed page</p>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-outlet',
+  standalone: true,
+  template: '<p>routed page</p>',
+})
 class OutletComponent {}
 
 /** Renders `RoutedView` where a layout puts its page. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-test-layout',
   standalone: true,
   imports: [RoutedView],
@@ -132,8 +160,23 @@ class OutletComponent {}
 })
 class LayoutComponent {}
 
+/** Renders `RoutedView` between two siblings, as a layout's page stands between its chrome. */
+@Component({
+  selector: 'mol-test-siblings-layout',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [RoutedView],
+  template: '<main><i>a</i><mol-routed-view /><i>b</i></main>',
+})
+class SiblingsLayoutComponent {}
+
 /** Reads the router with none provided. */
-@Component({ selector: 'mol-test-no-router', standalone: true, template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-test-no-router',
+  standalone: true,
+  template: '',
+})
 class NoRouterComponent {
   readonly router = useRouterInstance()
 }
@@ -204,6 +247,22 @@ describe('RoutedView', () => {
     const { text, thrown } = createCatching(LayoutComponent)
     expect(thrown).toBeUndefined()
     expect(text).toBe('routed page')
+  })
+
+  it('renders the routed view where it stands, with no element of its own, as React renders only the page', () => {
+    TestBed.configureTestingModule({
+      imports: [SiblingsLayoutComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter(createMemoryRouter(), { routedView: OutletComponent }),
+      ],
+    })
+    const fixture = TestBed.createComponent(SiblingsLayoutComponent)
+    fixture.detectChanges()
+    const main = (fixture.nativeElement as HTMLElement).querySelector('main')
+    expect(Array.from(main?.children ?? [], (el) => el.outerHTML).join('')).toBe(
+      '<i>a</i><mol-test-outlet><p>routed page</p></mol-test-outlet><i>b</i>',
+    )
   })
 
   it('throws a translatable error naming the fix when the bond has no routed view', () => {
