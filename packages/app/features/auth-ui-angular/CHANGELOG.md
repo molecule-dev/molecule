@@ -1,5 +1,11 @@
 # @molecule/app-auth-ui-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- The OAuth buttons leave no empty element behind once they are removed while hidden.
+
 ## 1.2.0
 
 ### Minor Changes

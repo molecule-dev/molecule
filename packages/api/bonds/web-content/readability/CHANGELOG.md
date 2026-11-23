@@ -1,5 +1,11 @@
 # @molecule/api-web-content-readability
 
+## 1.1.3
+
+### Patch Changes
+
+- Parse pages with jsdom 31.
+
 ## 1.1.2
 
 ### Patch Changes

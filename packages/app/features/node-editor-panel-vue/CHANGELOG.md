@@ -1,5 +1,11 @@
 # @molecule/app-node-editor-panel-vue
 
+## 1.2.1
+
+### Patch Changes
+
+- A node-valued radio option label no longer leaves a comment anchor for a false `v-if` branch between its parts.
+
 ## 1.2.0
 
 ### Minor Changes

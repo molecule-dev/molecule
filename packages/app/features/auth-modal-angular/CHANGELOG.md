@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- The mount's login and signup links open the modal, and a closed modal leaves no element behind once removed.
+
 ## 1.1.0
 
 ### Minor Changes

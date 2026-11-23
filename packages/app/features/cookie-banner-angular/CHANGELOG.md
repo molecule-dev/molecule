@@ -1,5 +1,11 @@
 # @molecule/app-cookie-banner-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- A hidden banner leaves no empty element behind once it is removed.
+
 ## 1.1.0
 
 ### Minor Changes

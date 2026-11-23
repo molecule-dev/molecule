@@ -1,5 +1,11 @@
 # @molecule/app-bulk-action-toolbar-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- A hidden toolbar leaves no empty element behind once it is removed.
+
 ## 1.1.2
 
 ### Patch Changes

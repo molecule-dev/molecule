@@ -1,5 +1,11 @@
 # @molecule/app-sidebar-layout-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- Renders its slots through the shared DOM placement helpers from @molecule/app-angular.
+
 ## 1.2.0
 
 ### Minor Changes

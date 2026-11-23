@@ -1,5 +1,11 @@
 # @molecule/app-cookie-banner-vue
 
+## 1.1.2
+
+### Patch Changes
+
+- A node-valued category label or description no longer leaves a comment anchor for a false `v-if` branch between its parts.
+
 ## 1.1.1
 
 ### Patch Changes

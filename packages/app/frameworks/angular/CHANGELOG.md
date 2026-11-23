@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.12.0
+
+### Minor Changes
+
+- Add provideDomPlacement with useHostPresence, setElementPresent, placeElement, placeContent and WrappedChildren, so components render React's DOM without moving nodes Angular placed.
+
 ## 3.11.0
 
 ### Minor Changes

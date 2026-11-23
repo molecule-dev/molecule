@@ -1,5 +1,11 @@
 # @molecule/app-announcement-bar-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- A hidden bar leaves no empty element behind once it is removed.
+
 ## 1.1.0
 
 ### Minor Changes

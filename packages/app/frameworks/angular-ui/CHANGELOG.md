@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.4.2
+
+### Patch Changes
+
+- Toasts and the app shell's top bar and sidebar show again in their place, and leave no empty element behind once removed.
+
 ## 1.4.1
 
 ### Patch Changes

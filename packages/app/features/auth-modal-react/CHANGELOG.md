@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-react
 
+## 4.0.4
+
+### Patch Changes
+
+- A login or signup link clicked right after the mount moves to a new parent now opens the modal.
+
 ## 4.0.3
 
 ### Patch Changes
