@@ -9,6 +9,7 @@ import React, { forwardRef } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Props for the Progress component.
@@ -78,20 +79,30 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={cm.cn(cm.progressWrapper, className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
       >
         {(label || showValue) && (
-          <div className={cm.progressLabelContainer}>
-            {label && <span className={cm.progressLabelText}>{label}</span>}
-            {showValue && <span className={cm.progressLabelText}>{Math.round(percentage)}%</span>}
-          </div>
+          <Box as="div" className={cm.progressLabelContainer}>
+            {label && (
+              <Text as="span" className={cm.progressLabelText}>
+                {label}
+              </Text>
+            )}
+            {showValue && (
+              <Text as="span" className={cm.progressLabelText}>
+                {Math.round(percentage)}%
+              </Text>
+            )}
+          </Box>
         )}
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.progress(), cm.progressHeight(size))}
           role="progressbar"
           // Clamp like the visual bar does — aria-valuenow outside
@@ -102,16 +113,19 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
           aria-valuemax={max}
           aria-label={label ?? t('ui.progress.label', undefined, { defaultValue: 'Progress' })}
         >
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.progressBar(),
               cm.progressColor(color),
               indeterminate && cm.progressIndeterminate,
             )}
-            style={indeterminate ? undefined : { transform: `translateX(-${100 - percentage}%)` }}
+            webStyle={
+              indeterminate ? undefined : { transform: `translateX(-${100 - percentage}%)` }
+            }
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
     )
   },
 )
