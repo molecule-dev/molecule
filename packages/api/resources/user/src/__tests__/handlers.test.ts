@@ -2872,6 +2872,28 @@ describe('readSelf (GET /users/me — cookie session restore)', () => {
     expect(mockFindById).toHaveBeenCalledWith('users', 'u1')
   })
 
+  // Sign-up and log-in answer { props, accessToken, user }. An agent's own smoke test read
+  // `(await me.json()).user.email` after log-in and found no `user` (harness eval, 2026-11-24).
+  it('answers the user as `user` too, the shape sign-up and log-in answer with (OLD MUSTFAIL)', async () => {
+    mockFindById.mockImplementation((table: string) =>
+      table === 'users'
+        ? { id: 'u1', email: 'me@example.com', passwordHash: 'hash' }
+        : table === 'usersSecrets'
+          ? { id: 'u1', pendingTwoFactorSecret: null }
+          : null,
+    )
+    const req = { params: {} } as unknown as MoleculeRequest
+    const res = { locals: { session: { userId: 'u1' } } } as unknown as MoleculeResponse
+
+    const result = await readSelf(resource)(req, res)
+
+    const body = result.body as { props: Record<string, unknown>; user?: Record<string, unknown> }
+    expect(body.user?.email).toBe('me@example.com')
+    expect(body.user).toEqual(body.props)
+    // The same stripped row: no secret column reaches the client under either name.
+    expect(body.user).not.toHaveProperty('passwordHash')
+  })
+
   it('401 when there is no session (unauthenticated cookie probe)', async () => {
     const req = { params: {} } as unknown as MoleculeRequest
     const res = { locals: {} } as unknown as MoleculeResponse

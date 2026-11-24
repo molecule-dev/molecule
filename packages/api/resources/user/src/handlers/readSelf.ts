@@ -31,7 +31,9 @@ const logger = getLogger()
  * NEVER gets this field: exposing that token to JavaScript would defeat the cookie.
  * @param resource - The user resource configuration: `{ name, tableName, schema? }` (`name` and `schema` are optional here).
  * @param resource.tableName - The database table name for users.
- * @returns A request handler responding `{ statusCode: 200, body: { props, plan?, twoFactorEnabled?, accessToken? } }`, or 401 when unauthenticated.
+ * The user comes back as both `props` and `user` (the same object), the shape sign-up and log-in
+ * answer with, so one reader serves all three.
+ * @returns A request handler responding `{ statusCode: 200, body: { props, user, plan?, twoFactorEnabled?, accessToken? } }`, or 401 when unauthenticated.
  */
 export const readSelf = ({ tableName }: types.HandlerResource) => {
   return async (_req: MoleculeRequest, res: MoleculeResponse) => {
@@ -62,7 +64,8 @@ export const readSelf = ({ tableName }: types.HandlerResource) => {
       }
 
       const plan = await getPlan(user)
-      const body: Record<string, unknown> = { props: stripSensitiveUserColumns(user) }
+      const props = stripSensitiveUserColumns(user)
+      const body: Record<string, unknown> = { props, user: props }
       if (plan) {
         body.plan = plan
       }

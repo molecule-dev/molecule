@@ -294,11 +294,16 @@
  *   billing portal (update card, invoices, cancel); responds `{ url }`, optional body
  *   `{ returnPath }` to come back to a specific app page. 404 `user.payment.noBillingAccount`
  *   when the user has no customer record yet
- * - `GET    /api/users/me` — the current user (session restore) · `GET /api/users/:id` — read one
+ * - `GET    /api/users/me` — the current user `{ props, user }` (session restore), 401 when signed
+ *   out · `GET /api/users/:id` — read one
  * The full, authoritative route list is the `routes` export (see `routes.ts`).
  *
  * @example
  * ```ts
+ * // The routes it mounts (under /api) answer:
+ * //   POST /users, POST /users/log-in → { props, accessToken, user }; bad credentials → 403, not 401
+ * //   GET /users/me → { props, user }; signed out → 401
+ *
  * // Extend safely: a display field in Props, a secret in SecretProps.
  * //   propsSchema:       { …, timezone: z.string().optional() }           // safe → client
  * //   secretPropsSchema: { …, passwordResetToken: z.string().optional() } // server-only, usersSecrets
