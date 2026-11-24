@@ -60,6 +60,8 @@ export interface SidebarUserCardProps {
   className?: string
   /** Inline style for the trigger button (React's camelCase object). */
   style?: Record<string, string | number>
+  /** `data-testid` for the trigger button. */
+  testId?: string
 }
 
 /**
@@ -98,6 +100,7 @@ export const SidebarUserCard = defineComponent({
     },
     className: String,
     style: [String, Object] as PropType<SidebarUserCardProps['style'] | string>,
+    testId: String,
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
@@ -146,6 +149,7 @@ export const SidebarUserCard = defineComponent({
               ...classOf(props.className, attrs),
             ),
             style: styleOf(props.style, attrs),
+            'data-testid': props.testId,
             // React spreads the remaining button attributes last, so an
             // explicit `type` / `data-mol-id` / `title` / handler from the
             // caller overrides the defaults above.

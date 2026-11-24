@@ -31,6 +31,10 @@ export interface ThemeToggleProps {
   iconSize?: number
   /** Extra classes joined onto the toggle classes. */
   className?: string
+  /** `data-testid` for the button. */
+  testId?: string
+  /** `data-mol-id` automation id (React's `automationId`; default `theme-toggle`). */
+  automationId?: string
 }
 
 /**
@@ -48,10 +52,20 @@ export interface ThemeToggleProps {
   selector: 'button[mol-theme-toggle]',
   standalone: true,
   imports: [Icon],
-  inputs: ['ariaLabelKey', 'ariaLabelDefault', 'darkIcon', 'lightIcon', 'iconSize', 'className'],
+  inputs: [
+    'ariaLabelKey',
+    'ariaLabelDefault',
+    'darkIcon',
+    'lightIcon',
+    'iconSize',
+    'className',
+    'testId',
+    'automationId',
+  ],
   host: {
     type: 'button',
-    'data-mol-id': 'theme-toggle',
+    '[attr.data-mol-id]': 'molId()',
+    '[attr.data-testid]': 'testId',
     '[attr.data-mode]': 'mode()',
     '[attr.aria-pressed]': 'mode() === "dark" ? "true" : "false"',
     '[attr.aria-label]': 'labelText()',
@@ -77,6 +91,10 @@ export class ThemeToggle {
   iconSize?: ThemeToggleProps['iconSize']
   /** Extra classes joined onto the toggle classes. */
   className?: ThemeToggleProps['className']
+  /** `data-testid` for the button. */
+  testId?: ThemeToggleProps['testId']
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: ThemeToggleProps['automationId']
 
   /** Theme state and actions, read in the component's injection context. */
   readonly theme = useTheme()
@@ -117,6 +135,14 @@ export class ThemeToggle {
   classes(): string {
     const cm: UIClassMap = getClassMap()
     return cm.cn(cm.themeToggleButton, this.className)
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over the default).
+   * @returns The automation id.
+   */
+  molId(): string {
+    return this.automationId ?? 'theme-toggle'
   }
 
   /**

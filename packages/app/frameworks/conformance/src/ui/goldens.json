@@ -5816,6 +5816,12 @@
     ],
     "calls": []
    },
+   "testId and automationId name the trigger": {
+    "snapshots": [
+     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"header-language\" data-testid=\"language\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
    "disabled click does not open the modal": {
     "snapshots": [
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" disabled type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /",
@@ -5924,6 +5930,12 @@
    "root passthrough of className and data attributes": {
     "snapshots": [
      "<div class=\"cd75bbd18\" data-mol-id=\"decks-error\">\n<div class=\"c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cab1062ad cbbe0661c cbf033fe8 cd5bf648f ce0c57bf6 cf4bfc7bb cfc82911d\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p class=\"c445db9b9\">\nCould not load decks.\n</p>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "testId and automationId name the root": {
+    "snapshots": [
+     "<div data-mol-id=\"decks-load-error\" data-testid=\"decks-error\">\n<div class=\"c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cab1062ad cbbe0661c cbf033fe8 cd5bf648f ce0c57bf6 cf4bfc7bb cfc82911d\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p class=\"c445db9b9\">\nCould not load decks.\n</p>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -8588,6 +8600,12 @@
     ],
     "calls": []
    },
+   "testId names the trigger": {
+    "snapshots": [
+     "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" data-testid=\"account-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
    "click opens the settings drawer": {
     "snapshots": [
      "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /",
@@ -8695,6 +8713,13 @@
     "snapshots": [
      "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-account\" data-track=\"account-card\" title=\"Account\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /",
      "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-account\" data-track=\"account-card\" title=\"Account\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "testId names the trigger, with a stateful children": {
+    "snapshots": [
+     "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" data-testid=\"account-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" data-testid=\"account-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
    },
@@ -10255,6 +10280,12 @@
    "className, style and extra button attributes": {
     "snapshots": [
      "<button aria-label=\"Toggle theme\" aria-pressed=\"false\" class=\"c107b4ecd c13d4ff0f c1e8176ab c34cad77a c86f9ad24 c9773cd2b c9773e3a7 c9dd62562 cc06cf060 ccae02ff2 cd75bbd18 ce823b5bf\" data-mode=\"light\" data-mol-id=\"theme-toggle\" data-track=\"theme\" style=\"margin-left: 8px\" title=\"Theme\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5.657-8.157a.75.75 0 0 1 0 1.061l-1.061 1.06a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.06-1.06a.75.75 0 0 1 1.06 0Zm-9.193 9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 1 1-1.061-1.06l1.06-1.061a.75.75 0 0 1 1.061 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0ZM3 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm13 0a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8Zm-8 5a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13Zm3.536-1.464a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.06-1.06a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "testId and automationId name the button": {
+    "snapshots": [
+     "<button aria-label=\"Toggle theme\" aria-pressed=\"false\" class=\"c107b4ecd c13d4ff0f c1e8176ab c34cad77a c86f9ad24 c9773cd2b c9773e3a7 c9dd62562 cc06cf060 ccae02ff2 ce823b5bf\" data-mode=\"light\" data-mol-id=\"header-theme\" data-testid=\"theme\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5.657-8.157a.75.75 0 0 1 0 1.061l-1.061 1.06a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.06-1.06a.75.75 0 0 1 1.06 0Zm-9.193 9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 1 1-1.061-1.06l1.06-1.061a.75.75 0 0 1 1.061 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0ZM3 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm13 0a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8Zm-8 5a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13Zm3.536-1.464a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.06-1.06a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n@route /"
     ],
     "calls": []
    },

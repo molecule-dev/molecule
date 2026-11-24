@@ -72,6 +72,12 @@ export const sidebarUserCardCases: UIComponentCases = {
       children: panel,
     },
     {
+      name: 'testId names the trigger',
+      context: { auth: ADA },
+      props: { testId: 'account-card' },
+      children: panel,
+    },
+    {
       name: 'click opens the settings drawer',
       context: { auth: ADA },
       children: panel,

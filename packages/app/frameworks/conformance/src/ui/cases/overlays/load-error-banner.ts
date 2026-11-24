@@ -53,6 +53,11 @@ export const loadErrorBannerCases: UIComponentCases = {
       slots: { message: ['Could not load decks.'] },
     },
     {
+      name: 'testId and automationId name the root',
+      props: { testId: 'decks-error', automationId: 'decks-load-error' },
+      slots: { message: ['Could not load decks.'] },
+    },
+    {
       name: 'retry pending shows Retrying and disables the button',
       callbacks: ['onRetry'],
       callbackResults: { onRetry: { defer: true } },

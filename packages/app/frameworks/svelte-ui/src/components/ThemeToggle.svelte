@@ -21,6 +21,7 @@
     iconSize = 20,
     className,
     style,
+    testId,
     ...rest
   }: ThemeToggleProps = $props()
 
@@ -38,6 +39,7 @@
   onclick={toggleTheme}
   class={cm.cn(cm.themeToggleButton, className)}
   use:reactStyle={style}
+  data-testid={testId}
   {...reactAttrs(withoutEvents(rest))}
   use:spreadEvents={rest}
 >

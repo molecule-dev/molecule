@@ -71,6 +71,8 @@ export interface SidebarUserCardProps extends Omit<
   dataMolId?: string
   /** Extra classes on the trigger button. */
   className?: string
+  /** `data-testid` for the trigger button. */
+  testId?: string
 }
 
 /**
@@ -94,6 +96,7 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
     'dataMolId',
     'className',
     'style',
+    'testId',
   ])
 
   const cm = getClassMap()
@@ -146,6 +149,7 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
           local.className,
         )}
         style={toStyleProps(local.style)}
+        data-testid={local.testId}
         {...reactDomProps(rest)}
       >
         <Show

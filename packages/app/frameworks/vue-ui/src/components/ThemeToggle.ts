@@ -75,6 +75,7 @@ export const ThemeToggle = defineComponent({
     },
     className: String as PropType<ThemeToggleProps['className']>,
     style: [String, Object] as PropType<ThemeToggleProps['style']>,
+    testId: String as PropType<ThemeToggleProps['testId']>,
   },
   setup(props, { attrs }) {
     const cm = getClassMap()
@@ -93,6 +94,7 @@ export const ThemeToggle = defineComponent({
           onClick: toggleTheme,
           class: cm.cn(cm.themeToggleButton, ...classOf(props.className, attrs)),
           style: styleOf(props.style, attrs),
+          'data-testid': props.testId,
           ...restAttrs(attrs),
         },
         h(Icon, {

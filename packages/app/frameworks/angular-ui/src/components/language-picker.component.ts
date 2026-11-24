@@ -52,6 +52,10 @@ export interface LanguagePickerProps {
   className?: string
   /** Inline style object for the trigger button (React camelCase). */
   style?: Record<string, unknown>
+  /** `data-testid` for the trigger button. */
+  testId?: string
+  /** `data-mol-id` for the trigger button (React's `automationId`; default `language-picker-trigger`). */
+  automationId?: string
   /** Optional trigger replacement (a node value rendered as a template). */
   renderTrigger?: TemplateRef<unknown>
 }
@@ -81,6 +85,8 @@ export interface LanguagePickerProps {
     'display',
     'className',
     'style',
+    'testId',
+    'automationId',
     'renderTrigger',
   ],
   template: `@if (asTemplate(renderTrigger); as customTrigger) {
@@ -92,7 +98,8 @@ export interface LanguagePickerProps {
       <button
         #trigger
         type="button"
-        data-mol-id="language-picker-trigger"
+        [attr.data-mol-id]="automationId ?? 'language-picker-trigger'"
+        [attr.data-testid]="testId"
         [attr.aria-label]="ariaLabel()"
         (click)="open()"
         [class]="classes()"
@@ -145,6 +152,10 @@ export class LanguagePicker {
   className?: LanguagePickerProps['className']
   /** Inline style object for the trigger button (React camelCase). */
   style?: LanguagePickerProps['style']
+  /** `data-testid` for the trigger button. */
+  testId?: LanguagePickerProps['testId']
+  /** `data-mol-id` for the trigger button (React's `automationId`). */
+  automationId?: LanguagePickerProps['automationId']
   /** Optional trigger replacement (a node value rendered as a template). */
   renderTrigger?: LanguagePickerProps['renderTrigger']
 

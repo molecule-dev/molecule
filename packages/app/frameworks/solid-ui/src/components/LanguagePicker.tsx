@@ -48,6 +48,8 @@ export interface LanguagePickerProps extends Omit<
   display?: 'name' | 'code' | 'icon'
   /** Optional className appended to the trigger button. */
   className?: string
+  /** `data-testid` for the trigger button. */
+  testId?: string
   /** Optional render override: receives `{ open }` and replaces the default trigger. */
   renderTrigger?: (open: () => void) => JSX.Element
 }
@@ -72,6 +74,7 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
     'className',
     'renderTrigger',
     'style',
+    'testId',
   ])
 
   const cm = getClassMap()
@@ -107,6 +110,7 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
           onClick={() => setOpen(true)}
           class={cm.cn(cm.languagePickerTrigger, local.className)}
           style={toStyleProps(local.style)}
+          data-testid={local.testId}
           {...reactDomProps(rest)}
         >
           <Icon name={local.icon ?? 'globe'} size={local.iconSize ?? 16} />

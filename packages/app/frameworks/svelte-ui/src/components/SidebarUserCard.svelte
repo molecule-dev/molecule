@@ -25,6 +25,7 @@
     ariaLabelDefault = 'Open account menu',
     dataMolId = 'sidebar-user-card',
     className,
+    testId,
     ...rest
   }: SidebarUserCardProps = $props()
 
@@ -66,6 +67,7 @@
   onclick={() => (open = true)}
   aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
   data-mol-id={dataMolId}
+  data-testid={testId}
   class={cm.cn(
     cm.flex({ align: 'center', gap: 'sm' }),
     cm.sp('px', 3),

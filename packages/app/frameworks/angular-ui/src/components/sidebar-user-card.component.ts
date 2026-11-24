@@ -54,6 +54,8 @@ export interface SidebarUserCardProps {
   dataMolId?: string
   /** Extra classes for the trigger. */
   className?: string
+  /** `data-testid` for the trigger. */
+  testId?: string
 }
 
 /**
@@ -77,6 +79,7 @@ export interface SidebarUserCardProps {
     'ariaLabelDefault',
     'dataMolId',
     'className',
+    'testId',
   ],
   template: `<button
       #trigger
@@ -84,6 +87,7 @@ export interface SidebarUserCardProps {
       (click)="isOpen.set(true)"
       [attr.aria-label]="ariaLabel()"
       [attr.data-mol-id]="dataMolId"
+      [attr.data-testid]="testId"
       [class]="triggerClasses()"
     >
       @if (displayAvatar(); as avatar) {
@@ -123,6 +127,8 @@ export class SidebarUserCard {
   dataMolId?: SidebarUserCardProps['dataMolId'] = 'sidebar-user-card'
   /** Extra classes for the trigger. */
   className?: SidebarUserCardProps['className']
+  /** `data-testid` for the trigger. */
+  testId?: SidebarUserCardProps['testId']
 
   /** Whether the drawer is open. */
   readonly isOpen = signal(false)

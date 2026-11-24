@@ -90,6 +90,7 @@ export const LoadErrorBanner = defineComponent({
     },
     className: String as PropType<LoadErrorBannerProps['className']>,
     style: [String, Object] as PropType<LoadErrorBannerProps['style']>,
+    testId: String as PropType<LoadErrorBannerProps['testId']>,
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
@@ -146,6 +147,7 @@ export const LoadErrorBanner = defineComponent({
         {
           class: classOf(props.className, attrs),
           style: styleOf(props.style, attrs),
+          'data-testid': props.testId,
           ...restAttrs(attrs),
         },
         [

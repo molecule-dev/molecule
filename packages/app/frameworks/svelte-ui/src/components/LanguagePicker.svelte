@@ -25,6 +25,7 @@
     className,
     renderTrigger,
     style,
+    testId,
     ...rest
   }: LanguagePickerProps = $props()
 
@@ -49,6 +50,7 @@
     onclick={() => (open = true)}
     class={cm.cn(cm.languagePickerTrigger, className)}
     use:reactStyle={style}
+    data-testid={testId}
     {...reactAttrs(withoutEvents(rest))}
     use:spreadEvents={rest}
   >

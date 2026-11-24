@@ -44,6 +44,8 @@ export interface LoadErrorBannerProps extends Omit<JSX.HTMLAttributes<HTMLDivEle
   className?: string
   /** Inline styles on the root `<div>`. */
   style?: JSX.CSSProperties
+  /** `data-testid` for the root `<div>`. */
+  testId?: string
 }
 
 /**
@@ -62,6 +64,7 @@ export const LoadErrorBanner: Component<LoadErrorBannerProps> = (props) => {
     'children',
     'className',
     'style',
+    'testId',
   ])
 
   const cm = getClassMap()
@@ -84,7 +87,12 @@ export const LoadErrorBanner: Component<LoadErrorBannerProps> = (props) => {
   }
 
   return (
-    <div class={local.className} style={toStyleProps(local.style)} {...reactDomProps(rest)}>
+    <div
+      class={local.className}
+      style={toStyleProps(local.style)}
+      data-testid={local.testId}
+      {...reactDomProps(rest)}
+    >
       <Alert status="error" live={false}>
         <div class={cm.stack(2)}>
           <p class={cm.textSize('sm')}>{local.message}</p>

@@ -49,6 +49,11 @@ export const themeToggleCases: UIComponentCases = {
       },
     },
     {
+      name: 'testId and automationId name the button',
+      context: { theme: 'light' },
+      props: { testId: 'theme', automationId: 'header-theme' },
+    },
+    {
       name: 'disabled click does not flip the theme',
       context: { theme: 'light' },
       props: { disabled: true },

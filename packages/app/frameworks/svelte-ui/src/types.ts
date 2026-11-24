@@ -788,6 +788,8 @@ export interface LanguagePickerProps {
   className?: string
   /** Inline styles. */
   style?: CSSStyle
+  /** data-testid for the trigger button. */
+  testId?: string
   /** Optional render override: receives `{ open }` and replaces the default trigger. */
   renderTrigger?: Snippet<[() => void]>
   /** Any extra button attributes forwarded to the trigger. */
@@ -812,6 +814,8 @@ export interface LoadErrorBannerProps {
   className?: string
   /** Inline styles on the root. */
   style?: CSSStyle
+  /** data-testid for the root. */
+  testId?: string
   /** Any extra props forwarded to the root div. */
   [key: string]: unknown
 }
@@ -1270,6 +1274,8 @@ export interface SidebarUserCardProps {
   className?: string
   /** Inline styles on the trigger button. */
   style?: CSSStyle
+  /** data-testid for the trigger button. */
+  testId?: string
   /** Any extra button attributes forwarded to the trigger. */
   [key: string]: unknown
 }
@@ -1548,6 +1554,8 @@ export interface ThemeToggleProps {
   className?: string
   /** Inline styles. */
   style?: CSSStyle
+  /** data-testid for the button. */
+  testId?: string
   /** Any extra button attributes forwarded to the button. */
   [key: string]: unknown
 }

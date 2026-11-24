@@ -22,6 +22,7 @@
     retryLabel,
     retryMolId = 'load-error-retry',
     children,
+    testId,
     ...rest
   }: LoadErrorBannerProps = $props()
 
@@ -52,7 +53,7 @@
   }
 </script>
 
-<div {...reactAttrs(withoutEvents(rest))} use:spreadEvents={rest}>
+<div data-testid={testId} {...reactAttrs(withoutEvents(rest))} use:spreadEvents={rest}>
   <Alert status="error" live={false}>
     <div class={cm.stack(2)}>
       <p class={cm.textSize('sm')}><ReactNode node={message} /></p>

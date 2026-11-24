@@ -36,6 +36,10 @@ export const languagePickerCases: UIComponentCases = {
       },
     },
     {
+      name: 'testId and automationId name the trigger',
+      props: { testId: 'language', automationId: 'header-language' },
+    },
+    {
       name: 'disabled click does not open the modal',
       props: { disabled: true },
       interactions: [{ type: 'click', selector: '[data-mol-id="language-picker-trigger"]' }],

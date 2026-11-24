@@ -91,6 +91,7 @@ export const LanguagePicker = defineComponent({
     },
     className: String as PropType<LanguagePickerProps['className']>,
     style: [String, Object] as PropType<LanguagePickerProps['style']>,
+    testId: String as PropType<LanguagePickerProps['testId']>,
     renderTrigger: {
       type: Function as PropType<LanguagePickerProps['renderTrigger']>,
       default: undefined,
@@ -121,6 +122,7 @@ export const LanguagePicker = defineComponent({
               },
               class: cm.cn(cm.languagePickerTrigger, ...classOf(props.className, attrs)),
               style: styleOf(props.style, attrs),
+              'data-testid': props.testId,
               ...restAttrs(attrs),
             },
             [

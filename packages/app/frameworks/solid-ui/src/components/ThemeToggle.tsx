@@ -31,6 +31,8 @@ export interface ThemeToggleProps extends Omit<
   iconSize?: number
   /** Extra classes composed onto the button. */
   className?: string
+  /** `data-testid` for the button. */
+  testId?: string
 }
 
 /**
@@ -61,6 +63,7 @@ export const ThemeToggle: Component<ThemeToggleProps> = (props) => {
     'iconSize',
     'className',
     'style',
+    'testId',
   ])
 
   const cm = getClassMap()
@@ -87,6 +90,7 @@ export const ThemeToggle: Component<ThemeToggleProps> = (props) => {
       onClick={toggleTheme}
       class={cm.cn(cm.themeToggleButton, local.className)}
       style={toStyleProps(local.style)}
+      data-testid={local.testId}
       {...reactDomProps(rest)}
     >
       <Show when={mode() === 'dark'} fallback={<Icon name={lightIcon()} size={iconSize()} />}>

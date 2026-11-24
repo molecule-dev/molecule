@@ -5,7 +5,15 @@
  * @module
  */
 
-import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from '@angular/core'
+import {
+  type AfterViewChecked,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  type TemplateRef,
+  ViewChild,
+} from '@angular/core'
 
 import {
   MolPlacement,
@@ -40,6 +48,10 @@ export interface LoadErrorBannerProps {
   retryMolId?: string
   /** Extra classes for the root (React's rest `className`). */
   className?: string
+  /** `data-testid` for the root. */
+  testId?: string
+  /** `data-mol-id` for the root (React's `automationId`). */
+  automationId?: string
 }
 
 /**
@@ -56,9 +68,10 @@ export interface LoadErrorBannerProps {
   standalone: true,
   hostDirectives: [MolPlacement],
   imports: [Alert, MolTemplateOutlet],
-  inputs: ['message', 'detail', 'retryLabel', 'retryMolId', 'onRetry'],
+  inputs: ['message', 'detail', 'retryLabel', 'retryMolId', 'onRetry', 'testId', 'automationId'],
   host: {
     '[class]': 'className',
+    '[attr.data-testid]': 'testId',
   },
   template: `<div mol-alert [status]="'error'" [live]="false">
     <div [class]="cm().stack(2)">
@@ -92,7 +105,7 @@ export interface LoadErrorBannerProps {
     </div>
   </div>`,
 })
-export class LoadErrorBanner {
+export class LoadErrorBanner implements AfterViewChecked {
   /** The primary error line (node-valued prop). */
   message?: LoadErrorBannerProps['message']
   /** Secondary line under the message (node-valued prop). */
@@ -105,6 +118,10 @@ export class LoadErrorBanner {
   onRetry?: LoadErrorBannerProps['onRetry']
   /** Extra classes for the root (React's rest `className`). */
   className?: LoadErrorBannerProps['className']
+  /** `data-testid` for the root. */
+  testId?: LoadErrorBannerProps['testId']
+  /** `data-mol-id` for the root (React's `automationId`). */
+  automationId?: LoadErrorBannerProps['automationId']
 
   /** Template helpers (templates see only class members). */
   readonly asTemplate = asTemplate
@@ -129,6 +146,29 @@ export class LoadErrorBanner {
    * does not).
    */
   private readonly i18n = useTranslation()
+
+  /** The host element, which is React's root `<div>`. */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** The `data-mol-id` this component last wrote (React's `automationId` wins over a rest `data-mol-id`). */
+  private lastWrittenMolId: string | null = null
+
+  /**
+   * Applies React's `rootProps` precedence on the root: a rest `data-mol-id`
+   * bound on the tag stays, and `automationId` overrides it when given (and
+   * leaves no stale value once cleared).
+   */
+  ngAfterViewChecked(): void {
+    const host = this.host.nativeElement
+    const current = host.getAttribute('data-mol-id')
+    if (this.automationId !== undefined) {
+      if (current !== this.automationId) host.setAttribute('data-mol-id', this.automationId)
+      this.lastWrittenMolId = this.automationId
+      return
+    }
+    if (current !== null && current === this.lastWrittenMolId) host.removeAttribute('data-mol-id')
+    this.lastWrittenMolId = null
+  }
 
   /** Whether the projected retry label exists (a signal the placement function sets). */
   private readonly hasRetryLabel = signal(false)
