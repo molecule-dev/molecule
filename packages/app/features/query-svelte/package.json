@@ -62,7 +62,7 @@
     "@molecule/app-query-memory": "1.1.0",
     "@molecule/app-query-tanstack": "1.1.0",
     "@molecule/app-svelte": "3.14.1",
-    "@molecule/app-ui": "1.6.0",
+    "@molecule/app-ui": "1.6.1",
     "@molecule/app-ui-svelte": "1.4.3",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",

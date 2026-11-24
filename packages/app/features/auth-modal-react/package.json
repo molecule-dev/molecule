@@ -50,7 +50,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-oauth-buttons-react": "4.1.0",
     "@molecule/app-react": "4.13.0",
-    "@molecule/app-ui": "1.6.0",
+    "@molecule/app-ui": "1.6.1",
     "@molecule/app-ui-react": "4.4.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

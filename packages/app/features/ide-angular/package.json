@@ -95,7 +95,7 @@
     "@molecule/app-locales-ide": "1.12.0",
     "@molecule/app-logger": "1.1.0",
     "@molecule/app-storage": "1.1.1",
-    "@molecule/app-ui": "1.6.0",
+    "@molecule/app-ui": "1.6.1",
     "@molecule/app-ui-angular": "1.5.3",
     "@molecule/app-ui-tailwind": "1.4.0",
     "@testing-library/dom": "10.4.2",

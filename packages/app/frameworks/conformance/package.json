@@ -299,7 +299,7 @@
     "@molecule/app-transactions-table-react": "4.0.3",
     "@molecule/app-trend-chip-react": "4.0.2",
     "@molecule/app-typing-indicator-react": "4.0.2",
-    "@molecule/app-ui": "1.6.0",
+    "@molecule/app-ui": "1.6.1",
     "@molecule/app-ui-react": "4.4.0",
     "@molecule/app-ui-tailwind": "1.4.0",
     "@molecule/app-utilities": "1.0.7",

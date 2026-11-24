@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.6.1
+
+### Patch Changes
+
+- The elements' boolean ARIA props take `'true'` and `'false'` as React DOM does.
+
 ## 1.6.0
 
 ### Minor Changes

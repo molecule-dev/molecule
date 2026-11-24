@@ -63,7 +63,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-svelte": "3.14.1",
-    "@molecule/app-ui": "1.6.0",
+    "@molecule/app-ui": "1.6.1",
     "@molecule/app-ui-svelte": "1.4.3",
     "@molecule/app-ui-tailwind": "1.4.0",
     "@sveltejs/package": "3.0.2",
