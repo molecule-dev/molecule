@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.14.0
+
+### Minor Changes
+
+- Add `ContentOrElse` and `isContentNode`, so content that renders nothing shows its fallback, and let `PresentWhileContent` take a `present` decision and link attributes.
+
 ## 3.13.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.11.1
+
+### Patch Changes
+
+- `GET /users/me` also returns the user as `user`, the shape sign-up and log-in return.
+
 ## 1.11.0
 
 ### Minor Changes

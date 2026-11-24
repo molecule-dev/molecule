@@ -1,5 +1,11 @@
 # @molecule/app-e2e
 
+## 1.3.0
+
+### Minor Changes
+
+- `e2eRunnerDefaults()` adds Playwright `webServer` entries from the new `e2eDevServers()`: the app's dev server and the API beside it start when nothing answers yet, and a running one is reused.
+
 ## 1.2.5
 
 ### Patch Changes

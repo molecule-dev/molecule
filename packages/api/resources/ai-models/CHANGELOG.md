@@ -1,5 +1,12 @@
 # @molecule/api-resource-ai-models
 
+## 1.23.0
+
+### Minor Changes
+
+- Adds deepseek-v4-flash-vision-exp (US re-host $0.44/$1.32, cached $0.014) — the experimental vision-tuned V4 Flash, served on DeepInfra.
+- Adds Google's Gemini 4 Neon model ($3/$15 per MTok) to the catalog.
+
 ## 1.22.1
 
 ### Patch Changes

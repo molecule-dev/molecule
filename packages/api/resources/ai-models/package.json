@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-ai-models",
-  "version": "1.22.1",
+  "version": "1.23.0",
   "description": "Server-side AI model catalog plus GET /ai/models endpoint",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.14.0
+
+### Minor Changes
+
+- Add `ResolveNode`, `PresentWhileNode` and `createNodePresence`, so a node prop is created once where it renders and only while it is shown.
+
 ## 3.13.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.14.0
+
+### Minor Changes
+
+- Add `MolLazy`, `MolSlotCopy`, `rendersNode`, `isElementChild` and `slotElement`, so slot content is created only where and while a component shows it, as React mounts it.
+
 ## 3.13.0
 
 ### Minor Changes
