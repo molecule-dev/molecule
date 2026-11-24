@@ -532,6 +532,24 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   snapshot sibling). Knowledge cutoff: not published by either host —
  *   best-effort estimate. qwen4-max supersedes qwen3.8-max: same
  *   agentic-flagship tier, cheaper at list on both hosts.)
+ *   (re-verified 2026-11-24: models.dev indexed qwen4-max that day carrying
+ *   the EXPLICIT 5m cache-creation rate ($1.875 = 125% of input) as its
+ *   cache_write. The split was re-checked the same day on the provider's own
+ *   pages — context-cache (EN: "No additional fees are charged for enabling
+ *   the implicit cache mode", non-hit input billed as standard input_token),
+ *   explicit-cache-qwen4 (5m creation ~125%, 1h ~200%), and the
+ *   model-pricing page's cache note — and a live probe showed the bond's
+ *   system-block cache_control marker leaves a Chat Completions request in
+ *   IMPLICIT mode (usage: no cache_creation fields; the explicit
+ *   prompt_cache_breakpoint form reports them), so the catalog keeps
+ *   cache write at 1× input and the divergence is recorded in
+ *   check-model-freshness.mjs's KNOWN_DIVERGENCES like the qwen3.x
+ *   siblings. DeepInfra's Qwen/Qwen4-Max card re-read live: unchanged.
+ *   qwen3-coder-plus's US/DeepInfra card also re-verified unchanged
+ *   ($0.30/$1, cache read 0.3333× input = $0.10, not deprecated) — its
+ *   natively-retired id will never appear under models.dev's alibaba
+ *   provider, so the freshness check now suppresses that model's
+ *   "not found" warning as re-host-only.)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing + docs.z.ai/guides/llm/
  *   glm-5.3 (verified 2026-08-26: glm-5.3 shipped 2026-08-14 and IS in the
  *   catalog — $1.40/$4.40, cached $0.26, i.e. glm-5.2's card unchanged, 1M ctx,
@@ -3191,6 +3209,18 @@ export const MODELS: readonly ModelDefinition[] = [
     // Implicit creation is billed at plain input (write 1×); the explicit 5m
     // creation premium is 125% = $1.875, which implicit-mode billing never
     // charges.
+    // Re-verified 2026-11-24 (models.dev indexed qwen4-max that day carrying
+    // the EXPLICIT 5m rate $1.875 as its cache_write): the split still holds
+    // on the provider's own pages — context-cache (EN) says "No additional
+    // fees are charged for enabling the implicit cache mode" with non-hit
+    // input billed as standard input_token, and explicit-cache-qwen4
+    // publishes 5m creation ~125%, 1h ~200%. Live probe the same day: the
+    // alibaba bond's system-block cache_control marker does NOT put a Chat
+    // Completions request into explicit mode (usage carries no
+    // cache_creation/cache_type fields; an explicit prompt_cache_breakpoint
+    // request does) — so our traffic's cache writes bill at plain input and
+    // $1.5 stands. Recorded as a KNOWN_DIVERGENCES entry in
+    // check-model-freshness.mjs, like the qwen3.x siblings.
     inputPricePerMTok: 1.5,
     outputPricePerMTok: 4.5,
     cacheReadPricePerMTok: 0.075,
@@ -3201,6 +3231,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // 0.0502477× input = $0.071, no write premium (omitted → region input).
     // The host's live model list carries exactly one qwen4 id — no dated
     // snapshot sibling — and the entry is not deprecated.
+    // Re-verified 2026-11-24: same card live ($1.413/$4.24, read $0.071, no
+    // write premium, not deprecated, multimodal + input-video tags).
     regionPricing: {
       us: { inputPricePerMTok: 1.413, outputPricePerMTok: 4.24, cacheReadPricePerMTok: 0.071 },
     },
