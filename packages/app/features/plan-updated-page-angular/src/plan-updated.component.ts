@@ -50,6 +50,7 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-angular'
     'actionKey',
     'actionDefault',
     'actionHref',
+    'receiptHref',
     'provider',
     'verify',
   ],
@@ -102,15 +103,17 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-angular'
             {{ action() }}
           </button>
         </a>
-        <div [class]="cm().sp('mt', 6)">
-          <a
-            [molLink]="'/billing'"
-            [class]="receiptClasses()"
-            data-mol-id="plan-updated-view-receipt"
-          >
-            {{ t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' }) }}
-          </a>
-        </div>
+        @if (receiptHrefValue(); as receipt) {
+          <div [class]="cm().sp('mt', 6)">
+            <a
+              [molLink]="receipt"
+              [class]="receiptClasses()"
+              data-mol-id="plan-updated-view-receipt"
+            >
+              {{ t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' }) }}
+            </a>
+          </div>
+        }
       </section>
     }`,
 })
@@ -129,6 +132,8 @@ export class PlanUpdated implements OnInit {
   actionDefault?: string
   /** Href the return-home action navigates to (default `/`). */
   actionHref?: string
+  /** Where the "View receipt" link goes (default `/billing`); `null` leaves the link out. */
+  receiptHref?: string | null
   /** Provider name to verify the purchase with when the URL names none. */
   provider?: string
   /** `false` renders the confirmation without verifying the purchase. */
@@ -268,6 +273,14 @@ export class PlanUpdated implements OnInit {
    */
   protected actionHrefValue(): string {
     return this.actionHref ?? '/'
+  }
+
+  /**
+   * The receipt link's destination, or `null` when the app has no billing page.
+   * @returns The href, or `null`.
+   */
+  protected receiptHrefValue(): string | null {
+    return this.receiptHref === undefined ? '/billing' : this.receiptHref
   }
 
   /**

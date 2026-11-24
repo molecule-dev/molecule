@@ -53,6 +53,8 @@ export const PlanUpdated: Component<PlanUpdatedProps> = (props) => {
   const actionKey = (): string => props.actionKey ?? 'planUpdated.returnHome'
   const actionDefault = (): string => props.actionDefault ?? 'Return home'
   const actionHref = (): string => props.actionHref ?? '/'
+  const receiptHref = (): string | null =>
+    props.receiptHref === undefined ? '/billing' : props.receiptHref
   const waiting = (): boolean => !auth.state().initialized || verification.status() === 'verifying'
   const failed = (): boolean => verification.status() === 'failed'
 
@@ -146,22 +148,26 @@ export const PlanUpdated: Component<PlanUpdatedProps> = (props) => {
               {t(actionKey(), {}, { defaultValue: actionDefault() })}
             </Button>
           </Link>
-          <div class={cm.sp('mt', 6)}>
-            <Link
-              to="/billing"
-              class={cm.cn(
-                cm.textSize('xs'),
-                cm.textSubtle,
-                cm.uppercase,
-                cm.trackingWide,
-                cm.fontWeight('semibold'),
-                cm.link,
-              )}
-              data-mol-id="plan-updated-view-receipt"
-            >
-              {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
-            </Link>
-          </div>
+          <Show when={receiptHref()}>
+            {(href) => (
+              <div class={cm.sp('mt', 6)}>
+                <Link
+                  to={href()}
+                  class={cm.cn(
+                    cm.textSize('xs'),
+                    cm.textSubtle,
+                    cm.uppercase,
+                    cm.trackingWide,
+                    cm.fontWeight('semibold'),
+                    cm.link,
+                  )}
+                  data-mol-id="plan-updated-view-receipt"
+                >
+                  {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
+                </Link>
+              </div>
+            )}
+          </Show>
         </section>
       </Show>
     </Show>

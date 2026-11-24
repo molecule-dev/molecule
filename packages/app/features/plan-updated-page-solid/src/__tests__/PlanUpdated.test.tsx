@@ -138,4 +138,11 @@ describe('PlanUpdated', () => {
       expect.objectContaining({ enabled: false }),
     )
   })
+
+  it('leaves the receipt link out when the app has no billing page', () => {
+    expect(mount().innerHTML).toContain('View receipt')
+    const markup = mount({ receiptHref: null }).innerHTML
+    expect(markup).not.toContain('View receipt')
+    expect(markup).toContain('Thank you!')
+  })
 })

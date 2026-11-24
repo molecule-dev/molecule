@@ -23,6 +23,7 @@
     actionKey = 'planUpdated.returnHome',
     actionDefault = 'Return home',
     actionHref = '/',
+    receiptHref = '/billing',
     provider,
     verify = true,
   }: PlanUpdatedProps = $props()
@@ -110,21 +111,23 @@
         {t(actionKey, {}, { defaultValue: actionDefault })}
       </Button>
     </Link>
-    <div class={cm.sp('mt', 6)}>
-      <Link
-        to="/billing"
-        class={cm.cn(
-          cm.textSize('xs'),
-          cm.textSubtle,
-          cm.uppercase,
-          cm.trackingWide,
-          cm.fontWeight('semibold'),
-          cm.link,
-        )}
-        data-mol-id="plan-updated-view-receipt"
-      >
-        {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
-      </Link>
-    </div>
+    {#if receiptHref !== null}
+      <div class={cm.sp('mt', 6)}>
+        <Link
+          to={receiptHref}
+          class={cm.cn(
+            cm.textSize('xs'),
+            cm.textSubtle,
+            cm.uppercase,
+            cm.trackingWide,
+            cm.fontWeight('semibold'),
+            cm.link,
+          )}
+          data-mol-id="plan-updated-view-receipt"
+        >
+          {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
+        </Link>
+      </div>
+    {/if}
   </section>
 {/if}

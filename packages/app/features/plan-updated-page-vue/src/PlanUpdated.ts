@@ -66,6 +66,10 @@ export const PlanUpdated = defineComponent({
       type: String,
       default: '/',
     },
+    receiptHref: {
+      type: String,
+      default: '/billing',
+    },
     provider: String,
     verify: {
       type: Boolean,
@@ -227,28 +231,30 @@ export const PlanUpdated = defineComponent({
               ],
             },
           ),
-          h('div', { class: cm.sp('mt', 6) }, [
-            h(
-              Link,
-              {
-                to: '/billing',
-                class: cm.cn(
-                  cm.textSize('xs'),
-                  cm.textSubtle,
-                  cm.uppercase,
-                  cm.trackingWide,
-                  cm.fontWeight('semibold'),
-                  cm.link,
+          props.receiptHref === null
+            ? null
+            : h('div', { class: cm.sp('mt', 6) }, [
+                h(
+                  Link,
+                  {
+                    to: props.receiptHref ?? '/billing',
+                    class: cm.cn(
+                      cm.textSize('xs'),
+                      cm.textSubtle,
+                      cm.uppercase,
+                      cm.trackingWide,
+                      cm.fontWeight('semibold'),
+                      cm.link,
+                    ),
+                    'data-mol-id': 'plan-updated-view-receipt',
+                  },
+                  {
+                    default: () => [
+                      t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' }),
+                    ],
+                  },
                 ),
-                'data-mol-id': 'plan-updated-view-receipt',
-              },
-              {
-                default: () => [
-                  t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' }),
-                ],
-              },
-            ),
-          ]),
+              ]),
         ],
       )
     }

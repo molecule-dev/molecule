@@ -23,6 +23,11 @@ export interface PlanUpdatedProps {
   /** Href the return-home action navigates to. Defaults to `/`. */
   actionHref?: string
   /**
+   * Where the "View receipt" link goes. Defaults to `/billing`; `null` leaves the link out,
+   * for an app with no billing page.
+   */
+  receiptHref?: string | null
+  /**
    * Provider name to verify the purchase with when the return URL carries no
    * `provider` parameter (older checkout sessions). Verification is skipped
    * when neither names one.
@@ -48,8 +53,8 @@ export interface PlanUpdatedProps {
  * Those three translation keys are part of the universal common-locale
  * bond (`@molecule/app-locales-common`); the always-rendered "View
  * receipt" link uses `planUpdated.viewReceipt` from the companion bond
- * `@molecule/app-locales-plan-updated-page` and navigates to the
- * hardcoded `/billing` route. Visual layout uses only ClassMap tokens so
+ * `@molecule/app-locales-plan-updated-page` and navigates to `receiptHref`
+ * (`/billing` by default; `null` leaves it out). Visual layout uses only ClassMap tokens so
  * it inherits the app's theme (radius, color tokens, spacing) with no
  * per-app override.
  *
@@ -64,6 +69,7 @@ export function PlanUpdated({
   actionKey = 'planUpdated.returnHome',
   actionDefault = 'Return home',
   actionHref = '/',
+  receiptHref = '/billing',
   provider,
   verify = true,
 }: PlanUpdatedProps = {}): React.JSX.Element {
@@ -159,22 +165,24 @@ export function PlanUpdated({
           {t(actionKey, {}, { defaultValue: actionDefault })}
         </Button>
       </Link>
-      <div className={cm.sp('mt', 6)}>
-        <Link
-          to="/billing"
-          className={cm.cn(
-            cm.textSize('xs'),
-            cm.textSubtle,
-            cm.uppercase,
-            cm.trackingWide,
-            cm.fontWeight('semibold'),
-            cm.link,
-          )}
-          data-mol-id="plan-updated-view-receipt"
-        >
-          {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
-        </Link>
-      </div>
+      {receiptHref !== null && (
+        <div className={cm.sp('mt', 6)}>
+          <Link
+            to={receiptHref}
+            className={cm.cn(
+              cm.textSize('xs'),
+              cm.textSubtle,
+              cm.uppercase,
+              cm.trackingWide,
+              cm.fontWeight('semibold'),
+              cm.link,
+            )}
+            data-mol-id="plan-updated-view-receipt"
+          >
+            {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
+          </Link>
+        </div>
+      )}
     </section>
   )
 }

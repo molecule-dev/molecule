@@ -116,4 +116,12 @@ describe('PlanUpdated', () => {
       expect.objectContaining({ enabled: false }),
     )
   })
+
+  // An app with no billing page (a starter) must not link to one.
+  it('leaves the receipt link out when the app has no billing page', () => {
+    expect(html(createElement(PlanUpdated))).toContain('View receipt')
+    const markup = html(createElement<PlanUpdatedProps>(PlanUpdated, { receiptHref: null }))
+    expect(markup).not.toContain('View receipt')
+    expect(markup).toContain('Thank you!')
+  })
 })

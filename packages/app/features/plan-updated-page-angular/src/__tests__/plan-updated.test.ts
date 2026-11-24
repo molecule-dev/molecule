@@ -138,7 +138,7 @@ interface Mounted {
 }
 
 /** The host template: the component element with every prop bound. */
-const TEMPLATE = `<mol-plan-updated [messageKey]="p['messageKey']" [messageDefault]="p['messageDefault']" [thankYouKey]="p['thankYouKey']" [thankYouDefault]="p['thankYouDefault']" [actionKey]="p['actionKey']" [actionDefault]="p['actionDefault']" [actionHref]="p['actionHref']" [provider]="p['provider']" [verify]="p['verify']"></mol-plan-updated>`
+const TEMPLATE = `<mol-plan-updated [messageKey]="p['messageKey']" [messageDefault]="p['messageDefault']" [thankYouKey]="p['thankYouKey']" [thankYouDefault]="p['thankYouDefault']" [actionKey]="p['actionKey']" [actionDefault]="p['actionDefault']" [actionHref]="p['actionHref']" [receiptHref]="p['receiptHref']" [provider]="p['provider']" [verify]="p['verify']"></mol-plan-updated>`
 
 /**
  * Mounts the component through a JIT host template, written the way an Angular
@@ -250,6 +250,16 @@ describe('PlanUpdated', () => {
     expect(mockUseVerifyPaymentReturn).toHaveBeenCalledWith(
       expect.objectContaining({ enabled: false }),
     )
+  })
+
+  it('leaves the receipt link out when the app has no billing page', async () => {
+    const linked = await mount()
+    mounted.push(linked)
+    expect(linked.host.innerHTML).toContain('View receipt')
+    const m = await mount({ receiptHref: null })
+    mounted.push(m)
+    expect(m.host.innerHTML).not.toContain('View receipt')
+    expect(m.host.innerHTML).toContain('Thank you!')
   })
 
   it("renders React's elements with no host or capture element of its own", async () => {

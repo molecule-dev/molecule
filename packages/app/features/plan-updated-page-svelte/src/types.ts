@@ -25,6 +25,11 @@ export interface PlanUpdatedProps {
   /** Href the return-home action navigates to. Defaults to `/`. */
   actionHref?: string
   /**
+   * Where the "View receipt" link goes. Defaults to `/billing`; `null` leaves the link out,
+   * for an app with no billing page.
+   */
+  receiptHref?: string | null
+  /**
    * Provider name to verify the purchase with when the return URL carries no
    * `provider` parameter (older checkout sessions). Verification is skipped
    * when neither names one.
