@@ -13,7 +13,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import semver from 'semver'
-import { afterAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The cache location is read when the module loads, so it is set before the import.
 const cache = vi.hoisted(() => {
@@ -44,6 +44,17 @@ import {
 afterAll(() => {
   rmSync(cache, { recursive: true, force: true })
   delete process.env.MOL_PEER_FLOORS_CACHE
+})
+
+// The pre-commit hook and the release run these tests with MOL_INDEX_REPO naming the molecule
+// checkout, for the checks they run from an export. A test reads the history of the repository it
+// builds, so each starts without it, and the export cases name their repository themselves
+// (2026-11-24: the release's run read molecule's history for a test repository, and refused).
+beforeEach(() => {
+  vi.stubEnv('MOL_INDEX_REPO', '')
+})
+afterEach(() => {
+  vi.unstubAllEnvs()
 })
 
 /** Write files under a fresh temporary root. */
