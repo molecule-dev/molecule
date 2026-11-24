@@ -62,6 +62,8 @@ import {
   untracked,
 } from '@angular/core'
 
+import { isLazySlotAnchor, isLazySlotContent } from './lazy-slot.js'
+
 /** Set once {@link provideDomPlacement} decorated the application's renderer factory. */
 const DOM_PLACEMENT = new InjectionToken<true>('@molecule/app-angular DOM placement')
 
@@ -428,11 +430,19 @@ function contentChanged(parent: Node | null): void {
  * and fills it in the same pass, so an empty text node is a child; comments are
  * Angular's own block anchors.
  *
+ * Whitespace-only text is indentation, on one line too: Angular collapses a
+ * template's line breaks around an interpolation into spaces in the same text
+ * node (`\n  {{ x }}\n` renders `'  '` while `x` is empty), the
+ * formatting JSX drops when it compiles. A consumer's deliberate `{{ ' ' }}`
+ * renders the same DOM, so it reads as no content here, where React's
+ * `slot(' ')` counts it; nothing in the page tells the two apart.
+ *
  * @param node - The node Angular is placing.
  * @returns Whether the node gets its own wrapper.
  */
 function isChild(node: Node): boolean {
-  if (node.nodeType === 1) return true
+  // A lazy slot is one child, stamped or not; its content is stamped inside the anchor's wrapper.
+  if (node.nodeType === 1 || isLazySlotAnchor(node)) return true
   if (node.nodeType !== 3) return false
   const text = (node as Text).data
   return text.length === 0 || text.trim() !== ''
@@ -604,7 +614,11 @@ function withPlacement(renderer: Renderer2): Renderer2 {
     }
     dropPlaceholder(child)
     const from = child.parentNode
-    const before = ref === null ? null : placeOf(ref, parent)
+    // A lazy slot's content goes right before its anchor, wherever a component placed the anchor
+    // (placeElement): Angular names the slot's own parent, where the anchor no longer is.
+    const lazyAnchor = ref !== null && isLazySlotAnchor(ref) && ref.parentNode !== null
+    if (lazyAnchor) parent = ref.parentNode as Node
+    const before = ref === null ? null : lazyAnchor ? ref : placeOf(ref, parent)
     const owner = wrappingParents.get(parent)
     let node = child
     if (owner !== undefined && isChild(child)) {
@@ -1097,7 +1111,8 @@ export function placeContentBefore(
  * content: an element, or text that is not template indentation. It reads the
  * content wherever {@link placeContent} rendered it, so a component that moved
  * its slot elsewhere still sees it. Comments (Angular's anchors) are not
- * content.
+ * content, except the anchor of a `*molLazy` slot ({@link isLazySlotAnchor}),
+ * stamped or not: its wrapper must be in the page for it to be stamped.
  *
  * @param capture - The element Angular projected the content into.
  * @param ownLeadingNodes - How many of the capture's first child nodes the
@@ -1113,7 +1128,8 @@ function contentOf(capture: Node | null | undefined, ownLeadingNodes = 0): boole
  * A slot's React children, wherever {@link placeContent} rendered them: its
  * elements and its text that is not template indentation, in order. A
  * projected component that renders nothing counts as the placeholder that
- * holds its place.
+ * holds its place, and a `*molLazy` slot as its anchor comment, stamped or
+ * not ({@link isLazySlotAnchor}).
  *
  * @param capture - The element Angular projected the content into.
  * @param firstOnly - Stop at the first child.
@@ -1142,8 +1158,11 @@ function childrenOf(
       node.nodeType === 1 ||
       (node.nodeType === 3 && (node as Text).data.trim() !== '') ||
       // A projected component that renders nothing is still a child React was given.
-      heldPlaces.has(node)
-    if (!isContent) continue
+      heldPlaces.has(node) ||
+      // A lazy slot is one child, its anchor, whether or not its content is stamped (React's
+      // `children` holds the element either way); its stamped nodes are that child, not others.
+      isLazySlotAnchor(node)
+    if (!isContent || isLazySlotContent(node)) continue
     children.push(node)
     if (firstOnly) break
   }
@@ -1181,12 +1200,18 @@ export interface SlotReader {
   /**
    * The slot's React children (`React.Children.toArray(slot)`): its elements
    * and its text that is not template indentation, in order, wherever
-   * {@link placeContent} rendered them.
+   * {@link placeContent} rendered them. A `*molLazy` slot is one child, its
+   * anchor comment, whether or not its content is stamped: hide that node to
+   * hide the child, and its content is destroyed until it shows again.
+   *
+   * The same array comes back while the children are the same nodes, so it can be kept in a
+   * signal (`children.set(hasContent.nodes(capture))`) and passed to a binding: the placement
+   * function runs after every render, and a new array each time would render again forever.
    *
    * @param capture - The element Angular projected the content into.
    * @returns The children.
    */
-  nodes(capture: Node | null | undefined): Node[]
+  nodes(capture: Node | null | undefined): readonly Node[]
 }
 
 /**
@@ -1269,9 +1294,22 @@ export function usePlacement(place: (hasContent: SlotReader) => void): void {
     inRun()
     return contentOf(capture, ownLeadingNodes)
   }) as SlotReader
+  /** The last children read from each capture, returned again while they are the same nodes. */
+  const lastNodes = new WeakMap<Node, readonly Node[]>()
   hasContent.nodes = (capture) => {
     inRun()
-    return childrenOf(capture, false)
+    const nodes = childrenOf(capture, false)
+    if (!capture) return nodes
+    const last = lastNodes.get(capture)
+    if (
+      last !== undefined &&
+      last.length === nodes.length &&
+      last.every((n, i) => n === nodes[i])
+    ) {
+      return last
+    }
+    lastNodes.set(capture, nodes)
+    return nodes
   }
   const host = inject(ElementRef).nativeElement as Element
   // Absent when a test calls usePlacement outside a component.
