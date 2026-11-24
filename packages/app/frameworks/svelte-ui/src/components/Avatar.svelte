@@ -7,6 +7,7 @@
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { contentPresence, renderedContentCount } from '../content-presence.js'
   import { spreadEvents } from '../dom.js'
   import { reactInitials } from '../initials.js'
   import { reactStyle } from '../style.js'
@@ -37,6 +38,16 @@
     cm.cn(cm.avatar({ size: avatarSize }), !rounded && cm.avatarSquare, className),
   )
   const customSize = $derived(typeof size === 'number' ? { width: size, height: size } : undefined)
+  // A fallback that renders nothing (React's `slot(fallback)`) falls back to
+  // the initials or the icon, so the custom content is measured, with the
+  // alternative counted as the component's own fallback.
+  let customFallback = $state(false)
+  const reportFallback = (renders: boolean): void => {
+    customFallback = renders
+  }
+  const fallbackPresence = contentPresence(reportFallback, {
+    renders: (element) => renderedContentCount(element) > (customFallback ? 0 : 1),
+  })
   // Every other declared prop (id, title, aria-*, data-*, automationId as
   // data-mol-id, the DOM event handlers) reaches the root.
   const attributes = $derived(reactAttrs(withoutEvents(rest)))
@@ -60,13 +71,16 @@
       }}
     />
   {:else}
-    <div class={cm.avatarFallback}>
+    <div class={cm.avatarFallback} {@attach fallbackPresence}>
       {#if fallback}
         {@render fallback?.()}
-      {:else if name}
-        <span class={cm.avatarInitials}>{reactInitials(name)}</span>
-      {:else}
-        <IconGlyph name="user" className={cm.avatarFallbackIcon} />
+      {/if}
+      {#if !customFallback}
+        {#if name}
+          <span class={cm.avatarInitials}>{reactInitials(name)}</span>
+        {:else}
+          <IconGlyph name="user" className={cm.avatarFallbackIcon} />
+        {/if}
       {/if}
     </div>
   {/if}

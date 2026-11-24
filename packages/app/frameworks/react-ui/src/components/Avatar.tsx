@@ -7,6 +7,7 @@
 import React, { forwardRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,9 +20,21 @@ import { rootProps } from '../utilities/rootProps.js'
  */
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
   (
-    { src, alt, name, size = 'md', rounded = true, fallback, className, style, testId, ...rest },
+    {
+      src,
+      alt,
+      name,
+      size = 'md',
+      rounded = true,
+      fallback: fallbackProp,
+      className,
+      style,
+      testId,
+      ...rest
+    },
     ref,
   ) => {
+    const fallback = slot(fallbackProp as React.ReactNode)
     const [imageError, setImageError] = useState(false)
     const { t } = useTranslation()
 
@@ -57,7 +70,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         ) : (
           <div className={cm.avatarFallback}>
             {fallback ? (
-              (fallback as React.ReactNode)
+              fallback
             ) : name ? (
               <span className={cm.avatarInitials}>{getInitials(name)}</span>
             ) : (

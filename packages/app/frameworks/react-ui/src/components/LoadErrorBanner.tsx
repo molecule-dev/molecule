@@ -43,6 +43,7 @@ import type { JSX } from 'react'
 import React, { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Alert } from './Alert.js'
@@ -81,13 +82,15 @@ export interface LoadErrorBannerProps extends Omit<
  */
 export function LoadErrorBanner({
   message,
-  detail,
+  detail: detailProp,
   onRetry,
-  retryLabel,
+  retryLabel: retryLabelProp,
   retryMolId = 'load-error-retry',
   children,
   ...rest
 }: LoadErrorBannerProps): JSX.Element {
+  const detail = slot(detailProp)
+  const retryLabel = slot(retryLabelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [pending, setPending] = useState(false)

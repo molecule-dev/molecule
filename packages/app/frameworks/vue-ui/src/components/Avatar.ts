@@ -9,7 +9,7 @@ import { defineComponent, h, type PropType, ref, type VNode } from 'vue'
 import { getIcon, type IconName } from '@molecule/app-icons'
 import type { AvatarProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -104,7 +104,8 @@ export const Avatar = defineComponent({
           ? { width: `${props.size}px`, height: `${props.size}px` }
           : undefined
 
-      const fallback = props.fallback ?? slots.fallback?.()
+      const customFallback = props.fallback ?? slots.fallback?.()
+      const fallback = toChildArray(customFallback).length > 0 ? customFallback : undefined
 
       return h(
         'div',

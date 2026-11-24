@@ -10,6 +10,7 @@
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { contentPresence, renderedContentCount } from '../content-presence.js'
   import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { TableColumnSpec, TableProps } from '../types.js'
@@ -65,6 +66,16 @@
   ): render is Snippet<[unknown, Record<string, unknown>, number]> => render.length > 0
 
   const tableClasses = $derived(cm.cn(cm.table, bordered && cm.tableBordered, className))
+  // Empty content that renders nothing (React's `emptyContent || default`)
+  // falls back to "No data available", so the custom content is measured with
+  // the default message counted as the component's own fallback.
+  let hasEmptyContent = $state(false)
+  const reportEmptyContent = (renders: boolean): void => {
+    hasEmptyContent = renders
+  }
+  const emptyContentPresence = contentPresence(reportEmptyContent, {
+    renders: (element) => renderedContentCount(element) > (hasEmptyContent ? 0 : 1),
+  })
   // Every other declared prop (id, title, aria-*, data-*, automationId as
   // data-mol-id, the DOM event handlers) reaches the <table>.
   const attributes = $derived(reactAttrs(withoutEvents(rest)))
@@ -121,12 +132,11 @@
     <tbody class={cm.tableBody}>
       {#if data.length === 0}
         <tr>
-          <td colspan={columns.length} class={cm.tableEmptyCell}>
-            {#if emptyContent}<ReactNode node={emptyContent} />{:else}{t(
-                'ui.table.empty',
-                undefined,
-                { defaultValue: 'No data available' },
-              )}{/if}
+          <td colspan={columns.length} class={cm.tableEmptyCell} {@attach emptyContentPresence}>
+            {#if emptyContent}<ReactNode node={emptyContent} />{/if}
+            {#if !hasEmptyContent}{t('ui.table.empty', undefined, {
+                defaultValue: 'No data available',
+              })}{/if}
           </td>
         </tr>
       {:else}

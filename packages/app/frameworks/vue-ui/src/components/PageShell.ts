@@ -8,7 +8,7 @@ import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -54,8 +54,10 @@ export const PageShell = defineComponent({
     const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
-      const sidebar = props.sidebar ?? slots.sidebar?.()
-      const topbar = props.topbar ?? slots.topbar?.()
+      const sidebarNode = props.sidebar ?? slots.sidebar?.()
+      const sidebar = toChildArray(sidebarNode).length > 0 ? sidebarNode : undefined
+      const topbarNode = props.topbar ?? slots.topbar?.()
+      const topbar = toChildArray(topbarNode).length > 0 ? topbarNode : undefined
 
       const children: VNodeChild[] = []
       if (sidebar) {

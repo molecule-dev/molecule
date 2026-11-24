@@ -6,6 +6,7 @@
 
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,7 +23,7 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffec
 export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   (
     {
-      label,
+      label: labelProp,
       checked,
       size = 'md',
       color,
@@ -36,6 +37,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     },
     ref,
   ) => {
+    const label = slot(labelProp as React.ReactNode)
     const cm = getClassMap()
     const state = checked ? 'checked' : 'unchecked'
 
@@ -117,7 +119,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           >
             <span data-state={state} className={cm.switchThumb({ size })} />
           </button>
-          {!!label && <span className={cm.controlText}>{label as React.ReactNode}</span>}
+          {!!label && <span className={cm.controlText}>{label}</span>}
         </label>
       </>
     )

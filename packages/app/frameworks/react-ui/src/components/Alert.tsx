@@ -8,6 +8,7 @@ import React, { forwardRef } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -59,7 +60,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
       live = true,
       dismissible,
       onDismiss,
-      icon,
+      icon: iconProp,
       dismissLabel,
       className,
       style,
@@ -68,6 +69,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
     },
     ref,
   ) => {
+    const icon = slot(iconProp as React.ReactNode)
     const { t } = useTranslation()
     const cm = getClassMap()
     const alertVariant = statusVariantMap[status] || 'default'

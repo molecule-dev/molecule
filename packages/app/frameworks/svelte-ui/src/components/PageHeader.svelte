@@ -3,7 +3,7 @@
   actions.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from '../style.js'
@@ -54,6 +54,8 @@
       <h1 class={cm.pageHeaderTitle}>{title}</h1>
       {#if description}<p class={cm.pageHeaderDescription}>{description}</p>{/if}
     </div>
-    {#if actions}<div class={cm.pageHeaderActions}>{@render actions?.()}</div>{/if}
+    {#if actions}<PresentWhileContent class={cm.pageHeaderActions}
+        >{@render actions?.()}</PresentWhileContent
+      >{/if}
   </div>
 </div>

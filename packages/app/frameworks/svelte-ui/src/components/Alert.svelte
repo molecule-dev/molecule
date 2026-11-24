@@ -5,10 +5,11 @@
 -->
 <script lang="ts">
   import type { IconName } from '@molecule/app-icons'
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { contentPresence, renderedContentCount } from '../content-presence.js'
   import { spreadEvents } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { AlertProps } from '../types.js'
@@ -58,6 +59,23 @@
     ),
   )
   const role = $derived(live ? 'alert' : 'status')
+  // A custom icon that renders nothing (React's `slot(icon)`) leaves the
+  // status icon in place, so the custom content is measured, with the status
+  // icon counted as the component's own fallback.
+  let customIcon = $state(false)
+  const reportIcon = (renders: boolean): void => {
+    customIcon = renders
+  }
+  const showStatusIcon = $derived(!!iconName && !customIcon)
+  // The wrapper leaves the page with its content (PresentWhileContent), so the
+  // custom content is measured on the alert itself, with the status icon
+  // counted as the component's own fallback.
+  const iconPresence = contentPresence(reportIcon, {
+    renders: (element) => {
+      const wrapper = element.querySelector(':scope > span')
+      return wrapper ? renderedContentCount(wrapper) > (showStatusIcon ? 1 : 0) : false
+    },
+  })
   // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id,
   // the DOM event handlers) reaches the root; a caller's role replaces the
   // live-region default.
@@ -72,14 +90,13 @@
   data-testid={testId}
   {...attributes}
   use:spreadEvents={rest}
+  {@attach iconPresence}
 >
   {#if icon || iconName}
-    <span class={cm.alertIconWrapper}>
-      {#if icon}{@render icon?.()}{:else if iconName}<IconGlyph
-          name={iconName}
-          className={cm.iconMd}
-        />{/if}
-    </span>
+    <PresentWhileContent tag="span" class={cm.alertIconWrapper}>
+      {#if icon}{@render icon?.()}{/if}
+      {#if showStatusIcon && iconName}<IconGlyph name={iconName} className={cm.iconMd} />{/if}
+    </PresentWhileContent>
   {/if}
   <div class={cm.alertContent}>
     {#if title}<h5 class={cm.alertTitle}>{title}</h5>{/if}

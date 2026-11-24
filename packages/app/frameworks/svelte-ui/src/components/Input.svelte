@@ -4,10 +4,11 @@
   error state; autoFocus focuses once on mount like React's autoFocus.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
+  import { contentPresence } from '../content-presence.js'
   import { reactInputValue, spreadEvents, useGeneratedId } from '../dom.js'
   import { reactStyle } from '../style.js'
   import type { InputProps } from '../types.js'
@@ -48,11 +49,27 @@
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  // An adornment that renders nothing (React's `slot(leftElement)`) takes no
+  // padding and no wrapper, so the padding follows the rendered wrappers.
+  let hasLeft = $state(false)
+  let hasRight = $state(false)
+  const reportLeft = (renders: boolean): void => {
+    hasLeft = renders
+  }
+  const reportRight = (renders: boolean): void => {
+    hasRight = renders
+  }
+  const leftPresence = contentPresence(reportLeft, {
+    renders: (element) => !!element.querySelector('input')?.previousElementSibling,
+  })
+  const rightPresence = contentPresence(reportRight, {
+    renders: (element) => !!element.querySelector('input')?.nextElementSibling,
+  })
   const inputClasses = $derived(
     cm.cn(
       cm.input({ error: !!error, size, align }),
-      !!leftElement && cm.inputPadLeft,
-      !!(rightElement || clearable) && cm.inputPadRight,
+      hasLeft && cm.inputPadLeft,
+      (clearable || hasRight) && cm.inputPadRight,
       className,
     ),
   )
@@ -79,8 +96,10 @@
       >{label}</label
     >
   {/if}
-  <div class={cm.inputInner}>
-    {#if leftElement}<div class={cm.inputLeftElement}>{@render leftElement?.()}</div>{/if}
+  <div class={cm.inputInner} {@attach leftPresence} {@attach rightPresence}>
+    {#if leftElement}<PresentWhileContent class={cm.inputLeftElement}
+        >{@render leftElement?.()}</PresentWhileContent
+      >{/if}
     <input
       bind:this={ref}
       {type}
@@ -102,7 +121,7 @@
       use:spreadEvents={rest}
     />
     {#if rightElement || (clearable && value)}
-      <div class={cm.inputRightElement}>
+      <PresentWhileContent class={cm.inputRightElement}>
         {#if clearable && value}
           <button
             type="button"
@@ -113,9 +132,11 @@
             <IconGlyph name="x-mark" className={cm.iconSm} />
           </button>
         {:else}
-          <span class={cm.textMuted}>{@render rightElement?.()}</span>
+          <PresentWhileContent tag="span" class={cm.textMuted}
+            >{@render rightElement?.()}</PresentWhileContent
+          >
         {/if}
-      </div>
+      </PresentWhileContent>
     {/if}
   </div>
   {#if error}

@@ -28,7 +28,7 @@
 import { defineComponent, h, type PropType, ref, type VNodeChild } from 'vue'
 
 import { getClassMap, type HTMLElementProps } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Alert } from './Alert.js'
@@ -111,8 +111,10 @@ export const LoadErrorBanner = defineComponent({
 
     return () => {
       const message = props.message ?? slots.message?.()
-      const detail = props.detail ?? slots.detail?.()
-      const retryLabel = props.retryLabel ?? slots.retryLabel?.()
+      const detailNode = props.detail ?? slots.detail?.()
+      const detail = toChildArray(detailNode).length > 0 ? detailNode : undefined
+      const retryLabelNode = props.retryLabel ?? slots.retryLabel?.()
+      const retryLabel = toChildArray(retryLabelNode).length > 0 ? retryLabelNode : undefined
 
       const stack: VNodeChild[] = [h('p', { class: cm.textSize('sm') }, [message])]
       if (detail) stack.push(h('p', { class: cm.cn(cm.textSize('xs'), cm.textMuted) }, [detail]))

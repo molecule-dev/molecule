@@ -8,8 +8,8 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { contentPresence } from '../content-presence.js'
   import { useGeneratedId } from '../dom.js'
-  import { rendersNode } from '../node.js'
   import type { ConfirmDialogProps } from '../types.js'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
@@ -37,23 +37,34 @@
   // `aria-dialog-name`).
   const titleId = useGeneratedId()
   const descriptionId = useGeneratedId()
-  // A title that renders nothing (React's `slot(title)`) names nothing, so the
-  // dialog then points at no heading.
-  const headingId = $derived(rendersNode(title) ? titleId : undefined)
-  const hasDescription = $derived(rendersNode(description))
+  // A title or description that renders nothing (React's `slot(title)`) names
+  // nothing, so the dialog then points at no heading/description. A snippet's
+  // value cannot say that (`{#each}` over no rows), so the rendered content
+  // is measured instead.
+  let titleRenders = $state(false)
+  let descriptionRenders = $state(false)
+  const reportTitle = (renders: boolean): void => {
+    titleRenders = renders
+  }
+  const reportDescription = (renders: boolean): void => {
+    descriptionRenders = renders
+  }
+  const headingId = $derived(titleRenders ? titleId : undefined)
+  const describedById = $derived(descriptionRenders ? descriptionId : undefined)
 </script>
 
-<Modal
-  {open}
-  {onClose}
-  aria-labelledby={headingId}
-  aria-describedby={hasDescription ? descriptionId : undefined}
->
+<Modal {open} {onClose} aria-labelledby={headingId} aria-describedby={describedById}>
   <div class={cm.stack(3)}>
-    <h2 id={headingId} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+    <h2
+      id={headingId}
+      {@attach contentPresence(reportTitle)}
+      class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
+    >
       <ReactNode node={title} />
     </h2>
-    <p id={descriptionId} class={cm.textSize('sm')}><ReactNode node={description} /></p>
+    <p id={descriptionId} {@attach contentPresence(reportDescription)} class={cm.textSize('sm')}>
+      <ReactNode node={description} />
+    </p>
     {@render children?.()}
     <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
       <Button variant="ghost" onClick={onClose} disabled={loading}>

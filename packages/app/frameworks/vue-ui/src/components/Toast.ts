@@ -24,7 +24,7 @@ import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { attrListener, classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -185,14 +185,17 @@ export const Toast = defineComponent({
       // screen reader mid-sentence.
       const role = variant === 'warning' || variant === 'error' ? 'alert' : 'status'
 
-      const title = props.title ?? slots.title?.()
-      const description = props.description ?? slots.description?.()
+      const titleNode = props.title ?? slots.title?.()
+      const title = toChildArray(titleNode).length > 0 ? titleNode : undefined
+      const descriptionNode = props.description ?? slots.description?.()
+      const description = toChildArray(descriptionNode).length > 0 ? descriptionNode : undefined
+      const childrenNode = slots.default?.()
+      const childrenContent = toChildArray(childrenNode).length > 0 ? childrenNode : undefined
+      const body = description ?? childrenContent
 
       const content: VNodeChild[] = []
       if (title) content.push(h('div', { class: cm.toastTitle }, title))
-      if (description || slots.default) {
-        content.push(h('div', { class: cm.toastDescription }, description || slots.default?.()))
-      }
+      if (body) content.push(h('div', { class: cm.toastDescription }, body))
 
       const children: VNodeChild[] = []
       if (statusIcon) children.push(h('span', { class: cm.toastIconWrapper }, statusIcon))

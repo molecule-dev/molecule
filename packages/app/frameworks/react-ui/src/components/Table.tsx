@@ -7,6 +7,7 @@
 import React, { forwardRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -27,7 +28,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
       striped,
       hoverable = true,
       size: _size,
-      emptyContent,
+      emptyContent: emptyContentProp,
       loading,
       sort,
       onSort,
@@ -39,6 +40,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
     },
     ref,
   ) => {
+    const emptyContent = slot(emptyContentProp as React.ReactNode)
     const { t } = useTranslation()
     const cm = getClassMap()
 
@@ -131,7 +133,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
             {data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className={cm.tableEmptyCell}>
-                  {(emptyContent as React.ReactNode) ||
+                  {emptyContent ||
                     t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
                 </td>
               </tr>

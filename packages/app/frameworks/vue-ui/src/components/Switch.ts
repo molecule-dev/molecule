@@ -18,6 +18,7 @@ import {
 
 import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { mountChecked, updateChecked } from '../utilities/checked.js'
@@ -116,7 +117,8 @@ export const Switch = defineComponent({
       const state = props.checked ? 'checked' : 'unchecked'
       // The label is node-valued (React: `{label as React.ReactNode}`); the
       // prop arrives as a VNode, or as the same-named slot.
-      const label = (props.label ?? slots.label?.()) as VNodeChild | undefined
+      const labelNode = (props.label ?? slots.label?.()) as VNodeChild | undefined
+      const label = toChildArray(labelNode).length > 0 ? labelNode : undefined
 
       const children = [
         h('input', {

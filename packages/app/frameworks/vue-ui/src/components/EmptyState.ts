@@ -8,6 +8,7 @@ import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import type { EmptyStateProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -38,10 +39,12 @@ export const EmptyState = defineComponent({
     const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
-      const icon = props.icon ?? slots.icon?.()
+      const iconNode = props.icon ?? slots.icon?.()
+      const icon = toChildArray(iconNode).length > 0 ? iconNode : undefined
       const title = props.title ?? slots.title?.()
       const description = props.description ?? slots.description?.()
-      const action = props.action ?? slots.action?.()
+      const actionNode = props.action ?? slots.action?.()
+      const action = toChildArray(actionNode).length > 0 ? actionNode : undefined
 
       const children: VNode[] = []
       if (icon) children.push(h('div', { class: cm.emptyStateIcon }, [icon]))

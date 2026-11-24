@@ -7,6 +7,7 @@
 import React, { forwardRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -20,8 +21,8 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
   (
     {
       children,
-      sidebar,
-      topbar,
+      sidebar: sidebarProp,
+      topbar: topbarProp,
       sidebarCollapsed,
       onSidebarToggle,
       className,
@@ -31,6 +32,8 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
     },
     ref,
   ) => {
+    const sidebar = slot(sidebarProp as React.ReactNode)
+    const topbar = slot(topbarProp as React.ReactNode)
     const cm = getClassMap()
     const { t } = useTranslation()
 
@@ -62,13 +65,11 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
                 {sidebarCollapsed ? '\u25B6' : '\u25C0'}
               </button>
             ) : null}
-            {sidebar as React.ReactNode}
+            {sidebar}
           </aside>
         ) : null}
         <div className={cm.flex1}>
-          {topbar ? (
-            <header className={cm.pageShellTopbar}>{topbar as React.ReactNode}</header>
-          ) : null}
+          {topbar ? <header className={cm.pageShellTopbar}>{topbar}</header> : null}
           <main className={cm.pageShellContent}>{children as React.ReactNode}</main>
         </div>
       </div>

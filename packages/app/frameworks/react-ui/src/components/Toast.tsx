@@ -17,6 +17,7 @@ import { createPortal } from 'react-dom'
 
 import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -60,7 +61,7 @@ const statusIconMap: Record<string, IconName> = {
 export const Toast = forwardRef<HTMLDivElement, ToastProps>(
   (
     {
-      children,
+      children: childrenProp,
       title,
       description,
       status = 'info',
@@ -80,6 +81,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     },
     ref,
   ) => {
+    const children = slot(childrenProp as React.ReactNode)
     const [isVisible, setIsVisible] = useState(true)
     const { t } = useTranslation()
     const cm = getClassMap()
@@ -191,7 +193,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
           {title && <div className={cm.toastTitle}>{title}</div>}
           {!!(description || children) && (
             <div className={cm.toastDescription}>
-              {(description as React.ReactNode) || (children as React.ReactNode)}
+              {(description as React.ReactNode) || children}
             </div>
           )}
         </div>

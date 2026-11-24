@@ -8,7 +8,7 @@ import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -84,8 +84,10 @@ export const Input = defineComponent({
 
     return () => {
       const inputId = props.id || props.name || generatedId
-      const leftElement = props.leftElement ?? slots.leftElement?.()
-      const rightElement = props.rightElement ?? slots.rightElement?.()
+      const leftElementNode = props.leftElement ?? slots.leftElement?.()
+      const leftElement = toChildArray(leftElementNode).length > 0 ? leftElementNode : undefined
+      const rightElementNode = props.rightElement ?? slots.rightElement?.()
+      const rightElement = toChildArray(rightElementNode).length > 0 ? rightElementNode : undefined
 
       const inputClasses = cm.cn(
         cm.input({ error: !!props.error, size: props.size, align: props.align }),

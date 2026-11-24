@@ -8,6 +8,7 @@ import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import type { ButtonProps, ButtonSize, ButtonVariant, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -75,8 +76,10 @@ export const Button = defineComponent({
         ...classOf(props.className, attrs),
       )
 
-      const leftIcon = props.leftIcon ?? slots.leftIcon?.()
-      const rightIcon = props.rightIcon ?? slots.rightIcon?.()
+      const leftIconNode = props.leftIcon ?? slots.leftIcon?.()
+      const leftIcon = toChildArray(leftIconNode).length > 0 ? leftIconNode : undefined
+      const rightIconNode = props.rightIcon ?? slots.rightIcon?.()
+      const rightIcon = toChildArray(rightIconNode).length > 0 ? rightIconNode : undefined
 
       const children: VNodeChild[] = []
       if (props.loading) children.push(h(Spinner, { size: 'sm', className: cm.buttonIconLeft }))

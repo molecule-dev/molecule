@@ -6,6 +6,7 @@
 
 import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -17,7 +18,7 @@ import { rootProps } from '../utilities/rootProps.js'
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
     {
-      label,
+      label: labelProp,
       checked,
       indeterminate,
       size: _size,
@@ -33,6 +34,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref,
   ) => {
+    const label = slot(labelProp as React.ReactNode)
     // Always track the node in internalRef (for the indeterminate DOM flag)
     // AND forward it to the caller's ref. The previous `(ref || internalRef)
     // as RefObject` cast silently broke `indeterminate` whenever the caller
@@ -83,9 +85,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             {...(rootProps(rest) as React.InputHTMLAttributes<HTMLInputElement>)}
           />
           {!!label && (
-            <span className={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>
-              {label as React.ReactNode}
-            </span>
+            <span className={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>{label}</span>
           )}
         </label>
         {error && (

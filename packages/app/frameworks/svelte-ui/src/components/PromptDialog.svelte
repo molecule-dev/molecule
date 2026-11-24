@@ -11,6 +11,7 @@
   import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { contentPresence } from '../content-presence.js'
   import { useGeneratedId } from '../dom.js'
   import { rendersNode } from '../node.js'
   import type { PromptDialogProps } from '../types.js'
@@ -46,8 +47,13 @@
   const titleId = useGeneratedId()
   const descriptionId = useGeneratedId()
   // A title that renders nothing (React's `slot(title)`) names nothing, so the
-  // dialog then points at no heading.
-  const headingId = $derived(rendersNode(title) ? titleId : undefined)
+  // dialog then points at no heading. A snippet's value cannot say that
+  // (`{#each}` over no rows), so the rendered content is measured instead.
+  let titleRenders = $state(false)
+  const reportTitle = (renders: boolean): void => {
+    titleRenders = renders
+  }
+  const headingId = $derived(titleRenders ? titleId : undefined)
   const hasDescription = $derived(rendersNode(description))
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
@@ -119,6 +125,7 @@
       <h2
         id={headingId}
         bind:this={titleEl}
+        {@attach contentPresence(reportTitle)}
         class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
       >
         <ReactNode node={title} />

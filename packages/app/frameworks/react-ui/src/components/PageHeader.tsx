@@ -7,6 +7,7 @@
 import React, { forwardRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -17,7 +18,20 @@ import { getClassMap } from '@molecule/app-ui'
  * action buttons for a consistent page heading area.
  */
 export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
-  ({ title, description, actions, breadcrumbs, className, style, testId, automationId }, ref) => {
+  (
+    {
+      title,
+      description,
+      actions: actionsProp,
+      breadcrumbs,
+      className,
+      style,
+      testId,
+      automationId,
+    },
+    ref,
+  ) => {
+    const actions = slot(actionsProp as React.ReactNode)
     const { t } = useTranslation()
     const cm = getClassMap()
 
@@ -57,9 +71,7 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
             <h1 className={cm.pageHeaderTitle}>{title}</h1>
             {description && <p className={cm.pageHeaderDescription}>{description}</p>}
           </div>
-          {actions ? (
-            <div className={cm.pageHeaderActions}>{actions as React.ReactNode}</div>
-          ) : null}
+          {actions ? <div className={cm.pageHeaderActions}>{actions}</div> : null}
         </div>
       </div>
     )

@@ -7,7 +7,7 @@
   react to Escape and Tab, and reference-counts the body scroll lock.
 -->
 <script lang="ts">
-  import { BodyPortal, useTranslation } from '@molecule/app-svelte'
+  import { BodyPortal, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
@@ -194,7 +194,9 @@
 
         <div class={cm.dialogBody}>{@render children?.()}</div>
 
-        {#if footer}<div class={cm.dialogFooter}><ReactNode node={footer} /></div>{/if}
+        {#if footer}<PresentWhileContent class={cm.dialogFooter}
+            ><ReactNode node={footer} /></PresentWhileContent
+          >{/if}
       </div>
     </div></BodyPortal
   >

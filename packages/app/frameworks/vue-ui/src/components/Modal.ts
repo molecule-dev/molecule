@@ -17,7 +17,7 @@ import {
 
 import type { ModalProps, ModalSize } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -309,7 +309,8 @@ export const Modal = defineComponent({
       }
 
       const title = props.title ?? slots.title?.()
-      const footer = props.footer ?? slots.footer?.()
+      const footerNode = props.footer ?? slots.footer?.()
+      const footer = toChildArray(footerNode).length > 0 ? footerNode : undefined
 
       const closeButton = (closeClassName: string): VNode | null =>
         props.showCloseButton

@@ -7,7 +7,7 @@
   import { untrack } from 'svelte'
 
   import type { IconName } from '@molecule/app-icons'
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -159,9 +159,9 @@
     <div class={cm.toastContentWrapper}>
       {#if title}<div class={cm.toastTitle}><ReactNode node={title} /></div>{/if}
       {#if description || children}
-        <div class={cm.toastDescription}>
-          {#if description}<ReactNode node={description} />{:else}{@render children?.()}{/if}
-        </div>
+        <PresentWhileContent class={cm.toastDescription}
+          >{#if description}<ReactNode node={description} />{:else}{@render children?.()}{/if}
+        </PresentWhileContent>
       {/if}
     </div>
     {#if dismissible}

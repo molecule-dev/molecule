@@ -8,6 +8,7 @@ import React, { forwardRef, useEffect, useId, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -110,7 +111,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
       showCloseButton = true,
       closeOnOverlayClick = true,
       closeOnEscape = true,
-      footer,
+      footer: footerProp,
       centered = true,
       closeLabel,
       preventScroll = true,
@@ -121,6 +122,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
     },
     ref,
   ) => {
+    const footer = slot(footerProp as React.ReactNode)
     const { t } = useTranslation()
     const cm = getClassMap()
     // Per-instance title id AND stack key. A hardcoded 'modal-title'
@@ -302,7 +304,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
 
             <div className={cm.dialogBody}>{children as React.ReactNode}</div>
 
-            {!!footer && <div className={cm.dialogFooter}>{footer as React.ReactNode}</div>}
+            {!!footer && <div className={cm.dialogFooter}>{footer}</div>}
           </div>
         </div>
       </>

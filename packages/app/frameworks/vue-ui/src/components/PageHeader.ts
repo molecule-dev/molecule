@@ -8,7 +8,7 @@ import { defineComponent, Fragment, h, type PropType, type VNodeChild } from 'vu
 
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -45,7 +45,8 @@ export const PageHeader = defineComponent({
     const element = useElementRef<HTMLDivElement>(expose)
 
     return () => {
-      const actions = props.actions ?? slots.actions?.()
+      const actionsNode = props.actions ?? slots.actions?.()
+      const actions = toChildArray(actionsNode).length > 0 ? actionsNode : undefined
       const breadcrumbs = props.breadcrumbs
 
       const children: VNodeChild[] = []

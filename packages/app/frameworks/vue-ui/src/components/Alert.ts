@@ -9,7 +9,7 @@ import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 import type { IconName } from '@molecule/app-icons'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -88,7 +88,8 @@ export const Alert = defineComponent({
       const alertVariant = statusVariantMap[props.status] || 'default'
       const iconName = statusIconMap[alertVariant]
       const defaultIcon = iconName ? renderIcon(iconName, cm.iconMd) : null
-      const icon = props.icon ?? slots.icon?.()
+      const customIcon = props.icon ?? slots.icon?.()
+      const icon = toChildArray(customIcon).length > 0 ? customIcon : undefined
 
       const alertClasses = cm.cn(
         cm.alert({ variant: alertVariant }),

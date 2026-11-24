@@ -7,6 +7,7 @@
 import React, { forwardRef, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -25,8 +26,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       label,
       error,
       hint,
-      leftElement,
-      rightElement,
+      leftElement: leftElementProp,
+      rightElement: rightElementProp,
       clearable,
       onClear,
       clearLabel,
@@ -47,6 +48,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
+    const leftElement = slot(leftElementProp as React.ReactNode)
+    const rightElement = slot(rightElementProp as React.ReactNode)
     const { t } = useTranslation()
     const cm = getClassMap()
     // Fall back to a generated id so label htmlFor / aria-describedby never
@@ -73,9 +76,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
         <div className={cm.inputInner}>
-          {!!leftElement && (
-            <div className={cm.inputLeftElement}>{leftElement as React.ReactNode}</div>
-          )}
+          {!!leftElement && <div className={cm.inputLeftElement}>{leftElement}</div>}
           <input
             ref={ref}
             type={type}
@@ -110,7 +111,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   {renderIcon('x-mark', cm.iconSm)}
                 </button>
               ) : (
-                <span className={cm.textMuted}>{rightElement as React.ReactNode}</span>
+                <span className={cm.textMuted}>{rightElement}</span>
               )}
             </div>
           )}

@@ -5,6 +5,7 @@
   default, and a controlled checkbox is restored after each change event.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
@@ -74,9 +75,9 @@
       use:spreadEvents={rest}
     />
     {#if label}
-      <span class={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>
-        {#if typeof label === 'string'}{label}{:else}{@render label?.()}{/if}
-      </span>
+      <PresentWhileContent tag="span" class={cm.cn(cm.controlText, disabled && cm.controlDisabled)}
+        >{#if typeof label === 'string'}{label}{:else}{@render label?.()}{/if}</PresentWhileContent
+      >
     {/if}
   </label>
   {#if error}

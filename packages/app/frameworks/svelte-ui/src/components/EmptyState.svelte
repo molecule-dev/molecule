@@ -3,6 +3,7 @@
   description and action.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from '../style.js'
@@ -30,8 +31,11 @@
   data-testid={testId}
   data-mol-id={automationId}
 >
-  {#if icon}<div class={cm.emptyStateIcon}>{@render icon?.()}</div>{/if}
+  {#if icon}<PresentWhileContent class={cm.emptyStateIcon}>{@render icon?.()}</PresentWhileContent
+    >{/if}
   <h3 class={cm.emptyStateTitle}>{title}</h3>
   {#if description}<p class={cm.emptyStateDescription}>{description}</p>{/if}
-  {#if action}<div class={cm.emptyStateAction}>{@render action?.()}</div>{/if}
+  {#if action}<PresentWhileContent class={cm.emptyStateAction}
+      >{@render action?.()}</PresentWhileContent
+    >{/if}
 </div>

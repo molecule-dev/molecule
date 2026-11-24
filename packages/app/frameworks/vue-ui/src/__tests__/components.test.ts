@@ -106,40 +106,47 @@ const mockDefineComponent = vi.fn((opts: Record<string, unknown>) => {
 /** Counter backing the mocked `useId` (React `useId()` parity). */
 let mockUseIdCounter = 0
 
-vi.mock('vue', async () => ({
-  // A pure helper that needs no component instance: the real one merges the props these suites read.
-  mergeProps: (await vi.importActual<Record<string, unknown>>('vue')).mergeProps,
-  defineComponent: (opts: Record<string, unknown>) => mockDefineComponent(opts),
-  useId: () => `mol-use-id-${mockUseIdCounter++}`,
-  h: (...args: unknown[]) => mockH(...(args as Parameters<typeof mockH>)),
-  ref: (val: unknown) => mockRef(val),
-  shallowRef: (val: unknown) => mockShallowRef(val),
-  computed: (fn: () => unknown) => mockComputed(fn),
-  watch: (...args: unknown[]) => mockWatch(...(args as Parameters<typeof mockWatch>)),
-  onMounted: (fn: unknown) => mockOnMounted(fn),
-  onUnmounted: (fn: unknown) => mockOnUnmounted(fn),
-  provide: (...args: unknown[]) => mockProvide(...args),
-  inject: (...args: unknown[]) => mockInject(...args),
-  // These suites call a component's `setup` directly, outside any component
-  // instance (Form reads the instance for `submitError` presence and falls
-  // back to the props object it was handed).
-  getCurrentInstance: () => null,
-  reactive: (obj: unknown) => mockReactive(obj),
-  // These suites invoke watchers by hand; a deferred tick would never run in
-  // them, so run the callback in place (the callers only assert the wiring).
-  nextTick: (fn: () => void) => Promise.resolve(fn()),
-  toRaw: (val: unknown) => val,
-  toValue: (val: unknown) =>
-    typeof val === 'function'
-      ? (val as () => unknown)()
-      : val !== null && typeof val === 'object' && 'value' in val
-        ? (val as { value: unknown }).value
-        : val,
-  // These suites call setup and read the vnode tree; a directive only acts on a mounted element.
-  withDirectives: (vnode: unknown) => vnode,
-  Teleport: 'Teleport',
-  Fragment: 'Fragment',
-}))
+vi.mock('vue', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('vue')
+  return {
+    // A pure helper that needs no component instance: the real one merges the props these suites read.
+    mergeProps: actual.mergeProps,
+    // `toChildArray` reads vnode kinds: the real predicates see the mocked tree as plain objects.
+    isVNode: actual.isVNode,
+    Comment: actual.Comment,
+    Text: actual.Text,
+    defineComponent: (opts: Record<string, unknown>) => mockDefineComponent(opts),
+    useId: () => `mol-use-id-${mockUseIdCounter++}`,
+    h: (...args: unknown[]) => mockH(...(args as Parameters<typeof mockH>)),
+    ref: (val: unknown) => mockRef(val),
+    shallowRef: (val: unknown) => mockShallowRef(val),
+    computed: (fn: () => unknown) => mockComputed(fn),
+    watch: (...args: unknown[]) => mockWatch(...(args as Parameters<typeof mockWatch>)),
+    onMounted: (fn: unknown) => mockOnMounted(fn),
+    onUnmounted: (fn: unknown) => mockOnUnmounted(fn),
+    provide: (...args: unknown[]) => mockProvide(...args),
+    inject: (...args: unknown[]) => mockInject(...args),
+    // These suites call a component's `setup` directly, outside any component
+    // instance (Form reads the instance for `submitError` presence and falls
+    // back to the props object it was handed).
+    getCurrentInstance: () => null,
+    reactive: (obj: unknown) => mockReactive(obj),
+    // These suites invoke watchers by hand; a deferred tick would never run in
+    // them, so run the callback in place (the callers only assert the wiring).
+    nextTick: (fn: () => void) => Promise.resolve(fn()),
+    toRaw: (val: unknown) => val,
+    toValue: (val: unknown) =>
+      typeof val === 'function'
+        ? (val as () => unknown)()
+        : val !== null && typeof val === 'object' && 'value' in val
+          ? (val as { value: unknown }).value
+          : val,
+    // These suites call setup and read the vnode tree; a directive only acts on a mounted element.
+    withDirectives: (vnode: unknown) => vnode,
+    Teleport: 'Teleport',
+    Fragment: 'Fragment',
+  }
+})
 
 // ============================================================================
 // Mock @molecule/app-ui with getClassMap

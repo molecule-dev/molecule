@@ -8,7 +8,7 @@ import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import type { Size, TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { attrListener, classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -123,7 +123,8 @@ export const Table = defineComponent({
         ...classOf(props.className, attrs),
       )
 
-      const emptyContent = props.emptyContent ?? slots.emptyContent?.()
+      const emptyContentNode = props.emptyContent ?? slots.emptyContent?.()
+      const emptyContent = toChildArray(emptyContentNode).length > 0 ? emptyContentNode : undefined
 
       // React destructures `onSort`/`onRowClick` (they only branch the styles
       // above), so they are not part of its root spread.

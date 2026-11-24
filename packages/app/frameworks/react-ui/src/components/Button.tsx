@@ -6,6 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,8 +32,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       loadingText,
       fullWidth = false,
-      leftIcon,
-      rightIcon,
+      leftIcon: leftIconProp,
+      rightIcon: rightIconProp,
       className,
       style,
       testId,
@@ -43,6 +44,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
+    const leftIcon = slot(leftIconProp as React.ReactNode)
+    const rightIcon = slot(rightIconProp as React.ReactNode)
     const cm = getClassMap()
     const classes = cm.cn(cm.button({ variant, color, size, fullWidth }), className)
 
@@ -59,13 +62,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...(rootProps(rest) as React.ButtonHTMLAttributes<HTMLButtonElement>)}
       >
         {loading && <Spinner size="sm" className={cm.buttonIconLeft} />}
-        {!loading && !!leftIcon && (
-          <span className={cm.buttonIconLeft}>{leftIcon as React.ReactNode}</span>
-        )}
+        {!loading && !!leftIcon && <span className={cm.buttonIconLeft}>{leftIcon}</span>}
         {loading && loadingText ? loadingText : (children as React.ReactNode)}
-        {!loading && !!rightIcon && (
-          <span className={cm.buttonIconRight}>{rightIcon as React.ReactNode}</span>
-        )}
+        {!loading && !!rightIcon && <span className={cm.buttonIconRight}>{rightIcon}</span>}
       </button>
     )
   },

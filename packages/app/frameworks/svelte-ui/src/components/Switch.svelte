@@ -4,6 +4,7 @@
   caller's onClick can veto the toggle with preventDefault().
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
@@ -74,8 +75,8 @@
     <span data-state={dataState} class={cm.switchThumb({ size })}></span>
   </button>
   {#if label}
-    <span class={cm.controlText}
-      >{#if typeof label === 'string'}{label}{:else}{@render label?.()}{/if}</span
+    <PresentWhileContent tag="span" class={cm.controlText}
+      >{#if typeof label === 'string'}{label}{:else}{@render label?.()}{/if}</PresentWhileContent
     >
   {/if}
 </label>

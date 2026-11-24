@@ -3,7 +3,7 @@
   content.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from '../style.js'
@@ -34,7 +34,10 @@
   data-mol-id={automationId}
 >
   {#if sidebar}
-    <aside class={cm.cn(cm.pageShellSidebar, sidebarCollapsed && cm.pageShellSidebarCollapsed)}>
+    <PresentWhileContent
+      tag="aside"
+      class={cm.cn(cm.pageShellSidebar, sidebarCollapsed && cm.pageShellSidebarCollapsed)}
+    >
       {#if onSidebarToggle}
         <button
           type="button"
@@ -47,10 +50,12 @@
           {sidebarCollapsed ? '▶' : '◀'}
         </button>
       {/if}{@render sidebar?.()}
-    </aside>
+    </PresentWhileContent>
   {/if}
   <div class={cm.flex1}>
-    {#if topbar}<header class={cm.pageShellTopbar}>{@render topbar?.()}</header>{/if}
+    {#if topbar}<PresentWhileContent tag="header" class={cm.pageShellTopbar}
+        >{@render topbar?.()}</PresentWhileContent
+      >{/if}
     <main class={cm.pageShellContent}>{@render children?.()}</main>
   </div>
 </div>
