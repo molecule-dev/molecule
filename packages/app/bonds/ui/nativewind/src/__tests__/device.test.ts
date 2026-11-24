@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { forDevice } from '../device.js'
+import { descendantRule, forDevice } from '../device.js'
 
 describe('forDevice', () => {
   it('turns sibling spacing into gap, keeping its variants', () => {
@@ -21,7 +21,11 @@ describe('forDevice', () => {
       'flex',
     )
     expect(forDevice('relative before:absolute after:content-[""] file:border-0')).toBe('relative')
-    expect(forDevice('text-sm [&_p]:leading-relaxed [&>svg]:absolute')).toBe('text-sm')
+    // A descendant with one tag stays: the native elements apply it (descendantRule).
+    expect(forDevice('text-sm [&_p]:leading-relaxed [&>svg]:absolute')).toBe(
+      'text-sm [&_p]:leading-relaxed',
+    )
+    expect(forDevice('p-2 [&_tr:last-child]:border-0 [&:has([role=checkbox])]:pr-0')).toBe('p-2')
     expect(forDevice('m-0 divide-y divide-border')).toBe('m-0')
     expect(forDevice('leading-[1.25] font-inherit text-foreground')).toBe(
       'leading-[1.25] text-foreground',
@@ -55,5 +59,21 @@ describe('forDevice', () => {
     expect(forDevice('border hover:border-primary')).toBe(
       'border hover:border-primary border-foreground',
     )
+  })
+})
+
+describe('descendantRule', () => {
+  it('reads the tag a class styles and the class its descendants apply', () => {
+    expect(descendantRule('[&_p]:leading-relaxed')).toEqual({ tag: 'p', cls: 'leading-relaxed' })
+    expect(descendantRule('dark:[&_li]:text-primary')).toEqual({
+      tag: 'li',
+      cls: 'dark:text-primary',
+    })
+  })
+
+  it('is null for a class that styles the element itself or any other selector', () => {
+    expect(descendantRule('leading-relaxed')).toBeNull()
+    expect(descendantRule('[&>svg]:absolute')).toBeNull()
+    expect(descendantRule('[&_tr:last-child]:border-0')).toBeNull()
   })
 })

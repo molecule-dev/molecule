@@ -28,10 +28,30 @@ export function splitVariants(cls: string): { variants: string[]; utility: strin
   return { variants: parts, utility: cls.slice(start) }
 }
 
+/** A variant that styles the element's descendants with one tag (`[&_p]`), capturing the tag. */
+const DESCENDANT = /^\[&_([a-z][a-z0-9]*)\]$/
+
+/**
+ * The descendant rule a class is (`[&_p]:leading-relaxed`, `dark:[&_p]:text-x`): the tag it
+ * styles and the class those descendants apply (`leading-relaxed`, `dark:text-x`).
+ *
+ * @param cls - One class.
+ * @returns The tag and class, or `null` when the class styles the element itself.
+ */
+export function descendantRule(cls: string): { tag: string; cls: string } | null {
+  const { variants, utility } = splitVariants(cls)
+  const at = variants.findIndex((variant) => DESCENDANT.test(variant))
+  if (at === -1) return null
+  const tag = DESCENDANT.exec(variants[at] ?? '')?.[1]
+  if (!tag) return null
+  return { tag, cls: [...variants.slice(0, at), ...variants.slice(at + 1), utility].join(':') }
+}
+
 /**
  * Whether a variant styles something a device has no equivalent for: another
  * element's state (`peer-*`, `group-*`), a pseudo-element (`before`, `after`,
- * `file`, …) or an arbitrary selector (`[&_tr]`).
+ * `file`, …) or an arbitrary selector (`[&>svg]`, `[&_tr:last-child]`) other than a
+ * descendant with one tag (`[&_p]`), which the native elements apply ({@link descendantRule}).
  *
  * @param variant - One variant.
  * @returns Whether NativeWind cannot apply it on a device.
@@ -40,7 +60,7 @@ function isDeviceOnlyUnsupportedVariant(variant: string): boolean {
   return (
     /^(?:peer|group)(?:-|$)/.test(variant) ||
     /^(?:before|after|file|marker|selection|first-letter|first-line|backdrop)$/.test(variant) ||
-    variant.startsWith('[')
+    (variant.startsWith('[') && !DESCENDANT.test(variant))
   )
 }
 

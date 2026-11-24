@@ -816,6 +816,12 @@ export interface NativeClassSplit {
    * `null` when it sets none (the platform's normal weight). A `<strong>` draws `bolder` than it.
    */
   weight: number | null
+  /**
+   * Classes the element gives its descendants with one tag, as a CSS descendant selector does
+   * (`[&_p]:leading-relaxed` is `{ p: 'leading-relaxed' }`): left out of `view` and `text`, and
+   * applied by each descendant element whose tag it names, after that element's own classes.
+   */
+  descendants?: Readonly<Record<string, string>>
 }
 
 /**

@@ -26,6 +26,22 @@ export declare function deviceOnlyClasses(
 ): string[]
 
 /**
+ * The classes descendants apply from their containers' descendant rules (`[&_p]:leading-relaxed`
+ * makes a `p` apply `leading-relaxed`), which the native elements write at run time and no file
+ * names alone.
+ *
+ * @param texts - The files Tailwind scans for the web ClassMap.
+ * @param forDevice - The device rewrite.
+ * @param descendantRule - Reads a class's rule.
+ * @returns The classes, sorted.
+ */
+export declare function descendantClasses(
+  texts: string[],
+  forDevice: (classes: string) => string,
+  descendantRule: (cls: string) => { tag: string; cls: string } | null,
+): string[]
+
+/**
  * Expands one class pattern as Tailwind 4's `@source inline()` does: `{a,b}` alternatives
  * (nested too) and `{1..96}` / `{0..100..10}` numeric ranges.
  *

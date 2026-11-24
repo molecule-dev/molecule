@@ -596,10 +596,19 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       'bgScrim',
     ]
 
-    it('leaves the table header and body to their rows on a device (no descendant selectors)', () => {
-      // The web styles rows through `[&_tr]:…`; on a device each row carries its own border.
-      expect(classMap.tableHeader).toBe('')
-      expect(classMap.tableBody).toBe('')
+    it("gives the alert description's line height to its paragraphs only, as the web does", () => {
+      // Bare description text keeps text-sm's line height; a <p> inside it is relaxed.
+      const split = classMap.splitForNative?.(classMap.alertDescription, '')
+      expect(split?.text).toBe('text-sm')
+      expect(split?.descendants).toEqual({ p: 'leading-relaxed' })
+    })
+
+    it("hands a table's row rules to its rows on a device", () => {
+      // The web styles rows through `[&_tr]:…`: the header's reaches its rows natively, and each
+      // row also carries its own border.
+      expect(classMap.splitForNative?.(classMap.tableHeader, '').descendants).toEqual({
+        tr: 'border-b',
+      })
       expect(classMap.tableRow).toContain('border-b')
     })
 

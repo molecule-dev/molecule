@@ -11,6 +11,7 @@ describe('splitForNative', () => {
       display: 'flex',
       lines: null,
       weight: 700,
+      descendants: {},
     })
   })
 
@@ -21,6 +22,7 @@ describe('splitForNative', () => {
       display: 'block',
       lines: null,
       weight: null,
+      descendants: {},
     })
     expect(splitForNative('inline-flex items-center')).toEqual({
       view: 'flex items-center flex-row',
@@ -28,6 +30,7 @@ describe('splitForNative', () => {
       display: 'inline-flex',
       lines: null,
       weight: null,
+      descendants: {},
     })
     expect(splitForNative('hidden sm:flex').display).toBe('none')
   })
@@ -63,6 +66,7 @@ describe('splitForNative', () => {
       display: null,
       lines: null,
       weight: null,
+      descendants: {},
     })
   })
 
@@ -73,6 +77,7 @@ describe('splitForNative', () => {
       display: null,
       lines: 1,
       weight: null,
+      descendants: {},
     })
     expect(splitForNative('line-clamp-3').lines).toBe(3)
     expect(splitForNative('line-clamp-3 line-clamp-none').lines).toBeNull()
@@ -105,6 +110,14 @@ describe('splitForNative', () => {
     expect(splitForNative('md:font-bold').weight).toBeNull()
     expect(splitForNative('font-bold', 'font-light').weight).toBe(700)
     expect(splitForNative('font-mono').weight).toBeNull()
+  })
+
+  it('hands the classes a descendant selector names to descendants with that tag', () => {
+    const split = splitForNative('p-2 text-sm [&_p]:leading-relaxed dark:[&_p]:text-primary')
+    expect(split.view).toBe('p-2')
+    expect(split.text).toBe('text-sm')
+    expect(split.descendants).toEqual({ p: 'leading-relaxed dark:text-primary' })
+    expect(splitForNative('p-2').descendants).toEqual({})
   })
 
   it('is the ClassMap member', () => {

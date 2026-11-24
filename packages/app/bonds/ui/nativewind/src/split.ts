@@ -6,7 +6,7 @@
 
 import type { NativeClassSplit } from '@molecule/app-ui'
 
-import { splitVariants } from './device.js'
+import { descendantRule, splitVariants } from './device.js'
 import { lineHeightClass } from './fontSizes.js'
 
 /** Named font-size utilities: each also sets a line height. */
@@ -132,6 +132,7 @@ const keys = (variants: readonly string[], properties: readonly string[]): strin
  * sets, as in CSS: a child's `text-primary` replaces an inherited `text-foreground`, and a
  * child's `leading-6` keeps an inherited `text-sm` (its font size) while overriding its line
  * height, because `leading-*` comes after `text-*` in the stylesheet on the web and on a device.
+ * A class for descendants with one tag (`[&_p]:leading-relaxed`) goes to `descendants` instead.
  *
  * @param className - The element's classes.
  * @param inheritedText - The text classes in effect for its container's text.
@@ -164,8 +165,14 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
   // column. Each `flex` class without a direction class is given `flex-row` at its variants.
   const flexAt: string[][] = []
   let direction = false
+  const descendants: Record<string, string[]> = {}
   for (const cls of className.split(/\s+/)) {
     if (!cls) continue
+    const rule = descendantRule(cls)
+    if (rule) {
+      ;(descendants[rule.tag] ??= []).push(rule.cls)
+      continue
+    }
     const { variants, utility } = splitVariants(cls)
     if (variants.length === 0 && (utility === 'truncate' || /^line-clamp-\d+$/.test(utility))) {
       lines = utility === 'truncate' ? 1 : Number(utility.slice('line-clamp-'.length))
@@ -210,5 +217,19 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
     const { variants, utility } = splitVariants(cls)
     if (variants.length === 0 && FONT_WEIGHT.test(utility)) weight = weightOf(utility)
   }
-  return { view: view.join(' '), text: text.join(' '), display, lines, weight }
+  const tags = Object.keys(descendants)
+  return {
+    view: view.join(' '),
+    text: text.join(' '),
+    display,
+    lines,
+    weight,
+    descendants:
+      tags.length === 0
+        ? NO_DESCENDANTS
+        : Object.fromEntries(tags.map((tag) => [tag, (descendants[tag] ?? []).join(' ')])),
+  }
 }
+
+/** The descendant classes of an element that gives its descendants none. */
+const NO_DESCENDANTS: Readonly<Record<string, string>> = Object.freeze({})

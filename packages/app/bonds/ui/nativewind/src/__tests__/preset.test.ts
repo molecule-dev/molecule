@@ -16,13 +16,14 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { colorTokens, themeVariables } from '@molecule/app-ui-tailwind'
 
 import {
+  descendantClasses,
   deviceOnlyClasses,
   expandBraces,
   inlineSourceClasses,
   words,
 } from '../../scripts/device-classes.mjs'
 import { classMap } from '../classMap.js'
-import { forDevice } from '../device.js'
+import { descendantRule, forDevice } from '../device.js'
 
 interface Compile {
   loadPreset(os: string | undefined): {
@@ -74,7 +75,15 @@ const staticClasses = (() => {
   )
   for (const variant of ['default', 'info', 'success', 'warning', 'error'] as const)
     strings.push(classMap.alert({ variant }), classMap.toast({ variant }))
-  return [...new Set(strings.flatMap((value) => value.split(/\s+/)).filter(Boolean))]
+  // A descendant rule (`[&_p]:leading-relaxed`) is applied by the descendant as its own class.
+  return [
+    ...new Set(
+      strings
+        .flatMap((value) => value.split(/\s+/))
+        .filter(Boolean)
+        .map((cls) => descendantRule(cls)?.cls ?? cls),
+    ),
+  ]
 })()
 
 describe('the preset', () => {
@@ -149,7 +158,11 @@ describe("what an app's Tailwind scan finds", () => {
     expect(webDir, 'moleculeContent() finds @molecule/app-ui-tailwind').toBeDefined()
     const web = scripts(join(webDir ?? '', 'dist'))
     // This package's dist holds its source's literals and the generated list.
-    const own = [...scripts(join(packageDir, 'src')), deviceOnlyClasses(web, forDevice).join(' ')]
+    const own = [
+      ...scripts(join(packageDir, 'src')),
+      deviceOnlyClasses(web, forDevice).join(' '),
+      descendantClasses(web, forDevice, descendantRule).join(' '),
+    ]
     const named = new Set([...web, ...own].flatMap(words))
     expect(staticClasses.filter((cls) => !named.has(cls))).toEqual([])
   })
@@ -200,5 +213,10 @@ describe("what an app's Tailwind scan finds", () => {
       'sm:gap-x-3',
     ])
     expect(deviceOnlyClasses(["'gap-y-2 space-y-2'"], forDevice)).toEqual([])
+  })
+
+  it("lists what a descendant applies from its container's descendant rule", () => {
+    const web = ["export const alertDescription = 'text-sm [&_p]:leading-relaxed [&>svg]:top-4'"]
+    expect(descendantClasses(web, forDevice, descendantRule)).toEqual(['leading-relaxed'])
   })
 })

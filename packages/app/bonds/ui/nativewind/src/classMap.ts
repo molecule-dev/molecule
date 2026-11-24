@@ -219,9 +219,6 @@ export const classMap: UIClassMap = {
   // Pseudo-elements (`before:`) do not exist on a device: the active row's
   // accent is its left border.
   resultItemActive: 'bg-surface-secondary border-l-2 border-primary',
-  // A device does not cascade text styles from a view into its text: the
-  // description's own Text carries the line height the web gives its <p>s.
-  alertDescription: 'text-sm leading-relaxed',
   // A gradient background does not paint on a device; the wave pulses instead.
   skeletonWave: 'animate-shimmer',
   // Web-only: a ScrollView hides its indicator with a prop.
