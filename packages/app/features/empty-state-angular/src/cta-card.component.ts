@@ -9,6 +9,7 @@ import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from 
 
 import {
   MolPlacement,
+  rendersNode,
   setElementPresent,
   type SlotReader,
   usePlacement,
@@ -222,7 +223,7 @@ export class CtaCard {
    * @returns True when a media node or a projected media is present.
    */
   showMedia(): boolean {
-    return this.media != null || this.mediaProjected()
+    return rendersNode(this.media) || this.mediaProjected()
   }
 
   /**
@@ -230,7 +231,7 @@ export class CtaCard {
    * @returns True when an eyebrow node or a projected eyebrow is present.
    */
   showEyebrow(): boolean {
-    return this.eyebrow != null || this.eyebrowProjected()
+    return rendersNode(this.eyebrow) || this.eyebrowProjected()
   }
 
   /**
@@ -238,7 +239,7 @@ export class CtaCard {
    * @returns True when a description node or a projected description is present.
    */
   showDescription(): boolean {
-    return this.description != null || this.descriptionProjected()
+    return rendersNode(this.description) || this.descriptionProjected()
   }
 
   /**
@@ -246,7 +247,7 @@ export class CtaCard {
    * @returns True when an action node or a projected action is present.
    */
   showAction(): boolean {
-    return this.action != null || this.actionProjected()
+    return rendersNode(this.action) || this.actionProjected()
   }
 
   /**

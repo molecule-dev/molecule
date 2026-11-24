@@ -10,6 +10,7 @@ import { Component, type ElementRef, signal, type TemplateRef, ViewChild } from 
 import {
   MolPlacement,
   placeContentBefore,
+  rendersNode,
   setElementPresent,
   type SlotReader,
   usePlacement,
@@ -209,7 +210,7 @@ export class EmptyState {
    * @returns True when an icon text/template input or a projected icon is present.
    */
   showIcon(): boolean {
-    return textOf(this.icon) !== null || this.templateOf(this.icon) !== null || this.iconProjected()
+    return rendersNode(this.icon) || this.iconProjected()
   }
 
   /**
@@ -217,7 +218,7 @@ export class EmptyState {
    * @returns True when a description content node or a projected description is present.
    */
   showDescription(): boolean {
-    return this.content().description != null || this.descriptionProjected()
+    return rendersNode(this.content().description) || this.descriptionProjected()
   }
 
   /**
@@ -225,7 +226,7 @@ export class EmptyState {
    * @returns True when an action content node or a projected action is present.
    */
   showAction(): boolean {
-    return this.content().action != null || this.actionProjected()
+    return rendersNode(this.content().action) || this.actionProjected()
   }
 
   /**

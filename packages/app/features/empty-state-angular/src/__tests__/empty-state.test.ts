@@ -154,6 +154,17 @@ describe('EmptyState', () => {
     expect(without.host.innerHTML).not.toContain('data-icon')
   })
 
+  it.each(['icon', 'description', 'action'])(
+    'renders an empty or false %s as React does: the same as leaving it out',
+    async (name) => {
+      const omitted = await render(emptyState(), EmptyState, { title: 'T' })
+      for (const value of ['', false]) {
+        const given = await render(emptyState(), EmptyState, { title: 'T', [name]: value })
+        expect(given.host.innerHTML, String(value)).toBe(omitted.host.innerHTML)
+      }
+    },
+  )
+
   it('renders the description when present and omits it otherwise', async () => {
     const withDescription = await render(emptyState(), EmptyState, {
       title: 'T',
@@ -253,6 +264,17 @@ describe('CtaCard', () => {
     const without = await render(ctaCard(), CtaCard, { title: 'T' })
     expect(without.host.innerHTML).not.toContain('NEW')
   })
+
+  it.each(['eyebrow', 'description', 'action', 'media'])(
+    'renders an empty or false %s as React does: the same as leaving it out',
+    async (name) => {
+      const omitted = await render(ctaCard(), CtaCard, { title: 'T' })
+      for (const value of ['', false]) {
+        const given = await render(ctaCard(), CtaCard, { title: 'T', [name]: value })
+        expect(given.host.innerHTML, String(value)).toBe(omitted.host.innerHTML)
+      }
+    },
+  )
 
   it('renders the description when present and omits it otherwise', async () => {
     const withDescription = await render(ctaCard(), CtaCard, {
