@@ -38,6 +38,7 @@ import {
   scanFleet,
   scriptText,
   versionCommit,
+  versionedExports,
 } from '../check-peer-floors.mjs'
 
 afterAll(() => {
@@ -553,6 +554,54 @@ describe('versionCommit', () => {
       execFileSync('tar', ['-x', '-C', out], { input: archive })
       return out
     }
+
+    // The extracted trees are cached by commit, and the export a run read from is removed when the
+    // hook ends: the next package of the same commit met that run's node_modules link, dangling, and
+    // failed with EEXIST (2026-11-24, every check-peer-floors run after one hook run).
+    it('extracts a second package of a commit after the export the first came from is gone', () => {
+      const root = history(['1.0.0', '1.1.0'])
+      writeFileSync(join(root, 'pkg/package.json'), JSON.stringify({ name: 'p', version: '1.2.0' }))
+      mkdirSync(join(root, 'other/src'), { recursive: true })
+      writeFileSync(
+        join(root, 'other/package.json'),
+        JSON.stringify({ name: 'o', version: '1.0.0' }),
+      )
+      writeFileSync(join(root, 'other/src/index.ts'), 'export const o = 1\n')
+      execFileSync('git', ['add', '-A'], { cwd: root })
+      execFileSync(
+        'git',
+        ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'c2'],
+        {
+          cwd: root,
+        },
+      )
+      writeFileSync(join(root, 'pkg/package.json'), JSON.stringify({ name: 'p', version: '1.3.0' }))
+      writeFileSync(
+        join(root, 'other/package.json'),
+        JSON.stringify({ name: 'o', version: '1.1.0' }),
+      )
+      writeFileSync(join(root, 'other/src/index.ts'), 'export const o2 = 1\n')
+      execFileSync('git', ['add', '-A'], { cwd: root })
+      execFileSync(
+        'git',
+        ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'c3'],
+        {
+          cwd: root,
+        },
+      )
+      vi.stubEnv('MOL_INDEX_REPO', root)
+      const first = exported(root)
+      const second = exported(root)
+      try {
+        expect([...versionedExports(first, join(first, 'pkg'), '1.3.0')!]).toEqual(['v1'])
+        rmSync(first, { recursive: true, force: true })
+        expect([...versionedExports(second, join(second, 'other'), '1.1.0')!]).toEqual(['o2'])
+      } finally {
+        vi.unstubAllEnvs()
+        rmSync(root, { recursive: true, force: true })
+        rmSync(second, { recursive: true, force: true })
+      }
+    })
 
     it('reads the history of the repository MOL_INDEX_REPO names', () => {
       const root = history(['1.0.0', '1.1.0', '1.1.0'])

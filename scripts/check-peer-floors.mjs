@@ -97,6 +97,7 @@ import {
   rmSync,
   statSync,
   symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir } from 'node:os'
@@ -664,6 +665,27 @@ export function versionCommit(root, dir, version, git = gitAt(root)) {
 const versionedCache = new Map()
 
 /**
+ * Points `link` at `target`, replacing a link to anywhere else. The extracted trees are cached across
+ * runs, and a run from an export of the repository (the pre-commit hook's, removed when it ends) left
+ * a link to that export's `node_modules`, which no longer exists: every later run then failed to
+ * create it again (EEXIST), 2026-11-24. The repository's own `node_modules` outlives every run.
+ *
+ * @param target - The `node_modules` to resolve imports from.
+ * @param link - The link in the extracted tree.
+ */
+export function linkModules(target, link) {
+  let current = null
+  try {
+    current = readlinkSync(link)
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
+  if (current === target) return
+  if (current !== null) unlinkSync(link)
+  symlinkSync(target, link)
+}
+
+/**
  * The names an unpublished workspace version exports where its release publishes it from: the
  * package's source at {@link versionCommit}. The tree is extracted into this check's cache, beside
  * a link to the repository's `node_modules`, so its imports of other packages resolve as the
@@ -688,14 +710,13 @@ export function versionedExports(root, dir, version, entry = '.') {
     const pkgDir = join(out, rel)
     if (!existsSync(join(pkgDir, 'package.json'))) {
       mkdirSync(out, { recursive: true })
-      if (!existsSync(join(out, 'node_modules')))
-        symlinkSync(join(root, 'node_modules'), join(out, 'node_modules'))
       const archive = execFileSync('git', ['archive', '--format=tar', commit, '--', rel], {
         cwd: historyRepo(root),
         maxBuffer: 1 << 28,
       })
       execFileSync('tar', ['-x', '-C', out], { input: archive })
     }
+    linkModules(join(historyRepo(root), 'node_modules'), join(out, 'node_modules'))
     const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
     const types = entryTypesPath(manifest, entry)
     const inSrc =
