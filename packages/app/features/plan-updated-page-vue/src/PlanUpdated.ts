@@ -6,7 +6,7 @@
  * @module
  */
 
-import { defineComponent, h, type VNode } from 'vue'
+import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-vue'
@@ -66,8 +66,10 @@ export const PlanUpdated = defineComponent({
       type: String,
       default: '/',
     },
+    // `null` leaves the receipt link out; the prop type says so, or a template binding
+    // `:receipt-href="null"` fails vue-tsc.
     receiptHref: {
-      type: String,
+      type: String as PropType<string | null>,
       default: '/billing',
     },
     provider: String,
