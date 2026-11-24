@@ -70,6 +70,19 @@ let modalInstance = 0
  * WAI-ARIA APG modal dialog pattern (focus
  * into the dialog on open, trapped Tab, focus restored on close, Escape for
  * the topmost dialog only, reference-counted body scroll lock).
+ *
+ * Projected content is created with the consumer's view, so a closed modal's body and footer exist
+ * while hidden: their components, effects and fetches run. React mounts them only while shown, and
+ * again each time they show. Write content with state as `*molLazy` (`MolLazy` from
+ * `@molecule/app-angular`): it is created when it shows and destroyed when it hides, as React's is.
+ *
+ * @example
+ * ```html
+ * <mol-modal [open]="open" title="Edit profile" (close)="open = false">
+ *   <form *molLazy>…</form>
+ *   <div slot="footer" *molLazy><button mol-button (click)="save()">Save</button></div>
+ * </mol-modal>
+ * ```
  */
 @Component({
   selector: 'mol-modal',

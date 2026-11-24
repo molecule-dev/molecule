@@ -26,6 +26,7 @@ import {
   placeElementBefore,
   setElementPresent,
   setHostRoot,
+  slotElement,
   usePlacement,
 } from '@molecule/app-angular'
 import type { MouseEventHandler, TooltipPlacement, UIClassMap } from '@molecule/app-ui'
@@ -161,6 +162,19 @@ function calculatePosition(
  * React's. A single-element trigger receives `aria-describedby` while the
  * tooltip shows; show/hide are coordinated across instances exactly like
  * React's module-level `activeTooltips` map.
+ *
+ * Projected content is created with the consumer's view, so a tooltip's `[slot=content]` exists
+ * while hidden: its components, effects and fetches run. React mounts it only while shown, and
+ * again each time it shows. Write content with state as `*molLazy` (`MolLazy` from
+ * `@molecule/app-angular`): it is created when it shows and destroyed when it hides, as React's is.
+ *
+ * @example
+ * ```html
+ * <mol-tooltip>
+ *   <button mol-button>Usage</button>
+ *   <div slot="content" *molLazy><usage-summary /></div>
+ * </mol-tooltip>
+ * ```
  */
 @Component({
   selector: 'mol-tooltip',
@@ -295,7 +309,7 @@ export class Tooltip
   private lastContentText: string | null = null
   /** The placement the current position was measured for. */
   private lastPlacement: TooltipPlacement | null = null
-  private associateEl: HTMLElement | null = null
+  private associateEl: Element | null = null
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the tooltip box). */
   private externalMolId: string | undefined
 
@@ -323,8 +337,9 @@ export class Tooltip
       placeContent(capture, wrap)
       setElementPresent(capture, false)
       const children = hasContent.nodes(capture)
-      const only =
-        children.length === 1 && children[0].nodeType === 1 ? (children[0] as HTMLElement) : null
+      // A `*molLazy` child is found once it is stamped (its stamp runs this again).
+      // Any element, an SVG icon included (React's `isValidElement`).
+      const only = children.length === 1 ? slotElement(children[0]) : null
       if (only === this.associateEl) return
       if (this.visible()) {
         this.associateEl?.removeAttribute('aria-describedby')

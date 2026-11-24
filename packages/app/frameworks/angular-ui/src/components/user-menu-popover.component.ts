@@ -467,6 +467,18 @@ export class UserMenuPopoverTrigger {
  * and a `<nav>` wrapping the caller's items. The host element is the card
  * (React's one `<div>`), and it is out of the DOM while the popover is closed
  * (React renders `null`).
+ *
+ * Projected content is created with the consumer's view, so a closed popover's items exist while
+ * hidden: their components, effects and fetches run. React mounts them only while shown, and again
+ * each time they show. Write content with state as `*molLazy` (`MolLazy` from
+ * `@molecule/app-angular`): it is created when it shows and destroyed when it hides, as React's is.
+ *
+ * @example
+ * ```html
+ * <div mol-user-menu-popover-panel>
+ *   <account-links *molLazy />
+ * </div>
+ * ```
  */
 @Component({
   selector: 'div[mol-user-menu-popover-panel]',

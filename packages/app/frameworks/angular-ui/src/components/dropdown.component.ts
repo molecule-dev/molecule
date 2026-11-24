@@ -28,12 +28,14 @@ import {
 } from '@angular/core'
 
 import {
+  isElementChild,
   MolPlacement,
   placeContent,
   placeContentBefore,
   placeElement,
   placeElementBefore,
   setElementPresent,
+  slotElement,
   type SlotReader,
   usePlacement,
   useRouter,
@@ -262,7 +264,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   private readonly injector = inject(Injector)
   private readonly host: HTMLElement = this.el.nativeElement
   /** The adopted trigger element (cloned element or fallback wrapper). */
-  private triggerEl: HTMLElement | null = null
+  private triggerEl: HTMLElement | SVGElement | null = null
   /** The trigger's own `data-testid`/`data-mol-id`, kept when the caller sets none (React's cloneElement). */
   private triggerOwnTestId: string | null = null
   private triggerOwnMolId: string | null = null
@@ -578,9 +580,8 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     const fallback = this.fallback?.nativeElement
     if (!capture || !fallback) return
     const children = hasContent.nodes(capture)
-    const only =
-      children.length === 1 && children[0]!.nodeType === 1 ? (children[0] as HTMLElement) : null
-    if (only) {
+    const single = children.length === 1 && isElementChild(children[0]!)
+    if (single) {
       placeContentBefore(capture, this.host)
       setElementPresent(fallback, false)
     } else {
@@ -589,6 +590,11 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     }
     setElementPresent(capture, false)
     setElementPresent(this.host, false)
+    const element = single ? slotElement(children[0]!) : null
+    // Any element, an SVG icon included: React clones whatever element it is given.
+    const only = element instanceof HTMLElement || element instanceof SVGElement ? element : null
+    // A `*molLazy` trigger is adopted once it is stamped: its stamp runs this again.
+    if (single && only === null) return
     this.adopt(only ?? fallback, only === null)
   }
 
@@ -599,7 +605,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
    * @param target - The projected element, or the fallback wrapper.
    * @param isFallback - Whether `target` is the fallback wrapper.
    */
-  private adopt(target: HTMLElement, isFallback: boolean): void {
+  private adopt(target: HTMLElement | SVGElement, isFallback: boolean): void {
     if (target !== this.triggerEl) {
       this.release()
       this.triggerEl = target
@@ -784,7 +790,10 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   private updateMenuWidth(): void {
     this.menuWidth =
       this.width === 'trigger'
-        ? this.triggerEl?.offsetWidth
+        ? // An SVG trigger has no offsetWidth: React's `triggerRef.current?.offsetWidth` is undefined.
+          this.triggerEl instanceof HTMLElement
+          ? this.triggerEl.offsetWidth
+          : undefined
         : typeof this.width === 'number'
           ? this.width
           : (this.width as string | undefined)

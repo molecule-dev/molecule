@@ -675,6 +675,18 @@ export class ResponsiveAppShellSidebar implements OnInit {
 /**
  * The mobile nav drawer (<768px): a left-anchored dialog panel over a
  * backdrop, portaled into `document.body`.
+ *
+ * Projected content is created with the consumer's view, so a closed drawer's content exists while
+ * hidden: its components, effects and fetches run. React mounts it only while shown, and again each
+ * time it shows. Write content with state as `*molLazy` (`MolLazy` from `@molecule/app-angular`):
+ * it is created when it shows and destroyed when it hides, as React's is.
+ *
+ * @example
+ * ```html
+ * <mol-responsive-app-shell-drawer>
+ *   <nav-tree *molLazy />
+ * </mol-responsive-app-shell-drawer>
+ * ```
  */
 @Component({
   selector: 'mol-responsive-app-shell-drawer',
