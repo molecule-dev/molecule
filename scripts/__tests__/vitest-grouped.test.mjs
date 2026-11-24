@@ -204,8 +204,11 @@ describe('grouped Vitest runs', () => {
     for (const block of blocks) expect(block.match(/Test Files /g)).toHaveLength(1)
   }, 60000)
 
+  // No slow package: one group in flight at a time is what proves the order, and the 12 s wait
+  // put four cold Vitest starts in a row past this test's 60 s limit on a loaded machine
+  // (60.7 s in the 2026-11-24 release).
   it('runs the groups one after another when the concurrency is 1', () => {
-    const result = fixture({ slow: ['a'] }).run([], 2, 1)
+    const result = fixture().run([], 2, 1)
     expect(result.status, result.stdout + result.stderr).toBe(0)
     expect(peakInFlight(result)).toBe(1)
     expect(
