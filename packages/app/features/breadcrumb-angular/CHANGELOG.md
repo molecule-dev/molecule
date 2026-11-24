@@ -1,5 +1,11 @@
 # @molecule/app-breadcrumb-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- A projected separator shows in every gap as live content, as React renders it, and the default separator comes from the template.
+
 ## 1.1.2
 
 ### Patch Changes
