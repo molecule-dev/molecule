@@ -14,6 +14,11 @@
   `present`, when given, decides instead of the element's own content: for content whose
   presence is a node nested in another component (a Button's label, read with
   `<ContentOrElse bind:present>`), where the element always holds that component's markup.
+
+  One case differs from React: content whose only node is a component that renders nothing
+  leaves no node in the page, so the element leaves too, where React's `slot()` counts the
+  component's element and keeps an empty wrapper. Neither framework can see what a component
+  renders before it renders, and the page holds the same anchors either way.
 -->
 <script lang="ts">
   import { type Snippet, untrack } from 'svelte'
