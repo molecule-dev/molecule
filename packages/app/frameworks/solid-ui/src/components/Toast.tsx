@@ -20,10 +20,11 @@ import {
 
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
-import { BodyPortal, useTranslation } from '@molecule/app-solid'
-import type { ColorVariant, ToastProps } from '@molecule/app-ui'
+import { BodyPortal, ResolveNode, useTranslation } from '@molecule/app-solid'
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { ToastProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { withDisplayName } from './displayName.js'
@@ -98,7 +99,6 @@ export const Toast = withDisplayName<WithRef<ToastProps, HTMLDivElement>>((props
     const name = iconName()
     return name ? renderIcon(name, cm.iconMd) : null
   }
-
   // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
   // cannot pause loses the message mid-read. `remaining` carries the time
   // left across pause/resume cycles (hover in/out, focus in/out) instead
@@ -193,13 +193,17 @@ export const Toast = withDisplayName<WithRef<ToastProps, HTMLDivElement>>((props
         </Show>
         <div class={cm.toastContentWrapper}>
           <Show when={local.title}>
-            <div class={cm.toastTitle}>{local.title as JSX.Element}</div>
+            <div class={cm.toastTitle}>{local.title}</div>
           </Show>
-          <Show when={local.description || local.children}>
-            <div class={cm.toastDescription}>
-              {(local.description || local.children) as JSX.Element}
-            </div>
-          </Show>
+          {/* React's `slot(children)`: children that render nothing add no description line (a
+              `description` is a plain string prop, and while it is set the children are not shown). */}
+          <ResolveNode node={local.description ? undefined : local.children}>
+            {(content, hasContent) => (
+              <Show when={local.description || hasContent()}>
+                <div class={cm.toastDescription}>{local.description || content()}</div>
+              </Show>
+            )}
+          </ResolveNode>
         </div>
         <Show when={local.dismissible ?? true}>
           <button

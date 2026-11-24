@@ -4,11 +4,12 @@
  * @module
  */
 
-import { type JSX, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 
-import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
+import type { Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { ContainerProps, FlexProps, GridProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
 
@@ -51,7 +52,7 @@ export const Container = withDisplayName<WithRef<ContainerProps, HTMLDivElement>
       data-testid={local.testId}
       {...reactDomProps(rest)}
     >
-      {local.children as JSX.Element}
+      {local.children}
     </div>
   )
 }, 'Container')
@@ -120,7 +121,7 @@ export const Flex = withDisplayName<WithRef<FlexProps, HTMLDivElement>>((props) 
       // that go with the click.
       {...reactDomProps(rest)}
     >
-      {local.children as JSX.Element}
+      {local.children}
     </div>
   )
 }, 'Flex')
@@ -182,7 +183,7 @@ export const Grid = withDisplayName<WithRef<GridProps, HTMLDivElement>>((props) 
       data-testid={local.testId}
       {...reactDomProps(rest)}
     >
-      {local.children as JSX.Element}
+      {local.children}
     </div>
   )
 }, 'Grid')

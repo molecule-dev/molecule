@@ -4,11 +4,11 @@
  * @module
  */
 
-import { createSignal, createUniqueId, For, type JSX, Show, splitProps } from 'solid-js'
+import { createSignal, createUniqueId, For, Show, splitProps } from 'solid-js'
 
-import type { TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { TabsProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { withDisplayName } from './displayName.js'
@@ -162,9 +162,9 @@ export const Tabs = withDisplayName<WithRef<TabsProps<string>, HTMLDivElement>>(
                 )}
               >
                 <Show when={item().icon}>
-                  <span class={cm.tabTriggerIcon}>{item().icon as JSX.Element}</span>
+                  <span class={cm.tabTriggerIcon}>{item().icon}</span>
                 </Show>
-                {item().label as JSX.Element}
+                {item().label}
               </button>
             )
           }}
@@ -177,7 +177,7 @@ export const Tabs = withDisplayName<WithRef<TabsProps<string>, HTMLDivElement>>(
           aria-labelledby={`${idBase}-tab-${activeValue()}`}
           class={cm.tabsContent({ variant: local.variant, size: local.size })}
         >
-          {activeItem()?.content as JSX.Element}
+          {activeItem()?.content}
         </div>
       </Show>
     </div>

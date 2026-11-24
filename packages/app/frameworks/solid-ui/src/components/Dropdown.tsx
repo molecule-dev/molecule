@@ -5,7 +5,6 @@
  */
 
 import {
-  children,
   type Component,
   createComputed,
   createEffect,
@@ -20,10 +19,10 @@ import {
   untrack,
 } from 'solid-js'
 
-import { BodyPortal, useLocation } from '@molecule/app-solid'
-import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
+import { BodyPortal, resolveNode, useLocation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { DropdownItem, DropdownProps } from '../types.js'
 import { toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { withDisplayName } from './displayName.js'
@@ -162,9 +161,9 @@ const DropdownMenuItem: Component<DropdownMenuItemProps> = (props) => {
         data-disabled={props.item.disabled || undefined}
       >
         <Show when={props.item.icon}>
-          <span class={cm.dropdownItemIcon}>{props.item.icon as JSX.Element}</span>
+          <span class={cm.dropdownItemIcon}>{props.item.icon}</span>
         </Show>
-        <span class={cm.dropdownItemLabel}>{props.item.label as JSX.Element}</span>
+        <span class={cm.dropdownItemLabel}>{props.item.label}</span>
         <Show when={props.item.shortcut}>
           <span class={cm.dropdownItemShortcut}>{props.item.shortcut}</span>
         </Show>
@@ -183,8 +182,8 @@ function focusableItemIndexes(items: DropdownItem<string>[]): number[] {
 
 /** Renders a caller-supplied trigger element with the dropdown's wiring merged onto it. */
 const ClonedTrigger: Component<{
-  node: HTMLElement
-  wire: (el: HTMLElement) => void
+  node: HTMLElement | SVGElement
+  wire: (el: HTMLElement | SVGElement) => void
 }> = (p) => {
   p.wire(p.node)
   return p.node
@@ -218,7 +217,7 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   // The actual interactive trigger node — either the merged single-element
   // trigger, or the fallback `role="button"` wrapper. Used for position
   // measurement, outside-click detection, AND focus restoration.
-  let triggerRef: HTMLElement | undefined
+  let triggerRef: HTMLElement | SVGElement | undefined
   let menuRef: HTMLDivElement | undefined
   const itemRefs: (HTMLDivElement | null)[] = []
   // React reconciles the menu items by
@@ -236,14 +235,16 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   const menuId = createUniqueId()
   const location = useLocation()
 
-  // The trigger as it renders now. `children` resolves it once per change, so
+  // The trigger as it renders now. `resolveNode` resolves it once per change, so
   // the nodes it holds are kept between reads, and it follows a trigger that
   // changes (a `<Show>` or `<For>` trigger, a list that empties).
-  const resolvedTrigger = children(() => props.trigger as JSX.Element)
-  // The single element React's `isValidElement(trigger)` clones, else null.
-  const triggerElement = (): HTMLElement | null => {
+  const resolvedTrigger = resolveNode(() => props.trigger)
+  // The single element React's `isValidElement(trigger)` clones, else null: any element, an SVG
+  // icon included.
+  const triggerElement = (): HTMLElement | SVGElement | null => {
     const nodes = resolvedTrigger.toArray()
-    return nodes.length === 1 && nodes[0] instanceof HTMLElement ? nodes[0] : null
+    const only = nodes.length === 1 ? nodes[0] : undefined
+    return only instanceof HTMLElement || only instanceof SVGElement ? only : null
   }
 
   // A disabled dropdown never opens, whatever `open` says.
@@ -459,7 +460,8 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
       // Not measurable until the trigger node exists (the first open
       // frame, before layout); undefined lets the menu size itself, and a
       // later re-render (position update) recomputes the real pixel width.
-      return triggerRef?.offsetWidth
+      // An SVG trigger has no offsetWidth: React's `triggerRef.current?.offsetWidth` is undefined.
+      return triggerRef instanceof HTMLElement ? triggerRef.offsetWidth : undefined
     }
     return props.width
   }
@@ -467,12 +469,14 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   // React merges the menu-button attributes onto a single-element trigger
   // via cloneElement; the DOM equivalent here is setting them on the node
   // (its own handlers run first, then the dropdown's, in listener order).
-  const wireClonedTrigger = (el: HTMLElement): void => {
+  const wireClonedTrigger = (el: HTMLElement | SVGElement): void => {
     triggerRef = el
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
     el.setAttribute('aria-haspopup', 'menu')
-    el.addEventListener('click', handleTriggerClick)
-    el.addEventListener('keydown', handleTriggerKeyDown)
+    // Both element kinds share these events' types (a union of their overloads has none).
+    const events: GlobalEventHandlers = el
+    events.addEventListener('click', handleTriggerClick)
+    events.addEventListener('keydown', handleTriggerKeyDown)
     createRenderEffect(() => {
       el.setAttribute('aria-expanded', String(isOpen()))
       if (isOpen()) el.setAttribute('aria-controls', menuId)

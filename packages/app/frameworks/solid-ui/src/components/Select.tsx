@@ -46,7 +46,7 @@ export interface SolidSelectProps<T = string> extends SelectProps<T> {
  */
 const renderOption = (option: () => SelectOption): JSX.Element => (
   <option value={option().value} disabled={option().disabled}>
-    {option().label as JSX.Element}
+    {option().label}
   </option>
 )
 

@@ -5,7 +5,8 @@
  * `@molecule/app-ui-react` exports `ReactFormProps` — `FormProps` plus the
  * opaque `submitError` its `Form` renders as an accessible server-error list —
  * and an app swaps the React kit for this one by changing the import, so that
- * name has to exist here with the same members in Solid's form. The
+ * name has to exist here with the same members in Solid's form (`children`
+ * typed as Solid nodes, as this package's `FormProps` types it). The
  * Solid-named `SolidFormProps` the component is typed with is the same shape,
  * so a member added to one and not the other stops compiling here.
  *
@@ -15,12 +16,14 @@
  * @module
  */
 
+import type { JSX } from 'solid-js'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { FormProps } from '@molecule/app-ui'
+import type { FormProps as CoreFormProps } from '@molecule/app-ui'
 
 import type { ReactFormProps, SolidFormProps } from '../components/Form.jsx'
 import { Form } from '../components/Form.jsx'
+import type { FormProps } from '../types.js'
 import type { WithRef } from '../utilities/dom.js'
 
 describe('form props types', () => {
@@ -29,9 +32,10 @@ describe('form props types', () => {
     expectTypeOf<SolidFormProps>().toEqualTypeOf<ReactFormProps>()
   })
 
-  it('carries React members: every FormProps member plus the opaque submitError', () => {
-    expectTypeOf<ReactFormProps>().toExtend<FormProps>()
+  it('carries React members: every FormProps member, with Solid children, plus the opaque submitError', () => {
+    expectTypeOf<ReactFormProps>().toExtend<CoreFormProps>()
     expectTypeOf<FormProps>().toExtend<ReactFormProps>()
+    expectTypeOf<ReactFormProps['children']>().toEqualTypeOf<JSX.Element>()
     expectTypeOf<ReactFormProps['submitError']>().toEqualTypeOf<unknown>()
   })
 

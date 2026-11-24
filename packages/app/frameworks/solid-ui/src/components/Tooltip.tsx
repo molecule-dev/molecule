@@ -15,10 +15,11 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { BodyPortal } from '@molecule/app-solid'
-import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
+import { BodyPortal, ResolveNode } from '@molecule/app-solid'
+import type { TooltipPlacement } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { TooltipProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
 
@@ -284,25 +285,6 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
     }
   }
 
-  // Position the tooltip when it becomes visible, and again whenever its
-  // content changes: React re-runs its layout effect on `content`, so content
-  // that expands asynchronously (a "Loading" label that resolves into a longer
-  // one) keeps the tooltip anchored above its trigger instead of staying at the
-  // height it was first measured with.
-  createEffect(
-    on(
-      () => [isVisible(), local.content] as const,
-      () => {
-        if (isVisible()) {
-          // Position after the tooltip element exists in the DOM (the Show above
-          // renders it in the same signal flush, after this effect was created).
-          // A microtask — not rAF — so fake-timer environments place it too.
-          queueMicrotask(updatePosition)
-        }
-      },
-    ),
-  )
-
   // Hovered content must dismiss while focus stays in the editor/composer:
   // Escape anywhere in the document hides a visible tooltip.
   createEffect(() => {
@@ -375,7 +357,7 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
         onClick={hide}
         class={cm.tooltipTrigger}
       >
-        {local.children as JSX.Element}
+        {local.children}
       </div>
       <Show when={isVisible()}>
         <BodyPortal>
@@ -401,22 +383,38 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
               if (crossedBoundary(event.currentTarget, event)) scheduleHide()
             }}
           >
-            <div
-              ref={(el) => {
-                tooltipRef = el
-                // A caller's ref reaches the box too, as React forwards it there. Solid hands a
-                // component its ref as a callback prop, kept out of the spread below.
-                if (typeof local.ref === 'function') local.ref(el)
+            {/* The content is read here, inside the visible branch, so its components are created
+                only while the tooltip shows (React mounts them then). Reading `local.content`
+                anywhere else, such as in an effect's dependency list, creates them too. */}
+            <ResolveNode node={local.content}>
+              {(content) => {
+                // Position the tooltip when it shows, and again whenever its content changes:
+                // React re-runs its layout effect on `content`, so content that expands
+                // asynchronously (a "Loading" label that resolves into a longer one) keeps the
+                // tooltip anchored above its trigger instead of staying at the height it was
+                // first measured with. A microtask (not rAF), after the box is in the DOM, so
+                // fake-timer environments place it too.
+                createEffect(on(content, () => queueMicrotask(updatePosition)))
+                return (
+                  <div
+                    ref={(el) => {
+                      tooltipRef = el
+                      // A caller's ref reaches the box too, as React forwards it there. Solid hands a
+                      // component its ref as a callback prop, kept out of the spread below.
+                      if (typeof local.ref === 'function') local.ref(el)
+                    }}
+                    id={tooltipId()}
+                    role="tooltip"
+                    class={cm.cn(cm.tooltipContent, local.className)}
+                    style={toStyleProps(local.style)}
+                    data-testid={local.testId}
+                    {...reactDomProps(rest)}
+                  >
+                    {content()}
+                  </div>
+                )
               }}
-              id={tooltipId()}
-              role="tooltip"
-              class={cm.cn(cm.tooltipContent, local.className)}
-              style={toStyleProps(local.style)}
-              data-testid={local.testId}
-              {...reactDomProps(rest)}
-            >
-              {local.content as JSX.Element}
-            </div>
+            </ResolveNode>
             <Show when={local.hasArrow}>
               <span aria-hidden="true" style={toStyleProps(getArrowStyle(placement()))} />
             </Show>

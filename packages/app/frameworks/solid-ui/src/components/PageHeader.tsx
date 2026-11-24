@@ -4,9 +4,9 @@
  * @module
  */
 
-import { type Component, Index, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, Index, Show, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation, type WithNodes } from '@molecule/app-solid'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -21,7 +21,9 @@ import { toStyleProps, type WithRef } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered page header JSX.
  */
-export const PageHeader: Component<WithRef<PageHeaderProps, HTMLDivElement>> = (props) => {
+export const PageHeader: Component<
+  WithRef<WithNodes<PageHeaderProps, 'actions'>, HTMLDivElement>
+> = (props) => {
   const [local] = splitProps(props, [
     'title',
     'description',
@@ -65,12 +67,10 @@ export const PageHeader: Component<WithRef<PageHeaderProps, HTMLDivElement>> = (
                 </Show>
                 <Show
                   when={crumb().href}
-                  fallback={
-                    <span class={cm.pageHeaderBreadcrumbItem}>{crumb().label as JSX.Element}</span>
-                  }
+                  fallback={<span class={cm.pageHeaderBreadcrumbItem}>{crumb().label}</span>}
                 >
                   <a href={crumb().href} class={cm.pageHeaderBreadcrumbItem}>
-                    {crumb().label as JSX.Element}
+                    {crumb().label}
                   </a>
                 </Show>
               </>
@@ -80,14 +80,15 @@ export const PageHeader: Component<WithRef<PageHeaderProps, HTMLDivElement>> = (
       </Show>
       <div class={cm.flex({ justify: 'between', align: 'center' })}>
         <div>
-          <h1 class={cm.pageHeaderTitle}>{local.title as JSX.Element}</h1>
+          <h1 class={cm.pageHeaderTitle}>{local.title}</h1>
           <Show when={local.description}>
-            <p class={cm.pageHeaderDescription}>{local.description as JSX.Element}</p>
+            <p class={cm.pageHeaderDescription}>{local.description}</p>
           </Show>
         </div>
-        <Show when={local.actions}>
-          <div class={cm.pageHeaderActions}>{local.actions as JSX.Element}</div>
-        </Show>
+        {/* React's `slot(actions)`: actions that render nothing add no actions block. */}
+        <PresentWhileNode node={local.actions}>
+          {(actions) => <div class={cm.pageHeaderActions}>{actions()}</div>}
+        </PresentWhileNode>
       </div>
     </div>
   )

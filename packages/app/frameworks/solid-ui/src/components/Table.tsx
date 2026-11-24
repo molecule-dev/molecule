@@ -6,15 +6,32 @@
 
 import { For, type JSX, Show, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
-import type { TableColumn, TableProps } from '@molecule/app-ui'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { TableColumn, TableProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { withDisplayName } from './displayName.js'
 import { Spinner } from './Spinner.jsx'
+
+/**
+ * A cell's own value (a column without `render`) as the node React renders for it: a string or
+ * number as itself, a bigint as text, a DOM node as itself, an array item by item, and nothing for
+ * `null`, `undefined`, a boolean, a function or any other object. Solid would call a function
+ * as an accessor; React renders nothing for one, and throws for a plain object.
+ *
+ * @param value - The row's value for the column's key.
+ * @returns The cell's content.
+ */
+function cellNode(value: unknown): JSX.Element {
+  if (typeof value === 'string' || typeof value === 'number') return value
+  if (typeof value === 'bigint') return String(value)
+  if (Array.isArray(value)) return value.map(cellNode)
+  if (typeof Node !== 'undefined' && value instanceof Node) return value
+  return null
+}
 
 /**
  * Table component.
@@ -45,7 +62,6 @@ export const Table = withDisplayName<
   const cm = getClassMap()
   const { t } = useTranslation()
   const hoverable = (): boolean => local.hoverable ?? true
-
   // The key React reconciles a row with (`key={getRowKey(row, rowIndex)}`):
   // the `rowKey` function, the `rowKey` field, or the index when there is
   // neither. An index key is unchanged by any update that keeps the list's
@@ -73,11 +89,11 @@ export const Table = withDisplayName<
     row: Record<string, unknown>,
     column: TableColumn<Record<string, unknown>>,
     index: number,
-  ): unknown => {
+  ): JSX.Element => {
     if (column.render) {
       return column.render(row[column.key as string], row, index)
     }
-    return row[column.key as string]
+    return cellNode(row[column.key as string])
   }
 
   const handleSort = (column: TableColumn<Record<string, unknown>>): void => {
@@ -131,7 +147,7 @@ export const Table = withDisplayName<
                     }
                   >
                     <div class={cm.tableSortWrapper}>
-                      {column().header as JSX.Element}
+                      {column().header}
                       <Show
                         when={column().sortable && local.sort?.key === (column().key as string)}
                       >
@@ -157,8 +173,20 @@ export const Table = withDisplayName<
             fallback={
               <tr>
                 <td colSpan={local.columns.length} class={cm.tableEmptyCell}>
-                  {(local.emptyContent as JSX.Element) ||
-                    t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
+                  {/* React's `slot(emptyContent)`: one that renders nothing falls back to the
+                      localized "No data available". */}
+                  <ResolveNode node={local.emptyContent}>
+                    {(empty, hasEmpty) => (
+                      <Show
+                        when={hasEmpty()}
+                        fallback={t('ui.table.empty', undefined, {
+                          defaultValue: 'No data available',
+                        })}
+                      >
+                        {empty()}
+                      </Show>
+                    )}
+                  </ResolveNode>
                 </td>
               </tr>
             }
@@ -188,7 +216,7 @@ export const Table = withDisplayName<
                               column().align === 'right' && cm.textRight,
                             )}
                           >
-                            {getCellValue(row(), column(), rowIndex()) as JSX.Element}
+                            {getCellValue(row(), column(), rowIndex())}
                           </td>
                         )
                       }}

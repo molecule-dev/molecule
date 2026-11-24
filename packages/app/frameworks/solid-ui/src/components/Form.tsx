@@ -5,7 +5,6 @@
  */
 
 import {
-  children,
   createEffect,
   createMemo,
   createSignal,
@@ -17,10 +16,10 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
-import type { FormFieldProps, FormProps } from '@molecule/app-ui'
+import { resolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { FormFieldProps, FormProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
@@ -158,7 +157,7 @@ export const Form = withDisplayName<WithRef<SolidFormProps, HTMLFormElement>>((p
         </ul>
       </Show>
       <fieldset disabled={local.submitting || pending()} class={cm.formFieldsetContents}>
-        {local.children as JSX.Element}
+        {local.children}
       </fieldset>
     </form>
   )
@@ -207,7 +206,7 @@ export const FormField = withDisplayName<WithRef<FormFieldProps, HTMLDivElement>
   // The children as they render now. `children` resolves them once per change,
   // so the nodes are kept between reads, and it follows children that change (a
   // `<For>` of fields counts its items, as React counts an array).
-  const resolvedChildren = children(() => local.children as JSX.Element)
+  const resolvedChildren = resolveNode(() => local.children)
   // The single element React's `isValidElement(children)` clones into, else null.
   const singleChild = (): Element | null => {
     const nodes = resolvedChildren.toArray()

@@ -12,7 +12,7 @@
 
 import { type Component, createSignal, type JSX, Show, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { reactDomProps, toStyleProps } from '../utilities/dom.js'
@@ -88,9 +88,11 @@ export const LoadErrorBanner: Component<LoadErrorBannerProps> = (props) => {
       <Alert status="error" live={false}>
         <div class={cm.stack(2)}>
           <p class={cm.textSize('sm')}>{local.message}</p>
-          <Show when={local.detail}>
-            <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{local.detail}</p>
-          </Show>
+          {/* React's `slot(...)`: a `detail` or `retryLabel` that renders nothing is absent (the
+              detail hides; the label falls back to the localized "Retry"). */}
+          <PresentWhileNode node={local.detail}>
+            {(detail) => <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{detail()}</p>}
+          </PresentWhileNode>
           {local.children}
           <Show when={local.onRetry}>
             <div class={cm.flex({ justify: 'start' })}>
@@ -101,9 +103,21 @@ export const LoadErrorBanner: Component<LoadErrorBannerProps> = (props) => {
                 disabled={pending()}
                 data-mol-id={local.retryMolId ?? 'load-error-retry'}
               >
-                {pending()
-                  ? t('loadError.retrying', {}, { defaultValue: 'Retrying…' })
-                  : (local.retryLabel ?? t('loadError.retry', {}, { defaultValue: 'Retry' }))}
+                <Show
+                  when={!pending()}
+                  fallback={t('loadError.retrying', {}, { defaultValue: 'Retrying…' })}
+                >
+                  <ResolveNode node={local.retryLabel}>
+                    {(label, hasLabel) => (
+                      <Show
+                        when={hasLabel()}
+                        fallback={t('loadError.retry', {}, { defaultValue: 'Retry' })}
+                      >
+                        {label()}
+                      </Show>
+                    )}
+                  </ResolveNode>
+                </Show>
               </Button>
             </div>
           </Show>

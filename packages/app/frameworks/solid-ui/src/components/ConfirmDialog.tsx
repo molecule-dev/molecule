@@ -7,9 +7,9 @@
  * @module
  */
 
-import { children, type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
+import { type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
 
-import { rendersNode, useTranslation } from '@molecule/app-solid'
+import { createNodePresence, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.jsx'
@@ -70,27 +70,43 @@ export const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
   // `aria-dialog-name`).
   const titleId = createUniqueId()
   const descriptionId = createUniqueId()
-  // Resolved once, so the checks below and the markup read the same nodes. A
-  // title that renders nothing (React's `slot(title)`) names nothing, so the
-  // dialog then points at no heading.
-  const title = children(() => local.title)
-  const description = children(() => local.description)
-  const headingId = (): string | undefined => (rendersNode(title()) ? titleId : undefined)
+  // A title that renders nothing (React's `slot(title)`) names nothing, so the
+  // dialog then points at no heading. Both nodes resolve inside Modal's open
+  // branch, so they are created only while the dialog shows.
+  const title = createNodePresence()
+  const description = createNodePresence()
 
   return (
     <Modal
       open={local.open}
       onClose={local.onClose}
-      aria-labelledby={headingId()}
-      aria-describedby={rendersNode(description()) ? descriptionId : undefined}
+      aria-labelledby={title.present() ? titleId : undefined}
+      aria-describedby={description.present() ? descriptionId : undefined}
     >
       <div class={cm.stack(3)}>
-        <h2 id={headingId()} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-          {title()}
-        </h2>
-        <p id={descriptionId} class={cm.textSize('sm')}>
-          {description()}
-        </p>
+        <ResolveNode node={local.title}>
+          {(node, present) => {
+            title.report(present)
+            return (
+              <h2
+                id={present() ? titleId : undefined}
+                class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
+              >
+                {node()}
+              </h2>
+            )
+          }}
+        </ResolveNode>
+        <ResolveNode node={local.description}>
+          {(node, present) => {
+            description.report(present)
+            return (
+              <p id={descriptionId} class={cm.textSize('sm')}>
+                {node()}
+              </p>
+            )
+          }}
+        </ResolveNode>
         {local.children}
         <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
           <Button variant="ghost" onClick={local.onClose} disabled={local.loading}>

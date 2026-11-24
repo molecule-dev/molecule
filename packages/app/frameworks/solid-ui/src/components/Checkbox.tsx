@@ -4,11 +4,12 @@
  * @module
  */
 
-import { createEffect, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
+import { createEffect, createUniqueId, Show, splitProps } from 'solid-js'
 
-import type { CheckboxProps } from '@molecule/app-ui'
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { CheckboxProps } from '../types.js'
 import {
   reactDomProps,
   reflectCheckedAtCreation,
@@ -89,11 +90,14 @@ export const Checkbox = withDisplayName<WithRef<CheckboxProps, HTMLInputElement>
           onClick={handleClick}
           {...reactDomProps(rest)}
         />
-        <Show when={local.label}>
-          <span class={cm.cn(cm.controlText, local.disabled && cm.controlDisabled)}>
-            {local.label as JSX.Element}
-          </span>
-        </Show>
+        {/* React's `slot(label)`: a label that renders nothing adds no text. */}
+        <PresentWhileNode node={local.label}>
+          {(label) => (
+            <span class={cm.cn(cm.controlText, local.disabled && cm.controlDisabled)}>
+              {label()}
+            </span>
+          )}
+        </PresentWhileNode>
       </label>
       <Show when={local.error}>
         <p id={errorId()} class={cm.cn(cm.formError, cm.sp('mt', 1))}>

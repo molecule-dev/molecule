@@ -4,8 +4,9 @@
  * @module
  */
 
-import { type Component, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, Show, splitProps } from 'solid-js'
 
+import { PresentWhileNode, type WithNodes } from '@molecule/app-solid'
 import type { EmptyStateProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -20,7 +21,9 @@ import { toStyleProps, type WithRef } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered empty-state JSX.
  */
-export const EmptyState: Component<WithRef<EmptyStateProps, HTMLDivElement>> = (props) => {
+export const EmptyState: Component<
+  WithRef<WithNodes<EmptyStateProps, 'icon' | 'action'>, HTMLDivElement>
+> = (props) => {
   const [local] = splitProps(props, [
     'icon',
     'title',
@@ -35,6 +38,7 @@ export const EmptyState: Component<WithRef<EmptyStateProps, HTMLDivElement>> = (
 
   const cm = getClassMap()
 
+  // React's `slot(...)`: an icon or action that renders nothing adds no element.
   return (
     <div
       ref={(el) => {
@@ -45,16 +49,16 @@ export const EmptyState: Component<WithRef<EmptyStateProps, HTMLDivElement>> = (
       data-testid={local.testId}
       data-mol-id={local.automationId}
     >
-      <Show when={local.icon}>
-        <div class={cm.emptyStateIcon}>{local.icon as JSX.Element}</div>
-      </Show>
+      <PresentWhileNode node={local.icon}>
+        {(icon) => <div class={cm.emptyStateIcon}>{icon()}</div>}
+      </PresentWhileNode>
       <h3 class={cm.emptyStateTitle}>{local.title}</h3>
       <Show when={local.description}>
         <p class={cm.emptyStateDescription}>{local.description}</p>
       </Show>
-      <Show when={local.action}>
-        <div class={cm.emptyStateAction}>{local.action as JSX.Element}</div>
-      </Show>
+      <PresentWhileNode node={local.action}>
+        {(action) => <div class={cm.emptyStateAction}>{action()}</div>}
+      </PresentWhileNode>
     </div>
   )
 }

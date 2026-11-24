@@ -7,10 +7,11 @@
 import { type JSX, Show, splitProps } from 'solid-js'
 
 import type { IconName } from '@molecule/app-icons'
-import { useTranslation } from '@molecule/app-solid'
-import type { AlertProps, ColorVariant } from '@molecule/app-ui'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { AlertProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { withDisplayName } from './displayName.js'
@@ -80,7 +81,6 @@ export const Alert = withDisplayName<WithRef<AlertProps & { live?: boolean }, HT
       const name = iconName()
       return name ? renderIcon(name, cm.iconMd) : null
     }
-
     const alertClasses = (): string =>
       cm.cn(
         cm.alert({ variant: alertVariant() }),
@@ -110,14 +110,23 @@ export const Alert = withDisplayName<WithRef<AlertProps & { live?: boolean }, HT
         data-testid={local.testId}
         {...reactDomProps(rest)}
       >
-        <Show when={local.icon || defaultIcon()}>
-          <span class={cm.alertIconWrapper}>{(local.icon || defaultIcon()) as JSX.Element}</span>
-        </Show>
+        {/* React's `slot(icon)`: an `icon` that renders nothing falls back to the status icon. */}
+        <ResolveNode node={local.icon}>
+          {(icon, hasIcon) => (
+            <Show when={hasIcon() || defaultIcon()}>
+              <span class={cm.alertIconWrapper}>
+                <Show when={hasIcon()} fallback={defaultIcon()}>
+                  {icon()}
+                </Show>
+              </span>
+            </Show>
+          )}
+        </ResolveNode>
         <div class={cm.alertContent}>
           <Show when={local.title}>
             <h5 class={cm.alertTitle}>{local.title}</h5>
           </Show>
-          <div class={cm.alertDescription}>{local.children as JSX.Element}</div>
+          <div class={cm.alertDescription}>{local.children}</div>
         </div>
         <Show when={local.dismissible}>
           <button

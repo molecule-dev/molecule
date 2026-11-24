@@ -10,15 +10,14 @@ import {
   createSignal,
   createUniqueId,
   For,
-  type JSX,
   splitProps,
   useContext,
 } from 'solid-js'
 
 import { I18nError } from '@molecule/app-i18n'
-import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { AccordionItem as AccordionItemType, AccordionProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
@@ -82,7 +81,7 @@ const AccordionItemComponent: Component<{
         data-state={isExpanded() ? 'open' : 'closed'}
         disabled={isDisabled()}
       >
-        {props.item.header as JSX.Element}
+        {props.item.header}
         {renderIcon('chevron-down', cm.accordionChevron)}
       </button>
       <div
@@ -95,7 +94,7 @@ const AccordionItemComponent: Component<{
           display: isExpanded() ? 'block' : 'none',
         })}
       >
-        <div class={cm.accordionContentInner}>{props.item.content as JSX.Element}</div>
+        <div class={cm.accordionContentInner}>{props.item.content}</div>
       </div>
     </div>
   )

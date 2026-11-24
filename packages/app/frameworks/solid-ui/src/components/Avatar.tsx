@@ -4,12 +4,12 @@
  * @module
  */
 
-import { createSignal, type JSX, Show, splitProps } from 'solid-js'
+import { createSignal, Show, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
-import type { AvatarProps } from '@molecule/app-ui'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { AvatarProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { getInitials } from '../utilities/initials.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
@@ -64,16 +64,22 @@ export const Avatar = withDisplayName<WithRef<AvatarProps, HTMLDivElement>>((pro
         when={!showFallback()}
         fallback={
           <div class={cm.avatarFallback}>
-            <Show
-              when={local.fallback}
-              fallback={
-                <Show when={local.name} fallback={renderIcon('user', cm.avatarFallbackIcon)}>
-                  <span class={cm.avatarInitials}>{getInitials(local.name)}</span>
+            {/* React's `slot(fallback)`: a fallback that renders nothing uses the default
+                (initials, else the user icon). */}
+            <ResolveNode node={local.fallback}>
+              {(fallback, hasFallback) => (
+                <Show
+                  when={hasFallback()}
+                  fallback={
+                    <Show when={local.name} fallback={renderIcon('user', cm.avatarFallbackIcon)}>
+                      <span class={cm.avatarInitials}>{getInitials(local.name)}</span>
+                    </Show>
+                  }
+                >
+                  {fallback()}
                 </Show>
-              }
-            >
-              {local.fallback as JSX.Element}
-            </Show>
+              )}
+            </ResolveNode>
           </div>
         }
       >

@@ -4,11 +4,12 @@
  * @module
  */
 
-import { type JSX, onCleanup, onMount, Show, splitProps } from 'solid-js'
+import { onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { SwitchProps } from '@molecule/app-ui'
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { SwitchProps } from '../types.js'
 import {
   reactDomProps,
   reflectCheckedAtCreation,
@@ -114,9 +115,10 @@ export const Switch = withDisplayName<WithRef<SwitchProps, HTMLButtonElement>>((
         >
           <span data-state={state()} class={cm.switchThumb({ size: local.size ?? 'md' })} />
         </button>
-        <Show when={local.label}>
-          <span class={cm.controlText}>{local.label as JSX.Element}</span>
-        </Show>
+        {/* React's `slot(label)`: a label that renders nothing adds no text. */}
+        <PresentWhileNode node={local.label}>
+          {(label) => <span class={cm.controlText}>{label()}</span>}
+        </PresentWhileNode>
       </label>
     </>
   )

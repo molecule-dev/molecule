@@ -4,11 +4,12 @@
  * @module
  */
 
-import { type JSX, Show, splitProps } from 'solid-js'
+import { Show, splitProps } from 'solid-js'
 
-import type { ButtonProps } from '@molecule/app-ui'
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { ButtonProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
 import { Spinner } from './Spinner.jsx'
@@ -73,12 +74,17 @@ export const Button = withDisplayName<WithRef<ButtonProps, HTMLButtonElement>>((
       <Show when={local.loading}>
         <Spinner size="sm" className={cm.buttonIconLeft} />
       </Show>
-      <Show when={!local.loading && !!local.leftIcon}>
-        <span class={cm.buttonIconLeft}>{local.leftIcon as JSX.Element}</span>
+      {/* React's `!loading && slot(leftIcon)`: no icon while loading, and none that renders nothing. */}
+      <Show when={!local.loading}>
+        <PresentWhileNode node={local.leftIcon}>
+          {(icon) => <span class={cm.buttonIconLeft}>{icon()}</span>}
+        </PresentWhileNode>
       </Show>
-      {local.loading && local.loadingText ? local.loadingText : (local.children as JSX.Element)}
-      <Show when={!local.loading && !!local.rightIcon}>
-        <span class={cm.buttonIconRight}>{local.rightIcon as JSX.Element}</span>
+      {local.loading && local.loadingText ? local.loadingText : local.children}
+      <Show when={!local.loading}>
+        <PresentWhileNode node={local.rightIcon}>
+          {(icon) => <span class={cm.buttonIconRight}>{icon()}</span>}
+        </PresentWhileNode>
       </Show>
     </button>
   )

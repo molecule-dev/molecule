@@ -6,10 +6,10 @@
 
 import { createEffect, createUniqueId, type JSX, on, onCleanup, Show, splitProps } from 'solid-js'
 
-import { BodyPortal, useTranslation } from '@molecule/app-solid'
-import type { ModalProps } from '@molecule/app-ui'
+import { BodyPortal, PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { ModalProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { withDisplayName } from './displayName.js'
@@ -301,17 +301,18 @@ export const Modal = withDisplayName<
             <Show when={local.title} fallback={closeButton(cm.dialogCloseFloating)}>
               <div class={cm.dialogHeader}>
                 <h2 id={titleId} class={cm.dialogTitle}>
-                  {local.title as JSX.Element}
+                  {local.title}
                 </h2>
                 {closeButton(cm.dialogClose)}
               </div>
             </Show>
 
-            <div class={cm.dialogBody}>{local.children as JSX.Element}</div>
+            <div class={cm.dialogBody}>{local.children}</div>
 
-            <Show when={local.footer}>
-              <div class={cm.dialogFooter}>{local.footer as JSX.Element}</div>
-            </Show>
+            {/* React's `slot(footer)`: a footer that renders nothing adds no footer bar. */}
+            <PresentWhileNode node={local.footer}>
+              {(footer) => <div class={cm.dialogFooter}>{footer()}</div>}
+            </PresentWhileNode>
           </div>
         </div>
       </BodyPortal>

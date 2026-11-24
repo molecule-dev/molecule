@@ -4,12 +4,12 @@
  * @module
  */
 
-import { createUniqueId, For, type JSX, Show, splitProps } from 'solid-js'
+import { createUniqueId, For, Show, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
-import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { RadioGroupProps } from '../types.js'
 import {
   reactDomProps,
   reflectCheckedAtCreation,
@@ -124,7 +124,7 @@ export const RadioGroup = withDisplayName<WithRef<RadioGroupProps<string>, HTMLD
                       restoreControlled()
                     }}
                   />
-                  <span class={cm.controlText}>{option().label as JSX.Element}</span>
+                  <span class={cm.controlText}>{option().label}</span>
                 </label>
               )
             }}

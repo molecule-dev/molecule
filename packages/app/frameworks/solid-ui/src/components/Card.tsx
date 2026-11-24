@@ -6,9 +6,9 @@
 
 import { type JSX, splitProps } from 'solid-js'
 
-import type { CardProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { CardProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
 
@@ -81,7 +81,7 @@ export const Card = withDisplayName<
       onClick={local.disabled ? undefined : local.onClick}
       onKeyDown={handleKeyDown}
     >
-      {local.children as JSX.Element}
+      {local.children}
     </div>
   )
 }, 'Card')

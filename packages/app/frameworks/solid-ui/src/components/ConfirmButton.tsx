@@ -15,9 +15,9 @@ import {
 } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
-import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { ButtonProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 
 /**

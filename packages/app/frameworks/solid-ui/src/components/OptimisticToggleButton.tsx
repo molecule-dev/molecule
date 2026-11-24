@@ -14,8 +14,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ButtonProps } from '@molecule/app-ui'
-
+import type { ButtonProps } from '../types.js'
 import { reactDomProps, type WithRef } from '../utilities/dom.js'
 import { createOptimisticValue } from '../utilities/optimistic.js'
 import { Button } from './Button.jsx'

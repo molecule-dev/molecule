@@ -10,7 +10,6 @@
  */
 
 import {
-  children,
   type Component,
   createEffect,
   createSignal,
@@ -21,7 +20,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { rendersNode, useTranslation } from '@molecule/app-solid'
+import { createNodePresence, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.jsx'
@@ -97,12 +96,11 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
   // dialog (axe `aria-dialog-name`).
   const titleId = createUniqueId()
   const descriptionId = createUniqueId()
-  // Resolved once, so the checks below and the markup read the same nodes. A
-  // title that renders nothing (React's `slot(title)`) names nothing, so the
-  // dialog then points at no heading.
-  const title = children(() => local.title)
-  const description = children(() => local.description)
-  const headingId = (): string | undefined => (rendersNode(title()) ? titleId : undefined)
+  // A title that renders nothing (React's `slot(title)`) names nothing, so the
+  // dialog then points at no heading. Both nodes resolve inside Modal's open
+  // branch, so they are created only while the dialog shows.
+  const title = createNodePresence()
+  const description = createNodePresence()
 
   let inputRef: HTMLInputElement | undefined
 
@@ -177,51 +175,72 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
     <Modal
       open={local.open}
       onClose={handleClose}
-      aria-labelledby={headingId()}
-      aria-describedby={rendersNode(description()) ? descriptionId : undefined}
+      aria-labelledby={title.present() ? titleId : undefined}
+      aria-describedby={description.present() ? descriptionId : undefined}
     >
       <form onSubmit={handleSubmit}>
         <div class={cm.stack(3)}>
-          <h2 id={headingId()} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
-            {title()}
-          </h2>
-          <Show when={rendersNode(description())}>
-            <p id={descriptionId} class={cm.textSize('sm')}>
-              {description()}
-            </p>
-          </Show>
-          <Input
-            ref={(element: HTMLInputElement) => {
-              inputRef = element
+          <ResolveNode node={local.title}>
+            {(titleNode, hasTitle) => {
+              title.report(hasTitle)
+              return (
+                <>
+                  <h2
+                    id={hasTitle() ? titleId : undefined}
+                    class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
+                  >
+                    {titleNode()}
+                  </h2>
+                  <ResolveNode node={local.description}>
+                    {(descriptionNode, hasDescription) => {
+                      description.report(hasDescription)
+                      return (
+                        <Show when={hasDescription()}>
+                          <p id={descriptionId} class={cm.textSize('sm')}>
+                            {descriptionNode()}
+                          </p>
+                        </Show>
+                      )
+                    }}
+                  </ResolveNode>
+                  <Input
+                    ref={(element: HTMLInputElement) => {
+                      inputRef = element
+                    }}
+                    value={value()}
+                    onChange={(event) => setValue((event.target as HTMLInputElement).value)}
+                    placeholder={local.placeholder}
+                    aria-label={
+                      typeof titleNode() === 'string' ? (titleNode() as string) : local.placeholder
+                    }
+                    disabled={pending()}
+                    data-mol-id={local.inputMolId}
+                  />
+                  {local.children}
+                  <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={local.onClose}
+                      disabled={pending()}
+                      data-mol-id={local.cancelMolId}
+                    >
+                      {local.cancelLabel ?? t('prompt.cancel', {}, { defaultValue: 'Cancel' })}
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="solid"
+                      color={local.destructive ? 'error' : 'primary'}
+                      disabled={pending()}
+                      data-mol-id={local.confirmMolId}
+                    >
+                      {local.confirmLabel ?? t('prompt.confirm', {}, { defaultValue: 'Confirm' })}
+                    </Button>
+                  </div>
+                </>
+              )
             }}
-            value={value()}
-            onChange={(event) => setValue((event.target as HTMLInputElement).value)}
-            placeholder={local.placeholder}
-            aria-label={typeof title() === 'string' ? (title() as string) : local.placeholder}
-            disabled={pending()}
-            data-mol-id={local.inputMolId}
-          />
-          {local.children}
-          <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={local.onClose}
-              disabled={pending()}
-              data-mol-id={local.cancelMolId}
-            >
-              {local.cancelLabel ?? t('prompt.cancel', {}, { defaultValue: 'Cancel' })}
-            </Button>
-            <Button
-              type="submit"
-              variant="solid"
-              color={local.destructive ? 'error' : 'primary'}
-              disabled={pending()}
-              data-mol-id={local.confirmMolId}
-            >
-              {local.confirmLabel ?? t('prompt.confirm', {}, { defaultValue: 'Confirm' })}
-            </Button>
-          </div>
+          </ResolveNode>
         </div>
       </form>
     </Modal>

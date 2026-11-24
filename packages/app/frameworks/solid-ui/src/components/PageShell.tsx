@@ -4,9 +4,9 @@
  * @module
  */
 
-import { type Component, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, Show, splitProps } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation, type WithNodes } from '@molecule/app-solid'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -21,7 +21,9 @@ import { toStyleProps, type WithRef } from '../utilities/dom.js'
  * @param props - The component props.
  * @returns The rendered page shell JSX.
  */
-export const PageShell: Component<WithRef<PageShellProps, HTMLDivElement>> = (props) => {
+export const PageShell: Component<
+  WithRef<WithNodes<PageShellProps, 'children' | 'sidebar' | 'topbar'>, HTMLDivElement>
+> = (props) => {
   const [local] = splitProps(props, [
     'children',
     'sidebar',
@@ -60,34 +62,40 @@ export const PageShell: Component<WithRef<PageShellProps, HTMLDivElement>> = (pr
       data-testid={local.testId}
       data-mol-id={local.automationId}
     >
-      <Show when={local.sidebar}>
-        <aside
-          class={cm.cn(cm.pageShellSidebar, local.sidebarCollapsed && cm.pageShellSidebarCollapsed)}
-        >
-          <Show when={local.onSidebarToggle}>
-            <button
-              type="button"
-              class={cm.pageShellSidebarToggle}
-              onClick={handleSidebarToggle}
-              aria-label={
-                local.sidebarCollapsed
-                  ? t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
-                  : t('ui.pageShell.collapseSidebar', undefined, {
-                      defaultValue: 'Collapse sidebar',
-                    })
-              }
-            >
-              {local.sidebarCollapsed ? '▶' : '◀'}
-            </button>
-          </Show>
-          {local.sidebar as JSX.Element}
-        </aside>
-      </Show>
+      {/* React's `slot(...)`: a sidebar or topbar that renders nothing adds no element. */}
+      <PresentWhileNode node={local.sidebar}>
+        {(sidebar) => (
+          <aside
+            class={cm.cn(
+              cm.pageShellSidebar,
+              local.sidebarCollapsed && cm.pageShellSidebarCollapsed,
+            )}
+          >
+            <Show when={local.onSidebarToggle}>
+              <button
+                type="button"
+                class={cm.pageShellSidebarToggle}
+                onClick={handleSidebarToggle}
+                aria-label={
+                  local.sidebarCollapsed
+                    ? t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
+                    : t('ui.pageShell.collapseSidebar', undefined, {
+                        defaultValue: 'Collapse sidebar',
+                      })
+                }
+              >
+                {local.sidebarCollapsed ? '▶' : '◀'}
+              </button>
+            </Show>
+            {sidebar()}
+          </aside>
+        )}
+      </PresentWhileNode>
       <div class={cm.flex1}>
-        <Show when={local.topbar}>
-          <header class={cm.pageShellTopbar}>{local.topbar as JSX.Element}</header>
-        </Show>
-        <main class={cm.pageShellContent}>{local.children as JSX.Element}</main>
+        <PresentWhileNode node={local.topbar}>
+          {(topbar) => <header class={cm.pageShellTopbar}>{topbar()}</header>}
+        </PresentWhileNode>
+        <main class={cm.pageShellContent}>{local.children}</main>
       </div>
     </div>
   )
