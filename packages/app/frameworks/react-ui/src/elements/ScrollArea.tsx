@@ -10,7 +10,6 @@ import type { ScrollAreaProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
 import { webElementStyle } from './style.js'
-import { reportBareText } from './textChildren.js'
 import type { ElementNode, ElementRefProps } from './types.js'
 
 /**
@@ -29,7 +28,6 @@ export function ScrollArea({
   ref,
   ...props
 }: ScrollAreaProps<ElementNode> & ElementRefProps): ReactElement {
-  reportBareText('ScrollArea', as, children)
   return createElement(
     as,
     { ...props, ref: useElementRef(ref), style: webElementStyle(style, webStyle) },

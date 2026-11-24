@@ -12,7 +12,7 @@
  * @module
  */
 
-import type { ElementRole, UIClassMapNativeSplit } from './elements.js'
+import type { ElementProps, ElementRole, UIClassMapNativeSplit } from './elements.js'
 
 // ============================================================================
 // FRAMEWORK-AGNOSTIC BASE TYPES
@@ -970,6 +970,18 @@ export interface CardProps extends HTMLElementProps {
    * Padding size.
    */
   padding?: Size | 'none'
+}
+
+/** Props of a card's header, title, description, content and footer. */
+export interface CardSectionProps extends ElementProps {
+  /** Tooltip text. */
+  title?: string
+
+  /** CSS for the web. */
+  style?: CSSProperties
+
+  /** Contents. */
+  children?: Children
 }
 
 // ============================================================================
