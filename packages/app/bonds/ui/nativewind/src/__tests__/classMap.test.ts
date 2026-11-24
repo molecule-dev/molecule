@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
+
 import { describe, expect, it } from 'vitest'
 
 import type { UIClassMap } from '@molecule/app-ui'
@@ -6,6 +10,29 @@ import { classMap as tailwindClassMap } from '@molecule/app-ui-tailwind'
 import { classMap } from '../classMap.js'
 
 describe('@molecule/app-ui-nativewind classMap', () => {
+  it("names the web ClassMap's breakpoints, in pixels", () => {
+    const web = createRequire(fileURLToPath(import.meta.resolve('@molecule/app-ui-tailwind')))
+    const theme = readFileSync(web.resolve('tailwindcss/theme.css'), 'utf8')
+    const breakpoints = Object.fromEntries(
+      [...theme.matchAll(/--breakpoint-([a-z0-9]+): ([\d.]+)rem;/g)].map(([, name, rem]) => [
+        name,
+        Number(rem) * 16,
+      ]),
+    )
+    expect(breakpoints.sm).toBe(640)
+    expect(classMap.nativeBreakpoints).toEqual(breakpoints)
+  })
+
+  it("names the tags the web ClassMap's preflight makes blocks", () => {
+    // The preflight of the Tailwind the web ClassMap is built with, not this bond's Tailwind 3.
+    const web = createRequire(fileURLToPath(import.meta.resolve('@molecule/app-ui-tailwind')))
+    const preflight = readFileSync(web.resolve('tailwindcss/preflight.css'), 'utf8')
+    const rule = /([a-z,\s]+)\{\s*display: block;/.exec(preflight.replace(/\/\*[\s\S]*?\*\//g, ''))
+    const tags = (rule?.[1] ?? '').split(',').map((tag) => tag.trim())
+    expect(tags).toContain('svg')
+    expect(classMap.nativeBlockTags).toEqual(tags)
+  })
+
   it('should implement UIClassMap interface', () => {
     const cm: UIClassMap = classMap
     expect(cm).toBeDefined()
@@ -34,36 +61,27 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   })
 
   // =================================================================
-  // grid() — flexbox-based, not CSS grid
+  // grid() — the web's grid classes, which the native elements lay out
   // =================================================================
 
   describe('grid()', () => {
-    it('should return flexbox-based classes instead of CSS grid', () => {
-      const result = classMap.grid()
-      expect(result).toContain('flex')
-      expect(result).toContain('flex-row')
-      expect(result).toContain('flex-wrap')
-      expect(result).not.toContain('grid')
+    it("keeps the web ClassMap's grid classes for a device", () => {
+      expect(classMap.grid()).toBe(tailwindClassMap.grid())
+      expect(classMap.grid({ cols: 3, gap: 'lg' })).toBe(
+        tailwindClassMap.grid({ cols: 3, gap: 'lg' }),
+      )
     })
 
-    it('should default to gap-4', () => {
-      const result = classMap.grid()
-      expect(result).toContain('gap-4')
-    })
-
-    it('should map gap sizes', () => {
-      expect(classMap.grid({ gap: 'none' })).toContain('gap-0')
-      expect(classMap.grid({ gap: 'xs' })).toContain('gap-1')
-      expect(classMap.grid({ gap: 'sm' })).toContain('gap-2')
-      expect(classMap.grid({ gap: 'md' })).toContain('gap-4')
-      expect(classMap.grid({ gap: 'lg' })).toContain('gap-6')
-      expect(classMap.grid({ gap: 'xl' })).toContain('gap-8')
-    })
-
-    it('should fall back to gap-4 for unknown gap values', () => {
-      // When cols is passed but gap is not, default gap-4
-      const result = classMap.grid({ cols: 3 })
-      expect(result).toContain('gap-4')
+    it('reads the columns, gaps and breakpoints a native grid lays out', () => {
+      const split = classMap.splitForNative?.(classMap.grid({ cols: 3, gap: 'lg' }), '')
+      expect(split?.display).toBe('grid')
+      expect(split?.grid).toEqual({
+        columns: { '': 1, sm: 2, lg: 3 },
+        columnGap: { '': 24 },
+        rowGap: { '': 24 },
+        alignItems: {},
+      })
+      expect(split?.view).not.toMatch(/grid/)
     })
   })
 

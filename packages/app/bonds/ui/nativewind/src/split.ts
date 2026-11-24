@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { NativeClassSplit } from '@molecule/app-ui'
+import type { NativeClassSplit, NativeGridClasses } from '@molecule/app-ui'
 
 import { descendantRule, splitVariants, stateRule } from './device.js'
 import { lineHeightClass } from './fontSizes.js'
@@ -80,17 +80,42 @@ function textProperties(utility: string): readonly string[] | null {
   return null
 }
 
-/** The display each display utility sets (`grid` becomes flex on a device). */
+/** The display each display utility sets. */
 const DISPLAY: Readonly<Record<string, NativeClassSplit['display']>> = {
   block: 'block',
   inline: 'inline',
   'inline-block': 'inline-block',
   flex: 'flex',
   'inline-flex': 'inline-flex',
-  grid: 'flex',
-  'inline-grid': 'inline-flex',
+  grid: 'grid',
+  'inline-grid': 'inline-grid',
   hidden: 'none',
 }
+
+/** The breakpoint variants a grid's columns, gaps and spans are read at. */
+const BREAKPOINT = /^(?:sm|md|lg|xl|2xl)$/
+
+/**
+ * The pixels a gap utility sets and the gaps it sets (`gap-4` is 16 for both, `gap-x-2` 8 between
+ * columns), on Tailwind's 4px spacing scale.
+ *
+ * @param utility - A utility without its variants.
+ * @returns The gaps and pixels, or `null` for a utility that is not a gap.
+ */
+function gapOf(utility: string): { axis: 'x' | 'y' | null; px: number } | null {
+  const match = /^gap-(?:([xy])-)?(.+)$/.exec(utility)
+  if (!match?.[2]) return null
+  const axis = (match[1] as 'x' | 'y' | undefined) ?? null
+  const value = match[2]
+  if (value === 'px') return { axis, px: 1 }
+  if (/^\d+(?:\.\d+)?$/.test(value)) return { axis, px: Number(value) * 4 }
+  const arbitrary = /^\[(\d+(?:\.\d+)?)(px|rem)\]$/.exec(value)
+  if (arbitrary?.[1]) return { axis, px: Number(arbitrary[1]) * (arbitrary[2] === 'rem' ? 16 : 1) }
+  return null
+}
+
+/** Item alignments of a grid (`items-center`). */
+const ITEMS = /^items-(start|end|center|stretch|baseline)$/
 
 /**
  * Display utilities a native view has no equivalent for: they say how the element flows among
@@ -104,7 +129,8 @@ const FLOW_ONLY: Readonly<Record<string, string | null>> = {
   'flow-root': null,
   contents: null,
   'inline-flex': 'flex',
-  'inline-grid': 'flex',
+  grid: null,
+  'inline-grid': null,
 }
 
 /** Splits already made, by class string and inherited text (an app renders a bounded set). */
@@ -200,6 +226,11 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
   const flexAt: string[][] = []
   let direction = false
   const descendants: Record<string, string[]> = {}
+  const columns: Record<string, number | string> = {}
+  const columnGap: Record<string, number> = {}
+  const rowGap: Record<string, number> = {}
+  const alignItems: Record<string, NativeGridClasses['alignItems'][string]> = {}
+  const span: Record<string, number | 'full'> = {}
   for (const cls of className.split(/\s+/)) {
     if (!cls) continue
     const rule = descendantRule(cls)
@@ -208,6 +239,34 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       continue
     }
     const { variants, utility } = splitVariants(cls)
+    // A grid's columns, gaps and item alignment, and a grid item's span, at each breakpoint. A
+    // device has no grid layout: the native elements lay one out from these, and the column and
+    // span classes, which NativeWind cannot apply, leave the view.
+    const at =
+      variants.length === 0
+        ? ''
+        : variants.length === 1 && BREAKPOINT.test(variants[0] ?? '')
+          ? (variants[0] ?? '')
+          : null
+    if (at !== null) {
+      const cols = /^grid-cols-(?:(\d+)|(none)|\[(.+)\])$/.exec(utility)
+      if (cols) {
+        columns[at] = cols[1] ? Number(cols[1]) : cols[2] ? 1 : (cols[3] ?? '').replace(/_/g, ' ')
+        continue
+      }
+      const spans = /^col-span-(\d+|full)$/.exec(utility)
+      if (spans?.[1]) {
+        span[at] = spans[1] === 'full' ? 'full' : Number(spans[1])
+        continue
+      }
+      const gap = gapOf(utility)
+      if (gap) {
+        if (gap.axis !== 'y') columnGap[at] = gap.px
+        if (gap.axis !== 'x') rowGap[at] = gap.px
+      }
+      const items = ITEMS.exec(utility)?.[1] as NativeGridClasses['alignItems'][string] | undefined
+      if (items) alignItems[at] = items
+    }
     if (variants.length === 0 && (utility === 'truncate' || /^line-clamp-\d+$/.test(utility))) {
       lines = utility === 'truncate' ? 1 : Number(utility.slice('line-clamp-'.length))
       continue
@@ -262,8 +321,16 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       tags.length === 0
         ? NO_DESCENDANTS
         : Object.fromEntries(tags.map((tag) => [tag, (descendants[tag] ?? []).join(' ')])),
+    grid:
+      display === 'grid' || display === 'inline-grid'
+        ? { columns, columnGap, rowGap, alignItems }
+        : null,
+    span: Object.keys(span).length === 0 ? NO_SPAN : span,
   }
 }
+
+/** The span of an element that is no grid item with a span class. */
+const NO_SPAN: Readonly<Record<string, number | 'full'>> = Object.freeze({})
 
 /** The descendant classes of an element that gives its descendants none. */
 const NO_DESCENDANTS: Readonly<Record<string, string>> = Object.freeze({})

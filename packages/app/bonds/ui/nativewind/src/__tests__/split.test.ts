@@ -12,6 +12,8 @@ describe('splitForNative', () => {
       lines: null,
       weight: 700,
       descendants: {},
+      grid: null,
+      span: {},
     })
   })
 
@@ -23,6 +25,8 @@ describe('splitForNative', () => {
       lines: null,
       weight: null,
       descendants: {},
+      grid: null,
+      span: {},
     })
     expect(splitForNative('inline-flex items-center')).toEqual({
       view: 'flex items-center flex-row',
@@ -31,6 +35,8 @@ describe('splitForNative', () => {
       lines: null,
       weight: null,
       descendants: {},
+      grid: null,
+      span: {},
     })
     expect(splitForNative('hidden sm:flex').display).toBe('none')
   })
@@ -67,6 +73,8 @@ describe('splitForNative', () => {
       lines: null,
       weight: null,
       descendants: {},
+      grid: null,
+      span: {},
     })
   })
 
@@ -78,6 +86,8 @@ describe('splitForNative', () => {
       lines: 1,
       weight: null,
       descendants: {},
+      grid: null,
+      span: {},
     })
     expect(splitForNative('line-clamp-3').lines).toBe(3)
     expect(splitForNative('line-clamp-3 line-clamp-none').lines).toBeNull()
@@ -100,7 +110,8 @@ describe('splitForNative', () => {
     // A direction class at any variant is the author's choice; a block is never given one.
     expect(splitForNative('flex flex-col').view).toBe('flex flex-col')
     expect(splitForNative('flex md:flex-col').view).toBe('flex md:flex-col')
-    expect(splitForNative('grid gap-2').view).toBe('grid gap-2')
+    // A grid is no flex container: the native elements lay it out from the split's `grid`.
+    expect(splitForNative('grid gap-2').view).toBe('gap-2')
     expect(splitForNative('p-2').view).toBe('p-2')
   })
 
@@ -144,6 +155,29 @@ describe('splitForNative', () => {
     expect(active.view).toContain('bg-background')
     expect(inactive.view).not.toContain('bg-background')
     expect(`${active.view} ${active.text}`).not.toContain('data-[')
+  })
+
+  it('reads a grid: its columns, gaps and item alignment at each breakpoint, off the view', () => {
+    const split = splitForNative(
+      'grid grid-cols-1 sm:grid-cols-[1fr_2fr] lg:grid-cols-none gap-x-2 gap-y-[10px] md:gap-6 items-center p-4',
+    )
+    expect(split.display).toBe('grid')
+    expect(split.grid).toEqual({
+      columns: { '': 1, sm: '1fr 2fr', lg: 1 },
+      columnGap: { '': 8, md: 24 },
+      rowGap: { '': 10, md: 24 },
+      alignItems: { '': 'center' },
+    })
+    expect(split.view).toBe('gap-x-2 gap-y-[10px] md:gap-6 items-center p-4')
+    expect(splitForNative('inline-grid grid-cols-2').display).toBe('inline-grid')
+  })
+
+  it('reads a grid item span and gives no grid to an element that is not one', () => {
+    const split = splitForNative('col-span-2 md:col-span-full gap-4 p-2')
+    expect(split.span).toEqual({ '': 2, md: 'full' })
+    expect(split.grid).toBeNull()
+    expect(split.view).toBe('gap-4 p-2')
+    expect(splitForNative('p-2').span).toEqual({})
   })
 
   it('is the ClassMap member', () => {

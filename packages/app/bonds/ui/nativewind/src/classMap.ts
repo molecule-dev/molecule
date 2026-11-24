@@ -5,7 +5,8 @@
  * unsupported or behave differently in NativeWind / React Native.
  *
  * NativeWind v4 supports ~90% of Tailwind CSS. Key differences:
- * - No CSS grid (`display: grid`) — use flexbox wrap instead
+ * - No CSS grid layout: the grid classes stay the web's, and the native elements lay a grid out
+ *   from what `splitForNative` reads of them (columns, gaps, spans)
  * - No `hover:` pseudo-class — touch devices use `active:` instead
  * - No `backdrop-blur` — not supported in RN
  * - Transitions and animations run on Reanimated; the Tailwind preset
@@ -21,7 +22,6 @@
 import type {
   ClassMapValue,
   ContainerClassOptions,
-  GridClassOptions,
   ModalClassOptions,
   ResponsiveBreakpoint,
   Size,
@@ -70,6 +70,10 @@ export const classMap: UIClassMap = {
   // What base.css gives the web's html and body (font, 16px on a 24px line, the foreground colour).
   nativeRootText: 'font-document text-base text-foreground',
   nativeButtonText: 'text-center',
+  // Tailwind's preflight makes replaced elements blocks (`img, svg, video, … { display: block }`).
+  nativeBlockTags: ['img', 'svg', 'video', 'canvas', 'audio', 'iframe', 'embed', 'object'],
+  // Tailwind's breakpoints (`--breakpoint-sm: 40rem` …), in pixels.
+  nativeBreakpoints: { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 },
 
   // ---- Overrides for RN-incompatible classes ----
 
@@ -92,21 +96,6 @@ export const classMap: UIClassMap = {
     // the same cn() from @molecule/app-styling (tailwind-merge) since
     // NativeWind class strings are valid Tailwind class strings.
     return tailwindClassMap.cn(...classes)
-  },
-
-  // Grid: NativeWind does not support CSS grid. Use flexbox wrap instead.
-  grid(opts?: GridClassOptions): string {
-    const gapMap: Record<string, string> = {
-      none: 'gap-0',
-      xs: 'gap-1',
-      sm: 'gap-2',
-      md: 'gap-4',
-      lg: 'gap-6',
-      xl: 'gap-8',
-    }
-    const gap = opts?.gap ? gapMap[opts.gap] || 'gap-4' : 'gap-4'
-    // Approximate grid columns using flex-wrap + percentage widths
-    return `flex flex-row flex-wrap ${gap}`
   },
 
   // Container: Replace responsive max-width with simple padding

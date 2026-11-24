@@ -786,6 +786,25 @@ export interface SvgTextProps<Node = unknown> extends SvgPaintProps {
 // ============================================================================
 
 /**
+ * A CSS grid's classes ({@link NativeClassSplit.grid}), by breakpoint variant: `''` at the base
+ * size, then `sm`, `md`, … ({@link UIClassMapNativeSplit.nativeBreakpoints}). A device has no grid
+ * layout, so a native element lays its children out from these.
+ */
+export interface NativeGridClasses {
+  /**
+   * Its columns: a count of equal columns (`grid-cols-3` is 3), or a CSS track list
+   * (`grid-cols-[1fr_2fr]` is `'1fr 2fr'`). No entry at the base size is one column.
+   */
+  columns: Readonly<Record<string, number | string>>
+  /** The gap between its columns, in pixels (`gap-4` and `gap-x-4` are 16). */
+  columnGap: Readonly<Record<string, number>>
+  /** The gap between its rows, in pixels. */
+  rowGap: Readonly<Record<string, number>>
+  /** How its items sit in their rows (`items-center`); stretched when it sets none. */
+  alignItems: Readonly<Record<string, 'start' | 'end' | 'center' | 'stretch' | 'baseline'>>
+}
+
+/**
  * A class string divided for a native renderer, which has no CSS cascade (see
  * {@link UIClassMapNativeSplit}).
  */
@@ -805,7 +824,16 @@ export interface NativeClassSplit {
    * `null` when they set none: `flex`/`inline-flex` make its children flex items, `inline` and
    * `inline-*` put it in a line with its inline siblings, `block` takes it out of one.
    */
-  display: 'block' | 'inline' | 'inline-block' | 'flex' | 'inline-flex' | 'none' | null
+  display:
+    | 'block'
+    | 'inline'
+    | 'inline-block'
+    | 'flex'
+    | 'inline-flex'
+    | 'grid'
+    | 'inline-grid'
+    | 'none'
+    | null
   /**
    * The lines the element's text is clamped to with an ellipsis (`truncate` is 1,
    * `line-clamp-3` is 3), or `null`. The clamp is the element's own: it is not inherited.
@@ -822,6 +850,16 @@ export interface NativeClassSplit {
    * applied by each descendant element whose tag it names, after that element's own classes.
    */
   descendants?: Readonly<Record<string, string>>
+  /**
+   * The element's grid when {@link NativeClassSplit.display} is `grid` or `inline-grid`, else
+   * `null`. Its column and span classes are left out of `view`.
+   */
+  grid?: NativeGridClasses | null
+  /**
+   * The columns the element spans as a grid item, by breakpoint variant (`col-span-2` is
+   * `{ '': 2 }`; `col-span-full` is every column).
+   */
+  span?: Readonly<Record<string, number | 'full'>>
 }
 
 /**
@@ -853,4 +891,15 @@ export interface UIClassMapNativeSplit {
    * inherits there: native text starts from them.
    */
   nativeRootText?: string
+  /**
+   * The tags the web's stylesheet makes blocks although a browser draws them inline (Tailwind's
+   * reset makes `img` and `svg` blocks): a native image or drawing with one of these tags stacks
+   * like a block unless a class puts it in a line (`inline`, `inline-block`).
+   */
+  nativeBlockTags?: readonly string[]
+  /**
+   * The window width, in pixels, from which each breakpoint variant applies (`sm:` from 640):
+   * a native grid picks its columns and gaps by it.
+   */
+  nativeBreakpoints?: Readonly<Record<string, number>>
 }
