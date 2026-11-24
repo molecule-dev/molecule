@@ -36,6 +36,15 @@ export interface SettingsContainerProps {
   children?: Snippet
 }
 
+/** Props for `AuthSection`. Same name and meaning as the React component's. */
+export interface AuthSectionProps {
+  /**
+   * Show the two-factor row. Set false when the API has no two-factor provider
+   * (no `POST /users/:id/verify-two-factor` route). Default true.
+   */
+  twoFactor?: boolean
+}
+
 /** Props for the `DevicesSection` component. */
 export interface DevicesSectionProps {
   /**

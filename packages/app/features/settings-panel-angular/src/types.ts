@@ -35,6 +35,16 @@ export interface Device {
   isCurrent?: boolean
 }
 
+/** Props for `AuthSection`. Same name and meaning as the React component's. */
+export interface AuthSectionProps {
+  /**
+   * Show the two-factor row. Set false when the API has no two-factor provider
+   * (no `POST /users/:id/verify-two-factor` route). Default true. Bound in a template as
+   * `[twoFactor]="false"`.
+   */
+  twoFactor?: boolean
+}
+
 /**
  * Props for `TiersUpgradeSection` — the same props
  * `@molecule/app-settings-panel-react` accepts.

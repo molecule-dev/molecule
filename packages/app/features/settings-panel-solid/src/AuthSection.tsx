@@ -19,6 +19,15 @@ export interface TwoFactorSetup {
   secret?: string
 }
 
+/** Options for {@link AuthSection}. */
+export interface AuthSectionProps {
+  /**
+   * Show the two-factor row. Set false when the API has no two-factor provider
+   * (no `POST /users/:id/verify-two-factor` route). Default true.
+   */
+  twoFactor?: boolean
+}
+
 /**
  * Authentication section — change password (modal) + two-factor (TOTP) setup.
  *
@@ -32,12 +41,16 @@ export interface TwoFactorSetup {
  * handler deliberately ignores — so it never actually enrolled 2FA.)
  *
  * Auto-hides for OAuth-only users (`user.oauthServer` truthy) since
- * password / 2FA wouldn't apply. If the app's API has no two-factor
- * provider bonded, setup fails gracefully with an inline message.
+ * password / 2FA wouldn't apply. Pass `twoFactor={false}` when the app's API
+ * has no two-factor provider: it then serves no `verify-two-factor` route, so
+ * the section shows only the password change and reads no 2FA status.
  *
+ * @param props - The section's options.
+ * @param props.twoFactor - Show the two-factor row (default true).
  * @returns The authentication settings section.
  */
-export function AuthSection(): JSX.Element {
+export function AuthSection(props: AuthSectionProps = {}): JSX.Element {
+  const twoFactor = (): boolean => props.twoFactor !== false
   const cm = getClassMap()
   const { t } = useTranslation()
   const { user } = useAuth<UserProfile>()
@@ -61,19 +74,21 @@ export function AuthSection(): JSX.Element {
   onCleanup(() => {
     cancelled = true
   })
-  void http
-    .get<{ props?: { twoFactorEnabled?: boolean }; twoFactorEnabled?: boolean }>('/api/users/me')
-    .then((res) => {
-      if (cancelled) return
-      const body = (res as { data?: Record<string, unknown> }).data ?? res
-      const u = ((body as { props?: Record<string, unknown> }).props ?? body) as {
-        twoFactorEnabled?: boolean
-      }
-      setTwoFactorEnabled(Boolean(u?.twoFactorEnabled))
-    })
-    .catch((_error) => {
-      /* status read is best-effort; defaults to disabled */
-    })
+  if (twoFactor()) {
+    void http
+      .get<{ props?: { twoFactorEnabled?: boolean }; twoFactorEnabled?: boolean }>('/api/users/me')
+      .then((res) => {
+        if (cancelled) return
+        const body = (res as { data?: Record<string, unknown> }).data ?? res
+        const u = ((body as { props?: Record<string, unknown> }).props ?? body) as {
+          twoFactorEnabled?: boolean
+        }
+        setTwoFactorEnabled(Boolean(u?.twoFactorEnabled))
+      })
+      .catch((_error) => {
+        /* status read is best-effort; defaults to disabled */
+      })
+  }
 
   const closeTf = (): void => {
     setTfModal(null)
@@ -144,42 +159,44 @@ export function AuthSection(): JSX.Element {
           <Button variant="outline" size="sm" onClick={() => setShowModal(true)}>
             {t('settings.changePassword', undefined, { defaultValue: 'Change password' })}
           </Button>
-          <Flex align="center" justify="between">
-            <span class={cm.textSize('sm')}>
-              {t('settings.twoFactor', undefined, { defaultValue: 'Two-factor authentication' })}
-              <Show when={twoFactorEnabled()}>
-                <span class={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}>
-                  {t('settings.twoFactorOn', undefined, { defaultValue: 'On' })}
-                </span>
-              </Show>
-            </span>
-            <Show
-              when={twoFactorEnabled()}
-              fallback={
+          <Show when={twoFactor()}>
+            <Flex align="center" justify="between">
+              <span class={cm.textSize('sm')}>
+                {t('settings.twoFactor', undefined, { defaultValue: 'Two-factor authentication' })}
+                <Show when={twoFactorEnabled()}>
+                  <span class={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}>
+                    {t('settings.twoFactorOn', undefined, { defaultValue: 'On' })}
+                  </span>
+                </Show>
+              </span>
+              <Show
+                when={twoFactorEnabled()}
+                fallback={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void startEnable()}
+                    {...molIdProps('two-factor-enable')}
+                  >
+                    {t('settings.twoFactorEnable', undefined, { defaultValue: 'Enable' })}
+                  </Button>
+                }
+              >
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => void startEnable()}
-                  {...molIdProps('two-factor-enable')}
+                  onClick={() => {
+                    setTfError('')
+                    setTfToken('')
+                    setTfModal('disable')
+                  }}
+                  {...molIdProps('two-factor-disable')}
                 >
-                  {t('settings.twoFactorEnable', undefined, { defaultValue: 'Enable' })}
+                  {t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })}
                 </Button>
-              }
-            >
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setTfError('')
-                  setTfToken('')
-                  setTfModal('disable')
-                }}
-                {...molIdProps('two-factor-disable')}
-              >
-                {t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })}
-              </Button>
-            </Show>
-          </Flex>
+              </Show>
+            </Flex>
+          </Show>
         </div>
       </section>
 
@@ -239,78 +256,82 @@ export function AuthSection(): JSX.Element {
         </form>
       </Modal>
 
-      <Modal
-        open={tfModal() !== null}
-        onClose={closeTf}
-        title={
-          tfModal() === 'disable'
-            ? t('settings.twoFactorDisableTitle', undefined, {
-                defaultValue: 'Disable two-factor authentication',
-              })
-            : t('settings.twoFactorEnableTitle', undefined, {
-                defaultValue: 'Enable two-factor authentication',
-              })
-        }
-      >
-        <Show when={tfError()}>
-          <Alert status="error" className={cm.sp('mb', 4)}>
-            {tfError()}
-          </Alert>
-        </Show>
-        <Show when={tfModal() === 'enable' && tfSetup()?.QRImageUrl}>
-          <div class={cm.cn(cm.stack(3), cm.sp('mb', 4))}>
-            <p class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
-              {t('settings.twoFactorScan', undefined, {
-                defaultValue:
-                  'Scan this QR code with your authenticator app, then enter the 6-digit code.',
-              })}
-            </p>
-            <img
-              src={tfSetup()?.QRImageUrl}
-              alt={t('settings.twoFactorQrAlt', undefined, { defaultValue: 'Two-factor QR code' })}
-              class={cm.cn(cm.mxAuto, cm.maxW('xs'))}
-            />
-            <Show when={tfSetup()?.secret}>
-              <p class={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.settingsPanelTwoFactorSecret)}>
-                {tfSetup()?.secret}
+      <Show when={twoFactor()}>
+        <Modal
+          open={tfModal() !== null}
+          onClose={closeTf}
+          title={
+            tfModal() === 'disable'
+              ? t('settings.twoFactorDisableTitle', undefined, {
+                  defaultValue: 'Disable two-factor authentication',
+                })
+              : t('settings.twoFactorEnableTitle', undefined, {
+                  defaultValue: 'Enable two-factor authentication',
+                })
+          }
+        >
+          <Show when={tfError()}>
+            <Alert status="error" className={cm.sp('mb', 4)}>
+              {tfError()}
+            </Alert>
+          </Show>
+          <Show when={tfModal() === 'enable' && tfSetup()?.QRImageUrl}>
+            <div class={cm.cn(cm.stack(3), cm.sp('mb', 4))}>
+              <p class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+                {t('settings.twoFactorScan', undefined, {
+                  defaultValue:
+                    'Scan this QR code with your authenticator app, then enter the 6-digit code.',
+                })}
               </p>
-            </Show>
-          </div>
-        </Show>
-        <Show when={tfModal() === 'disable' || tfSetup()}>
-          <form
-            class={cm.stack(4)}
-            onSubmit={(e) => {
-              e.preventDefault()
-              void submitTf(tfModal() === 'disable' ? 'disable' : 'enable')
-            }}
-          >
-            <div>
-              <label for="tf-token" class={cm.formLabel}>
-                {t('settings.twoFactorCode', undefined, { defaultValue: 'Authentication code' })}
-              </label>
-              <Input
-                id="tf-token"
-                type="text"
-                value={tfToken()}
-                onChange={(e) => setTfToken((e.target as HTMLInputElement).value)}
-                autoComplete="one-time-code"
-                required
+              <img
+                src={tfSetup()?.QRImageUrl}
+                alt={t('settings.twoFactorQrAlt', undefined, {
+                  defaultValue: 'Two-factor QR code',
+                })}
+                class={cm.cn(cm.mxAuto, cm.maxW('xs'))}
               />
+              <Show when={tfSetup()?.secret}>
+                <p class={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.settingsPanelTwoFactorSecret)}>
+                  {tfSetup()?.secret}
+                </p>
+              </Show>
             </div>
-            <Button
-              type="submit"
-              color={tfModal() === 'disable' ? 'error' : undefined}
-              fullWidth
-              loading={tfLoading()}
+          </Show>
+          <Show when={tfModal() === 'disable' || tfSetup()}>
+            <form
+              class={cm.stack(4)}
+              onSubmit={(e) => {
+                e.preventDefault()
+                void submitTf(tfModal() === 'disable' ? 'disable' : 'enable')
+              }}
             >
-              {tfModal() === 'disable'
-                ? t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })
-                : t('settings.twoFactorVerify', undefined, { defaultValue: 'Verify & enable' })}
-            </Button>
-          </form>
-        </Show>
-      </Modal>
+              <div>
+                <label for="tf-token" class={cm.formLabel}>
+                  {t('settings.twoFactorCode', undefined, { defaultValue: 'Authentication code' })}
+                </label>
+                <Input
+                  id="tf-token"
+                  type="text"
+                  value={tfToken()}
+                  onChange={(e) => setTfToken((e.target as HTMLInputElement).value)}
+                  autoComplete="one-time-code"
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                color={tfModal() === 'disable' ? 'error' : undefined}
+                fullWidth
+                loading={tfLoading()}
+              >
+                {tfModal() === 'disable'
+                  ? t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })
+                  : t('settings.twoFactorVerify', undefined, { defaultValue: 'Verify & enable' })}
+              </Button>
+            </form>
+          </Show>
+        </Modal>
+      </Show>
     </Show>
   )
 }

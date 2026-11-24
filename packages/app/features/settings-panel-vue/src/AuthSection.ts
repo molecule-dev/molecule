@@ -36,14 +36,21 @@ export interface TwoFactorSetup {
  * handler deliberately ignores — so it never actually enrolled 2FA.)
  *
  * Auto-hides for OAuth-only users (`user.oauthServer` truthy) since
- * password / 2FA wouldn't apply. If the app's API has no two-factor
- * provider bonded, setup fails gracefully with an inline message.
+ * password / 2FA wouldn't apply. Pass `:two-factor="false"` when the app's API
+ * has no two-factor provider: it then serves no `verify-two-factor` route, so
+ * the section shows only the password change and reads no 2FA status.
+ *
+ * Prop `twoFactor` (boolean, default true): show the two-factor row.
  *
  * @returns The authentication section component.
  */
 export const AuthSection = defineComponent({
   name: 'AuthSection',
-  setup() {
+  props: {
+    /** Show the two-factor row; false when the API has no two-factor provider. */
+    twoFactor: { type: Boolean, default: true },
+  },
+  setup(props) {
     const cm = getClassMap()
     const { t } = useTranslation()
     const { user } = useAuth<UserProfile>()
@@ -64,6 +71,7 @@ export const AuthSection = defineComponent({
     // Read the persisted 2FA status from /users/me on mount.
     let cancelled = false
     onMounted(() => {
+      if (!props.twoFactor) return
       http
         .get<{ props?: { twoFactorEnabled?: boolean }; twoFactorEnabled?: boolean }>(
           '/api/users/me',
@@ -174,43 +182,48 @@ export const AuthSection = defineComponent({
               { variant: 'outline', size: 'sm', onClick: () => (showModal.value = true) },
               () => [t('settings.changePassword', undefined, { defaultValue: 'Change password' })],
             ),
-            h(Flex, { align: 'center', justify: 'between' }, () => [
-              h('span', { class: cm.textSize('sm') }, [
-                t('settings.twoFactor', undefined, {
-                  defaultValue: 'Two-factor authentication',
-                }),
+            props.twoFactor &&
+              h(Flex, { align: 'center', justify: 'between' }, () => [
+                h('span', { class: cm.textSize('sm') }, [
+                  t('settings.twoFactor', undefined, {
+                    defaultValue: 'Two-factor authentication',
+                  }),
+                  twoFactorEnabled.value
+                    ? h(
+                        'span',
+                        { class: cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2)) },
+                        [t('settings.twoFactorOn', undefined, { defaultValue: 'On' })],
+                      )
+                    : null,
+                ]),
                 twoFactorEnabled.value
-                  ? h('span', { class: cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2)) }, [
-                      t('settings.twoFactorOn', undefined, { defaultValue: 'On' }),
-                    ])
-                  : null,
-              ]),
-              twoFactorEnabled.value
-                ? h(
-                    Button,
-                    {
-                      variant: 'outline',
-                      size: 'sm',
-                      onClick: () => {
-                        tfError.value = ''
-                        tfToken.value = ''
-                        tfModal.value = 'disable'
+                  ? h(
+                      Button,
+                      {
+                        variant: 'outline',
+                        size: 'sm',
+                        onClick: () => {
+                          tfError.value = ''
+                          tfToken.value = ''
+                          tfModal.value = 'disable'
+                        },
+                        'data-mol-id': 'two-factor-disable',
                       },
-                      'data-mol-id': 'two-factor-disable',
-                    },
-                    () => [t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })],
-                  )
-                : h(
-                    Button,
-                    {
-                      variant: 'outline',
-                      size: 'sm',
-                      onClick: () => void startEnable(),
-                      'data-mol-id': 'two-factor-enable',
-                    },
-                    () => [t('settings.twoFactorEnable', undefined, { defaultValue: 'Enable' })],
-                  ),
-            ]),
+                      () => [
+                        t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' }),
+                      ],
+                    )
+                  : h(
+                      Button,
+                      {
+                        variant: 'outline',
+                        size: 'sm',
+                        onClick: () => void startEnable(),
+                        'data-mol-id': 'two-factor-enable',
+                      },
+                      () => [t('settings.twoFactorEnable', undefined, { defaultValue: 'Enable' })],
+                    ),
+              ]),
           ]),
         ]),
         h(
@@ -289,106 +302,109 @@ export const AuthSection = defineComponent({
             ],
           },
         ),
-        h(
-          Modal,
-          {
-            open: tfModal.value !== null,
-            onClose: closeTf,
-            title:
-              tfModal.value === 'disable'
-                ? t('settings.twoFactorDisableTitle', undefined, {
-                    defaultValue: 'Disable two-factor authentication',
-                  })
-                : t('settings.twoFactorEnableTitle', undefined, {
-                    defaultValue: 'Enable two-factor authentication',
-                  }),
-          },
-          {
-            default: () => [
-              tfError.value
-                ? h(Alert, { status: 'error', className: cm.sp('mb', 4) }, () => [tfError.value])
-                : null,
-              tfModal.value === 'enable' && tfSetup.value?.QRImageUrl
-                ? h('div', { class: cm.cn(cm.stack(3), cm.sp('mb', 4)) }, [
-                    h('p', { class: cm.cn(cm.textSize('sm'), cm.textMuted) }, [
-                      t('settings.twoFactorScan', undefined, {
-                        defaultValue:
-                          'Scan this QR code with your authenticator app, then enter the 6-digit code.',
-                      }),
-                    ]),
-                    h('img', {
-                      src: tfSetup.value?.QRImageUrl,
-                      alt: t('settings.twoFactorQrAlt', undefined, {
-                        defaultValue: 'Two-factor QR code',
-                      }),
-                      class: cm.cn(cm.mxAuto, cm.maxW('xs')),
+        props.twoFactor &&
+          h(
+            Modal,
+            {
+              open: tfModal.value !== null,
+              onClose: closeTf,
+              title:
+                tfModal.value === 'disable'
+                  ? t('settings.twoFactorDisableTitle', undefined, {
+                      defaultValue: 'Disable two-factor authentication',
+                    })
+                  : t('settings.twoFactorEnableTitle', undefined, {
+                      defaultValue: 'Enable two-factor authentication',
                     }),
-                    tfSetup.value?.secret
-                      ? h(
-                          'p',
-                          {
-                            class: cm.cn(
-                              cm.textSize('xs'),
-                              cm.textSubtle,
-                              cm.settingsPanelTwoFactorSecret,
-                            ),
-                          },
-                          [tfSetup.value.secret],
-                        )
-                      : null,
-                  ])
-                : null,
-              tfModal.value === 'disable' || tfSetup.value
-                ? h(
-                    'form',
-                    {
-                      onSubmit: (e: Event) => {
-                        e.preventDefault()
-                        void submitTf(tfModal.value === 'disable' ? 'disable' : 'enable')
-                      },
-                      class: cm.stack(4),
-                    },
-                    [
-                      h('div', [
-                        h(
-                          'label',
-                          { for: 'tf-token', class: cm.formLabel },
-                          t('settings.twoFactorCode', undefined, {
-                            defaultValue: 'Authentication code',
-                          }),
-                        ),
-                        h(Input, {
-                          id: 'tf-token',
-                          type: 'text',
-                          value: tfToken.value,
-                          onChange: (e: Event) =>
-                            (tfToken.value = (e.target as HTMLInputElement).value),
-                          autoComplete: 'one-time-code',
-                          required: true,
+            },
+            {
+              default: () => [
+                tfError.value
+                  ? h(Alert, { status: 'error', className: cm.sp('mb', 4) }, () => [tfError.value])
+                  : null,
+                tfModal.value === 'enable' && tfSetup.value?.QRImageUrl
+                  ? h('div', { class: cm.cn(cm.stack(3), cm.sp('mb', 4)) }, [
+                      h('p', { class: cm.cn(cm.textSize('sm'), cm.textMuted) }, [
+                        t('settings.twoFactorScan', undefined, {
+                          defaultValue:
+                            'Scan this QR code with your authenticator app, then enter the 6-digit code.',
                         }),
                       ]),
-                      h(
-                        Button,
-                        {
-                          type: 'submit',
-                          color: tfModal.value === 'disable' ? 'error' : undefined,
-                          fullWidth: true,
-                          loading: tfLoading.value,
+                      h('img', {
+                        src: tfSetup.value?.QRImageUrl,
+                        alt: t('settings.twoFactorQrAlt', undefined, {
+                          defaultValue: 'Two-factor QR code',
+                        }),
+                        class: cm.cn(cm.mxAuto, cm.maxW('xs')),
+                      }),
+                      tfSetup.value?.secret
+                        ? h(
+                            'p',
+                            {
+                              class: cm.cn(
+                                cm.textSize('xs'),
+                                cm.textSubtle,
+                                cm.settingsPanelTwoFactorSecret,
+                              ),
+                            },
+                            [tfSetup.value.secret],
+                          )
+                        : null,
+                    ])
+                  : null,
+                tfModal.value === 'disable' || tfSetup.value
+                  ? h(
+                      'form',
+                      {
+                        onSubmit: (e: Event) => {
+                          e.preventDefault()
+                          void submitTf(tfModal.value === 'disable' ? 'disable' : 'enable')
                         },
-                        () => [
-                          tfModal.value === 'disable'
-                            ? t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })
-                            : t('settings.twoFactorVerify', undefined, {
-                                defaultValue: 'Verify & enable',
-                              }),
-                        ],
-                      ),
-                    ],
-                  )
-                : null,
-            ],
-          },
-        ),
+                        class: cm.stack(4),
+                      },
+                      [
+                        h('div', [
+                          h(
+                            'label',
+                            { for: 'tf-token', class: cm.formLabel },
+                            t('settings.twoFactorCode', undefined, {
+                              defaultValue: 'Authentication code',
+                            }),
+                          ),
+                          h(Input, {
+                            id: 'tf-token',
+                            type: 'text',
+                            value: tfToken.value,
+                            onChange: (e: Event) =>
+                              (tfToken.value = (e.target as HTMLInputElement).value),
+                            autoComplete: 'one-time-code',
+                            required: true,
+                          }),
+                        ]),
+                        h(
+                          Button,
+                          {
+                            type: 'submit',
+                            color: tfModal.value === 'disable' ? 'error' : undefined,
+                            fullWidth: true,
+                            loading: tfLoading.value,
+                          },
+                          () => [
+                            tfModal.value === 'disable'
+                              ? t('settings.twoFactorDisable', undefined, {
+                                  defaultValue: 'Disable',
+                                })
+                              : t('settings.twoFactorVerify', undefined, {
+                                  defaultValue: 'Verify & enable',
+                                }),
+                          ],
+                        ),
+                      ],
+                    )
+                  : null,
+              ],
+            },
+          ),
       ]
       return children
     }

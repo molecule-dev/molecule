@@ -4,7 +4,17 @@
  * @module
  */
 
-import { Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core'
+import {
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  // The UI kit's text field is `Input` here, so the decorator takes another name.
+  Input as InputProperty,
+  type OnInit,
+  signal,
+} from '@angular/core'
 
 import {
   MolPlacement,
@@ -47,8 +57,9 @@ export interface TwoFactorSetup {
  * handler deliberately ignores — so it never actually enrolled 2FA.)
  *
  * Auto-hides for OAuth-only users (`user.oauthServer` truthy) since
- * password / 2FA wouldn't apply. If the app's API has no two-factor
- * provider bonded, setup fails gracefully with an inline message.
+ * password / 2FA wouldn't apply. Pass `[twoFactor]="false"` when the app's API
+ * has no two-factor provider: it then serves no `verify-two-factor` route, so
+ * the section shows only the password change and reads no 2FA status.
  *
  * `useChangePassword`'s state is a live getter over a plain object (the
  * Angular binding's `usePromise` port), so the pending/error reads are
@@ -73,6 +84,7 @@ export interface TwoFactorSetup {
         >
           {{ t('settings.changePassword', undefined, { defaultValue: 'Change password' }) }}
         </button>
+        @if (showTwoFactor()) {
         <div mol-flex [align]="'center'" [justify]="'between'">
           <span [class]="cm.textSize('sm')">{{ t('settings.twoFactor', undefined, { defaultValue: 'Two-factor authentication' }) }}@if (twoFactorEnabled()) {<span [class]="cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))">{{ t('settings.twoFactorOn', undefined, { defaultValue: 'On' }) }}</span>}</span>
           @if (twoFactorEnabled()) {
@@ -97,6 +109,7 @@ export interface TwoFactorSetup {
             </button>
           }
         </div>
+        }
       </div>
     </section>
     <mol-modal
@@ -153,6 +166,7 @@ export interface TwoFactorSetup {
         </button>
       </form>
     </mol-modal>
+    @if (showTwoFactor()) {
     <mol-modal [open]="tfModal() !== null" (close)="closeTf()" [title]="tfTitle()">
       @if (tfError(); as tfFailure) {
         <div mol-alert [status]="'error'" [className]="cm.sp('mb', 4)">{{ tfFailure }}</div>
@@ -212,9 +226,20 @@ export interface TwoFactorSetup {
           </button>
         </form>
       }
-    </mol-modal>}`,
+    </mol-modal>}}`,
 })
-export class AuthSection {
+export class AuthSection implements OnInit {
+  /**
+   * Show the two-factor row. Set false when the API has no two-factor provider
+   * (no `POST /users/:id/verify-two-factor` route). Default true.
+   */
+  @InputProperty() set twoFactor(value: boolean) {
+    this.showTwoFactor.set(value)
+  }
+
+  /** The `twoFactor` input, as a signal the template reads. */
+  protected readonly showTwoFactor = signal(true)
+
   /** The signed-in user (React's `useAuth().user`). */
   protected readonly auth = useAuth<UserProfile>()
 
@@ -302,11 +327,7 @@ export class AuthSection {
         })
   }
 
-  /**
-   * Reads the persisted 2FA status from `/users/me` on mount (React's mount
-   * effect); status read is best-effort and defaults to disabled. A result
-   * that lands after unmount is dropped like React's cancelled one.
-   */
+  /** Places the section's content in the host's position and drops a late status read. */
   constructor() {
     usePlacement(() => {
       // React's fragment (the section plus two modals) or nothing: the whole
@@ -318,6 +339,17 @@ export class AuthSection {
     inject(DestroyRef).onDestroy(() => {
       read.cancelled = true
     })
+  }
+
+  /**
+   * Reads the persisted 2FA status from `/users/me` on mount (React's mount
+   * effect), once the inputs are set; status read is best-effort and defaults
+   * to disabled. A result that lands after unmount is dropped like React's
+   * cancelled one. Without the two-factor row there is nothing to read.
+   */
+  ngOnInit(): void {
+    if (!this.showTwoFactor()) return
+    const read = this.twoFactorRead
     void this.http
       .get<{ props?: { twoFactorEnabled?: boolean }; twoFactorEnabled?: boolean }>('/api/users/me')
       .then((res) => {
