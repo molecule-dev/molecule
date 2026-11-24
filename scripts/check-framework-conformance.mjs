@@ -977,6 +977,10 @@ const portFramework = (name) =>
  * `Name (type)` exempts one kind of a name React exports as both.
  */
 export const EXPORT_EXEMPT = {
+  '@molecule/app-ui-react': {
+    './elements':
+      'the renderer-neutral elements one React feature renders with on React DOM and React Native; a Vue, Svelte, Solid or Angular port renders its own DOM',
+  },
   '@molecule/app-react': {
     './render':
       "React render-cycle helpers (committed refs, effect events, stable callbacks) for code written to React's render model; the other frameworks' reactivity has no render to stabilize against",

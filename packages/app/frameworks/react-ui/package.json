@@ -15,6 +15,10 @@
       "types": "./dist/components/Tooltip.d.ts",
       "import": "./dist/components/Tooltip.js"
     },
+    "./elements": {
+      "types": "./dist/elements/index.d.ts",
+      "import": "./dist/elements/index.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -36,7 +40,7 @@
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-icons": "^1.0.1",
     "@molecule/app-react": "^4.13.0",
-    "@molecule/app-ui": "^1.5.0",
+    "@molecule/app-ui": "^1.6.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },

@@ -9,6 +9,7 @@ import React, { forwardRef } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { SpinnerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -32,17 +33,22 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps & { 'data-mol-id'
         : undefined
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         role="status"
         aria-label={label || t('ui.spinner.loading', undefined, { defaultValue: 'Loading' })}
         className={classes}
-        style={{ ...style, ...colorStyle }}
+        webStyle={{ ...style, ...colorStyle }}
         data-testid={testId}
-        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+        {...rootProps(rest)}
       >
-        {label && <span className={cm.srOnly}>{label}</span>}
-      </div>
+        {label && (
+          <Text as="span" className={cm.srOnly}>
+            {label}
+          </Text>
+        )}
+      </Box>
     )
   },
 )

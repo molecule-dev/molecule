@@ -9,6 +9,7 @@ import React, { forwardRef } from 'react'
 import { slot } from '@molecule/app-react/render'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, registerInline } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 import { Spinner } from './Spinner.js'
@@ -50,24 +51,35 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const classes = cm.cn(cm.button({ variant, color, size, fullWidth }), className)
 
     return (
-      <button
+      <Pressable
+        as="button"
         ref={ref}
         type={type}
         className={classes}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         disabled={disabled || loading}
         onClick={onClick}
         aria-busy={loading}
-        {...(rootProps(rest) as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+        {...rootProps(rest)}
       >
         {loading && <Spinner size="sm" className={cm.buttonIconLeft} />}
-        {!loading && !!leftIcon && <span className={cm.buttonIconLeft}>{leftIcon}</span>}
+        {!loading && !!leftIcon && (
+          <Box as="span" className={cm.buttonIconLeft}>
+            {leftIcon}
+          </Box>
+        )}
         {loading && loadingText ? loadingText : (children as React.ReactNode)}
-        {!loading && !!rightIcon && <span className={cm.buttonIconRight}>{rightIcon}</span>}
-      </button>
+        {!loading && !!rightIcon && (
+          <Box as="span" className={cm.buttonIconRight}>
+            {rightIcon}
+          </Box>
+        )}
+      </Pressable>
     )
   },
 )
 
 Button.displayName = 'Button'
+
+registerInline(Button, () => 'box')
