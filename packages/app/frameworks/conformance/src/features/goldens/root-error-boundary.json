@@ -61,6 +61,37 @@
      "<header>\nAcme\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /"
     ],
     "calls": []
+   },
+   "element child, with a stateful children": {
+    "snapshots": [
+     "<main data-app>\napp content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0",
+     "<main data-app>\napp content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "several children, with a stateful children": {
+    "snapshots": [
+     "<header>\nAcme\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /\n@lifetime children created=1 disposed=0",
+     "<header>\nAcme\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "children survive a re-render, with a stateful children": {
+    "snapshots": [
+     "<main>\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0",
+     "<main data-conformance-mark=\"0\">\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0",
+     "<main data-conformance-mark=\"0\">\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0",
+     "<main data-conformance-mark=\"0\">\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "children survive a locale switch, with a stateful children": {
+    "snapshots": [
+     "<main>\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0",
+     "<main>\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0",
+     "<main>\nMain content\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</main>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
    }
   }
  }

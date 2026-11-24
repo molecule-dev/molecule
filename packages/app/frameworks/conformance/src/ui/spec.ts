@@ -25,7 +25,7 @@ import type { BindingServices } from '../bindings/spec.js'
  * of the UI package's own components (for compound components such as
  * `Card` > `CardHeader`, or `UserMenuPopover` > `UserMenuPopoverTrigger`).
  */
-export type NodeSpec = string | ElementSpec | ComponentSpec | ProbeSpec
+export type NodeSpec = string | ElementSpec | ComponentSpec | ProbeSpec | LifetimeSpec
 
 /** A plain DOM element. */
 export interface ElementSpec {
@@ -90,6 +90,52 @@ export interface ProbeSpec {
  * result when set, otherwise (for a probe that is not a `value` probe) the
  * result itself. `probeValue` and `callProbe` implement this.
  */
+
+/**
+ * A node that records when it is created and disposed, so a case shows whether a port creates a
+ * slot's content only while it is shown, and again each time it is shown, as React mounts it.
+ * Every adapter renders it as one of its own components, counting the creation with
+ * {@link lifetimeCreated} as the component is set up and the disposal with {@link lifetimeDisposed}
+ * from the framework's cleanup. Every snapshot then ends with each probe's totals
+ * (`@lifetime footer created=1 disposed=0`).
+ *
+ * It has state, as a stateful child does: a `lifetime` step ({@link Interaction}) flips each live
+ * instance's own flag, and it then renders {@link LIFETIME_ON}. A port that replaced the instance
+ * since it was created shows the new instance's state (off) and counts a second creation. What it
+ * renders, by {@link LifetimeSpec.root}:
+ *
+ * - an element (the default): `<i data-parity-lifetime="footer" data-parity-ordinal="N"></i>`
+ *   (N counts this case's instances from 1), holding `on` once flipped. It is empty until then,
+ *   so it changes no accessible name or text a component reads when it renders;
+ * - `fragment`: the text `item N`, then `on` once flipped, with no element around them
+ *   (React's `<>{label}{on && 'on'}</>`);
+ * - `conditional`: nothing, then `on` once flipped (React's `on ? 'on' : null`).
+ *
+ * The kit derives the cases that use it ({@link withChildSteps}). Each framework passes the list
+ * that holds it the way its consumers write stateful content: React, Vue and Svelte as written;
+ * Solid as written, or as accessor items for a list the family declares in
+ * {@link UIComponentCases.itemLists} ({@link CaseForm}); Angular with `*molLazy` on the list's
+ * content.
+ */
+export interface LifetimeSpec {
+  /** Its name in the snapshot's `@lifetime` line: the slot it is passed in. */
+  lifetime: string
+  /**
+   * What it renders at its root: an element (default), a fragment, or a conditional. A fragment
+   * or conditional root is how a component written by a consumer often starts (`return <Show …>`),
+   * and the kit places one only as a top-level item of a declared item list.
+   */
+  root?: 'fragment' | 'conditional'
+}
+
+/**
+ * Narrows a node to a lifetime node.
+ *
+ * @param node - The node.
+ * @returns Whether it is a lifetime probe.
+ */
+export const isLifetimeSpec = (node: NodeSpec): node is LifetimeSpec =>
+  typeof node === 'object' && 'lifetime' in node
 
 /**
  * Narrows a node to a probe node.
@@ -260,6 +306,11 @@ export type Interaction =
   | { type: 'invoke'; callback: string; path: (string | number)[]; args?: unknown[] }
   /** Navigates the router the component sees (as a link elsewhere in the app would). */
   | { type: 'navigate'; to: string }
+  /**
+   * Flips the state of every live lifetime probe named `name` (see {@link LifetimeSpec}), as a
+   * user acting inside that stateful child would. A probe not mounted is not changed.
+   */
+  | { type: 'lifetime'; name: string }
   /**
    * Dispatches a plain DOM event (`error` / `load` on an image, `scroll`, `resize`).
    * `selector` may be `window` or `document`.
@@ -670,6 +721,16 @@ export interface UIComponentCases {
    * fails. Every family whose React export is a `forwardRef` component names this.
    */
   ref?: ElementRefCase
+  /**
+   * Lists the component consumes item by item (it counts, slices or wraps each child, as React's
+   * `children.length`, `children.slice` or `Children.map` do), each with the reason. A
+   * framework whose consumers write separately created items another way passes such a list that
+   * way ({@link CaseForm.itemLists}): for Solid, an array of accessors, since Solid creates plain
+   * JSX children when the prop is read and counting them reads it. A declaration must be needed:
+   * the runner also runs the list as written and fails when that matches React, so the
+   * declaration is removed once the component no longer depends on it.
+   */
+  itemLists?: Readonly<Record<string, string>>
 }
 
 /** The case a family's ref case is derived from; see {@link UIComponentCases.ref}. */
@@ -756,6 +817,48 @@ export interface FrameworkAdapter {
   exportNames: readonly string[]
   /** Mount, run interactions, snapshot after each step, unmount. */
   run(component: string, testCase: UICase, options?: RunOptions): Promise<CaseResult>
+  /**
+   * Other ways this framework's consumers write a case's input, each run as its own test beside
+   * the case and held to the case's React result (see {@link CaseForm}).
+   */
+  forms?: readonly CaseForm[]
+  /**
+   * Checks the framework's prop types against the families' declared item lists: in Solid, a
+   * declared list's prop accepts an accessor item (`NodeItems`) and every other list's refuses
+   * one (`JSX.Element`). The runner registers it as one test of the suite, `item list prop
+   * types`, which no known gap can list.
+   *
+   * @param families - The families the suite runs.
+   * @param testPath - The suite's test file, in the package under test.
+   * @returns One message per prop whose type disagrees; empty when every one agrees.
+   */
+  listTypeProblems?(families: readonly UIComponentCases[], testPath: string): Promise<string[]>
+}
+
+/**
+ * Another way a framework's consumer writes a case's input, with the same React result: Solid's
+ * `, with a stateful <list> passed as accessors`, where each node of the list is `() => node`.
+ * The runner adds the test `<case name><suffix>` for each case the form applies to and passes
+ * `form` to {@link FrameworkAdapter.run}; no other framework runs it, and no golden is recorded
+ * for it.
+ */
+export interface CaseForm {
+  /** Appended to the case's name for the form's test; the adapter receives it as `form`. */
+  suffix: string
+  /**
+   * This form is how the framework's consumers write a list of separately created items. For a
+   * case whose stateful list its family declares in {@link UIComponentCases.itemLists}, the case
+   * runs in this form only, under its own name, and the list as written must differ from React. It
+   * runs for no other case: a list its family does not declare is not written as separate items.
+   */
+  itemLists?: boolean
+  /**
+   * Whether the form changes anything in the case (no test otherwise).
+   *
+   * @param testCase - The case.
+   * @returns Whether to run the case in this form too.
+   */
+  appliesTo(testCase: UICase): boolean
 }
 
 /** How one case is mounted, beyond the case itself. */
@@ -767,6 +870,8 @@ export interface RunOptions {
    * components read HTTP, push, device or storage run this way.
    */
   app?: AppComposition
+  /** The `suffix` of the adapter's {@link CaseForm} to write the case in; the case as written otherwise. */
+  form?: string
 }
 
 /** Builds the full service set one case mounts with. */

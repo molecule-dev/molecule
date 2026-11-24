@@ -301,6 +301,123 @@
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "default columns and gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "one column, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "two columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "four columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "five columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "six columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c8e42a37c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c8e42a37c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "xs gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9866e6d5 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9866e6d5 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "sm gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "md gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "lg gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className passthrough, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "columns change, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "gap change, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className change, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c6f6923dd c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c6f6923dd c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className removed, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "default columns and gap, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
    }
   }
  }

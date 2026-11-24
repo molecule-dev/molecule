@@ -192,6 +192,49 @@ case fills gets `"<name>, then <slot> emptied and refilled"`; those two take the
 recording without the switch would drop them and refuses to run. A snapshot taken while a step
 has emptied a list the case mounted with nodes is not held to axe's accessible-name rules.
 
+The same switch derives, for each case and each list with nodes that none of its own steps
+replaces, `"<name>, with a stateful <list>"`: the case with a lifetime node (`{ lifetime: '<list>' }`,
+`LifetimeSpec`) in that list, and a last step `{ type: 'lifetime', name: '<list>' }`. Each framework
+renders the node as one of its own components that counts its creations and disposals and has
+state: the step flips each live instance's flag, and it then renders `on`. Every snapshot ends with
+`@lifetime <list> created=N disposed=M`. React mounts a slot only where and while it renders it,
+and again each time it shows it, and keeps an instance's state while it stays mounted, so a port
+that creates a closed dialog's footer, keeps one instance across close and reopen, creates a row
+twice, or replaces a row (its state lost) is caught.
+
+A list is passed the way that framework's consumer may write it, as the component's prop type
+allows:
+
+| React, Vue, Svelte | Solid                                                                                         | Angular                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| as written         | plain JSX; accessor items (`() => node`, in an array) for a list declared in `itemLists` only | `*molLazy` on the list's content (`MolLazy`, `@molecule/app-angular`), nested lists too |
+
+An Angular port reads a lazy child as the element it stands for (`isElementChild`, `slotElement`),
+and renders a slot's children in more than one place with `MolSlotCopy`, which stamps a live
+instance per place as React's `{children}` does. A family whose component consumes a list item by
+item (it counts or slices the children, as `children.length` and `children.slice` do) declares it,
+with the reason: `itemLists: { children: 'counts the items and renders the first initialCount' }`.
+Solid's plain JSX children are created when the prop is read, and counting them reads it, so a
+Solid consumer passes such a list as accessor items, and Solid runs a declared list's cases in that
+form only, under the case's own name. A declared list also gets two cases with the lifetime node as
+its first item, rendering a fragment or nothing until it changes (`"<name>, with a stateful <list>
+item rendering a fragment"`, `"… item rendering nothing until it changes"`), the roots a consumer's
+own component often has. In every stateful case the child has state that a step changes, and it
+must be created once and keep that state; in an `itemLists` list the child is also a top-level item
+whose root output changes.
+
+The declaration is checked: it gives a reason, names a list a case passes, and is needed
+(`"itemLists.<list> is needed"` runs each such case as written and fails when every one matches
+React; remove it then). In Solid the declaration and the prop type must agree, and the compiler
+checks it: each Solid suite has the test `item list prop types` (`solidListTypeProblems`,
+`src/adapters/solid-list-types.ts`), which reads the port's `src/index.ts` and fails when a
+declared list's prop refuses an accessor item (type it `NodeItems` from `@molecule/app-solid`) or an
+undeclared list's prop accepts one (`unknown`, `any` or `NodeItems`: type it `JSX.Element`, and a
+prop inherited from `@molecule/app-ui` with `WithNodes<Props, 'children'>`). No known gap can
+list it. What a declared list gives up: a port that reads the raw prop twice is not caught there,
+and raw-prop inspection of an undeclared list is no longer run with accessor items, since a
+consumer cannot pass them.
+
 A `click` takes optional `modifiers` (`{ ctrlKey, metaKey, shiftKey, altKey }`). A click
 inside an `a[href]` adds `@click default prevented` or `@click default kept` to the snapshot
 after it: whether the browser would still follow the anchor. An in-app link must prevent a

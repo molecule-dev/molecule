@@ -368,7 +368,15 @@
     "snapshots": [
      "<span>\nA\n</span>\n@route /",
      "\n@route /",
+     "\n@route /",
      "<span>\nA\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "unknown provider with a fallback, with a stateful fallback": {
+    "snapshots": [
+     "<span>\nA\n<i data-parity-lifetime=\"fallback\" data-parity-ordinal=\"1\">\n</i>\n</span>\n@route /\n@lifetime fallback created=1 disposed=0",
+     "<span>\nA\n<i data-parity-lifetime=\"fallback\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n@route /\n@lifetime fallback created=1 disposed=0"
     ],
     "calls": []
    }

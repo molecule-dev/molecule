@@ -160,7 +160,66 @@
     "snapshots": [
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n</div>\n</div>\n</div>\n@route /",
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n</div>\n</div>\n@route /",
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "children inside the stack, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "onClick marks the card clickable, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\" data-mol-id=\"card-x\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-inner>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\" data-mol-id=\"card-x\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-inner>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "a click anywhere on the card calls onClick, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-inner>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-inner>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-inner>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "a click on an action button bubbles into onClick, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<button data-action type=\"button\">\nSave\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<button data-action type=\"button\">\nSave\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<button data-action type=\"button\">\nSave\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</button>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "children inside the stack, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<div data-slot>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }
@@ -228,7 +287,23 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n</button>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n@route /",
      "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its children, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "renders its children, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c42740ba6 c9566e21c c9cd623cf cc2d72006 ccae02ff2 cd9b20003\">\n<button data-a type=\"button\">\nBuy\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }
@@ -335,6 +410,7 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-title>\nSea view\n</strong>\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n</h3>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-title>\nSea view\n</strong>\n</h3>\n</div>\n@route /"
     ],
     "calls": []
@@ -342,6 +418,7 @@
    "subtitle as a node, then subtitle emptied and refilled": {
     "snapshots": [
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n<em data-subtitle>\nDowntown\n</em>\n</p>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n<em data-subtitle>\nDowntown\n</em>\n</p>\n</div>\n@route /"
     ],
@@ -351,6 +428,7 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n<span data-price>\n$120\n</span>\n</p>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n<span data-price>\n$120\n</span>\n</p>\n</div>\n@route /"
     ],
     "calls": []
@@ -359,7 +437,43 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n</span>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node, with a stateful title": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-title>\nSea view\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</h3>\n</div>\n@route /\n@lifetime title created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-title>\nSea view\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</h3>\n</div>\n@route /\n@lifetime title created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "subtitle as a node, with a stateful subtitle": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n<em data-subtitle>\nDowntown\n<i data-parity-lifetime=\"subtitle\" data-parity-ordinal=\"1\">\n</i>\n</em>\n</p>\n</div>\n@route /\n@lifetime subtitle created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\n<em data-subtitle>\nDowntown\n<i data-parity-lifetime=\"subtitle\" data-parity-ordinal=\"1\">\non\n</i>\n</em>\n</p>\n</div>\n@route /\n@lifetime subtitle created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "price as a node, with a stateful price": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n<span data-price>\n$120\n<i data-parity-lifetime=\"price\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</p>\n</div>\n@route /\n@lifetime price created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c0d99ed10 c6a2a1a28\">\n<span data-price>\n$120\n<i data-parity-lifetime=\"price\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</p>\n</div>\n@route /\n@lifetime price created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "meta row, with a stateful meta": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n<i data-parity-lifetime=\"meta\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime meta created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n<i data-parity-lifetime=\"meta\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime meta created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "every row, with a stateful meta": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\nDowntown\n</p>\n<p class=\"c0d99ed10 c6a2a1a28\">\n$120\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n<i data-parity-lifetime=\"meta\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime meta created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9866e6d5 c9cd623cf cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3 class=\"c504afaf4 c7f74399a\">\nWidget\n</h3>\n<p class=\"c445db9b9\">\nDowntown\n</p>\n<p class=\"c0d99ed10 c6a2a1a28\">\n$120\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\n4.9 ★\n<i data-parity-lifetime=\"meta\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime meta created=1 disposed=0"
     ],
     "calls": []
    }
@@ -489,6 +603,7 @@
     "snapshots": [
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n</video>\n</div>\n@route /",
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt=\"a photo\" src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n@route /",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt=\"a photo\" src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n@route /",
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n</video>\n</div>\n@route /"
     ],
     "calls": []
@@ -497,7 +612,36 @@
     "snapshots": [
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n</span>\n</div>\n</div>\n@route /",
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n@route /",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n@route /",
      "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "children replace the image, with a stateful children": {
+    "snapshots": [
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</video>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</video>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "the overlay node renders over the media, with a stateful overlay": {
+    "snapshots": [
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n<i data-parity-lifetime=\"overlay\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime overlay created=1 disposed=0",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<img alt src=\"pic.png\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n<i data-parity-lifetime=\"overlay\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime overlay created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "children and overlay together, with a stateful children": {
+    "snapshots": [
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</video>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</video>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "children and overlay together, with a stateful overlay": {
+    "snapshots": [
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n</video>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n<i data-parity-lifetime=\"overlay\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime overlay created=1 disposed=0",
+     "<div class=\"cfc82911d\" style=\"aspect-ratio: 4 / 3\">\n<video data-video>\n</video>\n<div class=\"c0dd268bc c63a6bab3\">\n<span data-overlay>\nNew\n<i data-parity-lifetime=\"overlay\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime overlay created=1 disposed=0"
     ],
     "calls": []
    }
@@ -611,6 +755,108 @@
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"b\">\nB\n</div>\n<div data-card=\"a\">\nA\n</div>\n</div>\n@route /",
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n</div>\n@route /",
      "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its children, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "one column, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "two columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "four columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "five columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "six columns, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c8e42a37c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c8e42a37c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "xs gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9866e6d5 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9866e6d5 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "sm gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "lg gap, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className passthrough, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "columns change, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "gap change, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className removed, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "renders its children, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }

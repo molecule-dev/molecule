@@ -61,6 +61,7 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
     ],
     "calls": []
@@ -68,6 +69,7 @@
    "top bar and canvas, then canvas emptied and refilled": {
     "snapshots": [
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
     ],
@@ -77,7 +79,166 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "top bar and canvas, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "top bar and canvas, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel on the right, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel on the right, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel on the right, with a stateful sidePanel": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel on the left, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel on the left, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel on the left, with a stateful sidePanel": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel closed, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel closed, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "side panel closed, with a stateful sidePanel": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and an id, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 c5c6c539e cbaac6b89 cc2d72006 ccae02ff2\" data-mol-id=\"editor\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 c5c6c539e cbaac6b89 cc2d72006 ccae02ff2\" data-mol-id=\"editor\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "classes and an id, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 c5c6c539e cbaac6b89 cc2d72006 ccae02ff2\" data-mol-id=\"editor\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 c5c6c539e cbaac6b89 cc2d72006 ccae02ff2\" data-mol-id=\"editor\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "panel moves to the other side, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "panel moves to the other side, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "panel moves to the other side, with a stateful sidePanel": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"2\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=2 disposed=1",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"2\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=2 disposed=1"
+    ],
+    "calls": []
+   },
+   "panel toggles, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "panel toggles, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "panel toggles, with a stateful sidePanel": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=1 disposed=1",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"2\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=2 disposed=1",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n<i data-parity-lifetime=\"sidePanel\" data-parity-ordinal=\"2\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidePanel created=2 disposed=1"
+    ],
+    "calls": []
+   },
+   "top bar and canvas, then a locale switch, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "top bar and canvas, then a locale switch, with a stateful canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n<i data-parity-lifetime=\"canvas\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime canvas created=1 disposed=0"
     ],
     "calls": []
    }

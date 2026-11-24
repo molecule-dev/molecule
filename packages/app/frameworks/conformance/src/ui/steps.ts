@@ -24,6 +24,7 @@ import {
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { elementFocusFixupMoves } from './focus-fixup.js'
 import { installCaseGlobals } from './globals.js'
+import { changeLifetimes, lifetimeLines, resetLifetimes } from './lifetime.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
 import {
   applyLayout,
@@ -514,6 +515,7 @@ export async function runSteps(
   deadlineMs?: number | null,
 ): Promise<CaseResult> {
   checkCaseFields(testCase)
+  resetLifetimes()
   installCaseClock(testCase)
   // The case's translations first: they name the locales the case may start in.
   setCaseTranslations(testCase.context?.translations ?? null)
@@ -564,7 +566,8 @@ export async function runSteps(
       const refLine = testCase.ref
         ? `\n@ref ${refElement?.isConnected ? elementPath(refElement) : 'none'}`
         : ''
-      const tail = `\n@route ${where}${route ? ` state=${route}` : ''}${focus ? `\n@focus ${focus}` : ''}${refLine}${note ? `\n${note}` : ''}`
+      const lifetimes = lifetimeLines()
+      const tail = `\n@route ${where}${route ? ` state=${route}` : ''}${focus ? `\n@focus ${focus}` : ''}${refLine}${lifetimes ? `\n${lifetimes}` : ''}${note ? `\n${note}` : ''}`
       const styles = referenceStyles(document)
       try {
         const options = { keepReferences, computedStyle: styles.computedStyle }
@@ -695,6 +698,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   settle: { callback: 'required', value: 'optional', error: 'optional' },
   invoke: { callback: 'required', path: 'required', args: 'optional' },
   navigate: { to: 'required' },
+  lifetime: { name: 'required' },
   event: { selector: 'required', event: 'required', bubbles: 'optional' },
   scroll: { selector: 'required', top: 'required' },
   windowFocus: { focused: 'required' },
@@ -819,6 +823,7 @@ const runStep = async (
         await recorder.invoke(step.callback, step.path, step.args ?? [])
       else if (step.type === 'fetch') page.answerFetch()
       else if (step.type === 'navigate') mounted.navigate(step.to)
+      else if (step.type === 'lifetime') changeLifetimes(step.name)
       else if (step.type === 'locale') await getI18nProvider().setLocale(step.locale)
       else if (step.type === 'http') {
         const { method, url, status, data, networkError } = step

@@ -7,6 +7,10 @@
 import type { UIComponentCases } from '../../spec.js'
 
 const triggerButton = [{ tag: 'button', attrs: { type: 'button' }, children: ['Options'] }]
+/** An icon trigger: an SVG element, cloned like any other element. */
+const svgTrigger = [
+  { tag: 'svg', attrs: { role: 'button', 'aria-label': 'Options', viewBox: '0 0 24 24' } },
+]
 
 const ITEMS = [
   { value: 'profile', label: 'Profile' },
@@ -155,6 +159,13 @@ export const dropdownCases: UIComponentCases = {
       props: { items: ITEMS, width: 'trigger' },
       slots: { trigger: triggerButton },
       interactions: [{ type: 'click', selector: 'button' }],
+    },
+    {
+      name: 'an SVG trigger is the menu button, and width trigger leaves the menu unsized',
+      fakeTimers: true,
+      props: { items: ITEMS, width: 'trigger' },
+      slots: { trigger: svgTrigger },
+      interactions: [{ type: 'click', selector: 'svg' }],
     },
     {
       name: 'separator and disabled items render',

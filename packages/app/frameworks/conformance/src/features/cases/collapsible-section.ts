@@ -152,6 +152,7 @@ export const collapsibleSectionFeature: FeatureCases = {
     },
     {
       component: 'ShowMore',
+      itemLists: { children: 'counts the items and renders the first initialCount' },
       cases: [
         { name: 'three items by default', children: items(5) },
         { name: 'initialCount 2', props: { initialCount: 2 }, children: items(5) },

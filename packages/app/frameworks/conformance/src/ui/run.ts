@@ -17,6 +17,7 @@ import { describe, expect, it } from 'vitest'
 
 import { assertConformanceRunBuilt } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
+import { caseTests, itemListCases, itemListProblems, writtenListDiffers } from './case-tests.js'
 import * as allCases from './cases/index.js'
 import { withChildSteps } from './children-step.js'
 import { PSEUDO_LOCALE } from './environment.js'
@@ -310,12 +311,27 @@ export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: 
         for (const name of names) {
           if (name === '(export)') continue
           expect(
-            family?.cases.some((c) => c.name === name) ?? false,
+            family?.cases.some((c) =>
+              caseTests(c, adapter, family).some((test) => test.name === name),
+            ) ?? false,
             `known gap ${component} / ${name} names no case`,
           ).toBe(true)
         }
       }
+      // An item list names a list some case of its family passes, with the reason.
+      expect(suite.families.flatMap(itemListProblems)).toEqual([])
     })
+
+    // The prop types agree with the item lists (`FrameworkAdapter.listTypeProblems`).
+    const listTypes = adapter.listTypeProblems?.bind(adapter)
+    if (listTypes)
+      it(
+        'item list prop types',
+        async () => {
+          expect(await listTypes(suite.families, expect.getState().testPath ?? '')).toEqual([])
+        },
+        CONFORMANCE_CASE_TIMEOUT_MS,
+      )
 
     describe.skipIf(suite.narrowed)('exports', () => {
       for (const name of suite.exports) {
@@ -334,56 +350,86 @@ export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: 
             true,
           )
         })
-        for (const testCase of family.cases) {
-          const gap = exportGap || (gaps[family.component]?.includes(testCase.name) ?? false)
-          ;(gap ? it.fails : it)(
-            testCase.name,
-            async () => {
-              const expected = suite.goldens[family.component]?.[testCase.name]
-              if (!expected) {
-                throw new Error(
-                  `no golden for ${family.component} / ${testCase.name}: record them in @molecule/app-framework-conformance`,
-                )
-              }
-              if (!adapter.has(family.component))
-                throw new Error(`${adapter.name} does not export ${family.component}`)
-              const actual = await adapter.run(
-                family.component,
-                testCase,
-                suite.app ? { app: suite.app } : undefined,
-              )
-              if (actual.pages) {
-                writePixelCapture(adapter.name, {
-                  reference: suite.reference,
-                  component: family.component,
-                  case: testCase.name,
-                  pages: actual.pages,
-                })
-              }
-              // The readable copy is a local cache: it helps only while it still matches the
-              // committed golden.
-              const readableExpected = currentReadable(
-                suite.readable?.[family.component]?.[testCase.name]?.snapshots,
-                expected.snapshots,
-              )
-              for (let i = 0; i < expected.snapshots.length; i++) {
-                const step =
-                  i === 0
-                    ? 'after mount'
-                    : `after step ${i} (${testCase.interactions?.[i - 1]?.type})`
-                if (
-                  readableExpected &&
-                  actual.readable &&
-                  actual.snapshots[i] !== expected.snapshots[i]
-                ) {
-                  // Real class names on both sides make the diff readable.
-                  expect(actual.readable[i], step).toBe(readableExpected[i])
+        for (const testCase of family.cases)
+          for (const { name, form } of caseTests(testCase, adapter, family)) {
+            const gap = exportGap || (gaps[family.component]?.includes(name) ?? false)
+            ;(gap ? it.fails : it)(
+              name,
+              async () => {
+                const expected = suite.goldens[family.component]?.[testCase.name]
+                if (!expected) {
+                  throw new Error(
+                    `no golden for ${family.component} / ${testCase.name}: record them in @molecule/app-framework-conformance`,
+                  )
                 }
-                expect(actual.snapshots[i], step).toBe(expected.snapshots[i])
-              }
-              expect(actual.calls, 'callback and service calls').toEqual(expected.calls)
+                if (!adapter.has(family.component))
+                  throw new Error(`${adapter.name} does not export ${family.component}`)
+                const options = {
+                  ...(suite.app ? { app: suite.app } : {}),
+                  ...(form === undefined ? {} : { form }),
+                }
+                const actual = await adapter.run(
+                  family.component,
+                  testCase,
+                  Object.keys(options).length > 0 ? options : undefined,
+                )
+                if (actual.pages) {
+                  writePixelCapture(adapter.name, {
+                    reference: suite.reference,
+                    component: family.component,
+                    case: name,
+                    pages: actual.pages,
+                  })
+                }
+                // The readable copy is a local cache: it helps only while it still matches the
+                // committed golden.
+                const readableExpected = currentReadable(
+                  suite.readable?.[family.component]?.[testCase.name]?.snapshots,
+                  expected.snapshots,
+                )
+                for (let i = 0; i < expected.snapshots.length; i++) {
+                  const step =
+                    i === 0
+                      ? 'after mount'
+                      : `after step ${i} (${testCase.interactions?.[i - 1]?.type})`
+                  if (
+                    readableExpected &&
+                    actual.readable &&
+                    actual.snapshots[i] !== expected.snapshots[i]
+                  ) {
+                    // Real class names on both sides make the diff readable.
+                    expect(actual.readable[i], step).toBe(readableExpected[i])
+                  }
+                  expect(actual.snapshots[i], step).toBe(expected.snapshots[i])
+                }
+                expect(actual.calls, 'callback and service calls').toEqual(expected.calls)
+              },
+              CONFORMANCE_CASE_TIMEOUT_MS,
+            )
+          }
+        for (const list of Object.keys(family.itemLists ?? {})) {
+          const cases = itemListCases(family, list, adapter)
+          // A framework without an item-list form passes every list as written.
+          if (!adapter.forms?.some((form) => form.itemLists)) continue
+          it(
+            `itemLists.${list} is needed`,
+            async () => {
+              expect(
+                cases.length,
+                `${family.component} declares itemLists.${list}, but no stateful case passes it`,
+              ).toBeGreaterThan(0)
+              expect(
+                await writtenListDiffers(
+                  family.component,
+                  cases,
+                  adapter,
+                  suite.goldens[family.component],
+                  suite.app,
+                ),
+                `${family.component} declares itemLists.${list}, but every case passes it as written and matches React: remove the declaration`,
+              ).toBe(true)
             },
-            CONFORMANCE_CASE_TIMEOUT_MS,
+            CONFORMANCE_CASE_TIMEOUT_MS * Math.max(1, cases.length),
           )
         }
       })

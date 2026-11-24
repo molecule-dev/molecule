@@ -51,7 +51,7 @@ export const heroMetricCardFeature: FeatureCases = {
           name: 'title and value as nodes',
           slots: { title, value },
         },
-        { name: 'an empty unit renders its span', props: { title: 'T', value: '1', unit: '' } },
+        { name: 'an empty unit renders no span', props: { title: 'T', value: '1', unit: '' } },
         { name: 'a null unit renders nothing', props: { title: 'T', value: '1', unit: null } },
         { name: 'unit as a node', props: { title: 'T', value: '1' }, slots: { unit } },
         {

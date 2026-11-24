@@ -213,6 +213,7 @@
     "snapshots": [
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\nMy Post\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\nMy Post\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /"
     ],
     "calls": []
@@ -220,6 +221,7 @@
    "title, badge and leading, then leading emptied and refilled": {
     "snapshots": [
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /"
     ],
@@ -229,7 +231,29 @@
     "snapshots": [
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /",
      "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, badge and leading, with a stateful leading": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n<i data-parity-lifetime=\"leading\" data-parity-ordinal=\"1\">\n</i>\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /\n@lifetime leading created=1 disposed=0",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n<i data-parity-lifetime=\"leading\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /\n@lifetime leading created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "title, badge and leading, with a stateful badge": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n<i data-parity-lifetime=\"badge\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /\n@lifetime badge created=1 disposed=0",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-leading>\nBack\n</span>\n<h1 class=\"c504afaf4 c7f74399a\">\nDraft\n</h1>\n<span data-badge>\nv3\n<i data-parity-lifetime=\"badge\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /\n@lifetime badge created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "a node title renders inside the heading, with a stateful title": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\n<strong data-title-node>\nDraft\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /\n@lifetime title created=1 disposed=0",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" style=\"position: sticky; top: 0px; z-index: 10\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h1 class=\"c504afaf4 c7f74399a\">\n<strong data-title-node>\nDraft\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</h1>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /\n@lifetime title created=1 disposed=0"
     ],
     "calls": []
    }

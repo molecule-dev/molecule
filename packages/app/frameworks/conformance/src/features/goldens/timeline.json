@@ -158,7 +158,15 @@
     "snapshots": [
      "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\nYesterday\n</span>\n</div>\n@route /",
      "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\n</span>\n</div>\n@route /",
      "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\nYesterday\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node child, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\n<strong>\nToday\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</span>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"cb5823274\">\n<strong>\nToday\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</span>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }

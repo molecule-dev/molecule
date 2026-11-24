@@ -133,6 +133,7 @@
     "snapshots": [
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /",
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n</span>\n@route /",
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /"
     ],
     "calls": []
@@ -141,7 +142,29 @@
     "snapshots": [
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /",
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nPending\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nPending\n</span>\n@route /",
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance with an icon, with a stateful icon": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\n</i>\n</i>\n</span>\nPending\n</span>\n@route /\n@lifetime icon created=1 disposed=0",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\non\n</i>\n</i>\n</span>\nPending\n</span>\n@route /\n@lifetime icon created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "uppercase pill with an icon, with a stateful icon": {
+    "snapshots": [
+     "<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\n<span class=\"cbc071b88\">\n<i data-icon>\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\n</i>\n</i>\n</span>\nPending\n</span>\n@route /\n@lifetime icon created=1 disposed=0",
+     "<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\n<span class=\"cbc071b88\">\n<i data-icon>\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\non\n</i>\n</i>\n</span>\nPending\n</span>\n@route /\n@lifetime icon created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "element children, with a stateful children": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\n<strong>\nInfo\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</span>\n@route /\n@lifetime children created=1 disposed=0",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\n<strong>\nInfo\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</span>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }
@@ -232,7 +255,15 @@
     "snapshots": [
      "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /",
      "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n</span>\n@route /",
      "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "element children, with a stateful children": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c04255343 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<em>\nPending\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</em>\n</span>\n@route /\n@lifetime children created=1 disposed=0",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c04255343 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<em>\nPending\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</em>\n</span>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }

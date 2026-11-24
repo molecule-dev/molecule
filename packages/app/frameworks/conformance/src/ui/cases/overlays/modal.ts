@@ -228,5 +228,17 @@ export const modalCases: UIComponentCases = {
       children: ['Body'],
       interactions: [{ type: 'props', props: { open: false } }],
     },
+    {
+      // Each opening mounts the footer again, as React mounts a dialog's content.
+      name: 'footer slot, closed and opened again',
+      props: { open: true, title: 'Reopen' },
+      callbacks: ['onClose'],
+      slots: { footer: [{ component: 'Button', children: ['Done'] }] },
+      children: ['Body'],
+      interactions: [
+        { type: 'props', props: { open: false } },
+        { type: 'props', props: { open: true } },
+      ],
+    },
   ],
 }

@@ -7,7 +7,14 @@
 <script lang="ts">
   import { type Component, untrack } from 'svelte'
 
-  import { isComponentSpec, isProbeSpec, keyOf, type NodeSpec } from '../../ui/index.js'
+  import {
+    isComponentSpec,
+    isLifetimeSpec,
+    isProbeSpec,
+    keyOf,
+    type NodeSpec,
+  } from '../../ui/index.js'
+  import Lifetime from './Lifetime.svelte'
   import Probe from './Probe.svelte'
   import { snippetBuilders } from './snippets.js'
   import Tree from './Tree.svelte'
@@ -42,6 +49,8 @@
     {node}
   {:else if isProbeSpec(node)}
     <Probe spec={node} exports={exportsOf} />
+  {:else if isLifetimeSpec(node)}
+    <Lifetime name={node.lifetime} root={node.root} />
   {:else if isComponentSpec(node)}
     {@const Target = components[node.component]}
     <Target {...builders.propsOf(node)} />

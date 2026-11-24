@@ -92,6 +92,7 @@
     "snapshots": [
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\nMain content\n</span>\n@route /",
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n</span>\n@route /",
      "<span class=\"cfc82911d\" style=\"display: inline-block\">\nMain content\n</span>\n@route /"
     ],
     "calls": []

@@ -12,17 +12,25 @@ import '../ui/setup.js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  assertEmptiedListAlike,
   CallRecorder,
+  changeLifetimes,
   changingLists,
   checkNodeKeys,
+  CHILD_STEP_CASE_NAME,
   childListStates,
   CHILDREN_STEP_SWITCH,
   type ChildrenStep,
   hasChildSteps,
   initialChildLists,
+  lifetimeCreated,
+  lifetimeDisposed,
+  lifetimeLines,
   type MountedCase,
   nextChildLists,
   nodeIdentity,
+  onLifetimeChange,
+  resetLifetimes,
   runSteps,
   settle,
   snapshotsWithEmptiedList,
@@ -87,6 +95,7 @@ describe('withChildSteps', () => {
     expect(footer.interactions).toEqual([
       { type: 'focus', selector: 'ul' },
       { type: 'children', slots: { footer: null } },
+      { type: 'children', slots: { footer: [] } },
       { type: 'children', slots: { footer: ['Total'] } },
     ])
   })
@@ -102,6 +111,7 @@ describe('withChildSteps', () => {
       children: ['Name'],
       interactions: [
         { type: 'children', children: null },
+        { type: 'children', children: [] },
         { type: 'children', children: ['Name'] },
       ],
     })
@@ -118,6 +128,61 @@ describe('withChildSteps', () => {
         ],
       }),
     ).toThrow('has the name of another case')
+  })
+})
+
+describe('assertEmptiedListAlike', () => {
+  /** The derived footer case: a focus step, then footer not passed, [], and passed again. */
+  const footerCase = (): UICase => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    return withChildSteps(family).cases.find(
+      (c) => c.name === 'with footer, then footer emptied and refilled',
+    )!
+  }
+
+  it('refuses React DOM that differs between a list not passed and an empty one, naming the fix', () => {
+    const snapshots = [
+      '<ul>Total</ul>',
+      '<ul>Total</ul>',
+      '<ul></ul>',
+      '<ul><p></p></ul>',
+      '<ul>Total</ul>',
+    ]
+    expect(() => assertEmptiedListAlike(footerCase(), snapshots, 'List')).toThrow(
+      'List / with footer, then footer emptied and refilled: React renders an empty footer list ([]) differently from footer not passed. Both render nothing: read the prop through slot() from @molecule/app-react/render where the props are destructured (const footer = slot(footerProp))',
+    )
+  })
+
+  it('accepts React DOM that is the same for both', () => {
+    const snapshots = [
+      '<ul>Total</ul>',
+      '<ul>Total</ul>',
+      '<ul></ul>',
+      '<ul></ul>',
+      '<ul>Total</ul>',
+    ]
+    expect(() => assertEmptiedListAlike(footerCase(), snapshots, 'List')).not.toThrow()
+  })
+
+  it('checks the children of a case derived by rule 2', () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const text = withChildSteps({
+      component: 'Label',
+      cases: [{ name: 'text', children: ['Name'] }],
+    }).cases[1]!
+    expect(() =>
+      assertEmptiedListAlike(text, ['<b>Name</b>', '', '<b></b>', '<b>Name</b>'], 'Label'),
+    ).toThrow('React renders an empty children list ([]) differently from children not passed')
+  })
+
+  it('leaves every other case alone, the changing list of rule 1 included', () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const changed = withChildSteps(family).cases.find(
+      (c) => c.name === 'rows, then children change',
+    )!
+    const snapshots = changed.interactions!.map((_, i) => String(i)).concat('x')
+    expect(() => assertEmptiedListAlike(changed, snapshots, 'List')).not.toThrow()
+    expect(() => assertEmptiedListAlike(family.cases[1]!, ['a'], 'List')).not.toThrow()
   })
 })
 
@@ -300,5 +365,259 @@ describe('the step runner', () => {
     await expect(runSteps(steps, listComponent(false), new CallRecorder())).rejects.toThrow(
       '"list changes" changes its children, and this adapter has no setChildren',
     )
+  })
+})
+
+describe('withChildSteps: a stateful list', () => {
+  const dialog: UIComponentCases = {
+    component: 'Dialog',
+    cases: [
+      {
+        name: 'open with footer',
+        props: { open: true },
+        slots: { footer: [{ tag: 'button', children: ['Save'] }, ' and more'] },
+      },
+      { name: 'text title', slots: { title: ['Hello'] } },
+      { name: 'image footer', slots: { footer: [{ tag: 'img', attrs: { alt: '' } }] } },
+      {
+        name: 'replaced footer',
+        slots: { footer: [{ tag: 'b', children: ['x'] }] },
+        interactions: [{ type: 'children', slots: { footer: [] } }],
+      },
+      {
+        name: 'closed',
+        slots: { footer: [{ tag: 'b', children: ['y'] }] },
+        interactions: [{ type: 'unmount' }],
+      },
+      { name: 'card body', children: [{ component: 'Card', children: ['Body'] }] },
+    ],
+  }
+
+  it('puts a lifetime probe inside the first node of a list that can hold one', () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const cases = withChildSteps(dialog).cases
+    const footer = cases.find((c) => c.name === 'open with footer, with a stateful footer')!
+    expect(footer.props).toEqual({ open: true })
+    expect(footer.interactions).toEqual([{ type: 'lifetime', name: 'footer' }])
+    expect(footer.slots).toEqual({
+      footer: [{ tag: 'button', children: ['Save', { lifetime: 'footer' }] }, ' and more'],
+    })
+    const body = cases.find((c) => c.name === 'card body, with a stateful children')!
+    expect(body.children).toEqual([
+      { component: 'Card', children: ['Body', { lifetime: 'children' }] },
+    ])
+    for (const c of [footer, body]) expect(CHILD_STEP_CASE_NAME.test(c.name)).toBe(true)
+  })
+
+  it('keeps every list its length: inside a list item, and inside a lone element child', () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const nested: UIComponentCases = {
+      component: 'Panel',
+      cases: [
+        {
+          name: 'list',
+          children: [{ tag: 'ul', children: [{ tag: 'li', children: ['First'] }] }],
+        },
+        {
+          name: 'field',
+          children: [
+            { component: 'FormField', children: [{ tag: 'input' }] },
+            { tag: 'p', children: ['Note'] },
+          ],
+        },
+        {
+          name: 'trigger',
+          children: [{ component: 'Tooltip', children: [{ tag: 'button', children: ['Hi'] }] }],
+        },
+      ],
+    }
+    const cases = withChildSteps(nested).cases
+    const named = (name: string): UICase => cases.find((c) => c.name === name)!
+    expect(named('list, with a stateful children').children).toEqual([
+      { tag: 'ul', children: [{ tag: 'li', children: ['First', { lifetime: 'children' }] }] },
+    ])
+    expect(named('field, with a stateful children').children).toEqual([
+      { component: 'FormField', children: [{ tag: 'input' }] },
+      { tag: 'p', children: ['Note', { lifetime: 'children' }] },
+    ])
+    expect(named('trigger, with a stateful children').children).toEqual([
+      {
+        component: 'Tooltip',
+        children: [{ tag: 'button', children: ['Hi', { lifetime: 'children' }] }],
+      },
+    ])
+  })
+
+  it("ends with a lifetime step after the base case's own steps", () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const stepped: UIComponentCases = {
+      component: 'Panel',
+      cases: [
+        {
+          name: 'focused',
+          children: [{ tag: 'p', children: ['Body'] }],
+          interactions: [{ type: 'focus', selector: 'p' }],
+        },
+      ],
+    }
+    const derived = withChildSteps(stepped).cases.find(
+      (c) => c.name === 'focused, with a stateful children',
+    )!
+    expect(derived.interactions).toEqual([
+      { type: 'focus', selector: 'p' },
+      { type: 'lifetime', name: 'children' },
+    ])
+  })
+
+  it('adds the item cases of a declared list: the probe first, rendering a fragment or nothing until it changes', () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const declared: UIComponentCases = {
+      ...dialog,
+      itemLists: { footer: 'counts the footer items', title: 'counts the title parts' },
+    }
+    const named = (name: string): UICase =>
+      withChildSteps(declared).cases.find((c) => c.name === name)!
+    const fragment = named('open with footer, with a stateful footer item rendering a fragment')
+    expect(fragment.slots?.footer).toEqual([
+      { lifetime: 'footer', root: 'fragment' },
+      { tag: 'button', children: ['Save'] },
+      ' and more',
+    ])
+    expect(fragment.interactions).toEqual([{ type: 'lifetime', name: 'footer' }])
+    const conditional = named(
+      'open with footer, with a stateful footer item rendering nothing until it changes',
+    )
+    expect(conditional.slots?.footer?.[0]).toEqual({ lifetime: 'footer', root: 'conditional' })
+    // A text-only list has no node to hold the probe, but an item can still be added to it.
+    expect(
+      named('text title, with a stateful title item rendering a fragment').slots?.title,
+    ).toEqual([{ lifetime: 'title', root: 'fragment' }, 'Hello'])
+    for (const c of [fragment, conditional]) expect(CHILD_STEP_CASE_NAME.test(c.name)).toBe(true)
+    // An undeclared list gets no item cases.
+    expect(withChildSteps(dialog).cases.some((c) => c.name.includes(' item rendering '))).toBe(
+      false,
+    )
+  })
+
+  it('derives none for text, a void element, a list a step replaces, or a case that ends unmounted', () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const names = withChildSteps(dialog).cases.map((c) => c.name)
+    for (const name of [
+      'text title, with a stateful title',
+      'image footer, with a stateful footer',
+      'replaced footer, with a stateful footer',
+      'closed, with a stateful footer',
+    ])
+      expect(names).not.toContain(name)
+  })
+
+  it("leaves a probe out of the key rules, as the kit's own unkeyed node", () => {
+    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
+    const keyed: UIComponentCases = {
+      component: 'List',
+      cases: [
+        {
+          name: 'keyed',
+          children: [
+            { ...row('a'), key: 'a' },
+            { ...row('b'), key: 'b' },
+          ],
+        },
+      ],
+    }
+    for (const c of withChildSteps(keyed).cases) expect(() => checkNodeKeys(c)).not.toThrow()
+  })
+})
+
+describe('lifetime counts', () => {
+  it('counts creations and disposals per probe, by name, until the next reset', () => {
+    resetLifetimes()
+    expect(lifetimeLines()).toBe('')
+    expect(lifetimeCreated('footer')).toBe(1)
+    expect(lifetimeCreated('children')).toBe(1)
+    lifetimeDisposed('footer')
+    expect(lifetimeCreated('footer')).toBe(2)
+    expect(lifetimeLines()).toBe(
+      '@lifetime children created=1 disposed=0\n@lifetime footer created=2 disposed=1',
+    )
+    resetLifetimes()
+    expect(lifetimeLines()).toBe('')
+  })
+
+  it('flips each live instance of a probe by name, and none unregistered or after a reset', () => {
+    resetLifetimes()
+    const flips: string[] = []
+    const off = onLifetimeChange('footer', () => flips.push('footer 1'))
+    onLifetimeChange('footer', () => flips.push('footer 2'))
+    onLifetimeChange('children', () => flips.push('children'))
+    changeLifetimes('footer')
+    expect(flips).toEqual(['footer 1', 'footer 2'])
+    off()
+    changeLifetimes('footer')
+    expect(flips).toEqual(['footer 1', 'footer 2', 'footer 2'])
+    resetLifetimes()
+    changeLifetimes('footer')
+    changeLifetimes('children')
+    expect(flips).toEqual(['footer 1', 'footer 2', 'footer 2'])
+  })
+
+  it('runs a lifetime step: the snapshot after it shows the changed probe', async () => {
+    const mount = async (container: HTMLElement): Promise<MountedCase> => {
+      const probe = document.createElement('i')
+      lifetimeCreated('footer')
+      onLifetimeChange('footer', () => {
+        probe.textContent = probe.textContent ? '' : 'on'
+      })
+      container.appendChild(probe)
+      return {
+        flush: settle,
+        setProps: async () => undefined,
+        location: () => '/',
+        navigate: () => undefined,
+        setChildren: async () => undefined,
+        unmount: async () => {
+          container.replaceChildren()
+        },
+      }
+    }
+    const result = await runSteps(
+      { name: 'probe changes', interactions: [{ type: 'lifetime', name: 'footer' }] },
+      mount,
+      new CallRecorder(),
+    )
+    expect(result.readable?.[0]).not.toContain('on\n</i>')
+    expect(result.readable?.[1]).toContain('<i>\non\n</i>')
+    expect(result.readable?.[1]).toContain('@lifetime footer created=1 disposed=0')
+  })
+
+  it("ends each snapshot with the case's own counts so far", async () => {
+    lifetimeCreated('from an earlier case')
+    const mount = async (container: HTMLElement): Promise<MountedCase> => {
+      const probe = document.createElement('i')
+      probe.dataset.parityLifetime = 'footer'
+      probe.dataset.parityOrdinal = String(lifetimeCreated('footer'))
+      container.appendChild(probe)
+      return {
+        flush: settle,
+        setProps: async () => {
+          probe.remove()
+          lifetimeDisposed('footer')
+        },
+        location: () => '/',
+        navigate: () => undefined,
+        setChildren: async () => undefined,
+        unmount: async () => {
+          container.replaceChildren()
+        },
+      }
+    }
+    const result = await runSteps(
+      { name: 'probe goes', interactions: [{ type: 'props', props: { open: false } }] },
+      mount,
+      new CallRecorder(),
+    )
+    expect(result.readable?.[0]).toContain('@lifetime footer created=1 disposed=0')
+    expect(result.readable?.[1]).toContain('@lifetime footer created=1 disposed=1')
+    expect(result.readable?.join('\n')).not.toContain('from an earlier case')
   })
 })

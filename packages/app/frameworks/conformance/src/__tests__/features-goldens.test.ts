@@ -50,6 +50,7 @@ import {
 import { featureCaseFileNames, loadFeatureCases } from '../features/load.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import {
+  assertEmptiedListAlike,
   assertNoLostStyleValues,
   caseExports,
   type CaseResult,
@@ -329,6 +330,7 @@ for (const [name, module] of Object.entries(MODULES)) {
               result.snapshots,
               `${name} / ${family.component} / ${testCase.name}`,
             )
+            assertEmptiedListAlike(testCase, result.snapshots, `${name} / ${family.component}`)
             const golden: CaseResult = { snapshots: result.snapshots, calls: result.calls }
             ;(recorded[name]!.cases[family.component] ??= {})[testCase.name] = golden
             ;(recordedReadable[name]!.cases[family.component] ??= {})[testCase.name] = {

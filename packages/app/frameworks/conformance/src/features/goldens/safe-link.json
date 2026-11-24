@@ -176,7 +176,15 @@
     "snapshots": [
      "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
      "<a href=\"/settings\">\n</a>\n@route /dashboard",
+     "<a href=\"/settings\">\n</a>\n@route /dashboard",
      "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "element children render inside the anchor, with a stateful children": {
+    "snapshots": [
+     "<a href=\"/settings\">\n<strong>\nSettings\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</a>\n@route /dashboard\n@lifetime children created=1 disposed=0",
+     "<a href=\"/settings\">\n<strong>\nSettings\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</a>\n@route /dashboard\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }

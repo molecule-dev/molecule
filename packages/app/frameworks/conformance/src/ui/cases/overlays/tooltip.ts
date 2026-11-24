@@ -26,6 +26,14 @@ export const tooltipCases: UIComponentCases = {
       interactions: [{ type: 'mouseenter', selector: 'button' }],
     },
     {
+      name: 'an SVG child is associated like any element',
+      slots: { content: ['Helpful text'] },
+      children: [
+        { tag: 'svg', attrs: { role: 'img', 'aria-label': 'Info', viewBox: '0 0 24 24' } },
+      ],
+      interactions: [{ type: 'mouseenter', selector: 'svg' }],
+    },
+    {
       name: 'hover content with elements',
       slots: { content: [{ tag: 'strong', children: ['Bold'] }, ' hint'] },
       children: triggerButton,

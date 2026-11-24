@@ -148,7 +148,7 @@ export const dataTableUiFeature: FeatureCases = {
           slots: { titleAction },
         },
         {
-          name: 'an empty title still renders the title row',
+          name: 'an empty title renders no title row',
           props: { title: '', columns, rows, rowKey },
         },
         {

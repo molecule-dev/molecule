@@ -58,6 +58,13 @@ export const breadcrumbFeature: FeatureCases = {
           props: { items: two },
           slots: { separator: [{ tag: 'span', attrs: { 'data-sep': '' }, children: ['›'] }] },
         },
+        {
+          name: 'a custom separator node in every gap of three crumbs',
+          props: {
+            items: [...two, { label: 'Molecule', to: '/projects/molecule' }],
+          },
+          slots: { separator: [{ tag: 'span', attrs: { 'data-sep': '' }, children: ['›'] }] },
+        },
         { name: 'text separator', props: { items: two }, slots: { separator: ['·'] } },
         {
           name: 'crumb icons',

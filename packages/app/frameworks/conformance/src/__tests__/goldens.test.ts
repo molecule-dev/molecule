@@ -28,6 +28,7 @@ import * as ReactUI from '@molecule/app-ui-react'
 import { assertBuiltFromSource } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
 import {
+  assertEmptiedListAlike,
   assertNoLostStyleValues,
   caseExports,
   type CaseResult,
@@ -154,6 +155,7 @@ describe('React reference renders', () => {
           expect(errors, 'React logged errors or warnings').toEqual([])
           expect(result.snapshots.length).toBe((testCase.interactions ?? []).length + 1)
           assertNoLostStyleValues(result.snapshots, `${family.component} / ${testCase.name}`)
+          assertEmptiedListAlike(testCase, result.snapshots, family.component)
           const golden: CaseResult = { snapshots: result.snapshots, calls: result.calls }
           ;(recorded.cases[family.component] ??= {})[testCase.name] = golden
           ;(recordedReadable.cases[family.component] ??= {})[testCase.name] = {

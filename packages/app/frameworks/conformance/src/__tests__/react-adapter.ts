@@ -11,8 +11,11 @@ import {
   type ComponentType,
   createElement,
   createRef,
+  Fragment,
   type ReactElement,
   type ReactNode,
+  useEffect,
+  useState,
 } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -35,11 +38,18 @@ import {
   type FrameworkAdapter,
   initialChildLists,
   isComponentSpec,
+  isLifetimeSpec,
   isProbeSpec,
   keyOf,
+  LIFETIME_ON,
+  lifetimeCreated,
+  lifetimeDisposed,
+  lifetimeLabel,
+  type LifetimeSpec,
   materializeProps,
   nextChildLists,
   type NodeSpec,
+  onLifetimeChange,
   type ProbeSpec,
   probeValue,
   resetBindingForCase,
@@ -78,6 +88,25 @@ function Probe({ spec }: { spec: ProbeSpec }): ReactElement {
 }
 
 /**
+ * A lifetime probe (see `LifetimeSpec`): counted as it is set up and when it unmounts, with a flag
+ * a `lifetime` step flips, rendered at the root the spec names.
+ */
+function Lifetime({ name, root }: { name: string; root?: LifetimeSpec['root'] }): ReactNode {
+  const [ordinal] = useState(() => lifetimeCreated(name))
+  const [on, setOn] = useState(false)
+  useEffect(() => onLifetimeChange(name, () => setOn((value) => !value)), [name])
+  useEffect(() => () => lifetimeDisposed(name), [name])
+  if (root === 'fragment')
+    return createElement(Fragment, null, lifetimeLabel(ordinal), on && LIFETIME_ON)
+  if (root === 'conditional') return on ? LIFETIME_ON : null
+  return createElement(
+    'i',
+    { 'data-parity-lifetime': name, 'data-parity-ordinal': String(ordinal) },
+    on ? LIFETIME_ON : null,
+  )
+}
+
+/**
  * Converts neutral nodes into React nodes.
  *
  * @param nodes - Neutral nodes.
@@ -92,6 +121,12 @@ export function toReactNodes(nodes: NodeSpec[] | undefined): ReactNode {
   const out = nodes.map((node, index) => {
     if (typeof node === 'string') return node
     if (isProbeSpec(node)) return createElement(Probe, { key: keyFor(node, index), spec: node })
+    if (isLifetimeSpec(node))
+      return createElement(Lifetime, {
+        key: keyFor(node, index),
+        name: node.lifetime,
+        root: node.root,
+      })
     if (isComponentSpec(node)) {
       const props: Record<string, unknown> = {
         key: keyFor(node, index),

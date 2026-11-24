@@ -11,6 +11,7 @@ import {
   isCallbackValue,
   isComponentSpec,
   isFnValue,
+  isLifetimeSpec,
   isNodesValue,
   isProbeSpec,
   type NodeSpec,
@@ -177,6 +178,7 @@ export function usedExports(nodes: NodeSpec[] | undefined): {
     for (const node of list ?? []) {
       if (typeof node === 'string') continue
       if (isProbeSpec(node)) probes.add(node.probe)
+      else if (isLifetimeSpec(node)) continue
       else if (isComponentSpec(node)) {
         components.add(node.component)
         visit(node.children)

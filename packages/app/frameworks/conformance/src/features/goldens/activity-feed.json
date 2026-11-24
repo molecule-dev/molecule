@@ -134,6 +134,7 @@
     "snapshots": [
      "<p data-empty>\nNothing yet\n</p>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n@route /",
      "<p data-empty>\nNothing yet\n</p>\n@route /"
     ],
     "calls": []
@@ -142,7 +143,50 @@
     "snapshots": [
      "<p data-empty>\nNothing yet\n</p>\n@route /",
      "<p data-empty>\nNothing yet\n</p>\n@route /",
+     "<p data-empty>\nNothing yet\n</p>\n@route /",
      "<p data-empty>\nNothing yet\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty state when the list is empty, with a stateful emptyState": {
+    "snapshots": [
+     "<p data-empty>\nNothing yet\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0",
+     "<p data-empty>\nNothing yet\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "the empty state wins over the footer, with a stateful emptyState": {
+    "snapshots": [
+     "<p data-empty>\nNothing yet\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0",
+     "<p data-empty>\nNothing yet\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "the empty state wins over the footer, with a stateful footer": {
+    "snapshots": [
+     "<p data-empty>\nNothing yet\n</p>\n@route /",
+     "<p data-empty>\nNothing yet\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "the empty state is ignored when rows exist, with a stateful emptyState": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer after the rows, with a stateful footer": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<button type=\"button\">\nLoad more\n<i data-parity-lifetime=\"footer\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n@route /\n@lifetime footer created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<button type=\"button\">\nLoad more\n<i data-parity-lifetime=\"footer\" data-parity-ordinal=\"1\">\non\n</i>\n</button>\n</div>\n@route /\n@lifetime footer created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "a footer with no rows, with a stateful footer": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button type=\"button\">\nLoad more\n<i data-parity-lifetime=\"footer\" data-parity-ordinal=\"1\">\n</i>\n</button>\n</div>\n@route /\n@lifetime footer created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button type=\"button\">\nLoad more\n<i data-parity-lifetime=\"footer\" data-parity-ordinal=\"1\">\non\n</i>\n</button>\n</div>\n@route /\n@lifetime footer created=1 disposed=0"
     ],
     "calls": []
    }
@@ -239,7 +283,15 @@
     "snapshots": [
      "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n<strong>\nThis week\n</strong>\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n<strong>\nThis week\n</strong>\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node heading, with a stateful heading": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n<strong>\nThis week\n<i data-parity-lifetime=\"heading\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /\n@lifetime heading created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n<strong>\nThis week\n<i data-parity-lifetime=\"heading\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /\n@lifetime heading created=1 disposed=0"
     ],
     "calls": []
    }

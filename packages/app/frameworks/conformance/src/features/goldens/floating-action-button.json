@@ -163,9 +163,42 @@
     "snapshots": [
      "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n</span>\n</button>\n@route /",
      "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
      "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n</span>\n</button>\n@route /"
     ],
     "calls": []
+   },
+   "with an icon, with a stateful icon": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</button>\n@route /\n@lifetime icon created=1 disposed=0",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</button>\n@route /\n@lifetime icon created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "href renders a link, with a stateful icon": {
+    "snapshots": [
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</a>\n@route /\n@lifetime icon created=1 disposed=0",
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</a>\n@route /\n@lifetime icon created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "click calls onClick, with a stateful icon": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</button>\n@route /\n@lifetime icon created=1 disposed=0",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</button>\n@route /\n@lifetime icon created=1 disposed=0",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n<i data-parity-lifetime=\"icon\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</button>\n@route /\n@lifetime icon created=1 disposed=0"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
    }
   }
  }

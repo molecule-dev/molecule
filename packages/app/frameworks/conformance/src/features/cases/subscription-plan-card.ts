@@ -86,7 +86,7 @@ export const subscriptionPlanCardFeature: FeatureCases = {
           props: { name: 'Pro', price: '$19', features: [], badge: 'Best value' },
         },
         {
-          name: 'recommended with an empty badge renders no badge text',
+          name: 'recommended with an empty badge shows the default badge',
           props: { name: 'Pro', price: '$19', features: [], recommended: true, badge: '' },
         },
         {

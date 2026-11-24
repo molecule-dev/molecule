@@ -343,7 +343,15 @@
     "snapshots": [
      "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<b>\nx\n</b>\n</div>\n@route /",
      "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n</div>\n@route /",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n</div>\n@route /",
      "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<b>\nx\n</b>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an id, a size and children, with a stateful children": {
+    "snapshots": [
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<b>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</b>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Canvas node\" class=\"c0dd268bc\" data-canvas-node-id=\"a\" data-mol-id=\"canvas-node-a\" role=\"group\" style=\"height: 40px; left: 10px; position: absolute; top: 20px; touch-action: none; width: 80px\">\n<b>\nx\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</b>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }
@@ -506,7 +514,23 @@
     "snapshots": [
      "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n</span>\n</div>\n</div>\n@route /",
      "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n</div>\n</div>\n@route /",
      "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "children render in the canvas-space layer, with a stateful children": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 240px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 320px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "a child press is not a background press, with a stateful children": {
+    "snapshots": [
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Canvas surface\" class=\"cf74bfc1b cfc82911d\" data-mol-id=\"canvas-surface\" role=\"application\" style=\"height: 300px; overflow-x: hidden; overflow-y: hidden; position: relative; touch-action: none; width: 400px\">\n<div data-canvas-x=\"0\" data-canvas-y=\"0\" data-canvas-zoom=\"1\" data-mol-id=\"canvas-surface-inner\" style=\"height: 0px; left: 0px; position: absolute; top: 0px; transform-origin: 0px 0px; transform: scale(1) translate(0px); width: 0px\">\n<span data-child=\"1\">\nhello\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }

@@ -29,6 +29,8 @@ import {
   createSignal,
   For,
   type JSX,
+  onCleanup,
+  Show,
 } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
 import { insert } from 'solid-js/web'
@@ -50,15 +52,23 @@ import {
   childListStates,
   type FrameworkAdapter,
   hasPlaceholder,
+  holdsLifetimeProbe,
   initialChildLists,
   interpolate,
   interpolateValue,
   isComponentSpec,
+  isLifetimeSpec,
   isProbeSpec,
+  LIFETIME_ON,
+  lifetimeCreated,
+  lifetimeDisposed,
+  lifetimeLabel,
+  type LifetimeSpec,
   materializeProps,
   nextChildLists,
   nodeIdentity,
   type NodeSpec,
+  onLifetimeChange,
   type ProbeSpec,
   probeValue,
   resetBindingForCase,
@@ -144,6 +154,15 @@ export interface SolidAdapterOptions {
 }
 
 /**
+ * The Solid form of a case whose list holds a lifetime probe: each node of that list passed as
+ * `() => node`, always in an array, the way a Solid consumer writes items that must not exist
+ * while hidden (a list a component counts or slices). The case as written passes plain JSX, whose
+ * every read creates the nodes again, so it catches a port that reads a node prop twice; this form
+ * catches one that creates items it does not show. Both are held to the same React result.
+ */
+export const ACCESSORS = ' passed as accessors'
+
+/**
  * A Solid adapter over one export map.
  *
  * @param options - The exports to render and the Solid binding.
@@ -182,6 +201,41 @@ export function createSolidAdapter({
     }
     button.addEventListener('click', () => callProbe(spec, result))
     return button
+  }
+
+  /**
+   * A lifetime probe (see `LifetimeSpec`): counted as it is set up and when its owner is disposed,
+   * with a flag a `lifetime` step flips. A fragment or conditional root has the shape compiled JSX
+   * gives (`<>{label}<Show …/></>`: the label and Show's memo; `<Show …/>`: the memo).
+   */
+  const Lifetime: Component<{ name: string; root?: LifetimeSpec['root'] }> = (props) => {
+    const name = props.name
+    const root = props.root
+    const ordinal = lifetimeCreated(name)
+    const [on, setOn] = createSignal(false)
+    const off = onLifetimeChange(name, () => setOn((value) => !value))
+    onCleanup(() => {
+      off()
+      lifetimeDisposed(name)
+    })
+    /** The flag as `<Show when={on()}>on</Show>` renders it. */
+    const flag = (): JSX.Element =>
+      // Called as compiled JSX calls it inside a component body (untracked already).
+      Show({
+        get when() {
+          return on()
+        },
+        children: LIFETIME_ON,
+      })
+    if (root === 'fragment') return [lifetimeLabel(ordinal), flag()]
+    if (root === 'conditional') return flag()
+    const element = document.createElement('i')
+    element.setAttribute('data-parity-lifetime', name)
+    element.setAttribute('data-parity-ordinal', String(ordinal))
+    createRenderEffect(() => {
+      element.textContent = on() ? LIFETIME_ON : ''
+    })
+    return element
   }
 
   /** Builds the recording spy for a nested `{ $callback }` in the running case. */
@@ -231,6 +285,8 @@ export function createSolidAdapter({
         return text
       }
       if (isProbeSpec(node)) return createComponent(Probe, { spec: node })
+      if (isLifetimeSpec(node))
+        return createComponent(Lifetime, { name: node.lifetime, root: node.root })
       if (isComponentSpec(node)) {
         const source = node.props ?? {}
         const props: Record<string, unknown> = solidProps(source)
@@ -277,6 +333,25 @@ export function createSolidAdapter({
     name: 'solid',
     has: (component) => typeof exportsOf[component] !== 'undefined',
     exportNames: Object.keys(exportsOf),
+    forms: [
+      {
+        suffix: ACCESSORS,
+        // Solid creates plain JSX children when the prop is read: separate items are accessors.
+        itemLists: true,
+        // A list that holds a probe is never one a step replaces (see `withChildSteps`).
+        appliesTo: (testCase) =>
+          holdsLifetimeProbe(testCase.children) ||
+          Object.values(testCase.slots ?? {}).some(holdsLifetimeProbe),
+      },
+    ],
+    // Loaded only here: it reads the port's types with the TypeScript compiler, in Node.
+    async listTypeProblems(families, testPath) {
+      const { packageRootOf } = await import('../build-freshness.js')
+      const packageDir = packageRootOf(testPath)
+      if (!packageDir) return [`no package.json above ${testPath}`]
+      const { solidListTypeProblems } = await import('./solid-list-types.js')
+      return solidListTypeProblems({ packageDir, families })
+    },
     async run(component, testCase: UICase, options: RunOptions = {}) {
       resetBindingForCase(binding)
       const Comp = exportsOf[component] as Component<Record<string, unknown>>
@@ -354,10 +429,19 @@ export function createSolidAdapter({
       ): unknown => {
         // A list a step stopped passing (`null`) is `undefined`, as `cond && <X/>` leaves it.
         if (read(lists()) === null) return undefined
-        return changes &&
+        const nodes = read(lists()) ?? undefined
+        if (
+          changes &&
           states.some((state) => (read(state) ?? []).some((node) => typeof node !== 'string'))
-          ? forList(() => read(lists()) ?? [])
-          : single(toSolidNodes(read(lists()) ?? undefined))
+        )
+          return forList(() => read(lists()) ?? [])
+        // The accessor form: each node of a list with a lifetime probe as `() => node`, always in
+        // an array, as a Solid consumer writes items that must not exist while hidden.
+        if (options.form === ACCESSORS && holdsLifetimeProbe(nodes))
+          return (nodes ?? []).map((node) =>
+            typeof node === 'string' ? node : () => single(toSolidNodes([node])),
+          )
+        return single(toSolidNodes(nodes))
       }
       // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
       // with no matched child), provided as a routing bond provides one.

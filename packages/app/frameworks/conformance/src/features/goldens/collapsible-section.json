@@ -154,6 +154,7 @@
     "snapshots": [
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
@@ -161,6 +162,7 @@
    "a node title and node children, then title emptied and refilled": {
     "snapshots": [
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /"
     ],
@@ -170,6 +172,7 @@
     "snapshots": [
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
@@ -178,7 +181,165 @@
     "snapshots": [
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
      "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "collapsed by default, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaultExpanded shows the body, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "controlled expanded true, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "a controlled section stays collapsed but calls onExpandedChange, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onExpandedChange",
+      "args": [
+       true
+      ]
+     }
+    ]
+   },
+   "expanding and collapsing calls onExpandedChange, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /\n@lifetime children created=1 disposed=1",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /\n@lifetime children created=1 disposed=1"
+    ],
+    "calls": [
+     {
+      "name": "onExpandedChange",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "onExpandedChange",
+      "args": [
+       false
+      ]
+     }
+    ]
+   },
+   "a controlled section follows the expanded prop, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /\n@lifetime children created=1 disposed=1",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /\n@lifetime children created=1 disposed=1"
+    ],
+    "calls": []
+   },
+   "a node title and node children, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</em>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</em>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "a node title and node children, with a stateful title": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /\n@lifetime title created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /\n@lifetime title created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "badge and actions slots, with a stateful badge": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n<i data-parity-lifetime=\"badge\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime badge created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n<i data-parity-lifetime=\"badge\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime badge created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "badge and actions slots, with a stateful actions": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime actions created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime actions created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "clicking inside the actions does not toggle, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking inside the actions does not toggle, with a stateful actions": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime actions created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime actions created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /\n@lifetime actions created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "everything at once, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n</div>\n</section>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "everything at once, with a stateful title": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\n</i>\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /\n@lifetime title created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n<i data-parity-lifetime=\"title\" data-parity-ordinal=\"1\">\non\n</i>\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /\n@lifetime title created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "everything at once, with a stateful badge": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n<i data-parity-lifetime=\"badge\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /\n@lifetime badge created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n<i data-parity-lifetime=\"badge\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /\n@lifetime badge created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "everything at once, with a stateful actions": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /\n@lifetime actions created=1 disposed=0",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n<i data-parity-lifetime=\"actions\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /\n@lifetime actions created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "prop changes, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h5>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h5>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h5>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "collapsed by default, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    }
@@ -293,6 +454,333 @@
      "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"4\">\nitem-4\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three items by default, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "three items by default, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "three items by default, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount 2, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount 2, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount 2, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "all items fit within initialCount, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "all items fit within initialCount, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "all items fit within initialCount, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "expanding shows every item and the less label, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "expanding shows every item and the less label, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "expanding shows every item and the less label, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "translations for the default keys, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nFewer items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nFewer items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "translations for the default keys, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nFewer items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nFewer items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "translations for the default keys, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nFewer items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nFewer items\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "custom keys with translations, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nMore (2)\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLess\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLess\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "custom keys with translations, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nMore (3)\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLess\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLess\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "custom keys with translations, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nMore (3)\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLess\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLess\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "custom keys without translations keep the English defaults, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "custom keys without translations keep the English defaults, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "custom keys without translations keep the English defaults, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className passthrough, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className passthrough, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "className passthrough, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "two items render no toggle, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "two items render no toggle, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "two items render no toggle, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount 0, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount 0, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount 0, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount larger than the list, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount larger than the list, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "initialCount larger than the list, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "prop changes, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 4 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "prop changes, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 5 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\nitem 1\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 5 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\nitem 1on\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 5 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "prop changes, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 5 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 5 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\non\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 5 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "an initialCount change after expanding keeps every item, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "an initialCount change after expanding keeps every item, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "an initialCount change after expanding keeps every item, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<div data-item=\"3\">\nitem-3\n</div>\n<div data-item=\"4\">\nitem-4\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow less\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "three items by default, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 2 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\n⟦Show 2 more⟧\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<div data-item=\"2\">\nitem-2\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\n⟦Show 2 more⟧\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "three items by default, then a locale switch, with a stateful children item rendering a fragment": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\n⟦Show 3 more⟧\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\nitem 1on\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\n⟦Show 3 more⟧\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "three items by default, then a locale switch, with a stateful children item rendering nothing until it changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nShow 3 more\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\n⟦Show 3 more⟧\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\non\n<div data-item=\"0\">\nitem-0\n</div>\n<div data-item=\"1\">\nitem-1\n</div>\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\n⟦Show 3 more⟧\n</button>\n</div>\n@route /\n@lifetime children created=1 disposed=0"
     ],
     "calls": []
    }

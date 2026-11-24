@@ -60,6 +60,7 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /"
     ],
     "calls": []
@@ -67,6 +68,7 @@
    "breadcrumb, top bar and right sidebar, then breadcrumb emptied and refilled": {
     "snapshots": [
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /"
     ],
@@ -76,6 +78,7 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /"
     ],
     "calls": []
@@ -84,7 +87,125 @@
     "snapshots": [
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /",
      "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "main only, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, with a stateful breadcrumb": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n<i data-parity-lifetime=\"breadcrumb\" data-parity-ordinal=\"1\">\n</i>\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime breadcrumb created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n<i data-parity-lifetime=\"breadcrumb\" data-parity-ordinal=\"1\">\non\n</i>\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime breadcrumb created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, with a stateful topBar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n<i data-parity-lifetime=\"topBar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime topBar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "breadcrumb, top bar and right sidebar, with a stateful sidebar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nHome\n</nav>\n<div data-topbar>\nTitle\n</div>\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "left sidebar, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "left sidebar, with a stateful sidebar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "narrow sidebar with classes and an id, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"detail\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 256px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"detail\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 256px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "narrow sidebar with classes and an id, with a stateful sidebar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"detail\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 256px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"detail\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 256px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "wide sidebar, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "wide sidebar, with a stateful sidebar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "sidebar position changes, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "sidebar position changes, with a stateful sidebar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"2\">\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidebar created=2 disposed=1",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"2\">\non\n</i>\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime sidebar created=2 disposed=1"
+    ],
+    "calls": []
+   },
+   "sidebar width changes, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "sidebar width changes, with a stateful sidebar": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 320px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n</div>\n</div>\n</main>\n<aside style=\"flex-basis: 384px; flex-shrink: 0\">\n<div data-sidebar>\nRelated\n<i data-parity-lifetime=\"sidebar\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</aside>\n</div>\n</div>\n@route /\n@lifetime sidebar created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "main only, then a locale switch, with a stateful main": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<main class=\"cb5823274\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div data-main>\nBody\n<i data-parity-lifetime=\"main\" data-parity-ordinal=\"1\">\non\n</i>\n</div>\n</div>\n</main>\n</div>\n</div>\n@route /\n@lifetime main created=1 disposed=0"
     ],
     "calls": []
    }

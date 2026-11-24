@@ -297,7 +297,30 @@
     "snapshots": [
      "<p data-empty>\nNo logs\n</p>\n@route /",
      "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /",
      "<p data-empty>\nNo logs\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "no entries with an empty state, with a stateful emptyState": {
+    "snapshots": [
+     "<p data-empty>\nNo logs\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0",
+     "<p data-empty>\nNo logs\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0"
+    ],
+    "calls": []
+   },
+   "an empty state is ignored while there are entries, with a stateful emptyState": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align-all: right; text-align-last: auto; width: 48px\">\n10:00\n</span>\n<span class=\"cc63f2c4d cef6f5494\" style=\"border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-top-left-radius: 4px; border-top-right-radius: 4px; display: inline-block; font-weight: 700; min-width: 48px; padding-bottom: 0px; padding-left: 6px; padding-right: 6px; padding-top: 0px; text-align-all: center; text-align-last: auto; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align-all: right; text-align-last: auto; width: 48px\">\n10:00\n</span>\n<span class=\"cc63f2c4d cef6f5494\" style=\"border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-top-left-radius: 4px; border-top-right-radius: 4px; display: inline-block; font-weight: 700; min-width: 48px; padding-bottom: 0px; padding-left: 6px; padding-right: 6px; padding-top: 0px; text-align-all: center; text-align-last: auto; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "entries empty out and the empty state renders, with a stateful emptyState": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align-all: right; text-align-last: auto; width: 48px\">\n10:00\n</span>\n<span class=\"cc63f2c4d cef6f5494\" style=\"border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-top-left-radius: 4px; border-top-right-radius: 4px; display: inline-block; font-weight: 700; min-width: 48px; padding-bottom: 0px; padding-left: 6px; padding-right: 6px; padding-top: 0px; text-align-all: center; text-align-last: auto; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<p data-empty>\nNo logs\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0",
+     "<p data-empty>\nNo logs\n<i data-parity-lifetime=\"emptyState\" data-parity-ordinal=\"1\">\non\n</i>\n</p>\n@route /\n@lifetime emptyState created=1 disposed=0"
     ],
     "calls": []
    }

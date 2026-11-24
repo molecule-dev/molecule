@@ -28,6 +28,7 @@ import {
   h,
   nextTick,
   onErrorCaptured,
+  onUnmounted,
   type Plugin,
   type PropType,
   reactive,
@@ -55,10 +56,17 @@ import {
   type FrameworkAdapter,
   initialChildLists,
   isComponentSpec,
+  isLifetimeSpec,
   isProbeSpec,
+  LIFETIME_ON,
+  lifetimeCreated,
+  lifetimeDisposed,
+  lifetimeLabel,
+  type LifetimeSpec,
   materializeProps,
   nextChildLists,
   type NodeSpec,
+  onLifetimeChange,
   type ProbeSpec,
   probeValue,
   resetBindingForCase,
@@ -128,6 +136,40 @@ export function createVueAdapter({
     },
   })
 
+  /**
+   * A lifetime probe (see `LifetimeSpec`): counted as it is set up and when it unmounts, with a
+   * flag a `lifetime` step flips, rendered at the root the spec names.
+   */
+  const Lifetime = defineComponent({
+    props: {
+      name: { type: String, required: true },
+      root: { type: String as PropType<LifetimeSpec['root']>, required: false },
+    },
+    setup(props) {
+      const name = props.name
+      const root = props.root
+      const ordinal = lifetimeCreated(name)
+      const on = ref(false)
+      const off = onLifetimeChange(name, () => {
+        on.value = !on.value
+      })
+      onUnmounted(() => {
+        off()
+        lifetimeDisposed(name)
+      })
+      return (): VNodeChild => {
+        const flag = on.value ? LIFETIME_ON : null
+        if (root === 'fragment') return [lifetimeLabel(ordinal), flag]
+        if (root === 'conditional') return flag
+        return h(
+          'i',
+          { 'data-parity-lifetime': name, 'data-parity-ordinal': String(ordinal) },
+          flag ?? undefined,
+        )
+      }
+    },
+  })
+
   /** One VNode for a single node, an array otherwise (what a VNode-valued prop holds). */
   const vueValue = (nodes: NodeSpec[]): unknown => {
     const vnodes = toVueNodes(nodes)
@@ -157,6 +199,8 @@ export function createVueAdapter({
     return nodes.map((node) => {
       if (typeof node === 'string') return node
       if (isProbeSpec(node)) return h(Probe, { spec: node }) as VNode
+      if (isLifetimeSpec(node))
+        return h(Lifetime, { name: node.lifetime, root: node.root }) as VNode
       if (isComponentSpec(node)) {
         const props: Record<string, unknown> = vueProps(node.props ?? {})
         const slots: Record<string, () => VNodeChild[]> = {}

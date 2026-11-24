@@ -45,14 +45,17 @@ import {
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
+  computed,
   createComponent,
   ElementRef,
   type EnvironmentProviders,
   inject,
   isSignal,
+  type OnDestroy,
   provideZonelessChangeDetection,
   reflectComponentType,
   type Signal,
+  signal,
   type TemplateRef,
   type Type,
   ViewChild,
@@ -77,12 +80,20 @@ import {
   type FnValue,
   type FrameworkAdapter,
   hasChildSteps,
+  holdsLifetimeProbe,
   interpolate,
   isComponentSpec,
+  isLifetimeSpec,
   isProbeSpec,
+  LIFETIME_ON,
+  lifetimeCreated,
+  lifetimeDisposed,
+  lifetimeLabel,
+  type LifetimeSpec,
   materializeProps,
   nodeIdentity,
   type NodeSpec,
+  onLifetimeChange,
   type ProbeSpec,
   probeValue,
   resetBindingForCase,
@@ -193,6 +204,8 @@ const isPlaceholder = (value: unknown): value is TemplatePlaceholder =>
 
 interface Built {
   used: Set<string>
+  /** Whether a list was written with `*molLazy` (the host imports the directive). */
+  lazy: boolean
   /** Probe components, by label. */
   probes: Map<string, Type<unknown>>
   /** Props of nested component nodes, referenced as `np[i]` (markers already replaced). */
@@ -352,6 +365,11 @@ export interface AngularBinding extends BindingCaseResets {
   MolPlacement: Type<unknown>
   /** Runs the gate's placement function. */
   usePlacement(place: () => void): void
+  /**
+   * Stamps a list's content only while its place is in the page; a list that holds a lifetime
+   * probe is written with it (see {@link createAngularAdapter}).
+   */
+  MolLazy: Type<unknown>
   /** Renders the gate's content in front of the gate. */
   placeContentBefore(capture: Element, sibling: Node): void
   /** Takes the gate's own element out of the DOM. */
@@ -384,6 +402,7 @@ export function createAngularAdapter({
 }: AngularAdapterOptions): FrameworkAdapter {
   const {
     provideAuth,
+    MolLazy,
     MolPlacement,
     placeContentBefore,
     provideDomPlacement,
@@ -399,6 +418,36 @@ export function createAngularAdapter({
   const renderNodes = (nodes: NodeSpec[] | undefined, built: Built, scope: Scope): string =>
     (nodes ?? []).map((node) => renderNode(node, built, scope)).join('')
 
+  /**
+   * A list passed to a component, written the way an Angular consumer writes content with state:
+   * a list that holds a lifetime probe gets `*molLazy` on each top-level element or component, so
+   * its content exists only while the component shows it, as React mounts a slot. Text holds no
+   * probe and stays as it is. Every other list is plain projected content, which Angular creates
+   * with the consumer's view, so a case's base and its `, with a stateful <list>` case cover both
+   * forms on every component. A list inside such a list's content (a nested component's children)
+   * that holds the probe is lazy too, as a consumer writes each slot whose content must not exist
+   * while the component hides it (a closed section's body).
+   *
+   * @param nodes - The list.
+   * @param built - The template under construction.
+   * @param scope - The template scope.
+   * @returns The list's markup.
+   */
+  const renderList = (nodes: NodeSpec[] | undefined, built: Built, scope: Scope): string => {
+    if (!holdsLifetimeProbe(nodes)) return renderNodes(nodes, built, scope)
+    built.lazy = true
+    return lazyMarkup(nodes ?? [], built, scope)
+  }
+  const lazyMarkup = (nodes: NodeSpec[], built: Built, scope: Scope): string =>
+    nodes
+      .map((node) => {
+        const markup = renderNode(node, built, scope)
+        return typeof node === 'string'
+          ? markup
+          : markup.replace(/^<[\w-]+/, (open) => `${open} *molLazy`)
+      })
+      .join('')
+
   const textNode = (s: string, built: Built, scope: Scope): string => {
     if (scope === 'render' && PLACEHOLDER.test(s))
       return `{{ ip(s[${built.strings.push(s) - 1}], ${argsExpr}) }}`
@@ -410,6 +459,11 @@ export function createAngularAdapter({
     if (isProbeSpec(node)) {
       built.probes.set(node.label, probeComponent(node))
       return `<button type="button" data-parity-probe="${attr(node.label)}">${text(node.label)}</button>`
+    }
+    if (isLifetimeSpec(node)) {
+      built.probes.set(`lifetime ${node.lifetime}`, lifetimeComponent(node.lifetime, node.root))
+      // A fragment or conditional root has no element of its own: the host is unwrapped.
+      return `<i data-parity-lifetime="${attr(node.lifetime)}"${node.root ? ' data-parity-unwrap=""' : ''}></i>`
     }
     if (isComponentSpec(node)) {
       const props = materialize(node.props ?? {}, built)
@@ -540,10 +594,10 @@ export function createAngularAdapter({
     const projected = [
       changing.children
         ? childrenBlock(name, mirror.ngContentSelectors, changing.children, built)
-        : renderNodes(children, built, scope),
+        : renderList(children, built, scope),
       ...Object.entries(slots)
         .filter(([slot]) => !(slot in changing.slots))
-        .map(([slot, list]) => slotContent(slot, renderNodes(list, built, scope))),
+        .map(([slot, list]) => slotContent(slot, renderList(list, built, scope))),
       ...Object.entries(changing.slots).map(([slot, list]) =>
         slotContent(slot, forBlock(list, built)),
       ),
@@ -578,6 +632,14 @@ export function createAngularAdapter({
     if (typeof node === 'string') return null
     if (isProbeSpec(node))
       return { tag: 'button', attrs: { type: 'button', 'data-parity-probe': node.label } }
+    if (isLifetimeSpec(node))
+      return {
+        tag: 'i',
+        attrs: {
+          'data-parity-lifetime': node.lifetime,
+          ...(node.root ? { 'data-parity-unwrap': '' } : {}),
+        },
+      }
     if (isComponentSpec(node)) {
       const Comp = exportsOf[node.component]
       if (!isComponent(Comp)) return null
@@ -663,6 +725,40 @@ export function createAngularAdapter({
     ) as Type<unknown>
 
   /**
+   * Builds a standalone component for a lifetime probe (see `LifetimeSpec`). Its selector matches
+   * the exact element every framework renders, so the host is that element: counted as it is
+   * created and when it is destroyed, with a flag a `lifetime` step flips. For a fragment or
+   * conditional root the host carries `data-parity-unwrap` (an Angular component always has one),
+   * so only its text is compared.
+   *
+   * @param name - The probe's name.
+   * @param root - The root it renders.
+   * @returns The component type.
+   */
+  const lifetimeComponent = (name: string, root: LifetimeSpec['root']): Type<unknown> =>
+    Component({
+      selector: `i[data-parity-lifetime="${name}"]`,
+      standalone: true,
+      changeDetection: ChangeDetectionStrategy.Eager,
+      template: root === 'fragment' ? '{{ label }}{{ flag() }}' : '{{ flag() }}',
+      host: { '[attr.data-parity-ordinal]': 'ordinal' },
+    })(
+      class ConformanceLifetime implements OnDestroy {
+        private readonly created = lifetimeCreated(name)
+        readonly ordinal = String(this.created)
+        readonly label = lifetimeLabel(this.created)
+        private readonly on = signal(false)
+        readonly flag = computed(() => (this.on() ? LIFETIME_ON : ''))
+        private readonly off = onLifetimeChange(name, () => this.on.update((value) => !value))
+        /** Counts the disposal. */
+        ngOnDestroy(): void {
+          this.off()
+          lifetimeDisposed(name)
+        }
+      },
+    ) as Type<unknown>
+
+  /**
    * The mount wrapper for cases with an auth context: holds its content until
    * the auth client has decided the session, exactly like React's reference
    * mount inside `AuthProvider` (default `awaitSession`). React's AuthProvider
@@ -716,6 +812,7 @@ export function createAngularAdapter({
       const spies = new Map((testCase.callbacks ?? []).map((name) => [name, recorder.spy(name)]))
       const built: Built = {
         used: new Set(),
+        lazy: false,
         probes: new Map(),
         nested: [],
         strings: [],
@@ -772,6 +869,7 @@ export function createAngularAdapter({
         imports: [
           ...(gated ? [SessionGate] : []),
           ...[...built.used].map((n) => exportsOf[n] as Type<unknown>),
+          ...(built.lazy ? [MolLazy] : []),
           ...built.probes.values(),
         ],
         changeDetection: ChangeDetectionStrategy.Eager,
