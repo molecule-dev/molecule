@@ -19,6 +19,9 @@ vi.mock('@molecule/app-i18n', async (importOriginal) => ({
 // Mock @molecule/app-routing since it's a peer dependency
 vi.mock('@molecule/app-routing', () => ({}))
 
+const logged = vi.hoisted(() => ({ error: vi.fn() }))
+vi.mock('@molecule/app-logger', () => ({ getLogger: () => logged }))
+
 import type { NavigationGuard, RouteDefinition } from '../index.js'
 import {
   createReactNavigationRouter,
@@ -340,6 +343,28 @@ describe('@molecule/app-routing-react-navigation', () => {
         await flush()
 
         expect(navRef.navigate).toHaveBeenCalledWith('Products', {})
+      })
+
+      it('logs a path no screen matches, and stays where it is', async () => {
+        logged.error.mockClear()
+        const navRef = createMockNavigationRef()
+        const router = createReactNavigationRouter({
+          navigationRef: navRef,
+          linking: { screens: createScreens() },
+        })
+
+        router.navigate('/billing')
+        await flush()
+
+        expect(navRef.navigate).not.toHaveBeenCalled()
+        expect(navRef.dispatch).not.toHaveBeenCalled()
+        expect(logged.error).toHaveBeenCalledTimes(1)
+        expect(logged.error.mock.calls[0]?.[0]).toContain(
+          'No screen in linking.screens matches "/billing"',
+        )
+        router.navigate('/products')
+        await flush()
+        expect(logged.error).toHaveBeenCalledTimes(1)
       })
 
       it('stays on the current screen for a query or a hash alone', async () => {

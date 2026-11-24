@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
+    "@molecule/app-logger": "1.1.0",
     "@molecule/app-routing": "1.5.3",
     "@molecule/app-theme": "1.0.4",
     "@types/node": "26.6.5",
@@ -45,6 +46,7 @@
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-logger": "^1.0.1",
     "@molecule/app-routing": "^1.0.1",
     "@molecule/app-theme": "^1.0.4",
     "@react-navigation/native": "^7.0.0",

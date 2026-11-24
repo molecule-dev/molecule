@@ -41,7 +41,8 @@
  *   `useMoleculeRouter`/`createReactNavigationRouter`.
  * - **The `linking.screens` map is the URL↔screen bridge** — molecule paths like
  *   `/users/:id` only resolve to screens listed there (and vice versa for
- *   `getLocation()`).
+ *   `getLocation()`). `navigate()` to a path no screen matches stays where it is and
+ *   logs an error naming the path, so a screen missing from the map shows up in the log.
  * - **`useNavigationTheme({ light: DefaultTheme, dark: DarkTheme })` gives the navigator
  *   the molecule theme** (pass it to `<NavigationContainer theme={…}>`): headers, tab bars
  *   and screen backgrounds are not ClassMap classes, so without it they stay React

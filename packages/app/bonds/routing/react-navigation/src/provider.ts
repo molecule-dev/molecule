@@ -8,6 +8,7 @@
  */
 
 import { I18nError } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
 import type {
   NavigateOptions,
   NavigationGuard,
@@ -182,15 +183,22 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
         if (!allowed) return
 
         const resolved = resolveScreenFromPath(to.pathname, screens)
-        if (resolved) {
-          if (options?.replace) {
-            navigationRef!.dispatch({
-              type: 'REPLACE',
-              payload: { name: resolved.screen, params: resolved.params },
-            })
-          } else {
-            navigationRef!.navigate(resolved.screen, resolved.params)
-          }
+        // A path with no screen has nowhere to go on a device. React Navigation reports an action
+        // no navigator handles the same way: the app keeps running, and the log names the path.
+        if (!resolved) {
+          getLogger('react-navigation-router').error(
+            `No screen in linking.screens matches "${to.pathname}": add the screen and its path to the linking map passed to useMoleculeRouter.`,
+            { path: to.pathname, screens },
+          )
+          return
+        }
+        if (options?.replace) {
+          navigationRef!.dispatch({
+            type: 'REPLACE',
+            payload: { name: resolved.screen, params: resolved.params },
+          })
+        } else {
+          navigationRef!.navigate(resolved.screen, resolved.params)
         }
       })
     },
