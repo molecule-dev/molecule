@@ -233,16 +233,29 @@ function main(argv) {
         .filter(Boolean)
     files = new Set(diff('AM'))
     deleted = new Set(diff('D'))
-    for (const path of deleted) {
-      const stem = path
-        .split('/')
-        .pop()
-        .replace(/\.[^.]+$/, '')
+    // A carried file that names any deleted module's stem may import it. One grep for every stem: a
+    // grep per deleted file took over 15 minutes for a commit that deleted 1,667 files of mlcl's
+    // templates (2026-11-24). The patterns go on stdin, so no argument list grows with the commit.
+    const stems = [
+      ...new Set(
+        [...deleted].map((path) =>
+          path
+            .split('/')
+            .pop()
+            .replace(/\.[^.]+$/, ''),
+        ),
+      ),
+    ].filter(Boolean)
+    if (stems.length > 0) {
       let importers = []
       try {
-        importers = git(['grep', '--cached', '-l', '-F', '-e', stem]).split('\n').filter(Boolean)
+        importers = git(['grep', '--cached', '-l', '-F', '-f', '-'], {
+          input: `${stems.join('\n')}\n`,
+        })
+          .split('\n')
+          .filter(Boolean)
       } catch (_error) {
-        // git grep exits 1 when nothing matches: no file names the deleted one.
+        // git grep exits 1 when nothing matches: no file names a deleted one.
       }
       for (const importer of importers) files.add(importer)
     }

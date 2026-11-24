@@ -111,6 +111,27 @@ describe('check-tracked-imports', () => {
     expect(result.stderr).toContain("src/a.ts: './b.js' → src/b.ts — this commit deletes it")
   })
 
+  it('finds the importers of every module a commit deletes, and passes the deletions nothing imports', () => {
+    const root = fixture()
+    write(root, 'src/a.ts', "import { b } from './b.js'\nexport const a = b\n")
+    write(root, 'src/b.ts', 'export const b = 1\n')
+    write(root, 'lib/c.ts', "export { d } from '../src/d.js'\n")
+    write(root, 'src/d.ts', 'export const d = 1\n')
+    write(root, 'src/unused.ts', 'export const unused = 1\n')
+    git(root, 'add', 'src', 'lib')
+    git(root, 'commit', '-q', '-m', 'add modules')
+    git(root, 'rm', '-q', '--cached', 'src/b.ts', 'src/d.ts', 'src/unused.ts')
+
+    const result = run(root, ['--staged'])
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain("src/a.ts: './b.js' → src/b.ts — this commit deletes it")
+    expect(result.stderr).toContain("lib/c.ts: '../src/d.js' → src/d.ts — this commit deletes it")
+    expect(result.stderr).not.toContain('unused')
+
+    git(root, 'rm', '-q', '--cached', 'src/a.ts', 'lib/c.ts')
+    expect(run(root, ['--staged']).status).toBe(0)
+  })
+
   it('refuses a deleted module whose carried importer is gone from the worktree too', () => {
     // The 2026-11-22 shape: the commit deleted rule modules and kept the tests importing them,
     // while both were already gone from the worktree, so no local run could fail.
