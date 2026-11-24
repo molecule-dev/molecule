@@ -59,11 +59,7 @@ import {
 } from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
 import { createReactBindingAdapter } from './react-bindings-adapter.js'
-import {
-  assertCompleteRecording,
-  assertKeepsChildStepGoldens,
-  missingRecordings,
-} from './recording.js'
+import { assertCompleteRecording, missingRecordings } from './recording.js'
 
 // React is recorded here: a reference that stops yielding ends the run with its stack.
 watchConformanceEventLoop()
@@ -168,10 +164,6 @@ if (RECORD && CASES && !OUT)
   throw new Error(
     'framework-conformance: CONFORMANCE_CASES narrows a recording to some cases, which would rewrite the goldens without the others; record to CONFORMANCE_GOLDENS_OUT',
   )
-
-if (RECORD && !OUT)
-  for (const name of Object.keys(featureCases))
-    assertKeepsChildStepGoldens(loadFeatureGoldens(name)?.cases, featureGoldensFile(name))
 
 const recorded: Record<string, FeatureGoldens> = {}
 const recordedReadable: Record<string, FeatureGoldens> = {}

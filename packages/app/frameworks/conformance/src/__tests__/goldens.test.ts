@@ -38,11 +38,7 @@ import {
   writePixelCapture,
 } from '../ui/index.js'
 import { reactAdapter } from './react-adapter.js'
-import {
-  assertCompleteRecording,
-  assertKeepsChildStepGoldens,
-  missingRecordings,
-} from './recording.js'
+import { assertCompleteRecording, missingRecordings } from './recording.js'
 
 // React is recorded here: a reference that stops yielding ends the run with its stack.
 watchConformanceEventLoop()
@@ -60,7 +56,6 @@ const FILTER =
     .filter(Boolean) ?? null
 if (RECORD && FILTER)
   throw new Error('RECORD_GOLDENS records every component; unset CONFORMANCE_COMPONENTS')
-if (RECORD && !OUT) assertKeepsChildStepGoldens(uiGoldens.cases, 'src/ui/goldens.json')
 const families = uiCaseFamilies.filter((f) => !FILTER || FILTER.includes(f.component))
 const here = dirname(fileURLToPath(import.meta.url))
 // A recording reads React's UI kit from its dist/: refuse one older than its source.

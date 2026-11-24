@@ -1,6 +1,5 @@
 /**
- * The `children` step: the cases the kit derives for every family while `CONFORMANCE_CHILDREN_STEP=1`
- * is set, the lists an adapter renders at mount and after each step, the key rules a case's lists
+ * The `children` step: the cases the kit derives for every family, the lists an adapter renders at mount and after each step, the key rules a case's lists
  * follow, and the runner's refusal of an adapter that cannot change a case's children.
  *
  * A plain DOM "component" stands in for a framework here.
@@ -9,7 +8,7 @@
  */
 
 import '../ui/setup.js'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   assertEmptiedListAlike,
@@ -19,7 +18,6 @@ import {
   checkNodeKeys,
   CHILD_STEP_CASE_NAME,
   childListStates,
-  CHILDREN_STEP_SWITCH,
   type ChildrenStep,
   hasChildSteps,
   initialChildLists,
@@ -55,18 +53,8 @@ const family: UIComponentCases = {
   ],
 }
 
-afterEach(() => {
-  vi.unstubAllEnvs()
-})
-
 describe('withChildSteps', () => {
-  it('derives nothing while the switch is unset', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '')
-    expect(withChildSteps(family)).toBe(family)
-  })
-
   it('changes the first list of element children: insert, remove, reverse, empty, refill', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const cases = withChildSteps(family).cases
     const changed = cases.find((c) => c.name === 'rows, then children change')!
     const keyed = [
@@ -86,7 +74,6 @@ describe('withChildSteps', () => {
   })
 
   it('skips a case that ends unmounted, keeps the base steps, and empties and refills each slot', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const names = withChildSteps(family).cases.map((c) => c.name)
     expect(names).not.toContain('gone, then children change')
     const footer = withChildSteps(family).cases.find(
@@ -101,7 +88,6 @@ describe('withChildSteps', () => {
   })
 
   it('takes away and gives back children that are not a list of elements', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const text: UIComponentCases = {
       component: 'Label',
       cases: [{ name: 'text', children: ['Name'] }],
@@ -118,7 +104,6 @@ describe('withChildSteps', () => {
   })
 
   it('refuses a derived name another case already has', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     expect(() =>
       withChildSteps({
         component: 'List',
@@ -134,7 +119,6 @@ describe('withChildSteps', () => {
 describe('assertEmptiedListAlike', () => {
   /** The derived footer case: a focus step, then footer not passed, [], and passed again. */
   const footerCase = (): UICase => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     return withChildSteps(family).cases.find(
       (c) => c.name === 'with footer, then footer emptied and refilled',
     )!
@@ -165,7 +149,6 @@ describe('assertEmptiedListAlike', () => {
   })
 
   it('checks the children of a case derived by rule 2', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const text = withChildSteps({
       component: 'Label',
       cases: [{ name: 'text', children: ['Name'] }],
@@ -176,7 +159,6 @@ describe('assertEmptiedListAlike', () => {
   })
 
   it('leaves every other case alone, the changing list of rule 1 included', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const changed = withChildSteps(family).cases.find(
       (c) => c.name === 'rows, then children change',
     )!
@@ -394,7 +376,6 @@ describe('withChildSteps: a stateful list', () => {
   }
 
   it('puts a lifetime probe inside the first node of a list that can hold one', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const cases = withChildSteps(dialog).cases
     const footer = cases.find((c) => c.name === 'open with footer, with a stateful footer')!
     expect(footer.props).toEqual({ open: true })
@@ -410,7 +391,6 @@ describe('withChildSteps: a stateful list', () => {
   })
 
   it('keeps every list its length: inside a list item, and inside a lone element child', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const nested: UIComponentCases = {
       component: 'Panel',
       cases: [
@@ -449,7 +429,6 @@ describe('withChildSteps: a stateful list', () => {
   })
 
   it("ends with a lifetime step after the base case's own steps", () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const stepped: UIComponentCases = {
       component: 'Panel',
       cases: [
@@ -470,7 +449,6 @@ describe('withChildSteps: a stateful list', () => {
   })
 
   it('adds the item cases of a declared list: the probe first, rendering a fragment or nothing until it changes', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const declared: UIComponentCases = {
       ...dialog,
       itemLists: { footer: 'counts the footer items', title: 'counts the title parts' },
@@ -500,7 +478,6 @@ describe('withChildSteps: a stateful list', () => {
   })
 
   it('derives none for text, a void element, a list a step replaces, or a case that ends unmounted', () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const names = withChildSteps(dialog).cases.map((c) => c.name)
     for (const name of [
       'text title, with a stateful title',
@@ -512,7 +489,6 @@ describe('withChildSteps: a stateful list', () => {
   })
 
   it("leaves a probe out of the key rules, as the kit's own unkeyed node", () => {
-    vi.stubEnv(CHILDREN_STEP_SWITCH, '1')
     const keyed: UIComponentCases = {
       component: 'List',
       cases: [

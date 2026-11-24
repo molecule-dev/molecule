@@ -53,8 +53,8 @@ const here = dirname(fileURLToPath(import.meta.url))
 
 /**
  * One feature's cases as every runner sees them: families and hooks sorted, each
- * family with its derived cases (the pseudo-locale switch, keyed-list reorders, and while
- * `CONFORMANCE_CHILDREN_STEP=1` children changes).
+ * family with its derived cases (the pseudo-locale switch, keyed-list reorders, and children
+ * changes).
  *
  * @param feature - The cases as written in `cases/<feature>.ts`.
  * @returns The cases the recorder and every framework run.

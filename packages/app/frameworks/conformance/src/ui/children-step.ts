@@ -8,9 +8,6 @@
  * and slots ({@link withChildSteps}), and every adapter renders such a case's lists the way a
  * consumer whose list changes writes them, keyed by each node's `key`.
  *
- * The derived cases exist only while `CONFORMANCE_CHILDREN_STEP=1` is set
- * ({@link CHILDREN_STEP_SWITCH}).
- *
  * @module
  */
 
@@ -24,16 +21,6 @@ import type {
   UICase,
   UIComponentCases,
 } from './spec.js'
-
-/** The environment variable that turns the derived `children`-step cases on (`1`). */
-export const CHILDREN_STEP_SWITCH = 'CONFORMANCE_CHILDREN_STEP'
-
-/**
- * Whether the kit derives `children`-step cases in this run.
- *
- * @returns True while `CONFORMANCE_CHILDREN_STEP=1` is set.
- */
-export const childStepsEnabled = (): boolean => process.env[CHILDREN_STEP_SWITCH] === '1'
 
 /**
  * The name of a case {@link withChildSteps} derives: `"<name>, then children change"`,
@@ -414,8 +401,7 @@ const derive = (
 })
 
 /**
- * The family with its `children`-step cases added, with no per-family opt-in (only while
- * {@link CHILDREN_STEP_SWITCH} is set):
+ * The family with its `children`-step cases added, with no per-family opt-in:
  *
  * 1. For the first case whose children hold at least two element or component nodes and no text,
  *    `"<name>, then children change"`: its children keyed `"0"`…`"n-1"`, then a copy of child 0
@@ -454,7 +440,6 @@ const derive = (
  * @throws {Error} When a derived name is already a case's name.
  */
 export const withChildSteps = (family: UIComponentCases): UIComponentCases => {
-  if (!childStepsEnabled()) return family
   const bases = family.cases.filter(endsMounted)
   const derived: UICase[] = []
   const listCase = bases.find((c) => isNodeList(c.children))

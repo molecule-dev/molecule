@@ -182,17 +182,16 @@ value), a `@for` in Angular, and `[]` for a list it starts without or a step emp
 `undefined`, Vue no slot function, Svelte and Solid `undefined`, and Angular no node (in Angular a
 slot not passed and an empty `@for` are the same template state, so a slot with nothing to render
 is a slot that was not passed, in every framework). Every other list is passed as the case writes
-it. A port that wraps, counts or moves its children by hand fails here when the list changes. With
-`CONFORMANCE_CHILDREN_STEP=1` set, the kit derives such cases for every family
+it. A port that wraps, counts or moves its children by hand fails here when the list changes. The
+kit derives such cases for every family
 (`withChildSteps`, `src/ui/children-step.ts`): the first case whose children are two or more
 elements gets `"<name>, then children change"` (insert, remove, reverse, `[]`, refill), else the
 first case with children gets `"<name>, then children emptied and refilled"`, and each slot a
 case fills gets `"<name>, then <slot> emptied and refilled"`; those two take the list away
-(`null`) and give it back. The React goldens hold them, so
-recording without the switch would drop them and refuses to run. A snapshot taken while a step
+(`null`) and give it back. A snapshot taken while a step
 has emptied a list the case mounted with nodes is not held to axe's accessible-name rules.
 
-The same switch derives, for each case and each list with nodes that none of its own steps
+It also derives, for each case and each list with nodes that none of its own steps
 replaces, `"<name>, with a stateful <list>"`: the case with a lifetime node (`{ lifetime: '<list>' }`,
 `LifetimeSpec`) in that list, and a last step `{ type: 'lifetime', name: '<list>' }`. Each framework
 renders the node as one of its own components that counts its creations and disposals and has

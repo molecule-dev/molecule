@@ -9,8 +9,6 @@
  * @module
  */
 
-import { CHILD_STEP_CASE_NAME, CHILDREN_STEP_SWITCH, childStepsEnabled } from '../ui/index.js'
-
 /**
  * The cases a recording run did not record.
  *
@@ -27,33 +25,6 @@ export function missingRecordings(
     for (const name of names)
       if (!recorded[group] || !(name in recorded[group]!)) missing.push(`${group} / ${name}`)
   return missing.sort()
-}
-
-/**
- * Throws instead of recording over goldens that hold the derived `children`-step cases while
- * `CONFORMANCE_CHILDREN_STEP=1` is unset: the run derives none of them, so the file it writes
- * would drop them all.
- *
- * @param committed - Group → case name → the committed result, or undefined before a recording.
- * @param file - The goldens file the run would write.
- * @throws {Error} Naming the switch and a case the recording would drop.
- */
-export function assertKeepsChildStepGoldens(
-  committed: Record<string, Record<string, unknown> | undefined> | undefined,
-  file: string,
-): void {
-  if (childStepsEnabled()) return
-  const dropped = Object.entries(committed ?? {}).flatMap(([group, cases]) =>
-    Object.keys(cases ?? {})
-      .filter((name) => CHILD_STEP_CASE_NAME.test(name))
-      .map((name) => `${group} / ${name}`),
-  )
-  if (dropped.length === 0) return
-  throw new Error(
-    `RECORD_GOLDENS would drop ${dropped.length} children-step case(s) from ${file} ` +
-      `(${dropped.slice(0, 3).join('; ')}${dropped.length > 3 ? '; …' : ''}): record with ` +
-      `${CHILDREN_STEP_SWITCH}=1 set.`,
-  )
 }
 
 /**

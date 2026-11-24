@@ -181,7 +181,7 @@ export const withoutGoldensGroups = (family: UIComponentCases): UIComponentCases
 
 /**
  * Every case family, in a stable order, each with its derived cases: locale switch, keyed lists,
- * declared props, ref, and (while `CONFORMANCE_CHILDREN_STEP=1`) children changes.
+ * declared props, ref, and children changes.
  */
 export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UIComponentCases[])
   .sort((a, b) => a.component.localeCompare(b.component))
