@@ -194,6 +194,18 @@ describe('QuizCard', () => {
     expect(m.host.innerHTML).toContain('data-timer=""')
   })
 
+  it('renders a number progress, question and option label as text, as React does', async () => {
+    const m = await render({
+      question: 42,
+      options: [{ id: 'a', label: 7 }, ...options.slice(1)],
+      progress: 3,
+    })
+    const header = m.host.querySelector('header')!
+    expect(header.firstElementChild?.textContent).toBe('3')
+    expect(m.host.querySelector('h2')?.textContent).toBe('42')
+    expect(m.host.querySelector('button')?.textContent).toContain('7')
+  })
+
   it('renders the submit button disabled until an option is selected', async () => {
     const m = await render({ question: 'Q', options })
     expect(m.host.innerHTML).toContain('Submit answer')

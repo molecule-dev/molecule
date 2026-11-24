@@ -260,10 +260,10 @@ export class QuizCard {
   /**
    * Whether a value is plain text (React renders it as text, not as nodes).
    * @param value - A label, question or slot value.
-   * @returns True when the value is a string.
+   * @returns True when the value is a string or a number.
    */
-  isText(value: unknown): value is string {
-    return typeof value === 'string'
+  isText(value: unknown): value is string | number {
+    return typeof value === 'string' || typeof value === 'number'
   }
 
   /**
@@ -282,7 +282,7 @@ export class QuizCard {
    */
   hasProgress(projected: boolean): boolean {
     return (
-      (typeof this.progress === 'string' && this.progress.length > 0) ||
+      (this.isText(this.progress) && this.progress !== '') ||
       this.templateOf(this.progress) !== null ||
       projected
     )
@@ -295,7 +295,7 @@ export class QuizCard {
    */
   hasExplanation(projected: boolean): boolean {
     return (
-      (typeof this.explanation === 'string' && this.explanation.length > 0) ||
+      (this.isText(this.explanation) && this.explanation !== '') ||
       this.templateOf(this.explanation) !== null ||
       projected
     )
