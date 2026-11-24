@@ -34,11 +34,12 @@
  * ```ts
  * import { sendMail } from '@molecule/api-emails'
  *
+ * // The sender: an address on a domain VERIFIED with your provider, set as EMAIL_FROM.
+ * const from = process.env.EMAIL_FROM ?? 'no-reply@localhost'
+ *
  * // Account email → the authenticated user's OWN address (not a client-named one).
  * await sendMail({
- *   // `emailFrom`: a domain VERIFIED with your provider, read from config (see @remarks) —
- *   // e.g. `getConfig('EMAIL_FROM', `no-reply@${MAILGUN_DOMAIN}`)`, never a placeholder.
- *   from: emailFrom,
+ *   from,
  *   to: user.email, // validated, owned by the session
  *   subject: 'Reset your password',
  *   html: `<a href="${resetLink}">Reset</a>`, // a single-use link, not the raw token
