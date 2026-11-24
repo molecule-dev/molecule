@@ -54,7 +54,11 @@ const webToken = {
 
 /** A free plan with one paid tier, as `TiersUpgradeSection` loads them, then the checkout answer. */
 const freeWithProTier = (checkout: Omit<HttpScript, 'method' | 'url'>): HttpScript[] => [
-  { method: 'GET', url: '/api/billing/status', data: { name: 'Free', planKey: 'free' } },
+  {
+    method: 'GET',
+    url: '/api/billing/status',
+    data: { name: 'Free', planKey: 'free', isFree: true },
+  },
   {
     method: 'GET',
     url: '/api/billing/tiers',
@@ -624,7 +628,11 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Free', planKey: 'free' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Free', planKey: 'free', isFree: true },
+          },
           {
             method: 'GET',
             url: '/api/billing/tiers',
@@ -652,27 +660,48 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       interactions: [{ type: 'click', selector: 'section button' }],
     },
     {
-      name: 'no paid plans configured',
+      // A paid tier whose price has no id (its price env var unset, or no provider that can
+      // check out) has nothing to buy, so there is no Upgrade button to lead nowhere.
+      name: 'nothing for sale offers no upgrade',
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Free', planKey: 'free' } },
-          { method: 'GET', url: '/api/billing/tiers', data: { data: [] } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Free', planKey: 'free', isFree: true },
+          },
+          {
+            method: 'GET',
+            url: '/api/billing/tiers',
+            data: {
+              data: [
+                { key: 'free', name: 'Free', prices: [] },
+                {
+                  key: 'pro',
+                  name: 'Pro',
+                  prices: [{ stripePriceId: null, period: 'month', price: '$9' }],
+                },
+              ],
+            },
+          },
         ],
       },
-      interactions: [{ type: 'click', selector: 'section button' }],
     },
     {
-      name: 'failed loads keep the defaults',
+      name: 'failed loads show no plan and no upgrade',
       context: authed,
-      interactions: [{ type: 'click', selector: 'section button' }],
     },
     {
       name: 'subscribe starts checkout with the price id',
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Free', planKey: 'free' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Free', planKey: 'free', isFree: true },
+          },
           {
             method: 'GET',
             url: '/api/billing/tiers',
@@ -699,7 +728,11 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Free', planKey: 'free' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Free', planKey: 'free', isFree: true },
+          },
           {
             method: 'GET',
             url: '/api/billing/tiers',
@@ -726,7 +759,11 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Free', planKey: 'free' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Free', planKey: 'free', isFree: true },
+          },
           {
             method: 'GET',
             url: '/api/billing/tiers',
@@ -766,12 +803,35 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       interactions: subscribe,
     },
     {
-      name: 'paid plan offers cancel and confirming resets to free',
+      // The server decides what the plan is after a cancel (a provider may cancel at period end).
+      name: 'confirming cancel reloads the plan the server reports',
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Pro', planKey: 'pro' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Pro', planKey: 'pro', isFree: false },
+          },
+          {
+            method: 'GET',
+            url: '/api/billing/tiers',
+            data: {
+              data: [
+                {
+                  key: 'pro',
+                  name: 'Pro',
+                  prices: [{ stripePriceId: 'price_pro_m', period: 'month', price: '$9' }],
+                },
+              ],
+            },
+          },
           { method: 'POST', url: '/api/billing/cancel', data: {} },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Free', planKey: 'free', isFree: true },
+          },
         ],
       },
       interactions: [
@@ -784,7 +844,11 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Pro', planKey: 'pro' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Pro', planKey: 'pro', isFree: false },
+          },
         ],
       },
       interactions: [
@@ -797,7 +861,11 @@ const tiersUpgrade: FeatureCases['families'][number] = {
       context: {
         ...authed,
         http: [
-          { method: 'GET', url: '/api/billing/status', data: { name: 'Pro', planKey: 'pro' } },
+          {
+            method: 'GET',
+            url: '/api/billing/status',
+            data: { name: 'Pro', planKey: 'pro', isFree: false },
+          },
           { method: 'POST', url: '/api/billing/cancel', status: 500, data: {} },
         ],
       },

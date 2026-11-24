@@ -35,9 +35,11 @@ export interface Tier {
  * `@molecule/api-payments-stripe` + `@molecule/api-resource-payment`
  * — loads the user's current plan from `/api/billing/status`,
  * loads available tiers from `/api/billing/tiers`, and renders an
- * Upgrade modal with a Subscribe button per tier price. Subscribe
- * POSTs to `/api/billing/checkout` and redirects to the Stripe
- * checkout URL; paid users see a Cancel button that POSTs to
+ * Upgrade modal with a Subscribe button per price that is for sale (one
+ * the server lists with a price id). Upgrade appears only for a free user
+ * and only when something is for sale. Subscribe POSTs to
+ * `/api/billing/checkout` and redirects to the checkout URL; a paid user
+ * (`isFree: false` in the status) sees a Cancel button that POSTs to
  * `/api/billing/cancel`. A refused request shows the server's message.
  *
  * @param props - Component props.
@@ -48,63 +50,76 @@ export function TiersUpgradeSection(props: TiersUpgradeSectionProps): JSX.Elemen
   const { t } = useTranslation()
   const http = useHttpClient()
 
-  const [plan, setPlan] = createSignal<string>('Free')
-  const [planKey, setPlanKey] = createSignal<string>('free')
+  const [plan, setPlan] = createSignal<string | null>(null)
+  const [planKey, setPlanKey] = createSignal<string | null>(null)
+  const [isFree, setIsFree] = createSignal(true)
   const [tiers, setTiers] = createSignal<Tier[]>([])
   const [showUpgrade, setShowUpgrade] = createSignal(false)
   const [upgradeLoading, setUpgradeLoading] = createSignal<string | null>(null)
   const [upgradeError, setUpgradeError] = createSignal('')
+  const [cancelError, setCancelError] = createSignal('')
 
   let cancelled = false
   onCleanup(() => {
     cancelled = true
   })
-  void Promise.all([
-    // Each fetch resolves null on failure; the .then handler then keeps the
-    // defaults ('Free', empty tier list) instead of throwing.
-    http.get<{ planKey?: string; name?: string }>('/api/billing/status').catch((_error) => null),
-    http
-      .get<{
-        data?: Array<{
-          key: string
-          name: string
-          prices: Array<{ stripePriceId: string | null; period: string; price: string }>
-        }>
-      }>('/api/billing/tiers')
-      .catch((_error) => null),
-  ])
-    .then(([statusRes, tiersRes]) => {
-      if (cancelled) return
-      const status = statusRes?.data ?? null
-      if (status?.name) setPlan(status.name)
-      if (status?.planKey) setPlanKey(status.planKey)
-      const list = tiersRes?.data?.data ?? []
-      if (Array.isArray(list)) {
-        setTiers(
-          list.map((tier) => ({
-            planKey: tier.key,
-            name: tier.name,
-            prices: (tier.prices || []).map((p) => ({
-              stripePriceId: p.stripePriceId ?? undefined,
-              interval: p.period,
-              priceLabel: p.price,
+  // Only the latest load applies: a reload after cancel supersedes the one before it.
+  let loads = 0
+  /** Loads the plan and the tiers; failures keep what the section shows. */
+  const load = (): void => {
+    const seq = ++loads
+    void Promise.all([
+      // Each fetch resolves null on failure; the .then handler then keeps the
+      // defaults (no plan label, nothing for sale) instead of throwing.
+      http
+        .get<{ planKey?: string; name?: string; isFree?: boolean }>('/api/billing/status')
+        .catch((_error) => null),
+      http
+        .get<{
+          data?: Array<{
+            key: string
+            name: string
+            prices: Array<{ stripePriceId: string | null; period: string; price: string }>
+          }>
+        }>('/api/billing/tiers')
+        .catch((_error) => null),
+    ])
+      .then(([statusRes, tiersRes]) => {
+        if (cancelled || seq !== loads) return
+        const status = statusRes?.data ?? null
+        if (status?.name) setPlan(status.name)
+        if (status?.planKey) setPlanKey(status.planKey)
+        if (typeof status?.isFree === 'boolean') setIsFree(status.isFree)
+        const list = tiersRes?.data?.data
+        if (Array.isArray(list)) {
+          setTiers(
+            list.map((tier) => ({
+              planKey: tier.key,
+              name: tier.name,
+              prices: (tier.prices || []).map((p) => ({
+                stripePriceId: p.stripePriceId ?? undefined,
+                interval: p.period,
+                priceLabel: p.price,
+              })),
             })),
-          })),
-        )
-      }
-    })
-    .catch((_error) => {
-      // Fetch failures already resolve to null above; this only guards the
-      // mapping, keeping the section on its defaults rather than throwing.
-    })
+          )
+        }
+      })
+      .catch((_error) => {
+        // Fetch failures already resolve to null above; this only guards the
+        // mapping, keeping the section on its defaults rather than throwing.
+      })
+  }
+  load()
 
-  // The free tiers and price-less tiers render nothing, so flatten to the
-  // subscribe buttons' rows up front (the same list React's map builds).
-  const priceRows = (): Array<{ tier: Tier; price: TierPrice }> =>
+  // What can be bought: a price the server lists with a price id, on a tier the user is not on.
+  const forSale = (): Array<{ tier: Tier; price: TierPrice; priceId: string }> =>
     tiers()
-      .filter((tier) => tier.planKey !== 'free')
+      .filter((tier) => tier.planKey !== planKey())
       .flatMap((tier) =>
-        tier.prices.filter((p) => p.stripePriceId).map((price) => ({ tier, price })),
+        tier.prices.flatMap((price) =>
+          price.stripePriceId ? [{ tier, price, priceId: price.stripePriceId }] : [],
+        ),
       )
 
   const handleStartCheckout = async (stripePriceId: string): Promise<void> => {
@@ -143,13 +158,13 @@ export function TiersUpgradeSection(props: TiersUpgradeSectionProps): JSX.Elemen
   }
 
   const handleCancelSubscription = async (): Promise<void> => {
-    setUpgradeError('')
+    setCancelError('')
     try {
       await http.post('/api/billing/cancel', {})
-      setPlan('Free')
-      setPlanKey('free')
+      // The server decides what the plan is now (a provider may cancel at period end).
+      load()
     } catch (err) {
-      setUpgradeError(
+      setCancelError(
         serverErrorMessage(err) ??
           t('settings.billing.cancelFailed', undefined, {
             defaultValue: 'Could not cancel.',
@@ -165,12 +180,17 @@ export function TiersUpgradeSection(props: TiersUpgradeSectionProps): JSX.Elemen
           {t('settings.billing', undefined, { defaultValue: 'Billing' })}
         </h3>
         <Flex align="center" justify="between">
-          <span class={cm.textSize('sm')}>
-            {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
-            <strong>{plan()}</strong>
-          </span>
+          {/* The plan line waits for the server: there is no plan name to guess. */}
+          <Show when={plan()} fallback={<span />}>
+            {(name) => (
+              <span class={cm.textSize('sm')}>
+                {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
+                <strong>{name()}</strong>
+              </span>
+            )}
+          </Show>
           <Show
-            when={planKey() === 'free'}
+            when={isFree()}
             fallback={
               <ConfirmButton
                 variant="outline"
@@ -184,11 +204,18 @@ export function TiersUpgradeSection(props: TiersUpgradeSectionProps): JSX.Elemen
               />
             }
           >
-            <Button variant="outline" size="sm" onClick={() => setShowUpgrade(true)}>
-              {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
-            </Button>
+            <Show when={forSale().length > 0}>
+              <Button variant="outline" size="sm" onClick={() => setShowUpgrade(true)}>
+                {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
+              </Button>
+            </Show>
           </Show>
         </Flex>
+        <Show when={cancelError()}>
+          <Alert status="error" className={cm.sp('mt', 3)}>
+            {cancelError()}
+          </Alert>
+        </Show>
       </section>
 
       <Modal
@@ -203,44 +230,31 @@ export function TiersUpgradeSection(props: TiersUpgradeSectionProps): JSX.Elemen
             {upgradeError()}
           </Alert>
         </Show>
-        <Show
-          when={tiers().length > 0}
-          fallback={
-            <p class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
-              {t('settings.billing.noTiers', undefined, {
-                defaultValue: 'No paid plans configured.',
-              })}
-            </p>
-          }
-        >
-          <ul class={cm.stack(3)}>
-            <For each={priceRows()}>
-              {({ tier, price }) => (
-                <li class={cm.sp('p', 4)}>
-                  <Flex align="center" justify="between">
-                    <div>
-                      <p class={cm.fontWeight('semibold')}>
-                        {tier.name} ({price.interval})
-                      </p>
-                      <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{price.priceLabel}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      loading={upgradeLoading() === price.stripePriceId}
-                      onClick={() => {
-                        if (price.stripePriceId) void handleStartCheckout(price.stripePriceId)
-                      }}
-                    >
-                      {t('settings.billing.subscribe', undefined, {
-                        defaultValue: 'Subscribe',
-                      })}
-                    </Button>
-                  </Flex>
-                </li>
-              )}
-            </For>
-          </ul>
-        </Show>
+        <ul class={cm.stack(3)}>
+          <For each={forSale()}>
+            {({ tier, price, priceId }) => (
+              <li class={cm.sp('p', 4)}>
+                <Flex align="center" justify="between">
+                  <div>
+                    <p class={cm.fontWeight('semibold')}>
+                      {tier.name} ({price.interval})
+                    </p>
+                    <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{price.priceLabel}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    loading={upgradeLoading() === priceId}
+                    onClick={() => void handleStartCheckout(priceId)}
+                  >
+                    {t('settings.billing.subscribe', undefined, {
+                      defaultValue: 'Subscribe',
+                    })}
+                  </Button>
+                </Flex>
+              </li>
+            )}
+          </For>
+        </ul>
       </Modal>
     </>
   )

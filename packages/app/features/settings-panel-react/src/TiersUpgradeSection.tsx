@@ -36,9 +36,11 @@ export interface Tier {
  * `@molecule/api-payments-stripe` + `@molecule/api-resource-payment`
  * — loads the user's current plan from `/api/billing/status`,
  * loads available tiers from `/api/billing/tiers`, and renders an
- * Upgrade modal with a Subscribe button per tier price. Subscribe
- * POSTs to `/api/billing/checkout` and redirects to the Stripe
- * checkout URL; paid users see a Cancel button that POSTs to
+ * Upgrade modal with a Subscribe button per price that is for sale (one
+ * the server lists with a price id). Upgrade appears only for a free user
+ * and only when something is for sale. Subscribe POSTs to
+ * `/api/billing/checkout` and redirects to the checkout URL; a paid user
+ * (`isFree: false` in the status) sees a Cancel button that POSTs to
  * `/api/billing/cancel`. A refused request shows the server's message.
  *
  * @param props - Component props.
@@ -54,19 +56,24 @@ export function TiersUpgradeSection({
   const { t } = useTranslation()
   const http = useHttpClient()
 
-  const [plan, setPlan] = useState<string>('Free')
-  const [planKey, setPlanKey] = useState<string>('free')
+  const [plan, setPlan] = useState<string | null>(null)
+  const [planKey, setPlanKey] = useState<string | null>(null)
+  const [isFree, setIsFree] = useState(true)
   const [tiers, setTiers] = useState<Tier[]>([])
+  const [statusVersion, setStatusVersion] = useState(0)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [upgradeLoading, setUpgradeLoading] = useState<string | null>(null)
   const [upgradeError, setUpgradeError] = useState('')
+  const [cancelError, setCancelError] = useState('')
 
   useEffect(() => {
     let cancelled = false
     Promise.all([
       // Each fetch resolves null on failure; the .then handler then keeps the
-      // defaults ('Free', empty tier list) instead of throwing.
-      http.get<{ planKey?: string; name?: string }>('/api/billing/status').catch((_error) => null),
+      // defaults (no plan label, nothing for sale) instead of throwing.
+      http
+        .get<{ planKey?: string; name?: string; isFree?: boolean }>('/api/billing/status')
+        .catch((_error) => null),
       http
         .get<{
           data?: Array<{
@@ -82,7 +89,8 @@ export function TiersUpgradeSection({
         const status = statusRes?.data ?? null
         if (status?.name) setPlan(status.name)
         if (status?.planKey) setPlanKey(status.planKey)
-        const list = tiersRes?.data?.data ?? []
+        if (typeof status?.isFree === 'boolean') setIsFree(status.isFree)
+        const list = tiersRes?.data?.data
         if (Array.isArray(list)) {
           setTiers(
             list.map((tier) => ({
@@ -104,7 +112,16 @@ export function TiersUpgradeSection({
     return () => {
       cancelled = true
     }
-  }, [http])
+  }, [http, statusVersion])
+
+  // What can be bought: a price the server lists with a price id, on a tier the user is not on.
+  const forSale = tiers
+    .filter((tier) => tier.planKey !== planKey)
+    .flatMap((tier) =>
+      tier.prices.flatMap((price) =>
+        price.stripePriceId ? [{ tier, price, priceId: price.stripePriceId }] : [],
+      ),
+    )
 
   const handleStartCheckout = async (stripePriceId: string): Promise<void> => {
     setUpgradeError('')
@@ -141,13 +158,13 @@ export function TiersUpgradeSection({
   }
 
   const handleCancelSubscription = async (): Promise<void> => {
-    setUpgradeError('')
+    setCancelError('')
     try {
       await http.post('/api/billing/cancel', {})
-      setPlan('Free')
-      setPlanKey('free')
+      // The server decides what the plan is now (a provider may cancel at period end).
+      setStatusVersion((version) => version + 1)
     } catch (err) {
-      setUpgradeError(
+      setCancelError(
         serverErrorMessage(err) ??
           t('settings.billing.cancelFailed', undefined, {
             defaultValue: 'Could not cancel.',
@@ -163,14 +180,21 @@ export function TiersUpgradeSection({
           {t('settings.billing', undefined, { defaultValue: 'Billing' })}
         </h3>
         <Flex align="center" justify="between">
-          <span className={cm.textSize('sm')}>
-            {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
-            <strong>{plan}</strong>
-          </span>
-          {planKey === 'free' ? (
-            <Button variant="outline" size="sm" onClick={() => setShowUpgrade(true)}>
-              {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
-            </Button>
+          {/* The plan line waits for the server: there is no plan name to guess. */}
+          {plan ? (
+            <span className={cm.textSize('sm')}>
+              {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
+              <strong>{plan}</strong>
+            </span>
+          ) : (
+            <span />
+          )}
+          {isFree ? (
+            forSale.length > 0 ? (
+              <Button variant="outline" size="sm" onClick={() => setShowUpgrade(true)}>
+                {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
+              </Button>
+            ) : null
           ) : (
             <ConfirmButton
               variant="outline"
@@ -184,6 +208,11 @@ export function TiersUpgradeSection({
             />
           )}
         </Flex>
+        {cancelError ? (
+          <Alert status="error" className={cm.sp('mt', 3)}>
+            {cancelError}
+          </Alert>
+        ) : null}
       </section>
 
       <Modal
@@ -198,44 +227,29 @@ export function TiersUpgradeSection({
             {upgradeError}
           </Alert>
         ) : null}
-        {tiers.length === 0 ? (
-          <p className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
-            {t('settings.billing.noTiers', undefined, {
-              defaultValue: 'No paid plans configured.',
-            })}
-          </p>
-        ) : (
-          <ul className={cm.stack(3)}>
-            {tiers
-              .filter((tier) => tier.planKey !== 'free')
-              .flatMap((tier) =>
-                tier.prices.filter((p) => p.stripePriceId).map((price) => ({ tier, price })),
-              )
-              .map(({ tier, price }) => (
-                <li key={`${tier.planKey}-${price.stripePriceId}`} className={cm.sp('p', 4)}>
-                  <Flex align="center" justify="between">
-                    <div>
-                      <p className={cm.fontWeight('semibold')}>
-                        {tier.name} ({price.interval})
-                      </p>
-                      <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{price.priceLabel}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      loading={upgradeLoading === price.stripePriceId}
-                      onClick={() =>
-                        price.stripePriceId && handleStartCheckout(price.stripePriceId)
-                      }
-                    >
-                      {t('settings.billing.subscribe', undefined, {
-                        defaultValue: 'Subscribe',
-                      })}
-                    </Button>
-                  </Flex>
-                </li>
-              ))}
-          </ul>
-        )}
+        <ul className={cm.stack(3)}>
+          {forSale.map(({ tier, price, priceId }) => (
+            <li key={`${tier.planKey}-${priceId}`} className={cm.sp('p', 4)}>
+              <Flex align="center" justify="between">
+                <div>
+                  <p className={cm.fontWeight('semibold')}>
+                    {tier.name} ({price.interval})
+                  </p>
+                  <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{price.priceLabel}</p>
+                </div>
+                <Button
+                  size="sm"
+                  loading={upgradeLoading === priceId}
+                  onClick={() => handleStartCheckout(priceId)}
+                >
+                  {t('settings.billing.subscribe', undefined, {
+                    defaultValue: 'Subscribe',
+                  })}
+                </Button>
+              </Flex>
+            </li>
+          ))}
+        </ul>
       </Modal>
     </>
   )

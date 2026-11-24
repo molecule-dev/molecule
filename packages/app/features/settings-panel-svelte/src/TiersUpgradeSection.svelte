@@ -5,8 +5,10 @@
   `@molecule/api-payments-stripe` + `@molecule/api-resource-payment` — loads
   the user's current plan from `/api/billing/status`, loads available tiers
   from `/api/billing/tiers`, and renders an Upgrade modal with a Subscribe
-  button per tier price. Subscribe POSTs to `/api/billing/checkout` and
-  redirects to the Stripe checkout URL; paid users see a Cancel button that
+  button per price that is for sale (one the server lists with a price id).
+  Upgrade appears only for a free user and only when something is for sale.
+  Subscribe POSTs to `/api/billing/checkout` and redirects to the checkout
+  URL; a paid user (`isFree: false` in the status) sees a Cancel button that
   POSTs to `/api/billing/cancel`. A refused request shows the server's
   message.
 -->
@@ -17,7 +19,7 @@
   import { Alert, Button, ConfirmButton, Flex, Modal } from '@molecule/app-ui-svelte'
   import { openUrl } from '@molecule/app-utilities'
 
-  import type { Tier, TiersUpgradeSectionProps } from './types.js'
+  import type { Tier, TierPrice, TiersUpgradeSectionProps } from './types.js'
 
   let { redirectToCheckout = openUrl }: TiersUpgradeSectionProps = $props()
 
@@ -25,19 +27,27 @@
   const { t } = useTranslation()
   const http = useHttpClient()
 
-  let plan = $state<string>('Free')
-  let planKey = $state<string>('free')
+  let plan = $state<string | null>(null)
+  let planKey = $state<string | null>(null)
+  let isFree = $state(true)
   let tiers = $state<Tier[]>([])
+  // Bumped after a cancel so the effect reloads the plan the server now reports.
+  let statusVersion = $state(0)
   let showUpgrade = $state(false)
   let upgradeLoading = $state<string | null>(null)
   let upgradeError = $state('')
+  let cancelError = $state('')
 
   $effect(() => {
+    // Read so a bump re-runs the load (the cleanup drops the earlier one).
+    void statusVersion
     let cancelled = false
     void Promise.all([
       // Each fetch resolves null on failure; the .then handler then keeps the
-      // defaults ('Free', empty tier list) instead of throwing.
-      http.get<{ planKey?: string; name?: string }>('/api/billing/status').catch((_error) => null),
+      // defaults (no plan label, nothing for sale) instead of throwing.
+      http
+        .get<{ planKey?: string; name?: string; isFree?: boolean }>('/api/billing/status')
+        .catch((_error) => null),
       http
         .get<{
           data?: Array<{
@@ -53,7 +63,8 @@
         const status = statusRes?.data ?? null
         if (status?.name) plan = status.name
         if (status?.planKey) planKey = status.planKey
-        const list = tiersRes?.data?.data ?? []
+        if (typeof status?.isFree === 'boolean') isFree = status.isFree
+        const list = tiersRes?.data?.data
         if (Array.isArray(list)) {
           tiers = list.map((tier) => ({
             planKey: tier.key,
@@ -74,6 +85,17 @@
       cancelled = true
     }
   })
+
+  // What can be bought: a price the server lists with a price id, on a tier the user is not on.
+  const forSale = $derived(
+    tiers
+      .filter((tier) => tier.planKey !== planKey)
+      .flatMap((tier): Array<{ tier: Tier; price: TierPrice; priceId: string }> =>
+        tier.prices.flatMap((price) =>
+          price.stripePriceId ? [{ tier, price, priceId: price.stripePriceId }] : [],
+        ),
+      ),
+  )
 
   const handleStartCheckout = async (stripePriceId: string): Promise<void> => {
     upgradeError = ''
@@ -107,13 +129,13 @@
   }
 
   const handleCancelSubscription = async (): Promise<void> => {
-    upgradeError = ''
+    cancelError = ''
     try {
       await http.post('/api/billing/cancel', {})
-      plan = 'Free'
-      planKey = 'free'
+      // The server decides what the plan is now (a provider may cancel at period end).
+      statusVersion += 1
     } catch (err) {
-      upgradeError =
+      cancelError =
         serverErrorMessage(err) ??
         t('settings.billing.cancelFailed', undefined, {
           defaultValue: 'Could not cancel.',
@@ -127,13 +149,20 @@
     {t('settings.billing', undefined, { defaultValue: 'Billing' })}
   </h3>
   <Flex align="center" justify="between">
-    <span class={cm.textSize('sm')}
-      >{t('settings.plan', undefined, { defaultValue: 'Plan: ' })}<strong>{plan}</strong></span
-    >
-    {#if planKey === 'free'}
-      <Button variant="outline" size="sm" onClick={() => (showUpgrade = true)}>
-        {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
-      </Button>
+    <!-- The plan line waits for the server: there is no plan name to guess. -->
+    {#if plan}
+      <span class={cm.textSize('sm')}
+        >{t('settings.plan', undefined, { defaultValue: 'Plan: ' })}<strong>{plan}</strong></span
+      >
+    {:else}
+      <span></span>
+    {/if}
+    {#if isFree}
+      {#if forSale.length > 0}
+        <Button variant="outline" size="sm" onClick={() => (showUpgrade = true)}>
+          {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
+        </Button>
+      {/if}
     {:else}
       <ConfirmButton
         variant="outline"
@@ -147,6 +176,11 @@
       />
     {/if}
   </Flex>
+  {#if cancelError}
+    <Alert status="error" className={cm.sp('mt', 3)}>
+      {cancelError}
+    </Alert>
+  {/if}
 </section>
 
 <Modal
@@ -161,40 +195,27 @@
       {upgradeError}
     </Alert>
   {/if}
-  {#if tiers.length === 0}
-    <p class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
-      {t('settings.billing.noTiers', undefined, {
-        defaultValue: 'No paid plans configured.',
-      })}
-    </p>
-  {:else}
-    <ul class={cm.stack(3)}>
-      {#each tiers
-        .filter((tier) => tier.planKey !== 'free')
-        .flatMap((tier) => tier.prices
-            .filter((p) => p.stripePriceId)
-            .map( (price) => ({ tier, price }) )) as entry (entry.tier.planKey + '-' + entry.price.stripePriceId)}
-        <li class={cm.sp('p', 4)}>
-          <Flex align="center" justify="between">
-            <div>
-              <p class={cm.fontWeight('semibold')}>
-                {entry.tier.name} ({entry.price.interval})
-              </p>
-              <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{entry.price.priceLabel}</p>
-            </div>
-            <Button
-              size="sm"
-              loading={upgradeLoading === entry.price.stripePriceId}
-              onClick={() =>
-                entry.price.stripePriceId && handleStartCheckout(entry.price.stripePriceId)}
-            >
-              {t('settings.billing.subscribe', undefined, {
-                defaultValue: 'Subscribe',
-              })}
-            </Button>
-          </Flex>
-        </li>
-      {/each}
-    </ul>
-  {/if}
+  <ul class={cm.stack(3)}>
+    {#each forSale as entry (entry.tier.planKey + '-' + entry.priceId)}
+      <li class={cm.sp('p', 4)}>
+        <Flex align="center" justify="between">
+          <div>
+            <p class={cm.fontWeight('semibold')}>
+              {entry.tier.name} ({entry.price.interval})
+            </p>
+            <p class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{entry.price.priceLabel}</p>
+          </div>
+          <Button
+            size="sm"
+            loading={upgradeLoading === entry.priceId}
+            onClick={() => handleStartCheckout(entry.priceId)}
+          >
+            {t('settings.billing.subscribe', undefined, {
+              defaultValue: 'Subscribe',
+            })}
+          </Button>
+        </Flex>
+      </li>
+    {/each}
+  </ul>
 </Modal>
