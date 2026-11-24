@@ -140,6 +140,10 @@ fi
 #   declared in that package's own package.json. Only CI and the release ran it, so two
 #   commits adding Express routers to packages that listed express only as a
 #   devDependency passed this hook and stopped the next release (2026-11-21).
+# - check-golden-rules: the conformance kit's axe-core and pseudo-locale tests over each
+#   feature (or the UI kit) whose cases or goldens the commit changes. Only CI and the
+#   release ran them, so a commit recording an English prop default into React's
+#   goldens passed this hook and stopped the next release before its push (2026-11-24).
 # The fleet checks read package/configuration inputs and their own scripts.
 # Everything else needs only the staged file checks, including formatting docs.
 if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
@@ -161,7 +165,8 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-jsx-specifiers.mjs" \
     "scripts/check-published-tests.mjs" \
     "scripts/check-undeclared-imports.mjs" \
-    "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}" ||
+    "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}" \
+    "scripts/check-golden-rules.mjs --base=${DIFF_BASE:-HEAD}" ||
     gate_failed 'whole-tree checks (each failed one is named above)'
 elif [ -n "$STAGED" ]; then
   MOL_RUN_ON_INDEX=changed node scripts/run-on-index.mjs "scripts/check-index-files.mjs" ||
