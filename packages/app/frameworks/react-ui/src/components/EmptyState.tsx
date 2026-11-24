@@ -9,6 +9,7 @@ import React, { forwardRef } from 'react'
 import { slot } from '@molecule/app-react/render'
 import type { EmptyStateProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * EmptyState component.
@@ -35,18 +36,33 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
     const cm = getClassMap()
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={cm.cn(cm.emptyState, className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
       >
-        {icon ? <div className={cm.emptyStateIcon}>{icon}</div> : null}
-        <h3 className={cm.emptyStateTitle}>{title}</h3>
-        {description ? <p className={cm.emptyStateDescription}>{description}</p> : null}
-        {action ? <div className={cm.emptyStateAction}>{action}</div> : null}
-      </div>
+        {icon ? (
+          <Box as="div" className={cm.emptyStateIcon}>
+            {icon}
+          </Box>
+        ) : null}
+        <Text as="h3" className={cm.emptyStateTitle}>
+          {title}
+        </Text>
+        {description ? (
+          <Text as="p" className={cm.emptyStateDescription}>
+            {description}
+          </Text>
+        ) : null}
+        {action ? (
+          <Box as="div" className={cm.emptyStateAction}>
+            {action}
+          </Box>
+        ) : null}
+      </Box>
     )
   },
 )

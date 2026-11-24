@@ -4,11 +4,13 @@
  * @module
  */
 
-import type { ButtonHTMLAttributes, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useAuth, useLocation, useTranslation } from '@molecule/app-react'
+import type { ButtonElementProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { getInitials } from '../utilities/initials.js'
 import { Modal } from './Modal.js'
@@ -26,14 +28,15 @@ interface AccountUserShape {
 /**
  * Props for the {@link SidebarUserCard} component.
  *
- * Extends standard `<button>` attributes so callers can pass extra
+ * Extends the framework-agnostic button element props so callers can pass extra
  * `data-*`, `aria-*`, `style`, or event handler props onto the trigger
  * button without forking. The named props below cover the common
  * customization points.
  */
 export interface SidebarUserCardProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  'aria-label' | 'onClick' | 'children'
+  ButtonElementProps,
+  // `dataMolId` names the trigger, so the generic `automationId` is not a second way to do it.
+  'aria-label' | 'onClick' | 'children' | 'automationId'
 > {
   /**
    * Panel content shown inside the drawer/modal (typically the app's
@@ -88,6 +91,8 @@ export function SidebarUserCard({
   ariaLabelDefault = 'Open account menu',
   dataMolId = 'sidebar-user-card',
   className,
+  style,
+  testId,
   ...rest
 }: SidebarUserCardProps): JSX.Element {
   const cm = getClassMap()
@@ -124,7 +129,8 @@ export function SidebarUserCard({
 
   return (
     <>
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
@@ -136,17 +142,20 @@ export function SidebarUserCard({
           cm.sidebarUserCardTrigger,
           className,
         )}
+        webStyle={style}
+        data-testid={testId}
         {...rest}
       >
         {displayAvatarUrl ? (
-          <img
+          <Image
             src={displayAvatarUrl}
             alt=""
             className={cm.cn(cm.w(10), cm.h(10), cm.roundedFull, cm.shrink0, cm.objectCover)}
           />
         ) : (
-          <span
-            aria-hidden="true"
+          <Text
+            as="span"
+            aria-hidden
             className={cm.cn(
               cm.w(10),
               cm.h(10),
@@ -156,16 +165,17 @@ export function SidebarUserCard({
               cm.fontWeight('bold'),
               cm.shrink0,
             )}
-            style={{
+            webStyle={{
               backgroundColor: 'var(--color-primary)',
               color: 'var(--color-on-primary, #ffffff)',
             }}
           >
             {getInitials(displayName)}
-          </span>
+          </Text>
         )}
-        <span className={cm.cn(cm.minW(0), cm.flex1)}>
-          <span
+        <Box as="span" className={cm.cn(cm.minW(0), cm.flex1)}>
+          <Text
+            as="span"
             className={cm.cn(
               cm.textSize('sm'),
               cm.fontWeight('semibold'),
@@ -174,16 +184,17 @@ export function SidebarUserCard({
             )}
           >
             {displayName}
-          </span>
+          </Text>
           {displaySecondary ? (
-            <span
+            <Text
+              as="span"
               className={cm.cn(cm.textSize('xs'), cm.displayBlock, cm.textTruncate, cm.textMuted)}
             >
               {displaySecondary}
-            </span>
+            </Text>
           ) : null}
-        </span>
-      </button>
+        </Box>
+      </Pressable>
       <Modal
         open={open}
         onClose={() => setOpen(false)}

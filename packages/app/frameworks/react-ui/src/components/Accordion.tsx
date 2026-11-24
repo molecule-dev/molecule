@@ -9,6 +9,7 @@ import React, { createContext, forwardRef, useCallback, useContext, useId, useSt
 import { useTranslation } from '@molecule/app-react'
 import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 
@@ -60,8 +61,13 @@ const AccordionItemComponent: React.FC<AccordionItemComponentProps> = ({
   const cm = getClassMap()
 
   return (
-    <div className={cm.cn(cm.accordionItem, className)} data-state={isExpanded ? 'open' : 'closed'}>
-      <button
+    <Box
+      as="div"
+      className={cm.cn(cm.accordionItem, className)}
+      data-state={isExpanded ? 'open' : 'closed'}
+    >
+      <Pressable
+        as="button"
         id={triggerId}
         type="button"
         className={cm.cn(cm.accordion({ variant: 'default' }), cm.accordionTriggerBase)}
@@ -73,20 +79,23 @@ const AccordionItemComponent: React.FC<AccordionItemComponentProps> = ({
       >
         {item.header as React.ReactNode}
         {renderIcon('chevron-down', cm.accordionChevron)}
-      </button>
-      <div
+      </Pressable>
+      <Box
+        as="div"
         id={contentId}
         role="region"
         aria-labelledby={triggerId}
         data-state={isExpanded ? 'open' : 'closed'}
         className={cm.accordionContent}
-        style={{
+        webStyle={{
           display: isExpanded ? 'block' : 'none',
         }}
       >
-        <div className={cm.accordionContentInner}>{item.content as React.ReactNode}</div>
-      </div>
-    </div>
+        <Box as="div" className={cm.accordionContentInner}>
+          {item.content as React.ReactNode}
+        </Box>
+      </Box>
+    </Box>
   )
 }
 
@@ -163,17 +172,18 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps<string>>(
 
     return (
       <AccordionContext.Provider value={{ expandedItems, toggleItem, multiple }}>
-        <div
+        <Box
+          as="div"
           ref={ref}
           className={cm.cn(cm.accordionRoot, className)}
-          style={style}
+          webStyle={style}
           data-testid={testId}
           data-mol-id={automationId}
         >
           {items.map((item) => (
             <AccordionItemComponent key={item.value} item={item} disabled={disabled} />
           ))}
-        </div>
+        </Box>
       </AccordionContext.Provider>
     )
   },

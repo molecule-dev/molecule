@@ -6,8 +6,9 @@
 
 import React, { forwardRef, useId, useRef, useState } from 'react'
 
-import type { TabsProps } from '@molecule/app-ui'
+import type { ElementHandle, KitKeyboardEvent, TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /**
  * Tabs component.
@@ -39,7 +40,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
     // "overview" tab) — aria-labelledby/aria-controls then resolved to the
     // OTHER instance's elements.
     const idBase = useId()
-    const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+    const tabRefs = useRef<Record<string, ElementHandle | null>>({})
 
     const selectTab = (tabValue: string): void => {
       if (value === undefined) {
@@ -53,7 +54,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
     // Left/Right/Home/End moving BOTH focus and the active tab, so keyboard
     // users never have to Tab through every trigger to reach the one they
     // want. Disabled tabs are skipped; a disabled Tabs disables every tab.
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
+    const handleKeyDown = (event: KitKeyboardEvent): void => {
       const enabled = disabled ? [] : items.filter((item) => !item.disabled)
       if (enabled.length === 0) return
       const currentIndex = enabled.findIndex((item) => item.value === activeValue)
@@ -84,23 +85,26 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
     const activeItem = items.find((item) => item.value === activeValue)
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={className}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
       >
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.tabsList({ variant, size }), fitted && cm.tabsFitted)}
           role="tablist"
         >
           {items.map((item) => {
             const isActive = item.value === activeValue
             return (
-              <button
+              <Pressable
+                as="button"
                 key={item.value}
-                ref={(node) => {
+                ref={(node: ElementHandle | null) => {
                   tabRefs.current[item.value] = node
                 }}
                 id={`${idBase}-tab-${item.value}`}
@@ -131,24 +135,27 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
                 className={cm.cn(cm.tabsTrigger({ variant, size }), fitted && cm.tabTriggerFitted)}
               >
                 {!!item.icon && (
-                  <span className={cm.tabTriggerIcon}>{item.icon as React.ReactNode}</span>
+                  <Box as="span" className={cm.tabTriggerIcon}>
+                    {item.icon as React.ReactNode}
+                  </Box>
                 )}
                 {item.label as React.ReactNode}
-              </button>
+              </Pressable>
             )
           })}
-        </div>
+        </Box>
         {!!activeItem?.content && (
-          <div
+          <Box
+            as="div"
             role="tabpanel"
             id={`${idBase}-tabpanel-${activeValue}`}
             aria-labelledby={`${idBase}-tab-${activeValue}`}
             className={cm.tabsContent({ variant, size })}
           >
             {activeItem.content as React.ReactNode}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     )
   },
 )

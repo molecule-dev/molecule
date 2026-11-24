@@ -9,6 +9,7 @@ import React, { forwardRef, useMemo } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 
@@ -71,9 +72,9 @@ function generatePaginationRange(
 const Ellipsis = (): React.JSX.Element => {
   const cm = getClassMap()
   return (
-    <span className={cm.paginationEllipsis} aria-hidden="true">
+    <Box as="span" className={cm.paginationEllipsis} aria-hidden>
       {renderIcon('ellipsis-horizontal', cm.iconSm)}
-    </span>
+    </Box>
   )
 }
 
@@ -118,22 +119,24 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
       cm.cn(cm.pagination({ active: isActive, size }), cm.paginationInteractive)
 
     return (
-      <nav
+      <Box
+        as="nav"
         ref={ref}
         role="navigation"
         aria-label={
           labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })
         }
         className={cm.cn(cm.paginationRoot, className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
       >
-        <ul className={cm.paginationContent}>
+        <Box as="ul" className={cm.paginationContent}>
           {/* First page button */}
           {showFirstLast && (
-            <li>
-              <button
+            <Box as="li">
+              <Pressable
+                as="button"
                 type="button"
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(1)}
@@ -144,14 +147,15 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 }
               >
                 {renderIcon('chevrons-left', cm.iconSm)}
-              </button>
-            </li>
+              </Pressable>
+            </Box>
           )}
 
           {/* Previous page button */}
           {showPrevNext && (
-            <li>
-              <button
+            <Box as="li">
+              <Pressable
+                as="button"
                 type="button"
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(page - 1)}
@@ -162,19 +166,20 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 }
               >
                 {renderIcon('chevron-left', cm.iconSm)}
-              </button>
-            </li>
+              </Pressable>
+            </Box>
           )}
 
           {/* Page numbers */}
           {range.map((item, index) =>
             item === 'ellipsis' ? (
-              <li key={`ellipsis-${index}`}>
+              <Box as="li" key={`ellipsis-${index}`}>
                 <Ellipsis />
-              </li>
+              </Box>
             ) : (
-              <li key={item}>
-                <button
+              <Box as="li" key={item}>
+                <Pressable
+                  as="button"
                   type="button"
                   className={buttonClasses(item === page)}
                   onClick={() => handlePageChange(item)}
@@ -190,15 +195,16 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                   aria-current={item === page ? 'page' : undefined}
                 >
                   {item}
-                </button>
-              </li>
+                </Pressable>
+              </Box>
             ),
           )}
 
           {/* Next page button */}
           {showPrevNext && (
-            <li>
-              <button
+            <Box as="li">
+              <Pressable
+                as="button"
                 type="button"
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(page + 1)}
@@ -209,14 +215,15 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 }
               >
                 {renderIcon('chevron-right', cm.iconSm)}
-              </button>
-            </li>
+              </Pressable>
+            </Box>
           )}
 
           {/* Last page button */}
           {showFirstLast && (
-            <li>
-              <button
+            <Box as="li">
+              <Pressable
+                as="button"
                 type="button"
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(totalPages)}
@@ -227,11 +234,11 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 }
               >
                 {renderIcon('chevrons-right', cm.iconSm)}
-              </button>
-            </li>
+              </Pressable>
+            </Box>
           )}
-        </ul>
-      </nav>
+        </Box>
+      </Box>
     )
   },
 )

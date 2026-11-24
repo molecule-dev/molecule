@@ -1,22 +1,25 @@
-import { type ButtonHTMLAttributes, type JSX, type ReactNode, useState } from 'react'
+import { type JSX, type ReactNode, useState } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
+import type { ButtonElementProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
+import { rootProps } from '../utilities/rootProps.js'
 import { Icon } from './Icon.js'
 import { Modal } from './Modal.js'
 
 /**
  * Props for {@link LanguagePicker}.
  *
- * Extends standard `<button>` attributes so callers can pass any extra
+ * Extends the framework-agnostic button element props so callers can pass any extra
  * `data-*`, `aria-*`, event handler, or `style` prop without forking the
  * component. The named props let apps customize the trigger label, icon,
  * size, and modal heading without spreading attribute concerns.
  */
 export interface LanguagePickerProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
+  ButtonElementProps,
   'aria-label' | 'onClick' | 'type' | 'children'
 > {
   /** i18n key for the trigger button label / aria-label. Defaults to `'footer.language'`. */
@@ -76,6 +79,8 @@ export function LanguagePicker({
   iconSize = 16,
   display = 'name',
   className,
+  style,
+  testId,
   renderTrigger,
   ...rest
 }: LanguagePickerProps = {}): JSX.Element {
@@ -94,17 +99,20 @@ export function LanguagePicker({
       {renderTrigger ? (
         renderTrigger(() => setOpen(true))
       ) : (
-        <button
+        <Pressable
+          as="button"
           type="button"
           data-mol-id="language-picker-trigger"
           aria-label={ariaLabel}
           onClick={() => setOpen(true)}
           className={cm.cn(cm.languagePickerTrigger, className)}
-          {...rest}
+          webStyle={style}
+          data-testid={testId}
+          {...rootProps(rest)}
         >
           <Icon name={icon} size={iconSize} />
-          {triggerLabel != null ? <span>{triggerLabel}</span> : null}
-        </button>
+          {triggerLabel != null ? <Text as="span">{triggerLabel}</Text> : null}
+        </Pressable>
       )}
       <Modal
         open={open}
@@ -113,13 +121,14 @@ export function LanguagePicker({
         size="lg"
         data-mol-id="language-picker-modal"
       >
-        <div className={cm.languageGrid}>
+        <Box as="div" className={cm.languageGrid}>
           {[...locales]
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((l) => {
               const active = l.code === locale
               return (
-                <button
+                <Pressable
+                  as="button"
                   key={l.code}
                   type="button"
                   data-mol-id={`language-picker-option-${l.code}`}
@@ -132,10 +141,10 @@ export function LanguagePicker({
                   className={active ? cm.languageActive : cm.languageOption}
                 >
                   {l.name}
-                </button>
+                </Pressable>
               )
             })}
-        </div>
+        </Box>
       </Modal>
     </>
   )

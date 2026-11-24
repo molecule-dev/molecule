@@ -9,6 +9,7 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Pressable, registerInline } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -92,6 +93,7 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
       color,
       size,
       variant,
+      style,
       ...rest
     },
     ref,
@@ -158,7 +160,8 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
           : label
 
     return (
-      <button
+      <Pressable
+        as="button"
         ref={ref}
         type="button"
         onClick={() => void handleClick()}
@@ -170,12 +173,16 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
           cm.button({ color: phase === 'armed' ? 'error' : (color ?? 'primary'), size, variant }),
           className,
         )}
+        webStyle={style}
         {...rootProps(rest)}
       >
         {visibleLabel}
-      </button>
+      </Pressable>
     )
   },
 )
 
 ConfirmButton.displayName = 'ConfirmButton'
+
+// A button sits in a line of text, as an inline-block button does on the web.
+registerInline(ConfirmButton, () => 'box')

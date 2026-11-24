@@ -7,6 +7,7 @@ import {
   useRouterInstance,
   useTranslation,
 } from '@molecule/app-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /**
  * Props for {@link AuthGuard}.
@@ -130,9 +131,9 @@ export function AuthGuard({
   if (status === 'loading') {
     return (
       loadingFallback ?? (
-        <div data-mol-id="auth-guard-loading">
+        <Box as="div" data-mol-id="auth-guard-loading">
           {t(loadingKey, {}, { defaultValue: loadingDefault })}
-        </div>
+        </Box>
       )
     )
   }

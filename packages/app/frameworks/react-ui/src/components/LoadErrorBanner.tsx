@@ -44,19 +44,19 @@ import React, { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
+import type { HTMLElementProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
+import { rootProps } from '../utilities/rootProps.js'
 import { Alert } from './Alert.js'
 import { Button } from './Button.js'
 
 /**
  * Props for {@link LoadErrorBanner}. Rest props are forwarded to the root
- * `<div>`, so they are typed as its attributes.
+ * element, so they are typed as its attributes.
  */
-export interface LoadErrorBannerProps extends Omit<
-  React.HTMLAttributes<HTMLDivElement>,
-  'children'
-> {
+export interface LoadErrorBannerProps extends Omit<HTMLElementProps, 'children'> {
   /** The primary error line (e.g. the localized "Could not load X."). */
   message: React.ReactNode
   /** Secondary line under the message (status code, hint). */
@@ -87,6 +87,8 @@ export function LoadErrorBanner({
   retryLabel: retryLabelProp,
   retryMolId = 'load-error-retry',
   children,
+  style,
+  testId,
   ...rest
 }: LoadErrorBannerProps): JSX.Element {
   const detail = slot(detailProp)
@@ -107,14 +109,20 @@ export function LoadErrorBanner({
   }
 
   return (
-    <div {...rest}>
+    <Box as="div" webStyle={style} data-testid={testId} {...rootProps(rest)}>
       <Alert status="error" live={false}>
-        <div className={cm.stack(2)}>
-          <p className={cm.textSize('sm')}>{message}</p>
-          {detail ? <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{detail}</p> : null}
+        <Box as="div" className={cm.stack(2)}>
+          <Text as="p" className={cm.textSize('sm')}>
+            {message}
+          </Text>
+          {detail ? (
+            <Text as="p" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+              {detail}
+            </Text>
+          ) : null}
           {children}
           {onRetry ? (
-            <div className={cm.flex({ justify: 'start' })}>
+            <Box as="div" className={cm.flex({ justify: 'start' })}>
               <Button
                 variant="outline"
                 size="sm"
@@ -126,10 +134,10 @@ export function LoadErrorBanner({
                   ? t('loadError.retrying', {}, { defaultValue: 'Retrying…' })
                   : (retryLabel ?? t('loadError.retry', {}, { defaultValue: 'Retry' }))}
               </Button>
-            </div>
+            </Box>
           ) : null}
-        </div>
+        </Box>
       </Alert>
-    </div>
+    </Box>
   )
 }

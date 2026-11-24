@@ -6,8 +6,16 @@
 
 import React, { forwardRef } from 'react'
 
-import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
+import type {
+  ContainerProps,
+  CSSProperties,
+  FlexProps,
+  GridProps,
+  Size,
+  SpacerProps,
+} from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, registerInline } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -38,15 +46,16 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
     )
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={containerClasses}
-        style={style}
+        webStyle={style}
         data-testid={testId}
-        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+        {...rootProps(rest)}
       >
         {children as React.ReactNode}
-      </div>
+      </Box>
     )
   },
 )
@@ -98,19 +107,20 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
           : undefined
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={flexClasses}
-        style={{ ...style, ...gapStyle }}
+        webStyle={{ ...style, ...gapStyle }}
         data-testid={testId}
         // Every element prop (role, tabIndex, onClick, onKeyDown…) is forwarded
         // as given, the way Grid and Container forward theirs: a Flex is a plain
         // box, and a consumer that makes one clickable gives it the role and keys
         // that go with the click.
-        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+        {...rootProps(rest)}
       >
         {children as React.ReactNode}
-      </div>
+      </Box>
     )
   },
 )
@@ -136,7 +146,7 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
     // property), so `columnGap: undefined` after `gap: 6` removed both gaps `gap` had just set and
     // a browser drew the class's gap instead of 6px, and an undefined key erased the same property
     // from the caller's `style`.
-    const own: React.CSSProperties = {}
+    const own: CSSProperties = {}
     if (typeof columns === 'string') own.gridTemplateColumns = columns
     if (typeof rows === 'string') own.gridTemplateRows = rows
     if (
@@ -146,18 +156,19 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
       own.gap = gap
     if (typeof columnGap === 'number' || typeof columnGap === 'string') own.columnGap = columnGap
     if (typeof rowGap === 'number' || typeof rowGap === 'string') own.rowGap = rowGap
-    const gridStyle: React.CSSProperties = { ...style, ...own }
+    const gridStyle: CSSProperties = { ...style, ...own }
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={gridClasses}
-        style={gridStyle}
+        webStyle={gridStyle}
         data-testid={testId}
-        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+        {...rootProps(rest)}
       >
         {children as React.ReactNode}
-      </div>
+      </Box>
     )
   },
 )
@@ -182,7 +193,7 @@ export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
       className,
     )
 
-    const sizeStyle: React.CSSProperties | undefined =
+    const sizeStyle: CSSProperties | undefined =
       typeof size === 'number'
         ? horizontal
           ? { width: size, height: '1px' }
@@ -194,15 +205,19 @@ export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
           : undefined
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={spacerClasses}
-        style={{ ...style, ...sizeStyle }}
+        webStyle={{ ...style, ...sizeStyle }}
         data-testid={testId}
-        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+        {...rootProps(rest)}
       />
     )
   },
 )
 
 Spacer.displayName = 'Spacer'
+
+// A horizontal spacer is inline-block, so it joins a line as an inline box does.
+registerInline(Spacer, (props) => (props.horizontal ? 'box' : null))

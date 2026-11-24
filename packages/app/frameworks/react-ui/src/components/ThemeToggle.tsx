@@ -1,21 +1,24 @@
-import type { ButtonHTMLAttributes, JSX } from 'react'
+import type { JSX } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
 import { useTheme, useTranslation } from '@molecule/app-react'
+import type { ButtonElementProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Pressable, registerInline } from '@molecule/app-ui-react/elements'
 
+import { rootProps } from '../utilities/rootProps.js'
 import { Icon } from './Icon.js'
 
 /**
  * Props for {@link ThemeToggle}.
  *
- * Extends standard `<button>` attributes so callers can pass any extra
+ * Extends the framework-agnostic button element props so callers can pass any extra
  * `data-*`, `aria-*`, event handler, or `style` prop without forking the
  * component. The handful of explicitly named props below let apps swap
  * the icon glyphs, label, or size without spreading attribute concerns.
  */
 export interface ThemeToggleProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
+  ButtonElementProps,
   'aria-label' | 'aria-pressed' | 'onClick' | 'type'
 > {
   /** i18n key for the `aria-label`. Defaults to `'theme.toggle'`. */
@@ -56,6 +59,8 @@ export function ThemeToggle({
   lightIcon = 'sun',
   iconSize = 20,
   className,
+  style,
+  testId,
   ...rest
 }: ThemeToggleProps = {}): JSX.Element {
   const cm = getClassMap()
@@ -63,7 +68,8 @@ export function ThemeToggle({
   const { mode, toggleTheme } = useTheme()
 
   return (
-    <button
+    <Pressable
+      as="button"
       type="button"
       data-mol-id="theme-toggle"
       data-mode={mode}
@@ -71,13 +77,18 @@ export function ThemeToggle({
       aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
       onClick={toggleTheme}
       className={cm.cn(cm.themeToggleButton, className)}
-      {...rest}
+      webStyle={style}
+      data-testid={testId}
+      {...rootProps(rest)}
     >
       {mode === 'dark' ? (
         <Icon name={darkIcon} size={iconSize} />
       ) : (
         <Icon name={lightIcon} size={iconSize} />
       )}
-    </button>
+    </Pressable>
   )
 }
+
+// A button sits in a line of text, as an inline-block button does on the web.
+registerInline(ThemeToggle, () => 'box')
