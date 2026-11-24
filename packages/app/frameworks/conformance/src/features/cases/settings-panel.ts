@@ -589,26 +589,30 @@ const notifications: FeatureCases['families'][number] = {
   ],
 }
 
-/** `BillingSection`: the plan label and the Upgrade navigation. */
+/**
+ * `BillingSection`: the plan label and the Upgrade navigation. `upgradeTo` is required: the
+ * `/settings` default it once had sent Upgrade back to the page the section sits in, so 93
+ * flagship panels had an Upgrade button that went nowhere.
+ */
 const billing: FeatureCases['families'][number] = {
   component: 'BillingSection',
   cases: [
     {
+      name: 'with no page to open it offers no Upgrade',
+      context: authed,
+    },
+    {
       name: 'an unreachable status read falls back to the plan prop',
-      props: { plan: 'Starter' },
+      props: { plan: 'Starter', upgradeTo: '/pricing' },
       context: authed,
     },
     {
       name: 'the loaded plan name wins over the default',
+      props: { upgradeTo: '/pricing' },
       context: {
         ...authed,
         http: [{ method: 'GET', url: '/api/billing/status', data: { name: 'Pro' } }],
       },
-    },
-    {
-      name: 'upgrade navigates to the default settings route',
-      context: { ...authed, route: '/settings' },
-      interactions: [{ type: 'click', selector: 'section button' }],
     },
     {
       name: 'upgrade navigates to the upgradeTo route',

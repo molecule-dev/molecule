@@ -771,6 +771,29 @@
    }
   },
   "BillingSection": {
+   "with no page to open it offers no Upgrade": {
+    "snapshots": [
+     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nFree\n</strong>\n</span>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "http.get",
+      "args": [
+       {
+        "url": "/api/billing/status"
+       }
+      ]
+     }
+    ]
+   },
    "an unreachable status read falls back to the plan prop": {
     "snapshots": [
      "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nStarter\n</strong>\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nUpgrade\n</button>\n</div>\n</section>\n@route /"
@@ -817,30 +840,6 @@
      }
     ]
    },
-   "upgrade navigates to the default settings route": {
-    "snapshots": [
-     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nFree\n</strong>\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nUpgrade\n</button>\n</div>\n</section>\n@route /settings",
-     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nFree\n</strong>\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nUpgrade\n</button>\n</div>\n</section>\n@route /settings"
-    ],
-    "calls": [
-     {
-      "name": "logger.debug",
-      "args": [
-       "i18n",
-       "Locale changed",
-       "en"
-      ]
-     },
-     {
-      "name": "http.get",
-      "args": [
-       {
-        "url": "/api/billing/status"
-       }
-      ]
-     }
-    ]
-   },
    "upgrade navigates to the upgradeTo route": {
     "snapshots": [
      "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nFree\n</strong>\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nUpgrade\n</button>\n</div>\n</section>\n@route /settings",
@@ -865,10 +864,10 @@
      }
     ]
    },
-   "an unreachable status read falls back to the plan prop, then a locale switch": {
+   "with no page to open it offers no Upgrade, then a locale switch": {
     "snapshots": [
-     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nStarter\n</strong>\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nUpgrade\n</button>\n</div>\n</section>\n@route /",
-     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\n⟦Billing⟧\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n⟦Plan: ⟧\n<strong>\nStarter\n</strong>\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\n⟦Upgrade⟧\n</button>\n</div>\n</section>\n@route /"
+     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nFree\n</strong>\n</span>\n</div>\n</section>\n@route /",
+     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\n⟦Billing⟧\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n⟦Plan: ⟧\n<strong>\nFree\n</strong>\n</span>\n</div>\n</section>\n@route /"
     ],
     "calls": [
      {

@@ -6,17 +6,20 @@
   remains a fallback (e.g. for offline rendering or apps that don't expose
   `/billing/status`).
 
-  The Upgrade button navigates to `upgradeTo` (default `/settings`). Pass
-  `upgradeTo="/billing"` or `upgradeTo="/pricing"` if your app routes
-  elsewhere. Apps with a multi-tier checkout flow should use
-  `TiersUpgradeSection` instead.
+  The Upgrade button opens `upgradeTo`, the app's page for choosing a plan
+  (`/pricing`, `/billing`). It has no default: no one route is right for
+  every app, and the settings page this section sits in has no plans to
+  choose. An app with no such page renders `TiersUpgradeSection`, which lists
+  the tiers and starts the checkout itself. A section given no `upgradeTo`
+  anyway (from JavaScript, or a template the compiler does not check) shows the
+  plan without the button.
 -->
 <script lang="ts">
   import { useHttpClient, useRouter, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Flex } from '@molecule/app-ui-svelte'
 
-  let { plan = 'Free', upgradeTo = '/settings' }: { plan?: string; upgradeTo?: string } = $props()
+  let { plan = 'Free', upgradeTo }: { plan?: string; upgradeTo: string } = $props()
 
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
@@ -56,8 +59,10 @@
       >{t('settings.plan', undefined, { defaultValue: 'Plan: ' })}<strong>{livePlan ?? plan}</strong
       ></span
     >
-    <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo)}>
-      {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
-    </Button>
+    {#if upgradeTo}
+      <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo)}>
+        {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
+      </Button>
+    {/if}
   </Flex>
 </section>

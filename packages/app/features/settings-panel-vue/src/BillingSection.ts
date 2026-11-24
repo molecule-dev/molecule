@@ -21,10 +21,13 @@ import { useHttpClient, useRouter, useTranslation } from '@molecule/app-vue'
  * The `plan` prop remains a fallback (e.g. for offline rendering or
  * apps that don't expose `/billing/status`).
  *
- * The Upgrade button navigates to `upgradeTo` (default `/settings`).
- * Pass `upgradeTo="/billing"` or `upgradeTo="/pricing"` if your app
- * routes elsewhere. Apps with a multi-tier checkout flow should use
- * `<TiersUpgradeSection>` instead.
+ * The Upgrade button opens `upgradeTo`, the app's page for choosing a plan
+ * (`/pricing`, `/billing`). It has no default: no one route is right for
+ * every app, and the settings page this section sits in has no plans to
+ * choose. An app with no such page renders `<TiersUpgradeSection>`, which
+ * lists the tiers and starts the checkout itself. A section given no
+ * `upgradeTo` anyway (from JavaScript, or a template the compiler does not
+ * check) shows the plan without the button.
  *
  * @returns The billing section component.
  */
@@ -36,10 +39,10 @@ export const BillingSection = defineComponent({
       type: String,
       default: 'Free',
     },
-    /** The route the Upgrade button navigates to. */
+    /** The app's page for choosing a plan, which the Upgrade button opens. */
     upgradeTo: {
       type: String,
-      default: '/settings',
+      required: true,
     },
   },
   setup(props) {
@@ -81,11 +84,13 @@ export const BillingSection = defineComponent({
             t('settings.plan', undefined, { defaultValue: 'Plan: ' }),
             h('strong', [livePlan.value ?? props.plan]),
           ]),
-          h(
-            Button,
-            { variant: 'outline', size: 'sm', onClick: () => router.navigate(props.upgradeTo) },
-            () => [t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })],
-          ),
+          props.upgradeTo
+            ? h(
+                Button,
+                { variant: 'outline', size: 'sm', onClick: () => router.navigate(props.upgradeTo) },
+                () => [t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })],
+              )
+            : null,
         ]),
       ])
   },

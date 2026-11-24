@@ -18,10 +18,13 @@ import { Button, Flex } from '@molecule/app-ui-solid'
  * The `plan` prop remains a fallback (e.g. for offline rendering or
  * apps that don't expose `/billing/status`).
  *
- * The Upgrade button navigates to `upgradeTo` (default `/settings`).
- * Pass `upgradeTo="/billing"` or `upgradeTo="/pricing"` if your app
- * routes elsewhere. Apps with a multi-tier checkout flow should use
- * `<TiersUpgradeSection>` instead.
+ * The Upgrade button opens `upgradeTo`, the app's page for choosing a plan
+ * (`/pricing`, `/billing`). It has no default: no one route is right for
+ * every app, and the settings page this section sits in has no plans to
+ * choose. An app with no such page renders `<TiersUpgradeSection>`, which
+ * lists the tiers and starts the checkout itself. A section given no
+ * `upgradeTo` anyway (from JavaScript, or a template the compiler does not
+ * check) shows the plan without the button.
  *
  * @param props - Component props.
  * @returns The billing section.
@@ -29,8 +32,8 @@ import { Button, Flex } from '@molecule/app-ui-solid'
 export function BillingSection(props: {
   /** Fallback plan label until (or unless) `/api/billing/status` answers. */
   plan?: string
-  /** Where the Upgrade button navigates. Defaults to `/settings`. */
-  upgradeTo?: string
+  /** The app's page for choosing a plan, which the Upgrade button opens. */
+  upgradeTo: string
 }): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -39,7 +42,6 @@ export function BillingSection(props: {
   const [livePlan, setLivePlan] = createSignal<string | null>(null)
 
   const plan = (): string => props.plan ?? 'Free'
-  const upgradeTo = (): string => props.upgradeTo ?? '/settings'
 
   // Refresh the current plan from the bonded entitlements/billing
   // status endpoint on mount. Fire-and-forget; the prop-supplied
@@ -71,9 +73,11 @@ export function BillingSection(props: {
           {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
           <strong>{livePlan() ?? plan()}</strong>
         </span>
-        <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo())}>
-          {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
-        </Button>
+        {props.upgradeTo ? (
+          <Button variant="outline" size="sm" onClick={() => navigate(props.upgradeTo)}>
+            {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
+          </Button>
+        ) : null}
       </Flex>
     </section>
   )

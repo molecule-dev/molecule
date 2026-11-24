@@ -22,16 +22,19 @@ import { Button, Flex } from '@molecule/app-ui-angular'
  * remains a fallback (e.g. for offline rendering or apps that don't expose
  * `/billing/status`).
  *
- * The Upgrade button navigates to `upgradeTo` (default `/settings`). Pass
- * `upgradeTo="/billing"` or `upgradeTo="/pricing"` if your app routes
- * elsewhere. Apps with a multi-tier checkout flow should use
- * `TiersUpgradeSection` instead.
+ * The Upgrade button opens `upgradeTo`, the app's page for choosing a plan
+ * (`/pricing`, `/billing`). It has no default: no one route is right for
+ * every app, and the settings page this section sits in has no plans to
+ * choose. An app with no such page renders `TiersUpgradeSection`, which lists
+ * the tiers and starts the checkout itself. A section given no `upgradeTo`
+ * anyway (from JavaScript, or a template the compiler does not check) shows the
+ * plan without the button.
  */
 @Component({
   selector: 'section[mol-settings-billing]',
   standalone: true,
   imports: [Button, Flex],
-  inputs: ['plan', 'upgradeTo'],
+  inputs: ['plan', { name: 'upgradeTo', required: true }],
   template: `<h3 [class]="cm.cn(cm.sectionHeading, cm.sp('mb', 3))">
       {{ t('settings.billing', undefined, { defaultValue: 'Billing' }) }}
     </h3>
@@ -40,16 +43,18 @@ import { Button, Flex } from '@molecule/app-ui-angular'
         >{{ t('settings.plan', undefined, { defaultValue: 'Plan: ' })
         }}<strong>{{ planLabel() }}</strong></span
       >
-      <button mol-button [variant]="'outline'" [size]="'sm'" (click)="upgrade()">
-        {{ t('settings.upgrade', undefined, { defaultValue: 'Upgrade' }) }}
-      </button>
+      @if (upgradeTo) {
+        <button mol-button [variant]="'outline'" [size]="'sm'" (click)="upgrade()">
+          {{ t('settings.upgrade', undefined, { defaultValue: 'Upgrade' }) }}
+        </button>
+      }
     </div>`,
 })
 export class BillingSection {
   /** Fallback plan name when `/api/billing/status` is unavailable. */
   plan = 'Free'
-  /** Route the Upgrade button navigates to. */
-  upgradeTo = '/settings'
+  /** The app's page for choosing a plan, which the Upgrade button opens. */
+  upgradeTo!: string
 
   /** Reactive translation, read in the injection context. */
   protected readonly i18n = useTranslation()
