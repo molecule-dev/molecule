@@ -27,6 +27,47 @@ import type { StorageProvider } from '@molecule/app-storage'
 import type { Theme, ThemeProvider } from '@molecule/app-theme'
 
 /**
+ * An item a consumer writes as a function, so the component decides when to create it: React's
+ * child element, created only where the component renders it. `() => <Row row={row} />` is one.
+ */
+export type LazyNode = () => JSX.Element
+
+/**
+ * The type of a node prop whose items a component counts or slices before it renders them (a
+ * show-more list): plain JSX, an accessor item ({@link LazyNode}), or an array of either. Each
+ * accessor item is created once, when the component first shows it, and keeps its state while it
+ * stays in the array (by identity: build a changing list with `mapArray`, which keeps a row's
+ * accessor while the row stays). Every other node prop is `JSX.Element`, which refuses an accessor
+ * item, since such a component creates its content when it is passed.
+ *
+ * @example
+ * ```tsx
+ * interface ShowMoreProps {
+ *   children?: NodeItems
+ * }
+ * const items = mapArray(rows, (row) => () => <Row row={row} />)
+ * <ShowMore initialCount={5}>{items()}</ShowMore>
+ * ```
+ */
+export type NodeItems = JSX.Element | LazyNode | readonly (JSX.Element | LazyNode)[]
+
+/**
+ * A core props type (`@molecule/app-ui`'s, whose node props are untyped so every framework can
+ * read them) with the named node props typed `JSX.Element`, as a Solid component takes them. A
+ * Solid component names its node props once (`Component<WithNodes<AlertProps, 'children' | 'icon'>>`),
+ * so a consumer's accessor item there is a type error, and the component inserts them without a
+ * cast. Optional props stay optional.
+ *
+ * @example
+ * ```tsx
+ * export const Alert: Component<WithNodes<AlertProps, 'children' | 'icon'>> = (props) => (
+ *   <div role="alert">{props.icon}{props.children}</div>
+ * )
+ * ```
+ */
+export type WithNodes<P, K extends keyof P> = { [N in keyof P]: N extends K ? JSX.Element : P[N] }
+
+/**
  * Configuration for molecule Solid context.
  */
 export interface MoleculeConfig {

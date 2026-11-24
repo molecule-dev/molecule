@@ -13,7 +13,6 @@
  */
 
 import {
-  children,
   type Component,
   createEffect,
   createMemo,
@@ -23,6 +22,8 @@ import {
   untrack,
 } from 'solid-js'
 import { insert } from 'solid-js/web'
+
+import { resolveNode } from './resolve-node.js'
 
 /** Props for {@link BodyPortal}. */
 export interface BodyPortalProps {
@@ -54,7 +55,7 @@ export const BodyPortal: Component<BodyPortalProps> = (props) => {
       const parent = props.mount === undefined ? document.body : props.mount
       if (!parent) return
       // Resolved under this component's owner, so context flows as it would inline.
-      const resolved = children(() => props.children)
+      const resolved = resolveNode(() => props.children)
       // Every node in the target is one this component holds: text becomes a text node
       // here, and an empty list is one empty text node, so the cleanup below sees all of
       // them and `insert` never takes its clear-the-parent path.

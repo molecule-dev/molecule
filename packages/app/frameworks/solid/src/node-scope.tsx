@@ -7,7 +7,6 @@
 
 import {
   type Accessor,
-  children,
   createMemo,
   createRenderEffect,
   createSignal,
@@ -15,9 +14,11 @@ import {
   onCleanup,
   type ResolvedChildren,
   Show,
+  untrack,
 } from 'solid-js'
 
 import { rendersNode } from './node.js'
+import { resolveNode } from './resolve-node.js'
 
 /** Props for {@link ResolveNode}. */
 export interface ResolveNodeProps {
@@ -26,9 +27,11 @@ export interface ResolveNodeProps {
   /**
    * Renders from the resolved node: `node()` is the node to insert (insert it once: resolved nodes
    * are real DOM nodes, and a second insertion moves them), `present()` whether it renders
-   * anything by React's `slot(node)` rule. The callback runs once, like a component body: branch on
-   * `present()` inside the JSX it returns (`<Show when={present()} fallback={…}>`), since a
-   * `present() ? a : b` returned from the callback itself is read once and never updates.
+   * anything by React's `slot(node)` rule. The callback runs once, like a component body, so return
+   * JSX and read both inside it (`(node) => <>{node()}</>`, `<Show when={present()} fallback={…}>`):
+   * a `node()` or `present() ? a : b` returned from the callback itself is read once and never
+   * updates (molecule's lint rule `no-once-read-resolved-node` reports it). It is untracked already
+   * (a component child), so it needs no `untrack`.
    */
   children: (node: Accessor<ResolvedChildren>, present: Accessor<boolean>) => JSX.Element
 }
@@ -44,7 +47,7 @@ export interface ResolveNodeProps {
  * reader (inside a dialog's open branch, not at the top of the dialog component). The node's
  * components are created when this is rendered and disposed with it, so a closed dialog creates
  * none of them and each opening creates them again, as React mounts them. Resolving the prop with
- * `children()` at the top of the component instead creates them while the branch is hidden (their
+ * `resolveNode()` at the top of the component instead creates them while the branch is hidden (their
  * effects and fetches run) and keeps one instance across close and reopen.
  *
  * @example
@@ -63,8 +66,8 @@ export interface ResolveNodeProps {
  * @returns What the callback renders.
  */
 export function ResolveNode(props: ResolveNodeProps): JSX.Element {
-  // The single conversion from the core's untyped node prop to Solid's children.
-  const node = children(() => props.node as JSX.Element)
+  // Each function in the node is read in a scope of its own, so an accessor item keeps its state.
+  const node = resolveNode(() => props.node)
   const present = createMemo(() => rendersNode(node()))
   // A component body runs once and untracked, so the callback renders once; its readers track.
   return props.children(node, present)
@@ -74,7 +77,11 @@ export function ResolveNode(props: ResolveNodeProps): JSX.Element {
 export interface PresentWhileNodeProps {
   /** The node prop, as the component received it (`local.footer`). */
   node: unknown
-  /** Renders the wrapper around the resolved node; insert `node()` once. */
+  /**
+   * Renders the wrapper around the resolved node; insert `node()` once, inside the JSX it returns.
+   * It runs once each time the node starts to render something, untracked, like
+   * {@link ResolveNodeProps.children}.
+   */
   children: (node: Accessor<ResolvedChildren>) => JSX.Element
 }
 
@@ -95,9 +102,10 @@ export interface PresentWhileNodeProps {
  * @returns The wrapper while the node renders something, else nothing.
  */
 export function PresentWhileNode(props: PresentWhileNodeProps): JSX.Element {
+  // The callback runs untracked: a read in it would otherwise rebuild the wrapper on each change.
   return (
     <ResolveNode node={props.node}>
-      {(node, present) => <Show when={present()}>{props.children(node)}</Show>}
+      {(node, present) => <Show when={present()}>{untrack(() => props.children(node))}</Show>}
     </ResolveNode>
   )
 }

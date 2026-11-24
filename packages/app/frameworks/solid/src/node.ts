@@ -14,7 +14,7 @@
  *
  * @example
  * ```tsx
- * const content = children(() => props.children)
+ * const content = resolveNode(() => props.children)
  * return <Show when={open() && rendersNode(content())}><div>{content()}</div></Show>
  * ```
  *
