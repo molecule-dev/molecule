@@ -160,6 +160,14 @@ describe('renderIcon', () => {
     expect(single['clip-rule']).toBeUndefined()
   })
 
+  it('draws a prebuilt glyph from its markup', () => {
+    getIconMock.mockReturnValue({ paths: [], svg: '<circle cx="10" cy="10" r="4"></circle>' })
+    const el = renderIcon('star')
+    // `innerHTML` is how `h()` embeds raw markup (React's `dangerouslySetInnerHTML`).
+    expect(propsOf(el).innerHTML).toBe('<circle cx="10" cy="10" r="4"></circle>')
+    expect(propsOf(el)['aria-hidden']).toBe(true)
+  })
+
   it('handles an empty paths array (no path children)', () => {
     getIconMock.mockReturnValue({ paths: [] })
     const el = renderIcon('trash')

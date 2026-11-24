@@ -11,6 +11,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 import { rootProps } from '../utilities/rootProps.js'
@@ -88,23 +89,33 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
     return (
       // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id, the DOM
       // event handlers) reaches the root; a caller's role replaces the live-region default.
-      <div
+      <Box
+        as="div"
         ref={ref}
         role={role}
         className={alertClasses}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         {...rootProps(rest)}
       >
         {(icon || defaultIcon) && (
-          <span className={cm.alertIconWrapper}>{(icon || defaultIcon) as React.ReactNode}</span>
+          <Box as="span" className={cm.alertIconWrapper}>
+            {(icon || defaultIcon) as React.ReactNode}
+          </Box>
         )}
-        <div className={cm.alertContent}>
-          {title && <h5 className={cm.alertTitle}>{title}</h5>}
-          <div className={cm.alertDescription}>{children as React.ReactNode}</div>
-        </div>
+        <Box as="div" className={cm.alertContent}>
+          {title && (
+            <Text as="h5" className={cm.alertTitle}>
+              {title}
+            </Text>
+          )}
+          <Box as="div" className={cm.alertDescription}>
+            {children as React.ReactNode}
+          </Box>
+        </Box>
         {dismissible && (
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={onDismiss}
             className={cm.alertDismiss}
@@ -113,9 +124,9 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
             }
           >
             {renderIcon('x-mark', cm.iconSm)}
-          </button>
+          </Pressable>
         )}
-      </div>
+      </Box>
     )
   },
 )

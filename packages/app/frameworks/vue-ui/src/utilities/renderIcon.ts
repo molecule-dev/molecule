@@ -22,20 +22,24 @@ import { getIcon, type IconName } from '@molecule/app-icons'
  */
 export function renderIcon(name: IconName, className?: string): VNode {
   const icon = getIcon(name)
+  const canvas = {
+    xmlns: 'http://www.w3.org/2000/svg',
+    'aria-hidden': true,
+    focusable: 'false',
+    class: className,
+    viewBox: icon.viewBox || '0 0 20 20',
+    fill: icon.fill || 'currentColor',
+    stroke: icon.stroke,
+    'stroke-width': icon.strokeWidth,
+    'stroke-linecap': icon.strokeLinecap,
+    'stroke-linejoin': icon.strokeLinejoin,
+  }
+  // A set's prebuilt glyph is raw inner markup (Vue's counterpart of React's
+  // `dangerouslySetInnerHTML`), drawn instead of any path children.
+  if (icon.svg) return h('svg', { ...canvas, innerHTML: icon.svg })
   return h(
     'svg',
-    {
-      xmlns: 'http://www.w3.org/2000/svg',
-      'aria-hidden': true,
-      focusable: 'false',
-      class: className,
-      viewBox: icon.viewBox || '0 0 20 20',
-      fill: icon.fill || 'currentColor',
-      stroke: icon.stroke,
-      'stroke-width': icon.strokeWidth,
-      'stroke-linecap': icon.strokeLinecap,
-      'stroke-linejoin': icon.strokeLinejoin,
-    },
+    canvas,
     icon.paths.map((p, i) =>
       h('path', {
         // Same numeric child key React passes to every path element; Vue keeps

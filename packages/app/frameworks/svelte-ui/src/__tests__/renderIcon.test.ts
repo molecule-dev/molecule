@@ -167,6 +167,13 @@ describe('renderIcon', () => {
     expect(children[0]!.getAttribute('clip-rule')).toBeNull()
   })
 
+  it('draws a prebuilt glyph from its markup', () => {
+    getIconMock.mockReturnValue({ paths: [], svg: '<circle cx="10" cy="10" r="4"></circle>' })
+    const svg = mountedIcon('star')
+    expect(svg.innerHTML).toBe('<circle cx="10" cy="10" r="4"></circle>')
+    expect(svg.getAttribute('aria-hidden')).toBe('true')
+  })
+
   it('handles an empty paths array (no path children)', () => {
     getIconMock.mockReturnValue({ paths: [] })
     const svg = mountedIcon('trash')

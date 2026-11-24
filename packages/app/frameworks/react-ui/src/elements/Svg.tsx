@@ -11,6 +11,7 @@ import type {
   SvgEllipseProps,
   SvgGroupProps,
   SvgLineProps,
+  SvgMarkupProps,
   SvgPathProps,
   SvgPolyProps,
   SvgProps,
@@ -19,6 +20,7 @@ import type {
 } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
+import { webElementStyle } from './style.js'
 import type { ElementNode, ElementRefProps, ShapeNode } from './types.js'
 
 /**
@@ -27,8 +29,37 @@ import type { ElementNode, ElementRefProps, ShapeNode } from './types.js'
  * @param props - See {@link SvgProps}.
  * @returns The element.
  */
-export function Svg({ ref, ...props }: SvgProps<ShapeNode> & ElementRefProps): ReactElement {
-  return createElement('svg', { ...props, ref: useElementRef(ref) })
+export function Svg({
+  ref,
+  webStyle,
+  ...props
+}: SvgProps<ShapeNode> & ElementRefProps): ReactElement {
+  return createElement('svg', {
+    ...props,
+    ref: useElementRef(ref),
+    style: webElementStyle(undefined, webStyle),
+  })
+}
+
+/**
+ * An SVG canvas drawn from inner markup: an `<svg>` holding exactly that markup. On React Native it
+ * is react-native-svg's `SvgXml`.
+ *
+ * @param props - See {@link SvgMarkupProps}.
+ * @returns The element.
+ */
+export function SvgMarkup({
+  ref,
+  webStyle,
+  markup,
+  ...props
+}: SvgMarkupProps & ElementRefProps): ReactElement {
+  return createElement('svg', {
+    ...props,
+    ref: useElementRef(ref),
+    style: webElementStyle(undefined, webStyle),
+    dangerouslySetInnerHTML: { __html: markup },
+  })
 }
 
 /**

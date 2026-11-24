@@ -8,7 +8,7 @@ import React, { forwardRef } from 'react'
 
 import type { BadgeProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Box } from '@molecule/app-ui-react/elements'
+import { Box, registerInline } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -56,3 +56,6 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
 )
 
 Badge.displayName = 'Badge'
+
+// A badge sits in a line of text, as an inline-flex span does on the web.
+registerInline(Badge, () => 'box')

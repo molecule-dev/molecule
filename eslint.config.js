@@ -761,9 +761,13 @@ export default tseslint.config(
     },
   },
   {
-    // Renders the bonded icon set's SVG markup, as React's Icon does with
-    // dangerouslySetInnerHTML; nothing user-supplied reaches it.
-    files: ['packages/app/frameworks/svelte-ui/src/components/Icon.svelte'],
+    // Render the bonded icon set's SVG markup, as React's Icon and
+    // `renderIcon` do with dangerouslySetInnerHTML; nothing user-supplied
+    // reaches them. `IconGlyph` is the renderIcon helper's component.
+    files: [
+      'packages/app/frameworks/svelte-ui/src/components/Icon.svelte',
+      'packages/app/frameworks/svelte-ui/src/components/IconGlyph.svelte',
+    ],
     rules: { 'svelte/no-at-html-tags': 'off' },
   },
   {

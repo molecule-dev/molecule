@@ -1,19 +1,14 @@
-import React, { type SVGProps } from 'react'
+import type React from 'react'
 
 import { getIcon, type IconName } from '@molecule/app-icons'
+import type { CSSProperties, ElementProps, SvgPaintProps } from '@molecule/app-ui'
+import { Circle, Path, Svg, SvgMarkup } from '@molecule/app-ui-react/elements'
 
 /**
- * Props for {@link Icon}.
- *
- * Extends `SVGProps<SVGSVGElement>` so callers can pass any SVG / HTML
- * attribute the underlying `<svg>` accepts, including `data-mol-id`,
- * `aria-*`, `role`, event handlers, `style`, etc. — without the
- * component needing to enumerate them.
+ * Props for {@link Icon}: the glyph, its size, and the attributes the root `<svg>` takes
+ * (`aria-*`, `role`, `data-*` and `data-mol-id`, paint overrides such as `fill`, and `style`).
  */
-export interface IconProps extends Omit<
-  SVGProps<SVGSVGElement>,
-  'width' | 'height' | 'viewBox' | 'fill'
-> {
+export interface IconProps extends ElementProps, Omit<SvgPaintProps, 'className'> {
   /**
    * Name of the glyph to look up in the bonded icon set. Typed as
    * {@link IconName} so a typo fails the type-check instead of throwing at
@@ -25,32 +20,27 @@ export interface IconProps extends Omit<
   size?: number
   /** Class name forwarded to the root `<svg>`. */
   className?: string
+  /** CSS for the root `<svg>` on the web. */
+  style?: CSSProperties
 }
 
 /**
  * Renders an SVG glyph looked up by `name` from the bonded
- * `@molecule/app-icons` set.
+ * `@molecule/app-icons` set, on React DOM and React Native.
  *
  * Handles two icon-data shapes returned by the bond:
- *   1. Pre-rendered SVG markup (`icon.svg`) — injected via
- *      `dangerouslySetInnerHTML`. The bond is the trust boundary; only
- *      bond a set that controls its own SVG strings.
+ *   1. Pre-rendered SVG markup (`icon.svg`), drawn by {@link SvgMarkup}. The bond is the trust
+ *      boundary; only bond a set that controls its own SVG strings.
  *   2. Structured paths (`icon.paths`) — rendered as discrete `<path>`
  *      children, with optional stroke styling forwarded from the icon set.
  *
- * Any extra HTML/SVG attribute (e.g. `data-mol-id`, `aria-label`,
- * `role="img"`, `onClick`) is forwarded to the root `<svg>` via spread.
+ * An icon without an accessible name (`aria-label`, `aria-labelledby` or a `role`) is decorative:
+ * it is hidden from assistive technology and never takes focus.
  *
- * Decorative by default: when the caller passes no `aria-label` /
- * `aria-labelledby` / `role`, the SVG is rendered `aria-hidden` +
- * `focusable="false"` so screen readers skip it (an unnamed inline SVG is
- * announced as a stray "image" by some combos). Passing any of those props
- * opts the icon into the accessibility tree.
- *
- * @param props - {@link IconProps}
- * @returns An `<svg>` element rendering the named glyph.
+ * @param props - See {@link IconProps}.
+ * @returns The icon.
  */
-export function Icon({ name, size = 20, className, ...rest }: IconProps): React.JSX.Element {
+export function Icon({ name, size = 20, className, style, ...rest }: IconProps): React.JSX.Element {
   // Graceful degradation: an icon name missing from the bonded set (icon-set
   // version skew, a custom-set with a smaller catalog) must NOT crash the
   // whole app — multi-vendor-marketplace shipped a dead app over this. Warn
@@ -61,7 +51,7 @@ export function Icon({ name, size = 20, className, ...rest }: IconProps): React.
   } catch (error) {
     console.warn(`Icon: no bonded glyph for "${name}" — rendering a placeholder.`, error)
     return (
-      <svg
+      <Svg
         width={size}
         height={size}
         viewBox="0 0 20 20"
@@ -70,39 +60,41 @@ export function Icon({ name, size = 20, className, ...rest }: IconProps): React.
         aria-hidden={
           rest['aria-label'] == null && rest['aria-labelledby'] == null && rest.role == null
         }
-        focusable="false"
+        focusable={false}
+        webStyle={style}
         {...rest}
       >
-        <circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.15" />
-      </svg>
+        <Circle cx={10} cy={10} r={8} fill="currentColor" opacity={0.15} />
+      </Svg>
     )
   }
+
   const viewBox = icon.viewBox || '0 0 20 20'
   // Placed BEFORE {...rest} so an explicit caller aria-hidden/role wins.
   const decorativeProps =
     rest['aria-label'] == null && rest['aria-labelledby'] == null && rest.role == null
-      ? ({ 'aria-hidden': true, focusable: 'false' } as const)
+      ? ({ 'aria-hidden': true, focusable: false } as const)
       : {}
 
   if (icon.svg) {
     return (
-      <svg
+      <SvgMarkup
         width={size}
         height={size}
         viewBox={viewBox}
         fill={icon.fill || 'none'}
         className={className}
-        dangerouslySetInnerHTML={{ __html: icon.svg }}
+        markup={icon.svg}
         {...decorativeProps}
+        webStyle={style}
         {...rest}
       />
     )
   }
 
   const isStroked = !!icon.stroke
-
   return (
-    <svg
+    <Svg
       width={size}
       height={size}
       viewBox={viewBox}
@@ -117,10 +109,11 @@ export function Icon({ name, size = 20, className, ...rest }: IconProps): React.
           }
         : {})}
       className={className}
+      webStyle={style}
       {...rest}
     >
       {icon.paths.map((p, i) => (
-        <path
+        <Path
           key={i}
           d={p.d}
           {...(p.fill ? { fill: p.fill } : {})}
@@ -129,6 +122,6 @@ export function Icon({ name, size = 20, className, ...rest }: IconProps): React.
           {...(p.opacity !== undefined ? { opacity: p.opacity } : {})}
         />
       ))}
-    </svg>
+    </Svg>
   )
 }

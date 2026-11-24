@@ -15,6 +15,8 @@ import { getIcon, type IconName } from '@molecule/app-icons'
  * decorative chrome (close X, chevrons, status glyphs) whose accessible name
  * comes from the surrounding control's `aria-label`/text. Without this, some
  * screen reader/browser combos announce a stray "image" for each glyph.
+ * A set's prebuilt glyph (`icon.svg`) is drawn from its markup, as the Icon
+ * component draws it.
  *
  * @param name - Icon name from the icon set.
  * @param className - CSS class for sizing.
@@ -22,6 +24,26 @@ import { getIcon, type IconName } from '@molecule/app-icons'
  */
 export function renderIcon(name: IconName, className?: string): JSX.Element {
   const icon = getIcon(name)
+  // A set's prebuilt glyph is raw inner markup (Solid's `innerHTML` property),
+  // drawn instead of any path children. The bond is the trust boundary for
+  // its own SVG strings, exactly as React's dangerouslySetInnerHTML path is.
+  if (icon.svg) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        attr:focusable="false"
+        class={className}
+        viewBox={icon.viewBox || '0 0 20 20'}
+        fill={icon.fill || 'currentColor'}
+        stroke={icon.stroke}
+        stroke-width={icon.strokeWidth}
+        stroke-linecap={icon.strokeLinecap}
+        stroke-linejoin={icon.strokeLinejoin}
+        innerHTML={icon.svg}
+      />
+    )
+  }
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

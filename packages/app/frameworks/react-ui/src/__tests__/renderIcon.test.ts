@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { IconData } from '@molecule/app-icons'
@@ -66,57 +68,62 @@ function elementsOf(value: unknown): ElementView[] {
   return elements
 }
 
+/** Renders an icon and returns its `<svg>`, failing loudly when there is none. */
+function svgOf(element: ReturnType<typeof renderIcon>): SVGSVGElement {
+  const svg = render(element).container.querySelector('svg')
+  if (!svg) throw new TypeError('expected an <svg>')
+  return svg
+}
+
 afterEach(() => {
+  cleanup()
   getIconMock.mockReset()
 })
 
 describe('renderIcon', () => {
   it('renders an <svg> React element with default viewBox + fill when icon has none', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    const el = elementView(renderIcon('home'))
+    const svg = svgOf(renderIcon('home'))
 
-    expect(el.type).toBe('svg')
-    expect(el.props.xmlns).toBe('http://www.w3.org/2000/svg')
-    expect(el.props.viewBox).toBe('0 0 20 20')
-    expect(el.props.fill).toBe('currentColor')
+    expect(svg.getAttribute('xmlns')).toBe('http://www.w3.org/2000/svg')
+    expect(svg.getAttribute('viewBox')).toBe('0 0 20 20')
+    expect(svg.getAttribute('fill')).toBe('currentColor')
+    expect(svg.getAttribute('aria-hidden')).toBe('true')
+    expect(svg.getAttribute('focusable')).toBe('false')
   })
 
   it('forwards className to the svg', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    const el = elementView(renderIcon('home', 'w-5 h-5'))
-    expect(el.props.className).toBe('w-5 h-5')
+    expect(svgOf(renderIcon('home', 'w-5 h-5')).getAttribute('class')).toBe('w-5 h-5')
   })
 
   it('honours icon-supplied viewBox, fill, stroke, and stroke options', () => {
     getIconMock.mockReturnValue(fullIcon)
-    const el = elementView(renderIcon('arrow-left'))
+    const svg = svgOf(renderIcon('arrow-left'))
 
-    expect(el.props.viewBox).toBe('0 0 24 24')
-    expect(el.props.fill).toBe('#ff0000')
-    expect(el.props.stroke).toBe('#000')
-    expect(el.props.strokeWidth).toBe(2)
-    expect(el.props.strokeLinecap).toBe('round')
-    expect(el.props.strokeLinejoin).toBe('miter')
+    expect(svg.getAttribute('viewBox')).toBe('0 0 24 24')
+    expect(svg.getAttribute('fill')).toBe('#ff0000')
+    expect(svg.getAttribute('stroke')).toBe('#000')
+    expect(svg.getAttribute('stroke-width')).toBe('2')
+    expect(svg.getAttribute('stroke-linecap')).toBe('round')
+    expect(svg.getAttribute('stroke-linejoin')).toBe('miter')
   })
 
   it('emits one <path> child per icon path entry', () => {
     getIconMock.mockReturnValue(fullIcon)
-    const children = elementsOf(elementView(renderIcon('arrow-left')).props.children)
+    const paths = [...svgOf(renderIcon('arrow-left')).children]
 
-    expect(children).toHaveLength(2)
-    expect(children[0].type).toBe('path')
-    expect(children[0].props.d).toBe('M1 1L2 2')
-    expect(children[0].props.fillRule).toBe('evenodd')
-    expect(children[0].props.clipRule).toBe('evenodd')
-    expect(children[1].props.d).toBe('M3 3L4 4')
+    expect(paths.map((path) => path.tagName.toLowerCase())).toEqual(['path', 'path'])
+    expect(paths[0].getAttribute('d')).toBe('M1 1L2 2')
+    expect(paths[0].getAttribute('fill-rule')).toBe('evenodd')
+    expect(paths[0].getAttribute('clip-rule')).toBe('evenodd')
+    expect(paths[1].getAttribute('d')).toBe('M3 3L4 4')
   })
 
   it('handles a single-path icon (children is the single element, not an array)', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    const children = elementView(renderIcon('home')).props.children
-    // React.createElement collapses a single variadic child to the element directly.
-    expect(Array.isArray(children)).toBe(false)
-    expect(elementView(children).type).toBe('path')
+    const paths = [...svgOf(renderIcon('home')).children]
+    expect(paths.map((path) => path.tagName.toLowerCase())).toEqual(['path'])
   })
 
   it('looks up the icon by name via getIcon()', () => {
@@ -144,18 +151,22 @@ describe('renderIcon', () => {
     getIconMock.mockReturnValue({
       paths: [{ d: 'M0 0L10 10' }],
     })
-    const children = elementView(renderIcon('search')).props.children
-    expect(Array.isArray(children)).toBe(false)
-    const single = elementView(children)
-    expect(single.props.d).toBe('M0 0L10 10')
-    expect(single.props.fillRule).toBeUndefined()
-    expect(single.props.clipRule).toBeUndefined()
+    const paths = [...svgOf(renderIcon('search')).children]
+    expect(paths).toHaveLength(1)
+    expect(paths[0].getAttribute('d')).toBe('M0 0L10 10')
+    expect(paths[0].hasAttribute('fill-rule')).toBe(false)
+    expect(paths[0].hasAttribute('clip-rule')).toBe(false)
+  })
+
+  it('draws a prebuilt glyph from its markup', () => {
+    getIconMock.mockReturnValue({ paths: [], svg: '<circle cx="10" cy="10" r="4"></circle>' })
+    const svg = svgOf(renderIcon('star'))
+    expect(svg.innerHTML).toBe('<circle cx="10" cy="10" r="4"></circle>')
+    expect(svg.getAttribute('aria-hidden')).toBe('true')
   })
 
   it('handles an empty paths array (no path children)', () => {
     getIconMock.mockReturnValue({ paths: [] })
-    const el = elementView(renderIcon('trash'))
-    // React.createElement with no variadic children leaves props.children undefined.
-    expect(el.props.children).toBeUndefined()
+    expect(svgOf(renderIcon('trash')).children).toHaveLength(0)
   })
 })

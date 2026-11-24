@@ -608,6 +608,10 @@ export interface ImageProps extends ElementProps {
   height?: number
   /** Tooltip text. */
   title?: string
+  /** Called once the image has loaded. */
+  onLoad?: () => void
+  /** Called when the image fails to load (a broken URL, no network). */
+  onError?: () => void
   /** Layout and paint both renderers apply. */
   style?: BoxStyle & { objectFit?: 'cover' | 'contain' | 'fill' | 'none' }
   /** Web-only paint. */
@@ -672,14 +676,31 @@ export interface SvgProps<Node = unknown> extends ElementProps, SvgPaintProps {
   preserveAspectRatio?: string
   /** Whether the canvas takes keyboard focus (web). */
   focusable?: boolean
+  /** The SVG namespace attribute (web; a device ignores it). */
+  xmlns?: string
+  /** CSS for the web, and the style a device can draw of it. */
+  webStyle?: WebStyle
   /** Shapes. */
   children?: Node
+}
+
+/**
+ * An SVG canvas drawn from inner SVG markup (an icon set's prebuilt glyph; native react-native-svg
+ * `SvgXml`). The markup is trusted: it comes from a bonded set, never from a user.
+ */
+export interface SvgMarkupProps extends Omit<SvgProps, 'children'> {
+  /** The markup inside the `<svg>` element. */
+  markup: string
 }
 
 /** An SVG path. */
 export interface SvgPathProps extends SvgPaintProps {
   /** Path data. */
   d: string
+  /** Which areas the path fills. */
+  fillRule?: 'nonzero' | 'evenodd'
+  /** Which areas the path clips. */
+  clipRule?: 'nonzero' | 'evenodd'
 }
 
 /** An SVG rectangle. */

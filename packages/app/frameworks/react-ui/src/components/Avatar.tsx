@@ -10,6 +10,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image, Text } from '@molecule/app-ui-react/elements'
 
 import { getInitials } from '../utilities/initials.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -39,7 +40,6 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
     const { t } = useTranslation()
 
     const cm = getClassMap()
-    const showFallback = !src || imageError
 
     const avatarSize = typeof size === 'number' ? undefined : size
     const containerClasses = cm.cn(
@@ -51,34 +51,37 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
     const customSize = typeof size === 'number' ? { width: size, height: size } : undefined
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={containerClasses}
-        style={{ ...style, ...customSize }}
+        webStyle={{ ...style, ...customSize }}
         data-testid={testId}
         // Every other declared prop (id, title, aria-*, data-*, automationId as data-mol-id,
         // the DOM event handlers) reaches the root.
         {...rootProps(rest)}
       >
-        {!showFallback ? (
-          <img
+        {src && !imageError ? (
+          <Image
             src={src}
             alt={alt || name || t('ui.avatar.alt', undefined, { defaultValue: 'Avatar' })}
             className={cm.avatarImage}
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className={cm.avatarFallback}>
+          <Box as="div" className={cm.avatarFallback}>
             {fallback ? (
               fallback
             ) : name ? (
-              <span className={cm.avatarInitials}>{getInitials(name)}</span>
+              <Text as="span" className={cm.avatarInitials}>
+                {getInitials(name)}
+              </Text>
             ) : (
               renderIcon('user', cm.avatarFallbackIcon)
             )}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     )
   },
 )
