@@ -1,8 +1,9 @@
-import type { ChangeEvent, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { formatCurrency } from './utils.js'
 
@@ -81,11 +82,11 @@ export function AmountInput({
     }
   }
   /**
-   * Parses the raw input value and fires onAmountChange with a number or empty string.
-   * @param e
+   * Parses the field's text and fires onAmountChange with a number or empty string.
+   * @param value - The field's new text.
    */
-  function handleChange(e: ChangeEvent<HTMLInputElement>): void {
-    const raw = e.target.value.replace(/[^0-9.-]/g, '')
+  function handleValue(value: string): void {
+    const raw = value.replace(/[^0-9.-]/g, '')
     if (raw === '' || raw === '-') {
       onAmountChange('')
       return
@@ -96,9 +97,9 @@ export function AmountInput({
   const fontClass =
     size === 'xl' ? cm.textSize('5xl') : size === 'lg' ? cm.textSize('4xl') : cm.textSize('2xl')
   return (
-    <div className={cm.cn(cm.stack(3), className)}>
+    <Box as="div" className={cm.cn(cm.stack(3), className)}>
       {onTypeChange && (
-        <div className={cm.flex({ align: 'center', gap: 'xs' })}>
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
           {typeOptions.map((opt) => (
             <Button
               key={opt}
@@ -111,22 +112,26 @@ export function AmountInput({
               {typeLabels?.[opt] ?? typeLabel(opt)}
             </Button>
           ))}
-        </div>
+        </Box>
       )}
-      <div className={cm.flex({ align: 'baseline', gap: 'xs' })}>
-        <span className={cm.cn(fontClass, cm.fontWeight('bold'))}>{currencySymbol}</span>
-        <input
+      <Box as="div" className={cm.flex({ align: 'baseline', gap: 'xs' })}>
+        <Text as="span" className={cm.cn(fontClass, cm.fontWeight('bold'))}>
+          {currencySymbol}
+        </Text>
+        <TextField
+          as="input"
           type="text"
           inputMode="decimal"
           value={amount === '' ? '' : String(amount)}
-          onChange={handleChange}
+          onValueChange={handleValue}
           placeholder="0"
           aria-label={amountLabel}
           className={cm.cn(fontClass, cm.fontWeight('bold'))}
-          style={{ border: 'none', outline: 'none', background: 'transparent', flex: 1 }}
+          style={{ flex: 1 }}
+          webStyle={{ border: 'none', outline: 'none', background: 'transparent' }}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

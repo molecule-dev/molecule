@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Circle, Polyline, Rect, Svg } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link Sparkline} component. */
 export interface SparklineProps {
@@ -48,7 +49,7 @@ export function Sparkline({
   const stepX = values.length === 1 ? 0 : width / (values.length - 1)
   const y = (v: number): number => height - ((v - min) / range) * height
   return (
-    <svg
+    <Svg
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
@@ -60,7 +61,7 @@ export function Sparkline({
       className={cm.cn(className)}
     >
       {variant === 'line' && (
-        <polyline
+        <Polyline
           fill="none"
           stroke={color}
           strokeWidth={1.5}
@@ -71,10 +72,10 @@ export function Sparkline({
         values.map((v, i) => {
           const w = Math.max(2, width / values.length - 2)
           const h = ((v - min) / range) * height
-          return <rect key={i} x={i * (w + 2)} y={height - h} width={w} height={h} fill={color} />
+          return <Rect key={i} x={i * (w + 2)} y={height - h} width={w} height={h} fill={color} />
         })}
       {variant === 'dot' &&
-        values.map((v, i) => <circle key={i} cx={i * stepX} cy={y(v)} r={1.5} fill={color} />)}
-    </svg>
+        values.map((v, i) => <Circle key={i} cx={i * stepX} cy={y(v)} r={1.5} fill={color} />)}
+    </Svg>
   )
 }
