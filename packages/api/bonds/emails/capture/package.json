@@ -32,6 +32,11 @@
     "@molecule/api-activity": "^1.0.1",
     "@molecule/api-emails": "^1.0.1"
   },
+  "peerDependenciesMeta": {
+    "@molecule/api-emails": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@molecule/api-activity": "1.0.2",
     "@molecule/api-emails": "1.0.4",

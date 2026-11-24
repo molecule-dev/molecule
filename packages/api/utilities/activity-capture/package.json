@@ -1,0 +1,63 @@
+{
+  "name": "@molecule/api-activity-capture",
+  "version": "1.0.0",
+  "description": "Records the email, SMS, push, webhook and channel messages your API sends in the molecule.dev Activity panel: captured in the dev sandbox, delivered and recorded in production.",
+  "homepage": "https://www.molecule.dev/packages/api-activity-capture",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "activity",
+    "capture",
+    "email",
+    "webhook"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/activity-capture"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@molecule/api-activity": "1.0.2",
+    "@molecule/api-activity-http": "1.0.2",
+    "@molecule/api-channel-capture": "1.0.3",
+    "@molecule/api-emails-capture": "1.0.3",
+    "@molecule/api-push-capture": "1.2.0",
+    "@molecule/api-sms-capture": "1.0.3",
+    "@molecule/api-webhook-capture": "1.0.3"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-emails": "1.0.4",
+    "@molecule/api-logger": "1.0.3",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

@@ -32,6 +32,11 @@
     "@molecule/api-activity": "^1.0.1",
     "@molecule/api-channel": "^1.0.1"
   },
+  "peerDependenciesMeta": {
+    "@molecule/api-channel": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@molecule/api-activity": "1.0.2",
     "@molecule/api-channel": "1.0.4",
