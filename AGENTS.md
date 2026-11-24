@@ -299,6 +299,30 @@ Providers declare core interfaces as `peerDependencies`. This prevents version c
 
 Swap entire framework by changing Layers 2+3.
 
+### One Feature Implementation for React DOM and React Native
+
+Owner directive (2026-11-24, from the start of v2): "use something like react-native-web (or
+similar/whatever) so that it would be super easy to support swapping renderers/etc without having to
+duplicate a bunch of work". A React feature package (`features/*-react`) is the implementation for
+React DOM and React Native both; no `-react-native` feature port is written. Vue, Svelte, Solid and
+Angular keep their ports, which the conformance kit holds to React's output.
+
+Today 195 of the 201 React features render raw DOM tags (`div`, `span`, `button`), which React Native
+cannot render. The design being built:
+
+- Renderer-neutral elements in `@molecule/app-ui` (`Box`, `Text`, `Pressable`, `TextField`, `Image`,
+  `ScrollArea`, `Svg`), each with an `as` prop naming the web tag, so `<Box as="ul">` renders exactly
+  `<ul>` on the web and every recorded golden stays the same.
+- `@molecule/app-ui-react` resolves to `@molecule/app-ui-react-native` under the `react-native` export
+  condition, so one feature package serves both.
+- Once the elements land, a lint rule bans lowercase JSX tags in `features/*-react`, with a list of the
+  packages not yet converted that may only shrink.
+- Features that are inherently DOM (canvas, maps, HTML5 drag-and-drop, media players, code editors) are
+  registered web-only, so `mlcl add` refuses them on React Native with the reason.
+
+Until the elements land, keep DOM-only APIs (layout measurement, raw HTML injection, HTML5
+drag-and-drop) out of features that are not inherently DOM.
+
 ### UIClassMap
 
 `getClassMap()` resolves styling at render time. Adding a styling library = 1 new ClassMap bond implementation. All framework packages work unchanged.
