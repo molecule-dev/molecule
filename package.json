@@ -50,6 +50,7 @@
     "check:syntax": "node scripts/check-syntax.mjs",
     "check:undeclared-imports": "node scripts/check-undeclared-imports.mjs",
     "check:ws-floor": "node scripts/check-ws-floor.mjs",
+    "deprecate:replaced": "node scripts/deprecate-replaced-packages.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint packages/ scripts/ eslint-rules/ --max-warnings 0",
