@@ -25,7 +25,7 @@ export const id: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Memungkinkan',
   'settings.twoFactorEnableTitle': 'Aktifkan otentikasi dua faktor.',
   'settings.twoFactorInvalidCode': 'Kode tidak valid',
-  'settings.twoFactorOn': 'Pada',
+  'settings.twoFactorOn': 'Aktif',
   'settings.twoFactorQrAlt': 'Kode QR otentikasi dua faktor',
   'settings.twoFactorScan':
     'Pindai kode QR ini dengan aplikasi otentikasi Anda, lalu masukkan kode 6 digit.',

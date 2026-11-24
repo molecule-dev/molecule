@@ -25,7 +25,7 @@ export const el: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Καθιστώ ικανό',
   'settings.twoFactorEnableTitle': 'Ενεργοποίηση ελέγχου ταυτότητας δύο παραγόντων',
   'settings.twoFactorInvalidCode': 'Μη έγκυρος κωδικός',
-  'settings.twoFactorOn': 'Επί',
+  'settings.twoFactorOn': 'Ενεργή',
   'settings.twoFactorQrAlt': 'Κωδικός QR δύο παραγόντων',
   'settings.twoFactorScan':
     'Σαρώστε αυτόν τον κωδικό QR με την εφαρμογή ελέγχου ταυτότητας και, στη συνέχεια, εισαγάγετε τον 6ψήφιο κωδικό.',

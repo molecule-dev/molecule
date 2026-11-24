@@ -25,7 +25,7 @@ export const hr: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Omogućiti',
   'settings.twoFactorEnableTitle': 'Omogući dvofaktorsku autentifikaciju',
   'settings.twoFactorInvalidCode': 'Nevažeći kod',
-  'settings.twoFactorOn': 'Na',
+  'settings.twoFactorOn': 'Uključeno',
   'settings.twoFactorQrAlt': 'Dvofaktorski QR kod',
   'settings.twoFactorScan':
     'Skenirajte ovaj QR kôd pomoću aplikacije za autentifikaciju, a zatim unesite 6-znamenkasti kôd.',

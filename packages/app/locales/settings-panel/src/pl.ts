@@ -25,7 +25,7 @@ export const pl: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Włączać',
   'settings.twoFactorEnableTitle': 'Włącz uwierzytelnianie dwuskładnikowe',
   'settings.twoFactorInvalidCode': 'Nieprawidłowy kod',
-  'settings.twoFactorOn': 'NA',
+  'settings.twoFactorOn': 'Włączone',
   'settings.twoFactorQrAlt': 'Dwuskładnikowy kod QR',
   'settings.twoFactorScan':
     'Zeskanuj ten kod QR za pomocą aplikacji uwierzytelniającej, a następnie wprowadź 6-cyfrowy kod.',

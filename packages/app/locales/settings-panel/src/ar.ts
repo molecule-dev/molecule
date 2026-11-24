@@ -25,7 +25,7 @@ export const ar: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'يُمكَِن',
   'settings.twoFactorEnableTitle': 'تفعيل المصادقة الثنائية',
   'settings.twoFactorInvalidCode': 'رمز غير صالح',
-  'settings.twoFactorOn': 'على',
+  'settings.twoFactorOn': 'مفعّل',
   'settings.twoFactorQrAlt': 'رمز الاستجابة السريعة ثنائي التحقق',
   'settings.twoFactorScan':
     'امسح رمز الاستجابة السريعة هذا باستخدام تطبيق المصادقة الخاص بك، ثم أدخل الرمز المكون من 6 أرقام.',

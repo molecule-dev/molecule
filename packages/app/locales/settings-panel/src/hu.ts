@@ -25,7 +25,7 @@ export const hu: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Engedélyezés',
   'settings.twoFactorEnableTitle': 'Kétfaktoros hitelesítés engedélyezése',
   'settings.twoFactorInvalidCode': 'Érvénytelen kód',
-  'settings.twoFactorOn': 'On',
+  'settings.twoFactorOn': 'Bekapcsolva',
   'settings.twoFactorQrAlt': 'Kétfaktoros QR-kód',
   'settings.twoFactorScan':
     'Olvasd be ezt a QR-kódot a hitelesítő alkalmazásoddal, majd add meg a 6 jegyű kódot.',

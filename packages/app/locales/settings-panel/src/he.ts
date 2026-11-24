@@ -25,7 +25,7 @@ export const he: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'לְאַפשֵׁר',
   'settings.twoFactorEnableTitle': 'הפעל אימות דו-שלבי',
   'settings.twoFactorInvalidCode': 'קוד לא חוקי',
-  'settings.twoFactorOn': 'עַל',
+  'settings.twoFactorOn': 'פעיל',
   'settings.twoFactorQrAlt': 'קוד QR דו-שלבי',
   'settings.twoFactorScan':
     'סרקו את קוד ה-QR הזה באמצעות אפליקציית האימות שלכם, ולאחר מכן הזינו את הקוד בן 6 הספרות.',

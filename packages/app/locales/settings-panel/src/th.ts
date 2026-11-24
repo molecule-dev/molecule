@@ -25,7 +25,7 @@ export const th: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'เปิดใช้งาน',
   'settings.twoFactorEnableTitle': 'เปิดใช้งานการตรวจสอบสิทธิ์แบบสองขั้นตอน',
   'settings.twoFactorInvalidCode': 'รหัสไม่ถูกต้อง',
-  'settings.twoFactorOn': 'บน',
+  'settings.twoFactorOn': 'เปิดอยู่',
   'settings.twoFactorQrAlt': 'รหัส QR สองปัจจัย',
   'settings.twoFactorScan': 'สแกนคิวอาร์โค้ดนี้ด้วยแอปยืนยันตัวตนของคุณ จากนั้นป้อนรหัส 6 หลัก',
   'settings.twoFactorUnavailable': 'แอปนี้ไม่รองรับการยืนยันตัวตนสองขั้นตอน',

@@ -25,7 +25,7 @@ export const ja: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': '有効にする',
   'settings.twoFactorEnableTitle': '二段階認証を有効にする',
   'settings.twoFactorInvalidCode': '無効なコード',
-  'settings.twoFactorOn': 'の上',
+  'settings.twoFactorOn': 'オン',
   'settings.twoFactorQrAlt': '二要素認証QRコード',
   'settings.twoFactorScan':
     '認証アプリでこのQRコードをスキャンし、表示された6桁のコードを入力してください。',

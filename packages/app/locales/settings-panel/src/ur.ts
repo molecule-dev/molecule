@@ -25,7 +25,7 @@ export const ur: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'فعال کریں۔',
   'settings.twoFactorEnableTitle': 'دو عنصر کی توثیق کو فعال کریں۔',
   'settings.twoFactorInvalidCode': 'غلط کوڈ',
-  'settings.twoFactorOn': 'پر',
+  'settings.twoFactorOn': 'فعال',
   'settings.twoFactorQrAlt': 'دو فیکٹر QR کوڈ',
   'settings.twoFactorScan':
     'اس QR کوڈ کو اپنی تصدیق کنندہ ایپ سے اسکین کریں، پھر 6 ہندسوں کا کوڈ درج کریں۔',

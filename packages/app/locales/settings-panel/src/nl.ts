@@ -25,7 +25,7 @@ export const nl: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Inschakelen',
   'settings.twoFactorEnableTitle': 'Schakel tweefactorauthenticatie in.',
   'settings.twoFactorInvalidCode': 'Ongeldige code',
-  'settings.twoFactorOn': 'Op',
+  'settings.twoFactorOn': 'Aan',
   'settings.twoFactorQrAlt': 'Twee-factor QR-code',
   'settings.twoFactorScan':
     'Scan deze QR-code met uw authenticatie-app en voer vervolgens de 6-cijferige code in.',

@@ -25,7 +25,7 @@ export const ro: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Permite',
   'settings.twoFactorEnableTitle': 'Activați autentificarea cu doi factori',
   'settings.twoFactorInvalidCode': 'Cod nevalid',
-  'settings.twoFactorOn': 'Pe',
+  'settings.twoFactorOn': 'Activată',
   'settings.twoFactorQrAlt': 'Cod QR cu doi factori',
   'settings.twoFactorScan':
     'Scanați acest cod QR cu aplicația de autentificare, apoi introduceți codul de 6 cifre.',

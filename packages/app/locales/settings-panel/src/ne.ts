@@ -25,7 +25,7 @@ export const ne: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'सक्षम पार्नुहोस्',
   'settings.twoFactorEnableTitle': 'दुई-कारक प्रमाणीकरण सक्षम गर्नुहोस्',
   'settings.twoFactorInvalidCode': 'अमान्य कोड',
-  'settings.twoFactorOn': 'खुल्ला',
+  'settings.twoFactorOn': 'सक्रिय',
   'settings.twoFactorQrAlt': 'दुई-कारक QR कोड',
   'settings.twoFactorScan':
     'आफ्नो प्रमाणक एप प्रयोग गरी यो QR कोड स्क्यान गर्नुहोस्, त्यसपछि ६-अङ्कको कोड प्रविष्ट गर्नुहोस्।',

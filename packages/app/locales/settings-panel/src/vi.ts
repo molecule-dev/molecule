@@ -25,7 +25,7 @@ export const vi: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Cho phép',
   'settings.twoFactorEnableTitle': 'Kích hoạt xác thực hai yếu tố',
   'settings.twoFactorInvalidCode': 'Mã không hợp lệ',
-  'settings.twoFactorOn': 'TRÊN',
+  'settings.twoFactorOn': 'Đang bật',
   'settings.twoFactorQrAlt': 'Mã QR hai yếu tố',
   'settings.twoFactorScan':
     'Quét mã QR này bằng ứng dụng xác thực của bạn, sau đó nhập mã 6 chữ số.',

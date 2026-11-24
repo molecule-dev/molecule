@@ -25,7 +25,7 @@ export const hi: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'सक्षम',
   'settings.twoFactorEnableTitle': 'दो-कारक प्रमाणीकरण सक्षम करें',
   'settings.twoFactorInvalidCode': 'अवैध कोड',
-  'settings.twoFactorOn': 'पर',
+  'settings.twoFactorOn': 'चालू',
   'settings.twoFactorQrAlt': 'दो-कारक क्यूआर कोड',
   'settings.twoFactorScan':
     'अपने ऑथेंटिकेटर ऐप से इस क्यूआर कोड को स्कैन करें, फिर 6 अंकों का कोड दर्ज करें।',

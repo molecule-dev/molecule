@@ -25,7 +25,7 @@ export const zh: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': '使能够',
   'settings.twoFactorEnableTitle': '启用双因素身份验证',
   'settings.twoFactorInvalidCode': '无效代码',
-  'settings.twoFactorOn': '在',
+  'settings.twoFactorOn': '已开启',
   'settings.twoFactorQrAlt': '双因素二维码',
   'settings.twoFactorScan': '使用您的身份验证器应用程序扫描此二维码，然后输入 6 位数代码。',
   'settings.twoFactorUnavailable': '此应用不支持双重身份验证。',

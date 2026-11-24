@@ -25,7 +25,7 @@ export const ru: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Давать возможность',
   'settings.twoFactorEnableTitle': 'Включите двухфакторную аутентификацию',
   'settings.twoFactorInvalidCode': 'Неверный код',
-  'settings.twoFactorOn': 'На',
+  'settings.twoFactorOn': 'Включено',
   'settings.twoFactorQrAlt': 'Двухфакторный QR-код',
   'settings.twoFactorScan':
     'Отсканируйте этот QR-код с помощью приложения-аутентификатора, затем введите 6-значный код.',

@@ -25,7 +25,7 @@ export const ko: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': '할 수 있게 하다',
   'settings.twoFactorEnableTitle': '2단계 인증을 활성화하세요',
   'settings.twoFactorInvalidCode': '잘못된 코드',
-  'settings.twoFactorOn': '~에',
+  'settings.twoFactorOn': '켜짐',
   'settings.twoFactorQrAlt': '이중 인증 QR 코드',
   'settings.twoFactorScan': '인증 앱으로 이 QR 코드를 스캔한 다음 6자리 코드를 입력하세요.',
   'settings.twoFactorUnavailable': '이 앱에서는 2단계 인증을 사용할 수 없습니다.',

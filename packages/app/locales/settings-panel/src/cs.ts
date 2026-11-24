@@ -25,7 +25,7 @@ export const cs: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Umožnit',
   'settings.twoFactorEnableTitle': 'Povolit dvoufaktorové ověřování',
   'settings.twoFactorInvalidCode': 'Neplatný kód',
-  'settings.twoFactorOn': 'Na',
+  'settings.twoFactorOn': 'Zapnuto',
   'settings.twoFactorQrAlt': 'Dvoufázový QR kód',
   'settings.twoFactorScan':
     'Naskenujte tento QR kód pomocí ověřovací aplikace a poté zadejte 6místný kód.',

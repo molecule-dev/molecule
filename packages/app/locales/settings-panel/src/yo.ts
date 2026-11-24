@@ -25,7 +25,7 @@ export const yo: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Mu ṣiṣẹ',
   'settings.twoFactorEnableTitle': 'Mu ìjẹ́rìísí ìfàṣẹsí méjì ṣiṣẹ́',
   'settings.twoFactorInvalidCode': 'Kóòdù tí kò tọ́',
-  'settings.twoFactorOn': 'Lórí',
+  'settings.twoFactorOn': 'Títàn',
   'settings.twoFactorQrAlt': 'Kóòdù QR oní-méjì-orí',
   'settings.twoFactorScan':
     'Ṣe ìwòye kóòdù QR yìí pẹ̀lú àpù ìfìdíkalẹ̀ rẹ, lẹ́yìn náà tẹ kóòdù oní-nọ́mbà mẹ́fà náà.',

@@ -25,7 +25,7 @@ export const zhTW: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': '使能夠',
   'settings.twoFactorEnableTitle': '啟用雙重認證',
   'settings.twoFactorInvalidCode': '無效代碼',
-  'settings.twoFactorOn': '在',
+  'settings.twoFactorOn': '已開啟',
   'settings.twoFactorQrAlt': '雙因素二維碼',
   'settings.twoFactorScan': '使用您的身份驗證器應用程式掃描此二維碼，然後輸入 6 位數代碼。',
   'settings.twoFactorUnavailable': '此應用程式不支援雙重身份驗證。',

@@ -25,7 +25,7 @@ export const es: Partial<SettingsPanelTranslations> = {
   'settings.twoFactorEnable': 'Permitir',
   'settings.twoFactorEnableTitle': 'Habilitar la autenticación de dos factores',
   'settings.twoFactorInvalidCode': 'Código no válido',
-  'settings.twoFactorOn': 'En',
+  'settings.twoFactorOn': 'Activada',
   'settings.twoFactorQrAlt': 'Código QR de dos factores',
   'settings.twoFactorScan':
     'Escanea este código QR con tu aplicación de autenticación y, a continuación, introduce el código de 6 dígitos.',
