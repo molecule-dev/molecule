@@ -19,15 +19,7 @@
  * @module
  */
 
-import type {
-  ClassMapValue,
-  ContainerClassOptions,
-  ModalClassOptions,
-  ResponsiveBreakpoint,
-  Size,
-  ToastPosition,
-  UIClassMap,
-} from '@molecule/app-ui'
+import type { ClassMapValue, ModalClassOptions, ToastPosition, UIClassMap } from '@molecule/app-ui'
 import { classMap as tailwindClassMap } from '@molecule/app-ui-tailwind'
 
 import { forDevice } from './device.js'
@@ -77,40 +69,11 @@ export const classMap: UIClassMap = {
 
   // ---- Overrides for RN-incompatible classes ----
 
-  // NativeWind maps min-width breakpoints; the max-* variants the web bond
-  // uses are not relied on here. Literal strings so the class scan sees them.
-  hiddenBelow(breakpoint: ResponsiveBreakpoint): string {
-    return {
-      sm: 'hidden sm:flex',
-      md: 'hidden md:flex',
-      lg: 'hidden lg:flex',
-      xl: 'hidden xl:flex',
-    }[breakpoint]
-  },
-  hiddenFrom(breakpoint: ResponsiveBreakpoint): string {
-    return { sm: 'sm:hidden', md: 'md:hidden', lg: 'lg:hidden', xl: 'xl:hidden' }[breakpoint]
-  },
-
   cn(...classes: ClassMapValue[]): string {
     // NativeWind handles class merging via its own runtime; we still use
     // the same cn() from @molecule/app-styling (tailwind-merge) since
     // NativeWind class strings are valid Tailwind class strings.
     return tailwindClassMap.cn(...classes)
-  },
-
-  // Container: Replace responsive max-width with simple padding
-  container(opts?: ContainerClassOptions): string {
-    const size = opts?.size || 'xl'
-    // On mobile, containers just need horizontal padding
-    const sizeMap: Record<string, string> = {
-      sm: 'w-full px-4',
-      md: 'w-full px-4',
-      lg: 'w-full px-4',
-      xl: 'w-full px-4',
-      '2xl': 'w-full px-4',
-      full: 'w-full',
-    }
-    return sizeMap[size] || 'w-full px-4'
   },
 
   // Modal: Replace fixed positioning + backdrop-blur with RN-compatible classes
@@ -140,18 +103,9 @@ export const classMap: UIClassMap = {
     return tailwindClassMap.cn(base, posMap[opts?.position || 'bottom-right'])
   },
 
-  // Spacer: Replace inline-block (no concept in RN) with width/height
-  spacer(opts?: { size?: Size; horizontal?: boolean }): string {
-    const map: Record<Size, string> = { xs: '1', sm: '2', md: '4', lg: '6', xl: '8' }
-    const val = map[opts?.size || 'md']
-    return opts?.horizontal ? `w-${val}` : `h-${val}`
-  },
-
   // ---- Static token overrides ----
 
   // Replace fixed with absolute (RN has no "fixed")
-  page: 'flex-1 bg-background',
-  headerBar: 'bg-surface shadow-sm',
   headerFixed: 'absolute top-0 left-0 right-0 z-50',
   overlay: 'absolute inset-0 bg-black/50',
   drawer: 'absolute top-0 right-0 bottom-0 w-full max-w-sm bg-surface',
@@ -188,14 +142,11 @@ export const classMap: UIClassMap = {
   actionSheet: 'absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl max-h-[50%]',
   actionSheetHeader: 'p-4 border-b border-border',
 
-  // Grid rows: not supported, return empty
-  gridRows(_rows: number): string {
-    return ''
-  },
-
-  // Position: RN only supports relative and absolute
+  // Position: a device has relative and absolute only. A sticky box stays in the flow and draws
+  // where a relative one does until its scroll container scrolls; a fixed one leaves the flow.
   position(value: 'relative' | 'absolute' | 'fixed' | 'sticky'): string {
-    if (value === 'fixed' || value === 'sticky') return 'absolute'
+    if (value === 'sticky') return 'relative'
+    if (value === 'fixed') return 'absolute'
     return value
   },
 

@@ -22,6 +22,7 @@ import type {
   ChangeEventHandler,
   CSSProperties,
   FocusEventHandler,
+  FormEventHandler,
   KeyboardEventHandler,
   MouseEventHandler,
 } from './types.js'
@@ -550,25 +551,57 @@ export interface ElementLinkProps<Node = unknown> extends ElementProps, Interact
 }
 
 /** A single-line or multi-line text field (native `TextInput`). */
-export interface TextFieldProps extends ElementProps {
+export interface TextFieldProps extends ElementProps, InteractionProps {
   /** `input` for one line, `textarea` for several. */
   as: 'input' | 'textarea'
-  /** The kind of text (`input` only). */
-  type?: 'text' | 'email' | 'password' | 'search' | 'number' | 'tel' | 'url'
+  /**
+   * The kind of text (`input` only). A device takes a date or time as text in the web's value
+   * format (`YYYY-MM-DD`, `HH:MM`, `YYYY-MM-DDTHH:MM`), so a form receives the same value.
+   */
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'search'
+    | 'number'
+    | 'tel'
+    | 'url'
+    | 'date'
+    | 'time'
+    | 'datetime-local'
   /** The on-screen keyboard to show. */
   inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url'
   /** The field's text. */
   value?: string
+  /** The text of a field whose text the caller does not hold, when it mounts. */
+  defaultValue?: string
   /** Text shown while the field is empty. */
   placeholder?: string
   /** Whether the user can edit the text. */
   readOnly?: boolean
   /** Whether it is disabled. */
   disabled?: boolean
+  /** Whether a form refuses to submit while the field is empty. */
+  required?: boolean
   /** Longest text the field accepts. */
   maxLength?: number
+  /** Shortest text a form accepts in the field. */
+  minLength?: number
+  /** Web-only: a pattern a form checks the text against. */
+  pattern?: string
   /** Visible lines (`textarea` only). */
   rows?: number
+  /** Web-only: visible columns (`textarea` only). */
+  cols?: number
+  /** Web-only: how a form sends the text's line breaks (`textarea` only). */
+  wrap?: 'hard' | 'soft' | 'off'
+  /**
+   * Grows the field with its text, between these line counts (`textarea` only): the field is
+   * `minRows` lines tall when nearly empty and scrolls past `maxRows`.
+   */
+  autoGrow?: { minRows: number; maxRows?: number }
+  /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
+  title?: string
   /** The autofill hint. */
   autoComplete?: string
   /** Moves focus to the field when it mounts. */
@@ -582,14 +615,8 @@ export interface TextFieldProps extends ElementProps {
   onChange?: ChangeEventHandler
   /** The text changed, with the new text. */
   onValueChange?: (value: string) => void
-  /** The field gains focus. */
-  onFocus?: FocusEventHandler
-  /** The field loses focus. */
-  onBlur?: FocusEventHandler
-  /** A hardware key goes down. */
-  onKeyDown?: KeyboardEventHandler
-  /** Tab order. */
-  tabIndex?: number
+  /** The text changed: fires with {@link TextFieldProps.onChange} on each edit, on both renderers. */
+  onInput?: FormEventHandler
   /** Layout, paint and text styles both renderers apply. */
   style?: TextStyle
   /** Web-only paint (a field's border and outline resets). */
@@ -796,6 +823,11 @@ export interface NativeGridClasses {
    * (`grid-cols-[1fr_2fr]` is `'1fr 2fr'`). No entry at the base size is one column.
    */
   columns: Readonly<Record<string, number | string>>
+  /**
+   * Its explicit rows: a count of equal rows (`grid-rows-3`) or a CSS track list
+   * (`grid-rows-[auto_1fr]`). No entry: rows only as its items need them.
+   */
+  rows?: Readonly<Record<string, number | string>>
   /** The gap between its columns, in pixels (`gap-4` and `gap-x-4` are 16). */
   columnGap: Readonly<Record<string, number>>
   /** The gap between its rows, in pixels. */
@@ -844,6 +876,18 @@ export interface NativeClassSplit {
    * `null` when it sets none (the platform's normal weight). A `<strong>` draws `bolder` than it.
    */
   weight: number | null
+  /**
+   * The line height, in pixels, {@link NativeClassSplit.text} gives its text at its base size
+   * (`text-sm` is 20, `text-sm leading-relaxed` 22.75), or `null` when it sets no font size or
+   * line height: what a native field that grows by lines counts in.
+   */
+  lineHeight?: number | null
+  /**
+   * Whether the classes set the element's width or height (`w-5`, `h-5`, `size-5`, at any
+   * breakpoint). On the web a class beats a replaced element's `width` and `height` attributes, so
+   * a native image or drawing takes those attributes only for the sizes its classes leave unset.
+   */
+  sized?: { width: boolean; height: boolean }
   /**
    * Classes the element gives its descendants with one tag, as a CSS descendant selector does
    * (`[&_p]:leading-relaxed` is `{ p: 'leading-relaxed' }`): left out of `view` and `text`, and

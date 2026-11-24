@@ -77,6 +77,7 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       expect(split?.display).toBe('grid')
       expect(split?.grid).toEqual({
         columns: { '': 1, sm: 2, lg: 3 },
+        rows: {},
         columnGap: { '': 24 },
         rowGap: { '': 24 },
         alignItems: {},
@@ -86,34 +87,15 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   })
 
   // =================================================================
-  // container() — simple padding for mobile
+  // container() — the web's classes: Yoga centres a box with auto margins
   // =================================================================
 
   describe('container()', () => {
-    it('should return mobile-friendly container classes', () => {
-      const result = classMap.container()
-      expect(result).toContain('w-full')
-      expect(result).toContain('px-4')
-    })
-
-    it('should default to xl size', () => {
-      const result = classMap.container()
-      // xl maps to 'w-full px-4'
-      expect(result).toBe('w-full px-4')
-    })
-
-    it('should map size variants', () => {
-      expect(classMap.container({ size: 'sm' })).toBe('w-full px-4')
-      expect(classMap.container({ size: 'md' })).toBe('w-full px-4')
-      expect(classMap.container({ size: 'lg' })).toBe('w-full px-4')
-      expect(classMap.container({ size: 'xl' })).toBe('w-full px-4')
-      expect(classMap.container({ size: '2xl' })).toBe('w-full px-4')
-      expect(classMap.container({ size: 'full' })).toBe('w-full')
-    })
-
-    it('should not contain mx-auto (no responsive centering on RN)', () => {
-      const result = classMap.container()
-      expect(result).not.toContain('mx-auto')
+    it("keeps the web ClassMap's container classes for every size", () => {
+      for (const size of [undefined, 'sm', 'md', 'lg', 'xl', '2xl', 'full'] as const)
+        expect(classMap.container(size ? { size } : undefined)).toBe(
+          tailwindClassMap.container(size ? { size } : undefined),
+        )
     })
   })
 
@@ -184,41 +166,17 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   })
 
   // =================================================================
-  // spacer() — RN-compatible, no inline-block
+  // spacer() — the web's classes: the native elements read inline-block
   // =================================================================
 
   describe('spacer()', () => {
-    it('should return height-based spacer by default', () => {
-      const result = classMap.spacer()
-      expect(result).toContain('h-')
-    })
-
-    it('should return width-based spacer when horizontal', () => {
-      const result = classMap.spacer({ horizontal: true })
-      expect(result).toContain('w-')
-    })
-
-    it('should not contain inline-block (not supported in RN)', () => {
-      const result = classMap.spacer()
-      expect(result).not.toContain('inline-block')
-      const horiz = classMap.spacer({ horizontal: true })
-      expect(horiz).not.toContain('inline-block')
-    })
-
-    it('should map size values', () => {
-      expect(classMap.spacer({ size: 'xs' })).toBe('h-1')
-      expect(classMap.spacer({ size: 'sm' })).toBe('h-2')
-      expect(classMap.spacer({ size: 'md' })).toBe('h-4')
-      expect(classMap.spacer({ size: 'lg' })).toBe('h-6')
-      expect(classMap.spacer({ size: 'xl' })).toBe('h-8')
-    })
-
-    it('should map horizontal size values', () => {
-      expect(classMap.spacer({ size: 'xs', horizontal: true })).toBe('w-1')
-      expect(classMap.spacer({ size: 'sm', horizontal: true })).toBe('w-2')
-      expect(classMap.spacer({ size: 'md', horizontal: true })).toBe('w-4')
-      expect(classMap.spacer({ size: 'lg', horizontal: true })).toBe('w-6')
-      expect(classMap.spacer({ size: 'xl', horizontal: true })).toBe('w-8')
+    it("keeps the web ClassMap's spacer classes, inline-block included", () => {
+      for (const size of [undefined, 'xs', 'sm', 'md', 'lg', 'xl'] as const)
+        for (const horizontal of [false, true])
+          expect(classMap.spacer({ size, horizontal })).toBe(
+            tailwindClassMap.spacer({ size, horizontal }),
+          )
+      expect(classMap.spacer({ horizontal: true })).toContain('inline-block')
     })
   })
 
@@ -257,19 +215,18 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   })
 
   // =================================================================
-  // gridRows() — not supported, returns empty string
+  // gridRows() — the web's classes, which the native grid lays out
   // =================================================================
 
   describe('gridRows()', () => {
-    it('should return empty string (CSS grid not supported in RN)', () => {
-      expect(classMap.gridRows(3)).toBe('')
-      expect(classMap.gridRows(1)).toBe('')
-      expect(classMap.gridRows(12)).toBe('')
+    it("keeps the web ClassMap's row classes", () => {
+      for (const rows of [1, 3, 12])
+        expect(classMap.gridRows(rows)).toBe(tailwindClassMap.gridRows(rows))
     })
   })
 
   // =================================================================
-  // position() — maps fixed/sticky to absolute
+  // position() — fixed leaves the flow (absolute); sticky stays in it (relative)
   // =================================================================
 
   describe('position()', () => {
@@ -285,8 +242,8 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       expect(classMap.position('fixed')).toBe('absolute')
     })
 
-    it('should map "sticky" to "absolute" (RN has no sticky)', () => {
-      expect(classMap.position('sticky')).toBe('absolute')
+    it('should map "sticky" to "relative": an unscrolled sticky box draws where a relative one does', () => {
+      expect(classMap.position('sticky')).toBe('relative')
     })
   })
 
@@ -315,10 +272,16 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   // =================================================================
 
   describe('static RN overrides', () => {
-    it('page should use flex-1 and bg-background', () => {
-      expect(classMap.page).toContain('flex-1')
-      expect(classMap.page).toContain('bg-background')
-      expect(classMap.page).not.toContain('min-h-screen')
+    it("page and headerBar keep the web ClassMap's classes", () => {
+      expect(classMap.page).toBe(tailwindClassMap.page)
+      expect(classMap.headerBar).toBe(tailwindClassMap.headerBar)
+    })
+
+    it("hiddenBelow and hiddenFrom keep the web ClassMap's classes (css-interop evaluates max-* queries)", () => {
+      for (const breakpoint of ['sm', 'md', 'lg', 'xl'] as const) {
+        expect(classMap.hiddenBelow(breakpoint)).toBe(tailwindClassMap.hiddenBelow(breakpoint))
+        expect(classMap.hiddenFrom(breakpoint)).toBe(tailwindClassMap.hiddenFrom(breakpoint))
+      }
     })
 
     it('headerFixed should use absolute instead of fixed', () => {

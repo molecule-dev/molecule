@@ -11,9 +11,11 @@ describe('splitForNative', () => {
       display: 'flex',
       lines: null,
       weight: 700,
+      lineHeight: 20,
       descendants: {},
       grid: null,
       span: {},
+      sized: { width: false, height: false },
     })
   })
 
@@ -24,9 +26,11 @@ describe('splitForNative', () => {
       display: 'block',
       lines: null,
       weight: null,
+      lineHeight: null,
       descendants: {},
       grid: null,
       span: {},
+      sized: { width: false, height: false },
     })
     expect(splitForNative('inline-flex items-center')).toEqual({
       view: 'flex items-center flex-row',
@@ -34,9 +38,11 @@ describe('splitForNative', () => {
       display: 'inline-flex',
       lines: null,
       weight: null,
+      lineHeight: null,
       descendants: {},
       grid: null,
       span: {},
+      sized: { width: false, height: false },
     })
     expect(splitForNative('hidden sm:flex').display).toBe('none')
   })
@@ -72,9 +78,11 @@ describe('splitForNative', () => {
       display: null,
       lines: null,
       weight: null,
+      lineHeight: null,
       descendants: {},
       grid: null,
       span: {},
+      sized: { width: false, height: false },
     })
   })
 
@@ -85,9 +93,11 @@ describe('splitForNative', () => {
       display: null,
       lines: 1,
       weight: null,
+      lineHeight: 20,
       descendants: {},
       grid: null,
       span: {},
+      sized: { width: false, height: false },
     })
     expect(splitForNative('line-clamp-3').lines).toBe(3)
     expect(splitForNative('line-clamp-3 line-clamp-none').lines).toBeNull()
@@ -135,17 +145,26 @@ describe('splitForNative', () => {
     const classes =
       'border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[disabled]:opacity-50'
     expect(splitForNative(classes, '', { state: 'checked' })).toMatchObject({
-      view: 'border bg-primary',
-      text: 'text-primary-foreground',
+      view: 'border !bg-primary',
+      text: '!text-primary-foreground',
     })
     expect(splitForNative(classes, '', { state: 'unchecked', disabled: '' })).toMatchObject({
-      view: 'border opacity-50',
+      view: 'border !opacity-50',
       text: '',
     })
     expect(splitForNative(classes).view).toBe('border')
     expect(splitForNative('dark:data-[state=open]:bg-muted', '', { state: 'open' }).view).toBe(
-      'dark:bg-muted',
+      'dark:!bg-muted',
     )
+  })
+
+  it('ranks an active state class over the plain class it overrides, as the web does', () => {
+    const line = splitForNative(classMap.tabsTrigger({ variant: 'line' }), '', { state: 'active' })
+    expect(line.view).toContain('border-transparent')
+    expect(line.view).toContain('!border-primary')
+    expect(line.text).toContain('!text-primary')
+    // An important text class is still a text class.
+    expect(splitForNative('!text-sm p-1')).toMatchObject({ view: 'p-1', text: '!text-sm' })
   })
 
   it('gives the Tabs trigger its active colours on a device only while it is active', () => {
@@ -159,11 +178,12 @@ describe('splitForNative', () => {
 
   it('reads a grid: its columns, gaps and item alignment at each breakpoint, off the view', () => {
     const split = splitForNative(
-      'grid grid-cols-1 sm:grid-cols-[1fr_2fr] lg:grid-cols-none gap-x-2 gap-y-[10px] md:gap-6 items-center p-4',
+      'grid grid-cols-1 sm:grid-cols-[1fr_2fr] lg:grid-cols-none grid-rows-3 md:grid-rows-[auto_1fr] gap-x-2 gap-y-[10px] md:gap-6 items-center p-4',
     )
     expect(split.display).toBe('grid')
     expect(split.grid).toEqual({
       columns: { '': 1, sm: '1fr 2fr', lg: 1 },
+      rows: { '': 3, md: 'auto 1fr' },
       columnGap: { '': 8, md: 24 },
       rowGap: { '': 10, md: 24 },
       alignItems: { '': 'center' },
@@ -178,6 +198,22 @@ describe('splitForNative', () => {
     expect(split.grid).toBeNull()
     expect(split.view).toBe('gap-4 p-2')
     expect(splitForNative('p-2').span).toEqual({})
+  })
+
+  it("reads the text's line height in pixels, a leading class winning over the size's", () => {
+    expect(splitForNative('text-sm').lineHeight).toBe(20)
+    expect(splitForNative('text-sm leading-relaxed').lineHeight).toBeCloseTo(22.75)
+    expect(splitForNative('leading-6 text-lg').lineHeight).toBe(24)
+    expect(splitForNative('', 'font-document text-base text-foreground').lineHeight).toBe(24)
+    expect(splitForNative('text-[15px] leading-[1.4]').lineHeight).toBeCloseTo(21)
+    expect(splitForNative('p-2 text-primary').lineHeight).toBeNull()
+  })
+
+  it("says which sizes the classes set, which beat a replaced element's size attributes", () => {
+    expect(splitForNative('h-5 w-5').sized).toEqual({ width: true, height: true })
+    expect(splitForNative('size-4').sized).toEqual({ width: true, height: true })
+    expect(splitForNative('md:w-8 text-info').sized).toEqual({ width: true, height: false })
+    expect(splitForNative('min-h-4 max-w-full p-1').sized).toEqual({ width: false, height: false })
   })
 
   it('is the ClassMap member', () => {

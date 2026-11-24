@@ -227,6 +227,6 @@ describe("what an app's Tailwind scan finds", () => {
     const web = [
       "export const tab = 'px-3 data-[state=active]:bg-background dark:data-[disabled]:opacity-50'",
     ]
-    expect(ruleClasses(web, forDevice, stateRule)).toEqual(['bg-background', 'dark:opacity-50'])
+    expect(ruleClasses(web, forDevice, stateRule)).toEqual(['!bg-background', 'dark:!opacity-50'])
   })
 })

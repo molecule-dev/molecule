@@ -6,8 +6,8 @@
 
 import type { NativeClassSplit, NativeGridClasses } from '@molecule/app-ui'
 
-import { descendantRule, splitVariants, stateRule } from './device.js'
-import { lineHeightClass } from './fontSizes.js'
+import { descendantRule, joinClass, splitVariants, stateRule } from './device.js'
+import { lineHeightClass, WEB_FONT_SIZES } from './fontSizes.js'
 
 /** Named font-size utilities: each also sets a line height. */
 const FONT_SIZE = /^text-(?:xs|sm|base|lg|[2-9]?xl)$/
@@ -41,6 +41,58 @@ const WEIGHTS: Readonly<Record<string, number>> = {
 function weightOf(utility: string): number {
   const name = utility.slice('font-'.length)
   return WEIGHTS[name] ?? Number(name.slice(1, -1))
+}
+
+/** The line heights the named `leading-*` utilities set, as multiples of the font size. */
+const LEADING: Readonly<Record<string, number>> = {
+  none: 1,
+  tight: 1.25,
+  snug: 1.375,
+  normal: 1.5,
+  relaxed: 1.625,
+  loose: 2,
+}
+
+/**
+ * The line height, in pixels, of text with these classes at the base size, as the web's
+ * stylesheet resolves it: a `leading-*` class wins over a font size's own line height.
+ *
+ * @param text - Text classes (inherited ones first).
+ * @returns The line height, or `null` when the classes set no font size or line height.
+ */
+function lineHeightOf(text: readonly string[]): number | null {
+  let size: number | null = null
+  let sizeLeading: number | null = null
+  let leading: { px: number } | { ratio: number } | null = null
+  for (const cls of text) {
+    const { variants, utility } = splitVariants(cls)
+    if (variants.length > 0) continue
+    const named = FONT_SIZE.test(utility)
+      ? WEB_FONT_SIZES[utility.slice('text-'.length)]
+      : undefined
+    if (named) {
+      size = Number.parseFloat(named.size) * 16
+      sizeLeading = Number(named.lineHeight)
+      continue
+    }
+    const arbitrary = /^text-\[(\d+(?:\.\d+)?)(px|rem|em)\]$/.exec(utility)
+    if (arbitrary?.[1]) {
+      size = Number(arbitrary[1]) * (arbitrary[2] === 'px' ? 1 : 16)
+      continue
+    }
+    const value = utility.startsWith('leading-') ? utility.slice('leading-'.length) : null
+    if (value === null) continue
+    const ratio = LEADING[value] ?? /^\[(\d+(?:\.\d+)?)\]$/.exec(value)?.[1] ?? null
+    const px = /^\d+(?:\.\d+)?$/.test(value)
+      ? Number(value) * 4
+      : Number(/^\[(\d+(?:\.\d+)?)px\]$/.exec(value)?.[1] ?? Number.NaN)
+    if (ratio !== null) leading = { ratio: Number(ratio) }
+    else if (!Number.isNaN(px)) leading = { px }
+  }
+  if (leading && 'px' in leading) return leading.px
+  const fontSize = size ?? 16
+  if (leading) return fontSize * leading.ratio
+  return size === null || sizeLeading === null ? null : fontSize * sizeLeading
 }
 
 /** Flex-direction utilities. */
@@ -227,10 +279,13 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
   let direction = false
   const descendants: Record<string, string[]> = {}
   const columns: Record<string, number | string> = {}
+  const rows: Record<string, number | string> = {}
   const columnGap: Record<string, number> = {}
   const rowGap: Record<string, number> = {}
   const alignItems: Record<string, NativeGridClasses['alignItems'][string]> = {}
   const span: Record<string, number | 'full'> = {}
+  let sizedWidth = false
+  let sizedHeight = false
   for (const cls of className.split(/\s+/)) {
     if (!cls) continue
     const rule = descendantRule(cls)
@@ -238,7 +293,9 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       ;(descendants[rule.tag] ??= []).push(rule.cls)
       continue
     }
-    const { variants, utility } = splitVariants(cls)
+    const { variants, utility, important } = splitVariants(cls)
+    if (/^(?:w|size)-/.test(utility)) sizedWidth = true
+    if (/^(?:h|size)-/.test(utility)) sizedHeight = true
     // A grid's columns, gaps and item alignment, and a grid item's span, at each breakpoint. A
     // device has no grid layout: the native elements lay one out from these, and the column and
     // span classes, which NativeWind cannot apply, leave the view.
@@ -252,6 +309,15 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       const cols = /^grid-cols-(?:(\d+)|(none)|\[(.+)\])$/.exec(utility)
       if (cols) {
         columns[at] = cols[1] ? Number(cols[1]) : cols[2] ? 1 : (cols[3] ?? '').replace(/_/g, ' ')
+        continue
+      }
+      const gridRows = /^grid-rows-(?:(\d+)|(none)|\[(.+)\])$/.exec(utility)
+      if (gridRows) {
+        rows[at] = gridRows[1]
+          ? Number(gridRows[1])
+          : gridRows[2]
+            ? 0
+            : (gridRows[3] ?? '').replace(/_/g, ' ')
         continue
       }
       const spans = /^col-span-(\d+|full)$/.exec(utility)
@@ -286,11 +352,11 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
     if (DIRECTION.test(utility)) direction = true
     const flow = FLOW_ONLY[utility]
     if (flow === undefined) view.push(cls)
-    else if (flow !== null) view.push([...variants, flow].join(':'))
+    else if (flow !== null) view.push(joinClass(variants, flow, important))
   }
   const inherited = inheritedText.split(/\s+/).flatMap((cls): string[] => {
     if (!cls) return []
-    const { variants, utility } = splitVariants(cls)
+    const { variants, utility, important } = splitVariants(cls)
     const properties = textProperties(utility) ?? []
     const overridden = keys(variants, properties).map((key) => ownKeys.has(key))
     if (overridden.every(Boolean)) return []
@@ -301,7 +367,7 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
     const fontSizeSet = ownKeys.has([...variants, 'font-size'].join(':'))
     const leading =
       FONT_SIZE.test(utility) && fontSizeSet ? lineHeightClass(utility.slice('text-'.length)) : null
-    return leading ? [[...variants, leading].join(':')] : [cls]
+    return leading ? [joinClass(variants, leading, important)] : [cls]
   })
   if (!direction) for (const variants of flexAt) view.push([...variants, 'flex-row'].join(':'))
   const text = [...inherited, ...own]
@@ -317,15 +383,17 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
     display,
     lines,
     weight,
+    lineHeight: lineHeightOf(text),
     descendants:
       tags.length === 0
         ? NO_DESCENDANTS
         : Object.fromEntries(tags.map((tag) => [tag, (descendants[tag] ?? []).join(' ')])),
     grid:
       display === 'grid' || display === 'inline-grid'
-        ? { columns, columnGap, rowGap, alignItems }
+        ? { columns, rows, columnGap, rowGap, alignItems }
         : null,
     span: Object.keys(span).length === 0 ? NO_SPAN : span,
+    sized: { width: sizedWidth, height: sizedHeight },
   }
 }
 

@@ -6,13 +6,17 @@
  */
 
 /**
- * Splits a class into its variants and its utility (`sm:hover:bg-x` →
- * `['sm', 'hover']`, `bg-x`), keeping `:` inside brackets.
+ * Splits a class into its variants, its utility and its important marker (`sm:hover:!bg-x` →
+ * `['sm', 'hover']`, `bg-x`, `true`), keeping `:` inside brackets.
  *
  * @param cls - One class.
- * @returns The variants and the utility.
+ * @returns The variants, the utility without the marker, and whether it is marked important.
  */
-export function splitVariants(cls: string): { variants: string[]; utility: string } {
+export function splitVariants(cls: string): {
+  variants: string[]
+  utility: string
+  important: boolean
+} {
   const parts: string[] = []
   let depth = 0
   let start = 0
@@ -25,7 +29,26 @@ export function splitVariants(cls: string): { variants: string[]; utility: strin
       start = i + 1
     }
   }
-  return { variants: parts, utility: cls.slice(start) }
+  const utility = cls.slice(start)
+  const important = utility.startsWith('!')
+  return { variants: parts, utility: important ? utility.slice(1) : utility, important }
+}
+
+/**
+ * A class from its variants, its utility and its important marker: the inverse of
+ * {@link splitVariants}.
+ *
+ * @param variants - The variants.
+ * @param utility - The utility.
+ * @param important - Whether it is marked important.
+ * @returns The class.
+ */
+export function joinClass(
+  variants: readonly string[],
+  utility: string,
+  important: boolean,
+): string {
+  return [...variants, important ? `!${utility}` : utility].join(':')
 }
 
 /** A variant that styles the element's descendants with one tag (`[&_p]`), capturing the tag. */
@@ -39,12 +62,15 @@ const DESCENDANT = /^\[&_([a-z][a-z0-9]*)\]$/
  * @returns The tag and class, or `null` when the class styles the element itself.
  */
 export function descendantRule(cls: string): { tag: string; cls: string } | null {
-  const { variants, utility } = splitVariants(cls)
+  const { variants, utility, important } = splitVariants(cls)
   const at = variants.findIndex((variant) => DESCENDANT.test(variant))
   if (at === -1) return null
   const tag = DESCENDANT.exec(variants[at] ?? '')?.[1]
   if (!tag) return null
-  return { tag, cls: [...variants.slice(0, at), ...variants.slice(at + 1), utility].join(':') }
+  return {
+    tag,
+    cls: joinClass([...variants.slice(0, at), ...variants.slice(at + 1)], utility, important),
+  }
 }
 
 /** A variant that matches one of the element's own data attributes (`data-[state=open]`, `data-[disabled]`). */
@@ -54,7 +80,10 @@ const DATA_ATTRIBUTE = /^data-\[([a-z][a-z0-9-]*)(?:=([^\]]*))?\]$/
  * The data attributes a class's variants require of its element (`data-[state=checked]:bg-x`
  * requires `data-state="checked"`; `data-[disabled]:` only that `data-disabled` is present) and
  * the class without those variants, which a native element applies when its own attributes match,
- * as the attribute selector does on the web.
+ * as the attribute selector does on the web. The class is marked important (`!bg-x`): on the web
+ * the attribute selector outranks the element's plain classes (`data-[state=active]:border-primary`
+ * beats `border-transparent`), and on a device a class without that rank would lose or win by
+ * where the stylesheet happens to put it.
  *
  * @param cls - One class.
  * @returns The required attributes (a `null` value: present with any value) and the class, or
@@ -72,7 +101,7 @@ export function stateRule(
     else rest.push(variant)
   }
   if (attributes.length === 0) return null
-  return { attributes, cls: [...rest, utility].join(':') }
+  return { attributes, cls: joinClass(rest, utility, true) }
 }
 
 /**
@@ -121,7 +150,7 @@ export function forDevice(classes: string): string {
   let hasBorderColor = false
   for (const cls of classes.split(/\s+/)) {
     if (!cls) continue
-    const { variants, utility } = splitVariants(cls)
+    const { variants, utility, important } = splitVariants(cls)
     if (variants.some(isDeviceOnlyUnsupportedVariant)) continue
     if (utility === 'group' || utility === 'peer') continue
     // A device does not cascade fonts into a text input: there is nothing to inherit.
@@ -131,7 +160,7 @@ export function forDevice(classes: string): string {
     const space = /^(-?)space-([xy])-(.+)$/.exec(utility)
     if (space) {
       if (space[1] || space[3] === 'reverse') continue
-      out.push([...variants, `gap-${space[2]}-${space[3]}`].join(':'))
+      out.push(joinClass(variants, `gap-${space[2]}-${space[3]}`, important))
       continue
     }
     if (utility.startsWith('border')) {

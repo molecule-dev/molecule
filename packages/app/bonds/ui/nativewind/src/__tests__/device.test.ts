@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { descendantRule, forDevice, stateRule } from '../device.js'
+import { descendantRule, forDevice, joinClass, splitVariants, stateRule } from '../device.js'
 
 describe('forDevice', () => {
   it('turns sibling spacing into gap, keeping its variants', () => {
@@ -62,15 +62,34 @@ describe('forDevice', () => {
   })
 })
 
+describe('splitVariants', () => {
+  it('reads the variants, the utility and the important marker, and joinClass rebuilds the class', () => {
+    expect(splitVariants('md:hover:!bg-[a:b]')).toEqual({
+      variants: ['md', 'hover'],
+      utility: 'bg-[a:b]',
+      important: true,
+    })
+    expect(splitVariants('p-0')).toEqual({ variants: [], utility: 'p-0', important: false })
+    for (const cls of ['md:hover:!bg-[a:b]', 'p-0', '!p-0', 'dark:[&_p]:text-x'])
+      expect(
+        joinClass(
+          splitVariants(cls).variants,
+          splitVariants(cls).utility,
+          splitVariants(cls).important,
+        ),
+      ).toBe(cls)
+  })
+})
+
 describe('stateRule', () => {
-  it('reads the data attributes a class requires and the class without them', () => {
+  it('reads the data attributes a class requires and the class without them, marked important', () => {
     expect(stateRule('data-[state=checked]:bg-primary')).toEqual({
       attributes: [{ name: 'state', value: 'checked' }],
-      cls: 'bg-primary',
+      cls: '!bg-primary',
     })
     expect(stateRule('dark:data-[disabled]:opacity-50')).toEqual({
       attributes: [{ name: 'disabled', value: null }],
-      cls: 'dark:opacity-50',
+      cls: 'dark:!opacity-50',
     })
   })
 

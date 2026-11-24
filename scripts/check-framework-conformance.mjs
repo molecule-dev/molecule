@@ -795,6 +795,10 @@ export const TITLE_PARITY_PENDING = 'scripts/test-title-parity-pending.json'
  * never exempt.
  */
 export const TITLE_PARITY_EXEMPT = {
+  [REFERENCE]: {
+    'src/elements/':
+      'tests the renderer-neutral elements (`@molecule/app-ui-react/elements`) one React kit renders with on React DOM and React Native; a Vue, Svelte, Solid or Angular port renders its own DOM, and matches the components built on the elements through the conformance goldens',
+  },
   [BINDING_REFERENCE]: {
     'src/render/':
       "`@molecule/app-react/render` holds helpers for React's render model (committed refs, effect events, stable callbacks), which no other binding has; app-facing hooks live on the root export, which every binding matches",
