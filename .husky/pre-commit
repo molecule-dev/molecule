@@ -381,27 +381,43 @@ if [ -n "$DOC_DIRS" ]; then
       # 2026-10-19. commit-staged-paths.mjs publishes after its CAS lands, each
       # file gated on the destination still holding the attempt's parent.
       DEFERRED_DOCS=""
+      # An explicitly staged README is another writer's input. Never replace it
+      # silently: a staged README that differs from the one generated here refuses
+      # the commit, and the refusal names every such README at once (one attempt
+      # per README cost a 78-README commit ten minutes each, 2026-11-24).
       # Word-split on purpose: the generator prints one package README path per
       # line and such paths carry no whitespace. A here-string would need bash,
       # and husky runs this hook with `sh -e`, not its bash shebang.
+      STALE_STAGED_DOCS=""
+      # shellcheck disable=SC2086
+      for md in $REGENERATED; do
+        [ -n "$md" ] || continue
+        if printf '%s\n' "$DOC_SRC" | grep -Fxq -- "$md" &&
+            [ "$(git rev-parse --verify ":$md" 2>/dev/null || true)" != "$(git hash-object -- "$INDEX_TREE/$md")" ]; then
+          STALE_STAGED_DOCS="${STALE_STAGED_DOCS}    $md
+"
+        fi
+      done
+      if [ -n "$STALE_STAGED_DOCS" ]; then
+        echo "Generated README(s) staged with content that differs from their source:" >&2
+        printf '%s' "$STALE_STAGED_DOCS" >&2
+        echo "Leave them out of the commit (this hook generates and stages each one), or regenerate them from the source being committed." >&2
+        exit 1
+      fi
+      # These are staged AFTER the prettier/eslint pass above, so they would
+      # otherwise enter the commit unchecked — which is how generated docs
+      # stayed off-standard for months. The generator now Prettier-formats its
+      # own output; this asserts that rather than trusting it, reading the
+      # SNAPSHOT being committed (the export of this index, whose node_modules
+      # and Prettier config are the checkout's) — never a peer's worktree copy.
+      # One Prettier run for every README: a run per file cost about a second
+      # each, four minutes for a 232-README commit.
+      # shellcheck disable=SC2086
+      ( cd "$INDEX_TREE" && npx --no-install prettier --check $REGENERATED )
       # shellcheck disable=SC2086
       for md in $REGENERATED; do
         [ -n "$md" ] || continue
         sha=$(git hash-object -w -- "$INDEX_TREE/$md")
-        # An explicitly staged README is another writer's input. Never replace it
-        # silently; a stale generated document must refuse this commit instead.
-        if printf '%s\n' "$DOC_SRC" | grep -Fxq -- "$md" &&
-            [ "$(git rev-parse --verify ":$md" 2>/dev/null || true)" != "$sha" ]; then
-          echo "Generated README has staged changes that differ from its source: $md" >&2
-          echo "Regenerate this README before committing it." >&2
-          exit 1
-        fi
-        # These are staged AFTER the prettier/eslint pass above, so they would
-        # otherwise enter the commit unchecked — which is how generated docs
-        # stayed off-standard for months. The generator now Prettier-formats its
-        # own output; this asserts that rather than trusting it, reading the
-        # SNAPSHOT being committed — never a peer's worktree copy of the file.
-        git cat-file blob "$sha" | npx --no-install prettier --check --stdin-filepath "$md"
         if [ -n "${MOL_PRECOMMIT_MANIFEST:-}" ]; then
           # Speculative private-index attempt: stage it and record it; the caller
           # publishes it to the shared worktree/index after the commit lands.
