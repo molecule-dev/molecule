@@ -321,30 +321,36 @@ export type ElementRole =
 /** `data-*` attributes: `data-mol-id` becomes the native `testID`; the rest are web-only. */
 export type DataAttributes = { [key: `data-${string}`]: string | number | boolean | undefined }
 
+/**
+ * A boolean ARIA value, as React DOM takes one: `true`/`false`, or the attribute's own spelling
+ * `'true'`/`'false'` (`aria-hidden="true"`). A device reads `'false'` as false.
+ */
+export type AriaBoolean = boolean | 'true' | 'false'
+
 /** The accessibility attributes both renderers apply. */
 export interface AriaAttributes {
   'aria-label'?: string
   'aria-labelledby'?: string
   'aria-describedby'?: string
-  'aria-hidden'?: boolean
-  'aria-disabled'?: boolean
-  'aria-expanded'?: boolean
-  'aria-selected'?: boolean
-  'aria-checked'?: boolean | 'mixed'
-  'aria-pressed'?: boolean | 'mixed'
-  'aria-busy'?: boolean
+  'aria-hidden'?: AriaBoolean
+  'aria-disabled'?: AriaBoolean
+  'aria-expanded'?: AriaBoolean
+  'aria-selected'?: AriaBoolean
+  'aria-checked'?: AriaBoolean | 'mixed'
+  'aria-pressed'?: AriaBoolean | 'mixed'
+  'aria-busy'?: AriaBoolean
   'aria-live'?: 'off' | 'polite' | 'assertive'
   'aria-valuenow'?: number
   'aria-valuemin'?: number
   'aria-valuemax'?: number
   'aria-valuetext'?: string
-  'aria-current'?: boolean | 'page' | 'step' | 'location' | 'date' | 'time'
+  'aria-current'?: AriaBoolean | 'page' | 'step' | 'location' | 'date' | 'time'
   'aria-controls'?: string
-  'aria-haspopup'?: boolean | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog'
-  'aria-modal'?: boolean
-  'aria-invalid'?: boolean
-  'aria-required'?: boolean
-  'aria-readonly'?: boolean
+  'aria-haspopup'?: AriaBoolean | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog'
+  'aria-modal'?: AriaBoolean
+  'aria-invalid'?: AriaBoolean
+  'aria-required'?: AriaBoolean
+  'aria-readonly'?: AriaBoolean
   'aria-orientation'?: 'horizontal' | 'vertical'
 }
 
