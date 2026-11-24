@@ -29,16 +29,21 @@
  * ```
  *
  * @remarks
- * - The package looks up `bond('payments', 'stripe')` by default; pass
- *   `provider` or `providerName` to override.
+ * - The routes use the bonded payments provider that can start a checkout
+ *   (`updateSubscription`): Stripe, PayPal or the capture provider alike, the one
+ *   bonded as `'stripe'` when several can. Pass `provider` or `providerName` to choose.
  * - Routes served: `GET /tiers`, `GET /status`, `POST /checkout`,
  *   `POST /cancel`, `POST /portal`. `GET /tiers` returns
  *   `{ data: PricingTierEntry[] }` — derived one-per-`TierDef` by default, or
- *   `options.getPricingTiers()` verbatim for a richer catalogue. `GET /status`
- *   returns `{ planKey, category, name, limits, isFree }` — pass
+ *   `options.getPricingTiers()` for a richer catalogue. A price is for sale only
+ *   when it carries a `stripePriceId`, and it carries one only while the bonded
+ *   provider can start a checkout: a paid tier with no price id (its env var unset)
+ *   is listed with nothing to buy, and a warning names it at boot.
+ * - `GET /status` returns `{ planKey, category, name, limits, isFree }` for the
+ *   user's stored `users.planKey` (read through the bonded `datastore`), the first,
+ *   free tier when it is unset or `planExpiresAt` has passed. Pass
  *   `options.resolveStatus` (e.g. backed by `@molecule/api-entitlements`'s
- *   `getEffectiveTier`) to report the user's real plan; without it the default
- *   free-tier snapshot is returned for any authenticated user.
+ *   `getEffectiveTier`) to report plans from another store.
  * - Mount so the resulting app-facing paths are `/api/billing/...` — the
  *   scaffolded Vite dev proxy forwards `/api` WITHOUT rewriting.
  * - Naming: `@molecule/api-entitlements` exports a DIFFERENT `defineTiers`

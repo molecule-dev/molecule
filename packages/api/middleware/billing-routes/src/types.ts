@@ -176,8 +176,8 @@ export type PriceFormatter = (amountMinor: number, period: 'month' | 'year') => 
  * Kept injectable so this package stays decoupled from any specific
  * entitlements / tier store: flagship apps pass a resolver backed by
  * `@molecule/api-entitlements`'s `getEffectiveTier`. Returning `null` (or not
- * supplying a resolver at all) makes `GET /status` fall back to the default
- * (first / free) tier snapshot derived from the configured tiers.
+ * supplying a resolver at all) makes `GET /status` report the tier matching the user's
+ * stored `planKey` (the first, free tier when it is unset or expired).
  */
 export type BillingStatusResolver<TLimits = unknown> = (
   userId: string,
@@ -199,12 +199,14 @@ export interface BillingRoutesOptions<
   /** The tier accessors returned by `defineTiers()`. */
   tiers: TierAccessors<TLimits>
   /**
-   * Optional injected provider — if omitted, the routes look up
-   * `bond('payments', providerName)`.
+   * Optional injected provider — if omitted, the routes look up the bonded `payments` provider
+   * (see `providerName`).
    */
   provider?: BillingProvider
   /**
-   * Bonded provider name. Defaults to `'stripe'`.
+   * Bonded provider name. When omitted, the routes use the bonded payments provider that can
+   * start a checkout (`updateSubscription`), the one named `'stripe'` when several can, or the
+   * only payments provider bonded.
    */
   providerName?: string
   /**
@@ -230,8 +232,8 @@ export interface BillingRoutesOptions<
   /**
    * Resolves the authenticated user's current billing status for `GET /status`.
    * Injectable so the routes stay decoupled from any specific entitlements
-   * store. When omitted (or when it returns `null`), `GET /status` returns the
-   * default (first / free) tier snapshot for any authenticated user.
+   * store. When omitted (or when it returns `null`), `GET /status` reads the user's
+   * `planKey` from the `users` table through the bonded `datastore` and reports that tier.
    */
   resolveStatus?: BillingStatusResolver<TLimits>
   /**

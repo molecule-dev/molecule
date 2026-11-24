@@ -4,8 +4,8 @@
  * Mounts the full `/billing/*` contract `@molecule/app-billing-react` expects:
  * `GET /tiers`, `GET /status`, `POST /checkout`, `POST /cancel`, and
  * `POST /portal`. The writes (checkout/cancel/portal) run against the bonded
- * `payments` provider (Stripe by default); the reads (tiers/status) serve the
- * configured tiers and the resolved user status. Authenticated routes use the
+ * `payments` provider (the one that can check out, when no name is given); the
+ * reads (tiers/status) serve the configured tiers and the user's plan. Authenticated routes use the
  * supplied `resolveUserId` resolver, and checkout validates that requested
  * price IDs come from the configured tier set.
  *
@@ -23,7 +23,7 @@
 import './secrets.js'
 import { type Request, type Response, type Router as ExpressRouter, Router } from 'express'
 
-import { get as bondGet } from '@molecule/api-bond'
+import { get as bondGet, getAll as bondGetAll } from '@molecule/api-bond'
 import { logger } from '@molecule/api-logger'
 
 import type {
@@ -37,8 +37,55 @@ import type {
   TierDef,
 } from './types.js'
 
-/** Default bond name used when `options.providerName` is not supplied. */
+/**
+ * The bond name preferred when several bonded payments providers could serve the routes and
+ * `options.providerName` names none of them.
+ */
 const DEFAULT_PROVIDER_NAME = 'stripe'
+
+/** A billing provider and the name it is bonded under (the `:provider` of the verify routes). */
+interface ResolvedProvider {
+  name: string
+  provider: BillingProvider
+}
+
+/** The users-table read `GET /status` makes through the bonded `datastore` (`@molecule/api-database`). */
+interface UserStore {
+  findById?(table: string, id: string): Promise<Record<string, unknown> | null>
+}
+
+/** The plan lookup of the bonded `plans` service (`@molecule/api-resource-payment`). */
+interface PlanLookup {
+  findPlan?(
+    planKey: string,
+  ): { title?: string; capabilities?: { premium?: boolean } } | null | undefined
+  registerPlans?(plans: Record<string, unknown>): void
+}
+
+/**
+ * Whether a caught value is the tagged "secret not configured" error a payments bond rethrows
+ * (`statusCode` + `errorKey: 'config.notConfigured'`, as `@molecule/api-payments`'s
+ * `isConfigNotConfiguredError` checks). Kept inline so this package's peer range need not move.
+ *
+ * @param error - The caught value.
+ * @returns `true` when it carries a status code and the config key.
+ */
+const isConfigNotConfigured = (
+  error: unknown,
+): error is Error & { statusCode: number; errorKey: string } =>
+  typeof error === 'object' &&
+  error !== null &&
+  (error as { errorKey?: unknown }).errorKey === 'config.notConfigured' &&
+  typeof (error as { statusCode?: unknown }).statusCode === 'number'
+
+/**
+ * Whether a tier costs nothing: neither price is above zero.
+ *
+ * @param tier - The tier definition.
+ * @returns `true` for a free tier.
+ */
+const isFreeTier = (tier: TierDef<Record<string, unknown>> | undefined): boolean =>
+  !((tier?.priceMonthly ?? 0) > 0 || (tier?.priceYearly ?? 0) > 0)
 
 /**
  * Default price formatter — renders a smallest-currency-unit amount as a USD
@@ -64,11 +111,14 @@ const defaultFormatPrice: PriceFormatter = (amountMinor, period): string => {
  *
  * @param tier - The source tier definition.
  * @param formatPrice - Formatter for the display price string.
+ * @param purchasable - Whether a bonded provider can start a checkout; without one no price
+ *   carries a price id, so the app offers nothing to buy.
  * @returns The frontend-shaped pricing entry.
  */
 const tierDefToPricingEntry = <TLimits extends Record<string, unknown>>(
   tier: TierDef<TLimits>,
   formatPrice: PriceFormatter,
+  purchasable: boolean,
 ): PricingTierEntry<TLimits> => {
   const period: 'month' | 'year' =
     tier.priceYearly != null && tier.priceMonthly == null ? 'year' : 'month'
@@ -80,7 +130,7 @@ const tierDefToPricingEntry = <TLimits extends Record<string, unknown>>(
       {
         period,
         price: formatPrice(amountMinor, period),
-        stripePriceId: tier.stripePriceId ?? null,
+        stripePriceId: purchasable ? (tier.stripePriceId ?? null) : null,
       },
     ],
     limits: (tier.limits ?? {}) as TLimits,
@@ -114,19 +164,34 @@ const sendError = (res: Response, status: number, code: string, message: string)
 }
 
 /**
- * Resolves the billing provider — either the injected one or the bonded
- * `payments:<providerName>` instance.
+ * Resolves the billing provider: the injected one, the bonded `payments:<providerName>` when a
+ * name is given, or else the bonded payments provider that can start a checkout
+ * (`updateSubscription`). Several such providers resolve to the one named `'stripe'`; a stack
+ * with one payments provider of any kind resolves to it (cancel and portal still work).
  *
  * @param options - The billing-routes options.
- * @returns The resolved provider, or `null` if none is bonded.
+ * @returns The provider and its bond name, or `null` if none is bonded.
  */
 const resolveProvider = <TLimits extends Record<string, unknown>>(
   options: BillingRoutesOptions<TLimits>,
-): BillingProvider | null => {
-  if (options.provider) return options.provider
-  const name = options.providerName ?? DEFAULT_PROVIDER_NAME
-  const bonded = bondGet<BillingProvider>('payments', name)
-  return bonded ?? null
+): ResolvedProvider | null => {
+  if (options.provider) {
+    return { name: options.providerName ?? DEFAULT_PROVIDER_NAME, provider: options.provider }
+  }
+  if (options.providerName) {
+    const named = bondGet<BillingProvider>('payments', options.providerName)
+    return named ? { name: options.providerName, provider: named } : null
+  }
+  const bonded = [...bondGetAll<BillingProvider>('payments')]
+  const checkout = bonded.filter(
+    ([, provider]) => typeof provider.updateSubscription === 'function',
+  )
+  const preferred = (
+    entries: Array<[string, BillingProvider]>,
+  ): [string, BillingProvider] | undefined =>
+    entries.length === 1 ? entries[0] : entries.find(([name]) => name === DEFAULT_PROVIDER_NAME)
+  const picked = preferred(checkout) ?? preferred(bonded)
+  return picked ? { name: picked[0], provider: picked[1] } : null
 }
 
 /**
@@ -138,12 +203,14 @@ const resolveProvider = <TLimits extends Record<string, unknown>>(
  * Mounted routes:
  * - `GET /tiers` — public pricing table. Returns
  *   `{ data: PricingTierEntry[] }`. Derives one entry per configured `TierDef`
- *   by default, or serves `options.getPricingTiers()` verbatim when supplied.
- *   No auth.
+ *   by default, or serves `options.getPricingTiers()` when supplied. A price
+ *   carries its `stripePriceId` only while the bonded provider can start a
+ *   checkout, so a price without one is not for sale. No auth.
  * - `GET /status` — the signed-in user's current tier snapshot
  *   `{ planKey, category, name, limits, isFree }`. Returns 401 when
  *   unauthenticated. Uses `options.resolveStatus` when supplied; otherwise
- *   returns the default (first / free) tier snapshot.
+ *   reads the user's `planKey` from the `users` table through the bonded
+ *   `datastore` and reports that tier (the first, free one when unset or expired).
  * - `POST /checkout` — body `{ priceId: string }`. Calls
  *   `provider.updateSubscription({ userId, newProductId: priceId })`. Returns
  *   `{ checkoutUrl }` for new subscriptions or `{ updated, subscription }`
@@ -181,11 +248,9 @@ export const createBillingRoutes = <
   // verification rejects every real purchase with "unknown plan" even though
   // the charge succeeded. Only tiers carrying a platform price id are
   // registered; the free/default plan stays the service's own.
-  const plansBond = bondGet<{
-    registerPlans?: (plans: Record<string, unknown>) => void
-  }>('plans')
+  const plansBond = bondGet<PlanLookup>('plans')
   if (plansBond?.registerPlans) {
-    const providerName = options.providerName ?? 'stripe'
+    const providerName = resolveProvider(options)?.name ?? DEFAULT_PROVIDER_NAME
     const mapped: Record<string, unknown> = {}
     for (const tier of tiers.getPricingTiers()) {
       if (!tier.stripePriceId) continue
@@ -209,6 +274,35 @@ export const createBillingRoutes = <
     } catch (error) {
       logger.warn('billing-routes: failed to register tiers into the plans bond', { error })
     }
+  }
+
+  // A paid tier without a price id cannot be bought: say so once, at boot, rather than serving
+  // a pricing table whose every Upgrade is refused.
+  if (!options.getPricingTiers) {
+    const declared = tiers.getPricingTiers()
+    const unpriced = declared.filter((tier) => !isFreeTier(tier) && !tier.stripePriceId)
+    if (unpriced.length > 0 && unpriced.length === declared.filter((t) => !isFreeTier(t)).length) {
+      logger.warn(
+        `billing-routes: no paid tier has a stripePriceId (${unpriced.map((t) => t.id).join(', ')}), ` +
+          'so GET /tiers offers nothing to buy and checkout refuses every price. Set each paid ' +
+          "tier's stripePriceId (a scaffold's src/billing-tiers.ts reads them from STRIPE_PRICE_* env vars).",
+      )
+    }
+  }
+
+  /**
+   * Passes a provider's "secret not configured" error through with its own status and key
+   * (which env var, where to get it) instead of the route's generic failure.
+   *
+   * @param res - Express response.
+   * @param error - The caught value.
+   * @returns `true` when the error was answered.
+   */
+  const sendConfigError = (res: Response, error: unknown): boolean => {
+    if (!isConfigNotConfigured(error)) return false
+    logger.warn(error.message, { errorKey: error.errorKey })
+    sendError(res, error.statusCode, error.errorKey, error.message)
+    return true
   }
 
   /** Computes the set of valid Stripe price IDs from the configured tiers. */
@@ -239,7 +333,7 @@ export const createBillingRoutes = <
       return
     }
 
-    const provider = resolveProvider(options)
+    const provider = resolveProvider(options)?.provider
     if (!provider?.updateSubscription) {
       sendError(
         res,
@@ -262,6 +356,7 @@ export const createBillingRoutes = <
       }
       sendError(res, 502, 'billing.checkoutFailed', 'Could not start checkout. Try again later.')
     } catch (error) {
+      if (sendConfigError(res, error)) return
       logger.warn('billing.checkout: provider.updateSubscription failed', { error })
       sendError(res, 502, 'billing.checkoutFailed', 'Could not start checkout. Try again later.')
     }
@@ -274,7 +369,7 @@ export const createBillingRoutes = <
       return
     }
 
-    const provider = resolveProvider(options)
+    const provider = resolveProvider(options)?.provider
     if (!provider?.cancelSubscription) {
       sendError(
         res,
@@ -293,6 +388,7 @@ export const createBillingRoutes = <
       }
       res.json({ canceled: true })
     } catch (error) {
+      if (sendConfigError(res, error)) return
       logger.warn('billing.cancel: provider.cancelSubscription failed', { error })
       sendError(res, 502, 'billing.cancelFailed', 'No active subscription to cancel.')
     }
@@ -305,7 +401,7 @@ export const createBillingRoutes = <
       return
     }
 
-    const provider = resolveProvider(options)
+    const provider = resolveProvider(options)?.provider
     if (!provider) {
       sendError(
         res,
@@ -359,6 +455,7 @@ export const createBillingRoutes = <
       }
       res.json({ url: session.url })
     } catch (error) {
+      if (sendConfigError(res, error)) return
       logger.warn('billing.portal: provider.createPortalSession failed', { error })
       sendError(
         res,
@@ -369,30 +466,78 @@ export const createBillingRoutes = <
     }
   })
 
-  /** Builds the `GET /tiers` response — either the injected pricing table or one derived per `TierDef`. */
+  /**
+   * Builds the `GET /tiers` response — either the injected pricing table or one derived per
+   * `TierDef`. A price carries its price id only while a bonded provider can start a checkout
+   * (`updateSubscription`): a receipt-only stack (Apple, Google) lists its tiers with nothing to buy.
+   */
   const buildTiersResponse = (): PricingTiersResponse<TLimits> => {
+    const purchasable = typeof resolveProvider(options)?.provider.updateSubscription === 'function'
     if (options.getPricingTiers) {
-      return { data: [...options.getPricingTiers()] }
+      const data = [...options.getPricingTiers()]
+      return purchasable
+        ? { data }
+        : {
+            data: data.map((entry) => ({
+              ...entry,
+              prices: entry.prices.map((price) => ({ ...price, stripePriceId: null })),
+            })),
+          }
     }
     const formatPrice = options.formatPrice ?? defaultFormatPrice
     return {
-      data: tiers.getPricingTiers().map((tier) => tierDefToPricingEntry(tier, formatPrice)),
+      data: tiers
+        .getPricingTiers()
+        .map((tier) => tierDefToPricingEntry(tier, formatPrice, purchasable)),
     }
   }
 
   /**
-   * Default `GET /status` snapshot when no `resolveStatus` is configured — the
-   * first (cheapest / free) declared tier, reported as the free tier. Apps wire
-   * `resolveStatus` to report the user's real plan.
+   * The status snapshot of one declared tier (the first, free one when `tier` is undefined).
+   *
+   * @param tier - The user's tier.
+   * @returns The snapshot `GET /status` answers.
    */
-  const defaultStatusSnapshot = (): BillingStatusResponse<TLimits> => {
-    const first = tiers.getPricingTiers()[0]
+  const tierSnapshot = (tier: TierDef<TLimits> | undefined): BillingStatusResponse<TLimits> => {
+    const shown = tier ?? tiers.getPricingTiers()[0]
+    const free = isFreeTier(shown)
     return {
-      planKey: first?.id ?? 'free',
-      category: 'free',
-      name: first?.name ?? 'Free',
-      limits: (first?.limits ?? {}) as TLimits,
-      isFree: true,
+      planKey: shown?.id ?? 'free',
+      category: free ? 'free' : (shown?.id ?? 'paid'),
+      name: shown?.name ?? 'Free',
+      limits: (shown?.limits ?? {}) as TLimits,
+      isFree: free,
+    }
+  }
+
+  /**
+   * Default `GET /status`: the user's `planKey` from the `users` table (read through the bonded
+   * `datastore`), matched against the declared tiers, then against the bonded `plans` service. A
+   * plan whose `planExpiresAt` has passed, an empty `planKey` or a stack with no datastore report
+   * the first (free) tier.
+   *
+   * @param userId - The signed-in user.
+   * @returns The user's status snapshot.
+   */
+  const userStatus = async (userId: string): Promise<BillingStatusResponse<TLimits>> => {
+    const store = bondGet<UserStore>('datastore')
+    if (!store?.findById) return tierSnapshot(undefined)
+    const user = await store.findById('users', userId)
+    const planKey = typeof user?.planKey === 'string' ? user.planKey : ''
+    const expiresAt = user?.planExpiresAt
+    const expired = expiresAt != null && Date.parse(String(expiresAt)) < Date.now()
+    if (!planKey || expired) return tierSnapshot(undefined)
+    const tier = tiers.getTierById(planKey)
+    if (tier) return tierSnapshot(tier)
+    const plan = bondGet<PlanLookup>('plans')?.findPlan?.(planKey)
+    if (!plan) return tierSnapshot(undefined)
+    const free = !plan.capabilities?.premium
+    return {
+      planKey,
+      category: free ? 'free' : planKey,
+      name: plan.title ?? planKey,
+      limits: {} as TLimits,
+      isFree: free,
     }
   }
 
@@ -414,7 +559,7 @@ export const createBillingRoutes = <
           res.json(status)
           return
         }
-        // Resolver returned null → fall through to the default snapshot.
+        // Resolver returned null → fall through to the user's stored plan.
       } catch (error) {
         logger.warn('billing.status: resolveStatus failed', { error })
         sendError(
@@ -427,7 +572,12 @@ export const createBillingRoutes = <
       }
     }
 
-    res.json(defaultStatusSnapshot())
+    try {
+      res.json(await userStatus(userId))
+    } catch (error) {
+      logger.warn('billing.status: reading the user plan failed', { error, userId })
+      sendError(res, 502, 'billing.statusFailed', 'Could not load billing status. Try again later.')
+    }
   })
 
   return router

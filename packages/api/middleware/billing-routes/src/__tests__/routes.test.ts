@@ -10,6 +10,9 @@ import type { AddressInfo } from 'node:net'
 import express, { type Express } from 'express'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { bond, unbond } from '@molecule/api-bond'
+import { logger } from '@molecule/api-logger'
+
 import { createBillingRoutes } from '../routes.js'
 import { defineTiers } from '../tiers.js'
 import type { BillingProvider } from '../types.js'
@@ -438,7 +441,10 @@ describe('createBillingRoutes', () => {
     })
 
     it('derives period, display price, and stripePriceId from each TierDef', async () => {
-      const router = createBillingRoutes({ tiers, provider: buildProvider() })
+      const router = createBillingRoutes({
+        tiers,
+        provider: buildProvider({ updateSubscription: vi.fn() }),
+      })
       const app = buildApp(router)
 
       const res = await request<{
@@ -502,7 +508,7 @@ describe('createBillingRoutes', () => {
       ]
       const router = createBillingRoutes<{ maxProjects: number }>({
         tiers: defineTiers([{ id: 'free', name: 'Free', features: [] }]),
-        provider: buildProvider(),
+        provider: buildProvider({ updateSubscription: vi.fn() }),
         getPricingTiers: () => rich,
       })
       const app = buildApp(router)
@@ -510,6 +516,55 @@ describe('createBillingRoutes', () => {
       const res = await request<{ data: typeof rich }>(app, 'GET', '/billing/tiers')
       expect(res.status).toBe(200)
       expect(res.body.data).toEqual(rich)
+    })
+
+    // A receipt-only provider (Apple, Google) cannot start a checkout, so the app must not be
+    // offered an Upgrade it can never complete.
+    it('lists no price id when the provider cannot start a checkout', async () => {
+      const noCheckout = buildProvider({ cancelSubscription: vi.fn() })
+      const derived = await request<{ data: Array<{ prices: Array<{ stripePriceId: unknown }> }> }>(
+        buildApp(createBillingRoutes({ tiers, provider: noCheckout })),
+        'GET',
+        '/billing/tiers',
+      )
+      expect(derived.body.data.flatMap((tier) => tier.prices.map((p) => p.stripePriceId))).toEqual([
+        null,
+        null,
+        null,
+      ])
+
+      const rich = [
+        {
+          key: 'pro',
+          name: 'Pro',
+          prices: [{ period: 'month' as const, price: '$19/mo', stripePriceId: 'price_month' }],
+          limits: {},
+        },
+      ]
+      const served = await request<{ data: Array<{ prices: Array<{ stripePriceId: unknown }> }> }>(
+        buildApp(createBillingRoutes({ tiers, provider: noCheckout, getPricingTiers: () => rich })),
+        'GET',
+        '/billing/tiers',
+      )
+      expect(served.body.data[0].prices[0].stripePriceId).toBeNull()
+    })
+
+    it('warns at creation when no paid tier has a price id', () => {
+      const warn = vi.spyOn(logger, 'warn')
+      createBillingRoutes({
+        tiers: defineTiers([
+          { id: 'free', name: 'Free', features: [], priceMonthly: 0 },
+          { id: 'pro', name: 'Pro', features: [], priceMonthly: 900 },
+        ]),
+        provider: buildProvider(),
+      })
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('no paid tier has a stripePriceId (pro)'),
+      )
+
+      warn.mockClear()
+      createBillingRoutes({ tiers, provider: buildProvider() })
+      expect(warn).not.toHaveBeenCalled()
     })
   })
 
@@ -580,6 +635,78 @@ describe('createBillingRoutes', () => {
       expect(res.body.isFree).toBe(true)
     })
 
+    describe('from the stored plan', () => {
+      const users = new Map<string, Record<string, unknown>>()
+      const store = { findById: vi.fn(async (_table: string, id: string) => users.get(id) ?? null) }
+
+      beforeEach(() => {
+        users.clear()
+        bond('datastore', store)
+      })
+      afterEach(() => {
+        unbond('datastore')
+        unbond('plans')
+      })
+
+      it("reports the tier matching the user's planKey", async () => {
+        users.set('user_42', { id: 'user_42', planKey: 'pro_monthly' })
+        const res = await request<Record<string, unknown>>(
+          buildApp(createBillingRoutes({ tiers, provider: buildProvider() })),
+          'GET',
+          '/billing/status',
+        )
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({
+          planKey: 'pro_monthly',
+          category: 'pro_monthly',
+          name: 'Pro Monthly',
+          limits: {},
+          isFree: false,
+        })
+        expect(store.findById).toHaveBeenCalledWith('users', 'user_42')
+      })
+
+      it('reports the free tier for a plan that has expired or is unset', async () => {
+        const app = buildApp(createBillingRoutes({ tiers, provider: buildProvider() }))
+        users.set('user_42', { planKey: 'pro_monthly', planExpiresAt: '2020-01-01T00:00:00Z' })
+        expect(
+          (await request<{ planKey: string }>(app, 'GET', '/billing/status')).body.planKey,
+        ).toBe('free')
+        users.set('user_42', { planKey: null })
+        const unset = await request<{ planKey: string; isFree: boolean }>(
+          app,
+          'GET',
+          '/billing/status',
+        )
+        expect(unset.body).toMatchObject({ planKey: 'free', isFree: true })
+      })
+
+      it('reports a plan of the bonded plans service that is not a declared tier', async () => {
+        bond('plans', {
+          findPlan: (key: string) =>
+            key === 'stripeYearly' ? { title: 'Yearly', capabilities: { premium: true } } : null,
+        })
+        users.set('user_42', { planKey: 'stripeYearly' })
+        const res = await request<Record<string, unknown>>(
+          buildApp(createBillingRoutes({ tiers, provider: buildProvider() })),
+          'GET',
+          '/billing/status',
+        )
+        expect(res.body).toMatchObject({ planKey: 'stripeYearly', name: 'Yearly', isFree: false })
+      })
+
+      it('returns 502 when the user cannot be read', async () => {
+        store.findById.mockRejectedValueOnce(new Error('db down'))
+        const res = await request<{ code: string }>(
+          buildApp(createBillingRoutes({ tiers, provider: buildProvider() })),
+          'GET',
+          '/billing/status',
+        )
+        expect(res.status).toBe(502)
+        expect(res.body.code).toBe('billing.statusFailed')
+      })
+    })
+
     it('returns 502 when resolveStatus throws', async () => {
       const resolveStatus = vi.fn().mockRejectedValue(new Error('boom'))
       const router = createBillingRoutes({ tiers, provider: buildProvider(), resolveStatus })
@@ -636,6 +763,73 @@ describe('createBillingRoutes', () => {
       const res = await request<{ code: string }>(app, 'POST', '/billing/portal')
       expect(res.status).toBe(503)
       expect(res.body.code).toBe('billing.providerUnavailable')
+    })
+
+    it('checks out with the one bonded provider that can, whatever its name', async () => {
+      const updateSubscription = vi.fn().mockResolvedValue({
+        updated: false,
+        checkoutUrl: 'https://paypal.example.com/approve',
+      })
+      bond('payments', 'paypal', { providerName: 'paypal', updateSubscription } as BillingProvider)
+      bond('payments', 'apple', { providerName: 'apple' } as BillingProvider)
+      try {
+        const res = await request<{ checkoutUrl: string }>(
+          buildApp(createBillingRoutes({ tiers })),
+          'POST',
+          '/billing/checkout',
+          { priceId: 'price_pro_monthly' },
+        )
+        expect(res.status).toBe(200)
+        expect(res.body.checkoutUrl).toBe('https://paypal.example.com/approve')
+      } finally {
+        unbond('payments', 'paypal')
+        unbond('payments', 'apple')
+      }
+    })
+
+    it("prefers the provider bonded as 'stripe' when several can check out", async () => {
+      const stripe = vi.fn().mockResolvedValue({ updated: false, checkoutUrl: 'https://stripe' })
+      const paypal = vi.fn().mockResolvedValue({ updated: false, checkoutUrl: 'https://paypal' })
+      bond('payments', 'paypal', {
+        providerName: 'paypal',
+        updateSubscription: paypal,
+      } as BillingProvider)
+      bond('payments', 'stripe', {
+        providerName: 'stripe',
+        updateSubscription: stripe,
+      } as BillingProvider)
+      try {
+        const res = await request<{ checkoutUrl: string }>(
+          buildApp(createBillingRoutes({ tiers })),
+          'POST',
+          '/billing/checkout',
+          { priceId: 'price_pro_monthly' },
+        )
+        expect(res.body.checkoutUrl).toBe('https://stripe')
+        expect(paypal).not.toHaveBeenCalled()
+      } finally {
+        unbond('payments', 'paypal')
+        unbond('payments', 'stripe')
+      }
+    })
+
+    it("passes a provider's missing-secret error through with its own status and key", async () => {
+      const missing = Object.assign(new Error('STRIPE_SECRET_KEY is not set.'), {
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
+      const provider = buildProvider({ updateSubscription: vi.fn().mockRejectedValue(missing) })
+      const res = await request<{ code: string; message: string }>(
+        buildApp(createBillingRoutes({ tiers, provider })),
+        'POST',
+        '/billing/checkout',
+        { priceId: 'price_pro_monthly' },
+      )
+      expect(res.status).toBe(503)
+      expect(res.body).toEqual({
+        code: 'config.notConfigured',
+        message: 'STRIPE_SECRET_KEY is not set.',
+      })
     })
 
     it('honors a custom resolveUserId implementation', async () => {
