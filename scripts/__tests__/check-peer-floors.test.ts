@@ -543,6 +543,45 @@ describe('versionCommit', () => {
     expect(versionCommit(root, join(root, 'pkg'), '1.2.0')).toBeNull()
     rmSync(root, { recursive: true, force: true })
   })
+
+  // The pre-commit hook and the release run the check from an export of the repository, with no
+  // .git (2026-11-24: every commit raising a peer to a versioned, unpublished floor was refused).
+  describe('from an export of the repository', () => {
+    const exported = (root: string): string => {
+      const out = tree({})
+      const archive = execFileSync('git', ['archive', '--format=tar', 'HEAD'], { cwd: root })
+      execFileSync('tar', ['-x', '-C', out], { input: archive })
+      return out
+    }
+
+    it('reads the history of the repository MOL_INDEX_REPO names', () => {
+      const root = history(['1.0.0', '1.1.0', '1.1.0'])
+      const out = exported(root)
+      vi.stubEnv('MOL_INDEX_REPO', root)
+      try {
+        expect(subject(root, versionCommit(out, join(out, 'pkg'), '1.1.0')!)).toBe('c1')
+      } finally {
+        vi.unstubAllEnvs()
+        rmSync(root, { recursive: true, force: true })
+        rmSync(out, { recursive: true, force: true })
+      }
+    })
+
+    it('names MOL_INDEX_REPO when the tree has no history and nothing names it', () => {
+      const root = history(['1.0.0', '1.1.0'])
+      const out = exported(root)
+      vi.stubEnv('MOL_INDEX_REPO', '')
+      try {
+        expect(() => versionCommit(out, join(out, 'pkg'), '1.1.0')).toThrow(
+          /is no repository: run it in the checkout, or name the checkout in MOL_INDEX_REPO/,
+        )
+      } finally {
+        vi.unstubAllEnvs()
+        rmSync(root, { recursive: true, force: true })
+        rmSync(out, { recursive: true, force: true })
+      }
+    })
+  })
 })
 
 describe('raisedRange', () => {

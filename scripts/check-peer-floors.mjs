@@ -590,13 +590,46 @@ const exportCache = new Map()
 const execFileAsync = promisify(execFile)
 
 /**
- * Run git in a repository.
+ * The repository whose history the check reads: the one `MOL_INDEX_REPO` names when the check
+ * runs from an export of it (`scripts/run-on-index.mjs` in the pre-commit hook, the release's
+ * committed tree), neither of which has a `.git`, else the root itself. The export's paths are the
+ * repository's, so a path relative to the root names the same file in the history.
  *
- * @param root - The repository.
- * @returns A function that runs git with the given arguments and returns its output.
+ * @param root - The tree the check reads.
+ * @param env - The environment.
+ * @returns The repository to run git in.
  */
-const gitAt = (root) => (args) =>
-  execFileSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 })
+export function historyRepo(root, env = process.env) {
+  return env.MOL_INDEX_REPO || root
+}
+
+/**
+ * Run git in the repository whose history the check reads ({@link historyRepo}).
+ *
+ * @param root - The tree the check reads.
+ * @returns A function that runs git with the given arguments and returns its output.
+ * @throws {Error} When that directory is no repository, naming the fix.
+ */
+const gitAt = (root) => {
+  const repo = historyRepo(root)
+  return (args) => {
+    try {
+      return execFileSync('git', args, {
+        cwd: repo,
+        encoding: 'utf8',
+        maxBuffer: 1 << 28,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+    } catch (error) {
+      if (/not a git repository/.test(String(error.stderr)))
+        throw new Error(
+          `check-peer-floors reads an unpublished version's commit from git history, and ${repo} is no repository: run it in the checkout, or name the checkout in MOL_INDEX_REPO (scripts/run-on-index.mjs does)`,
+          { cause: error },
+        )
+      throw error
+    }
+  }
+}
 
 /**
  * The commit that set a workspace package's version to `version`: a release publishes the
@@ -658,7 +691,7 @@ export function versionedExports(root, dir, version, entry = '.') {
       if (!existsSync(join(out, 'node_modules')))
         symlinkSync(join(root, 'node_modules'), join(out, 'node_modules'))
       const archive = execFileSync('git', ['archive', '--format=tar', commit, '--', rel], {
-        cwd: root,
+        cwd: historyRepo(root),
         maxBuffer: 1 << 28,
       })
       execFileSync('tar', ['-x', '-C', out], { input: archive })
