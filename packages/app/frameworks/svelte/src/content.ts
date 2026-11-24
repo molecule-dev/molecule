@@ -19,9 +19,23 @@
  * @returns Those children, in order.
  */
 export function contentNodes(node: Node): ChildNode[] {
-  return Array.from(node.childNodes).filter(
-    (child) => child.nodeType === 1 || (child.nodeType === 3 && (child.textContent ?? '') !== ''),
-  )
+  return Array.from(node.childNodes).filter(isContentNode)
+}
+
+/**
+ * Whether one node renders something: an element, or a text node with text. Comments and empty
+ * text nodes are Svelte's own anchors (and other components' placeholders), not content.
+ *
+ * @example
+ * ```ts
+ * isContentNode(document.createComment('')) // false
+ * ```
+ *
+ * @param node - The node.
+ * @returns True when it renders something.
+ */
+export function isContentNode(node: Node): boolean {
+  return node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '') !== '')
 }
 
 /**
