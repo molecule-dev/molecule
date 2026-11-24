@@ -92,7 +92,10 @@ describe('the preset', () => {
   it('names every colour token of base.css, as a variable a theme can change', () => {
     const preset = compile.loadPreset('ios')
     const colors = preset.theme.extend.colors
-    expect(Object.keys(colors)).toEqual(colorTokens.map((token) => token.name))
+    // Each token is a function of the opacity; the default palette's colours are plain values.
+    expect(Object.keys(colors).filter((name) => typeof colors[name] === 'function')).toEqual(
+      colorTokens.map((token) => token.name),
+    )
     expect(colors['surface-container']({})).toBe('var(--color-surface-container)')
     expect(colors.primary({ opacityValue: '0.25' })).toBe('rgb(var(--color-primary-rgb) / 0.25)')
     expect(preset.darkMode).toBe('class')
@@ -120,6 +123,16 @@ describe('the preset', () => {
     // forDevice colours it there).
     expect(web.css).toMatch(/\*,\s*::before,\s*::after \{[^}]*border-color: currentColor/)
     expect(css).toMatch(/\.duration-250 \{\s*transition-duration: 250ms/)
+  })
+
+  it("paints the default palette in the web's (v4) colours, on a device and on Expo web", async () => {
+    const classes = ['text-gray-400', 'bg-red-500', 'border-slate-900', 'bg-black']
+    for (const os of ['ios', undefined]) {
+      const { css } = await compile.tailwindCss(classes, os)
+      expect(css).toMatch(/\.text-gray-400 \{\s*color: #99a1af/)
+      expect(css).toMatch(/\.bg-red-500 \{\s*background-color: #fb2c36/)
+      expect(css).toMatch(/\.bg-black \{\s*background-color: #000/)
+    }
   })
 })
 

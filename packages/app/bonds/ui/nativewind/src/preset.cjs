@@ -20,7 +20,8 @@
  *   still paints. `@molecule/app-theme-nativewind` supplies the active theme.
  * - `dark:` follows the theme bond (`darkMode: 'class'`), not only the OS.
  * - Where Tailwind v3 (NativeWind) and v4 (the web) give a class different
- *   values, this preset uses the web's.
+ *   values, this preset uses the web's: the default palette (`text-gray-400`) is
+ *   v4's, as the web paints it (generated into `preset-palette.cjs`).
  *
  * The token names and defaults are generated into `preset-tokens.cjs` at build
  * time from `@molecule/app-ui-tailwind`'s token table, so there is no second
@@ -37,6 +38,7 @@ const process = require('node:process')
 
 const { defaults, names } = require('./preset-tokens.cjs')
 const fontSizes = require('./preset-font-sizes.cjs')
+const palette = require('./preset-palette.cjs')
 
 /** Whether Tailwind is building for a device (NativeWind sets `NATIVEWIND_OS`; unset means web). */
 const native = ['ios', 'android', 'native'].includes(process.env.NATIVEWIND_OS ?? '')
@@ -224,7 +226,7 @@ module.exports = {
   },
   theme: {
     extend: {
-      colors,
+      colors: { ...palette, ...colors },
       ...webScales,
       ...animations,
       fontFamily: { ...fontRoles, ...documentFont, ...webFonts },
