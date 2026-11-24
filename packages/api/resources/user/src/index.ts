@@ -277,13 +277,16 @@
  * login / signup / logout — do NOT hand-roll those against the raw routes. The rest have NO
  * client method; call them with raw `http.*`. Use these EXACT paths — a weak model guesses
  * `/api/auth/*` or `/api/user` (singular), and neither exists:
- * - `POST   /api/users/forgot-password` — request a reset email (body `{ email }`); answers 501
- *   `user.error.passwordResetUnavailable` until an email provider is bonded
- * - `POST   /api/users/reset-password` — confirm with the emailed token (body `{ token, password }`)
+ * - `POST   /api/users/forgot-password` — request a reset email (body `{ email }`) · `POST
+ *   /api/users/reset-password` — confirm with the emailed token (body `{ token, password }`).
+ *   A scaffold mounts these two (`emailsRouter`) only with an email provider; mounted without
+ *   one, forgot-password answers 501 `user.error.passwordResetUnavailable`
  * - `PATCH  /api/users/:id` — update profile fields (name, username, email, bio); NOT `PUT /api/user`
  * - `PATCH  /api/users/:id/password` — change password · `DELETE /api/users/:id` — delete account
  * - `PATCH  /api/users/:id/plan` — update the subscription plan (a paid plan with no
- *   existing subscription answers 201 `{ checkoutUrl }`; send the browser there)
+ *   existing subscription answers 201 `{ checkoutUrl }`; send the browser there). This and
+ *   the two payment routes below come with a payments provider (`paymentsRouter`), and
+ *   `POST /api/users/:id/verify-two-factor` with a two-factor provider (`twoFactorRouter`)
  * - `POST   /api/users/:id/verify-payment/:provider` — confirm a purchase server-side
  *   (body/query `subscriptionId`); the provider returns the buyer to the APP's
  *   `/plan-updated?provider=…&sessionId=…`, and THAT page calls this from the app

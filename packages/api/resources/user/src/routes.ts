@@ -42,17 +42,21 @@ export const routes = [
   // `:id`. [M1-1] under the in-memory-token model logout MUST clear the httpOnly
   // cookie, else cookie-restore re-logs-in on the next load.
   { method: 'post' as const, path: '/users/logout', middlewares: ['auth'], handler: 'logout' },
+  // Password reset by email — the reset link is sent by the bonded email transport, so
+  // these routes come with one ('emails'): without it forgot-password can only answer 501.
   {
     method: 'post' as const,
     path: '/users/forgot-password',
     middlewares: ['rateLimitAuth'],
     handler: 'forgotPassword',
+    optional: 'emails',
   },
   {
     method: 'post' as const,
     path: '/users/reset-password',
     middlewares: ['rateLimitAuth'],
     handler: 'resetPassword',
+    optional: 'emails',
   },
 
   // Current user — session restore. MUST precede `/users/:id` so `me` isn't
@@ -79,6 +83,8 @@ export const routes = [
     path: '/users/:id/verify-two-factor',
     middlewares: ['authSelf', 'rateLimitTwoFactor'],
     handler: 'verifyTwoFactor',
+    // Set-up and checks go through the bonded two-factor provider (@molecule/api-two-factor).
+    optional: 'two-factor',
   },
 
   // Plans
@@ -87,6 +93,7 @@ export const routes = [
     path: '/users/:id/plan',
     middlewares: ['authSelf'],
     handler: 'updatePlan',
+    optional: 'payments',
   },
 
   // Payment verification — GET (redirect callbacks, e.g. Stripe Checkout). [M3-1]

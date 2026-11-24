@@ -31,16 +31,6 @@ router.post('/users/log-in', rateLimitAuth, async (req, res) => {
 })
 
 router.post('/users/logout', auth, createRequestHandler(handlers.logout()))
-router.post(
-  '/users/forgot-password',
-  rateLimitAuth,
-  createRequestHandler(handlers.forgotPassword(resource)),
-)
-router.post(
-  '/users/reset-password',
-  rateLimitAuth,
-  createRequestHandler(handlers.resetPassword(resource)),
-)
 
 // Keep current-user lookup before the parameterized route.
 router.get('/users/me', auth, createRequestHandler(handlers.readSelf(resource)))
@@ -52,13 +42,6 @@ router.patch(
   authSelf,
   createRequestHandler(handlers.updatePassword(resource)),
 )
-router.post(
-  '/users/:id/verify-two-factor',
-  authSelf,
-  rateLimitTwoFactor,
-  createRequestHandler(handlers.verifyTwoFactor(resource)),
-)
-router.patch('/users/:id/plan', authSelf, createRequestHandler(handlers.updatePlan(resource)))
 
 // Feature routers are mounted by the app when the corresponding provider is installed.
 /** OAuth initiation and credential exchange routes. */
@@ -74,8 +57,35 @@ oauthRouter.post(
   createRequestHandler(handlers.logInOAuth(resource)),
 )
 
-/** Authenticated billing routes and the provider webhook. */
+/** Password reset by email: the bonded email transport sends the reset link. */
+export const emailsRouter = Router()
+emailsRouter.post(
+  '/users/forgot-password',
+  rateLimitAuth,
+  createRequestHandler(handlers.forgotPassword(resource)),
+)
+emailsRouter.post(
+  '/users/reset-password',
+  rateLimitAuth,
+  createRequestHandler(handlers.resetPassword(resource)),
+)
+
+/** Two-factor set-up, enabling and disabling, checked by the bonded two-factor provider. */
+export const twoFactorRouter = Router()
+twoFactorRouter.post(
+  '/users/:id/verify-two-factor',
+  authSelf,
+  rateLimitTwoFactor,
+  createRequestHandler(handlers.verifyTwoFactor(resource)),
+)
+
+/** Plan changes, authenticated billing routes and the provider webhook. */
 export const paymentsRouter = Router()
+paymentsRouter.patch(
+  '/users/:id/plan',
+  authSelf,
+  createRequestHandler(handlers.updatePlan(resource)),
+)
 const verifyPayment = createRequestHandler(handlers.verifyPayment(resource))
 paymentsRouter.get('/users/:id/verify-payment/:provider', authSelf, verifyPayment)
 paymentsRouter.post('/users/:id/verify-payment/:provider', authSelf, verifyPayment)

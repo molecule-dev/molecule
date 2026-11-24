@@ -6,7 +6,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createRequestHandler, type MoleculeRequestHandler } from '@molecule/api-resource'
 
 import { createRequestHandlerMap, routes } from '../index.js'
-import router, { oauthRouter, paymentsRouter } from '../scaffold-router.js'
+import * as featureRouters from '../scaffold-router.js'
+import router from '../scaffold-router.js'
 
 vi.mock('@molecule/api-resource-user', () => import('../index.js'))
 
@@ -30,7 +31,10 @@ beforeAll(async () => {
     factoryRouter[route.method](route.path, ...chain)
   }
   app.use('/factory', factoryRouter)
-  app.use('/editable', router, oauthRouter, paymentsRouter)
+  const features = Object.entries(featureRouters)
+    .filter(([name]) => name !== 'default')
+    .map(([, featureRouter]) => featureRouter as Router)
+  app.use('/editable', router, ...features)
   app.use('/core', router)
   app.use(((error, _req, res, next) => {
     if (typeof error === 'string' && error.startsWith('Unauthorized')) {
@@ -82,4 +86,28 @@ describe('editable user router', () => {
     const response = await fetch(`${origin}/core/users/example/verify-payment/stripe`)
     expect(response.status).toBe(404)
   })
+
+  // A route marked `optional: <feature>` needs a package the stack may not have (an email
+  // transport sends the reset link, a two-factor provider checks the code, payments owns the
+  // plan). The scaffold mounts `<feature>Router` only when a package with that feature is in the
+  // stack, so the base router must not serve it: without an email transport, forgot-password
+  // answered 501 on every request of an app that offered the page.
+  it.each(routes.filter((route) => route.optional))(
+    'serves $method $path (optional: $optional) from its feature router only',
+    ({ method, path, optional }) => {
+      const served = (candidate: Router): boolean =>
+        candidate.stack.some(
+          (layer) =>
+            layer.route?.path === path &&
+            (layer.route as unknown as { methods: Record<string, boolean> }).methods[method],
+        )
+      const feature = String(optional).replace(/-(\w)/g, (_match, letter: string) =>
+        letter.toUpperCase(),
+      )
+      const featureRouter = featureRouters[`${feature}Router`]
+      expect(featureRouter, `scaffold-router.ts exports no ${feature}Router`).toBeDefined()
+      expect(served(featureRouter as Router)).toBe(true)
+      expect(served(router)).toBe(false)
+    },
+  )
 })
