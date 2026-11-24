@@ -834,9 +834,15 @@ export interface UIClassMapNativeSplit {
    *
    * @param className - The element's classes.
    * @param inheritedText - The text classes in effect for its container's text.
+   * @param data - The element's `data-*` attributes by name without the prefix (`{ state: 'open' }`):
+   *   a class with a `data-[state=open]:` variant applies only when they match, as on the web.
    * @returns The view classes, the text classes in effect for its own text, and its display.
    */
-  splitForNative?(className: string, inheritedText?: string): NativeClassSplit
+  splitForNative?(
+    className: string,
+    inheritedText?: string,
+    data?: Readonly<Record<string, string | undefined>>,
+  ): NativeClassSplit
   /**
    * The text classes a browser's stylesheet gives a `<button>` (its text is centred), which a
    * native button hands to its text beneath the button's own classes.

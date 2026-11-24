@@ -6,7 +6,7 @@
 
 import type { NativeClassSplit } from '@molecule/app-ui'
 
-import { descendantRule, splitVariants } from './device.js'
+import { descendantRule, splitVariants, stateRule } from './device.js'
 import { lineHeightClass } from './fontSizes.js'
 
 /** Named font-size utilities: each also sets a line height. */
@@ -133,19 +133,53 @@ const keys = (variants: readonly string[], properties: readonly string[]): strin
  * child's `leading-6` keeps an inherited `text-sm` (its font size) while overriding its line
  * height, because `leading-*` comes after `text-*` in the stylesheet on the web and on a device.
  * A class for descendants with one tag (`[&_p]:leading-relaxed`) goes to `descendants` instead.
+ * A class that requires data attributes (`data-[state=checked]:bg-primary`) applies, without
+ * those variants, only when the element's `data` match them.
  *
  * @param className - The element's classes.
  * @param inheritedText - The text classes in effect for its container's text.
+ * @param data - The element's data attributes, by name without `data-`.
  * @returns The split classes.
  */
-export function splitForNative(className: string, inheritedText = ''): NativeClassSplit {
-  const key = `${className}\u0000${inheritedText}`
+export function splitForNative(
+  className: string,
+  inheritedText = '',
+  data?: Readonly<Record<string, string | undefined>>,
+): NativeClassSplit {
+  const resolved = withState(className, data)
+  const key = `${resolved}\u0000${inheritedText}`
   const cached = CACHE.get(key)
   if (cached) return cached
-  const split = computeSplit(className, inheritedText)
+  const split = computeSplit(resolved, inheritedText)
   if (CACHE.size >= CACHE_LIMIT) CACHE.clear()
   CACHE.set(key, split)
   return split
+}
+
+/**
+ * The classes that apply to an element with these data attributes: a class whose `data-[…]`
+ * variants all match, without them, and every class that requires none.
+ *
+ * @param className - The element's classes.
+ * @param data - Its data attributes, by name without `data-`.
+ * @returns The classes.
+ */
+function withState(
+  className: string,
+  data: Readonly<Record<string, string | undefined>> = {},
+): string {
+  if (!className.includes('data-[')) return className
+  return className
+    .split(/\s+/)
+    .flatMap((cls) => {
+      const rule = cls ? stateRule(cls) : null
+      if (!rule) return cls ? [cls] : []
+      const matches = rule.attributes.every(({ name, value }) =>
+        value === null ? data[name] !== undefined : data[name] === value,
+      )
+      return matches ? [rule.cls] : []
+    })
+    .join(' ')
 }
 
 /**

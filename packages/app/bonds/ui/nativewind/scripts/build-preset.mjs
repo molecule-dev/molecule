@@ -17,13 +17,13 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { colorTokens, themeVariables } from '@molecule/app-ui-tailwind'
 
-import { descendantRule, forDevice } from '../dist/device.js'
+import { descendantRule, forDevice, stateRule } from '../dist/device.js'
 import { FONT_SIZE_VARIANTS, lineHeightClass, WEB_FONT_SIZES } from '../dist/fontSizes.js'
 import {
-  descendantClasses,
   deviceOnlyClasses,
   flexRowClasses,
   inlineSourceClasses,
+  ruleClasses,
 } from './device-classes.mjs'
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url))
@@ -71,8 +71,10 @@ const deviceClasses = [
     ...inlineClasses.filter(Boolean),
     // The direction of a flex container that names none, which splitForNative writes at run time.
     ...flexRowClasses([...webFiles, inlineClasses.join(' ')]),
-    // What a descendant applies from its container's `[&_tag]:` rule, which the native elements write.
-    ...descendantClasses(webFiles, forDevice, descendantRule),
+    // What a descendant applies from its container's `[&_tag]:` rule, and what an element applies
+    // when its data attributes match a `data-[…]:` class, which the native elements write.
+    ...ruleClasses(webFiles, forDevice, descendantRule),
+    ...ruleClasses(webFiles, forDevice, stateRule),
     // The line height alone of an inherited size, which splitForNative writes at run time.
     ...Object.keys(WEB_FONT_SIZES).flatMap((name) =>
       FONT_SIZE_VARIANTS.map((variant) => `${variant}${lineHeightClass(name)}`),

@@ -36,21 +36,22 @@ export function deviceOnlyClasses(texts, forDevice) {
 }
 
 /**
- * The classes descendants apply from their containers' descendant rules (`[&_p]:leading-relaxed`
- * makes a `p` apply `leading-relaxed`), which the native elements write at run time and no file
- * names alone.
+ * The classes the native elements apply at run time in place of a class with a rule, which no
+ * file names alone: a descendant's class from its container's `[&_p]:leading-relaxed`
+ * (`leading-relaxed`), or a class whose data attributes match (`data-[state=checked]:bg-primary`
+ * is `bg-primary`).
  *
  * @param {string[]} texts - The files Tailwind scans for the web ClassMap.
  * @param {(classes: string) => string} forDevice - The device rewrite.
- * @param {(cls: string) => { tag: string, cls: string } | null} descendantRule - Reads a class's rule.
+ * @param {(cls: string) => { cls: string } | null} rule - Reads a class's rule.
  * @returns {string[]} The classes, sorted.
  */
-export function descendantClasses(texts, forDevice, descendantRule) {
+export function ruleClasses(texts, forDevice, rule) {
   const found = new Set()
   for (const word of new Set(texts.flatMap(words)))
     for (const cls of forDevice(word).split(/\s+/)) {
-      const rule = cls ? descendantRule(cls) : null
-      if (rule) found.add(rule.cls)
+      const read = cls ? rule(cls) : null
+      if (read) found.add(read.cls)
     }
   return [...found].sort()
 }

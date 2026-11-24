@@ -16,14 +16,14 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { colorTokens, themeVariables } from '@molecule/app-ui-tailwind'
 
 import {
-  descendantClasses,
   deviceOnlyClasses,
   expandBraces,
   inlineSourceClasses,
+  ruleClasses,
   words,
 } from '../../scripts/device-classes.mjs'
 import { classMap } from '../classMap.js'
-import { descendantRule, forDevice } from '../device.js'
+import { descendantRule, forDevice, stateRule } from '../device.js'
 
 interface Compile {
   loadPreset(os: string | undefined): {
@@ -75,13 +75,15 @@ const staticClasses = (() => {
   )
   for (const variant of ['default', 'info', 'success', 'warning', 'error'] as const)
     strings.push(classMap.alert({ variant }), classMap.toast({ variant }))
-  // A descendant rule (`[&_p]:leading-relaxed`) is applied by the descendant as its own class.
+  // A descendant rule (`[&_p]:leading-relaxed`) is applied by the descendant as its own class,
+  // and a data-attribute class (`data-[state=open]:bg-x`) by its element, without the variant.
   return [
     ...new Set(
       strings
         .flatMap((value) => value.split(/\s+/))
         .filter(Boolean)
-        .map((cls) => descendantRule(cls)?.cls ?? cls),
+        .map((cls) => descendantRule(cls)?.cls ?? cls)
+        .map((cls) => stateRule(cls)?.cls ?? cls),
     ),
   ]
 })()
@@ -161,7 +163,8 @@ describe("what an app's Tailwind scan finds", () => {
     const own = [
       ...scripts(join(packageDir, 'src')),
       deviceOnlyClasses(web, forDevice).join(' '),
-      descendantClasses(web, forDevice, descendantRule).join(' '),
+      ruleClasses(web, forDevice, descendantRule).join(' '),
+      ruleClasses(web, forDevice, stateRule).join(' '),
     ]
     const named = new Set([...web, ...own].flatMap(words))
     expect(staticClasses.filter((cls) => !named.has(cls))).toEqual([])
@@ -217,6 +220,13 @@ describe("what an app's Tailwind scan finds", () => {
 
   it("lists what a descendant applies from its container's descendant rule", () => {
     const web = ["export const alertDescription = 'text-sm [&_p]:leading-relaxed [&>svg]:top-4'"]
-    expect(descendantClasses(web, forDevice, descendantRule)).toEqual(['leading-relaxed'])
+    expect(ruleClasses(web, forDevice, descendantRule)).toEqual(['leading-relaxed'])
+  })
+
+  it('lists what an element applies when its data attributes match a class', () => {
+    const web = [
+      "export const tab = 'px-3 data-[state=active]:bg-background dark:data-[disabled]:opacity-50'",
+    ]
+    expect(ruleClasses(web, forDevice, stateRule)).toEqual(['bg-background', 'dark:opacity-50'])
   })
 })

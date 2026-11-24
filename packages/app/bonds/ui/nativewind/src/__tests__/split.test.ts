@@ -120,6 +120,32 @@ describe('splitForNative', () => {
     expect(splitForNative('p-2').descendants).toEqual({})
   })
 
+  it("applies a data-attribute class only when the element's data attributes match it", () => {
+    const classes =
+      'border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[disabled]:opacity-50'
+    expect(splitForNative(classes, '', { state: 'checked' })).toMatchObject({
+      view: 'border bg-primary',
+      text: 'text-primary-foreground',
+    })
+    expect(splitForNative(classes, '', { state: 'unchecked', disabled: '' })).toMatchObject({
+      view: 'border opacity-50',
+      text: '',
+    })
+    expect(splitForNative(classes).view).toBe('border')
+    expect(splitForNative('dark:data-[state=open]:bg-muted', '', { state: 'open' }).view).toBe(
+      'dark:bg-muted',
+    )
+  })
+
+  it('gives the Tabs trigger its active colours on a device only while it is active', () => {
+    const trigger = classMap.tabsTrigger()
+    const active = splitForNative(trigger, '', { state: 'active' })
+    const inactive = splitForNative(trigger, '', { state: 'inactive' })
+    expect(active.view).toContain('bg-background')
+    expect(inactive.view).not.toContain('bg-background')
+    expect(`${active.view} ${active.text}`).not.toContain('data-[')
+  })
+
   it('is the ClassMap member', () => {
     expect(classMap.splitForNative?.(classMap.card(), '').text).toContain('text-foreground')
   })

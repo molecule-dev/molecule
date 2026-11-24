@@ -47,6 +47,34 @@ export function descendantRule(cls: string): { tag: string; cls: string } | null
   return { tag, cls: [...variants.slice(0, at), ...variants.slice(at + 1), utility].join(':') }
 }
 
+/** A variant that matches one of the element's own data attributes (`data-[state=open]`, `data-[disabled]`). */
+const DATA_ATTRIBUTE = /^data-\[([a-z][a-z0-9-]*)(?:=([^\]]*))?\]$/
+
+/**
+ * The data attributes a class's variants require of its element (`data-[state=checked]:bg-x`
+ * requires `data-state="checked"`; `data-[disabled]:` only that `data-disabled` is present) and
+ * the class without those variants, which a native element applies when its own attributes match,
+ * as the attribute selector does on the web.
+ *
+ * @param cls - One class.
+ * @returns The required attributes (a `null` value: present with any value) and the class, or
+ *   `null` when the class requires none.
+ */
+export function stateRule(
+  cls: string,
+): { attributes: ReadonlyArray<{ name: string; value: string | null }>; cls: string } | null {
+  const { variants, utility } = splitVariants(cls)
+  const attributes: { name: string; value: string | null }[] = []
+  const rest: string[] = []
+  for (const variant of variants) {
+    const match = DATA_ATTRIBUTE.exec(variant)
+    if (match?.[1]) attributes.push({ name: match[1], value: match[2] ?? null })
+    else rest.push(variant)
+  }
+  if (attributes.length === 0) return null
+  return { attributes, cls: [...rest, utility].join(':') }
+}
+
 /**
  * Whether a variant styles something a device has no equivalent for: another
  * element's state (`peer-*`, `group-*`), a pseudo-element (`before`, `after`,

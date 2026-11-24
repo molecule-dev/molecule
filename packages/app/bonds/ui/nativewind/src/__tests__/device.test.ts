@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { descendantRule, forDevice } from '../device.js'
+import { descendantRule, forDevice, stateRule } from '../device.js'
 
 describe('forDevice', () => {
   it('turns sibling spacing into gap, keeping its variants', () => {
@@ -59,6 +59,24 @@ describe('forDevice', () => {
     expect(forDevice('border hover:border-primary')).toBe(
       'border hover:border-primary border-foreground',
     )
+  })
+})
+
+describe('stateRule', () => {
+  it('reads the data attributes a class requires and the class without them', () => {
+    expect(stateRule('data-[state=checked]:bg-primary')).toEqual({
+      attributes: [{ name: 'state', value: 'checked' }],
+      cls: 'bg-primary',
+    })
+    expect(stateRule('dark:data-[disabled]:opacity-50')).toEqual({
+      attributes: [{ name: 'disabled', value: null }],
+      cls: 'dark:opacity-50',
+    })
+  })
+
+  it('is null for a class that requires no data attribute', () => {
+    expect(stateRule('bg-primary')).toBeNull()
+    expect(stateRule('aria-selected:bg-primary')).toBeNull()
   })
 })
 
