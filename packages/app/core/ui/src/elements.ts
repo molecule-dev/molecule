@@ -404,10 +404,12 @@ export type BoxTag =
   | 'figure'
 
 /**
- * A container (native `View`). Bare text inside it is laid out as the web lays it out (in a flex
- * container, its own flex item; in any other, a line with its inline siblings).
+ * A container (native `View`; a native `Pressable` when it has a press, hover or focus handler or a
+ * tab stop, as a `div` with `onClick` is). Bare text inside it is laid out as the web lays it out
+ * (in a flex container, its own flex item; in any other, a line with its inline siblings). Use
+ * {@link PressableProps} for a control: a button, or anything announced as one.
  */
-export interface BoxProps<Node = unknown> extends ElementProps {
+export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps {
   /** The web tag. */
   as: BoxTag
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */

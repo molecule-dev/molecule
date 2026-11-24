@@ -6,8 +6,9 @@
 
 import React, { forwardRef } from 'react'
 
-import type { SkeletonProps } from '@molecule/app-ui'
+import type { CSSProperties, SkeletonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /**
  * Skeleton component.
@@ -37,7 +38,7 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
       className,
     )
 
-    const computedStyle: React.CSSProperties = {
+    const computedStyle: CSSProperties = {
       ...style,
       width: typeof width === 'number' ? `${width}px` : width,
       height: typeof height === 'number' ? `${height}px` : height,
@@ -54,10 +55,11 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
     }
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={skeletonClasses}
-        style={computedStyle}
+        webStyle={computedStyle}
         data-testid={testId}
         data-mol-id={automationId}
       />
@@ -75,11 +77,11 @@ export const SkeletonText = forwardRef<HTMLDivElement, { lines?: number; classNa
     const cm = getClassMap()
 
     return (
-      <div ref={ref} className={cm.cn(cm.skeletonTextContainer, className)}>
+      <Box as="div" ref={ref} className={cm.cn(cm.skeletonTextContainer, className)}>
         {Array.from({ length: lines }).map((_, i) => (
           <Skeleton key={i} height={16} width={i === lines - 1 ? '60%' : '100%'} />
         ))}
-      </div>
+      </Box>
     )
   },
 )

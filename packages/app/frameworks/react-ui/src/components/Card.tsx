@@ -59,20 +59,27 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
     )
     const content = children as React.ReactNode
 
-    // A card nothing can press or focus is a plain container.
-    const handlers = [onClick, onDoubleClick, onMouseEnter, onMouseLeave, onFocus, onBlur]
-    const keys = [onKeyDown, onKeyUp, onKeyPress, tabIndex]
-    if (!interactive && [...handlers, ...keys].every((value) => value === undefined)) {
+    // Every handler and the caller's own props reach the card. A disabled card never calls
+    // onClick; on a device a card with a handler or a tab stop is pressable.
+    const common = {
+      as: 'div',
+      ref,
+      className: cardClasses,
+      webStyle: style,
+      'data-testid': testId,
+      ...rootProps(rest),
+      onClick: disabled ? undefined : onClick,
+      onDoubleClick,
+      onMouseEnter,
+      onMouseLeave,
+      onFocus,
+      onBlur,
+      onKeyUp,
+      onKeyPress,
+    } as const
+    if (!interactive) {
       return (
-        <Box
-          as="div"
-          ref={ref}
-          className={cardClasses}
-          webStyle={style}
-          data-testid={testId}
-          role={role}
-          {...rootProps(rest)}
-        >
+        <Box {...common} role={role} tabIndex={tabIndex} onKeyDown={onKeyDown}>
           {content}
         </Box>
       )
@@ -83,12 +90,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
     // clicking it, which runs `onClick` with a real click event. Keys pressed in a
     // control inside the card belong to that control. The caller's `onKeyDown` runs
     // first; its preventDefault() cancels the activation, as it does on a native button.
-    // A disabled card, like a disabled button, never calls onClick: an interactive one is
-    // announced as disabled and leaves the tab order. A device has no keyboard events: a press
-    // calls onClick there.
+    // A disabled interactive card is announced as disabled and leaves the tab order. A device
+    // has no keyboard events: a press calls onClick there.
     const handleKeyDown = (event: KitKeyboardEvent): void => {
       onKeyDown?.(event)
-      if (event.defaultPrevented || !interactive || disabled) return
+      if (event.defaultPrevented || disabled) return
       if (event.target !== event.currentTarget) return
       if (event.key !== 'Enter' && event.key !== ' ') return
       event.preventDefault()
@@ -98,25 +104,12 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
 
     return (
       <Pressable
-        as="div"
-        ref={ref}
-        className={cardClasses}
-        webStyle={style}
-        data-testid={testId}
+        {...common}
         // A caller's role or tabIndex replaces the interactive default.
-        role={role ?? (interactive ? 'button' : undefined)}
-        tabIndex={tabIndex ?? (interactive ? (disabled ? -1 : 0) : undefined)}
-        aria-disabled={interactive && disabled ? true : undefined}
-        {...rootProps(rest)}
-        onClick={disabled ? undefined : onClick}
-        onDoubleClick={onDoubleClick}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        onFocus={onFocus}
-        onBlur={onBlur}
+        role={role ?? 'button'}
+        tabIndex={tabIndex ?? (disabled ? -1 : 0)}
+        aria-disabled={disabled ? true : undefined}
         onKeyDown={handleKeyDown}
-        onKeyUp={onKeyUp}
-        onKeyPress={onKeyPress}
       >
         {content}
       </Pressable>
