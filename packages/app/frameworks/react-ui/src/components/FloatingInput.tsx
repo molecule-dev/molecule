@@ -1,8 +1,16 @@
+/**
+ * FloatingInput component.
+ *
+ * @module
+ */
+
 import { forwardRef, useId, useState } from 'react'
 
+import type { FloatingInputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text, TextField } from '@molecule/app-ui-react/elements'
 
-type FloatingInputProps = React.InputHTMLAttributes<HTMLInputElement>
+import { rootProps } from '../utilities/rootProps.js'
 
 /**
  * An input with a floating label.
@@ -23,38 +31,52 @@ type FloatingInputProps = React.InputHTMLAttributes<HTMLInputElement>
  * Input/Select/Textarea's id-collision fix.
  */
 export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
-  ({ placeholder, className, value: valueProp, onChange, defaultValue, id, ...props }, ref) => {
+  (
+    {
+      placeholder,
+      className,
+      style,
+      testId,
+      value: valueProp,
+      onChange,
+      defaultValue,
+      id,
+      ...props
+    },
+    ref,
+  ) => {
     const cm = getClassMap()
     const [internalValue, setInternalValue] = useState(String(defaultValue ?? ''))
     const isControlled = valueProp !== undefined
-    const value = isControlled ? valueProp : internalValue
+    const value = isControlled ? String(valueProp) : internalValue
     const generatedId = useId()
     const inputId = id || generatedId
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-      if (!isControlled) {
-        setInternalValue(e.target.value)
-      }
-      onChange?.(e)
+    const handleValueChange = (text: string): void => {
+      if (!isControlled) setInternalValue(text)
     }
 
     return (
-      <span className={cm.floatingInputWrapper}>
-        <input
+      <Box as="span" className={cm.floatingInputWrapper}>
+        <TextField
+          as="input"
           ref={ref}
           id={inputId}
-          {...props}
+          data-testid={testId}
+          {...rootProps(props)}
           placeholder={placeholder}
           className={cm.cn(cm.input(), cm.floatingInput, className)}
+          webStyle={style}
           value={value}
-          onChange={handleChange}
+          onChange={onChange}
+          onValueChange={handleValueChange}
         />
         {placeholder && (
-          <label htmlFor={inputId} className={cm.floatingLabel}>
+          <Text as="label" htmlFor={inputId} className={cm.floatingLabel}>
             {placeholder}
-          </label>
+          </Text>
         )}
-      </span>
+      </Box>
     )
   },
 )

@@ -10,6 +10,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 import { rootProps } from '../utilities/rootProps.js'
@@ -66,41 +67,48 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     )
 
     return (
-      <div className={cm.inputWrapper}>
+      <Box as="div" className={cm.inputWrapper}>
         {label && (
-          <label
+          <Text
+            as="label"
             htmlFor={inputId}
             className={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
           >
             {label}
-          </label>
+          </Text>
         )}
-        <div className={cm.inputInner}>
-          {!!leftElement && <div className={cm.inputLeftElement}>{leftElement}</div>}
-          <input
+        <Box as="div" className={cm.inputInner}>
+          {!!leftElement && (
+            <Box as="div" className={cm.inputLeftElement}>
+              {leftElement}
+            </Box>
+          )}
+          <TextField
+            as="input"
             ref={ref}
             type={type}
             id={inputId}
             name={name}
-            value={value as string}
-            defaultValue={defaultValue as string}
+            value={fieldText(value)}
+            defaultValue={fieldText(defaultValue)}
             placeholder={placeholder}
             disabled={disabled}
             required={required}
             aria-invalid={!!error}
             aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
             className={inputClasses}
-            style={style}
+            webStyle={style}
             data-testid={testId}
             onChange={onChange}
             onFocus={onFocus}
             onBlur={onBlur}
-            {...(rootProps(rest) as React.InputHTMLAttributes<HTMLInputElement>)}
+            {...rootProps(rest)}
           />
           {(rightElement || (clearable && value)) && (
-            <div className={cm.inputRightElement}>
+            <Box as="div" className={cm.inputRightElement}>
               {clearable && value ? (
-                <button
+                <Pressable
+                  as="button"
                   type="button"
                   onClick={onClear}
                   className={cm.inputClearButton}
@@ -109,26 +117,38 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   }
                 >
                   {renderIcon('x-mark', cm.iconSm)}
-                </button>
+                </Pressable>
               ) : (
-                <span className={cm.textMuted}>{rightElement}</span>
+                <Box as="span" className={cm.textMuted}>
+                  {rightElement}
+                </Box>
               )}
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
         {error && (
-          <p id={`${inputId}-error`} className={cm.formError}>
+          <Text as="p" id={`${inputId}-error`} className={cm.formError}>
             {error}
-          </p>
+          </Text>
         )}
         {hint && !error && (
-          <p id={`${inputId}-hint`} className={cm.formHint}>
+          <Text as="p" id={`${inputId}-hint`} className={cm.formHint}>
             {hint}
-          </p>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   },
 )
+
+/**
+ * An input's value as the text its field holds (a number or a list reads as the DOM writes it).
+ *
+ * @param value - The value.
+ * @returns The text, or `undefined` for none.
+ */
+function fieldText(value: InputProps['value']): string | undefined {
+  return value === undefined ? undefined : String(value)
+}
 
 Input.displayName = 'Input'

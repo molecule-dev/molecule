@@ -4,10 +4,11 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
+import { forwardRef, useId } from 'react'
 
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -42,20 +43,6 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref,
   ) => {
-    // Always track the node in internalRef (for autoResize) AND forward it to
-    // the caller's ref. The previous `(ref || internalRef) as RefObject` cast
-    // silently broke autoResize whenever the caller passed a CALLBACK ref
-    // (functions have no `.current`).
-    const internalRef = useRef<HTMLTextAreaElement | null>(null)
-    const setRefs = useCallback(
-      (node: HTMLTextAreaElement | null) => {
-        internalRef.current = node
-        if (typeof ref === 'function') ref(node)
-        else if (ref) ref.current = node
-      },
-      [ref],
-    )
-
     const cm = getClassMap()
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
@@ -63,48 +50,22 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const generatedId = useId()
     const textareaId = id || name || generatedId
 
-    const resize = useCallback(() => {
-      const element = internalRef.current
-      if (!autoResize || !element) return
-      element.style.height = 'auto'
-      const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
-      const minHeight = minRows * lineHeight
-      const maxHeight = maxRows ? maxRows * lineHeight : Infinity
-      const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-      element.style.height = `${newHeight}px`
-    }, [autoResize, minRows, maxRows])
-
-    // Controlled usage (value tracked by the caller) recomputes here.
-    useEffect(() => {
-      resize()
-    }, [value, resize])
-
-    // Uncontrolled usage (defaultValue + the user typing) never changes
-    // `value`, so the effect above never re-runs — autoResize silently did
-    // nothing for every uncontrolled textarea. Listening for real `input`
-    // events on the element itself catches keystrokes, paste, and IME
-    // composition regardless of whether the caller tracks `value`.
-    useEffect(() => {
-      const element = internalRef.current
-      if (!autoResize || !element) return
-      element.addEventListener('input', resize)
-      return () => element.removeEventListener('input', resize)
-    }, [autoResize, resize])
-
     const textareaClasses = cm.cn(cm.textarea({ error: !!error, size }), className)
 
     return (
-      <div className={cm.inputWrapper}>
+      <Box as="div" className={cm.inputWrapper}>
         {label && (
-          <label
+          <Text
+            as="label"
             htmlFor={textareaId}
             className={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
           >
             {label}
-          </label>
+          </Text>
         )}
-        <textarea
-          ref={setRefs}
+        <TextField
+          as="textarea"
+          ref={ref}
           id={textareaId}
           name={name}
           value={value}
@@ -116,27 +77,28 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-invalid={!!error}
           aria-describedby={error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined}
           className={textareaClasses}
-          // autoResize sizes the box to its content via inline height, but the
-          // bond's min-h class would floor it — neutralize it and let resize()
-          // enforce `minRows` instead. Caller style still wins.
-          style={autoResize ? { minHeight: 0, resize: 'none', ...style } : style}
+          // autoResize sizes the box to its content (the element's autoGrow), but the bond's min-h
+          // class would floor it: neutralize it and let autoGrow enforce `minRows` instead. Caller
+          // style still wins.
+          webStyle={autoResize ? { minHeight: 0, resize: 'none', ...style } : style}
+          autoGrow={autoResize ? { minRows, maxRows } : undefined}
           data-testid={testId}
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}
-          {...(rootProps(rest) as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+          {...rootProps(rest)}
         />
         {error && (
-          <p id={`${textareaId}-error`} className={cm.formError}>
+          <Text as="p" id={`${textareaId}-error`} className={cm.formError}>
             {error}
-          </p>
+          </Text>
         )}
         {hint && !error && (
-          <p id={`${textareaId}-hint`} className={cm.formHint}>
+          <Text as="p" id={`${textareaId}-hint`} className={cm.formHint}>
             {hint}
-          </p>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   },
 )

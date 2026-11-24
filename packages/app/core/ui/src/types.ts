@@ -454,6 +454,23 @@ export interface InputProps extends InputElementProps {
 }
 
 // ============================================================================
+// FLOATING INPUT
+// ============================================================================
+
+/**
+ * Props for the FloatingInput component: an input whose placeholder is also its label, drawn
+ * above the text.
+ *
+ * Ref element: the native `<input>`.
+ */
+export interface FloatingInputProps extends InputElementProps {
+  /**
+   * Input type.
+   */
+  type?: InputType
+}
+
+// ============================================================================
 // TEXTAREA
 // ============================================================================
 
