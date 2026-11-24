@@ -122,13 +122,15 @@
   const nodeProps = $derived.by(() => {
     if (live && liveSnippets) {
       const out: Record<string, unknown> = { ...liveSnippets }
-      // A list a step stopped passing (`null`) is an `undefined` snippet prop, as a consumer's
-      // `{#if}` around the snippet prop leaves it.
+      // A snippet prop a step stopped passing (`null`) is `undefined`, as a consumer's `{#if}`
+      // around the snippet prop leaves it. Children a step stopped passing keep their snippet,
+      // which renders nothing, as a consumer's `{#if}` inside the component's tag does
+      // (`{cond && <X />}` in React).
       for (const [slot, list] of Object.entries(live.lists.slots))
         if (list === null) out[slot] = undefined
       const now = live.lists.children
-      if (now === null) out.children = undefined
-      else if (now !== undefined && itemsProp) {
+      if (now === null && itemsProp) out.children = undefined
+      else if (now !== undefined && now !== null && itemsProp) {
         // A list component takes the list as data: it follows each step through the prop.
         const spec = typeof itemsProp === 'string' ? { prop: itemsProp } : itemsProp
         out[spec.prop] = spec.elementsOnly ? now.filter((node) => typeof node !== 'string') : now

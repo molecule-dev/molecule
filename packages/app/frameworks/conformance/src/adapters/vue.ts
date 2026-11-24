@@ -8,7 +8,9 @@
  * - Props keep their React names (`variant`, `loading`, `leftIcon`, …).
  * - `children` is the default slot.
  * - A list a `children` step replaces (the default slot or a named one) returns one Fragment of
- *   keyed VNodes, what a template's keyed `v-for` compiles to, and follows each step.
+ *   keyed VNodes, what a template's keyed `v-for` compiles to, and follows each step. Children
+ *   a step stops passing (`null`) are a false `v-if` in the default slot (its comment); a named
+ *   slot a step stops passing is left out, as `<template #name v-if>` leaves it.
  * - A node-valued prop (`leftIcon`, `footer`, …) is passed BOTH as a VNode prop
  *   of the same name and as a named slot of the same name; components accept either.
  * - A callback prop `onFooBar` is a Vue listener: components declare the emit
@@ -23,6 +25,7 @@
 import {
   type Component,
   createApp,
+  createCommentVNode,
   defineComponent,
   Fragment,
   h,
@@ -272,21 +275,27 @@ export function createVueAdapter({
           slots[slot] = () => toVueNodes(nodes ?? [])
         }
       }
-      if (changing.children) slots.default = () => vForNodes(lists.value.children ?? [])
+      // Children a step stopped passing (`null`) are a `v-if` that became false inside the
+      // component's tag, as a consumer writes `{cond && <X />}`: the default slot is still passed and
+      // renders the comment Vue compiles that `v-if` to.
+      if (changing.children)
+        slots.default = () => {
+          const now = lists.value.children
+          return now === null ? [createCommentVNode('v-if', true)] : vForNodes(now ?? [])
+        }
       else if (testCase.children) slots.default = () => toVueNodes(testCase.children)
       /**
-       * The slot functions the consumer passes now: a list a step stopped passing (`null`) has none,
-       * as a parent's `<template v-if>` around a slot leaves it out.
+       * The slot functions the consumer passes now: a named slot a step stopped passing (`null`) has
+       * none, as a parent's `<template #name v-if>` leaves it out.
        *
        * @returns The slots object for the component's vnode.
        */
       const passedSlots = (): Record<string, () => VNodeChild[]> => {
         const now = lists.value
         return Object.fromEntries(
-          Object.entries(slots).filter(([name]) =>
-            name === 'default'
-              ? !(changing.children && now.children === null)
-              : !(changing.slots.has(name) && now.slots[name] === null),
+          Object.entries(slots).filter(
+            ([name]) =>
+              name === 'default' || !(changing.slots.has(name) && now.slots[name] === null),
           ),
         )
       }

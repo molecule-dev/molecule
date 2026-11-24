@@ -287,7 +287,10 @@ export type Interaction =
    * keyed `v-for`, `{#each}`, `<For>`, `@for`), `[]` where it starts with none.
    *
    * `null` stops passing that list, as a consumer's `cond && <X/>` that became false does (React:
-   * the prop is `undefined`; Vue: the slot is left out; Svelte and Solid: `undefined`; Angular: no
+   * the prop is `undefined`; Vue: the default slot is still passed and renders the comment a false
+   * `v-if` inside the tag compiles to, and a named slot is left out, as `<template #name v-if>`
+   * leaves it; Svelte: the `children` snippet is still passed and renders nothing, as an `{#if}`
+   * inside the tag leaves it, and a snippet prop is `undefined`; Solid: `undefined`; Angular: no
    * node, the same template state as an empty list). `[]` passes a list that became empty.
    */
   | {
