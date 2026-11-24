@@ -307,21 +307,32 @@ duplicate a bunch of work". A React feature package (`features/*-react`) is the 
 React DOM and React Native both; no `-react-native` feature port is written. Vue, Svelte, Solid and
 Angular keep their ports, which the conformance kit holds to React's output.
 
-Today 195 of the 201 React features render raw DOM tags (`div`, `span`, `button`), which React Native
-cannot render. The design being built:
+Today 185 of the 201 React features still render raw DOM tags (`div`, `span`, `button`), which React
+Native cannot render. The design:
 
-- Renderer-neutral elements in `@molecule/app-ui` (`Box`, `Text`, `Pressable`, `TextField`, `Image`,
-  `ScrollArea`, `Svg`), each with an `as` prop naming the web tag, so `<Box as="ul">` renders exactly
-  `<ul>` on the web and every recorded golden stays the same.
-- `@molecule/app-ui-react` resolves to `@molecule/app-ui-react-native` under the `react-native` export
-  condition, so one feature package serves both.
-- Once the elements land, a lint rule bans lowercase JSX tags in `features/*-react`, with a list of the
-  packages not yet converted that may only shrink.
+- Renderer-neutral elements (`Box`, `Text`, `Pressable`, `TextField`, `Image`, `ScrollArea`, `Svg`,
+  `Link`, `GlyphIcon`). Their props are typed once in `@molecule/app-ui` (`elements.ts`). Each has an
+  `as` prop naming the web tag. `@molecule/app-ui-react/elements` renders exactly that tag, so
+  `<Box as="ul">` is `<ul>` and every recorded golden stays the same.
+  `@molecule/app-ui-react-native/elements` renders native views. A device has no CSS cascade, so
+  text classes go to the `Text` that draws them, split by the ClassMap's `splitForNative`.
+- Features and the UI kit import `@molecule/app-ui-react/elements`. That one subpath swaps renderers:
+  it gains a `react-native` export condition that resolves it to the native elements once the native
+  kit's dependencies land. There is no root `react-native` condition.
+- The kit is single-source: `@molecule/app-ui-react`'s own components render with the elements.
+  They are converted in order of how many features use them; Button and Spinner are done.
+  `@molecule/app-ui-react-native` shrinks to the native elements plus platform pieces (overlay host,
+  focus trap, click-outside, toasts) and never imports `@molecule/app-ui-react`. The RN scaffold imports
+  `@molecule/app-ui-react`. No hand-written `react-native` stand-in maps native components to DOM tags.
+- Icon fonts: `GlyphIcon` draws a glyph by ligature on the web and by codepoint on a device, from
+  the icon font's `FontDefinition.glyphs` and `nativeFiles` (`@molecule/app-fonts-material-symbols/native`).
+- A lint rule bans lowercase JSX tags in `features/*-react` and the kit's components, with a list of
+  the packages not yet converted that may only shrink.
 - Features that are inherently DOM (canvas, maps, HTML5 drag-and-drop, media players, code editors) are
   registered web-only, so `mlcl add` refuses them on React Native with the reason.
 
-Until the elements land, keep DOM-only APIs (layout measurement, raw HTML injection, HTML5
-drag-and-drop) out of features that are not inherently DOM.
+Converted so far: NotificationFeed, AmountInput, Sparkline. Keep DOM-only APIs (layout
+measurement, raw HTML injection, HTML5 drag-and-drop) out of features that are not inherently DOM.
 
 ### UIClassMap
 
