@@ -1,5 +1,11 @@
 # @molecule/app-amount-input-react
 
+## 4.0.4
+
+### Patch Changes
+
+- Render with the renderer-neutral elements, so the component also renders on React Native.
+
 ## 4.0.3
 
 ### Patch Changes

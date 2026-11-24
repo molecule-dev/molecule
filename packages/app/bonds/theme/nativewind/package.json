@@ -32,7 +32,7 @@
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-theme": "1.0.4",
     "@molecule/app-theme-css-variables": "1.0.5",
-    "@molecule/app-ui-nativewind": "1.4.0",
+    "@molecule/app-ui-nativewind": "1.5.0",
     "@molecule/app-ui-tailwind": "1.4.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

@@ -1,5 +1,11 @@
 # @molecule/app-notification-feed-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Render with the renderer-neutral elements and draw item icons with `GlyphIcon`, so the feed also renders on React Native; it now peers on `@molecule/app-ui-react`.
+
 ## 4.1.0
 
 ### Minor Changes

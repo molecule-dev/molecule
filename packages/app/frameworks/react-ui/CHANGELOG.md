@@ -1,5 +1,19 @@
 # @molecule/app-ui-react
 
+## 4.4.0
+
+### Minor Changes
+
+- PageHeader breadcrumb links navigate through the app's router instead of reloading the page.
+- Icon, Alert and Avatar render with the elements; the elements add `SvgMarkup`, path fill rules and image `onLoad`/`onError`, and `renderIcon` draws an icon set's prebuilt markup glyphs.
+- `splitForNative` reads a grid's rows, the text's line height and which sizes the classes set, and ranks a matching `data-[…]:` class above the plain class it overrides; the device ClassMap keeps the web's container, spacer, page, header, responsive-visibility and grid-row classes; `TextField` gains date and time types, `defaultValue`, `required`, `minLength`, `pattern`, `cols`, `wrap` and `autoGrow`.
+- A Box takes the interaction handlers; Badge, Separator and Skeleton render with the elements, and Card renders as one element.
+- Card and its header, title, description, content and footer render with the elements; the sections take `CardSectionProps`.
+- Add `./elements` (Box, Text, Pressable, TextField, Image, ScrollArea, Svg, Link, GlyphIcon), renderer-neutral elements each rendering the web tag its `as` prop names; Button and Spinner render with them.
+- Input, Textarea and FloatingInput render with the elements; FloatingInput takes `FloatingInputProps`.
+- EmptyState, LoadErrorBanner, Container, Flex, Grid, Spacer, AuthGuard, ThemeToggle, ConfirmButton, SidebarUserCard, Tabs, Accordion, Pagination and LanguagePicker render with the elements; ThemeToggle, LanguagePicker, LoadErrorBanner and SidebarUserCard take the kit's element props, `testId` included.
+- Progress renders with the elements.
+
 ## 4.3.2
 
 ### Patch Changes

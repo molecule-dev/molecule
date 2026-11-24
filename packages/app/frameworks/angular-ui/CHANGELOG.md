@@ -1,5 +1,12 @@
 # @molecule/app-ui-angular
 
+## 1.5.3
+
+### Patch Changes
+
+- ThemeToggle, LanguagePicker and LoadErrorBanner take `testId` and `automationId`, and SidebarUserCard takes `testId`, as in React.
+- PageHeader breadcrumb links navigate through the app's router instead of reloading the page.
+
 ## 1.5.2
 
 ### Patch Changes

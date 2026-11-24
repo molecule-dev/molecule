@@ -1,5 +1,11 @@
 # @molecule/api-push-capture
 
+## 1.2.1
+
+### Patch Changes
+
+- The core interface peer is optional: the package imports only its types.
+
 ## 1.2.0
 
 ### Minor Changes

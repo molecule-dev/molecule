@@ -1,5 +1,20 @@
 # @molecule/app-ui
 
+## 1.6.0
+
+### Minor Changes
+
+- `splitForNative` takes the element's data attributes and applies a `data-[state=checked]:` class only when they match, so a checkbox, switch or tab shows its state on a device.
+- `splitForNative` hands a descendant selector's classes (`[&_p]:leading-relaxed`) to descendants with that tag through `descendants`, so an alert description's bare text keeps its own line height on a device.
+- Add renderer-neutral element prop types (`BoxProps`, `TextProps`, `PressableProps`, `GlyphIconProps` and others) and the ClassMap's native class split.
+- Icon, Alert and Avatar render with the elements; the elements add `SvgMarkup`, path fill rules and image `onLoad`/`onError`, and `renderIcon` draws an icon set's prebuilt markup glyphs.
+- `splitForNative` reads a CSS grid's columns, gaps, item alignment and spans by breakpoint (`grid`), and the device ClassMap names the breakpoints and the tags the web's reset makes blocks, so native elements lay out grids and replaced elements as the web does.
+- `splitForNative` reads a grid's rows, the text's line height and which sizes the classes set, and ranks a matching `data-[…]:` class above the plain class it overrides; the device ClassMap keeps the web's container, spacer, page, header, responsive-visibility and grid-row classes; `TextField` gains date and time types, `defaultValue`, `required`, `minLength`, `pattern`, `cols`, `wrap` and `autoGrow`.
+- A Box takes the interaction handlers; Badge, Separator and Skeleton render with the elements, and Card renders as one element.
+- Card and its header, title, description, content and footer render with the elements; the sections take `CardSectionProps`.
+- Input, Textarea and FloatingInput render with the elements; FloatingInput takes `FloatingInputProps`.
+- `splitForNative` lays a flex container that names no direction in a row, as the web does, and reports the text's font weight; a Box takes a `title`.
+
 ## 1.5.0
 
 ### Minor Changes

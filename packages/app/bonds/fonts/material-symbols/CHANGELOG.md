@@ -1,5 +1,11 @@
 # @molecule/app-fonts-material-symbols
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the glyph table and a `./native` entry with static font files for React Native.
+
 ## 1.0.5
 
 ### Patch Changes

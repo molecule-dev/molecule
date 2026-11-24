@@ -1,5 +1,13 @@
 # @molecule/app-ui-svelte
 
+## 1.4.3
+
+### Patch Changes
+
+- ThemeToggle, LanguagePicker and LoadErrorBanner take `testId` and `automationId`, and SidebarUserCard takes `testId`, as in React.
+- PageHeader breadcrumb links navigate through the app's router instead of reloading the page.
+- `renderIcon` draws an icon set's prebuilt markup glyphs.
+
 ## 1.4.2
 
 ### Patch Changes

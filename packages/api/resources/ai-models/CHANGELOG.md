@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.23.1
+
+### Patch Changes
+
+- Documents qwen4-max's cache-write price as the provider's implicit-cache rate ($1.5/MTok, unchanged); models.dev lists the explicit-cache rate.
+
 ## 1.23.0
 
 ### Minor Changes

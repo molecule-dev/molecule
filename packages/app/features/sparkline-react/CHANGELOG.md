@@ -1,5 +1,11 @@
 # @molecule/app-sparkline-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Render with the renderer-neutral elements, so the component also renders on React Native.
+
 ## 4.0.1
 
 ### Patch Changes

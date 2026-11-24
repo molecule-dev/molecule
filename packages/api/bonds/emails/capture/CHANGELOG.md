@@ -1,5 +1,11 @@
 # @molecule/api-emails-capture
 
+## 1.0.4
+
+### Patch Changes
+
+- The core interface peer is optional: the package imports only its types.
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @molecule/app-ui-solid
 
+## 1.4.1
+
+### Patch Changes
+
+- ThemeToggle, LanguagePicker and LoadErrorBanner take `testId` and `automationId`, and SidebarUserCard takes `testId`, as in React.
+- PageHeader breadcrumb links navigate through the app's router instead of reloading the page.
+- `renderIcon` draws an icon set's prebuilt markup glyphs.
+
 ## 1.4.0
 
 ### Minor Changes

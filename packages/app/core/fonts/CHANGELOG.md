@@ -1,5 +1,11 @@
 # @molecule/app-fonts
 
+## 1.4.0
+
+### Minor Changes
+
+- Add `FontGlyphs` and the `glyphs` and `nativeFiles` fields, so a React Native app can draw an icon font by codepoint.
+
 ## 1.3.1
 
 ### Patch Changes
