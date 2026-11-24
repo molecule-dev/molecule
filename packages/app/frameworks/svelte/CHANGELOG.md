@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.14.1
+
+### Patch Changes
+
+- Documents that `PresentWhileContent` leaves the page when its only content is a component that renders nothing, where React keeps an empty wrapper.
+
 ## 3.14.0
 
 ### Minor Changes

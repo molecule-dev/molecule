@@ -1,5 +1,11 @@
 # @molecule/api-billing-routes
 
+## 1.2.0
+
+### Minor Changes
+
+- `GET /status` reports the user's stored plan, the routes use whichever bonded payments provider can check out, prices are listed for sale only when that provider can sell them, and a provider's missing-secret error is passed through.
+
 ## 1.1.5
 
 ### Patch Changes

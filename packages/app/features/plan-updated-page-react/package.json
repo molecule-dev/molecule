@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-plan-updated-page-react",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Post-purchase confirmation page shown after a plan upgrade. Reads auth state and displays a localized thank-you message + Return Home button.",
   "homepage": "https://www.molecule.dev/packages/app-plan-updated-page-react",
   "type": "module",

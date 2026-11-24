@@ -50,7 +50,7 @@
     "@molecule/app-bond": "1.0.5",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-svelte": "3.14.0",
+    "@molecule/app-svelte": "3.14.1",
     "@sveltejs/kit": "3.2.0",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.3.1",

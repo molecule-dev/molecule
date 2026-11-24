@@ -1,5 +1,11 @@
 # @molecule/app-empty-state-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- An empty-string or `false` icon, eyebrow, description, action or media renders nothing, as in React, instead of an empty wrapper.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -131,7 +131,7 @@
     "@molecule/app-clipboard": "1.0.5",
     "@molecule/app-routing": "1.5.3",
     "@molecule/app-routing-sveltekit": "3.0.0",
-    "@molecule/app-svelte": "3.14.0",
+    "@molecule/app-svelte": "3.14.1",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-settings-panel-angular",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Composable settings panel — a SettingsContainer + family of section sub-components (Account, Auth, Notifications, Billing, Devices, ThisDevice, LogOutDelete). Apps compose via content projection, picking which sections to include and what order.",
   "homepage": "https://www.molecule.dev/packages/app-settings-panel-angular",
   "type": "module",

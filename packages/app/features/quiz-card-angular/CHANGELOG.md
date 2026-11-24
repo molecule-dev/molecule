@@ -1,5 +1,11 @@
 # @molecule/app-quiz-card-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- A number question, option label, progress, timer or explanation renders as text, as in React, instead of nothing.
+
 ## 1.1.2
 
 ### Patch Changes

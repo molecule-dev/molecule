@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-navigation
 
+## 1.1.1
+
+### Patch Changes
+
+- `navigate()` to a path no screen in `linking.screens` matches logs an error naming the path instead of doing nothing.
+
 ## 1.1.0
 
 ### Minor Changes

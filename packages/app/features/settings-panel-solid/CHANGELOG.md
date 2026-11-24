@@ -1,5 +1,15 @@
 # @molecule/app-settings-panel-solid
 
+## 2.0.0
+
+### Major Changes
+
+- `BillingSection` requires `upgradeTo`, the page its Upgrade button opens, instead of defaulting to `/settings`; without one it shows no Upgrade button.
+
+### Minor Changes
+
+- `TiersUpgradeSection` offers Upgrade only when a price is for sale, reads the plan and `isFree` from the billing status (reloading it after a cancel), and shows a failed cancel in the section.
+
 ## 1.3.0
 
 ### Minor Changes

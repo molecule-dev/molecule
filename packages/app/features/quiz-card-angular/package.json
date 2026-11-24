@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-quiz-card-angular",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Question card with multiple-choice options, progress, optional timer, correct/incorrect feedback",
   "homepage": "https://www.molecule.dev/packages/app-quiz-card-angular",
   "type": "module",
