@@ -10,6 +10,7 @@ describe('splitForNative', () => {
       text: 'text-sm font-bold text-primary',
       display: 'flex',
       lines: null,
+      weight: 700,
     })
   })
 
@@ -19,12 +20,14 @@ describe('splitForNative', () => {
       text: '',
       display: 'block',
       lines: null,
+      weight: null,
     })
     expect(splitForNative('inline-flex items-center')).toEqual({
-      view: 'flex items-center',
+      view: 'flex items-center flex-row',
       text: '',
       display: 'inline-flex',
       lines: null,
+      weight: null,
     })
     expect(splitForNative('hidden sm:flex').display).toBe('none')
   })
@@ -59,6 +62,7 @@ describe('splitForNative', () => {
       text: 'text-foreground',
       display: null,
       lines: null,
+      weight: null,
     })
   })
 
@@ -68,6 +72,7 @@ describe('splitForNative', () => {
       text: 'text-sm',
       display: null,
       lines: 1,
+      weight: null,
     })
     expect(splitForNative('line-clamp-3').lines).toBe(3)
     expect(splitForNative('line-clamp-3 line-clamp-none').lines).toBeNull()
@@ -82,6 +87,24 @@ describe('splitForNative', () => {
     )
     // A named size sets both properties, so it replaces the inherited one whole.
     expect(splitForNative('text-sm', 'text-base').text).toBe('text-sm')
+  })
+
+  it('lays a flex container that names no direction in a row, as the web does', () => {
+    expect(splitForNative('flex items-center p-6').view).toBe('flex items-center p-6 flex-row')
+    expect(splitForNative('hidden md:flex').view).toBe('hidden md:flex md:flex-row')
+    // A direction class at any variant is the author's choice; a block is never given one.
+    expect(splitForNative('flex flex-col').view).toBe('flex flex-col')
+    expect(splitForNative('flex md:flex-col').view).toBe('flex md:flex-col')
+    expect(splitForNative('grid gap-2').view).toBe('grid gap-2')
+    expect(splitForNative('p-2').view).toBe('p-2')
+  })
+
+  it('reads the base font weight of the text in effect', () => {
+    expect(splitForNative('', 'font-semibold').weight).toBe(600)
+    expect(splitForNative('font-[650]').weight).toBe(650)
+    expect(splitForNative('md:font-bold').weight).toBeNull()
+    expect(splitForNative('font-bold', 'font-light').weight).toBe(700)
+    expect(splitForNative('font-mono').weight).toBeNull()
   })
 
   it('is the ClassMap member', () => {

@@ -19,7 +19,7 @@ import { colorTokens, themeVariables } from '@molecule/app-ui-tailwind'
 
 import { forDevice } from '../dist/device.js'
 import { FONT_SIZE_VARIANTS, lineHeightClass, WEB_FONT_SIZES } from '../dist/fontSizes.js'
-import { deviceOnlyClasses, inlineSourceClasses } from './device-classes.mjs'
+import { deviceOnlyClasses, flexRowClasses, inlineSourceClasses } from './device-classes.mjs'
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url))
 mkdirSync(dist, { recursive: true })
@@ -64,6 +64,8 @@ const deviceClasses = [
   ...new Set([
     ...deviceOnlyClasses(webFiles, forDevice),
     ...inlineClasses.filter(Boolean),
+    // The direction of a flex container that names none, which splitForNative writes at run time.
+    ...flexRowClasses([...webFiles, inlineClasses.join(' ')]),
     // The line height alone of an inherited size, which splitForNative writes at run time.
     ...Object.keys(WEB_FONT_SIZES).flatMap((name) =>
       FONT_SIZE_VARIANTS.map((variant) => `${variant}${lineHeightClass(name)}`),

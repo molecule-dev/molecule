@@ -105,3 +105,19 @@ export function inlineSourceClasses(css) {
       for (const cls of expandBraces(pattern)) found.add(cls)
   return [...found].sort()
 }
+
+/**
+ * The direction class splitForNative gives a flex container that names no direction (a web flex
+ * container is a row; a device's is a column), at each variant the files write `flex` with.
+ *
+ * @param {string[]} texts - The files Tailwind scans for the web ClassMap.
+ * @returns {string[]} The `flex-row` classes, sorted.
+ */
+export function flexRowClasses(texts) {
+  const found = new Set()
+  for (const word of texts.flatMap(words)) {
+    const match = /^((?:[\w[\]&=.-]+:)*)(?:inline-)?flex$/.exec(word)
+    if (match) found.add(`${match[1]}flex-row`)
+  }
+  return [...found].sort()
+}

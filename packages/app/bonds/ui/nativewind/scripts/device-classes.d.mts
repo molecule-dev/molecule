@@ -41,3 +41,12 @@ export declare function expandBraces(pattern: string): string[]
  * @returns The classes, sorted.
  */
 export declare function inlineSourceClasses(css: string): string[]
+
+/**
+ * The direction class splitForNative gives a flex container that names no direction (a web flex
+ * container is a row; a device's is a column), at each variant the files write `flex` with.
+ *
+ * @param texts - The files Tailwind scans for the web ClassMap.
+ * @returns The `flex-row` classes, sorted.
+ */
+export declare function flexRowClasses(texts: string[]): string[]

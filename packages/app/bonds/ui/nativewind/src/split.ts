@@ -19,6 +19,33 @@ const ARBITRARY_FONT_SIZE = /^text-\[[\d.]+(?:px|rem|em)\]$/
 const FONT_WEIGHT =
   /^font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[\d+\])$/
 
+/** The weight each named font-weight utility sets. */
+const WEIGHTS: Readonly<Record<string, number>> = {
+  thin: 100,
+  extralight: 200,
+  light: 300,
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+  extrabold: 800,
+  black: 900,
+}
+
+/**
+ * The weight a font-weight utility sets.
+ *
+ * @param utility - A font-weight utility without its variants (`font-bold`, `font-[650]`).
+ * @returns The weight.
+ */
+function weightOf(utility: string): number {
+  const name = utility.slice('font-'.length)
+  return WEIGHTS[name] ?? Number(name.slice(1, -1))
+}
+
+/** Flex-direction utilities. */
+const DIRECTION = /^flex-(?:row|col)(?:-reverse)?$/
+
 /**
  * The inherited CSS properties a text utility sets, or `null` for a utility that is not a text
  * utility.
@@ -133,6 +160,10 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
   const ownKeys = new Set<string>()
   let display: NativeClassSplit['display'] = null
   let lines: number | null = null
+  // A web flex container lays its items in a row unless a class says otherwise; a device's in a
+  // column. Each `flex` class without a direction class is given `flex-row` at its variants.
+  const flexAt: string[][] = []
+  let direction = false
   for (const cls of className.split(/\s+/)) {
     if (!cls) continue
     const { variants, utility } = splitVariants(cls)
@@ -151,6 +182,8 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       continue
     }
     if (variants.length === 0 && utility in DISPLAY) display = DISPLAY[utility] ?? null
+    if (utility === 'flex' || utility === 'inline-flex') flexAt.push(variants)
+    if (DIRECTION.test(utility)) direction = true
     const flow = FLOW_ONLY[utility]
     if (flow === undefined) view.push(cls)
     else if (flow !== null) view.push([...variants, flow].join(':'))
@@ -170,5 +203,12 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       FONT_SIZE.test(utility) && fontSizeSet ? lineHeightClass(utility.slice('text-'.length)) : null
     return leading ? [[...variants, leading].join(':')] : [cls]
   })
-  return { view: view.join(' '), text: [...inherited, ...own].join(' '), display, lines }
+  if (!direction) for (const variants of flexAt) view.push([...variants, 'flex-row'].join(':'))
+  const text = [...inherited, ...own]
+  let weight: number | null = null
+  for (const cls of text) {
+    const { variants, utility } = splitVariants(cls)
+    if (variants.length === 0 && FONT_WEIGHT.test(utility)) weight = weightOf(utility)
+  }
+  return { view: view.join(' '), text: text.join(' '), display, lines, weight }
 }

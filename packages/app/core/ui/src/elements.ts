@@ -410,6 +410,8 @@ export type BoxTag =
 export interface BoxProps<Node = unknown> extends ElementProps {
   /** The web tag. */
   as: BoxTag
+  /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
+  title?: string
   /** Layout and paint both renderers apply. */
   style?: BoxStyle
   /** Web-only paint. */
@@ -786,6 +788,11 @@ export interface NativeClassSplit {
    * `line-clamp-3` is 3), or `null`. The clamp is the element's own: it is not inherited.
    */
   lines: number | null
+  /**
+   * The font weight {@link NativeClassSplit.text} sets at its base size (`font-bold` is 700), or
+   * `null` when it sets none (the platform's normal weight). A `<strong>` draws `bolder` than it.
+   */
+  weight: number | null
 }
 
 /**
