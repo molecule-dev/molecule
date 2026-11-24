@@ -46,6 +46,15 @@ export const pageHeaderCases: UIComponentCases = {
       },
     },
     {
+      name: 'clicking a breadcrumb link navigates in the app',
+      props: {
+        title: 'Q3 revenue',
+        breadcrumbs: [{ label: 'Reports', href: '/reports' }, { label: 'Q3 revenue' }],
+      },
+      context: { route: '/reports/q3' },
+      interactions: [{ type: 'click', selector: 'a' }],
+    },
+    {
       name: 'empty breadcrumbs renders no nav',
       props: { title: 'Settings', breadcrumbs: [] },
     },

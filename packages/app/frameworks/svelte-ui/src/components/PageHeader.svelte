@@ -4,6 +4,7 @@
 -->
 <script lang="ts">
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
+  import { Link } from '@molecule/app-svelte/link'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from '../style.js'
@@ -42,7 +43,7 @@
           <span class={cm.pageHeaderBreadcrumbSeparator} aria-hidden="true">/</span>
         {/if}
         {#if crumb.href}
-          <a href={crumb.href} class={cm.pageHeaderBreadcrumbItem}>{crumb.label}</a>
+          <Link to={crumb.href} class={cm.pageHeaderBreadcrumbItem}>{crumb.label}</Link>
         {:else}
           <span class={cm.pageHeaderBreadcrumbItem}>{crumb.label}</span>
         {/if}

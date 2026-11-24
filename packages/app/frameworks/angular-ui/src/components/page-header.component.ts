@@ -8,6 +8,7 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
 import {
+  Link,
   MolPlacement,
   setElementPresent,
   type SlotReader,
@@ -41,6 +42,7 @@ interface Breadcrumb {
   selector: 'div[mol-page-header]',
   standalone: true,
   hostDirectives: [MolPlacement],
+  imports: [Link],
   inputs: ['title', 'description', 'breadcrumbs', 'className', 'style', 'testId', 'automationId'],
   host: {
     // `title` is this component's heading, which React renders as text; Angular would also keep a
@@ -58,7 +60,7 @@ interface Breadcrumb {
             <span [class]="cm().pageHeaderBreadcrumbSeparator" aria-hidden="true">/</span>
           }
           @if (crumb.href) {
-            <a [href]="crumb.href" [class]="cm().pageHeaderBreadcrumbItem">{{ crumb.label }}</a>
+            <a [molLink]="crumb.href" [class]="cm().pageHeaderBreadcrumbItem">{{ crumb.label }}</a>
           } @else {
             <span [class]="cm().pageHeaderBreadcrumbItem">{{ crumb.label }}</span>
           }

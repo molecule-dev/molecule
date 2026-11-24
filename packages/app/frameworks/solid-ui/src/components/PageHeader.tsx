@@ -7,6 +7,7 @@
 import { type Component, Index, Show, splitProps } from 'solid-js'
 
 import { PresentWhileNode, useTranslation, type WithNodes } from '@molecule/app-solid'
+import { Link } from '@molecule/app-solid/link'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -69,9 +70,11 @@ export const PageHeader: Component<
                   when={crumb().href}
                   fallback={<span class={cm.pageHeaderBreadcrumbItem}>{crumb().label}</span>}
                 >
-                  <a href={crumb().href} class={cm.pageHeaderBreadcrumbItem}>
-                    {crumb().label}
-                  </a>
+                  {(href) => (
+                    <Link to={href()} class={cm.pageHeaderBreadcrumbItem}>
+                      {crumb().label}
+                    </Link>
+                  )}
                 </Show>
               </>
             )}

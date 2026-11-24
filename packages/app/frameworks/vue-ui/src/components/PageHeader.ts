@@ -9,6 +9,7 @@ import { defineComponent, Fragment, h, type PropType, type VNodeChild } from 'vu
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
+import { Link } from '@molecule/app-vue/link'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -60,7 +61,7 @@ export const PageHeader = defineComponent({
               ? h('span', { class: cm.pageHeaderBreadcrumbSeparator, 'aria-hidden': 'true' }, '/')
               : null,
             crumb.href
-              ? h('a', { href: crumb.href, class: cm.pageHeaderBreadcrumbItem }, crumb.label)
+              ? h(Link, { to: crumb.href, class: cm.pageHeaderBreadcrumbItem }, () => crumb.label)
               : h('span', { class: cm.pageHeaderBreadcrumbItem }, crumb.label),
           ]),
         )

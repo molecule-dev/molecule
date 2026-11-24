@@ -6591,6 +6591,13 @@
     ],
     "calls": []
    },
+   "clicking a breadcrumb link navigates in the app": {
+    "snapshots": [
+     "<div class=\"c917228dd\">\n<nav aria-label=\"Breadcrumb\" class=\"c035f5e3c c13ef5fff c1e8176ab c445db9b9 c8d722291 c9866e6d5 ccae02ff2\">\n<a class=\"c14589f62 c27489ba9\" href=\"/reports\">\nReports\n</a>\n<span aria-hidden=\"true\" class=\"c77de6112\">\n/\n</span>\n<span class=\"c14589f62 c27489ba9\">\nQ3 revenue\n</span>\n</nav>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<div>\n<h1 class=\"c0d99ed10 c201466f5 c3fe812c8 c78cf77a8\">\nQ3 revenue\n</h1>\n</div>\n</div>\n</div>\n@route /reports/q3",
+     "<div class=\"c917228dd\">\n<nav aria-label=\"Breadcrumb\" class=\"c035f5e3c c13ef5fff c1e8176ab c445db9b9 c8d722291 c9866e6d5 ccae02ff2\">\n<a class=\"c14589f62 c27489ba9\" href=\"/reports\">\nReports\n</a>\n<span aria-hidden=\"true\" class=\"c77de6112\">\n/\n</span>\n<span class=\"c14589f62 c27489ba9\">\nQ3 revenue\n</span>\n</nav>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<div>\n<h1 class=\"c0d99ed10 c201466f5 c3fe812c8 c78cf77a8\">\nQ3 revenue\n</h1>\n</div>\n</div>\n</div>\n@route /reports\n@click default prevented"
+    ],
+    "calls": []
+   },
    "empty breadcrumbs renders no nav": {
     "snapshots": [
      "<div class=\"c917228dd\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<div>\n<h1 class=\"c0d99ed10 c201466f5 c3fe812c8 c78cf77a8\">\nSettings\n</h1>\n</div>\n</div>\n</div>\n@route /"

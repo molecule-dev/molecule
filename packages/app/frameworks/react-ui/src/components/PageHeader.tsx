@@ -10,6 +10,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Link, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * PageHeader component.
@@ -36,44 +37,58 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
     const cm = getClassMap()
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={cm.cn(cm.pageHeader, className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
       >
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav
+          <Box
+            as="nav"
             className={cm.pageHeaderBreadcrumbs}
             aria-label={t('ui.pageHeader.breadcrumbs', undefined, { defaultValue: 'Breadcrumb' })}
           >
             {breadcrumbs.map((crumb, index) => (
               <React.Fragment key={index}>
                 {index > 0 && (
-                  <span className={cm.pageHeaderBreadcrumbSeparator} aria-hidden="true">
+                  <Text as="span" className={cm.pageHeaderBreadcrumbSeparator} aria-hidden>
                     /
-                  </span>
+                  </Text>
                 )}
                 {crumb.href ? (
-                  <a href={crumb.href} className={cm.pageHeaderBreadcrumbItem}>
+                  <Link to={crumb.href} className={cm.pageHeaderBreadcrumbItem}>
                     {crumb.label}
-                  </a>
+                  </Link>
                 ) : (
-                  <span className={cm.pageHeaderBreadcrumbItem}>{crumb.label}</span>
+                  <Text as="span" className={cm.pageHeaderBreadcrumbItem}>
+                    {crumb.label}
+                  </Text>
                 )}
               </React.Fragment>
             ))}
-          </nav>
+          </Box>
         )}
-        <div className={cm.cn(cm.flex({ justify: 'between', align: 'center' }))}>
-          <div>
-            <h1 className={cm.pageHeaderTitle}>{title}</h1>
-            {description && <p className={cm.pageHeaderDescription}>{description}</p>}
-          </div>
-          {actions ? <div className={cm.pageHeaderActions}>{actions}</div> : null}
-        </div>
-      </div>
+        <Box as="div" className={cm.cn(cm.flex({ justify: 'between', align: 'center' }))}>
+          <Box as="div">
+            <Text as="h1" className={cm.pageHeaderTitle}>
+              {title}
+            </Text>
+            {description && (
+              <Text as="p" className={cm.pageHeaderDescription}>
+                {description}
+              </Text>
+            )}
+          </Box>
+          {actions ? (
+            <Box as="div" className={cm.pageHeaderActions}>
+              {actions}
+            </Box>
+          ) : null}
+        </Box>
+      </Box>
     )
   },
 )
