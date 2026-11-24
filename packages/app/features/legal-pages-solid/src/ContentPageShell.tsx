@@ -7,6 +7,7 @@
 
 import { type Component, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ContentPageShellProps } from './types.js'
@@ -44,46 +45,59 @@ const GLOW_STYLE = {
 export const ContentPageShell: Component<ContentPageShellProps> = (props) => {
   const cm = getClassMap()
   const containerSize = (): 'sm' | 'md' | 'lg' | 'xl' => props.containerSize ?? 'md'
-
   return (
     <div class={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), cm.legalPagesShell)}>
       {props.header}
-      <Show when={props.title}>
-        {/* A `<section>`, not `<header>`: the app's own top bar (the `header`
-            slot above) is the page's single banner — a second `<header>` here
-            reads as a duplicated app bar to audits, users, and assistive tech. */}
-        <section
-          data-mol-id={props.dataMolId}
-          class={cm.cn(cm.legalPagesHero, cm.sp('px', 6), cm.sp('py', 16))}
-          style={HERO_STYLE}
-        >
-          <div aria-hidden="true" class={cm.legalPagesHeroGlow} style={GLOW_STYLE} />
-          <div class={cm.cn(cm.container({ size: containerSize() }), cm.legalPagesHeroContent)}>
-            <Show when={props.eyebrow}>
-              <p
-                class={cm.cn(
-                  cm.textSize('xs'),
-                  cm.fontWeight('bold'),
-                  cm.sp('mb', 3),
-                  cm.legalPagesHeroEyebrow,
-                )}
-              >
-                {props.eyebrow}
-              </p>
-            </Show>
-            <h1
-              class={cm.cn(cm.textSize('4xl'), cm.fontWeight('extrabold'), cm.legalPagesHeroTitle)}
+      <ResolveNode node={props.title}>
+        {(title, hasTitle) => (
+          <Show when={hasTitle()}>
+            {/* A `<section>`, not `<header>`: the app's own top bar (the `header`
+                slot above) is the page's single banner — a second `<header>` here
+                reads as a duplicated app bar to audits, users, and assistive tech. */}
+            <section
+              data-mol-id={props.dataMolId}
+              class={cm.cn(cm.legalPagesHero, cm.sp('px', 6), cm.sp('py', 16))}
+              style={HERO_STYLE}
             >
-              {props.title}
-            </h1>
-            <Show when={props.subtitle}>
-              <p class={cm.cn(cm.textSize('base'), cm.sp('mt', 3), cm.legalPagesHeroSubtitle)}>
-                {props.subtitle}
-              </p>
-            </Show>
-          </div>
-        </section>
-      </Show>
+              <div aria-hidden="true" class={cm.legalPagesHeroGlow} style={GLOW_STYLE} />
+              <div class={cm.cn(cm.container({ size: containerSize() }), cm.legalPagesHeroContent)}>
+                <PresentWhileNode node={props.eyebrow}>
+                  {(eyebrow) => (
+                    <p
+                      class={cm.cn(
+                        cm.textSize('xs'),
+                        cm.fontWeight('bold'),
+                        cm.sp('mb', 3),
+                        cm.legalPagesHeroEyebrow,
+                      )}
+                    >
+                      {eyebrow()}
+                    </p>
+                  )}
+                </PresentWhileNode>
+                <h1
+                  class={cm.cn(
+                    cm.textSize('4xl'),
+                    cm.fontWeight('extrabold'),
+                    cm.legalPagesHeroTitle,
+                  )}
+                >
+                  {title()}
+                </h1>
+                <PresentWhileNode node={props.subtitle}>
+                  {(subtitle) => (
+                    <p
+                      class={cm.cn(cm.textSize('base'), cm.sp('mt', 3), cm.legalPagesHeroSubtitle)}
+                    >
+                      {subtitle()}
+                    </p>
+                  )}
+                </PresentWhileNode>
+              </div>
+            </section>
+          </Show>
+        )}
+      </ResolveNode>
 
       <main class={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 10))}>
         <div class={cm.cn(cm.container({ size: containerSize() }))}>

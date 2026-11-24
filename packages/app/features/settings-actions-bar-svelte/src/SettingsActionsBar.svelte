@@ -14,7 +14,7 @@
   a snippet's nodes.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
 
@@ -85,7 +85,9 @@
     {@render node(leading)}{#if savedText !== null}<span
         class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
         >{t('settingsActions.saved', { at: savedText }, { defaultValue: 'Saved {{at}}' })}</span
-      >{/if}{#if error}<span class={cm.textSize('sm')}>{@render node(error)}</span>{/if}
+      >{/if}{#if error}<PresentWhileContent tag="span" class={cm.textSize('sm')}
+        >{@render node(error)}</PresentWhileContent
+      >{/if}
   </div>
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
     {#if onCancel}<Button

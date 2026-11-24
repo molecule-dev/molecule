@@ -1,6 +1,6 @@
 import { type Component, For, type JSX, Show } from 'solid-js'
 
-import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-solid'
+import { Link, ResolveNode, RoutedView, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TopNavItem, TopNavLayoutProps } from './types.js'
@@ -110,7 +110,9 @@ export const TopNavLayout: Component<TopNavLayoutProps> = (props) => {
           {props.userMenu}
         </div>
       </header>
-      <main>{props.children ?? <RoutedView />}</main>
+      <ResolveNode node={props.children}>
+        {(content, hasContent) => <main>{hasContent() ? content() : <RoutedView />}</main>}
+      </ResolveNode>
     </div>
   )
 }

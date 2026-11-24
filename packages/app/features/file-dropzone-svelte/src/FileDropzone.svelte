@@ -6,7 +6,7 @@
   string goes through `t()` so a locale switch re-renders it.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { FileDropzoneProps } from './types.js'
@@ -26,7 +26,7 @@
   const { t } = useTranslation()
 
   let dragging = $state(false)
-  let inputEl: HTMLInputElement | undefined
+  let inputEl = $state<HTMLInputElement | undefined>()
 
   // Every `t(…)` runs inside a `$derived`: it reads the i18n version under the
   // hood, so this re-runs on a locale switch the way React's render-time `t`
@@ -105,6 +105,30 @@
   /** The drag-over style: the border thickens and the fill tints. */
   const draggingStyle =
     'border: 2px dashed var(--mol-color-primary, #3366ff); border-radius: 12px; min-height: 140px; background: color-mix(in srgb, var(--mol-color-primary, #3366ff) 6%, transparent)'
+
+  // React's `children ?? default copy`: a children snippet that renders nothing (an empty list)
+  // falls back to the default copy, like an omitted one. A snippet's `{#each}` over no rows
+  // changes the DOM without changing the prop, so presence is read from the rendered DOM (the
+  // input and the default copy are this component's own nodes, not the children).
+  let rootEl = $state<HTMLDivElement | null>(null)
+  let dropHereEl = $state<HTMLParagraphElement | null>(null)
+  let acceptsEl = $state<HTMLParagraphElement | null>(null)
+  let childrenRenders = $state(false)
+  $effect(() => {
+    const element = rootEl
+    if (!element) return
+    const own = new Set<Node | null>([inputEl ?? null, dropHereEl, acceptsEl])
+    const sync = (): void => {
+      const present = contentNodes(element).some(
+        (node) => !own.has(node) && (node.nodeType === 1 || (node.textContent ?? '').trim() !== ''),
+      )
+      if (present !== childrenRenders) childrenRenders = present
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  })
 </script>
 
 <div
@@ -139,6 +163,7 @@
   role="button"
   tabindex="0"
   aria-disabled={disabled}
+  bind:this={rootEl}
   class={cm.cn(
     cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
     cm.sp('p', 6),
@@ -162,10 +187,13 @@
   />
   {#if children}
     {@render children?.()}
-  {:else}
-    <p class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{dropHere}</p>
+  {/if}
+  {#if !childrenRenders}
+    <p bind:this={dropHereEl} class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+      {dropHere}
+    </p>
     {#if accept}
-      <p class={cm.cn(cm.textSize('xs'), cm.sp('mt', 1))}>{acceptsLabel}</p>
+      <p bind:this={acceptsEl} class={cm.cn(cm.textSize('xs'), cm.sp('mt', 1))}>{acceptsLabel}</p>
     {/if}
   {/if}
 </div>

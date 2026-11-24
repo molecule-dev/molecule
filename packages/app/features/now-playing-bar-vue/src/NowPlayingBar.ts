@@ -12,7 +12,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { NowPlayingBarProps, NowPlayingTrack } from './types.js'
 
@@ -369,7 +369,7 @@ export const NowPlayingBar = defineComponent({
                 ),
               ]
             : []),
-          ...(trailing.length > 0
+          ...(toChildArray(trailing).length > 0
             ? [
                 h(
                   'div',

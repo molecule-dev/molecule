@@ -1,6 +1,7 @@
 import type React from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link PriceRangeSlider}. */
@@ -36,9 +37,10 @@ export function PriceRangeSlider({
   onChange,
   step = 1,
   formatValue,
-  label,
+  label: labelProp,
   className,
 }: PriceRangeSliderProps): React.ReactElement {
+  const label = slot(labelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [low, high] = value

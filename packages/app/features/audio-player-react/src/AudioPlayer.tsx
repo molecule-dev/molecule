@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -59,8 +60,8 @@ function fmt(s: number): string {
  */
 export function AudioPlayer({
   src,
-  title,
-  subtitle,
+  title: titleProp,
+  subtitle: subtitleProp,
   visualizer,
   captions,
   captionsLang,
@@ -72,6 +73,8 @@ export function AudioPlayer({
   onEnded,
   className,
 }: AudioPlayerProps): JSX.Element {
+  const title = slot(titleProp)
+  const subtitle = slot(subtitleProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const ref = useRef<HTMLAudioElement>(null)

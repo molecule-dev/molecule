@@ -1,6 +1,7 @@
 import type { KeyboardEvent, ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button } from '@molecule/app-ui-react'
 
@@ -59,12 +60,14 @@ export function NotificationCenter({
   items,
   onMarkAllRead,
   onViewAll,
-  emptyState,
-  title,
+  emptyState: emptyStateProp,
+  title: titleProp,
   className,
   lastError,
   onRetry,
 }: NotificationCenterProps): ReactElement {
+  const emptyState = slot(emptyStateProp)
+  const title = slot(titleProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const hasItems = items.length > 0

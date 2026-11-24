@@ -45,7 +45,7 @@
   },
   "peerDependencies": {
     "@molecule/app-billing-solid": "^1.0.0",
-    "@molecule/app-solid": "^3.5.0",
+    "@molecule/app-solid": "^3.14.0",
     "@molecule/app-subscription-plan-card-solid": "^1.0.0",
     "@molecule/app-ui": "^1.1.0",
     "@molecule/app-ui-solid": "^1.1.0",

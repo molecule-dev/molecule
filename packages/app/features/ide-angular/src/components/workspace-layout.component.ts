@@ -51,6 +51,7 @@ import {
 
 import {
   heldElement,
+  isElementChild,
   MolPlacement,
   placeElement,
   setElementPresent,
@@ -243,7 +244,7 @@ export class WorkspaceLayout {
     const panes: Node[] = []
     for (const node of hasContent.nodes(capture)) {
       const child = heldElement(node) ?? node
-      if (child.nodeType === 1) panes.push(child)
+      if (isElementChild(child)) panes.push(child)
       // React drops a text child (it is not an element).
       else setElementPresent(child, false)
     }

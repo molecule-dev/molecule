@@ -8,6 +8,7 @@
 
 import { type Component, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -43,8 +44,6 @@ export const KpiCard: Component<KpiCardProps> = (props) => {
       cm.textSize('3xl'),
       props.emphasizeValue ? cm.fontWeight('extrabold') : cm.fontWeight('bold'),
     )
-  const hasTrendRow = (): boolean => Boolean(props.trend || props.subtitle)
-
   return (
     <Card
       className={cm.cn(accentClass(), liftClass(), props.className)}
@@ -59,14 +58,22 @@ export const KpiCard: Component<KpiCardProps> = (props) => {
           {props.action}
         </div>
         <div class={valueClasses()}>{props.value}</div>
-        <Show when={hasTrendRow()}>
-          <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-            {props.trend}
-            <Show when={props.subtitle}>
-              <span class={cm.textSize('sm')}>{props.subtitle}</span>
-            </Show>
-          </div>
-        </Show>
+        <ResolveNode node={props.trend}>
+          {(trend, hasTrend) => (
+            <ResolveNode node={props.subtitle}>
+              {(subtitle, hasSubtitle) => (
+                <Show when={hasTrend() || hasSubtitle()}>
+                  <div class={cm.flex({ align: 'center', gap: 'sm' })}>
+                    {trend()}
+                    <Show when={hasSubtitle()}>
+                      <span class={cm.textSize('sm')}>{subtitle()}</span>
+                    </Show>
+                  </div>
+                </Show>
+              )}
+            </ResolveNode>
+          )}
+        </ResolveNode>
       </div>
     </Card>
   )

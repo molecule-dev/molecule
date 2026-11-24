@@ -7,7 +7,7 @@
   it; the `trailing` node prop is a Svelte snippet.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { formatTime } from './format.js'
@@ -251,9 +251,9 @@
     {/if}
 
     {#if trailing}
-      <div class={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
+      <PresentWhileContent class={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
         {@render trailing?.()}
-      </div>
+      </PresentWhileContent>
     {/if}
   </div>
 {/if}

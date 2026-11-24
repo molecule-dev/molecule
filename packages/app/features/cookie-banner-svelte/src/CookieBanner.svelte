@@ -10,6 +10,8 @@
   with no whitespace-only text between siblings React does not render.
 -->
 <script lang="ts">
+  import type { Attachment } from 'svelte/attachments'
+
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Switch } from '@molecule/app-ui-svelte'
@@ -50,6 +52,54 @@
   /** React's `{' '}` between the description and the policy link (a runtime text node, so the compiler keeps it). */
   const SPACE = ' '
 
+  const titleDefault = $derived(t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' }))
+  const descriptionDefault = $derived(
+    t(
+      'cookieBanner.description',
+      {},
+      {
+        defaultValue: 'We use cookies to improve your experience and analyse traffic.',
+      },
+    ),
+  )
+
+  // A snippet cannot tell from its value whether it renders anything, so the translated default
+  // stands in while a node-valued function prop renders nothing (React's `slot(value) ?? default`).
+  /**
+   * Keeps the translated default text in an element while its snippet prop renders nothing.
+   *
+   * @param value - The node prop, read when the attachment runs.
+   * @param fallback - The default text.
+   * @returns The attachment.
+   */
+  function fallbackText(
+    value: () => ReactNodeProp | undefined,
+    fallback: string,
+  ): Attachment<HTMLElement> {
+    return (el) => {
+      if (typeof value() !== 'function') return
+      const node = document.createTextNode(fallback)
+      const hasContent = (): boolean =>
+        Array.from(el.childNodes).some(
+          (child) =>
+            child !== node &&
+            (child.nodeType === 1 ||
+              (child.nodeType === 3 && (child.textContent ?? '').trim() !== '')),
+        )
+      const sync = (): void => {
+        if (hasContent()) node.remove()
+        else if (!node.parentNode) el.appendChild(node)
+      }
+      sync()
+      const observer = new MutationObserver(sync)
+      observer.observe(el, { childList: true, characterData: true, subtree: true })
+      return () => {
+        observer.disconnect()
+        node.remove()
+      }
+    }
+  }
+
   let showDetails = $state(false)
 
   /**
@@ -86,7 +136,7 @@
 </script>
 
 {#snippet node(value: ReactNodeProp, fallback: string)}
-  {#if value === undefined || value === null}{fallback}{:else if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
+  {#if value === undefined || value === null || value === '' || typeof value === 'boolean'}{fallback}{:else if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
 {/snippet}
 
 {#snippet space()}{SPACE}{/snippet}
@@ -99,19 +149,16 @@
     style={BANNER_STYLE}
   >
     <header class={cm.stack(1)}>
-      <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-        {@render node(title, t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' }))}
+      <h3
+        class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}
+        {@attach fallbackText(() => title, titleDefault)}
+      >
+        {@render node(title, titleDefault)}
       </h3>
-      <p class={cm.textSize('sm')}>
-        {@render node(
-          description,
-          t(
-            'cookieBanner.description',
-            {},
-            { defaultValue: 'We use cookies to improve your experience and analyse traffic.' },
-          ),
-        )}{#if policyHref}{@render space()}<a href={policyHref} class={cm.link}
-            >{t('cookieBanner.learnMore', {}, { defaultValue: 'Learn more' })}</a
+      <p class={cm.textSize('sm')} {@attach fallbackText(() => description, descriptionDefault)}>
+        {@render node(description, descriptionDefault)}{#if policyHref}{@render space()}<a
+            href={policyHref}
+            class={cm.link}>{t('cookieBanner.learnMore', {}, { defaultValue: 'Learn more' })}</a
           >.{/if}
       </p>
     </header>

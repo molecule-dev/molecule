@@ -8,7 +8,7 @@
 <script lang="ts">
   import { untrack } from 'svelte'
 
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Card } from '@molecule/app-ui-svelte'
 
@@ -36,9 +36,11 @@
 <Card {className}>
   <div class={cm.stack(4)}>
     {#if progress}
-      <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}>
+      <PresentWhileContent
+        class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}
+      >
         {#if typeof progress === 'function'}{@render progress?.()}{:else}{progress}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
     <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.cn(cm.textSize('xl')))}>
       {#if revealed}

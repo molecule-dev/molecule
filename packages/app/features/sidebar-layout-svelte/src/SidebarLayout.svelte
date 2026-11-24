@@ -7,7 +7,14 @@
   input.
 -->
 <script lang="ts">
-  import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-svelte'
+  import {
+    ContentOrElse,
+    Link,
+    PresentWhileContent,
+    RoutedView,
+    useLocation,
+    useTranslation,
+  } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { SidebarLayoutProps, SidebarNavItem } from './types.js'
@@ -25,6 +32,15 @@
     dataMolId,
     children,
   }: SidebarLayoutProps = $props()
+
+  // React's `userMenu || themeToggle ? <div>…</div> : null`: the row exists only while one of the
+  // slots renders something. Each slot reports its rendered content through `ContentOrElse`; the
+  // spacer React renders when `userMenu` is absent is the row's own, not part of that decision, and
+  // it follows the user menu's rendered presence (`{userMenu ?? <span aria-hidden />}`).
+  let userMenuRenders = $state(false)
+  let themeToggleRenders = $state(false)
+  const menuRenders = $derived(userMenuRenders || themeToggleRenders)
+  const userMenuPresent = $derived(Boolean(userMenu) && userMenuRenders !== false)
 
   /** Pixel widths for the `sm` / `md` / `lg` presets. */
   const SIDEBAR_WIDTH_PX: Record<'sm' | 'md' | 'lg', number> = { sm: 208, md: 240, lg: 256 }
@@ -148,7 +164,8 @@
     </nav>
 
     {#if userMenu || themeToggle}
-      <div
+      <PresentWhileContent
+        present={menuRenders}
         class={cm.cn(
           cm.sp('pt', 4),
           cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
@@ -156,22 +173,22 @@
         )}
       >
         {#if userMenu}
-          {@render userMenu?.()}
-        {:else}
+          <ContentOrElse bind:present={userMenuRenders}>{@render userMenu?.()}</ContentOrElse>
+        {/if}
+        {#if !userMenuPresent}
           <span aria-hidden="true"></span>
         {/if}
         {#if themeToggle}
-          {@render themeToggle?.()}
+          <ContentOrElse bind:present={themeToggleRenders}>{@render themeToggle?.()}</ContentOrElse>
         {/if}
-      </div>
+      </PresentWhileContent>
     {/if}
   </aside>
 
   <main class={cm.cn(cm.pageShellContent)} style="min-width: 0px">
-    {#if children}
+    <ContentOrElse>
       {@render children?.()}
-    {:else}
-      <RoutedView />
-    {/if}
+      {#snippet otherwise()}<RoutedView />{/snippet}
+    </ContentOrElse>
   </main>
 </div>

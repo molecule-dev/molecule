@@ -16,6 +16,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import { childrenOf } from './node.js'
 
@@ -84,8 +85,13 @@ export const FilterPill = defineComponent({
      */
     const labelNodes = (): VNodeChild[] => (slots.label ? slots.label() : childrenOf(props.label))
 
-    return (): VNode =>
-      h(
+    return (): VNode => {
+      // React's `open && slot(children)`: the slot is called once, while the
+      // pill is open, and the panel renders only when that content renders
+      // something (an empty `v-for` opens no panel); the slot's own nodes render,
+      // so a `v-for` Fragment keeps its keys.
+      const content = open.value ? slots.default?.() : undefined
+      return h(
         'div',
         {
           ref: wrapper,
@@ -134,7 +140,7 @@ export const FilterPill = defineComponent({
               ]),
             ],
           ),
-          open.value && slots.default
+          open.value && toChildArray(content).length > 0
             ? h(
                 'div',
                 {
@@ -147,10 +153,11 @@ export const FilterPill = defineComponent({
                       : cm.facetedSearchPillPanelLeft,
                   ),
                 },
-                slots.default(),
+                content,
               )
             : null,
         ],
       )
+    }
   },
 })

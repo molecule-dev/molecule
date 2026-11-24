@@ -10,6 +10,7 @@
   import type { Snippet } from 'svelte'
   import { SvelteSet } from 'svelte/reactivity'
 
+  import { ContentOrElse } from '@molecule/app-svelte'
   import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from './style.js'
@@ -82,9 +83,7 @@
   {#if typeof value === 'function'}{@render value?.()}{:else}{value ?? ''}{/if}
 {/snippet}
 
-{#if entries.length === 0 && emptyState}
-  {@render emptyState?.()}
-{:else}
+{#snippet logBody()}
   <div class={cm.cn(cm.stack(1), className)} role="log">
     {#each entries as entry (entry.id)}
       <details open={isOpen(entry.id)} ontoggle={(event) => detailsToggle(entry.id, event)}>
@@ -127,4 +126,13 @@
       </details>
     {/each}
   </div>
+{/snippet}
+
+{#if entries.length === 0 && emptyState}
+  <ContentOrElse>
+    {@render emptyState?.()}
+    {#snippet otherwise()}{@render logBody()}{/snippet}
+  </ContentOrElse>
+{:else}
+  {@render logBody()}
 {/if}

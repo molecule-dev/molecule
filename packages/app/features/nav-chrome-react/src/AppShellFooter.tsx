@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** A single navigable link rendered in the footer link row. */
@@ -30,11 +31,12 @@ export interface AppShellFooterProps {
  */
 export function AppShellFooter({
   logo,
-  copyright,
+  copyright: copyrightProp,
   links,
   right,
   className,
 }: AppShellFooterProps): JSX.Element {
+  const copyright = slot(copyrightProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   return (

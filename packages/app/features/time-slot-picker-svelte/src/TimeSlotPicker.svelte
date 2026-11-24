@@ -7,7 +7,7 @@
   label only; the component keeps no state.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { TimeSlot, TimeSlotPickerProps } from './types.js'
@@ -29,7 +29,9 @@
   // hood, so the label re-runs on a locale switch the way React's render-time
   // `t` call re-runs on a re-render.
   const ariaLabel = $derived(
-    typeof title === 'string' ? title : t('timeSlot.aria', {}, { defaultValue: 'Time slots' }),
+    typeof title === 'string' && title !== ''
+      ? title
+      : t('timeSlot.aria', {}, { defaultValue: 'Time slots' }),
   )
 
   /**
@@ -58,9 +60,9 @@
 
 <div class={cm.cn(cm.stack(2), className)}>
   {#if title}
-    <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+    <PresentWhileContent tag="h3" class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
       {#if typeof title === 'string'}{title}{:else}{@render title?.()}{/if}
-    </h3>
+    </PresentWhileContent>
   {/if}
   <div
     role="radiogroup"

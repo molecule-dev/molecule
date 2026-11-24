@@ -1,5 +1,6 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link JobListingRow}. */
@@ -42,17 +43,21 @@ export interface JobListingRowProps {
  */
 export function JobListingRow({
   title,
-  company,
+  company: companyProp,
   location,
   type,
   salary,
   postedAt,
-  leading,
-  actions,
-  tags,
+  leading: leadingProp,
+  actions: actionsProp,
+  tags: tagsProp,
   onClick,
   className,
 }: JobListingRowProps): JSX.Element {
+  const company = slot(companyProp)
+  const leading = slot(leadingProp)
+  const actions = slot(actionsProp)
+  const tags = slot(tagsProp)
   const cm = getClassMap()
   // The row's accessible name lives on the title: the open button points at
   // the `<h3>` with aria-labelledby, so the row reads as its title.

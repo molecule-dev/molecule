@@ -21,7 +21,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
 import { MapDrawingToolbar } from './MapDrawingToolbar.js'
@@ -122,8 +122,8 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop != null ? toChildArray(prop) : []
 }
 
 /**

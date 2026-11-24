@@ -6,7 +6,7 @@
   `progressRing`, `icon`) are snippets, or plain strings.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { contentNodes, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import type { UIClassMap } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
@@ -79,6 +79,49 @@
       accentBar?.backgroundColor ? `; background-color: ${accentBar.backgroundColor}` : ''
     }`,
   )
+
+  // React's `slot(progressRing) ?? icon`: a progress-ring snippet that renders nothing (an empty
+  // list) falls back to the icon, like an omitted one. A snippet's `{#each}` over no rows changes
+  // the DOM without changing the prop, so presence is read from the rendered slot; the icon (the
+  // ring's fallback) is this component's own content, tracked by its node count.
+  let rightEl = $state<HTMLDivElement | null>(null)
+  let ringRenders = $state(true)
+  // The icon's node count while it stands in for the empty ring; a ring refill adds nodes before
+  // it. Kept across effect re-runs so a prop update does not forget the baseline.
+  let iconCount: number | null = null
+  $effect(() => {
+    const element = rightEl
+    void progressRing
+    if (!element) return
+    const count = (): number =>
+      contentNodes(element).filter(
+        (node) => node.nodeType === 1 || (node.textContent ?? '').trim() !== '',
+      ).length
+    const sync = (): void => {
+      if (!progressRing) {
+        if (ringRenders) ringRenders = false
+        iconCount = null
+        return
+      }
+      if (ringRenders) {
+        if (count() > 0) return
+        ringRenders = false
+        iconCount = null
+        return
+      }
+      // The icon shows; the ring, rendered before it, would add nodes on a refill.
+      const now = count()
+      if (iconCount === null) iconCount = now
+      else if (now !== iconCount) {
+        ringRenders = true
+        iconCount = null
+      }
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  })
 </script>
 
 <Card
@@ -125,9 +168,12 @@
               {#if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
             </span>
             {#if hasUnit}
-              <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}>
+              <PresentWhileContent
+                tag="span"
+                class={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}
+              >
                 {#if typeof unit === 'function'}{@render unit?.()}{:else}{unit}{/if}
-              </span>
+              </PresentWhileContent>
             {/if}
           </div>
         {/if}
@@ -135,14 +181,19 @@
           <HeroMetricTrendChip {trend} />
         {/if}
         {#if !loading && subtitle}
-          <span class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+          <PresentWhileContent tag="span" class={cm.cn(cm.textSize('sm'), cm.textMuted)}>
             {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
-          </span>
+          </PresentWhileContent>
         {/if}
       </div>
       {#if rightSlot}
-        <div class={cm.flex({ align: 'center', justify: 'center' })}>
-          {#if typeof rightSlot === 'function'}{@render rightSlot?.()}{:else}{rightSlot}{/if}
+        <div bind:this={rightEl} class={cm.flex({ align: 'center', justify: 'center' })}>
+          {#if progressRing}
+            {#if typeof progressRing === 'function'}{@render progressRing?.()}{:else}{progressRing}{/if}
+          {/if}
+          {#if !ringRenders && icon}
+            {#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}
+          {/if}
         </div>
       {/if}
     </div>

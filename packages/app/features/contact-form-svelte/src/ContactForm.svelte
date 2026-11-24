@@ -6,7 +6,7 @@
   goes through `t()` so a locale switch re-renders it.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Input, Textarea } from '@molecule/app-ui-svelte'
 
@@ -83,18 +83,18 @@
 {:else}
   <form class={cm.cn(cm.stack(3), className)} onsubmit={handle}>
     {#if title || description}
-      <header class={cm.stack(1)}>
+      <PresentWhileContent tag="header" class={cm.stack(1)}>
         {#if title}
-          <h3 class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+          <PresentWhileContent tag="h3" class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
             {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
-          </h3>
+          </PresentWhileContent>
         {/if}
         {#if description}
-          <p class={cm.textSize('sm')}>
+          <PresentWhileContent tag="p" class={cm.textSize('sm')}>
             {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-          </p>
+          </PresentWhileContent>
         {/if}
-      </header>
+      </PresentWhileContent>
     {/if}
     <Input
       type="text"

@@ -19,7 +19,6 @@
 
 import type { Accessor, JSX } from 'solid-js'
 import {
-  children,
   createContext,
   createMemo,
   createUniqueId,
@@ -28,7 +27,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import { BodyPortal, rendersNode, useThemeMode } from '@molecule/app-solid'
+import { BodyPortal, rendersNode, resolveNode, useThemeMode } from '@molecule/app-solid'
 import { getClassMap, moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 
 /** The pixel size of a strip's status icon at its default. */
@@ -272,9 +271,9 @@ export function DockStrip(props: DockStripProps): JSX.Element {
     // Each node prop is resolved once (Solid creates a node each time a prop is read), the
     // detail's only while the section is open, as React mounts it then. A node that renders
     // nothing (an empty list) reads as one not passed, React's `slot(node)`.
-    const chipLabel = children(() => props.chipLabel)
-    const detail = children(() => (open() ? props.children : undefined))
-    const detailActions = children(() => (open() ? props.detailActions : undefined))
+    const chipLabel = resolveNode(() => props.chipLabel)
+    const detail = resolveNode(() => (open() ? props.children : undefined))
+    const detailActions = resolveNode(() => (open() ? props.detailActions : undefined))
     // React's tray branch is the chip, where the strip stands (in the tray's
     // chip row), and a portal of the open detail into the tray's detail
     // element. `<BodyPortal mount={…}>` renders it there without a wrapper
@@ -362,10 +361,12 @@ export function DockStrip(props: DockStripProps): JSX.Element {
       </>
     )
   }
-  const hint = children(() => props.hint)
-  const actions = children(() => props.actions)
-  const detailActions = children(() => props.detailActions)
-  const detail = children(() => (!props.onActivate && props.expanded ? props.children : undefined))
+  const hint = resolveNode(() => props.hint)
+  const actions = resolveNode(() => props.actions)
+  const detailActions = resolveNode(() => props.detailActions)
+  const detail = resolveNode(() =>
+    !props.onActivate && props.expanded ? props.children : undefined,
+  )
   return (
     <div
       data-mol-id={props.molId}

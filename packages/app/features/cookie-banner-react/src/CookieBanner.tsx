@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useId, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Switch } from '@molecule/app-ui-react'
 
@@ -53,13 +54,15 @@ export function CookieBanner({
   onAcceptAll,
   onRejectAll,
   onSave,
-  title,
-  description,
+  title: titleProp,
+  description: descriptionProp,
   policyHref,
   visible = true,
   onDismiss,
   className,
 }: CookieBannerProps): ReactElement | null {
+  const title = slot(titleProp)
+  const description = slot(descriptionProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   // Generated ids (never derived from data): the details list's id, wired to

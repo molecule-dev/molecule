@@ -10,6 +10,7 @@
 
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { Address, AddressDisplayProps } from './types.js'
@@ -49,7 +50,9 @@ export const AddressDisplay: Component<AddressDisplayProps> = (props) => {
     <div class={cm.cn(cm.flex({ align: 'start', gap: 'sm' }), props.className)}>
       {props.leading}
       <div class={cm.cn(cm.flex1, cm.stack(1), cm.textSize('sm'))}>
-        {props.name && <span class={cm.fontWeight('semibold')}>{props.name}</span>}
+        <PresentWhileNode node={props.name}>
+          {(name) => <span class={cm.fontWeight('semibold')}>{name()}</span>}
+        </PresentWhileNode>
         {props.inline ? (
           <span>{lines().join(', ')}</span>
         ) : (

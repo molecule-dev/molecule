@@ -12,7 +12,7 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useLocale, useTranslation } from '@molecule/app-vue'
+import { toChildArray, useLocale, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -120,7 +120,7 @@ export const TickerRow = defineComponent({
       }
 
       children.push(
-        ...(icon.length > 0 ? [h('div', { class: cm.shrink0 }, icon)] : []),
+        ...(toChildArray(icon).length > 0 ? [h('div', { class: cm.shrink0 }, icon)] : []),
         h('div', { class: cm.cn(cm.flex1, cm.stack(0)) }, [
           // The id names the open button (React's `aria-labelledby`).
           h(
@@ -133,7 +133,7 @@ export const TickerRow = defineComponent({
           ),
           ...(name.length > 0 ? [h('span', { class: cm.textSize('xs') }, name)] : []),
         ]),
-        ...(sparkline.length > 0 ? [h('div', { class: cm.shrink0 }, sparkline)] : []),
+        ...(toChildArray(sparkline).length > 0 ? [h('div', { class: cm.shrink0 }, sparkline)] : []),
         h('div', { class: cm.cn(cm.textCenter, cm.stack(0)) }, [
           h(
             'span',
@@ -160,7 +160,7 @@ export const TickerRow = defineComponent({
         // Raised above the open button in its positioned wrapper while the row
         // is clickable, so a click on its content lands here and keeps its own
         // clicks.
-        ...(meta.length > 0
+        ...(toChildArray(meta).length > 0
           ? [
               h(
                 'div',

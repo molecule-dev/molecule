@@ -9,14 +9,12 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { Show } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NodeEditorPanelProps } from './types.js'
-import { renders } from './utilities.js'
 
 /**
  * Properties panel chrome — the Solid counterpart of
@@ -28,7 +26,6 @@ import { renders } from './utilities.js'
 export const NodeEditorPanel: Component<NodeEditorPanelProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
-
   return (
     <aside
       class={cm.cn(
@@ -63,9 +60,9 @@ export const NodeEditorPanel: Component<NodeEditorPanelProps> = (props) => {
       <div class={cm.cn(cm.flex1, cm.sp('p', 6), cm.stack(8), cm.nodeEditorPanelBody)}>
         {props.children}
       </div>
-      <Show when={renders(props.footer)}>
-        <div class={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>{props.footer}</div>
-      </Show>
+      <PresentWhileNode node={props.footer}>
+        {(footer) => <div class={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>{footer()}</div>}
+      </PresentWhileNode>
     </aside>
   )
 }

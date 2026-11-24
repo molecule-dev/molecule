@@ -1,6 +1,6 @@
 import { type Component, createSignal, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HelpButtonProps } from './types.js'
@@ -61,13 +61,20 @@ export const HelpButton: Component<HelpButtonProps> = (props) => {
 
   const content = (): JSX.Element => (
     <span class={contentClasses()} style="width: 100%; height: 100%">
-      {props.icon !== undefined && props.icon !== null ? (
-        props.icon
-      ) : (
-        <span aria-hidden="true" style={`font-size: ${dim() * 0.45}px; font-weight: 700`}>
-          ?
-        </span>
-      )}
+      <ResolveNode node={props.icon}>
+        {(icon, hasIcon) => (
+          <Show
+            when={hasIcon()}
+            fallback={
+              <span aria-hidden="true" style={`font-size: ${dim() * 0.45}px; font-weight: 700`}>
+                ?
+              </span>
+            }
+          >
+            {icon()}
+          </Show>
+        )}
+      </ResolveNode>
       {props.hasNotification && (
         <span
           aria-hidden="true"

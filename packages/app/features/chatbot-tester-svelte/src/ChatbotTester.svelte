@@ -6,7 +6,9 @@
   exactly as in React. Node props are snippets (or plain strings).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import type { Attachment } from 'svelte/attachments'
+
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import ChatbotTesterInput from './ChatbotTesterInput.svelte'
@@ -36,12 +38,41 @@
 
   /** React's `bots ?? []`. */
   const shownBots = $derived<TesterBotOption[]>(bots ?? [])
-  /** React's `botPickerLabel` default (undefined only): `t()`'s `'Test bot'`. */
-  const label = $derived(
-    botPickerLabel === undefined
-      ? t('chatbotTester.label.testBot', undefined, { defaultValue: 'Test bot' })
-      : botPickerLabel,
+  /** React's `botPickerLabel` default: `t()`'s `'Test bot'`, used whenever the prop renders nothing. */
+  const defaultLabel = $derived(
+    t('chatbotTester.label.testBot', undefined, { defaultValue: 'Test bot' }),
   )
+  /** A plain `botPickerLabel` value that renders as text (React's `slot(value)` keeping it). */
+  const labelIsNode = $derived(
+    typeof botPickerLabel !== 'function' &&
+      botPickerLabel !== undefined &&
+      botPickerLabel !== null &&
+      botPickerLabel !== '',
+  )
+
+  // A snippet cannot tell from its value whether it renders anything, so the default label stands
+  // in while the `botPickerLabel` snippet renders nothing (React's `slot(botPickerLabel) ?? default`).
+  const labelFallback: Attachment<HTMLLabelElement> = (label) => {
+    if (typeof botPickerLabel !== 'function') return
+    const fallback = document.createTextNode(defaultLabel)
+    const hasContent = (): boolean =>
+      Array.from(label.childNodes).some(
+        (node) =>
+          node !== fallback &&
+          (node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim() !== '')),
+      )
+    const sync = (): void => {
+      if (hasContent()) fallback.remove()
+      else if (!fallback.parentNode) label.appendChild(fallback)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(label, { childList: true, characterData: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      fallback.remove()
+    }
+  }
 
   // Runs after the picker's options are patched, on mount and on every prop
   // change, as react-dom's controlled `<select>` update does.
@@ -84,8 +115,9 @@
       <label
         for="chatbot-tester-bot-select"
         class={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
+        {@attach labelFallback}
       >
-        {#if typeof label === 'function'}{@render label?.()}{:else}{label}{/if}
+        {#if typeof botPickerLabel === 'function'}{@render botPickerLabel?.()}{:else if labelIsNode}{botPickerLabel}{:else}{defaultLabel}{/if}
       </label>
       <select
         bind:this={selectEl}
@@ -101,9 +133,13 @@
   {/if}
   <ChatbotTesterMessages {messages} {loading} {emptyState} />
   {#if error}
-    <p role="alert" class={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}>
+    <PresentWhileContent
+      tag="p"
+      role="alert"
+      class={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}
+    >
       {#if typeof error === 'function'}{@render error?.()}{:else}{error}{/if}
-    </p>
+    </PresentWhileContent>
   {/if}
   <ChatbotTesterInput
     value={input}

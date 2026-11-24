@@ -7,7 +7,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import type { SpacingScale } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { LegalPageLayout } from './LegalPageLayout.js'
 import type { PrivacyPageProps } from './types.js'
@@ -52,7 +52,7 @@ export const PrivacyPage = defineComponent({
     const { t } = useTranslation()
 
     return (): VNode => {
-      const body: VNodeChild[] = slots.default?.() ?? []
+      const body: VNodeChild[] = toChildArray(slots.default?.())
 
       return h(
         LegalPageLayout,

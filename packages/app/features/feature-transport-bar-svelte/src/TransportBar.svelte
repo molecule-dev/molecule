@@ -10,7 +10,7 @@
   next with no whitespace-only text between siblings React does not render.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { TransportBarProps } from './types.js'
@@ -136,10 +136,11 @@
       data-state={loop ? 'on' : 'off'}
       class={controlClass}
       use:buttonStyle><span aria-hidden="true">↻</span></button
-    >{/if}{#if rendersSlot}<div
+    >{/if}{#if rendersSlot}<PresentWhileContent
+      tag="div"
       data-mol-id="transport-bar-time-display"
       class={cm.cn(cm.textSize('sm'), cm.sp('px', 2))}
     >
       {@render content(slotValue)}
-    </div>{:else if typeof slotValue === 'number'}{slotValue}{/if}
+    </PresentWhileContent>{:else if typeof slotValue === 'number'}{slotValue}{/if}
 </div>

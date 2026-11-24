@@ -1,6 +1,7 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link ProgressBar}. */
@@ -43,14 +44,16 @@ export interface ProgressBarProps {
 export function ProgressBar({
   value,
   max = 100,
-  label,
-  valueLabel,
+  label: labelProp,
+  valueLabel: valueLabelProp,
   labelledBy,
   describedBy,
   size = 'md',
   color = 'primary',
   className,
 }: ProgressBarProps): JSX.Element {
+  const label = slot(labelProp)
+  const valueLabel = slot(valueLabelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const nameId = useId()

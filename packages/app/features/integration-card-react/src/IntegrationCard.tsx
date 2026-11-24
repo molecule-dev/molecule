@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
@@ -40,15 +41,17 @@ export interface IntegrationCardProps {
  * @param props - Component props (see {@link IntegrationCardProps}).
  */
 export function IntegrationCard({
-  icon,
+  icon: iconProp,
   title,
-  description,
+  description: descriptionProp,
   status = 'disconnected',
   action,
   variant = 'card',
   className,
   dataMolId,
 }: IntegrationCardProps): JSX.Element {
+  const icon = slot(iconProp)
+  const description = slot(descriptionProp)
   const cm = getClassMap()
   const actionNode = action ? (
     action.href ? (

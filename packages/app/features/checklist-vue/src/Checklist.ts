@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Checkbox } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { ChecklistItem } from './types.js'
 
@@ -29,11 +29,10 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | undefined,
 ): VNodeChild | undefined => {
-  if (slot) {
-    const nodes = slot()
-    return nodes.length === 1 ? nodes[0] : nodes
-  }
-  return prop
+  const value: VNodeChild = slot ? slot() : prop
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  if (toChildArray(value).length === 0) return undefined
+  return Array.isArray(value) && value.length === 1 ? value[0] : value
 }
 
 /**

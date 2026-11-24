@@ -13,6 +13,7 @@ import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { Link } from '@molecule/app-react/link'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
@@ -70,9 +71,10 @@ export function StorefrontTopNav({
   authedMenu = [],
   unauthedMenu = [],
   onSignOut,
-  signOutLabel,
+  signOutLabel: signOutLabelProp,
   className,
 }: StorefrontTopNavProps): JSX.Element {
+  const signOutLabel = slot(signOutLabelProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   const [profileOpen, setProfileOpen] = useState(false)

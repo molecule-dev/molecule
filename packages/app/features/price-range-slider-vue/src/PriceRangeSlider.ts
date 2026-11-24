@@ -7,7 +7,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -86,9 +86,11 @@ export const PriceRangeSlider = defineComponent({
     }
 
     return (): VNode => {
-      const label = slotOrProp(slots.label, props.label as VNodeChild | null | undefined)
+      const label = toChildArray(
+        slotOrProp(slots.label, props.label as VNodeChild | null | undefined),
+      )
       return h('div', { class: cm.cn(cm.stack(2), props.className) }, [
-        label
+        label.length > 0
           ? h('span', { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) }, label)
           : null,
         h('div', { class: cm.flex({ align: 'center', gap: 'sm' }) }, [

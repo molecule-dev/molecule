@@ -14,7 +14,7 @@
 
 import { type Component, createSignal, For, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { ConfirmDialog, Icon } from '@molecule/app-ui-solid'
 
@@ -134,24 +134,32 @@ export const ImageGalleryEditor: Component<ImageGalleryEditorProps> = (props) =>
 
   return (
     <section>
-      <Show when={props.header || props.counter}>
-        <div class={cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6))}>
-          {props.header != null ? props.header : <div />}
-          <Show when={props.counter}>
-            <span
-              class={cm.cn(
-                cm.textSize('xs'),
-                cm.fontWeight('bold'),
-                cm.textMuted,
-                cm.uppercase,
-                cm.trackingWide,
-              )}
-            >
-              {props.counter}
-            </span>
-          </Show>
-        </div>
-      </Show>
+      <ResolveNode node={props.header}>
+        {(header, hasHeader) => (
+          <ResolveNode node={props.counter}>
+            {(counter, hasCounter) => (
+              <Show when={hasHeader() || hasCounter()}>
+                <div class={cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6))}>
+                  {hasHeader() ? header() : <div />}
+                  <Show when={hasCounter()}>
+                    <span
+                      class={cm.cn(
+                        cm.textSize('xs'),
+                        cm.fontWeight('bold'),
+                        cm.textMuted,
+                        cm.uppercase,
+                        cm.trackingWide,
+                      )}
+                    >
+                      {counter()}
+                    </span>
+                  </Show>
+                </div>
+              </Show>
+            )}
+          </ResolveNode>
+        )}
+      </ResolveNode>
       <div class={cm.cn(cm.grid({ cols: 12, gap: 'md', responsive: false }))}>
         {/* Hero drop zone (spans 8/12). grid-column span, aspect ratio, corner
             radius, and the dashed affordance border are ClassMap-can't-express
@@ -269,14 +277,16 @@ export const ImageGalleryEditor: Component<ImageGalleryEditorProps> = (props) =>
           </For>
         </div>
       </div>
-      <Show when={props.statusMessage}>
-        <p
-          class={cm.cn(cm.sp('mt', 3), cm.textSize('xs'), cm.textMuted)}
-          data-mol-id="image-gallery-editor-status"
-        >
-          {props.statusMessage}
-        </p>
-      </Show>
+      <PresentWhileNode node={props.statusMessage}>
+        {(statusMessage) => (
+          <p
+            class={cm.cn(cm.sp('mt', 3), cm.textSize('xs'), cm.textMuted)}
+            data-mol-id="image-gallery-editor-status"
+          >
+            {statusMessage()}
+          </p>
+        )}
+      </PresentWhileNode>
       {/* Hidden trigger input. `display:none` is the robust, framework-agnostic
           hide — a raw `hidden` class never generates without an @source scan of
           THIS package. It is still `.click()`-triggered from the visible drop

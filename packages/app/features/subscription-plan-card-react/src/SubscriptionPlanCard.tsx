@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
@@ -37,17 +38,21 @@ export interface SubscriptionPlanCardProps {
  */
 export function SubscriptionPlanCard({
   name,
-  description,
+  description: descriptionProp,
   price,
-  interval,
+  interval: intervalProp,
   features,
-  ctaLabel,
+  ctaLabel: ctaLabelProp,
   onCta,
   ctaHref,
   recommended,
-  badge,
+  badge: badgeProp,
   className,
 }: SubscriptionPlanCardProps): JSX.Element {
+  const description = slot(descriptionProp)
+  const interval = slot(intervalProp)
+  const ctaLabel = slot(ctaLabelProp)
+  const badge = slot(badgeProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const cta = ctaHref ? (

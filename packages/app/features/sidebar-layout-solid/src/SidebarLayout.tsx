@@ -1,6 +1,6 @@
 import { type Component, For, type JSX, Show } from 'solid-js'
 
-import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-solid'
+import { Link, ResolveNode, RoutedView, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SidebarLayoutProps, SidebarNavItem } from './types.js'
@@ -165,23 +165,35 @@ export const SidebarLayout: Component<SidebarLayoutProps> = (props) => {
           </For>
         </nav>
 
-        <Show when={props.userMenu || props.themeToggle}>
-          <div
-            class={cm.cn(
-              cm.sp('pt', 4),
-              cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
-              cm.borderT,
-            )}
-          >
-            {props.userMenu ?? <span aria-hidden="true" />}
-            {props.themeToggle}
-          </div>
-        </Show>
+        <ResolveNode node={props.userMenu}>
+          {(userMenu, hasUserMenu) => (
+            <ResolveNode node={props.themeToggle}>
+              {(themeToggle, hasThemeToggle) => (
+                <Show when={hasUserMenu() || hasThemeToggle()}>
+                  <div
+                    class={cm.cn(
+                      cm.sp('pt', 4),
+                      cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
+                      cm.borderT,
+                    )}
+                  >
+                    {hasUserMenu() ? userMenu() : <span aria-hidden="true" />}
+                    {hasThemeToggle() ? themeToggle() : null}
+                  </div>
+                </Show>
+              )}
+            </ResolveNode>
+          )}
+        </ResolveNode>
       </aside>
 
-      <main class={cm.cn(cm.pageShellContent)} style={{ 'min-width': '0px' }}>
-        {props.children ?? <RoutedView />}
-      </main>
+      <ResolveNode node={props.children}>
+        {(content, hasContent) => (
+          <main class={cm.cn(cm.pageShellContent)} style={{ 'min-width': '0px' }}>
+            {hasContent() ? content() : <RoutedView />}
+          </main>
+        )}
+      </ResolveNode>
     </div>
   )
 }

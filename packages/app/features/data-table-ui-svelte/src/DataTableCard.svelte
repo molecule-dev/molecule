@@ -7,6 +7,7 @@
   `key={rowKey(row)}`), so a row keeps its DOM node while its key is unchanged.
 -->
 <script lang="ts" generics="T">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { ReactNodeProp } from './node-prop.js'
@@ -26,8 +27,17 @@
   }: DataTableCardProps<T> = $props()
 
   const cm = $derived(getClassMap())
-  const titleShown = $derived(title !== undefined)
-  const headerShown = $derived(title !== undefined || titleAction !== undefined)
+  // React's `slot(title)`/`slot(titleAction)`: a `null`, `false` or `''` node is absent, so the row goes.
+  const titleShown = $derived(
+    title !== undefined && title !== null && title !== '' && typeof title !== 'boolean',
+  )
+  const headerShown = $derived(
+    titleShown ||
+      (titleAction !== undefined &&
+        titleAction !== null &&
+        titleAction !== '' &&
+        typeof titleAction !== 'boolean'),
+  )
 </script>
 
 {#snippet node(value: ReactNodeProp | undefined)}
@@ -36,7 +46,8 @@
 
 <section data-mol-id={dataMolId} class={cm.cn(cm.stack(4), cm.dataTableCardShell, className)}>
   {#if headerShown}
-    <div
+    <PresentWhileContent
+      tag="div"
       class={cm.cn(
         cm.flex({ justify: 'between', align: 'center' }),
         cm.sp('px', 8),
@@ -44,12 +55,15 @@
       )}
     >
       {#if titleShown}
-        <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}>
+        <PresentWhileContent
+          tag="h3"
+          class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}
+        >
           {@render node(title)}
-        </h3>
+        </PresentWhileContent>
       {/if}
       {@render node(titleAction)}
-    </div>
+    </PresentWhileContent>
   {/if}
   <div class={cm.dataTableCardScroller}>
     <table class={cm.cn(cm.w('full'), cm.dataTableCardTable)}>

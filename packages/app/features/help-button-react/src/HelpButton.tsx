@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link HelpButton}. */
@@ -35,7 +36,7 @@ const SIZE_MAP = { sm: 40, md: 52, lg: 64 } as const
  * @param props - Component props (see {@link HelpButtonProps}).
  */
 export function HelpButton({
-  icon,
+  icon: iconProp,
   label,
   onClick,
   href,
@@ -44,6 +45,7 @@ export function HelpButton({
   hasNotification,
   className,
 }: HelpButtonProps): ReactElement {
+  const icon = slot(iconProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [hovered, setHovered] = useState(false)

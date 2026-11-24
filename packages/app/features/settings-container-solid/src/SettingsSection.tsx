@@ -9,8 +9,9 @@
  * @module
  */
 
-import { type Component, Show } from 'solid-js'
+import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -30,18 +31,18 @@ export const SettingsSection: Component<SettingsSectionProps> = (props) => {
       <div class={cm.stack(4)}>
         <header class={cm.stack(1)}>
           <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>{props.title}</h2>
-          <Show when={props.description}>
+          <PresentWhileNode node={props.description}>
             {(description) => <p class={cm.textSize('sm')}>{description()}</p>}
-          </Show>
+          </PresentWhileNode>
         </header>
         <div>{props.children}</div>
-        <Show when={props.footer}>
+        <PresentWhileNode node={props.footer}>
           {(footer) => (
             <footer class={cm.flex({ justify: 'end', align: 'center', gap: 'sm' })}>
               {footer()}
             </footer>
           )}
-        </Show>
+        </PresentWhileNode>
       </div>
     </Card>
   )

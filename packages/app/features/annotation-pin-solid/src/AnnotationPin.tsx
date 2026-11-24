@@ -1,6 +1,6 @@
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { styleString } from './css.js'
@@ -139,11 +139,20 @@ export const AnnotationPin: Component<AnnotationPinProps> = (props) => {
           style={styleString(popupStyle(popupSide()))}
         >
           <div data-mol-id="annotation-pin-popup-body">
-            {props.note ?? (
-              <span data-mol-id="annotation-pin-popup-empty">
-                {t('annotationPin.empty', {}, { defaultValue: 'No notes for this pin.' })}
-              </span>
-            )}
+            <ResolveNode node={props.note}>
+              {(note, hasNote) => (
+                <Show
+                  when={hasNote()}
+                  fallback={
+                    <span data-mol-id="annotation-pin-popup-empty">
+                      {t('annotationPin.empty', {}, { defaultValue: 'No notes for this pin.' })}
+                    </span>
+                  }
+                >
+                  {note()}
+                </Show>
+              )}
+            </ResolveNode>
           </div>
         </div>
       </Show>

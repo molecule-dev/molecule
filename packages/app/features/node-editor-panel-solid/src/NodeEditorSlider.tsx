@@ -10,9 +10,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { createEffect, createUniqueId } from 'solid-js'
+import { type Component, createEffect, createUniqueId, type JSX, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { NodeEditorSection } from './NodeEditorSection.jsx'
@@ -30,7 +30,6 @@ export const NodeEditorSlider: Component<NodeEditorSliderProps> = (props) => {
   // Names the range input through the section's `<label for>`.
   const inputId = createUniqueId()
   let inputEl: HTMLInputElement | undefined
-
   // React keeps a controlled range input's live value on the prop, in the DOM
   // property AND the `value` attribute (its `defaultValue`), both at mount and
   // whenever the prop changes.
@@ -55,29 +54,44 @@ export const NodeEditorSlider: Component<NodeEditorSliderProps> = (props) => {
   }
 
   return (
-    <NodeEditorSection
-      gap={3}
-      label={props.label}
-      htmlFor={inputId}
-      trailing={
-        <span class={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
-          {props.valueDisplay ?? props.value}
-        </span>
-      }
-    >
-      <input
-        ref={(element) => {
-          inputEl = element
-        }}
-        id={inputId}
-        aria-valuetext={typeof props.valueDisplay === 'string' ? props.valueDisplay : undefined}
-        class={cm.cn(cm.w('full'), cm.h(1.5), cm.cursorPointer, cm.nodeEditorPanelSliderTrack)}
-        min={props.min ?? 0}
-        max={props.max ?? 1}
-        step={props.step ?? 0.1}
-        type="range"
-        onChange={handleChange}
-      />
-    </NodeEditorSection>
+    <ResolveNode node={props.valueDisplay}>
+      {(valueDisplay, hasValueDisplay) => {
+        // React's `slot(valueDisplay) ?? value` — an empty list falls back to the value.
+        const shown = (): JSX.Element => (hasValueDisplay() ? valueDisplay() : props.value)
+        return (
+          <NodeEditorSection
+            gap={3}
+            label={props.label}
+            htmlFor={inputId}
+            trailing={
+              <span class={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
+                <Show when={hasValueDisplay()} fallback={props.value}>
+                  {valueDisplay()}
+                </Show>
+              </span>
+            }
+          >
+            <input
+              ref={(element) => {
+                inputEl = element
+              }}
+              id={inputId}
+              aria-valuetext={typeof shown() === 'string' ? (shown() as string) : undefined}
+              class={cm.cn(
+                cm.w('full'),
+                cm.h(1.5),
+                cm.cursorPointer,
+                cm.nodeEditorPanelSliderTrack,
+              )}
+              min={props.min ?? 0}
+              max={props.max ?? 1}
+              step={props.step ?? 0.1}
+              type="range"
+              onChange={handleChange}
+            />
+          </NodeEditorSection>
+        )
+      }}
+    </ResolveNode>
   )
 }

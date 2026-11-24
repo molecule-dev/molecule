@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** A single navigable item in the settings sidebar. */
@@ -39,10 +40,11 @@ export function SettingsSidebar({
   items,
   activeId,
   onSelect,
-  footer,
+  footer: footerProp,
   ariaLabel,
   className,
 }: SettingsSidebarProps): JSX.Element {
+  const footer = slot(footerProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   return (

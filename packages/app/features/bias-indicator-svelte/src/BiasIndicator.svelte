@@ -7,7 +7,7 @@
   `useTranslation()` so a locale switch re-renders it.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import {
@@ -102,8 +102,8 @@
   >
     <span aria-hidden="true" class={dotClasses} style="background: {color}"></span>
     {#if sourceLabel !== undefined}
-      <span class={compactSourceClasses}
-        >{#if typeof sourceLabel === 'function'}{@render sourceLabel?.()}{:else}{sourceLabel}{/if}</span
+      <PresentWhileContent tag="span" class={compactSourceClasses}
+        >{#if typeof sourceLabel === 'function'}{@render sourceLabel?.()}{:else}{sourceLabel}{/if}</PresentWhileContent
       >
     {/if}
   </span>
@@ -115,8 +115,8 @@
     class={rootClasses}
   >
     {#if sourceLabel !== undefined}
-      <span data-mol-id="bias-indicator-source" class={sourceClasses}
-        >{#if typeof sourceLabel === 'function'}{@render sourceLabel?.()}{:else}{sourceLabel}{/if}</span
+      <PresentWhileContent tag="span" data-mol-id="bias-indicator-source" class={sourceClasses}
+        >{#if typeof sourceLabel === 'function'}{@render sourceLabel?.()}{:else}{sourceLabel}{/if}</PresentWhileContent
       >
     {/if}
     <div

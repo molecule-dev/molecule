@@ -11,7 +11,7 @@
 
 import { type Component, createEffect, createSignal, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
@@ -359,11 +359,13 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
         class={cm.cn(cm.surface, cm.borderBPrimary)}
         style={surfaceStyle()}
       >
-        <Show when={props.mapSlot != null}>
-          <div data-mol-id="map-drawing-slot" style={{ position: 'absolute', inset: '0px' }}>
-            {props.mapSlot}
-          </div>
-        </Show>
+        <PresentWhileNode node={props.mapSlot}>
+          {(mapSlot) => (
+            <div data-mol-id="map-drawing-slot" style={{ position: 'absolute', inset: '0px' }}>
+              {mapSlot()}
+            </div>
+          )}
+        </PresentWhileNode>
         <svg
           data-mol-id="map-drawing-overlay"
           width="100%"

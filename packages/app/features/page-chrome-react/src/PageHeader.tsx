@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link PageHeader}. */
@@ -42,15 +43,18 @@ export interface PageHeaderProps {
  */
 export function PageHeader({
   title,
-  subtitle,
+  subtitle: subtitleProp,
   icon,
   breadcrumbs,
-  actions,
-  meta,
+  actions: actionsProp,
+  meta: metaProp,
   emphasis = 'normal',
   dataMolId,
   className,
 }: PageHeaderProps): JSX.Element {
+  const subtitle = slot(subtitleProp)
+  const actions = slot(actionsProp)
+  const meta = slot(metaProp)
   const cm = getClassMap()
   const titleClass =
     emphasis === 'extrabold'

@@ -12,7 +12,7 @@ import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild }
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: a
@@ -24,22 +24,9 @@ import { useTranslation } from '@molecule/app-vue'
  * @param slot - The slot render function, when the caller passed the slot.
  * @returns The children to render.
  */
-const nodeValue = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): VNodeChild[] => {
-  if (prop !== undefined) return prop === null ? [] : [prop]
-  if (slot) return slot()
-  return []
-}
-
-/**
- * Whether React's `value && …` renders for this pair: a given prop is judged
- * by its own truthiness, and an absent prop falls back to the slot's presence.
- *
- * @param prop - The prop value.
- * @param slot - The slot render function.
- * @returns True when the branch renders.
- */
-const isPresent = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): boolean =>
-  prop !== undefined ? Boolean(prop) : slot !== undefined
+const nodeValue = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): VNodeChild[] =>
+  // An empty list renders nothing, as React's slot() treats it.
+  toChildArray(prop !== undefined ? prop : slot?.())
 
 /**
  * Inbox / email message list row — sender + subject + preview + timestamp +
@@ -169,7 +156,8 @@ export const InboxRow = defineComponent({
           nodeValue(props.sender, slots.sender),
         ),
       ]
-      if (isPresent(props.labels, slots.labels)) {
+      const labels = nodeValue(props.labels, slots.labels)
+      if (labels.length > 0) {
         senderRow.push(
           h(
             'span',
@@ -179,7 +167,7 @@ export const InboxRow = defineComponent({
                 props.onClick ? cm.position('relative') : undefined,
               ),
             },
-            [...nodeValue(props.labels, slots.labels)],
+            labels,
           ),
         )
       }
@@ -191,7 +179,8 @@ export const InboxRow = defineComponent({
           nodeValue(props.subject, slots.subject),
         ),
       ]
-      if (isPresent(props.preview, slots.preview)) {
+      const preview = nodeValue(props.preview, slots.preview)
+      if (preview.length > 0) {
         subjectRow.push(
           h(
             'span',
@@ -199,7 +188,7 @@ export const InboxRow = defineComponent({
               class: cm.cn(cm.textSize('sm'), cm.sp('ml', 2)),
               style: { opacity: '0.6' },
             },
-            ['— ', ...nodeValue(props.preview, slots.preview)],
+            ['— ', ...preview],
           ),
         )
       }
@@ -242,12 +231,9 @@ export const InboxRow = defineComponent({
         )
       }
 
-      if (isPresent(props.timestamp, slots.timestamp)) {
-        children.push(
-          h('span', { class: cm.cn(cm.textSize('xs'), cm.shrink0) }, [
-            ...nodeValue(props.timestamp, slots.timestamp),
-          ]),
-        )
+      const timestamp = nodeValue(props.timestamp, slots.timestamp)
+      if (timestamp.length > 0) {
+        children.push(h('span', { class: cm.cn(cm.textSize('xs'), cm.shrink0) }, timestamp))
       }
 
       return h(

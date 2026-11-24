@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { ActivityFeedItem } from './ActivityFeedItem.js'
@@ -25,10 +26,11 @@ export interface ActivityFeedProps {
  */
 export function ActivityFeed({
   items,
-  emptyState,
+  emptyState: emptyStateProp,
   footer,
   className,
 }: ActivityFeedProps): JSX.Element {
+  const emptyState = slot(emptyStateProp)
   const cm = getClassMap()
   if (items.length === 0 && emptyState) return <>{emptyState}</>
   return (

@@ -7,6 +7,7 @@
 
 import { type JSX, type ReactNode, useId } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-react'
 
@@ -24,12 +25,13 @@ export interface NodeEditorToggleProps {
 /** Toggle row. */
 export function NodeEditorToggle({
   title,
-  subtitle,
+  subtitle: subtitleProp,
   icon,
   checked,
   onChange,
   ariaLabel,
 }: NodeEditorToggleProps): JSX.Element {
+  const subtitle = slot(subtitleProp)
   const cm = getClassMap()
   // The switch is named by the title, and described by the subtitle when one
   // renders — the same text a sighted user reads beside the switch. Both ids

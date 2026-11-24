@@ -12,7 +12,7 @@
 import type { Component, JSX } from 'solid-js'
 import { createUniqueId } from 'solid-js'
 
-import { useLocale, useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useLocale, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TickerRowProps } from './types.js'
@@ -94,7 +94,9 @@ export const TickerRow: Component<TickerRowProps> = (props) => {
           style={openStyle()}
         />
       )}
-      {props.icon && <div class={cm.shrink0}>{props.icon}</div>}
+      <PresentWhileNode node={props.icon}>
+        {(icon) => <div class={cm.shrink0}>{icon()}</div>}
+      </PresentWhileNode>
       <div class={cm.cn(cm.flex1, cm.stack(0))}>
         {/* The id names the open button (React's `aria-labelledby`). */}
         <span
@@ -105,7 +107,9 @@ export const TickerRow: Component<TickerRowProps> = (props) => {
         </span>
         {props.name && <span class={cm.textSize('xs')}>{props.name}</span>}
       </div>
-      {props.sparkline && <div class={cm.shrink0}>{props.sparkline}</div>}
+      <PresentWhileNode node={props.sparkline}>
+        {(sparkline) => <div class={cm.shrink0}>{sparkline()}</div>}
+      </PresentWhileNode>
       <div class={cm.cn(cm.textCenter, cm.stack(0))}>
         <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.price}</span>
         {(props.changeDisplay !== undefined || props.changePct !== undefined) && (
@@ -117,20 +121,22 @@ export const TickerRow: Component<TickerRowProps> = (props) => {
           </span>
         )}
       </div>
-      {props.meta && (
-        // Raised above the open button in its positioned wrapper while the row
-        // is clickable, so a click on its content lands here and keeps its own
-        // clicks.
-        <div
-          class={cm.cn(
-            cm.textSize('xs'),
-            cm.shrink0,
-            props.onClick ? cm.position('relative') : undefined,
-          )}
-        >
-          {props.meta}
-        </div>
-      )}
+      <PresentWhileNode node={props.meta}>
+        {(meta) => (
+          // Raised above the open button in its positioned wrapper while the row
+          // is clickable, so a click on its content lands here and keeps its own
+          // clicks.
+          <div
+            class={cm.cn(
+              cm.textSize('xs'),
+              cm.shrink0,
+              props.onClick ? cm.position('relative') : undefined,
+            )}
+          >
+            {meta()}
+          </div>
+        )}
+      </PresentWhileNode>
     </div>
   )
 }

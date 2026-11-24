@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { CtaCardProps } from './types.js'
@@ -36,14 +37,20 @@ export const CtaCard: Component<CtaCardProps> = (props) => {
         props.className,
       )}
     >
-      {props.media && <div class={cm.shrink0}>{props.media}</div>}
+      <PresentWhileNode node={props.media}>
+        {(media) => <div class={cm.shrink0}>{media()}</div>}
+      </PresentWhileNode>
       <div class={cm.cn(cm.flex1, cm.stack(2))}>
-        {props.eyebrow && (
-          <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{props.eyebrow}</div>
-        )}
+        <PresentWhileNode node={props.eyebrow}>
+          {(eyebrow) => (
+            <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{eyebrow()}</div>
+          )}
+        </PresentWhileNode>
         <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>{props.title}</h3>
         {props.description && <p>{props.description}</p>}
-        {props.action && <div class={cm.sp('mt', 2)}>{props.action}</div>}
+        <PresentWhileNode node={props.action}>
+          {(action) => <div class={cm.sp('mt', 2)}>{action()}</div>}
+        </PresentWhileNode>
       </div>
     </section>
   )

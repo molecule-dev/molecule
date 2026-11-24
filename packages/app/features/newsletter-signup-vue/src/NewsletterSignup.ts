@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, ref, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot, with
@@ -28,8 +28,8 @@ const nodeOrSlot = (
   prop: VNodeChild | null | undefined,
   slot: (() => VNodeChild[]) | undefined,
 ): VNodeChild[] => {
-  if (prop) return [prop]
-  if (slot) return slot()
+  if (prop) return toChildArray(prop)
+  if (slot) return toChildArray(slot())
   return []
 }
 

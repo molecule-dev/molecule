@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-react'
 
@@ -54,10 +55,11 @@ const KIND_TO_COLOR: Record<StatusKind, 'success' | 'warning' | 'error' | 'info'
 export function StatusBadge({
   kind = 'neutral',
   children,
-  icon,
+  icon: iconProp,
   appearance = 'ui',
   className,
 }: StatusBadgeProps): JSX.Element {
+  const icon = slot(iconProp)
   const cm = getClassMap()
   if (appearance === 'uppercase-pill') {
     return (

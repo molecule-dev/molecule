@@ -7,6 +7,7 @@
   title, and the `actions` slot sits above it and keeps its own clicks.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { OptimisticToggleButton } from '@molecule/app-ui-svelte'
 
@@ -63,9 +64,9 @@
     ></button>
   {/if}
   {#if leading}
-    <div class={cm.shrink0}>
+    <PresentWhileContent class={cm.shrink0}>
       {#if typeof leading === 'function'}{@render leading?.()}{:else}{leading}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
     <div
@@ -86,13 +87,10 @@
     {/if}
   </div>
   {#if toggle || actions}
-    <div class={cm.cn(cm.shrink0, cm.position('relative'))}>
-      {#if toggle}
-        <OptimisticToggleButton {...toggle} />
-      {/if}
-      {#if actions}
-        {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
-      {/if}
-    </div>
+    <PresentWhileContent class={cm.cn(cm.shrink0, cm.position('relative'))}
+      >{#if toggle}<OptimisticToggleButton
+          {...toggle}
+        />{/if}{#if actions}{#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}{/if}</PresentWhileContent
+    >
   {/if}
 </div>

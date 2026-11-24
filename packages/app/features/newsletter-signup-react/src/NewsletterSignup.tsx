@@ -2,6 +2,7 @@ import type { FormEvent, JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input } from '@molecule/app-ui-react'
 
@@ -32,14 +33,16 @@ export interface NewsletterSignupProps {
  */
 export function NewsletterSignup({
   onSubscribe,
-  title,
-  description,
+  title: titleProp,
+  description: descriptionProp,
   placeholder,
   buttonLabel,
   successContent,
   layout = 'inline',
   className,
 }: NewsletterSignupProps): JSX.Element {
+  const title = slot(titleProp)
+  const description = slot(descriptionProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [email, setEmail] = useState('')

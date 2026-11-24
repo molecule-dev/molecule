@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Structured postal address with optional individual fields. */
@@ -59,13 +60,14 @@ function joinAddress(a: Address): string[] {
  */
 export function AddressDisplay({
   address,
-  name,
+  name: nameProp,
   phone,
   leading,
   actions,
   inline,
   className,
 }: AddressDisplayProps): ReactElement {
+  const name = slot(nameProp)
   const cm = getClassMap()
   const lines = joinAddress(address)
   const body = inline ? (

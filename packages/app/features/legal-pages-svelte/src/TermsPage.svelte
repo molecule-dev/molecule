@@ -5,7 +5,7 @@
   passes a real body. Same props, same DOM for the same input.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, useTranslation } from '@molecule/app-svelte'
 
   import LegalPageLayout from './LegalPageLayout.svelte'
   import type { TermsPageProps } from './types.js'
@@ -27,9 +27,8 @@
 
 <LegalPageLayout dataMolId="page-terms" {stackGap}>
   {#snippet title()}{pageTitle}{/snippet}
-  {#if children}
+  <ContentOrElse>
     {@render children?.()}
-  {:else}
-    <p>{intro}</p>
-  {/if}
+    {#snippet otherwise()}<p>{intro}</p>{/snippet}
+  </ContentOrElse>
 </LegalPageLayout>

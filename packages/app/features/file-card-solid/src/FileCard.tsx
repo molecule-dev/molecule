@@ -11,7 +11,7 @@
 
 import { type Component, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { FileIcon } from './FileIcon.jsx'
@@ -294,26 +294,27 @@ export const FileCard: Component<FileCardProps> = (props) => {
   /**
    * The trailing actions region, a sibling of the select button.
    *
-   * @returns The actions element, or null without actions.
+   * @returns The actions element, or nothing without actions.
    */
-  const actions = (): JSX.Element | null => {
-    if (!props.actions) return null
-    return (
-      <div
-        class={
-          props.layout === 'row'
-            ? cm.cn(cm.shrink0, cm.position('relative'))
-            : cm.cn(
-                cm.flex({ align: 'center', justify: 'end', gap: 'sm' }),
-                cm.position('relative'),
-              )
-        }
-        data-mol-id="file-card-actions"
-      >
-        {props.actions}
-      </div>
-    )
-  }
+  const actions = (): JSX.Element => (
+    <PresentWhileNode node={props.actions}>
+      {(actions) => (
+        <div
+          class={
+            props.layout === 'row'
+              ? cm.cn(cm.shrink0, cm.position('relative'))
+              : cm.cn(
+                  cm.flex({ align: 'center', justify: 'end', gap: 'sm' }),
+                  cm.position('relative'),
+                )
+          }
+          data-mol-id="file-card-actions"
+        >
+          {actions()}
+        </div>
+      )}
+    </PresentWhileNode>
+  )
 
   /**
    * The row layout: a horizontal line item — icon, name + meta, then the

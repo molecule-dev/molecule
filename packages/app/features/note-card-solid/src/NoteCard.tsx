@@ -8,9 +8,9 @@
  * @module
  */
 
-import { type Component, createUniqueId, type JSX } from 'solid-js'
+import { type Component, createUniqueId, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
 import type { NoteCardProps } from './types.js'
@@ -70,24 +70,29 @@ export const NoteCard: Component<NoteCardProps> = (props) => {
   const { t } = useTranslation()
   const cm = getClassMap()
   const nameId = createUniqueId()
+  // The heading's id target moves to the body when the title renders nothing.
   const content = (
-    <>
-      {props.title ? (
-        <h3
-          id={props.onClick ? nameId : undefined}
-          class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}
-        >
-          {props.title}
-        </h3>
-      ) : null}
-      <div
-        id={props.title ? undefined : props.onClick ? nameId : undefined}
-        class={cm.textSize('sm')}
-        style={{ 'white-space': 'pre-wrap' }}
-      >
-        {props.body}
-      </div>
-    </>
+    <ResolveNode node={props.title}>
+      {(title, hasTitle) => (
+        <>
+          {hasTitle() ? (
+            <h3
+              id={props.onClick ? nameId : undefined}
+              class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}
+            >
+              {title()}
+            </h3>
+          ) : null}
+          <div
+            id={hasTitle() ? undefined : props.onClick ? nameId : undefined}
+            class={cm.textSize('sm')}
+            style={{ 'white-space': 'pre-wrap' }}
+          >
+            {props.body}
+          </div>
+        </>
+      )}
+    </ResolveNode>
   )
   return (
     // The card's paper: the light tint of the note colour's tone, or the
@@ -130,17 +135,21 @@ export const NoteCard: Component<NoteCardProps> = (props) => {
         </span>
       ) : null}
       {content}
-      {props.modifiedAt || props.actions ? (
-        <footer
-          class={cm.cn(
-            cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
-            props.onClick ? cm.position('relative') : undefined,
-          )}
-        >
-          {props.modifiedAt ? <span class={cm.textSize('xs')}>{props.modifiedAt}</span> : null}
-          {props.actions}
-        </footer>
-      ) : null}
+      <ResolveNode node={props.actions}>
+        {(actions, hasActions) => (
+          <Show when={props.modifiedAt || hasActions()}>
+            <footer
+              class={cm.cn(
+                cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
+                props.onClick ? cm.position('relative') : undefined,
+              )}
+            >
+              {props.modifiedAt ? <span class={cm.textSize('xs')}>{props.modifiedAt}</span> : null}
+              {hasActions() ? actions() : null}
+            </footer>
+          </Show>
+        )}
+      </ResolveNode>
     </article>
   )
 }

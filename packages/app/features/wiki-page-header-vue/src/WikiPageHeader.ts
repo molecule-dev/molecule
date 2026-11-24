@@ -9,7 +9,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -63,8 +63,9 @@ export const WikiPageHeader = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
-    return (): VNode =>
-      h('header', { class: cm.cn(cm.stack(2), props.className) }, [
+    return (): VNode => {
+      const tags = nodeOrSlot(props.tags, slots.tags)
+      return h('header', { class: cm.cn(cm.stack(2), props.className) }, [
         ...nodeOrSlot(props.breadcrumb, slots.breadcrumb),
         h(
           'div',
@@ -106,14 +107,11 @@ export const WikiPageHeader = defineComponent({
               ])
             : null,
           props.updatedBy ? h('span', { class: cm.textSize('xs') }, ['· ', props.updatedBy]) : null,
-          props.tags
-            ? h(
-                'span',
-                { class: cm.flex({ align: 'center', gap: 'xs' }) },
-                nodeOrSlot(props.tags, slots.tags),
-              )
+          toChildArray(tags).length > 0
+            ? h('span', { class: cm.flex({ align: 'center', gap: 'xs' }) }, tags)
             : null,
         ]),
       ])
+    }
   },
 })

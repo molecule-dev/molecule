@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -29,17 +30,21 @@ export const ChartCard: Component<ChartCardProps> = (props) => {
         <header class={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
           <div class={cm.stack(1)}>
             <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{props.title}</h3>
-            {props.description && <p class={cm.textSize('sm')}>{props.description}</p>}
+            <PresentWhileNode node={props.description}>
+              {(description) => <p class={cm.textSize('sm')}>{description()}</p>}
+            </PresentWhileNode>
           </div>
-          {props.actions && (
-            <div class={cm.flex({ align: 'center', gap: 'sm' })}>{props.actions}</div>
-          )}
+          <PresentWhileNode node={props.actions}>
+            {(actions) => <div class={cm.flex({ align: 'center', gap: 'sm' })}>{actions()}</div>}
+          </PresentWhileNode>
         </header>
-        {props.summary && (
-          <div class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>{props.summary}</div>
-        )}
+        <PresentWhileNode node={props.summary}>
+          {(summary) => (
+            <div class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>{summary()}</div>
+          )}
+        </PresentWhileNode>
         <div style={{ 'min-height': `${minHeight()}px` }}>{props.children}</div>
-        {props.footer && <div>{props.footer}</div>}
+        <PresentWhileNode node={props.footer}>{(footer) => <div>{footer()}</div>}</PresentWhileNode>
       </div>
     </Card>
   )

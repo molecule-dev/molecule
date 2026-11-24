@@ -12,7 +12,7 @@
 
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -45,23 +45,27 @@ export const MedicationRow: Component<MedicationRowProps> = (props) => {
         <div class={cm.cn(cm.flex1, cm.stack(1))}>
           <header class={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
             <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>{props.name}</h3>
-            <Show when={props.dosage}>
-              <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{props.dosage}</span>
-            </Show>
-            <Show when={props.form}>
-              <span class={cm.textSize('xs')}>{props.form}</span>
-            </Show>
+            <PresentWhileNode node={props.dosage}>
+              {(dosage) => (
+                <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{dosage()}</span>
+              )}
+            </PresentWhileNode>
+            <PresentWhileNode node={props.form}>
+              {(form) => <span class={cm.textSize('xs')}>{form()}</span>}
+            </PresentWhileNode>
           </header>
-          <Show when={props.instructions}>
-            <p class={cm.textSize('sm')}>{props.instructions}</p>
-          </Show>
+          <PresentWhileNode node={props.instructions}>
+            {(instructions) => <p class={cm.textSize('sm')}>{instructions()}</p>}
+          </PresentWhileNode>
           <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-            <Show when={props.prescriber}>
-              <span class={cm.textSize('xs')}>
-                {t('medication.prescribedBy', {}, { defaultValue: 'Prescribed by' })}{' '}
-                {props.prescriber}
-              </span>
-            </Show>
+            <PresentWhileNode node={props.prescriber}>
+              {(prescriber) => (
+                <span class={cm.textSize('xs')}>
+                  {t('medication.prescribedBy', {}, { defaultValue: 'Prescribed by' })}{' '}
+                  {prescriber()}
+                </span>
+              )}
+            </PresentWhileNode>
             <Show when={props.supplyDays !== undefined}>
               <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                 {'· '}
@@ -84,9 +88,9 @@ export const MedicationRow: Component<MedicationRowProps> = (props) => {
             </Show>
           </div>
         </div>
-        <Show when={props.actions}>
-          <div class={cm.shrink0}>{props.actions}</div>
-        </Show>
+        <PresentWhileNode node={props.actions}>
+          {(actions) => <div class={cm.shrink0}>{actions()}</div>}
+        </PresentWhileNode>
       </div>
     </Card>
   )

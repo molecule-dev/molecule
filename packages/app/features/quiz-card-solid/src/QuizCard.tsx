@@ -7,7 +7,7 @@
 
 import { type Component, createSignal, For } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-solid'
 
@@ -113,11 +113,11 @@ export const QuizCard: Component<QuizCardProps> = (props) => {
     <Card className={props.className}>
       <div class={cm.stack(4)}>
         <header class={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
-          {props.progress && (
-            <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-              {props.progress}
-            </span>
-          )}
+          <PresentWhileNode node={props.progress}>
+            {(progress) => (
+              <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{progress()}</span>
+            )}
+          </PresentWhileNode>
           {props.timer}
         </header>
         <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{props.question}</h2>

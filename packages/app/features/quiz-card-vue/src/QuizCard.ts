@@ -9,7 +9,7 @@ import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } f
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { QuizOption } from './types.js'
 
@@ -115,7 +115,7 @@ export const QuizCard = defineComponent({
             () => {
               const progress = nodeOrSlot(props.progress, slots.progress)
               return [
-                progress.length > 0
+                toChildArray(progress).length > 0
                   ? h(
                       'span',
                       { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) },

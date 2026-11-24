@@ -12,6 +12,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { OrderMilestone } from './types.js'
 
@@ -182,7 +183,7 @@ export const OrderTimeline = defineComponent({
           },
           props.milestones.map((milestone, index) => item(milestone, index, vertical)),
         ),
-        eta
+        toChildArray(eta).length > 0
           ? h('div', { class: cm.cn(cm.textSize('sm'), cm.fontWeight('semibold')) }, [eta])
           : null,
       ])

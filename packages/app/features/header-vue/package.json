@@ -45,7 +45,7 @@
   "peerDependencies": {
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-ui-vue": "^1.1.0",
-    "@molecule/app-vue": "^3.6.0",
+    "@molecule/app-vue": "^3.13.0",
     "vue": "^3.4.0"
   },
   "devDependencies": {

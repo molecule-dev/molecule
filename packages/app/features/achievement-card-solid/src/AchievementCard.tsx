@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -42,11 +42,15 @@ export const AchievementCard: Component<AchievementCardProps> = (props) => {
         <div class={cm.cn(cm.flex1, cm.stack(1))}>
           <header class={cm.flex({ align: 'baseline', gap: 'sm' })}>
             <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>{props.name}</h3>
-            {props.tier && (
-              <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{props.tier}</span>
-            )}
+            <PresentWhileNode node={props.tier}>
+              {(tier) => (
+                <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{tier()}</span>
+              )}
+            </PresentWhileNode>
           </header>
-          {props.description && <p class={cm.textSize('sm')}>{props.description}</p>}
+          <PresentWhileNode node={props.description}>
+            {(description) => <p class={cm.textSize('sm')}>{description()}</p>}
+          </PresentWhileNode>
           {props.earned ? (
             props.earnedAt && (
               <span class={cm.textSize('xs')}>

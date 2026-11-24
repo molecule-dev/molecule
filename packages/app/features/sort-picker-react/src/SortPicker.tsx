@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Select } from '@molecule/app-ui-react'
 
@@ -54,11 +55,12 @@ export function SortPicker<T extends string = string>({
   value,
   onChange,
   options,
-  label,
+  label: labelProp,
   ariaLabel,
   labelPosition = 'inline',
   className,
 }: SortPickerProps<T>): ReactElement {
+  const label = slot(labelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const defaultLabel = t('sort.label', {}, { defaultValue: 'Sort by' })

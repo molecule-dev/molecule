@@ -12,6 +12,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { WeatherAlertLevel, WeatherTracePoint } from './types.js'
 
@@ -29,6 +30,10 @@ const nodeOrSlot = (value: VNodeChild, slot: (() => VNodeChild[]) | undefined): 
   if (slot) return slot()
   return []
 }
+
+/** Whether a node-valued prop, or its same-named slot, renders anything. */
+const hasNodeOrSlot = (value: VNodeChild, slot: (() => VNodeChild[]) | undefined): boolean =>
+  toChildArray(nodeOrSlot(value, slot)).length > 0
 
 /** The sparkline's fixed DECORATIVE path, used when the trace is absent or too short. */
 const FALLBACK = {
@@ -124,10 +129,14 @@ export const WeatherCard = defineComponent({
        * @returns The children to render inside the badge.
        */
       const alertContent = (): VNodeChild[] => {
-        if (props.alertLabel !== undefined && props.alertLabel !== null)
-          return [props.alertLabel as VNodeChild]
-        if (slots.alertLabel) return slots.alertLabel()
-        return [props.alertLevel as string]
+        const nodes = toChildArray(
+          props.alertLabel !== undefined && props.alertLabel !== null
+            ? props.alertLabel
+            : slots.alertLabel
+              ? slots.alertLabel()
+              : undefined,
+        )
+        return nodes.length > 0 ? nodes : [props.alertLevel as string]
       }
 
       return h(
@@ -147,7 +156,7 @@ export const WeatherCard = defineComponent({
               { class: cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'md' })) },
               [
                 h('div', {}, [
-                  ...(nodeOrSlot(props.eyebrow, slots.eyebrow).length > 0
+                  ...(hasNodeOrSlot(props.eyebrow, slots.eyebrow)
                     ? [
                         h(
                           'p',
@@ -268,7 +277,7 @@ export const WeatherCard = defineComponent({
                 class: cm.cn(cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }), cm.sp('mt', 4)),
               },
               [
-                ...(nodeOrSlot(props.feelsLikeLabel, slots.feelsLikeLabel).length > 0
+                ...(hasNodeOrSlot(props.feelsLikeLabel, slots.feelsLikeLabel)
                   ? [
                       h(
                         'span',
@@ -283,7 +292,7 @@ export const WeatherCard = defineComponent({
                       ),
                     ]
                   : []),
-                ...(nodeOrSlot(props.highLowLabel, slots.highLowLabel).length > 0
+                ...(hasNodeOrSlot(props.highLowLabel, slots.highLowLabel)
                   ? [
                       h(
                         'span',
@@ -302,7 +311,7 @@ export const WeatherCard = defineComponent({
                       ),
                     ]
                   : []),
-                ...(nodeOrSlot(props.updatedLabel, slots.updatedLabel).length > 0
+                ...(hasNodeOrSlot(props.updatedLabel, slots.updatedLabel)
                   ? [
                       h(
                         'span',

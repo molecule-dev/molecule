@@ -10,8 +10,9 @@
  * @module
  */
 
-import { type Component, For, Show } from 'solid-js'
+import { type Component, For, type JSX, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatbotTesterMessagesProps } from './types.js'
@@ -27,66 +28,59 @@ import type { ChatbotTesterMessagesProps } from './types.js'
 export const ChatbotTesterMessages: Component<ChatbotTesterMessagesProps> = (props) => {
   const cm = getClassMap()
 
-  /**
-   * Whether React takes the empty-state branch.
-   *
-   * @returns True when the empty state renders instead of the list.
-   */
-  const showsEmptyState = (): boolean =>
-    !props.loading && props.messages.length === 0 && Boolean(props.emptyState)
-
-  return (
-    <Show
-      when={showsEmptyState()}
-      fallback={
-        <div class={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 4), cm.chatbotTesterMessageList)}>
-          <div class={cm.stack(3)}>
-            <For each={props.messages}>
-              {(msg) => {
-                const isUser = (): boolean => msg.role === 'user'
-                return (
-                  <div class={cm.cn(cm.flex({ justify: isUser() ? 'end' : 'start' }))}>
+  const list = (): JSX.Element => (
+    <div class={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 4), cm.chatbotTesterMessageList)}>
+      <div class={cm.stack(3)}>
+        <For each={props.messages}>
+          {(msg) => {
+            const isUser = (): boolean => msg.role === 'user'
+            return (
+              <div class={cm.cn(cm.flex({ justify: isUser() ? 'end' : 'start' }))}>
+                <div
+                  class={cm.cn(
+                    cm.sp('px', 4),
+                    cm.sp('py', 2),
+                    cm.textSize('sm'),
+                    cm.chatbotTesterMessageBubble,
+                    isUser() ? cm.chatbotTesterMessageBubbleUser : cm.chatbotTesterMessageBubbleBot,
+                  )}
+                >
+                  {msg.content}
+                  <Show when={msg.timestamp}>
                     <div
                       class={cm.cn(
-                        cm.sp('px', 4),
-                        cm.sp('py', 2),
-                        cm.textSize('sm'),
-                        cm.chatbotTesterMessageBubble,
-                        isUser()
-                          ? cm.chatbotTesterMessageBubbleUser
-                          : cm.chatbotTesterMessageBubbleBot,
+                        cm.textSize('xs'),
+                        cm.sp('mt', 1),
+                        isUser() ? cm.chatbotTesterMessageTimeUser : cm.chatbotTesterMessageTimeBot,
                       )}
                     >
-                      {msg.content}
-                      <Show when={msg.timestamp}>
-                        <div
-                          class={cm.cn(
-                            cm.textSize('xs'),
-                            cm.sp('mt', 1),
-                            isUser()
-                              ? cm.chatbotTesterMessageTimeUser
-                              : cm.chatbotTesterMessageTimeBot,
-                          )}
-                        >
-                          {msg.timestamp}
-                        </div>
-                      </Show>
+                      {msg.timestamp}
                     </div>
-                  </div>
-                )
-              }}
-            </For>
-            <Show when={props.loading}>
-              <div class={cm.cn(cm.textSize('xs'), cm.chatbotTesterTypingIndicator)}>...</div>
-            </Show>
-            <div />
-          </div>
-        </div>
-      }
-    >
-      <div class={cm.cn(cm.flex1, cm.flex({ align: 'center', justify: 'center' }))}>
-        {props.emptyState}
+                  </Show>
+                </div>
+              </div>
+            )
+          }}
+        </For>
+        <Show when={props.loading}>
+          <div class={cm.cn(cm.textSize('xs'), cm.chatbotTesterTypingIndicator)}>...</div>
+        </Show>
+        <div />
       </div>
+    </div>
+  )
+
+  return (
+    <Show when={!props.loading && props.messages.length === 0} fallback={list()}>
+      <ResolveNode node={props.emptyState}>
+        {(emptyState, hasEmptyState) => (
+          <Show when={hasEmptyState()} fallback={list()}>
+            <div class={cm.cn(cm.flex1, cm.flex({ align: 'center', justify: 'center' }))}>
+              {emptyState()}
+            </div>
+          </Show>
+        )}
+      </ResolveNode>
     </Show>
   )
 }

@@ -8,7 +8,6 @@
  */
 
 import {
-  children,
   type Component,
   createEffect,
   createSignal,
@@ -18,7 +17,7 @@ import {
   Show,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { resolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
 
@@ -48,10 +47,10 @@ const dotStyle = { background: 'transparent', border: 'none', padding: '4px' }
 export const Carousel: Component<CarouselProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
-  // React's `children` array: Solid's `children` helper resolves whatever the caller passed
+  // React's `children` array: `resolveNode` resolves whatever the caller passed
   // (elements, text, a `<For>`, a conditional) to the flat list of rendered children, and
   // follows it when it changes.
-  const resolved = children(() => props.children)
+  const resolved = resolveNode(() => props.children)
   const slides = (): ResolvedJSXElement[] =>
     resolved.toArray().filter((c) => c !== null && c !== undefined && c !== false)
   const total = (): number => slides().length

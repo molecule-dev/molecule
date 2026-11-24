@@ -6,7 +6,7 @@
   snippets (or plain strings).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
 
@@ -67,9 +67,9 @@
       >
     {/if}
     {#if tags}
-      <span class={cm.flex({ align: 'center', gap: 'xs' })}>
+      <PresentWhileContent tag="span" class={cm.flex({ align: 'center', gap: 'xs' })}>
         {#if typeof tags === 'function'}{@render tags?.()}{:else}{tags}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
   </div>
 </header>

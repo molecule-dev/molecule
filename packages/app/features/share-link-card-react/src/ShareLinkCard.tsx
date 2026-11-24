@@ -1,6 +1,7 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card, Switch } from '@molecule/app-ui-react'
 
@@ -39,8 +40,8 @@ export interface ShareLinkCardProps {
  * @param props - Component props (see {@link ShareLinkCardProps}).
  */
 export function ShareLinkCard({
-  title,
-  description,
+  title: titleProp,
+  description: descriptionProp,
   url,
   qr,
   showQR,
@@ -48,6 +49,8 @@ export function ShareLinkCard({
   className,
   dataMolId,
 }: ShareLinkCardProps): JSX.Element {
+  const title = slot(titleProp)
+  const description = slot(descriptionProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   // The password switch is named from its visible label; `useId()` keeps the

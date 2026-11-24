@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Column definition for a DataTableCard — specifies key, header, and cell renderer. */
@@ -58,7 +59,7 @@ export interface DataTableCardProps<Row> {
  * @param props - Component props (see {@link DataTableCardProps}).
  */
 export function DataTableCard<Row>({
-  title,
+  title: titleProp,
   titleAction,
   columns,
   rows,
@@ -69,6 +70,7 @@ export function DataTableCard<Row>({
   className,
   dataMolId,
 }: DataTableCardProps<Row>): JSX.Element {
+  const title = slot(titleProp)
   const cm = getClassMap()
   return (
     <section

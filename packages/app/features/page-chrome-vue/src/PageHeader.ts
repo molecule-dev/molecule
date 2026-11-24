@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -43,9 +44,9 @@ const optional = (
 ): VNodeChild[] | null => {
   if (slot) {
     const nodes = slot()
-    return nodes.length > 0 ? nodes : null
+    return toChildArray(nodes).length > 0 ? nodes : null
   }
-  return prop ? [prop] : null
+  return toChildArray(prop).length > 0 ? [prop] : null
 }
 
 /**

@@ -2,6 +2,7 @@ import type { FormEvent, JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
 
@@ -40,13 +41,15 @@ export interface ContactFormProps {
  */
 export function ContactForm({
   onSubmit,
-  title,
-  description,
+  title: titleProp,
+  description: descriptionProp,
   submitLabel,
   successContent,
   extraFields,
   className,
 }: ContactFormProps): JSX.Element | null {
+  const title = slot(titleProp)
+  const description = slot(descriptionProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [name, setName] = useState('')

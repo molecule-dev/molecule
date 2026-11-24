@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavGroup, NavItem } from './types.js'
@@ -34,9 +35,10 @@ export function AppShellSideNav({
   activeId,
   onItemClick,
   header,
-  footer,
+  footer: footerProp,
   className,
 }: AppShellSideNavProps): JSX.Element {
+  const footer = slot(footerProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   /**

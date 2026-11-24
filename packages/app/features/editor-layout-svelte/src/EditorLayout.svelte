@@ -5,6 +5,7 @@
   snippet slots.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { EditorLayoutProps } from './types.js'
@@ -31,13 +32,17 @@
   </div>
   <div class={cm.cn(cm.flex({ align: 'stretch' }), cm.flex1)}>
     {#if sidePanel && sidePanelOpen && sidePanelPosition === 'left'}
-      <aside class={cm.shrink0}>{@render sidePanel?.()}</aside>
+      <PresentWhileContent tag="aside" class={cm.shrink0}
+        >{@render sidePanel?.()}</PresentWhileContent
+      >
     {/if}
     <main class={cm.flex1}>
       {#if canvas}{@render canvas?.()}{/if}
     </main>
     {#if sidePanel && sidePanelOpen && sidePanelPosition === 'right'}
-      <aside class={cm.shrink0}>{@render sidePanel?.()}</aside>
+      <PresentWhileContent tag="aside" class={cm.shrink0}
+        >{@render sidePanel?.()}</PresentWhileContent
+      >
     {/if}
   </div>
 </div>

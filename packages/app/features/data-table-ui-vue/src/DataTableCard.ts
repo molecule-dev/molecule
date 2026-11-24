@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { DataTableColumn } from './types.js'
 
@@ -54,9 +55,13 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  if (prop === undefined || prop === null || prop === '' || prop === false) return []
-  return [prop]
+  const nodes: VNodeChild[] = slot
+    ? slot()
+    : prop === undefined || prop === null || prop === '' || prop === false
+      ? []
+      : [prop]
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
@@ -111,9 +116,10 @@ export const DataTableCard = defineComponent({
 
     return (): VNode => {
       const onRowClick = props.onRowClick
-      const titleShown = props.title !== undefined || Boolean(slots.title)
-      const headerShown =
-        titleShown || props.titleAction !== undefined || Boolean(slots.titleAction)
+      const titleNodes = slotOrProp(slots.title, props.title)
+      const titleActionNodes = slotOrProp(slots.titleAction, props.titleAction)
+      const titleShown = titleNodes.length > 0
+      const headerShown = titleShown || titleActionNodes.length > 0
 
       const headerRow = headerShown
         ? h(
@@ -137,11 +143,11 @@ export const DataTableCard = defineComponent({
                           cm.dataTableCardTitle,
                         ),
                       },
-                      slotOrProp(slots.title, props.title),
+                      titleNodes,
                     ),
                   ]
                 : []),
-              ...slotOrProp(slots.titleAction, props.titleAction),
+              ...titleActionNodes,
             ],
           )
         : undefined

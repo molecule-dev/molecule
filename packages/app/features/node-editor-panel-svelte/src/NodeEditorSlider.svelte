@@ -6,6 +6,7 @@
   same input.
 -->
 <script lang="ts">
+  import { contentNodes } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import NodeEditorSection from './NodeEditorSection.svelte'
@@ -36,13 +37,62 @@
     onChange(parseFloat(element.value))
     element.value = String(value)
   }
+
+  // React's `slot(valueDisplay) ?? value`: a value-display snippet that renders nothing (an empty
+  // list, or the empty string) falls back to the numeric value, like an omitted one. A snippet's
+  // `{#each}` over no rows changes the DOM without changing the prop, so presence is read from the
+  // rendered chip; the numeric value (the fallback text) is tracked by its node count.
+  let chipEl = $state<HTMLSpanElement | null>(null)
+  let displayRenders = $state(true)
+  let valueCount: number | null = null
+  $effect(() => {
+    const element = chipEl
+    void valueDisplay
+    if (!element) return
+    const isSnippet = typeof valueDisplay === 'function'
+    const count = (): number =>
+      contentNodes(element).filter(
+        (node) => node.nodeType === 1 || (node.textContent ?? '').trim() !== '',
+      ).length
+    const sync = (): void => {
+      if (!isSnippet) {
+        if (displayRenders) displayRenders = false
+        valueCount = null
+        return
+      }
+      if (displayRenders) {
+        if (count() > 0) return
+        displayRenders = false
+        valueCount = null
+        return
+      }
+      const now = count()
+      if (valueCount === null) valueCount = now
+      else if (now !== valueCount) {
+        displayRenders = true
+        valueCount = null
+      }
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  })
 </script>
 
 {#snippet trailing()}
-  <span class={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
-    {#if valueDisplay !== undefined && valueDisplay !== null}
-      {#if typeof valueDisplay === 'function'}{@render valueDisplay?.()}{:else}{valueDisplay}{/if}
-    {:else}{value}{/if}
+  <span
+    bind:this={chipEl}
+    class={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}
+  >
+    {#if typeof valueDisplay === 'function'}
+      {@render valueDisplay?.()}
+    {:else if valueDisplay != null && valueDisplay !== ''}
+      {valueDisplay}
+    {/if}
+    {#if typeof valueDisplay === 'function' ? !displayRenders : !(valueDisplay != null && valueDisplay !== '')}
+      {value}
+    {/if}
   </span>
 {/snippet}
 
@@ -50,7 +100,9 @@
   <input
     class={cm.cn(cm.w('full'), cm.h(1.5), cm.cursorPointer, cm.nodeEditorPanelSliderTrack)}
     id={inputId}
-    aria-valuetext={typeof valueDisplay === 'string' ? valueDisplay : undefined}
+    aria-valuetext={typeof valueDisplay === 'string' && valueDisplay !== ''
+      ? valueDisplay
+      : undefined}
     {min}
     {max}
     {step}

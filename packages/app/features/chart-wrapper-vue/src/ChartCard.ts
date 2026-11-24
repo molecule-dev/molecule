@@ -10,6 +10,7 @@ import { defineComponent, h, type PropType, toRaw, type VNode, type VNodeChild }
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { ChartCardProps } from './types.js'
 
@@ -25,26 +26,22 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  if (prop == null) return []
   // A node passed through reactive state reads as a proxy; Vue writes `el`
   // onto every VNode it mounts, which would re-trigger the reading render.
-  const value = toRaw(prop)
-  return Array.isArray(value) ? value : [value]
+  const value = slot ? slot() : prop == null ? [] : toRaw(prop)
+  const nodes = Array.isArray(value) ? value : [value]
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
- * Whether React would render a node prop: `description && …` renders nothing
- * for `null`, `undefined`, `false` and the empty string, and everything else.
+ * Whether a resolved node list renders: React's `description && …` renders
+ * nothing for `null`, `undefined`, `false`, the empty string and an empty slot.
  *
- * @param slot - The slot render function, when the caller passed the slot.
- * @param prop - The prop value, when the caller passed the prop.
+ * @param nodes - The resolved child nodes.
  * @returns True when the region renders.
  */
-const renders = (
-  slot: (() => VNodeChild[]) | undefined,
-  prop: VNodeChild | null | undefined,
-): boolean => (slot ? true : prop != null && prop !== false && prop !== '')
+const renders = (nodes: VNodeChild[]): boolean => nodes.length > 0
 
 /**
  * Uniform chrome around a chart rendering — header + actions + optional
@@ -74,8 +71,12 @@ export const ChartCard = defineComponent({
   setup(props, { slots }) {
     const cm = getClassMap()
 
-    return (): VNode =>
-      h(
+    return (): VNode => {
+      const description = slotOrProp(slots.description, props.description)
+      const actions = slotOrProp(slots.actions, props.actions)
+      const summary = slotOrProp(slots.summary, props.summary)
+      const footer = slotOrProp(slots.footer, props.footer)
+      return h(
         Card,
         { className: props.className, 'data-mol-id': props.dataMolId },
         {
@@ -88,32 +89,20 @@ export const ChartCard = defineComponent({
                     { class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) },
                     slotOrProp(slots.title, props.title),
                   ),
-                  ...(renders(slots.description, props.description)
-                    ? [
-                        h(
-                          'p',
-                          { class: cm.textSize('sm') },
-                          slotOrProp(slots.description, props.description),
-                        ),
-                      ]
+                  ...(renders(description)
+                    ? [h('p', { class: cm.textSize('sm') }, description)]
                     : []),
                 ]),
-                ...(renders(slots.actions, props.actions)
-                  ? [
-                      h(
-                        'div',
-                        { class: cm.flex({ align: 'center', gap: 'sm' }) },
-                        slotOrProp(slots.actions, props.actions),
-                      ),
-                    ]
+                ...(renders(actions)
+                  ? [h('div', { class: cm.flex({ align: 'center', gap: 'sm' }) }, actions)]
                   : []),
               ]),
-              ...(renders(slots.summary, props.summary)
+              ...(renders(summary)
                 ? [
                     h(
                       'div',
                       { class: cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }) },
-                      slotOrProp(slots.summary, props.summary),
+                      summary,
                     ),
                   ]
                 : []),
@@ -122,12 +111,11 @@ export const ChartCard = defineComponent({
                 { style: { minHeight: `${props.minChartHeight}px` } },
                 slotOrProp(slots.default, null),
               ),
-              ...(renders(slots.footer, props.footer)
-                ? [h('div', null, slotOrProp(slots.footer, props.footer))]
-                : []),
+              ...(renders(footer) ? [h('div', null, footer)] : []),
             ]),
           ],
         },
       )
+    }
   },
 })

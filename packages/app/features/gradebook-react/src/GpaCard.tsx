@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -35,7 +36,8 @@ export interface GpaCardProps {
  * @returns The GPA hero card element.
  */
 export function GpaCard(props: GpaCardProps): JSX.Element {
-  const { gpa, scale, max, trend, trendLabel, className } = props
+  const { gpa, scale, max, trend, trendLabel: trendLabelProp, className } = props
+  const trendLabel = slot(trendLabelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

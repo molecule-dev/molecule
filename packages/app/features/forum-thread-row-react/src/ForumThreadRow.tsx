@@ -1,6 +1,7 @@
 import { type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link ForumThreadRow}. */
@@ -45,19 +46,24 @@ export interface ForumThreadRowProps {
  */
 export function ForumThreadRow({
   title,
-  excerpt,
+  excerpt: excerptProp,
   voteScore,
   replyCount,
   viewCount,
   pinned,
   locked,
-  author,
-  createdAt,
-  tags,
-  voteControls,
+  author: authorProp,
+  createdAt: createdAtProp,
+  tags: tagsProp,
+  voteControls: voteControlsProp,
   onClick,
   className,
 }: ForumThreadRowProps): ReactNode {
+  const excerpt = slot(excerptProp)
+  const author = slot(authorProp)
+  const createdAt = slot(createdAtProp)
+  const tags = slot(tagsProp)
+  const voteControls = slot(voteControlsProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   // The marker labels and the counter labels are the row's own text: they go

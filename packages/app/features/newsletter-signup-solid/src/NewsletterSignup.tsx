@@ -9,10 +9,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { createEffect, createSignal, Show } from 'solid-js'
+import { type Component, createEffect, createSignal, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input } from '@molecule/app-ui-solid'
 
@@ -89,10 +88,14 @@ export const NewsletterSignup: Component<NewsletterSignupProps> = (props) => {
         onSubmit={handle}
         class={cm.cn(cm.stack(2), props.className)}
       >
-        {props.title && (
-          <h4 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.title}</h4>
-        )}
-        {props.description && <p class={cm.textSize('sm')}>{props.description}</p>}
+        <PresentWhileNode node={props.title}>
+          {(title) => (
+            <h4 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title()}</h4>
+          )}
+        </PresentWhileNode>
+        <PresentWhileNode node={props.description}>
+          {(description) => <p class={cm.textSize('sm')}>{description()}</p>}
+        </PresentWhileNode>
         <div class={inline() ? cm.flex({ align: 'center', gap: 'sm' }) : cm.stack(2)}>
           <Input
             type="email"

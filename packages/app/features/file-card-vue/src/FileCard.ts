@@ -12,7 +12,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { FileIcon } from './FileIcon.js'
 import { relativeBucket, type SizeParts, sizeParts } from './format.js'
@@ -312,7 +312,7 @@ export const FileCard = defineComponent({
             )
           : null
 
-      const actionNodes = propOrSlot(props.actions, slots.actions)
+      const actionNodes = toChildArray(propOrSlot(props.actions, slots.actions))
       const actions = actionNodes.length
         ? h(
             'div',

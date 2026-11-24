@@ -677,14 +677,15 @@
               logic.stuckRetryCount,
               logic.handleUserRetry,
             )}
-          {:else if logic.everLoaded}
-            {#if restartingIndicator}{@render restartingIndicator?.()}{:else if loadingIndicator}{@render loadingIndicator?.()}{:else}{@render defaultIndicator(
-                null,
-                logic.stuckRetryCount,
-                logic.handleUserRetry,
-              )}{/if}
           {:else}
-            {#if loadingIndicator}{@render loadingIndicator?.()}{:else}{@render defaultIndicator(
+            <!-- One branch for the first load and a restart: React renders the
+                 indicator in the same place either way, so a loadingIndicator
+                 shown before the first load stays mounted through a restart that
+                 falls back to it. -->
+            {@const indicator = logic.everLoaded
+              ? (restartingIndicator ?? loadingIndicator)
+              : loadingIndicator}
+            {#if indicator}{@render indicator?.()}{:else}{@render defaultIndicator(
                 null,
                 logic.stuckRetryCount,
                 logic.handleUserRetry,

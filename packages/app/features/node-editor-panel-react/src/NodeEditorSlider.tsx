@@ -7,6 +7,7 @@
 
 import { type JSX, type ReactNode, useId } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { NodeEditorSection } from './NodeEditorSection.js'
@@ -31,8 +32,9 @@ export function NodeEditorSlider({
   min = 0,
   max = 1,
   step = 0.1,
-  valueDisplay,
+  valueDisplay: valueDisplayProp,
 }: NodeEditorSliderProps): JSX.Element {
+  const valueDisplay = slot(valueDisplayProp)
   const cm = getClassMap()
   // Names the range input through the section's `<label for>`.
   const inputId = useId()

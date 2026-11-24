@@ -8,7 +8,7 @@
   strings.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -38,6 +38,10 @@
   const refillsText = $derived(
     t('medication.refills', { refills: refills ?? 0 }, { defaultValue: '{{refills}} refills' }),
   )
+
+  // The prescriber span is in the page while `prescriber` renders something,
+  // the label aside — React's `prescriber && <span>Prescribed by {prescriber}</span>`.
+  let prescriberPresent = $state<boolean>()
 </script>
 
 <Card {className}>
@@ -55,25 +59,30 @@
           {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
         </h3>
         {#if dosage}
-          <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+          <PresentWhileContent tag="span" class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
             {#if typeof dosage === 'function'}{@render dosage?.()}{:else}{dosage}{/if}
-          </span>
+          </PresentWhileContent>
         {/if}
         {#if form}
-          <span class={cm.textSize('xs')}>
+          <PresentWhileContent tag="span" class={cm.textSize('xs')}>
             {#if typeof form === 'function'}{@render form?.()}{:else}{form}{/if}
-          </span>
+          </PresentWhileContent>
         {/if}
       </header>
       {#if instructions}
-        <p class={cm.textSize('sm')}>
+        <PresentWhileContent tag="p" class={cm.textSize('sm')}>
           {#if typeof instructions === 'function'}{@render instructions?.()}{:else}{instructions}{/if}
-        </p>
+        </PresentWhileContent>
       {/if}
       <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
         {#if prescriber}
           {#if typeof prescriber === 'function'}
-            <span class={cm.textSize('xs')}>{prescribedBy} {@render prescriber?.()}</span>
+            <PresentWhileContent tag="span" class={cm.textSize('xs')} present={prescriberPresent}
+              >{prescribedBy}
+              <ContentOrElse bind:present={prescriberPresent}
+                >{@render prescriber?.()}</ContentOrElse
+              ></PresentWhileContent
+            >
           {:else}
             <span class={cm.textSize('xs')}>{prescribedBy} {prescriber}</span>
           {/if}
@@ -87,7 +96,7 @@
       </div>
     </div>
     {#if actions}
-      <div class={cm.shrink0}>{@render actions?.()}</div>
+      <PresentWhileContent class={cm.shrink0}>{@render actions?.()}</PresentWhileContent>
     {/if}
   </div>
 </Card>

@@ -1,5 +1,6 @@
-import { type Component, createUniqueId } from 'solid-js'
+import { type Component, createUniqueId, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -30,36 +31,42 @@ export const ProgressCard: Component<ProgressCardProps> = (props) => {
 
   return (
     <Card className={props.className}>
-      <div class={cm.stack(3)}>
-        <div class={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
-          <div class={cm.flex({ align: 'center', gap: 'sm' })}>
-            {props.icon}
-            <div>
-              <h3 id={titleId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-                {props.title}
-              </h3>
-              {props.description && (
-                <p id={descriptionId} class={cm.textSize('sm')}>
-                  {props.description}
-                </p>
-              )}
+      <ResolveNode node={props.description}>
+        {(description, hasDescription) => (
+          <div class={cm.stack(3)}>
+            <div class={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
+              <div class={cm.flex({ align: 'center', gap: 'sm' })}>
+                {props.icon}
+                <div>
+                  <h3 id={titleId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+                    {props.title}
+                  </h3>
+                  <Show when={hasDescription()}>
+                    <p id={descriptionId} class={cm.textSize('sm')}>
+                      {description()}
+                    </p>
+                  </Show>
+                </div>
+              </div>
+              <PresentWhileNode node={props.valueLabel}>
+                {(valueLabel) => (
+                  <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+                    {valueLabel()}
+                  </span>
+                )}
+              </PresentWhileNode>
             </div>
+            <ProgressBar
+              value={props.value}
+              max={max()}
+              color={color()}
+              labelledBy={titleId}
+              describedBy={hasDescription() ? descriptionId : undefined}
+            />
+            {props.children}
           </div>
-          {props.valueLabel && (
-            <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-              {props.valueLabel}
-            </span>
-          )}
-        </div>
-        <ProgressBar
-          value={props.value}
-          max={max()}
-          color={color()}
-          labelledBy={titleId}
-          describedBy={props.description ? descriptionId : undefined}
-        />
-        {props.children}
-      </div>
+        )}
+      </ResolveNode>
     </Card>
   )
 }

@@ -3,6 +3,7 @@ import { useContext } from 'react'
 
 import { I18nContext, ThemeContext } from '@molecule/app-react'
 import { Link, type LinkProps } from '@molecule/app-react/link'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-react'
 
@@ -105,12 +106,16 @@ export function AppHeader({
   brandClassName,
   navigation,
   userMenu,
-  themeToggle = DEFAULT_THEME_TOGGLE,
+  themeToggle: themeToggleProp,
   extraActions,
   fixed = true,
   className,
   dataMolId,
 }: AppHeaderProps): ReactElement {
+  // An omitted `themeToggle` renders the default toggle; an explicit `null` force-hides it; a prop
+  // that renders nothing (`[]`, `false`, `''`) behaves like an omitted one and takes the default.
+  const themeToggle =
+    themeToggleProp === null ? null : (slot(themeToggleProp) ?? DEFAULT_THEME_TOGGLE)
   const cm = getClassMap()
   const Inner = navigation ? 'nav' : 'div'
   return (

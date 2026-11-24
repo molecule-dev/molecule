@@ -9,6 +9,7 @@
 
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-solid'
 
@@ -73,9 +74,9 @@ export const UserChip: Component<UserChipProps> = (props) => {
         >
           <a {...nameLinkAttributes()}>{local.name}</a>
         </Show>
-        <Show when={local.subtitle}>
-          <span class={cm.textSize('xs')}>{local.subtitle}</span>
-        </Show>
+        <PresentWhileNode node={local.subtitle}>
+          {(subtitle) => <span class={cm.textSize('xs')}>{subtitle()}</span>}
+        </PresentWhileNode>
       </div>
       {local.trailing}
     </div>

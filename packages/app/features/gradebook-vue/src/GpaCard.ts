@@ -10,7 +10,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { GpaScale, GpaTrend } from './types.js'
 import { defaultGpaMax, formatGpa } from './utilities.js'
@@ -27,8 +27,8 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop != null ? toChildArray(prop) : []
 }
 
 /**

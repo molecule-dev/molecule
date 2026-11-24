@@ -178,7 +178,8 @@ const options = [
 describe('SortPicker', () => {
   it('renders the default "Sort by" label inline', async () => {
     const m = await render({ value: 'recent', options })
-    expect(m.picker.innerHTML).toContain('Sort by:')
+    // The visible text: Angular's comment anchors sit between the label's text nodes.
+    expect(m.picker.textContent).toContain('Sort by:')
     expect(m.picker.innerHTML).toContain('data-select=""')
   })
 

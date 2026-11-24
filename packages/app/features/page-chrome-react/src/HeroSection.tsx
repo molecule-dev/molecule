@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link HeroSection}. */
@@ -31,16 +32,21 @@ export interface HeroSectionProps {
  * @param props - Component props (see {@link HeroSectionProps}).
  */
 export function HeroSection({
-  eyebrow,
+  eyebrow: eyebrowProp,
   title,
-  description,
-  primaryAction,
-  secondaryAction,
-  media,
+  description: descriptionProp,
+  primaryAction: primaryActionProp,
+  secondaryAction: secondaryActionProp,
+  media: mediaProp,
   align = 'start',
   className,
   dataMolId,
 }: HeroSectionProps): JSX.Element {
+  const eyebrow = slot(eyebrowProp)
+  const description = slot(descriptionProp)
+  const primaryAction = slot(primaryActionProp)
+  const secondaryAction = slot(secondaryActionProp)
+  const media = slot(mediaProp)
   const cm = getClassMap()
   return (
     <section

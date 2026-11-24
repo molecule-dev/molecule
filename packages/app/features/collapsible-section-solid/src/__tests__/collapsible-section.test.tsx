@@ -8,7 +8,7 @@
  * @module
  */
 
-import { createSignal, For, type JSX } from 'solid-js'
+import { createSignal, For, type JSX, onCleanup } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -170,5 +170,38 @@ describe('ShowMore', () => {
 
     setValues([])
     expect(container.querySelectorAll('[data-item]')).toHaveLength(0)
+  })
+
+  it('creates accessor items only in view, and expanding keeps row 0 instance', () => {
+    const created: number[] = [0, 0, 0]
+    const disposed: number[] = [0, 0, 0]
+    const Row = (props: { index: number }): JSX.Element => {
+      created[props.index]! += 1
+      onCleanup(() => (disposed[props.index]! += 1))
+      return <div data-row={props.index}>{props.index}</div>
+    }
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    disposers.push(
+      render(
+        () => (
+          <ShowMore initialCount={1}>
+            {[0, 1, 2].map((index) => () => <Row index={index} />)}
+          </ShowMore>
+        ),
+        container,
+      ),
+    )
+    expect(created).toEqual([1, 0, 0])
+    const first = container.querySelector('[data-row="0"]')
+
+    container.querySelector('button')!.click()
+    expect(created).toEqual([1, 1, 1])
+    expect(disposed).toEqual([0, 0, 0])
+    expect(container.querySelector('[data-row="0"]')).toBe(first)
+
+    container.querySelector('button')!.click()
+    expect(disposed).toEqual([0, 1, 1])
+    expect(container.querySelector('[data-row="0"]')).toBe(first)
   })
 })

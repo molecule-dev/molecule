@@ -12,6 +12,7 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import { NodeEditorSection } from './NodeEditorSection.js'
 import type { NodeEditorSliderProps } from './types.js'
@@ -55,12 +56,10 @@ export const NodeEditorSlider = defineComponent({
     }
 
     return (): VNode => {
-      // React's `valueDisplay ?? value`; a slot supplies the node-valued form.
-      const display: VNodeChild[] = slots.valueDisplay
-        ? slots.valueDisplay()
-        : props.valueDisplay != null && props.valueDisplay !== false
-          ? [props.valueDisplay]
-          : [props.value]
+      // React's `valueDisplay ?? value`; a slot supplies the node-valued form,
+      // and an empty list is absent.
+      const supplied = toChildArray(slots.valueDisplay ? slots.valueDisplay() : props.valueDisplay)
+      const display: VNodeChild[] = supplied.length > 0 ? supplied : [props.value]
 
       return h(
         NodeEditorSection,
@@ -85,9 +84,12 @@ export const NodeEditorSlider = defineComponent({
                 cm.nodeEditorPanelSliderTrack,
               ),
               id: inputId,
-              // React sets `aria-valuetext` from a string `valueDisplay`.
+              // React sets `aria-valuetext` from a string `valueDisplay`; its
+              // `slot()` reads `''` as absent, so no attribute renders.
               'aria-valuetext':
-                typeof props.valueDisplay === 'string' ? props.valueDisplay : undefined,
+                typeof props.valueDisplay === 'string' && props.valueDisplay !== ''
+                  ? props.valueDisplay
+                  : undefined,
               min: props.min,
               max: props.max,
               step: props.step,

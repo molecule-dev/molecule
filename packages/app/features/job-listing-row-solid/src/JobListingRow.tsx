@@ -10,6 +10,7 @@
 
 import { type Component, createUniqueId } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { JobListingRowProps } from './types.js'
@@ -64,12 +65,16 @@ export const JobListingRow: Component<JobListingRowProps> = (props) => {
       )}
     >
       {openButton}
-      {props.leading ? <div class={cm.shrink0}>{props.leading}</div> : null}
+      <PresentWhileNode node={props.leading}>
+        {(leading) => <div class={cm.shrink0}>{leading()}</div>}
+      </PresentWhileNode>
       <div class={cm.cn(cm.flex1, cm.stack(1))}>
         <h3 id={nameId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
           {props.title}
         </h3>
-        {props.company ? <span class={cm.textSize('sm')}>{props.company}</span> : null}
+        <PresentWhileNode node={props.company}>
+          {(company) => <span class={cm.textSize('sm')}>{company()}</span>}
+        </PresentWhileNode>
         <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
           {props.location ? (
             <span class={cm.textSize('xs')}>
@@ -96,28 +101,32 @@ export const JobListingRow: Component<JobListingRowProps> = (props) => {
             </span>
           ) : null}
         </div>
-        {props.tags ? (
+        <PresentWhileNode node={props.tags}>
+          {(tags) => (
+            <div
+              class={cm.cn(
+                cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+                cm.position('relative'),
+              )}
+            >
+              {tags()}
+            </div>
+          )}
+        </PresentWhileNode>
+      </div>
+      <PresentWhileNode node={props.actions}>
+        {(actions) => (
           <div
             class={cm.cn(
-              cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+              cm.flex({ align: 'center', gap: 'sm' }),
+              cm.shrink0,
               cm.position('relative'),
             )}
           >
-            {props.tags}
+            {actions()}
           </div>
-        ) : null}
-      </div>
-      {props.actions ? (
-        <div
-          class={cm.cn(
-            cm.flex({ align: 'center', gap: 'sm' }),
-            cm.shrink0,
-            cm.position('relative'),
-          )}
-        >
-          {props.actions}
-        </div>
-      ) : null}
+        )}
+      </PresentWhileNode>
     </div>
   )
 }

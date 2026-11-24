@@ -23,7 +23,7 @@ import {
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { AudioPlayerProps } from './types.js'
 
@@ -40,8 +40,8 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] | null => {
-  if (slot) return slot()
-  return prop ? [prop] : null
+  const nodes: VNodeChild[] = slot ? slot() : prop ? [prop] : []
+  return toChildArray(nodes).length > 0 ? nodes : null
 }
 
 /**

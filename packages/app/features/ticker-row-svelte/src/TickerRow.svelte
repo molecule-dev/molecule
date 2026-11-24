@@ -14,7 +14,7 @@
   break between them would draw whitespace React does not render.
 -->
 <script lang="ts">
-  import { useLocale, useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useLocale, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { type CSSStyle, reactStyle } from './style.js'
@@ -102,9 +102,9 @@
     ></button>
   {/if}
   {#if icon}
-    <div class={cm.shrink0}>
+    <PresentWhileContent class={cm.shrink0}>
       {#if typeof icon === 'function'}{@render icon?.()}{:else}{icon}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
     <!-- The id names the open button (React's `aria-labelledby`). -->
@@ -121,9 +121,9 @@
     {/if}
   </div>
   {#if sparkline}
-    <div class={cm.shrink0}>
+    <PresentWhileContent class={cm.shrink0}>
       {#if typeof sparkline === 'function'}{@render sparkline?.()}{:else}{sparkline}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
   <div class={cm.cn(cm.textCenter, cm.stack(0))}>
     <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
@@ -143,10 +143,10 @@
     <!-- Raised above the open button in its positioned wrapper while the row
       is clickable, so a click on its content lands here and keeps its own
       clicks. -->
-    <div
+    <PresentWhileContent
       class={cm.cn(cm.textSize('xs'), cm.shrink0, onClick ? cm.position('relative') : undefined)}
     >
       {#if typeof meta === 'function'}{@render meta?.()}{:else}{meta}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </div>

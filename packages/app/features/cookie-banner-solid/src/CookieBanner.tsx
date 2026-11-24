@@ -20,15 +20,14 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
-import type { ButtonProps } from '@molecule/app-ui'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
-import { Button, Switch } from '@molecule/app-ui-solid'
+import { Button, type ButtonProps, Switch } from '@molecule/app-ui-solid'
 
 import type { CookieBannerProps, CookieCategory } from './types.js'
 
 /**
- * The details toggle's props: {@link ButtonProps} plus the `aria-controls`
+ * The details toggle's props: the Solid {@link ButtonProps} plus the `aria-controls`
  * that names the details list while it renders (the shared props type does not
  * declare it; the shared Button forwards every undeclared prop to its native
  * button).
@@ -136,15 +135,35 @@ export const CookieBanner: Component<CookieBannerProps> = (props) => {
       >
         <header class={cm.stack(1 as const)}>
           <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-            {props.title ?? t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' })}
+            <ResolveNode node={props.title}>
+              {(title, hasTitle) => (
+                <Show
+                  when={hasTitle()}
+                  fallback={t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' })}
+                >
+                  {title()}
+                </Show>
+              )}
+            </ResolveNode>
           </h3>
           <p class={cm.textSize('sm')}>
-            {props.description ??
-              t(
-                'cookieBanner.description',
-                {},
-                { defaultValue: 'We use cookies to improve your experience and analyse traffic.' },
+            <ResolveNode node={props.description}>
+              {(description, hasDescription) => (
+                <Show
+                  when={hasDescription()}
+                  fallback={t(
+                    'cookieBanner.description',
+                    {},
+                    {
+                      defaultValue:
+                        'We use cookies to improve your experience and analyse traffic.',
+                    },
+                  )}
+                >
+                  {description()}
+                </Show>
               )}
+            </ResolveNode>
             <Show when={props.policyHref}>
               {' '}
               <a href={props.policyHref} class={cm.link}>

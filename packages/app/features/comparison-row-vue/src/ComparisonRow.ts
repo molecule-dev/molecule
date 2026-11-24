@@ -12,6 +12,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 const ARROW = (n: number): string => (n > 0 ? '▲' : n < 0 ? '▼' : '–')
 
@@ -33,8 +34,9 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
@@ -64,6 +66,8 @@ export const ComparisonRow = defineComponent({
 
     return (): VNode => {
       const deltaPct = props.deltaPct
+      const previous = slotOrProp(slots.previous, props.previous)
+      const periodLabel = slotOrProp(slots.periodLabel, props.periodLabel)
       return h(
         'div',
         {
@@ -80,14 +84,8 @@ export const ComparisonRow = defineComponent({
               slotOrProp(slots.label, props.label),
             ),
             // React's `{periodLabel && …}`: a falsy label renders nothing.
-            ...(props.periodLabel
-              ? [
-                  h(
-                    'span',
-                    { class: cm.textSize('xs') },
-                    slotOrProp(slots.periodLabel, props.periodLabel),
-                  ),
-                ]
+            ...(periodLabel.length > 0
+              ? [h('span', { class: cm.textSize('xs') }, periodLabel)]
               : []),
           ]),
           h('div', { class: cm.flex({ align: 'baseline', gap: 'sm' }) }, [
@@ -96,7 +94,7 @@ export const ComparisonRow = defineComponent({
               { class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) },
               slotOrProp(slots.current, props.current),
             ),
-            ...(props.previous !== undefined
+            ...(previous.length > 0
               ? [
                   h(
                     'span',
@@ -104,7 +102,7 @@ export const ComparisonRow = defineComponent({
                       class: cm.cn(cm.textSize('xs')),
                       style: { textDecoration: 'line-through', opacity: 0.6 },
                     },
-                    slotOrProp(slots.previous, props.previous),
+                    previous,
                   ),
                 ]
               : []),

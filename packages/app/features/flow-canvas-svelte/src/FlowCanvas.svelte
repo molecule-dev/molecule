@@ -7,8 +7,9 @@
 -->
 <script lang="ts">
   import { onMount, untrack } from 'svelte'
+  import type { Attachment } from 'svelte/attachments'
 
-  import { useTranslation } from '@molecule/app-svelte'
+  import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import {
@@ -385,6 +386,27 @@
 
   /** The content id of the node at this index (index-based: ids may hold spaces). */
   const contentId = (index: number): string => `${idBase}-node-${index}`
+
+  // React's `slot(children) == null`: a children snippet that renders nothing (an empty list)
+  // leaves the node content empty, so its select button falls back to the numbered aria-label. A
+  // snippet's `{#each}` over no rows changes the DOM without changing the prop, so presence is
+  // read per node's rendered content.
+  let contentPresent = $state<Record<number, boolean>>({})
+  const trackContent =
+    (index: number): Attachment<HTMLElement> =>
+    (element) => {
+      const sync = (): void => {
+        const present = contentNodes(element).some(
+          (node) => node.nodeType === 1 || (node.textContent ?? '').trim() !== '',
+        )
+        if (contentPresent[index] !== present)
+          contentPresent = { ...contentPresent, [index]: present }
+      }
+      sync()
+      const observer = new MutationObserver(sync)
+      observer.observe(element, { childList: true, characterData: true, subtree: true })
+      return () => observer.disconnect()
+    }
 </script>
 
 <div
@@ -493,7 +515,7 @@
            reader), else the node's content as before. -->
       {@const buttonName =
         node.ariaLabel ??
-        (!nodeRenderers?.[node.type] && !children
+        (!nodeRenderers?.[node.type] && !(children && contentPresent[index])
           ? t('flowCanvas.aria.node', { number: index + 1 }, { defaultValue: 'Node {{number}}' })
           : null)}
       <!-- The keyboard path to selection: a select button covering the node,
@@ -542,6 +564,7 @@
           class={cm.position('relative')}
           style:width="100%"
           style:height="100%"
+          {@attach trackContent(index)}
         >
           {#if nodeRenderers?.[node.type]}
             {@render nodeRenderers[node.type]?.(node)}

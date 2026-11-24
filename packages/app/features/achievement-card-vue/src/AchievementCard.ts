@@ -10,7 +10,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { AchievementCardProps } from './types.js'
 
@@ -32,16 +32,12 @@ const slotOrProp = (
 
 /**
  * Whether React would render a node prop: `tier && …` renders nothing for
- * `null`, `undefined`, `false` and the empty string, and everything else.
+ * `null`, `undefined`, `false`, the empty string and an empty slot result.
  *
- * @param slot - The slot render function, when the caller passed the slot.
- * @param prop - The prop value, when the caller passed the prop.
+ * @param nodes - The resolved child nodes.
  * @returns True when the region renders.
  */
-const renders = (
-  slot: (() => VNodeChild[]) | undefined,
-  prop: VNodeChild | null | undefined,
-): boolean => (slot ? true : prop != null && prop !== false && prop !== '')
+const renders = (nodes: VNodeChild[]): boolean => toChildArray(nodes).length > 0
 
 /**
  * Badge / achievement unlock card — icon + name + description + earned state.
@@ -84,7 +80,7 @@ export const AchievementCard = defineComponent({
         : undefined
 
       const status = props.earned
-        ? renders(slots.earnedAt, props.earnedAt)
+        ? renders(earnedAtNodes)
           ? h('span', { class: cm.textSize('xs') }, [earnedText, ' ', ...earnedAtNodes])
           : null
         : progress
@@ -112,7 +108,7 @@ export const AchievementCard = defineComponent({
               h('div', { class: cm.cn(cm.flex1, cm.stack(1)) }, [
                 h('header', { class: cm.flex({ align: 'baseline', gap: 'sm' }) }, [
                   h('h3', { class: cm.cn(cm.textSize('base'), cm.fontWeight('bold')) }, nameNodes),
-                  ...(renders(slots.tier, props.tier)
+                  ...(renders(tierNodes)
                     ? [
                         h(
                           'span',
@@ -122,7 +118,7 @@ export const AchievementCard = defineComponent({
                       ]
                     : []),
                 ]),
-                ...(renders(slots.description, props.description)
+                ...(renders(descriptionNodes)
                   ? [h('p', { class: cm.textSize('sm') }, descriptionNodes)]
                   : []),
                 status,

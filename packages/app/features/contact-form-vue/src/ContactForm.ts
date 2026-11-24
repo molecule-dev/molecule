@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, ref, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { ContactFormValues } from './types.js'
 
@@ -30,9 +30,9 @@ const nodeOrSlot = (
   prop: VNodeChild | null | undefined,
   slot: (() => VNodeChild[]) | undefined,
 ): VNodeChild[] => {
-  if (prop) return [prop]
-  if (slot) return slot()
-  return []
+  const nodes: VNodeChild[] = prop ? [prop] : slot ? slot() : []
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**

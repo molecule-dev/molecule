@@ -7,8 +7,9 @@
  * @module
  */
 
-import { type Component, createUniqueId } from 'solid-js'
+import { type Component, createUniqueId, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { OptimisticToggleButton } from '@molecule/app-ui-solid'
 
@@ -32,7 +33,6 @@ export const ListItemRow: Component<ListItemRowProps> = (props) => {
   const cm = getClassMap()
   const nameId = createUniqueId()
   const padY = (): 2 | 3 => (props.density === 'compact' ? 2 : 3)
-
   return (
     <div
       aria-current={props.selected ? 'true' : undefined}
@@ -70,7 +70,9 @@ export const ListItemRow: Component<ListItemRowProps> = (props) => {
           style={{ background: 'transparent', border: 'medium', padding: '0px' }}
         />
       )}
-      {props.leading && <div class={cm.shrink0}>{props.leading}</div>}
+      <PresentWhileNode node={props.leading}>
+        {(leading) => <div class={cm.shrink0}>{leading()}</div>}
+      </PresentWhileNode>
       <div class={cm.cn(cm.flex1, cm.stack(0))}>
         <div
           id={props.onClick ? nameId : undefined}
@@ -81,12 +83,16 @@ export const ListItemRow: Component<ListItemRowProps> = (props) => {
         {props.subtitle && <div class={cm.textSize('sm')}>{props.subtitle}</div>}
         {props.metadata && <div class={cm.textSize('xs')}>{props.metadata}</div>}
       </div>
-      {props.toggle || props.actions ? (
-        <div class={cm.cn(cm.shrink0, cm.position('relative'))}>
-          {props.toggle && <OptimisticToggleButton {...props.toggle} />}
-          {props.actions}
-        </div>
-      ) : undefined}
+      <ResolveNode node={props.actions}>
+        {(actions, hasActions) => (
+          <Show when={props.toggle || hasActions()}>
+            <div class={cm.cn(cm.shrink0, cm.position('relative'))}>
+              {props.toggle && <OptimisticToggleButton {...props.toggle} />}
+              {actions()}
+            </div>
+          </Show>
+        )}
+      </ResolveNode>
     </div>
   )
 }

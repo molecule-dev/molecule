@@ -5,10 +5,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { type Component, createSignal } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-solid'
 
@@ -46,11 +45,13 @@ export const FlashcardCard: Component<FlashcardCardProps> = (props) => {
   return (
     <Card className={props.className}>
       <div class={cm.stack(4)}>
-        {props.progress && (
-          <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}>
-            {props.progress}
-          </div>
-        )}
+        <PresentWhileNode node={props.progress}>
+          {(progress) => (
+            <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}>
+              {progress()}
+            </div>
+          )}
+        </PresentWhileNode>
         <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.cn(cm.textSize('xl')))}>
           {revealed() ? props.back : props.front}
         </div>

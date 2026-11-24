@@ -6,11 +6,9 @@
 
 import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
-import { MolPlacement, usePlacement } from '@molecule/app-angular'
+import { isElementChild, MolPlacement, rendersNode, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { renders } from './utilities.js'
 
 /**
  * Next value of the module-wide slider id counter.
@@ -113,9 +111,7 @@ export class NodeEditorSlider {
     usePlacement((hasContent) => {
       const valueEl = this.valueEl?.nativeElement
       this.valueDisplayProjected.set(
-        valueEl
-          ? hasContent.nodes(valueEl).some((node) => node.nodeType === Node.ELEMENT_NODE)
-          : false,
+        valueEl ? hasContent.nodes(valueEl).some(isElementChild) : false,
       )
     })
   }
@@ -133,15 +129,16 @@ export class NodeEditorSlider {
    * @returns True when the label input renders as text.
    */
   get hasLabel(): boolean {
-    return renders(this.label)
+    return rendersNode(this.label)
   }
 
   /**
-   * Whether a string value-display input renders (React's `valueDisplay ?? value`).
+   * Whether a string value-display input renders (React's `slot(valueDisplay) ?? value`: an
+   * empty value display shows the value).
    * @returns True when the value display input renders as text.
    */
   get hasValueDisplay(): boolean {
-    return this.valueDisplay !== undefined && this.valueDisplay !== null
+    return rendersNode(this.valueDisplay)
   }
 
   /**
@@ -174,7 +171,10 @@ export class NodeEditorSlider {
    * @returns The value text, or undefined when no string override is given.
    */
   valueText(): string | undefined {
-    return typeof this.valueDisplay === 'string' ? this.valueDisplay : undefined
+    // React's `typeof slot(valueDisplay) === 'string'`: an empty one names nothing.
+    return typeof this.valueDisplay === 'string' && rendersNode(this.valueDisplay)
+      ? this.valueDisplay
+      : undefined
   }
 
   /**

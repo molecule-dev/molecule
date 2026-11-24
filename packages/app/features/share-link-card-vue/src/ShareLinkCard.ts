@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild }
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card, Switch } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { CopyLinkField } from './CopyLinkField.js'
 import type { ShareLinkCardProps } from './types.js'
@@ -44,12 +44,8 @@ const nodeChildren = (
  * @returns Whether the content counts as set, as React's `title && …` does.
  */
 const nodePresent = (prop: VNodeChild | null | undefined, children: VNodeChild[]): boolean => {
-  if (prop !== undefined) return Boolean(prop)
-  return children.some((child) => {
-    if (child === '' || child === null || child === undefined || child === false) return false
-    const text = (child as { children?: unknown }).children
-    return typeof text !== 'string' || text.length > 0
-  })
+  if (prop !== undefined) return toChildArray(prop).length > 0
+  return toChildArray(children).length > 0
 }
 
 /**

@@ -10,7 +10,7 @@
 
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { BiasBucket, BiasIndicatorProps, ReliabilityTier } from './types.js'
@@ -184,7 +184,6 @@ export const BiasIndicator: Component<BiasIndicatorProps> = (props) => {
     return current ? t(TIER_KEY[current], {}, { defaultValue: TIER_FALLBACK[current] }) : null
   }
   const dataMolId = (): string => props.dataMolId ?? 'bias-indicator'
-  const hasSource = (): boolean => props.sourceLabel !== undefined
 
   return (
     <Show
@@ -196,14 +195,16 @@ export const BiasIndicator: Component<BiasIndicatorProps> = (props) => {
           data-reliability-tier={tier() ?? undefined}
           class={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }), props.className)}
         >
-          <Show when={hasSource()}>
-            <span
-              data-mol-id="bias-indicator-source"
-              class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-            >
-              {props.sourceLabel}
-            </span>
-          </Show>
+          <PresentWhileNode node={props.sourceLabel}>
+            {(sourceLabel) => (
+              <span
+                data-mol-id="bias-indicator-source"
+                class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
+              >
+                {sourceLabel()}
+              </span>
+            )}
+          </PresentWhileNode>
           <div
             role="img"
             aria-label={biasLabel()}
@@ -270,9 +271,11 @@ export const BiasIndicator: Component<BiasIndicatorProps> = (props) => {
           class={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, cm.displayInlineBlock)}
           style={{ background: bucketColor(bucket()) }}
         />
-        <Show when={hasSource()}>
-          <span class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{props.sourceLabel}</span>
-        </Show>
+        <PresentWhileNode node={props.sourceLabel}>
+          {(sourceLabel) => (
+            <span class={cm.cn(cm.textSize('xs'), cm.textMuted)}>{sourceLabel()}</span>
+          )}
+        </PresentWhileNode>
       </span>
     </Show>
   )

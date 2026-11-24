@@ -4,10 +4,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { Show } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 
 import { LegalPageLayout } from './LegalPageLayout.jsx'
 import type { PrivacyPageProps } from './types.js'
@@ -26,7 +25,6 @@ import type { PrivacyPageProps } from './types.js'
  */
 export const PrivacyPage: Component<PrivacyPageProps> = (props) => {
   const { t } = useTranslation()
-
   return (
     <LegalPageLayout
       dataMolId="page-privacy"
@@ -39,24 +37,28 @@ export const PrivacyPage: Component<PrivacyPageProps> = (props) => {
       )}
       stackGap={props.stackGap}
     >
-      <Show
-        when={props.children}
-        fallback={
-          <p>
-            {t(
-              props.introKey ?? 'privacy.intro',
-              {},
-              {
-                defaultValue:
-                  props.introDefault ??
-                  'This is the Privacy page. Replace this placeholder with real content.',
-              },
-            )}
-          </p>
-        }
-      >
-        {props.children}
-      </Show>
+      <ResolveNode node={props.children}>
+        {(content, hasContent) => (
+          <Show
+            when={hasContent()}
+            fallback={
+              <p>
+                {t(
+                  props.introKey ?? 'privacy.intro',
+                  {},
+                  {
+                    defaultValue:
+                      props.introDefault ??
+                      'This is the Privacy page. Replace this placeholder with real content.',
+                  },
+                )}
+              </p>
+            }
+          >
+            {content()}
+          </Show>
+        )}
+      </ResolveNode>
     </LegalPageLayout>
   )
 }

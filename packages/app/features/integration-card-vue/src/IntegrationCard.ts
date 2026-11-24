@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { IntegrationCardProps, IntegrationStatus } from './types.js'
 
@@ -30,22 +30,9 @@ type IntegrationCardAction = NonNullable<IntegrationCardProps['action']>
  * @param slot - The slot render function, when the caller passed the slot.
  * @returns The children to render.
  */
-const nodeValue = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): VNodeChild[] => {
-  if (prop !== undefined) return prop === null ? [] : [prop]
-  if (slot) return slot()
-  return []
-}
-
-/**
- * Whether a node-valued prop or its same-named slot would render anything —
- * React's `{node && …}` branch condition.
- *
- * @param prop - The prop value.
- * @param slot - The slot render function, when provided.
- * @returns True when the node renders.
- */
-const hasNode = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): boolean =>
-  Boolean(prop) || (prop === undefined && slot !== undefined)
+const nodeValue = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): VNodeChild[] =>
+  // An empty list renders nothing, as React's slot() treats it.
+  toChildArray(prop !== undefined ? prop : slot?.())
 
 /**
  * The status label for one connection state, through `t()` under React's
@@ -142,33 +129,29 @@ export const IntegrationCard = defineComponent({
               : undefined,
         },
         {
-          default: () => [
-            h('div', { class: cm.flex({ align: 'start', gap: 'md' }) }, [
-              hasNode(props.icon, slots.icon)
-                ? h('div', { class: cm.shrink0 }, nodeValue(props.icon, slots.icon))
-                : null,
-              h('div', { class: cm.cn(cm.flex1, cm.stack(2)) }, [
-                h(
-                  'h3',
-                  { class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) },
-                  nodeValue(props.title, slots.title),
-                ),
-                hasNode(props.description, slots.description)
-                  ? h(
-                      'p',
-                      { class: cm.textSize('sm') },
-                      nodeValue(props.description, slots.description),
-                    )
-                  : null,
-                h('div', { class: cm.flex({ align: 'center', justify: 'between', gap: 'sm' }) }, [
-                  h('span', { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) }, [
-                    statusLabel(props.status, t),
+          default: () => {
+            const icon = nodeValue(props.icon, slots.icon)
+            const description = nodeValue(props.description, slots.description)
+            return [
+              h('div', { class: cm.flex({ align: 'start', gap: 'md' }) }, [
+                icon.length > 0 ? h('div', { class: cm.shrink0 }, icon) : null,
+                h('div', { class: cm.cn(cm.flex1, cm.stack(2)) }, [
+                  h(
+                    'h3',
+                    { class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) },
+                    nodeValue(props.title, slots.title),
+                  ),
+                  description.length > 0 ? h('p', { class: cm.textSize('sm') }, description) : null,
+                  h('div', { class: cm.flex({ align: 'center', justify: 'between', gap: 'sm' }) }, [
+                    h('span', { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) }, [
+                      statusLabel(props.status, t),
+                    ]),
+                    actionNode(),
                   ]),
-                  actionNode(),
                 ]),
               ]),
-            ]),
-          ],
+            ]
+          },
         },
       )
   },

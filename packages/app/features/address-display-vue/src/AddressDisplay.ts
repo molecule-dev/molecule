@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { Address } from './types.js'
 
@@ -43,8 +44,8 @@ const slotOrTruthy = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop ? [prop] : []
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**

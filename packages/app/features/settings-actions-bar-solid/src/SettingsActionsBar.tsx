@@ -1,6 +1,6 @@
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
 
@@ -88,9 +88,9 @@ export const SettingsActionsBar: Component<SettingsActionsBarProps> = (props) =>
             </span>
           )}
         </Show>
-        <Show when={props.error}>
-          <span class={cm.textSize('sm')}>{props.error}</span>
-        </Show>
+        <PresentWhileNode node={props.error}>
+          {(error) => <span class={cm.textSize('sm')}>{error()}</span>}
+        </PresentWhileNode>
       </div>
       <div class={cm.flex({ align: 'center', gap: 'sm' })}>
         <Show when={props.onCancel}>

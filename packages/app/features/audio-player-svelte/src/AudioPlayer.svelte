@@ -9,7 +9,7 @@
   next with no whitespace-only text between siblings React does not render.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
 
@@ -207,13 +207,15 @@
       srclang={captionsLang}
       label={captionsLabel ?? t('audio.captions', {}, { defaultValue: 'Captions' })}
     /></audio
-  >{#if shows(title) || shows(subtitle)}<header class={cm.stack(0)}>
-      {#if shows(title)}<span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
-          >{@render content(title, '')}</span
-        >{/if}{#if shows(subtitle)}<span class={cm.textSize('xs')}
-          >{@render content(subtitle, '')}</span
+  >{#if shows(title) || shows(subtitle)}<PresentWhileContent tag="header" class={cm.stack(0)}>
+      {#if shows(title)}<PresentWhileContent
+          tag="span"
+          class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+          >{@render content(title, '')}</PresentWhileContent
+        >{/if}{#if shows(subtitle)}<PresentWhileContent tag="span" class={cm.textSize('xs')}
+          >{@render content(subtitle, '')}</PresentWhileContent
         >{/if}
-    </header>{/if}{#if shows(visualizer)}{@render content(visualizer, '')}{/if}
+    </PresentWhileContent>{/if}{#if shows(visualizer)}{@render content(visualizer, '')}{/if}
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
     <Button
       variant="ghost"

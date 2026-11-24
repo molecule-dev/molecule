@@ -11,6 +11,7 @@
 
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-solid'
 
@@ -32,9 +33,7 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
  */
 export const LeaderboardRow: Component<LeaderboardRowProps> = (props) => {
   const cm = getClassMap()
-  const displayName = (): string => (typeof props.name === 'string' ? props.name : 'Player')
   const clickable = (): boolean => typeof props.onClick === 'function'
-
   // When the row is interactive, Enter / Space activate it (React's
   // `handleKeyDown`): preventDefault, then the click handler with no event.
   const handleKeyDown = (event: KeyboardEvent): void => {
@@ -47,46 +46,56 @@ export const LeaderboardRow: Component<LeaderboardRowProps> = (props) => {
   }
 
   return (
-    <div
-      class={cm.cn(
-        cm.flex({ align: 'center', gap: 'sm' }),
-        cm.sp('px', 3),
-        cm.sp('py', 2),
-        clickable() ? cm.cursorPointer : undefined,
-        props.isMe ? cm.bgTone('info', { subtle: true }) : undefined,
-        props.className,
-      )}
-      style={props.isMe ? { 'border-radius': '8px' } : undefined}
-      role={clickable() ? 'button' : undefined}
-      tabindex={clickable() ? 0 : undefined}
-      onClick={props.onClick}
-      onKeyDown={handleKeyDown}
-    >
-      <span
-        class={cm.cn(cm.shrink0, cm.fontWeight('bold'), cm.textCenter)}
-        style={{ 'min-width': '32px' }}
-      >
-        {MEDAL[props.rank] ?? `#${props.rank}`}
-      </span>
-      <Avatar src={props.avatarSrc} alt={displayName()} name={displayName()} size="sm" />
-      <div class={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.name}</span>
-        {/* React's `{subtitle && …}`: a falsy subtitle renders nothing. */}
-        {props.subtitle && <span class={cm.textSize('xs')}>{props.subtitle}</span>}
-      </div>
-      {/* React's `rankDelta !== undefined && rankDelta !== 0`: a zero delta renders nothing. */}
-      {props.rankDelta !== undefined && props.rankDelta !== 0 && (
-        <span
-          class={cm.cn(
-            cm.textSize('xs'),
-            cm.fontWeight('semibold'),
-            cm.textTone(props.rankDelta > 0 ? 'success' : 'error'),
-          )}
-        >
-          {props.rankDelta > 0 ? '▲' : '▼'} {Math.abs(props.rankDelta)}
-        </span>
-      )}
-      <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{props.score}</span>
-    </div>
+    <ResolveNode node={props.name}>
+      {(name) => {
+        const displayName = (): string =>
+          typeof name() === 'string' ? (name() as string) : 'Player'
+        return (
+          <div
+            class={cm.cn(
+              cm.flex({ align: 'center', gap: 'sm' }),
+              cm.sp('px', 3),
+              cm.sp('py', 2),
+              clickable() ? cm.cursorPointer : undefined,
+              props.isMe ? cm.bgTone('info', { subtle: true }) : undefined,
+              props.className,
+            )}
+            style={props.isMe ? { 'border-radius': '8px' } : undefined}
+            role={clickable() ? 'button' : undefined}
+            tabindex={clickable() ? 0 : undefined}
+            onClick={props.onClick}
+            onKeyDown={handleKeyDown}
+          >
+            <span
+              class={cm.cn(cm.shrink0, cm.fontWeight('bold'), cm.textCenter)}
+              style={{ 'min-width': '32px' }}
+            >
+              {MEDAL[props.rank] ?? `#${props.rank}`}
+            </span>
+            <Avatar src={props.avatarSrc} alt={displayName()} name={displayName()} size="sm" />
+            <div class={cm.cn(cm.flex1, cm.stack(0 as const))}>
+              <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{name()}</span>
+              {/* React's `slot(subtitle) && …`: an empty list renders nothing. */}
+              <PresentWhileNode node={props.subtitle}>
+                {(subtitle) => <span class={cm.textSize('xs')}>{subtitle()}</span>}
+              </PresentWhileNode>
+            </div>
+            {/* React's `rankDelta !== undefined && rankDelta !== 0`: a zero delta renders nothing. */}
+            {props.rankDelta !== undefined && props.rankDelta !== 0 && (
+              <span
+                class={cm.cn(
+                  cm.textSize('xs'),
+                  cm.fontWeight('semibold'),
+                  cm.textTone(props.rankDelta > 0 ? 'success' : 'error'),
+                )}
+              >
+                {props.rankDelta > 0 ? '▲' : '▼'} {Math.abs(props.rankDelta)}
+              </span>
+            )}
+            <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{props.score}</span>
+          </div>
+        )
+      }}
+    </ResolveNode>
   )
 }

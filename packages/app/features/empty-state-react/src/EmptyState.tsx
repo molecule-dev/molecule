@@ -1,5 +1,6 @@
 import type { JSX, ReactElement, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link EmptyState}. */
@@ -58,15 +59,18 @@ type SelectedViewEmptyStateProps = Omit<
  * ```
  */
 export function EmptyState({
-  icon,
+  icon: iconProp,
   title,
-  description,
-  action,
+  description: descriptionProp,
+  action: actionProp,
   view,
   dataMolId,
   className,
   iconWrapperClassName,
 }: EmptyStateProps | SelectedViewEmptyStateProps): JSX.Element {
+  const icon = slot(iconProp)
+  const description = slot(descriptionProp)
+  const action = slot(actionProp)
   const cm = getClassMap()
   const content = view ?? { title, description, action }
   return (

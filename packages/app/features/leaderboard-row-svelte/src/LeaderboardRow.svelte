@@ -9,6 +9,7 @@
   keyboard semantics.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Avatar } from '@molecule/app-ui-svelte'
 
@@ -83,9 +84,9 @@
     </span>
     <!-- React's `{subtitle && …}`: a falsy subtitle renders nothing. -->
     {#if subtitle}
-      <span class={cm.textSize('xs')}>
+      <PresentWhileContent tag="span" class={cm.textSize('xs')}>
         {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
   </div>
   <!-- React's `rankDelta !== undefined && rankDelta !== 0`: a zero delta renders nothing. -->

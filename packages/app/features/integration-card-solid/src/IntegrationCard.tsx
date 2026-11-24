@@ -9,9 +9,9 @@
  * @module
  */
 
-import { type Component, type JSX, Show } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-solid'
 
@@ -93,14 +93,14 @@ export const IntegrationCard: Component<IntegrationCardProps> = (props) => {
       }
     >
       <div class={cm.flex({ align: 'start', gap: 'md' })}>
-        <Show when={props.icon}>
-          <div class={cm.shrink0}>{props.icon}</div>
-        </Show>
+        <PresentWhileNode node={props.icon}>
+          {(icon) => <div class={cm.shrink0}>{icon()}</div>}
+        </PresentWhileNode>
         <div class={cm.cn(cm.flex1, cm.stack(2))}>
           <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{props.title}</h3>
-          <Show when={props.description}>
-            <p class={cm.textSize('sm')}>{props.description}</p>
-          </Show>
+          <PresentWhileNode node={props.description}>
+            {(description) => <p class={cm.textSize('sm')}>{description()}</p>}
+          </PresentWhileNode>
           <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
             <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
               {statusLabel(status(), t)}

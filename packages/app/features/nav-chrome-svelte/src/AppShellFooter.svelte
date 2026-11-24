@@ -5,7 +5,7 @@
   same input; node props are snippets (or plain strings).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { AppShellFooterProps } from './types.js'
@@ -30,9 +30,9 @@
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
     {#if typeof logo === 'function'}{@render logo?.()}{:else if logo != null}{logo}{/if}
     {#if copyright}
-      <span class={cm.textSize('xs')}>
+      <PresentWhileContent tag="span" class={cm.textSize('xs')}>
         {#if typeof copyright === 'function'}{@render copyright?.()}{:else}{copyright}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
   </div>
   {#if links && links.length > 0}

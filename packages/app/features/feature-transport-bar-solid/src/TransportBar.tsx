@@ -1,7 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TransportBarProps } from './types.js'
@@ -39,12 +39,6 @@ export const TransportBar: Component<TransportBarProps> = (props) => {
   const canStop = (): boolean => props.canStop ?? true
   /** React's `canSkip = true` default parameter, read per render. */
   const canSkip = (): boolean => props.canSkip ?? true
-  /** React's `timeDisplay ?? children`. */
-  const slotValue = (): JSX.Element => props.timeDisplay ?? props.children
-  /** React's `{slot && …}` truthiness test for the time-display wrapper. */
-  const showsSlot = (): boolean => Boolean(slotValue())
-  /** The value React renders in place of the wrapper when the slot is falsy (a number shows as text). */
-  const falsySlot = (): JSX.Element => (typeof slotValue() === 'number' ? slotValue() : undefined)
   /** React's `cm.cn(cm.cursorPointer, cm.sp('p', 1))` for every control. */
   const controlClass = (): string => cm.cn(cm.cursorPointer, cm.sp('p', 1))
 
@@ -148,14 +142,37 @@ export const TransportBar: Component<TransportBarProps> = (props) => {
           <span aria-hidden="true">{'↻'}</span>
         </button>
       </Show>
-      <Show when={showsSlot()} fallback={falsySlot()}>
-        <div
-          data-mol-id="transport-bar-time-display"
-          class={cm.cn(cm.textSize('sm'), cm.sp('px', 2))}
-        >
-          {slotValue()}
-        </div>
-      </Show>
+      <ResolveNode node={props.timeDisplay}>
+        {(timeDisplay, hasTimeDisplay) => (
+          // React's `slot(timeDisplay) ?? slot(children)`: children are not read (or created)
+          // while the time display wins.
+          <ResolveNode node={hasTimeDisplay() ? undefined : props.children}>
+            {(childNodes, hasChildren) => {
+              /**
+               * React's `slot(timeDisplay) ?? slot(children)`, decided from each slot's present
+               * accessor so an emptied list falls back like an omitted prop.
+               */
+              const slotValue = (): unknown =>
+                hasTimeDisplay() ? timeDisplay() : hasChildren() ? childNodes() : undefined
+              return (
+                <Show
+                  when={Boolean(slotValue())}
+                  fallback={
+                    typeof slotValue() === 'number' ? (slotValue() as JSX.Element) : undefined
+                  }
+                >
+                  <div
+                    data-mol-id="transport-bar-time-display"
+                    class={cm.cn(cm.textSize('sm'), cm.sp('px', 2))}
+                  >
+                    {slotValue() as JSX.Element}
+                  </div>
+                </Show>
+              )
+            }}
+          </ResolveNode>
+        )}
+      </ResolveNode>
     </div>
   )
 }

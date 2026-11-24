@@ -22,7 +22,7 @@ import {
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { ActionMenuItem } from './types.js'
 
@@ -127,11 +127,12 @@ export const ActionMenu = defineComponent({
      * @returns The trigger child nodes.
      */
     const triggerNodes = (): VNodeChild[] => {
-      const slot = slots.trigger
-      if (slot) return slot()
-      return props.trigger === null || props.trigger === undefined
-        ? ['⋮']
-        : childrenOf(props.trigger)
+      const content = slots.trigger?.()
+      // An empty slot result is absent (React's `slot()`): fall through to the
+      // prop, then the default glyph.
+      if (toChildArray(content).length > 0) return content as VNodeChild[]
+      const fromProp = childrenOf(props.trigger)
+      return toChildArray(fromProp).length > 0 ? fromProp : ['⋮']
     }
 
     /**

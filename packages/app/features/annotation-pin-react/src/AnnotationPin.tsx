@@ -1,6 +1,7 @@
 import type { CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -79,13 +80,14 @@ export function AnnotationPin(props: AnnotationPinProps): JSX.Element {
   const {
     position,
     label,
-    note,
+    note: noteProp,
     selected,
     onClick,
     popupSide = 'right',
     className,
     normalised = true,
   } = props
+  const note = slot(noteProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

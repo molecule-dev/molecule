@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { ForumThreadRowProps } from './types.js'
 
@@ -27,8 +27,8 @@ const slotOrValue = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop != null ? toChildArray(prop) : []
 }
 
 /**
@@ -43,8 +43,8 @@ const slotOrTruthy = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop ? toChildArray(prop) : []
 }
 
 /**

@@ -38,6 +38,7 @@ import {
 
 import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { ConfirmDialog, Icon } from '@molecule/app-ui-react'
 
@@ -95,14 +96,17 @@ export function ImageGalleryEditor({
   onChange,
   onPickFiles,
   maxImages = 24,
-  header,
-  counter,
+  header: headerProp,
+  counter: counterProp,
   dropZoneTitle,
   dropZoneHint,
   confirmRemoveMessage,
-  statusMessage,
+  statusMessage: statusMessageProp,
   emptySlotIcon = 'image',
 }: ImageGalleryEditorProps): JSX.Element {
+  const header = slot(headerProp)
+  const counter = slot(counterProp)
+  const statusMessage = slot(statusMessageProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   // Slot buttons hold only an image or a glyph, so they have no name from

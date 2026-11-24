@@ -1,5 +1,6 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { OptimisticToggleButton, type OptimisticToggleButtonProps } from '@molecule/app-ui-react'
 
@@ -55,8 +56,8 @@ export function ListItemRow({
   title,
   subtitle,
   metadata,
-  leading,
-  actions,
+  leading: leadingProp,
+  actions: actionsProp,
   toggle,
   onClick,
   selected,
@@ -64,6 +65,8 @@ export function ListItemRow({
   density = 'comfortable',
   className,
 }: ListItemRowProps): JSX.Element {
+  const leading = slot(leadingProp)
+  const actions = slot(actionsProp)
   const cm = getClassMap()
   const nameId = useId()
   const padY = density === 'compact' ? 2 : 3

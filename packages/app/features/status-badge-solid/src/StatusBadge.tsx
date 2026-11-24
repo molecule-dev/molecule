@@ -8,6 +8,7 @@
 
 import type { Component } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-solid'
 
@@ -38,25 +39,29 @@ export const StatusBadge: Component<StatusBadgeProps> = (props) => {
   const color = (): (typeof KIND_TO_COLOR)[StatusKind] => KIND_TO_COLOR[kind()]
 
   return (
-    <>
-      {props.appearance === 'uppercase-pill' ? (
-        <span
-          class={cm.cn(
-            cm.badge({ variant: color() }),
-            cm.uppercase,
-            cm.trackingWide,
-            props.className,
+    <ResolveNode node={props.icon}>
+      {(icon, hasIcon) => (
+        <>
+          {props.appearance === 'uppercase-pill' ? (
+            <span
+              class={cm.cn(
+                cm.badge({ variant: color() }),
+                cm.uppercase,
+                cm.trackingWide,
+                props.className,
+              )}
+            >
+              {hasIcon() ? <span class={cm.sp('mr', 1)}>{icon()}</span> : null}
+              {props.children}
+            </span>
+          ) : (
+            <Badge color={color()} className={props.className}>
+              {hasIcon() ? <span class={cm.sp('mr', 1)}>{icon()}</span> : null}
+              {props.children}
+            </Badge>
           )}
-        >
-          {props.icon && <span class={cm.sp('mr', 1)}>{props.icon}</span>}
-          {props.children}
-        </span>
-      ) : (
-        <Badge color={color()} className={props.className}>
-          {props.icon && <span class={cm.sp('mr', 1)}>{props.icon}</span>}
-          {props.children}
-        </Badge>
+        </>
       )}
-    </>
+    </ResolveNode>
   )
 }

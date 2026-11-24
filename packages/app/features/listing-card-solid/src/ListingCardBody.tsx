@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ListingCardBodyProps } from './types.js'
@@ -21,11 +22,17 @@ export const ListingCardBody: Component<ListingCardBodyProps> = (props) => {
   return (
     <div class={cm.cn(cm.stack(1), cm.sp('p', 3), props.className)}>
       <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{props.title}</h3>
-      {props.subtitle && <p class={cm.textSize('sm')}>{props.subtitle}</p>}
-      {props.price && <p class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{props.price}</p>}
-      {props.meta && (
-        <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{props.meta}</div>
-      )}
+      <PresentWhileNode node={props.subtitle}>
+        {(subtitle) => <p class={cm.textSize('sm')}>{subtitle()}</p>}
+      </PresentWhileNode>
+      <PresentWhileNode node={props.price}>
+        {(price) => <p class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{price()}</p>}
+      </PresentWhileNode>
+      <PresentWhileNode node={props.meta}>
+        {(meta) => (
+          <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{meta()}</div>
+        )}
+      </PresentWhileNode>
     </div>
   )
 }

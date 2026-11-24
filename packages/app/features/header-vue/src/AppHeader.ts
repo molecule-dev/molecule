@@ -9,7 +9,7 @@ import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Flex } from '@molecule/app-ui-vue'
-import { Link } from '@molecule/app-vue'
+import { Link, toChildArray } from '@molecule/app-vue'
 
 import { DefaultThemeToggle } from './DefaultThemeToggle.js'
 import type { AppHeaderNavigation } from './types.js'
@@ -100,11 +100,14 @@ export const AppHeader = defineComponent({
      * @returns The toggle's children.
      */
     const themeToggle = (): VNodeChild[] => {
-      if (props.themeToggle !== undefined) {
-        return props.themeToggle === null ? [] : [props.themeToggle]
-      }
-      if (slots.themeToggle) return slots.themeToggle()
-      return [h(DefaultThemeToggle)]
+      // An explicit `null` prop force-hides the toggle.
+      if (props.themeToggle === null) return []
+      // React's `slot(themeToggleProp) ?? DEFAULT_THEME_TOGGLE`: an empty list
+      // (a `v-for` over no rows) renders nothing, so the default shows instead.
+      const supplied = toChildArray(
+        props.themeToggle !== undefined ? props.themeToggle : slots.themeToggle?.(),
+      )
+      return supplied.length > 0 ? supplied : [h(DefaultThemeToggle)]
     }
 
     return (): VNodeChild => {

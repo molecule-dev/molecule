@@ -117,7 +117,7 @@ describe('AuthBrandHeader (children mode)', () => {
     expect(markup).not.toContain('IgnoredTagline')
   })
 
-  it('renders children passed through a <For> as it grows, and an empty one instead of the preset', () => {
+  it('renders children passed through a <For> as it grows, and the preset once it empties', () => {
     const [names, setNames] = createSignal<string[]>([])
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -131,8 +131,8 @@ describe('AuthBrandHeader (children mode)', () => {
         container,
       ),
     )
-    // React's `children ?? preset`: an empty list is passed children, not an absent value.
-    expect(container.innerHTML).not.toContain('Acme')
+    // React's `slot(children) ?? preset`: an empty list is absent, so the preset renders.
+    expect(container.innerHTML).toContain('Acme')
 
     setNames(['one'])
     expect(container.querySelector('h1')).toBeNull()
@@ -142,7 +142,7 @@ describe('AuthBrandHeader (children mode)', () => {
     expect(container.querySelectorAll('[data-extra]')).toHaveLength(2)
 
     setNames([])
-    expect(container.innerHTML).not.toContain('Acme')
+    expect(container.innerHTML).toContain('Acme')
     expect(container.querySelectorAll('[data-extra]')).toHaveLength(0)
   })
 })

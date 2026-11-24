@@ -6,7 +6,7 @@
   password-protect toggle. Same props, same DOM for the same input.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card, Switch } from '@molecule/app-ui-svelte'
 
@@ -46,16 +46,15 @@
 <Card data-mol-id={dataMolId} {className}>
   <div class={cm.stack(3)}>
     {#if title || description}
-      <header class={cm.stack(1)}>
-        {#if title}
-          <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-            {@render title?.()}
-          </h3>
-        {/if}
-        {#if description}
-          <p class={cm.textSize('sm')}>{@render description?.()}</p>
-        {/if}
-      </header>
+      <PresentWhileContent tag="header" class={cm.stack(1)}
+        >{#if title}<PresentWhileContent
+            tag="h3"
+            class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}
+            >{@render title?.()}</PresentWhileContent
+          >{/if}{#if description}<PresentWhileContent tag="p" class={cm.textSize('sm')}
+            >{@render description?.()}</PresentWhileContent
+          >{/if}</PresentWhileContent
+      >
     {/if}
     <CopyLinkField value={url} />
     {#if showQR && qr}

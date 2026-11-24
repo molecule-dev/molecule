@@ -8,7 +8,7 @@
 
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
 
@@ -84,11 +84,13 @@ export const GpaCard: Component<GpaCardProps> = (props) => {
             <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-text">
               {trendText()}
             </span>
-            <Show when={props.trendLabel}>
-              <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-label">
-                {props.trendLabel}
-              </span>
-            </Show>
+            <PresentWhileNode node={props.trendLabel}>
+              {(trendLabel) => (
+                <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-label">
+                  {trendLabel()}
+                </span>
+              )}
+            </PresentWhileNode>
           </div>
         </Show>
       </div>

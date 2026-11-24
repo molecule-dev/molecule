@@ -11,7 +11,7 @@
 
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
 
@@ -45,6 +45,8 @@ export const ActionMenu: Component<ActionMenuProps> = (props) => {
   /** The trigger's label: the prop when given, else the translated default. */
   const triggerLabel = (): string =>
     props.triggerAriaLabel ?? t('actionMenu.aria.trigger', undefined, { defaultValue: 'Actions' })
+
+  // React's `slot()`: an empty list renders nothing, so the default shows.
 
   /** The wrapper element the outside-mousedown check tests against. */
   let wrapper: HTMLSpanElement | undefined
@@ -145,9 +147,13 @@ export const ActionMenu: Component<ActionMenuProps> = (props) => {
         aria-expanded={open()}
         data-mol-id="action-menu-trigger"
       >
-        <Show when={props.trigger !== undefined && props.trigger !== null} fallback={'⋮'}>
-          {props.trigger}
-        </Show>
+        <ResolveNode node={props.trigger}>
+          {(trigger, hasTrigger) => (
+            <Show when={hasTrigger()} fallback={'⋮'}>
+              {trigger()}
+            </Show>
+          )}
+        </ResolveNode>
       </Button>
       <Show when={open()}>
         <ul

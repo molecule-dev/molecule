@@ -7,6 +7,7 @@ import type {
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
@@ -132,12 +133,13 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
     activeTool: activeToolProp,
     onActiveToolChange,
     mapBackend = identityBackend,
-    mapSlot,
+    mapSlot: mapSlotProp,
     width = '100%',
     height = 400,
     className,
   } = props
 
+  const mapSlot = slot(mapSlotProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

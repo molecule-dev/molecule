@@ -10,6 +10,7 @@
   themes.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { SectionDividerProps } from './types.js'
@@ -37,7 +38,9 @@
     ></span>
   {/if}
   {#if children}
-    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{@render children?.()}</span>
+    <PresentWhileContent tag="span" class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
+      >{@render children?.()}</PresentWhileContent
+    >
   {/if}
   {#if align === 'center' || align === 'start'}
     <span

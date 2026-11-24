@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { SpacingScale } from '@molecule/app-ui'
 
 import { LegalPageLayout } from './LegalPageLayout.js'
@@ -33,9 +34,10 @@ export function PrivacyPage({
   titleDefault = 'Privacy',
   introKey = 'privacy.intro',
   introDefault = 'This is the Privacy page. Replace this placeholder with real content.',
-  children,
+  children: childrenProp,
   stackGap,
 }: PrivacyPageProps): JSX.Element {
+  const children = slot(childrenProp)
   const { t } = useTranslation()
   return (
     <LegalPageLayout

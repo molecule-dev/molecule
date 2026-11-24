@@ -12,6 +12,7 @@
 
 import type { ReactElement, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Severity level for a weather alert badge. */
@@ -89,15 +90,20 @@ export function WeatherCard({
   condition,
   conditionIcon = 'partly_cloudy_day',
   alertLevel,
-  alertLabel,
-  updatedLabel,
+  alertLabel: alertLabelProp,
+  updatedLabel: updatedLabelProp,
   unit = '°F',
-  eyebrow,
+  eyebrow: eyebrowProp,
   trace,
-  feelsLikeLabel,
-  highLowLabel,
+  feelsLikeLabel: feelsLikeLabelProp,
+  highLowLabel: highLowLabelProp,
   className,
 }: WeatherCardProps): ReactElement {
+  const alertLabel = slot(alertLabelProp)
+  const updatedLabel = slot(updatedLabelProp)
+  const eyebrow = slot(eyebrowProp)
+  const feelsLikeLabel = slot(feelsLikeLabelProp)
+  const highLowLabel = slot(highLowLabelProp)
   const cm = getClassMap()
   const sparkline = buildSparkline(trace)
   const alertTone =

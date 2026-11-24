@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link ListingCardBody}. */
@@ -22,11 +23,14 @@ export interface ListingCardBodyProps {
  */
 export function ListingCardBody({
   title,
-  subtitle,
-  price,
-  meta,
+  subtitle: subtitleProp,
+  price: priceProp,
+  meta: metaProp,
   className,
 }: ListingCardBodyProps): JSX.Element {
+  const subtitle = slot(subtitleProp)
+  const price = slot(priceProp)
+  const meta = slot(metaProp)
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(1 as const), cm.sp('p', 3), className)}>

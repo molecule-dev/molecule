@@ -12,7 +12,7 @@
 import type { Component, JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NowPlayingBarProps, NowPlayingTrack } from './types.js'
@@ -273,11 +273,13 @@ export const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         </div>
       </Show>
 
-      <Show when={props.trailing}>
-        <div class={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
-          {props.trailing}
-        </div>
-      </Show>
+      <PresentWhileNode node={props.trailing}>
+        {(trailing) => (
+          <div class={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
+            {trailing()}
+          </div>
+        )}
+      </PresentWhileNode>
     </div>
   )
 

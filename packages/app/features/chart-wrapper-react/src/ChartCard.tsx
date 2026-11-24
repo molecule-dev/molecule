@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -35,15 +36,19 @@ export interface ChartCardProps {
  */
 export function ChartCard({
   title,
-  description,
-  actions,
-  summary,
+  description: descriptionProp,
+  actions: actionsProp,
+  summary: summaryProp,
   children,
-  footer,
+  footer: footerProp,
   minChartHeight = 240,
   className,
   dataMolId,
 }: ChartCardProps): JSX.Element {
+  const description = slot(descriptionProp)
+  const actions = slot(actionsProp)
+  const summary = slot(summaryProp)
+  const footer = slot(footerProp)
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>

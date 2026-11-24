@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { FileDropzoneProps } from './types.js'
 
@@ -158,9 +158,12 @@ export const FileDropzone = defineComponent({
      * @returns The children to render.
      */
     function content(): VNodeChild[] {
-      if (slots.default) return slots.default()
-      if (props.children != null) return [props.children]
-      return defaultCopy()
+      // An empty children list (a `v-for` over no rows) is absent, as React's
+      // slot() treats it: the default copy renders.
+      const supplied = toChildArray(
+        slots.default ? slots.default() : props.children != null ? props.children : undefined,
+      )
+      return supplied.length > 0 ? supplied : defaultCopy()
     }
 
     /**

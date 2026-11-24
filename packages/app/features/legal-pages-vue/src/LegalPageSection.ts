@@ -8,6 +8,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import type { SpacingScale } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { LegalPageSectionProps } from './types.js'
 import { nodeOrSlot } from './utilities.js'
@@ -36,7 +37,7 @@ export const LegalPageSection = defineComponent({
 
     return (): VNode => {
       const title = nodeOrSlot(slots.title, props.title)
-      const body: VNodeChild[] = slots.default?.() ?? []
+      const body: VNodeChild[] = toChildArray(slots.default?.())
 
       return h('section', { class: cm.stack(props.stackGap ?? 2) }, [
         h('h2', { class: cm.cn(cm.textSize('xl'), cm.fontWeight('semibold')) }, title),

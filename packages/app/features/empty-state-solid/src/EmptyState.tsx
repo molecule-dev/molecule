@@ -1,5 +1,6 @@
-import type { Component, JSX } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { EmptyStateProps } from './types.js'
@@ -43,12 +44,6 @@ type SelectedViewEmptyStateProps = Omit<
  */
 export const EmptyState: Component<EmptyStateProps | SelectedViewEmptyStateProps> = (props) => {
   const cm = getClassMap()
-  /** The message to render: the selected view, or the general props. */
-  const content = (): {
-    title?: JSX.Element
-    description?: JSX.Element
-    action?: JSX.Element
-  } => props.view ?? { title: props.title, description: props.description, action: props.action }
   return (
     <section
       data-mol-id={props.dataMolId}
@@ -59,29 +54,52 @@ export const EmptyState: Component<EmptyStateProps | SelectedViewEmptyStateProps
         props.className,
       )}
     >
-      {props.icon && (
-        <div
-          class={cm.cn(
-            cm.w(20),
-            cm.h(20),
-            cm.roundedFull,
-            cm.flex({ align: 'center', justify: 'center' }),
-            cm.sp('mb', 6),
-            props.iconWrapperClassName,
-          )}
-        >
-          {props.icon}
-        </div>
-      )}
+      <PresentWhileNode node={props.icon}>
+        {(icon) => (
+          <div
+            class={cm.cn(
+              cm.w(20),
+              cm.h(20),
+              cm.roundedFull,
+              cm.flex({ align: 'center', justify: 'center' }),
+              cm.sp('mb', 6),
+              props.iconWrapperClassName,
+            )}
+          >
+            {icon()}
+          </div>
+        )}
+      </PresentWhileNode>
       <h3 class={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
-        {content().title}
+        {props.view ? props.view.title : props.title}
       </h3>
-      {content().description && (
-        <p class={cm.cn(cm.maxW('md'), cm.sp('mb', content().action ? 6 : 0))}>
-          {content().description}
-        </p>
+      {props.view ? (
+        <>
+          {props.view.description && (
+            <p class={cm.cn(cm.maxW('md'), cm.sp('mb', props.view.action ? 6 : 0))}>
+              {props.view.description}
+            </p>
+          )}
+          {props.view.action}
+        </>
+      ) : (
+        <ResolveNode node={props.description}>
+          {(description, hasDescription) => (
+            <ResolveNode node={props.action}>
+              {(action, hasAction) => (
+                <>
+                  <Show when={hasDescription()}>
+                    <p class={cm.cn(cm.maxW('md'), cm.sp('mb', hasAction() ? 6 : 0))}>
+                      {description()}
+                    </p>
+                  </Show>
+                  {action()}
+                </>
+              )}
+            </ResolveNode>
+          )}
+        </ResolveNode>
       )}
-      {content().action}
     </section>
   )
 }

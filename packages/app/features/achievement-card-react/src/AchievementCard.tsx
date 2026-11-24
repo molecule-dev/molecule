@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -41,16 +42,18 @@ export interface AchievementCardProps {
  */
 export function AchievementCard({
   name,
-  description,
+  description: descriptionProp,
   icon,
   earned,
   earnedAt,
   earnedLabel,
   lockedLabel,
   progress,
-  tier,
+  tier: tierProp,
   className,
 }: AchievementCardProps): ReactElement {
+  const description = slot(descriptionProp)
+  const tier = slot(tierProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   const earnedText =

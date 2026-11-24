@@ -1,5 +1,6 @@
-import type { Component } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ListingCardMediaProps } from './types.js'
@@ -36,13 +37,23 @@ export const ListingCardMedia: Component<ListingCardMediaProps> = (props) => {
       class={cm.cn(cm.position('relative'), props.className)}
       style={{ 'aspect-ratio': aspectRatio() }}
     >
-      {props.children ??
-        (props.src ? (
-          <img src={props.src} alt={props.alt ?? ''} style={imageStyle()} />
-        ) : undefined)}
-      {props.overlay && (
-        <div class={cm.cn(cm.position('absolute'), cm.inset0)}>{props.overlay}</div>
-      )}
+      <ResolveNode node={props.children}>
+        {(content, hasContent) => (
+          <Show
+            when={hasContent()}
+            fallback={
+              props.src ? (
+                <img src={props.src} alt={props.alt ?? ''} style={imageStyle()} />
+              ) : undefined
+            }
+          >
+            {content()}
+          </Show>
+        )}
+      </ResolveNode>
+      <PresentWhileNode node={props.overlay}>
+        {(overlay) => <div class={cm.cn(cm.position('absolute'), cm.inset0)}>{overlay()}</div>}
+      </PresentWhileNode>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { type Component, For } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { AppShellFooterProps } from './types.js'
@@ -34,7 +34,9 @@ export const AppShellFooter: Component<AppShellFooterProps> = (props) => {
     >
       <div class={cm.flex({ align: 'center', gap: 'sm' })}>
         {props.logo}
-        {props.copyright && <span class={cm.textSize('xs')}>{props.copyright}</span>}
+        <PresentWhileNode node={props.copyright}>
+          {(copyright) => <span class={cm.textSize('xs')}>{copyright()}</span>}
+        </PresentWhileNode>
       </div>
       {links().length > 0 && (
         <nav aria-label={navLabel()} class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>

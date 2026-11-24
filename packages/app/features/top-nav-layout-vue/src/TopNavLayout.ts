@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-vue'
+import { Link, RoutedView, toChildArray, useLocation, useTranslation } from '@molecule/app-vue'
 
 import type { TopNavItem } from './types.js'
 
@@ -84,8 +84,9 @@ export const TopNavLayout = defineComponent({
       props.navAriaLabel ??
       t('topNavLayout.aria.primaryNavigation', undefined, { defaultValue: 'Primary navigation' })
 
-    return (): VNode =>
-      h(
+    return (): VNode => {
+      const children = slots.default?.()
+      return h(
         'div',
         {
           class: cm.cn(cm.minH('screen'), cm.topNavLayoutRoot, props.className),
@@ -159,8 +160,9 @@ export const TopNavLayout = defineComponent({
             ),
           ]),
           // The page body, or the matched child route through the app's routing bond.
-          h('main', null, slots.default ? slots.default() : h(RoutedView)),
+          h('main', null, toChildArray(children).length > 0 ? children : h(RoutedView)),
         ],
       )
+    }
   },
 })

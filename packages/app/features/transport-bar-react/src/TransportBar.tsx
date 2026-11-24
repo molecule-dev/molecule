@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Transport-bar component props. */
@@ -90,10 +91,12 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
     onSkipForward,
     onRecordToggle,
     onLoopToggle,
-    timeDisplay,
-    children,
+    timeDisplay: timeDisplayProp,
+    children: childrenProp,
     className,
   } = props
+  const timeDisplay = slot(timeDisplayProp)
+  const children = slot(childrenProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -116,7 +119,7 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
   const loopOnLabel = t('transportBar.aria.loopOn', {}, { defaultValue: 'Disable loop' })
   const loopOffLabel = t('transportBar.aria.loopOff', {}, { defaultValue: 'Enable loop' })
 
-  const slot = timeDisplay ?? children
+  const timeSlot = timeDisplay ?? children
 
   // Plain button shell — neutralizes browser chrome so cm classes drive
   // the visual look. Inline styles are limited to properties ClassMap
@@ -219,12 +222,12 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
         </button>
       )}
 
-      {slot && (
+      {timeSlot && (
         <div
           data-mol-id="transport-bar-time-display"
           className={cm.cn(cm.textSize('sm'), cm.sp('px', 2))}
         >
-          {slot}
+          {timeSlot}
         </div>
       )}
     </div>

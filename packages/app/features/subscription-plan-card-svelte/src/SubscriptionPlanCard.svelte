@@ -6,7 +6,7 @@
   node-valued props are snippets (or plain strings).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Card } from '@molecule/app-ui-svelte'
 
@@ -29,8 +29,6 @@
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
 
-  // React's `badge ?? t(…)`: an empty badge is a provided (blank) badge.
-  const badgeProvided = $derived(badge !== undefined && badge !== null)
   // React's `(badge || recommended)`.
   const showBadge = $derived(Boolean(badge) || Boolean(recommended))
   // React's `description && <p>` and `interval && <span>` truthiness.
@@ -40,6 +38,13 @@
   const showInterval = $derived(interval !== undefined && interval !== null && Boolean(interval))
   // React's `{ctaLabel && cta}` — an empty label hides the CTA.
   const showCta = $derived(ctaLabel !== undefined && ctaLabel !== null && Boolean(ctaLabel))
+
+  // React's `slot(badge) ?? t(… Recommend…)` and `slot(ctaLabel) && cta`: a node that renders
+  // nothing is absent, so the badge falls back to "Recommended" and the CTA link leaves the page.
+  let badgeRenders = $state<boolean>()
+  let ctaLabelRenders = $state<boolean>()
+  const badgePresent = $derived(Boolean(badge) && badgeRenders !== false)
+  const ctaLabelPresent = $derived(Boolean(ctaLabel) && ctaLabelRenders !== false)
 </script>
 
 <Card
@@ -49,21 +54,26 @@
   <div class={cm.stack(4)}>
     <header class={cm.stack(1)}>
       {#if showBadge}
-        <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-          {#if badgeProvided}
-            {#if typeof badge === 'function'}{@render badge?.()}{:else}{badge}{/if}
-          {:else}
-            {t('plan.recommended', {}, { defaultValue: 'Recommended' })}
-          {/if}
-        </span>
+        <PresentWhileContent
+          tag="span"
+          present={badgePresent || Boolean(recommended)}
+          class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
+          ><ContentOrElse bind:present={badgeRenders}
+            >{#if badge}{#if typeof badge === 'function'}{@render badge?.()}{:else}{badge}{/if}{/if}</ContentOrElse
+          >{#if !badgePresent}{t(
+              'plan.recommended',
+              {},
+              { defaultValue: 'Recommended' },
+            )}{/if}</PresentWhileContent
+        >
       {/if}
       <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
         {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
       </h3>
       {#if showDescription}
-        <p class={cm.textSize('sm')}>
+        <PresentWhileContent tag="p" class={cm.textSize('sm')}>
           {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-        </p>
+        </PresentWhileContent>
       {/if}
     </header>
     <div class={cm.flex({ align: 'baseline', gap: 'xs' })}>
@@ -71,9 +81,9 @@
         {#if typeof price === 'function'}{@render price?.()}{:else}{price}{/if}
       </span>
       {#if showInterval}
-        <span class={cm.textSize('sm')}>
+        <PresentWhileContent tag="span" class={cm.textSize('sm')}>
           {#if typeof interval === 'function'}{@render interval?.()}{:else}{interval}{/if}
-        </span>
+        </PresentWhileContent>
       {/if}
     </div>
     <ul class={cm.stack(2)}>
@@ -88,11 +98,13 @@
     </ul>
     {#if showCta}
       {#if ctaHref}
-        <a href={ctaHref}>
-          <Button variant="solid" color={recommended ? 'primary' : 'secondary'}>
-            {#if typeof ctaLabel === 'function'}{@render ctaLabel?.()}{:else}{ctaLabel}{/if}
-          </Button>
-        </a>
+        <PresentWhileContent tag="a" href={ctaHref} present={ctaLabelPresent}
+          ><Button variant="solid" color={recommended ? 'primary' : 'secondary'}
+            ><ContentOrElse bind:present={ctaLabelRenders}
+              >{#if typeof ctaLabel === 'function'}{@render ctaLabel?.()}{:else}{ctaLabel}{/if}</ContentOrElse
+            ></Button
+          ></PresentWhileContent
+        >
       {:else}
         <Button variant="solid" color={recommended ? 'primary' : 'secondary'} onClick={onCta}>
           {#if typeof ctaLabel === 'function'}{@render ctaLabel?.()}{:else}{ctaLabel}{/if}

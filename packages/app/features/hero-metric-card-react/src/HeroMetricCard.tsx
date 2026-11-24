@@ -1,4 +1,5 @@
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -71,10 +72,10 @@ function resolveAccentBar(
 export function HeroMetricCard({
   title,
   value,
-  unit,
+  unit: unitProp,
   trend,
-  subtitle,
-  progressRing,
+  subtitle: subtitleProp,
+  progressRing: progressRingProp,
   icon,
   accent,
   onClick,
@@ -82,6 +83,9 @@ export function HeroMetricCard({
   className,
   dataMolId,
 }: HeroMetricCardProps): React.ReactElement {
+  const unit = slot(unitProp)
+  const subtitle = slot(subtitleProp)
+  const progressRing = slot(progressRingProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   const interactive = Boolean(onClick)

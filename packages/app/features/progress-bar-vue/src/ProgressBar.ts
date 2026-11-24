@@ -9,7 +9,7 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { ProgressBarProps } from './types.js'
 
@@ -40,7 +40,7 @@ const slotOrProp = (
 const renders = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
-): boolean => (slot ? true : !!prop)
+): boolean => (slot ? toChildArray(slot()).length > 0 : toChildArray(prop).length > 0)
 
 /** The fill percentage React computes: `max === 0 ? 0 : clamp(0, 100, value / max * 100)`. */
 const fillPercent = (value: number, max: number): number =>

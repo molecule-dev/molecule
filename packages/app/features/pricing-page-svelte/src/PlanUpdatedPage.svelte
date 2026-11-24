@@ -5,7 +5,7 @@
   snippet (or a plain string).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { PlanUpdatedPageProps } from './types.js'
@@ -14,6 +14,12 @@
 
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
+
+  // React's `ctaLabel ? <footer>…</footer> : null`: a label snippet that renders nothing (an empty
+  // list) drops the whole CTA. `ContentOrElse` reads what the label renders; `PresentWhileContent`
+  // takes the footer out while it renders nothing.
+  let ctaLabelRenders = $state<boolean>()
+  const ctaPresent = $derived(Boolean(ctaLabel) && ctaLabelRenders !== false)
 </script>
 
 <section class={className} data-mol-id="plan-updated-page">
@@ -39,25 +45,23 @@
     </p>
   </header>
   {#if ctaLabel}
-    <footer class={cm.cardFooter}>
-      {#if ctaHref}
-        <a
+    <PresentWhileContent tag="footer" class={cm.cardFooter} present={ctaPresent}
+      >{#if ctaHref}<a
           href={ctaHref}
           class={cm.button({ variant: 'solid', size: 'md' })}
           data-mol-id="plan-updated-cta"
-        >
-          {#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel?.()}{/if}
-        </a>
-      {:else}
-        <button
+          ><ContentOrElse bind:present={ctaLabelRenders}
+            >{#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel?.()}{/if}</ContentOrElse
+          ></a
+        >{:else}<button
           type="button"
           class={cm.button({ variant: 'solid', size: 'md' })}
           onclick={(event) => onCta?.(event)}
           data-mol-id="plan-updated-cta"
-        >
-          {#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel?.()}{/if}
-        </button>
-      {/if}
-    </footer>
+          ><ContentOrElse bind:present={ctaLabelRenders}
+            >{#if typeof ctaLabel === 'string'}{ctaLabel}{:else}{@render ctaLabel?.()}{/if}</ContentOrElse
+          ></button
+        >{/if}</PresentWhileContent
+    >
   {/if}
 </section>

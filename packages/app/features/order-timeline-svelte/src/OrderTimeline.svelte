@@ -7,6 +7,7 @@
   be plain strings or snippets.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from './style.js'
@@ -132,8 +133,8 @@
     {/each}
   </div>
   {#if eta}
-    <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+    <PresentWhileContent class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
       {#if typeof eta === 'string'}{eta}{:else}{@render eta?.()}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </div>

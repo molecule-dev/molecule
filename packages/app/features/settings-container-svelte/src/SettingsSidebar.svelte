@@ -6,7 +6,7 @@
   through `t()` (`settingsContainer.aria.settings`); `ariaLabel` overrides it.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { SettingsSidebarProps } from './types.js'
@@ -41,8 +41,8 @@
     </button>
   {/each}
   {#if footer}
-    <div class={cm.sp('mt', 4)}>
+    <PresentWhileContent class={cm.sp('mt', 4)}>
       {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </nav>

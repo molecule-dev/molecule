@@ -12,6 +12,7 @@
 
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { DetailHeaderProps } from './types.js'
@@ -45,7 +46,9 @@ export const DetailHeader: Component<DetailHeaderProps> = (props) => {
               <h1 class={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>{props.title}</h1>
               {props.status}
             </div>
-            {props.subtitle && <p class={cm.textSize('sm')}>{props.subtitle}</p>}
+            <PresentWhileNode node={props.subtitle}>
+              {(subtitle) => <p class={cm.textSize('sm')}>{subtitle()}</p>}
+            </PresentWhileNode>
           </div>
         </div>
         <div class={cm.flex({ align: 'center', gap: 'sm' })}>
@@ -53,9 +56,11 @@ export const DetailHeader: Component<DetailHeaderProps> = (props) => {
           {props.actions}
         </div>
       </div>
-      {props.meta && (
-        <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{props.meta}</div>
-      )}
+      <PresentWhileNode node={props.meta}>
+        {(meta) => (
+          <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{meta()}</div>
+        )}
+      </PresentWhileNode>
     </header>
   )
 }

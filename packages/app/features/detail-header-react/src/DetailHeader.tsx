@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link DetailHeader}. */
@@ -36,16 +37,18 @@ export interface DetailHeaderProps {
  */
 export function DetailHeader({
   title,
-  subtitle,
+  subtitle: subtitleProp,
   leading,
   status,
   actions,
-  meta,
+  meta: metaProp,
   search,
   sticky,
   className,
   dataMolId,
 }: DetailHeaderProps): JSX.Element {
+  const subtitle = slot(subtitleProp)
+  const meta = slot(metaProp)
   const cm = getClassMap()
   return (
     <header

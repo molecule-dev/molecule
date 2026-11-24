@@ -9,7 +9,7 @@
 import { type Component, type JSX, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Link, useTranslation } from '@molecule/app-solid'
+import { Link, PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { AuthFormStateProvider } from './AuthFormStateProvider.jsx'
@@ -252,15 +252,17 @@ export const AuthShell: Component<AuthShellProps> = (props) => {
   return (
     <AuthFormStateProvider storage={props.formStateStorage} storageKey={props.formStateKey}>
       <AuthShellContainer>
-        {props.decoration != null ? (
-          <AuthShellDecoration>{props.decoration}</AuthShellDecoration>
-        ) : null}
+        <PresentWhileNode node={props.decoration}>
+          {(decoration) => <AuthShellDecoration>{decoration()}</AuthShellDecoration>}
+        </PresentWhileNode>
         <div>
           <AuthShellCard>
             {props.brand}
             <AuthShellHeading heading={props.heading} subheading={props.subheading} />
             {props.children}
-            {props.footer != null ? <AuthShellFooter>{props.footer}</AuthShellFooter> : null}
+            <PresentWhileNode node={props.footer}>
+              {(footer) => <AuthShellFooter>{footer()}</AuthShellFooter>}
+            </PresentWhileNode>
           </AuthShellCard>
           {(props.showBackLink ?? true) ? <AuthShellBackLink to={props.backTo ?? '/'} /> : null}
         </div>

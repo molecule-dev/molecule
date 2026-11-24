@@ -9,6 +9,7 @@
   renders, described by it (`aria-describedby`).
 -->
 <script lang="ts">
+  import { ContentOrElse, PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -35,6 +36,14 @@
   const descriptionId = `${baseId}-description`
 
   const cm = $derived(getClassMap())
+
+  // React's `slot(description)`: a description that renders nothing is absent, so the bar carries no
+  // `aria-describedby` and no paragraph. `ContentOrElse` reads what the snippet renders and
+  // `PresentWhileContent present={…}` takes the paragraph out.
+  let descriptionRenders = $state<boolean>()
+  let valueLabelRenders = $state<boolean>()
+  const descriptionPresent = $derived(Boolean(description) && descriptionRenders !== false)
+  const valueLabelPresent = $derived(Boolean(valueLabel) && valueLabelRenders !== false)
 </script>
 
 <Card {className}>
@@ -49,16 +58,29 @@
             {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
           </h3>
           {#if description}
-            <p id={descriptionId} class={cm.textSize('sm')}>
-              {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-            </p>
+            <PresentWhileContent
+              tag="p"
+              present={descriptionPresent}
+              id={descriptionId}
+              class={cm.textSize('sm')}
+            >
+              <ContentOrElse bind:present={descriptionRenders}
+                >{#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}</ContentOrElse
+              >
+            </PresentWhileContent>
           {/if}
         </div>
       </div>
       {#if valueLabel}
-        <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-          {#if typeof valueLabel === 'function'}{@render valueLabel?.()}{:else}{valueLabel}{/if}
-        </span>
+        <PresentWhileContent
+          tag="span"
+          present={valueLabelPresent}
+          class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+        >
+          <ContentOrElse bind:present={valueLabelRenders}
+            >{#if typeof valueLabel === 'function'}{@render valueLabel?.()}{:else}{valueLabel}{/if}</ContentOrElse
+          >
+        </PresentWhileContent>
       {/if}
     </div>
     <ProgressBar
@@ -66,7 +88,7 @@
       {max}
       {color}
       labelledBy={titleId}
-      describedBy={description ? descriptionId : undefined}
+      describedBy={descriptionPresent ? descriptionId : undefined}
     />
     {#if children}{@render children?.()}{/if}
   </div>

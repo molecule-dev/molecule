@@ -11,6 +11,7 @@
 
 import { type Component, For, Show } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import type { OrderMilestone, OrderTimelineProps } from './types.js'
@@ -181,9 +182,9 @@ export const OrderTimeline: Component<OrderTimelineProps> = (props) => {
           }}
         </For>
       </div>
-      <Show when={props.eta}>
-        <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.eta}</div>
-      </Show>
+      <PresentWhileNode node={props.eta}>
+        {(eta) => <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{eta()}</div>}
+      </PresentWhileNode>
     </div>
   )
 }

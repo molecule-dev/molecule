@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SectionDividerProps } from './types.js'
@@ -31,9 +32,11 @@ export const SectionDivider: Component<SectionDividerProps> = (props) => {
       {(align() === 'center' || align() === 'end') && (
         <span class={cm.flex1} aria-hidden="true" style={lineStyle} />
       )}
-      {props.children && (
-        <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{props.children}</span>
-      )}
+      <PresentWhileNode node={props.children}>
+        {(content) => (
+          <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{content()}</span>
+        )}
+      </PresentWhileNode>
       {(align() === 'center' || align() === 'start') && (
         <span class={cm.flex1} aria-hidden="true" style={lineStyle} />
       )}

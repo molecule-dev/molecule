@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
 /** Severity level of a log entry, ordered from lowest to highest. */
@@ -56,8 +57,9 @@ export function LogViewer({
   entries,
   onToggle,
   className,
-  emptyState,
+  emptyState: emptyStateProp,
 }: LogViewerProps): JSX.Element {
+  const emptyState = slot(emptyStateProp)
   const cm = getClassMap()
   const [openIds, setOpenIds] = useState<Set<string>>(new Set())
 

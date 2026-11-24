@@ -1,6 +1,6 @@
-import { type Component, Index, type JSX } from 'solid-js'
+import { type Component, Index, type JSX, type ResolvedChildren, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { BreadcrumbItem, BreadcrumbProps } from './types.js'
@@ -24,9 +24,11 @@ const isDomNode = (value: unknown): value is Node =>
  *
  * This is the Solid counterpart of `@molecule/app-breadcrumb-react`: the
  * same props (React names), the same ClassMap tokens, and the same DOM for
- * the same input. The separator renders once per gap; a caller's separator
- * node is cloned per gap, because a DOM node can only live in one place —
- * React renders the same element in every gap.
+ * the same input. The separator renders once per gap, and each gap reads the
+ * `separator` prop itself, so JSX (`separator={<Icon />}`) and accessors
+ * create one instance per gap, as React mounts one per gap. A node created
+ * once and passed as a value (`separator={icon}`) can live in one place only:
+ * the first gap shows it and the others show a DOM copy.
  *
  * @param props - Component props (see {@link BreadcrumbProps}).
  * @returns The rendered breadcrumb.
@@ -48,20 +50,46 @@ export const Breadcrumb: Component<BreadcrumbProps> = (props) => {
     </span>
   )
 
+  /** The gap each separator node passed as a value was first shown in. */
+  const shownIn = new WeakMap<Node, number>()
+
   /**
-   * The separator rendered at ONE gap position, fresh each call: the
-   * caller's nodes (each DOM node cloned — a DOM node cannot be inserted
-   * twice), or the default `/`. As React's `separator ?? <span>/</span>`,
-   * only an absent separator gets the default; an empty list leaves the gap empty.
+   * One gap's separator nodes: each as it is, unless an earlier gap already
+   * shows that very node (a node created once and passed as a value), which
+   * gets a DOM copy here.
+   * @param given - The gap's resolved separator.
+   * @param gap - The gap's index.
+   * @returns The nodes to insert.
+   */
+  const ownNodes = (given: ResolvedChildren, gap: number): JSX.Element => {
+    const nodes: unknown[] = Array.isArray(given) ? given : [given]
+    return nodes.map((node) => {
+      if (!isDomNode(node)) return node
+      const owner = shownIn.get(node)
+      if (owner === undefined || owner === gap) {
+        shownIn.set(node, gap)
+        return node
+      }
+      return node.cloneNode(true)
+    }) as JSX.Element
+  }
+
+  /**
+   * The separator of one gap: the caller's, read here so this gap gets its own
+   * instance, or the default `/`. As React's `separator ?? <span>/</span>`,
+   * only a separator that renders nothing gets the default.
+   * @param gap - The gap's index.
    * @returns The separator of one gap.
    */
-  const separatorAt = (): JSX.Element => {
-    const given =
-      typeof props.separator === 'function' ? (props.separator as () => unknown)() : props.separator
-    if (given == null) return <span aria-hidden="true">/</span>
-    const nodes: unknown[] = Array.isArray(given) ? given : [given]
-    return nodes.map((node) => (isDomNode(node) ? node.cloneNode(true) : node)) as JSX.Element
-  }
+  const separatorAt = (gap: number): JSX.Element => (
+    <ResolveNode node={props.separator}>
+      {(separator, hasSeparator) => (
+        <Show when={hasSeparator()} fallback={<span aria-hidden="true">/</span>}>
+          {ownNodes(separator(), gap)}
+        </Show>
+      )}
+    </ResolveNode>
+  )
 
   return (
     <nav
@@ -95,7 +123,7 @@ export const Breadcrumb: Component<BreadcrumbProps> = (props) => {
                   {content(item)}
                 </a>
               )}
-              {!isLast() && <span>{separatorAt()}</span>}
+              {!isLast() && <span>{separatorAt(i)}</span>}
             </span>
           )
         }}

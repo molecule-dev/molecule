@@ -8,6 +8,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link NodeEditorPanel}. */
@@ -28,11 +29,12 @@ export interface NodeEditorPanelProps {
 export function NodeEditorPanel({
   title,
   children,
-  footer,
+  footer: footerProp,
   onClose,
   closeAriaLabel,
   widthClass,
 }: NodeEditorPanelProps): JSX.Element {
+  const footer = slot(footerProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

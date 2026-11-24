@@ -5,7 +5,7 @@
   `earnedAt`, `tier`) are snippets, or plain strings.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -51,15 +51,18 @@
           {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
         </h3>
         {#if tier}
-          <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          <PresentWhileContent
+            tag="span"
+            class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
+          >
             {#if typeof tier === 'function'}{@render tier?.()}{:else}{tier}{/if}
-          </span>
+          </PresentWhileContent>
         {/if}
       </header>
       {#if description}
-        <p class={cm.textSize('sm')}>
+        <PresentWhileContent tag="p" class={cm.textSize('sm')}>
           {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-        </p>
+        </PresentWhileContent>
       {/if}
       {#if earned}
         {#if earnedAt}

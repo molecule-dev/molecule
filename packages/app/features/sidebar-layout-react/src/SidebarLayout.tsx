@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react'
 
 import { RoutedView, useLocation, useTranslation } from '@molecule/app-react'
 import { Link } from '@molecule/app-react/link'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Describes a single item in the sidebar's vertical navigation list. */
@@ -114,15 +115,18 @@ export function SidebarLayout({
   appName,
   logoTo = '/',
   navItems,
-  userMenu,
-  themeToggle,
+  userMenu: userMenuProp,
+  themeToggle: themeToggleProp,
   navAriaLabel,
   sidebarWidth,
   sidebarWidthClass,
   className,
   dataMolId,
-  children,
+  children: childrenProp,
 }: SidebarLayoutProps): ReactElement {
+  const userMenu = slot(userMenuProp)
+  const themeToggle = slot(themeToggleProp)
+  const children = slot(childrenProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const { pathname } = useLocation()

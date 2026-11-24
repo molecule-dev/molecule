@@ -8,14 +8,13 @@ import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 
 import {
   MolPlacement,
+  rendersNode,
   setElementPresent,
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { renders } from './utilities.js'
 
 /**
  * NodeEditorPanel component.
@@ -98,7 +97,7 @@ export class NodeEditorPanel {
   constructor() {
     usePlacement((hasContent) => {
       const footerEl = this.footerEl?.nativeElement
-      const showFooter = renders(this.footer) || (footerEl ? hasContent(footerEl) : false)
+      const showFooter = rendersNode(this.footer) || (footerEl ? hasContent(footerEl) : false)
       this.footerShown.set(showFooter)
       setElementPresent(footerEl, showFooter)
     })
@@ -117,7 +116,7 @@ export class NodeEditorPanel {
    * @returns True when the title input renders as text.
    */
   get hasTitle(): boolean {
-    return renders(this.title)
+    return rendersNode(this.title)
   }
 
   /**
@@ -125,7 +124,7 @@ export class NodeEditorPanel {
    * @returns True when the footer input renders as text.
    */
   rendersFooter(): boolean {
-    return renders(this.footer)
+    return rendersNode(this.footer)
   }
 
   /**
@@ -134,7 +133,7 @@ export class NodeEditorPanel {
    * @returns True when the footer shows.
    */
   showFooter(): boolean {
-    return renders(this.footer) || this.footerShown()
+    return rendersNode(this.footer) || this.footerShown()
   }
 
   /**

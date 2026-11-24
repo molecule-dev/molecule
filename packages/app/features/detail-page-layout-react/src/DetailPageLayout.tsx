@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link DetailPageLayout}. */
@@ -36,12 +37,13 @@ export function DetailPageLayout({
   breadcrumb,
   topBar,
   main,
-  sidebar,
+  sidebar: sidebarProp,
   sidebarPosition = 'right',
   sidebarWidth = 'md',
   className,
   dataMolId,
 }: DetailPageLayoutProps): JSX.Element {
+  const sidebar = slot(sidebarProp)
   const cm = getClassMap()
   const sidebarStyle = { flexBasis: `${SIDEBAR_WIDTH[sidebarWidth] * 4}px`, flexShrink: 0 }
   return (

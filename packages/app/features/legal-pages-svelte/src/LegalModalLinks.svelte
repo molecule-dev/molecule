@@ -5,7 +5,7 @@
   instead of navigating. Same props, same DOM for the same input.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Modal } from '@molecule/app-ui-svelte'
 
@@ -65,11 +65,17 @@
 
 {#if show !== 'terms'}
   <button type="button" class={linkClassName} onclick={openPrivacy}>
-    {#if privacyLabel}{@render privacyLabel?.()}{:else}{privacyTitle}{/if}
+    <ContentOrElse>
+      {#if typeof privacyLabel === 'function'}{@render privacyLabel?.()}{:else}{privacyLabel}{/if}
+      {#snippet otherwise()}{privacyTitle}{/snippet}
+    </ContentOrElse>
   </button>
 {/if}{#if show !== 'privacy'}
   <button type="button" class={linkClassName} onclick={openTerms}>
-    {#if termsLabel}{@render termsLabel?.()}{:else}{termsTitle}{/if}
+    <ContentOrElse>
+      {#if typeof termsLabel === 'function'}{@render termsLabel?.()}{:else}{termsLabel}{/if}
+      {#snippet otherwise()}{termsTitle}{/snippet}
+    </ContentOrElse>
   </button>
 {/if}<Modal
   open={privacyOpen}

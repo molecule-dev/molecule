@@ -11,13 +11,15 @@
 import { defineComponent, Fragment, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
 
 /**
  * The empty state's children: the `emptyState` slot wins over the prop, and an
- * absent pair contributes nothing.
+ * absent pair contributes nothing — an empty slot or prop renders nothing, so
+ * React renders the feed wrapper instead.
  *
  * @param slot - The slot render function, when the caller passed the slot.
  * @param prop - The prop value, when the caller passed the prop.
@@ -27,8 +29,8 @@ const slotChildren = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**

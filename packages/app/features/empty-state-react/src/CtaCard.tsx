@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link CtaCard}. */
@@ -32,15 +33,18 @@ export interface CtaCardProps {
  * @param props - Component props (see {@link CtaCardProps}).
  */
 export function CtaCard({
-  eyebrow,
+  eyebrow: eyebrowProp,
   title,
   description,
-  action,
-  media,
+  action: actionProp,
+  media: mediaProp,
   layout = 'vertical',
   dataMolId,
   className,
 }: CtaCardProps): JSX.Element {
+  const eyebrow = slot(eyebrowProp)
+  const action = slot(actionProp)
+  const media = slot(mediaProp)
   const cm = getClassMap()
   const direction = layout === 'horizontal' ? 'row' : 'col'
   return (

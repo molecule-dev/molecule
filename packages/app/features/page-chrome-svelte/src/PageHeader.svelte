@@ -8,6 +8,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { PageHeaderProps } from './types.js'
@@ -46,15 +47,21 @@
           {#if title}{@render node(title)}{/if}
         </h1>
         {#if subtitle}
-          <p class={cm.textSize('base')}>{@render node(subtitle)}</p>
+          <PresentWhileContent tag="p" class={cm.textSize('base')}
+            >{@render node(subtitle)}</PresentWhileContent
+          >
         {/if}
       </div>
     </div>
     {#if actions}
-      <div class={cm.flex({ align: 'center', gap: 'sm' })}>{@render node(actions)}</div>
+      <PresentWhileContent class={cm.flex({ align: 'center', gap: 'sm' })}
+        >{@render node(actions)}</PresentWhileContent
+      >
     {/if}
   </div>
   {#if meta}
-    <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{@render node(meta)}</div>
+    <PresentWhileContent class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}
+      >{@render node(meta)}</PresentWhileContent
+    >
   {/if}
 </header>

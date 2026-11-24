@@ -7,9 +7,9 @@
  * @module
  */
 
-import { type Component, type JSX, Show } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-solid'
@@ -75,8 +75,6 @@ export const HeroMetricCard: Component<HeroMetricCardProps> = (props) => {
   const clickable = (): boolean => typeof props.onClick === 'function'
   const accentBar = (): { className?: string; backgroundColor?: string } | undefined =>
     props.accent ? resolveAccentBar(cm, props.accent) : undefined
-  const rightSlot = (): JSX.Element | undefined => props.progressRing ?? props.icon
-  const hasUnit = (): boolean => props.unit !== undefined && props.unit !== null
   const loadingLabel = (): string =>
     t('hero-metric-card.loading', {}, { defaultValue: 'Loading metric…' })
 
@@ -141,23 +139,42 @@ export const HeroMetricCard: Component<HeroMetricCardProps> = (props) => {
                 >
                   {props.value}
                 </span>
-                <Show when={hasUnit()}>
-                  <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}>
-                    {props.unit}
-                  </span>
-                </Show>
+                <PresentWhileNode node={props.unit}>
+                  {(unit) => (
+                    <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}>
+                      {unit()}
+                    </span>
+                  )}
+                </PresentWhileNode>
               </div>
             </Show>
             <Show when={!loading() && props.trend}>
               {(trend) => <HeroMetricTrendChip trend={trend()} />}
             </Show>
-            <Show when={!loading() && props.subtitle}>
-              <span class={cm.cn(cm.textSize('sm'), cm.textMuted)}>{props.subtitle}</span>
+            <Show when={!loading()}>
+              <PresentWhileNode node={props.subtitle}>
+                {(subtitle) => (
+                  <span class={cm.cn(cm.textSize('sm'), cm.textMuted)}>{subtitle()}</span>
+                )}
+              </PresentWhileNode>
             </Show>
           </div>
-          <Show when={rightSlot()}>
-            <div class={cm.flex({ align: 'center', justify: 'center' })}>{rightSlot()}</div>
-          </Show>
+          <ResolveNode node={props.progressRing}>
+            {(progressRing, hasProgressRing) => (
+              <Show
+                when={hasProgressRing()}
+                fallback={
+                  <PresentWhileNode node={props.icon}>
+                    {(icon) => (
+                      <div class={cm.flex({ align: 'center', justify: 'center' })}>{icon()}</div>
+                    )}
+                  </PresentWhileNode>
+                }
+              >
+                <div class={cm.flex({ align: 'center', justify: 'center' })}>{progressRing()}</div>
+              </Show>
+            )}
+          </ResolveNode>
         </div>
       </div>
     </Card>

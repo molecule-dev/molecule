@@ -9,6 +9,7 @@
 
 import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link FilterPill}. */
@@ -31,13 +32,16 @@ export interface FilterPillProps {
 export function FilterPill({
   label,
   active,
-  children,
+  children: childrenProp,
   hideChevron,
   leadingIcon,
   panelAlign = 'left',
   dataMolId,
 }: FilterPillProps): JSX.Element {
   const cm = getClassMap()
+  // An open pill shows its panel only while the panel has something to show: an
+  // empty list (`[]`, a map over no rows) renders nothing, like an omitted prop.
+  const children = slot(childrenProp)
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -82,7 +86,7 @@ export function FilterPill({
           ) : null}
         </span>
       </button>
-      {open && children ? (
+      {open && children !== undefined ? (
         <div
           className={cm.cn(
             cm.sp('mt', 2),

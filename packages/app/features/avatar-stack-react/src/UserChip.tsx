@@ -1,5 +1,6 @@
 import type { AnchorHTMLAttributes, HTMLAttributes, JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -36,12 +37,13 @@ export function UserChip({
   href,
   nameLinkProps,
   src,
-  subtitle,
+  subtitle: subtitleProp,
   trailing,
   size = 'sm',
   className,
   ...rest
 }: UserChipProps): JSX.Element {
+  const subtitle = slot(subtitleProp)
   const cm = getClassMap()
   const avatar = <Avatar src={src} alt={name} name={name} size={size} />
   return (

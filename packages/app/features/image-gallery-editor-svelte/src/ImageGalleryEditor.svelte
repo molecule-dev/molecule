@@ -10,7 +10,7 @@
   `statusMessage`) are snippets, or plain strings.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { ConfirmDialog, Icon } from '@molecule/app-ui-svelte'
 
@@ -139,15 +139,13 @@
 <section>
   {#if header || counter}
     <div class={cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6))}>
-      {#if typeof header === 'function'}
-        {@render header?.()}
-      {:else if header != null}
-        {header}
-      {:else}
-        <div></div>
-      {/if}
+      <ContentOrElse>
+        {#if typeof header === 'function'}{@render header?.()}{:else if header != null}{header}{/if}
+        {#snippet otherwise()}<div></div>{/snippet}
+      </ContentOrElse>
       {#if counter}
-        <span
+        <PresentWhileContent
+          tag="span"
           class={cm.cn(
             cm.textSize('xs'),
             cm.fontWeight('bold'),
@@ -157,7 +155,7 @@
           )}
         >
           {#if typeof counter === 'function'}{@render counter?.()}{:else}{counter}{/if}
-        </span>
+        </PresentWhileContent>
       {/if}
     </div>
   {/if}
@@ -274,12 +272,13 @@
     </div>
   </div>
   {#if statusMessage}
-    <p
+    <PresentWhileContent
+      tag="p"
       class={cm.cn(cm.sp('mt', 3), cm.textSize('xs'), cm.textMuted)}
       data-mol-id="image-gallery-editor-status"
     >
       {#if typeof statusMessage === 'function'}{@render statusMessage?.()}{:else}{statusMessage}{/if}
-    </p>
+    </PresentWhileContent>
   {/if}
   <!-- Hidden trigger input. `display:none` is the robust, framework-agnostic
       hide — a raw `hidden` class never generates without an @source scan of

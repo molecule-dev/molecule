@@ -38,7 +38,7 @@ import {
   type PreviewPanelLogicProps,
   type PreviewPanelPreview,
 } from '@molecule/app-ide-panel-logic/panels'
-import { usePreview, useTranslation } from '@molecule/app-solid'
+import { ResolveNode, usePreview, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-solid'
 
@@ -264,27 +264,14 @@ export function PreviewPanel(props: PreviewPanelProps): JSX.Element {
   )
 
   /**
-   * Which of React's `overlayContent` branches is rendered, as a key that
-   * changes EXACTLY when React would remount the branch (a different element
-   * type at the position): the blank notice, a custom indicator slot, or the
-   * default loading indicator. React reconciles the two default-indicator
-   * branches (with and without a build hint) as the SAME component, so they share
-   * one key here and the rotation survives the switch.
-   *
-   * @returns The overlay content key.
+   * Overlay branch flags, as booleans so an unchanged value does not re-run the branch that reads
+   * an indicator slot (which would create its components again on every session tick).
    */
-  const overlayKey = createMemo<'blank' | 'slot-restarting' | 'slot-loading' | 'default'>(() => {
-    const current = logic()
-    if (current.blankPostBuild) return 'blank'
-    if (props.isBuilding || building()) return 'default'
-    if (current.everLoaded) {
-      if (props.restartingIndicator) return 'slot-restarting'
-      if (props.loadingIndicator) return 'slot-loading'
-      return 'default'
-    }
-    if (props.loadingIndicator) return 'slot-loading'
-    return 'default'
-  })
+  const blankPostBuild = createMemo(() => logic().blankPostBuild)
+  /** Whether the preview has loaded at least once (React's `everLoaded`). */
+  const everLoaded = createMemo(() => logic().everLoaded)
+  /** React's `isBuilding || building`: the building branch shows the default indicator with a hint. */
+  const buildingNow = createMemo(() => props.isBuilding || building())
 
   return (
     <div class={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, props.className)}>
@@ -571,32 +558,52 @@ export function PreviewPanel(props: PreviewPanelProps): JSX.Element {
               </>
             </Show>
             <div style={inlineStyle({ position: 'relative', 'z-index': '1' })}>
-              {/* React's overlayContent, keyed so each branch remounts exactly
-                  where React would remount it (see overlayKey). */}
-              <Show when={overlayKey()} keyed>
-                {(key) => {
-                  if (key === 'blank') {
-                    // Build finished but the app rendered nothing — actionable, not a spinner.
-                    return (
-                      <PreviewBlankNotice
-                        onReload={() => logic().handleUserRetry()}
-                        onOpenExternal={() => openExternal()}
-                      />
-                    )
+              {/* React's `overlayContent`: the blank notice, else the default indicator while a
+                  build runs, else a custom indicator slot falling back to the default. Each node
+                  prop is read once in the branch that renders it, so a slot's components are
+                  created only while shown. The restarting and loading slots sit in one stable
+                  position, so a slot that stays chosen across the ever-loaded switch keeps its
+                  instance (React's same-type reconciliation). */}
+              <Show when={blankPostBuild()}>
+                {/* Build finished but the app rendered nothing — actionable, not a spinner. */}
+                <PreviewBlankNotice
+                  onReload={() => logic().handleUserRetry()}
+                  onOpenExternal={() => openExternal()}
+                />
+              </Show>
+              <Show when={!blankPostBuild()}>
+                <Show
+                  when={buildingNow()}
+                  fallback={
+                    <ResolveNode node={everLoaded() ? props.restartingIndicator : undefined}>
+                      {(restarting, hasRestarting) => (
+                        <ResolveNode node={hasRestarting() ? undefined : props.loadingIndicator}>
+                          {(loading, hasLoading) => (
+                            <Show
+                              when={hasRestarting() || hasLoading()}
+                              fallback={
+                                <DefaultLoadingIndicator
+                                  retryCount={logic().stuckRetryCount}
+                                  onManualRetry={() => logic().handleUserRetry()}
+                                />
+                              }
+                            >
+                              <Show when={hasRestarting()} fallback={loading()}>
+                                {restarting()}
+                              </Show>
+                            </Show>
+                          )}
+                        </ResolveNode>
+                      )}
+                    </ResolveNode>
                   }
-                  if (key === 'slot-restarting') return props.restartingIndicator
-                  if (key === 'slot-loading') return props.loadingIndicator
-                  // The default indicator serves both the building branch (with
-                  // the hint) and the plain loading/restarting branches, as React's
-                  // same-type reconciliation keeps one component there.
-                  return (
-                    <DefaultLoadingIndicator
-                      hint={props.isBuilding || building() ? (props.buildingHint ?? null) : null}
-                      retryCount={logic().stuckRetryCount}
-                      onManualRetry={() => logic().handleUserRetry()}
-                    />
-                  )
-                }}
+                >
+                  <DefaultLoadingIndicator
+                    hint={props.buildingHint ?? null}
+                    retryCount={logic().stuckRetryCount}
+                    onManualRetry={() => logic().handleUserRetry()}
+                  />
+                </Show>
               </Show>
             </div>
           </div>

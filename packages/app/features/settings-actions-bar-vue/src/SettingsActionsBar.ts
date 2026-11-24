@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { SettingsActionsBarProps } from './types.js'
 
@@ -112,8 +112,9 @@ export const SettingsActionsBar = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
-    return (): VNode =>
-      h(
+    return (): VNode => {
+      const errorNodes = slotOrProp(slots.error, props.error)
+      return h(
         'div',
         {
           // A real theme surface + top border so the (sticky) bar is opaque and
@@ -143,8 +144,8 @@ export const SettingsActionsBar = defineComponent({
                   ]),
                 ]
               : []),
-            ...(props.error
-              ? [h('span', { class: cm.textSize('sm') }, slotOrProp(slots.error, props.error))]
+            ...(toChildArray(errorNodes).length > 0
+              ? [h('span', { class: cm.textSize('sm') }, errorNodes)]
               : []),
           ]),
           h('div', { class: cm.flex({ align: 'center', gap: 'sm' }) }, [
@@ -182,5 +183,6 @@ export const SettingsActionsBar = defineComponent({
           ]),
         ],
       )
+    }
   },
 })

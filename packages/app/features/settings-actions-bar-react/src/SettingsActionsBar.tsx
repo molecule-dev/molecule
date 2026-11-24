@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -56,11 +57,12 @@ export function SettingsActionsBar({
   loading,
   disabled,
   savedAt,
-  error,
+  error: errorProp,
   sticky = true,
   leading,
   className,
 }: SettingsActionsBarProps): JSX.Element {
+  const error = slot(errorProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

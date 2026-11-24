@@ -7,7 +7,9 @@
   every visible string goes through `t()` so a locale switch re-renders it.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import type { Attachment } from 'svelte/attachments'
+
+  import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Alert, Button } from '@molecule/app-ui-svelte'
 
@@ -30,6 +32,48 @@
   /** React's `items.length > 0`. */
   const hasItems = $derived(items.length > 0)
 
+  // React's `slot(title) ?? default` / `slot(emptyState) ?? defaultDiv` treat a node that renders
+  // nothing (an empty list) as absent, so the default shows. A snippet's `{#each}` over no rows
+  // changes the DOM without changing the prop, so presence is read from the rendered DOM.
+  let titleRenders = $state(false)
+  let emptyRenders = $state(false)
+  let headerEl = $state.raw<HTMLElement | undefined>(undefined)
+  let bannerEl = $state.raw<HTMLElement | undefined>(undefined)
+  let defaultEmptyEl = $state.raw<HTMLElement | undefined>(undefined)
+
+  /** Keeps `titleRenders` in step with what the `h3` actually contains (its trailing text node is the default). */
+  const trackTitle: Attachment<HTMLElement> = (element) => {
+    const sync = (): void => {
+      titleRenders = contentNodes(element).length > (titleRenders ? 0 : 1)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  }
+
+  /** Whether the empty branch renders the `emptyState` node rather than the default message. */
+  const trackEmpty: Attachment<HTMLElement> = (element) => {
+    const sync = (): void => {
+      if (hasItems) {
+        emptyRenders = false
+        return
+      }
+      const known = new Set<ChildNode>(
+        [headerEl, bannerEl, defaultEmptyEl].filter((n): n is HTMLElement => !!n),
+      )
+      emptyRenders = Array.from(element.childNodes).some(
+        (n) =>
+          !known.has(n) &&
+          (n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== '')),
+      )
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, subtree: true, characterData: true })
+    return () => observer.disconnect()
+  }
+
   // Every `t(…)` runs inside a `$derived`: it reads the i18n version under the
   // hood, so this re-runs on a locale switch the way React's render-time `t`
   // calls re-run on a re-render.
@@ -47,21 +91,23 @@
 </script>
 
 <div
+  {@attach trackEmpty}
   class={cm.cn(cm.stack(0 as const), className)}
   style="min-width: 320px; max-height: 480px; overflow-y: auto;"
 >
-  <header class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'sm' }), cm.sp('p', 3))}>
-    <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-      {#if title !== undefined && title !== null}
-        {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
-      {:else}{defaultTitle}{/if}
+  <header
+    bind:this={headerEl}
+    class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'sm' }), cm.sp('p', 3))}
+  >
+    <h3 {@attach trackTitle} class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+      {#if title !== undefined && title !== null}{#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}{/if}{#if !titleRenders}{defaultTitle}{/if}
     </h3>
     {#if onMarkAllRead && hasItems}
       <Button variant="ghost" size="sm" onClick={onMarkAllRead}>{markAllText}</Button>
     {/if}
   </header>
   {#if lastError}
-    <div class={cm.sp('px', 3)}>
+    <div bind:this={bannerEl} class={cm.sp('px', 3)}>
       <Alert status="error">
         <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
           <span class={cm.textSize('sm')}>{loadErrorText}</span>
@@ -76,11 +122,12 @@
     </div>
   {/if}
   {#if !hasItems}
-    {#if emptyState !== undefined && emptyState !== null}
-      {#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}
-    {:else}
-      <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>{emptyText}</div>
-    {/if}
+    {#if emptyState !== undefined && emptyState !== null}{#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}{/if}{#if emptyState === undefined || emptyState === null || !emptyRenders}<div
+        bind:this={defaultEmptyEl}
+        class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}
+      >
+        {emptyText}
+      </div>{/if}
   {:else}
     <ul class={cm.stack(0 as const)}>
       {#each items as it (it.id)}

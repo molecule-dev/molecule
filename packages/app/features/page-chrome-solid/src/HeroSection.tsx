@@ -8,8 +8,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HeroSectionProps } from './types.js'
@@ -26,35 +27,56 @@ export const HeroSection: Component<HeroSectionProps> = (props) => {
   const cm = getClassMap()
   const align = (): 'start' | 'center' => props.align ?? 'start'
   return (
-    <section
-      class={cm.cn(
-        cm.flex({
-          align: 'center',
-          justify: props.media ? 'between' : 'start',
-          gap: 'lg',
-          wrap: 'wrap',
-        }),
-        cm.sp('py', 10),
-        props.className,
-      )}
-      data-mol-id={props.dataMolId}
-    >
-      <div class={cm.cn(cm.stack(4), cm.flex1, align() === 'center' ? cm.textCenter : undefined)}>
-        {props.eyebrow ? (
-          <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.eyebrow}</div>
-        ) : null}
-        <h1 class={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>{props.title}</h1>
-        {props.description ? (
-          <p class={cm.cn(cm.textSize('lg'), cm.maxW('2xl'))}>{props.description}</p>
-        ) : null}
-        {props.primaryAction || props.secondaryAction ? (
-          <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-            {props.primaryAction}
-            {props.secondaryAction}
+    // A media column that renders nothing is absent, so the root justify stays `start`.
+    <ResolveNode node={props.media}>
+      {(media, hasMedia) => (
+        <section
+          class={cm.cn(
+            cm.flex({
+              align: 'center',
+              justify: hasMedia() ? 'between' : 'start',
+              gap: 'lg',
+              wrap: 'wrap',
+            }),
+            cm.sp('py', 10),
+            props.className,
+          )}
+          data-mol-id={props.dataMolId}
+        >
+          <div
+            class={cm.cn(cm.stack(4), cm.flex1, align() === 'center' ? cm.textCenter : undefined)}
+          >
+            <PresentWhileNode node={props.eyebrow}>
+              {(eyebrow) => (
+                <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{eyebrow()}</div>
+              )}
+            </PresentWhileNode>
+            <h1 class={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>{props.title}</h1>
+            <PresentWhileNode node={props.description}>
+              {(description) => (
+                <p class={cm.cn(cm.textSize('lg'), cm.maxW('2xl'))}>{description()}</p>
+              )}
+            </PresentWhileNode>
+            <ResolveNode node={props.primaryAction}>
+              {(primary, hasPrimary) => (
+                <ResolveNode node={props.secondaryAction}>
+                  {(secondary, hasSecondary) => (
+                    <Show when={hasPrimary() || hasSecondary()}>
+                      <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+                        {hasPrimary() ? primary() : null}
+                        {hasSecondary() ? secondary() : null}
+                      </div>
+                    </Show>
+                  )}
+                </ResolveNode>
+              )}
+            </ResolveNode>
           </div>
-        ) : null}
-      </div>
-      {props.media ? <div class={cm.shrink0}>{props.media}</div> : null}
-    </section>
+          <Show when={hasMedia()}>
+            <div class={cm.shrink0}>{media()}</div>
+          </Show>
+        </section>
+      )}
+    </ResolveNode>
   )
 }

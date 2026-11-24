@@ -9,6 +9,7 @@
   the whole row with an empty, transparent native button that activates it.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { JobListingRowProps } from './types.js'
@@ -60,18 +61,18 @@
     ></button>
   {/if}
   {#if leading}
-    <div class={cm.shrink0}>
+    <PresentWhileContent class={cm.shrink0}>
       {#if typeof leading === 'function'}{@render leading?.()}{:else}{leading}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(1))}>
     <h3 id={nameId} class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
       {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h3>
     {#if company}
-      <span class={cm.textSize('sm')}>
+      <PresentWhileContent tag="span" class={cm.textSize('sm')}>
         {#if typeof company === 'function'}{@render company?.()}{:else}{company}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
     <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
       {#if location}
@@ -96,21 +97,21 @@
       {/if}
     </div>
     {#if tags}
-      <div
+      <PresentWhileContent
         class={cm.cn(
           cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
           cm.position('relative'),
         )}
       >
         {#if typeof tags === 'function'}{@render tags?.()}{:else}{tags}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
   </div>
   {#if actions}
-    <div
+    <PresentWhileContent
       class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0, cm.position('relative'))}
     >
       {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </div>

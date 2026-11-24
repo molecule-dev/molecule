@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -37,16 +38,21 @@ export interface MedicationRowProps {
  */
 export function MedicationRow({
   name,
-  dosage,
-  form,
+  dosage: dosageProp,
+  form: formProp,
   color,
-  instructions,
-  prescriber,
+  instructions: instructionsProp,
+  prescriber: prescriberProp,
   supplyDays,
   refills,
-  actions,
+  actions: actionsProp,
   className,
 }: MedicationRowProps): JSX.Element {
+  const dosage = slot(dosageProp)
+  const form = slot(formProp)
+  const instructions = slot(instructionsProp)
+  const prescriber = slot(prescriberProp)
+  const actions = slot(actionsProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

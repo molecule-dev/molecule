@@ -10,7 +10,7 @@
 
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { PlanUpdatedPageProps } from './types.js'
@@ -49,31 +49,35 @@ export const PlanUpdatedPage: Component<PlanUpdatedPageProps> = (props) => {
           })}
         </p>
       </header>
-      <Show when={props.ctaLabel}>
-        <footer class={cm.cardFooter}>
-          <Show
-            when={props.ctaHref}
-            fallback={
-              <button
-                type="button"
-                class={cm.button({ variant: 'solid', size: 'md' })}
-                onClick={(event: MouseEvent) => props.onCta?.(event)}
-                data-mol-id="plan-updated-cta"
+      <ResolveNode node={props.ctaLabel}>
+        {(ctaLabel, hasCtaLabel) => (
+          <Show when={hasCtaLabel()}>
+            <footer class={cm.cardFooter}>
+              <Show
+                when={props.ctaHref}
+                fallback={
+                  <button
+                    type="button"
+                    class={cm.button({ variant: 'solid', size: 'md' })}
+                    onClick={(event: MouseEvent) => props.onCta?.(event)}
+                    data-mol-id="plan-updated-cta"
+                  >
+                    {ctaLabel()}
+                  </button>
+                }
               >
-                {props.ctaLabel}
-              </button>
-            }
-          >
-            <a
-              href={props.ctaHref}
-              class={cm.button({ variant: 'solid', size: 'md' })}
-              data-mol-id="plan-updated-cta"
-            >
-              {props.ctaLabel}
-            </a>
+                <a
+                  href={props.ctaHref}
+                  class={cm.button({ variant: 'solid', size: 'md' })}
+                  data-mol-id="plan-updated-cta"
+                >
+                  {ctaLabel()}
+                </a>
+              </Show>
+            </footer>
           </Show>
-        </footer>
-      </Show>
+        )}
+      </ResolveNode>
     </section>
   )
 }

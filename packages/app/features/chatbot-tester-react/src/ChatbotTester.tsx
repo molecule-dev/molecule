@@ -13,6 +13,7 @@
 import { type JSX, type ReactNode, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { ChatbotTesterInput } from './ChatbotTesterInput.js'
@@ -50,13 +51,15 @@ export function ChatbotTester({
   bots,
   botId,
   onBotChange,
-  error,
+  error: errorProp,
   emptyState,
-  botPickerLabel,
+  botPickerLabel: botPickerLabelProp,
   inputPlaceholder,
   sendLabel,
   className,
 }: ChatbotTesterProps): JSX.Element {
+  const error = slot(errorProp)
+  const botPickerLabel = slot(botPickerLabelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const pickerLabel =

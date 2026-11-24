@@ -9,6 +9,7 @@
   holds one entry per row and the `children` snippet renders one entry.
 -->
 <script lang="ts" generics="T">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { LeaderboardListProps } from './types.js'
@@ -29,7 +30,9 @@
   {#if title || actions}
     <header class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
       {#if title}
-        <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{@render title?.()}</h3>
+        <PresentWhileContent tag="h3" class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+          >{@render title?.()}</PresentWhileContent
+        >
       {/if}
       {#if actions}{@render actions?.()}{/if}
     </header>

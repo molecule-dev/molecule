@@ -6,6 +6,7 @@
   React text slots.
 -->
 <script lang="ts">
+  import { ContentOrElse, PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Avatar, Card } from '@molecule/app-ui-svelte'
 
@@ -26,6 +27,12 @@
 
   const cm = $derived(getClassMap())
   const displayName = $derived(typeof name === 'string' ? name : 'Vendor')
+
+  // React's `memberSince && <span>· {memberSince}</span>`: a memberSince snippet that renders
+  // nothing is absent, so the whole row — the leading "·" included — goes. `ContentOrElse` reads what
+  // the snippet renders; `PresentWhileContent` takes the span out.
+  let memberSinceRenders = $state<boolean>()
+  const memberSincePresent = $derived(Boolean(memberSince) && memberSinceRenders !== false)
 </script>
 
 <Card {className} {onClick}>
@@ -36,11 +43,11 @@
         <h3 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
           {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
         </h3>
-        <!-- React's `{description && …}`: a falsy description renders nothing. -->
+        <!-- React's `{description && …}`: a description that renders nothing renders nothing. -->
         {#if description}
-          <p class={cm.textSize('sm')}>
+          <PresentWhileContent tag="p" class={cm.textSize('sm')}>
             {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-          </p>
+          </PresentWhileContent>
         {/if}
       </header>
       <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
@@ -55,17 +62,19 @@
           </span>
         {/if}
         {#if memberSince}
-          <span class={cm.textSize('xs')}>
-            · {#if typeof memberSince === 'function'}{@render memberSince?.()}{:else}{memberSince}{/if}
-          </span>
+          <PresentWhileContent tag="span" class={cm.textSize('xs')} present={memberSincePresent}
+            >· <ContentOrElse bind:present={memberSinceRenders}
+              >{#if typeof memberSince === 'function'}{@render memberSince?.()}{:else}{memberSince}{/if}</ContentOrElse
+            ></PresentWhileContent
+          >
         {/if}
         {#if typeof badges === 'function'}{@render badges?.()}{:else}{badges}{/if}
       </div>
-      <!-- React's `{actions && …}`: a falsy actions row renders nothing. -->
+      <!-- React's `{actions && …}`: an actions row that renders nothing renders nothing. -->
       {#if actions}
-        <div class={cm.flex({ align: 'center', gap: 'sm' })}>
+        <PresentWhileContent class={cm.flex({ align: 'center', gap: 'sm' })}>
           {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
-        </div>
+        </PresentWhileContent>
       {/if}
     </div>
   </div>

@@ -9,7 +9,7 @@ import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } f
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { SrsGrade } from './types.js'
 
@@ -72,7 +72,7 @@ export const FlashcardCard = defineComponent({
     }
 
     return (): VNode => {
-      const progress = nodeOrSlot(props.progress, slots.progress)
+      const progress = toChildArray(nodeOrSlot(props.progress, slots.progress))
       return h(Card, { className: props.className }, () => [
         h('div', { class: cm.stack(4) }, [
           progress.length > 0

@@ -11,7 +11,7 @@
 
 import { type Component, type JSX, Show } from 'solid-js'
 
-import { Link } from '@molecule/app-solid'
+import { Link, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { MessagePreviewProps } from './types.js'
@@ -23,7 +23,7 @@ import type { MessagePreviewProps } from './types.js'
  * @param value - The name node.
  * @returns The initials, or the empty string when the name is not a string.
  */
-function deriveInitials(value: JSX.Element): string {
+function deriveInitials(value: unknown): string {
   if (typeof value !== 'string') return ''
   return value
     .split(' ')
@@ -57,7 +57,6 @@ export const MessagePreview: Component<MessagePreviewProps> = (props) => {
   }
 
   const unread = (): number => props.unread ?? 0
-  const initialsLabel = (): string => props.initials ?? deriveInitials(props.name)
   const presenceFill = (): string =>
     props.presence === 'online'
       ? cm.messagePreviewPresenceOnline
@@ -76,78 +75,87 @@ export const MessagePreview: Component<MessagePreviewProps> = (props) => {
 
   /** The row's inner markup — the same body under either root tag. */
   const body = (): JSX.Element => (
-    <>
-      <div class={cm.messagePreviewAvatarWrap}>
-        <div
-          class={cm.cn(
-            cm.flex({ align: 'center', justify: 'center' }),
-            cm.w(9),
-            cm.h(9),
-            cm.roundedFull,
-            cm.fontWeight('bold'),
-            cm.textSize('xs'),
-            cm.messagePreviewAvatar,
-          )}
-        >
-          {initialsLabel()}
-        </div>
-        <Show when={props.presence}>
-          <span
-            aria-hidden="true"
-            class={cm.cn(
-              cm.messagePreviewPresenceDot,
-              cm.w(2),
-              cm.h(2),
-              cm.roundedFull,
-              presenceFill(),
-            )}
-          />
-        </Show>
-      </div>
-      <div class={cm.cn(cm.flex({ direction: 'col', gap: 1 }), cm.flex1, cm.minW(0))}>
-        <div class={cm.cn(cm.flex({ justify: 'between', align: 'center', gap: 2 }))}>
-          <span
-            class={cm.cn(
-              cm.textSize('sm'),
-              cm.fontWeight(unread() > 0 ? 'bold' : 'semibold'),
-              cm.messagePreviewName,
-            )}
-          >
-            {props.name}
-          </span>
-          <span class={cm.cn(cm.textSize('xs'), cm.messagePreviewTimestamp)}>
-            {props.timestamp}
-          </span>
-        </div>
-        <div class={cm.cn(cm.flex({ align: 'center', gap: 2 }))}>
-          <Show when={props.channelIcon}>
-            {(channelIcon) => (
-              <span
-                class={cm.cn(cm.iconGlyphFont, cm.messagePreviewChannelIcon)}
-                style={{ 'font-size': '14px' }}
-                aria-hidden="true"
+    // React derives the initials from the name and renders it in two places; both read the
+    // prop through this one resolution so the name's components are created once.
+    <ResolveNode node={props.name}>
+      {(name) => {
+        const initialsLabel = (): string => props.initials ?? deriveInitials(name())
+        return (
+          <>
+            <div class={cm.messagePreviewAvatarWrap}>
+              <div
+                class={cm.cn(
+                  cm.flex({ align: 'center', justify: 'center' }),
+                  cm.w(9),
+                  cm.h(9),
+                  cm.roundedFull,
+                  cm.fontWeight('bold'),
+                  cm.textSize('xs'),
+                  cm.messagePreviewAvatar,
+                )}
               >
-                {channelIcon()}
-              </span>
-            )}
-          </Show>
-          <p class={cm.cn(cm.textSize('xs'), cm.messagePreviewText)}>{props.preview}</p>
-          <Show when={unread() > 0}>
-            <span
-              aria-label={props.unreadAriaLabel ?? `${unread()} unread`}
-              class={cm.cn(
-                cm.flex({ align: 'center', justify: 'center' }),
-                cm.fontWeight('bold'),
-                cm.roundedFull,
-                cm.messagePreviewUnreadPip,
-              )}
-            >
-              {unread()}
-            </span>
-          </Show>
-        </div>
-      </div>
-    </>
+                {initialsLabel()}
+              </div>
+              <Show when={props.presence}>
+                <span
+                  aria-hidden="true"
+                  class={cm.cn(
+                    cm.messagePreviewPresenceDot,
+                    cm.w(2),
+                    cm.h(2),
+                    cm.roundedFull,
+                    presenceFill(),
+                  )}
+                />
+              </Show>
+            </div>
+            <div class={cm.cn(cm.flex({ direction: 'col', gap: 1 }), cm.flex1, cm.minW(0))}>
+              <div class={cm.cn(cm.flex({ justify: 'between', align: 'center', gap: 2 }))}>
+                <span
+                  class={cm.cn(
+                    cm.textSize('sm'),
+                    cm.fontWeight(unread() > 0 ? 'bold' : 'semibold'),
+                    cm.messagePreviewName,
+                  )}
+                >
+                  {name()}
+                </span>
+                <span class={cm.cn(cm.textSize('xs'), cm.messagePreviewTimestamp)}>
+                  {props.timestamp}
+                </span>
+              </div>
+              <div class={cm.cn(cm.flex({ align: 'center', gap: 2 }))}>
+                <Show when={props.channelIcon}>
+                  {(channelIcon) => (
+                    <span
+                      class={cm.cn(cm.iconGlyphFont, cm.messagePreviewChannelIcon)}
+                      style={{ 'font-size': '14px' }}
+                      aria-hidden="true"
+                    >
+                      {channelIcon()}
+                    </span>
+                  )}
+                </Show>
+                <p class={cm.cn(cm.textSize('xs'), cm.messagePreviewText)}>{props.preview}</p>
+                <Show when={unread() > 0}>
+                  <span
+                    aria-label={props.unreadAriaLabel ?? `${unread()} unread`}
+                    class={cm.cn(
+                      cm.flex({ align: 'center', justify: 'center' }),
+                      cm.fontWeight('bold'),
+                      cm.roundedFull,
+                      cm.messagePreviewUnreadPip,
+                    )}
+                  >
+                    {unread()}
+                  </span>
+                </Show>
+              </div>
+            </div>
+          </>
+        )
+      }}
+    </ResolveNode>
   )
 
   return (

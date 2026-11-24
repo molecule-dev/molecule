@@ -17,6 +17,7 @@ import {
 import {
   MolPlacement,
   placeContent,
+  rendersNode,
   setElementPresent,
   type SlotReader,
   useHostPresence,
@@ -261,33 +262,34 @@ export class CookieBanner implements OnInit {
   }
 
   /**
-   * The title input's text (React's `{title ?? t('cookieBanner.title')}`): the
-   * input for strings and numbers, the i18n default when it is nullish, and
-   * nothing while node content is projected.
+   * The title input's text (React's `{slot(title) ?? t('cookieBanner.title')}`): the
+   * input for strings and numbers, the i18n default when it renders nothing (`''`
+   * included), and nothing while node content is projected.
    * @returns The text to render.
    */
   titleText(): string {
     if (this.hasTitleSlot()) return ''
     const value = this.title
+    if (!rendersNode(value)) return this.ariaLabel()
     if (typeof value === 'string' || typeof value === 'number') return String(value)
-    if (value === null || value === undefined) return this.ariaLabel()
     return ''
   }
 
   /**
-   * The description input's text (React's `{description ?? t('cookieBanner.description')}`).
+   * The description input's text (React's `{slot(description) ?? t('cookieBanner.description')}`):
+   * the i18n default when it renders nothing (`''` included).
    * @returns The text to render.
    */
   descriptionText(): string {
     if (this.hasDescriptionSlot()) return ''
     const value = this.description
-    if (typeof value === 'string' || typeof value === 'number') return String(value)
-    if (value === null || value === undefined)
+    if (!rendersNode(value))
       return this.i18n.t(
         'cookieBanner.description',
         {},
         { defaultValue: 'We use cookies to improve your experience and analyse traffic.' },
       )
+    if (typeof value === 'string' || typeof value === 'number') return String(value)
     return ''
   }
 

@@ -6,6 +6,8 @@
   `separator` snippet/string when passed, else the default `/`.
 -->
 <script lang="ts">
+  import type { Attachment } from 'svelte/attachments'
+
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -16,6 +18,32 @@
   const { t } = useTranslation()
 
   const cm = $derived(getClassMap())
+
+  // A snippet cannot tell from its value whether it renders anything, so the default `/` stands in
+  // while the `separator` snippet renders nothing (React's `separator ?? <span aria-hidden>/</span>`).
+  const separatorFallback: Attachment<HTMLSpanElement> = (span) => {
+    if (typeof separator !== 'function') return
+    const fallback = document.createElement('span')
+    fallback.setAttribute('aria-hidden', 'true')
+    fallback.textContent = '/'
+    const hasContent = (): boolean =>
+      Array.from(span.childNodes).some(
+        (node) =>
+          node !== fallback &&
+          (node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim() !== '')),
+      )
+    const sync = (): void => {
+      if (hasContent()) fallback.remove()
+      else if (!fallback.parentNode) span.appendChild(fallback)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(span, { childList: true, characterData: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      fallback.remove()
+    }
+  }
   // The nav's accessible name: `t()` with the English default `'Breadcrumb'`,
   // so it follows the app's locale (React's source of truth).
   const navLabel = $derived(
@@ -50,7 +78,7 @@
         </a>
       {/if}
       {#if i !== items.length - 1}
-        <span>
+        <span {@attach separatorFallback}>
           {#if typeof separator === 'function'}{@render separator?.()}{:else if separator != null}{separator}{:else}<span
               aria-hidden="true">/</span
             >{/if}

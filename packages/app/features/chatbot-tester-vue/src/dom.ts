@@ -8,9 +8,12 @@
 
 import type { VNodeChild } from 'vue'
 
+import { toChildArray } from '@molecule/app-vue'
+
 /**
  * The children a node-valued prop contributes: the same-named slot wins over
- * the prop, and an absent pair contributes nothing.
+ * the prop, and a pair that renders nothing contributes nothing (an empty
+ * slot list is absent, like React's `slot()`).
  *
  * @param slot - The slot render function, when the caller passed the slot.
  * @param prop - The prop value, when the caller passed the prop.
@@ -20,22 +23,26 @@ export const nodeChildren = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  if (prop === null || prop === undefined) return []
-  return Array.isArray(prop) ? prop : [prop]
+  const nodes: VNodeChild[] = slot
+    ? slot()
+    : prop === null || prop === undefined
+      ? []
+      : Array.isArray(prop)
+        ? prop
+        : [prop]
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
- * Whether React would treat the node-valued prop as present: the slot exists
- * (React receives a node array, which is always truthy), or the prop value is
- * truthy (React's `{value ? … : null}`).
+ * Whether React would treat the node-valued prop as present: the resolved
+ * content renders something (an empty slot list or an empty prop is absent).
  *
  * @param slot - The slot render function, when the caller passed the slot.
  * @param prop - The prop value, when the caller passed the prop.
  * @returns True when the value renders.
  */
-export const hasNodeValue = (slot: (() => unknown) | undefined, prop: unknown): boolean =>
-  slot !== undefined || Boolean(prop)
+export const hasNodeValue = (slot: (() => VNodeChild[]) | undefined, prop: VNodeChild): boolean =>
+  toChildArray(slot ? slot() : prop).length > 0
 
 /**
  * Reproduces react-dom's controlled-`<select>` selection: the option whose

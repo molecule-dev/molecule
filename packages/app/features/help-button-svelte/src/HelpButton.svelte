@@ -5,7 +5,7 @@
   renders an `<a>`, otherwise a `<button>` calls `onClick`.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { HelpButtonProps } from './types.js'
@@ -52,12 +52,40 @@
     cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.roundedFull, cm.position('relative')),
   )
   const glyphStyle = $derived(`font-size: ${dim * 0.45}px; font-weight: 700`)
+
+  // React's `icon ?? <span>?</span>`: an icon snippet that renders nothing (an empty list) falls
+  // back to the glyph, like an omitted one. A snippet's `{#each}` over no rows changes the DOM
+  // without changing the prop, so presence is read from the rendered DOM (the glyph and the
+  // notification dot are this component's own nodes, not the icon).
+  let contentEl = $state<HTMLSpanElement | null>(null)
+  let glyphEl = $state<HTMLSpanElement | null>(null)
+  let dotEl = $state<HTMLSpanElement | null>(null)
+  let iconRenders = $state(false)
+  $effect(() => {
+    const span = contentEl
+    if (!span) return
+    const sync = (): void => {
+      const present = contentNodes(span).some(
+        (node) =>
+          node !== glyphEl &&
+          node !== dotEl &&
+          (node.nodeType === 1 || (node.textContent ?? '').trim() !== ''),
+      )
+      if (present !== iconRenders) iconRenders = present
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(span, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  })
 </script>
 
 {#snippet content()}
-  <span class={contentClasses} style="width: 100%; height: 100%">
-    {#if icon}{@render icon?.()}{:else}<span aria-hidden="true" style={glyphStyle}>?</span>{/if}
+  <span bind:this={contentEl} class={contentClasses} style="width: 100%; height: 100%">
+    {#if icon}{@render icon?.()}{/if}
+    {#if !iconRenders}<span bind:this={glyphEl} aria-hidden="true" style={glyphStyle}>?</span>{/if}
     {#if hasNotification}<span
+        bind:this={dotEl}
         aria-hidden="true"
         style="position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%; background: currentcolor"
       ></span>{/if}

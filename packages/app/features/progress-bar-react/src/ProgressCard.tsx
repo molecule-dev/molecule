@@ -1,5 +1,6 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -37,15 +38,17 @@ export interface ProgressCardProps {
  */
 export function ProgressCard({
   title,
-  description,
+  description: descriptionProp,
   icon,
   value,
   max = 100,
-  valueLabel,
+  valueLabel: valueLabelProp,
   color = 'primary',
   className,
   children,
 }: ProgressCardProps): JSX.Element {
+  const description = slot(descriptionProp)
+  const valueLabel = slot(valueLabelProp)
   const cm = getClassMap()
   const titleId = useId()
   const descriptionId = useId()

@@ -14,6 +14,7 @@
   import { useAuthFormState } from '@molecule/app-auth-shell-svelte'
   import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-svelte'
   import {
+    PresentWhileContent,
     useAuth,
     useAuthClient,
     useI18nError,
@@ -328,9 +329,13 @@
         {/if}
         <!-- Human-verification challenge — signup only (login is not gated). -->
         {#if isSignup && captchaSlot}
-          <div data-mol-id="auth-modal-captcha" style="display: grid; margin-top: 2px">
+          <PresentWhileContent
+            tag="div"
+            data-mol-id="auth-modal-captcha"
+            style="display: grid; margin-top: 2px"
+          >
             {#if typeof captchaSlot === 'function'}{@render captchaSlot?.()}{:else}{captchaSlot}{/if}
-          </div>
+          </PresentWhileContent>
         {/if}
         <Button
           type="submit"

@@ -5,8 +5,9 @@
  */
 
 import type { Component } from 'solid-js'
-import { children, createEffect, createSignal, onCleanup, Show } from 'solid-js'
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FilterPillProps } from './types.js'
@@ -33,10 +34,6 @@ export const FilterPill: Component<FilterPillProps> = (props) => {
 
   /** React's `panelAlign = 'left'` default parameter. */
   const panelAlign = (): 'left' | 'right' => props.panelAlign ?? 'left'
-
-  // React's children prop, resolved once so checking it does not build its
-  // nodes a second time.
-  const content = children(() => props.children)
 
   // As in React's effect: the listener exists only while the panel is open.
   createEffect(() => {
@@ -94,21 +91,26 @@ export const FilterPill: Component<FilterPillProps> = (props) => {
           </Show>
         </span>
       </button>
-      {/* React's `open && children`: the children value's own truthiness, so an
-          empty list (`[]`, a `<For>` with no rows) still opens an empty panel. */}
-      <Show when={open() && content()}>
-        <div
-          class={cm.cn(
-            cm.sp('mt', 2),
-            cm.sp('p', 4),
-            cm.facetedSearchPillPanel,
-            panelAlign() === 'right'
-              ? cm.facetedSearchPillPanelRight
-              : cm.facetedSearchPillPanelLeft,
+      {/* React's `open && slot(children)`: an empty list (`[]`, a `<For>` with
+          no rows) renders nothing, so it opens no panel. The children are read
+          inside the open branch, so each opening creates them, as React mounts them. */}
+      <Show when={open()}>
+        <PresentWhileNode node={props.children}>
+          {(content) => (
+            <div
+              class={cm.cn(
+                cm.sp('mt', 2),
+                cm.sp('p', 4),
+                cm.facetedSearchPillPanel,
+                panelAlign() === 'right'
+                  ? cm.facetedSearchPillPanelRight
+                  : cm.facetedSearchPillPanelLeft,
+              )}
+            >
+              {content()}
+            </div>
           )}
-        >
-          {content()}
-        </div>
+        </PresentWhileNode>
       </Show>
     </div>
   )

@@ -7,6 +7,7 @@
 
 import { type JSX, useEffect, useRef } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TesterMessage } from './types.js'
@@ -22,8 +23,9 @@ export interface ChatbotTesterMessagesProps {
 export function ChatbotTesterMessages({
   messages,
   loading,
-  emptyState,
+  emptyState: emptyStateProp,
 }: ChatbotTesterMessagesProps): JSX.Element {
+  const emptyState = slot(emptyStateProp)
   const cm = getClassMap()
   const endRef = useRef<HTMLDivElement>(null)
   useEffect(() => {

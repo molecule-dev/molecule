@@ -6,6 +6,8 @@
 
 import type { JSX } from 'solid-js'
 
+import type { NodeItems } from '@molecule/app-solid'
+
 /** Props accepted by the {@link CollapsibleSection} component. */
 export interface CollapsibleSectionProps {
   /** Section heading — rendered as an expand-toggle button. */
@@ -30,8 +32,11 @@ export interface CollapsibleSectionProps {
 
 /** Props accepted by the {@link ShowMore} component. */
 export interface ShowMoreProps {
-  /** Items before truncation. */
-  children?: JSX.Element
+  /**
+   * Items before truncation: plain JSX, or accessor items (`() => <Row />`), which are created
+   * only when shown. A row may have any root, a `<Show>` or a fragment included.
+   */
+  children?: NodeItems
   /** Number to show initially. Defaults to 3. */
   initialCount?: number
   /** i18n key for the "Show more" label — receives `{ remaining }`. */

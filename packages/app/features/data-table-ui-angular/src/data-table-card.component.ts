@@ -9,6 +9,7 @@ import { Component, type ElementRef, type TemplateRef, ViewChild } from '@angula
 
 import {
   MolPlacement,
+  rendersNode,
   setElementPresent,
   type SlotReader,
   usePlacement,
@@ -423,7 +424,8 @@ export class DataTableCard<T = unknown> {
   private syncVisibility(hasContent: SlotReader): void {
     const heading = this.titleHeading?.nativeElement
     const headingHas = hasContent(heading, 1)
-    const titleShown = this.title !== undefined || headingHas
+    // React's `slot(title) !== undefined`: a title that renders nothing (`''`) shows no heading.
+    const titleShown = rendersNode(this.title) || headingHas
     setElementPresent(this.headerRow?.nativeElement, titleShown || this.hasTitleAction(hasContent))
     setElementPresent(heading, titleShown)
   }

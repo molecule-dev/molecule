@@ -12,9 +12,9 @@
  * @module
  */
 
-import { type Component, createEffect, createSignal, For, type JSX, Show } from 'solid-js'
+import { type Component, createEffect, createSignal, For, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { ChatbotTesterInput } from './ChatbotTesterInput.jsx'
@@ -74,11 +74,6 @@ export const ChatbotTester: Component<ChatbotTesterProps> = (props) => {
   }
 
   const pickerVisible = (): boolean => bots().length > 1
-  const labelNode = (): JSX.Element =>
-    props.botPickerLabel === undefined
-      ? t('chatbotTester.label.testBot', undefined, { defaultValue: 'Test bot' })
-      : props.botPickerLabel
-  const hasError = (): boolean => Boolean(props.error)
 
   return (
     <div class={cm.cn(cm.flex({ direction: 'col' }), cm.flex1, cm.minW(0), props.className)}>
@@ -95,7 +90,18 @@ export const ChatbotTester: Component<ChatbotTesterProps> = (props) => {
             for="chatbot-tester-bot-select"
             class={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
           >
-            {labelNode()}
+            <ResolveNode node={props.botPickerLabel}>
+              {(label, hasLabel) => (
+                <Show
+                  when={hasLabel()}
+                  fallback={t('chatbotTester.label.testBot', undefined, {
+                    defaultValue: 'Test bot',
+                  })}
+                >
+                  {label()}
+                </Show>
+              )}
+            </ResolveNode>
           </label>
           <select
             ref={(el) => {
@@ -114,14 +120,16 @@ export const ChatbotTester: Component<ChatbotTesterProps> = (props) => {
         loading={props.loading}
         emptyState={props.emptyState}
       />
-      <Show when={hasError()}>
-        <p
-          role="alert"
-          class={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}
-        >
-          {props.error}
-        </p>
-      </Show>
+      <PresentWhileNode node={props.error}>
+        {(error) => (
+          <p
+            role="alert"
+            class={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}
+          >
+            {error()}
+          </p>
+        )}
+      </PresentWhileNode>
       <ChatbotTesterInput
         value={input()}
         onChange={setInput}

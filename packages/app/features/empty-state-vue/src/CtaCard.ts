@@ -10,6 +10,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { CtaCardProps } from './types.js'
 
@@ -19,8 +20,7 @@ import type { CtaCardProps } from './types.js'
  * @param node - The node value.
  * @returns The children to render.
  */
-const nodesOf = (node: VNodeChild | null | undefined): VNodeChild[] =>
-  node != null && node !== '' ? [node] : []
+const nodesOf = (node: VNodeChild | null | undefined): VNodeChild[] => toChildArray(node)
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -33,7 +33,11 @@ const nodesOf = (node: VNodeChild | null | undefined): VNodeChild[] =>
 const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
-): VNodeChild[] => (slot ? slot() : nodesOf(prop))
+): VNodeChild[] => {
+  const nodes = slot ? slot() : nodesOf(prop)
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
+}
 
 /**
  * The props this component declares: every {@link CtaCardProps} field, with

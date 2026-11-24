@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -24,8 +25,9 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
@@ -39,10 +41,7 @@ const slotOrProp = (
 const present = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
-): boolean => {
-  if (slot) return slot().length > 0
-  return prop != null && prop !== '' && prop !== false
-}
+): boolean => toChildArray(slot ? slot() : prop).length > 0
 
 /**
  * Header row for a detail page — leading slot + title/subtitle + status +

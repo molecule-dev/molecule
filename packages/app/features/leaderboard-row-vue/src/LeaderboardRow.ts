@@ -13,6 +13,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 /** The medal emoji rendered in place of the rank for the top three. */
 const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
@@ -29,23 +30,9 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop != null ? toChildArray(prop) : []
 }
-
-/**
- * Whether an optional node-valued prop renders at all: React's
- * `{subtitle && <span>}` truthiness on the prop, plus a same-named slot being
- * present.
- *
- * @param slot - The slot render function, when the caller passed the slot.
- * @param prop - The prop value, when the caller passed the prop.
- * @returns True when the subtitle span renders.
- */
-const hasNode = (
-  slot: (() => VNodeChild[]) | undefined,
-  prop: VNodeChild | null | undefined,
-): boolean => slot != null || (prop != null && prop !== '' && prop !== false)
 
 /**
  * Leaderboard row — rank + avatar + name + score + optional rank-delta
@@ -88,6 +75,8 @@ export const LeaderboardRow = defineComponent({
 
     return (): VNode => {
       const displayName = typeof props.name === 'string' ? props.name : 'Player'
+      // React's `subtitle && …`: an empty list is absent.
+      const subtitleNodes = slotOrProp(slots.subtitle, props.subtitle)
       return h(
         'div',
         {
@@ -123,14 +112,8 @@ export const LeaderboardRow = defineComponent({
               slotOrProp(slots.name, props.name),
             ),
             // React's `{subtitle && …}`: a falsy subtitle renders nothing.
-            ...(hasNode(slots.subtitle, props.subtitle)
-              ? [
-                  h(
-                    'span',
-                    { class: cm.textSize('xs') },
-                    slotOrProp(slots.subtitle, props.subtitle),
-                  ),
-                ]
+            ...(subtitleNodes.length > 0
+              ? [h('span', { class: cm.textSize('xs') }, subtitleNodes)]
               : []),
           ]),
           // React's `rankDelta !== undefined && rankDelta !== 0`: a zero delta renders nothing.

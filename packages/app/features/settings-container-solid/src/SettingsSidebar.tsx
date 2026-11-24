@@ -8,9 +8,9 @@
  * @module
  */
 
-import { type Component, For, Show } from 'solid-js'
+import { type Component, For } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SettingsSidebarItem, SettingsSidebarProps } from './types.js'
@@ -96,7 +96,9 @@ export const SettingsSidebar: Component<SettingsSidebarProps> = (props) => {
           </button>
         )}
       </For>
-      <Show when={props.footer}>{(footer) => <div class={cm.sp('mt', 4)}>{footer()}</div>}</Show>
+      <PresentWhileNode node={props.footer}>
+        {(footer) => <div class={cm.sp('mt', 4)}>{footer()}</div>}
+      </PresentWhileNode>
     </nav>
   )
 }

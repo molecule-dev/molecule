@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -196,10 +197,11 @@ export function BiasIndicator({
   bias,
   reliability,
   compact = false,
-  sourceLabel,
+  sourceLabel: sourceLabelProp,
   className,
   dataMolId,
 }: BiasIndicatorProps): ReactElement {
+  const sourceLabel = slot(sourceLabelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const bucket = biasToBucket(bias)

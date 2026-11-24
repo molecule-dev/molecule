@@ -12,7 +12,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves content that may arrive as the default slot (the Vue idiom) or as
@@ -27,8 +27,9 @@ const childrenOrSlot = (
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
   const rendered = slot?.()
-  if (rendered && rendered.length > 0) return rendered
-  return prop != null ? [prop] : []
+  if (rendered && toChildArray(rendered).length > 0) return rendered
+  const propNodes: VNodeChild[] = prop != null ? [prop] : []
+  return toChildArray(propNodes).length > 0 ? propNodes : []
 }
 
 /**

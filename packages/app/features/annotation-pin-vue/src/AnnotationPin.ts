@@ -12,7 +12,7 @@
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: a
@@ -89,9 +89,12 @@ export const AnnotationPin = defineComponent({
      * @returns The popup body's children.
      */
     const noteContent = (): VNodeChild[] => {
-      if (props.note !== undefined && props.note !== null) return [props.note]
-      // A note passed as the same-named slot wins over the empty state.
-      if (props.note === undefined && slots.note) return slots.note()
+      const fromProp: VNodeChild[] =
+        props.note !== undefined && props.note !== null ? [props.note] : []
+      // A note passed as the same-named slot wins over the empty state, and a
+      // note that renders nothing falls back to it (React's `slot(note) ?? …`).
+      const nodes = props.note === undefined && slots.note ? slots.note() : fromProp
+      if (toChildArray(nodes).length > 0) return nodes
       return [
         h(
           'span',

@@ -15,7 +15,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import type { NodeEditorPanelProps } from './types.js'
-import { renders, slotOrProp } from './utilities.js'
+import { slotOrProp } from './utilities.js'
 
 /**
  * Properties panel chrome — the Vue counterpart of
@@ -38,8 +38,9 @@ export const NodeEditorPanel = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
-    return (): VNode =>
-      h(
+    return (): VNode => {
+      const footerNodes = slotOrProp(slots.footer, props.footer)
+      return h(
         'aside',
         {
           class: cm.cn(
@@ -88,14 +89,11 @@ export const NodeEditorPanel = defineComponent({
             },
             slotOrProp(slots.default, props.children),
           ),
-          renders(slots.footer, props.footer)
-            ? h(
-                'div',
-                { class: cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter) },
-                slotOrProp(slots.footer, props.footer),
-              )
+          footerNodes.length > 0
+            ? h('div', { class: cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter) }, footerNodes)
             : null,
         ],
       )
+    }
   },
 })

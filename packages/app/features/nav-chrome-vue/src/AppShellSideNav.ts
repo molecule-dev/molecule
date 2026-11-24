@@ -10,7 +10,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { nodeList, slotOrProp } from './internal.js'
 import type { NavGroup, NavItem } from './types.js'
@@ -67,9 +67,9 @@ export const AppShellSideNav = defineComponent({
 
     /** The footer slot, wrapped in React's `mt-auto` div; omitted when absent. */
     const renderFooter = (): VNodeChild[] => {
-      if (slots.footer) return [h('div', { class: mountClass() }, slots.footer())]
-      if (props.footer != null) return [h('div', { class: mountClass() }, [props.footer])]
-      return []
+      // An empty footer list renders nothing, as React's slot() treats it.
+      const nodes = toChildArray(slots.footer ? slots.footer() : props.footer)
+      return nodes.length > 0 ? [h('div', { class: mountClass() }, nodes)] : []
     }
 
     /**

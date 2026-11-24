@@ -6,6 +6,7 @@
   `footer`) are snippets, or plain strings.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -33,30 +34,30 @@
         <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
           {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
         </h3>
-        {#if typeof description === 'function'}
-          <p class={cm.textSize('sm')}>{@render description?.()}</p>
-        {:else if description}
-          <p class={cm.textSize('sm')}>{description}</p>
+        {#if description}
+          <PresentWhileContent tag="p" class={cm.textSize('sm')}>
+            {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
+          </PresentWhileContent>
         {/if}
       </div>
       {#if actions}
-        <div class={cm.flex({ align: 'center', gap: 'sm' })}>
+        <PresentWhileContent tag="div" class={cm.flex({ align: 'center', gap: 'sm' })}>
           {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
-        </div>
+        </PresentWhileContent>
       {/if}
     </header>
     {#if summary}
-      <div class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>
+      <PresentWhileContent tag="div" class={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>
         {#if typeof summary === 'function'}{@render summary?.()}{:else}{summary}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
     <div style="min-height: {minChartHeight}px">
       {#if typeof children === 'function'}{@render children?.()}{:else}{children}{/if}
     </div>
     {#if footer}
-      <div>
+      <PresentWhileContent tag="div">
         {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
   </div>
 </Card>

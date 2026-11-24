@@ -8,6 +8,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { ContentPageShellProps } from './types.js'
 import { hasNodes, nodeOrSlot } from './utilities.js'
@@ -63,7 +64,7 @@ export const ContentPageShell = defineComponent({
       const eyebrow = nodeOrSlot(slots.eyebrow, props.eyebrow)
       const title = nodeOrSlot(slots.title, props.title)
       const subtitle = nodeOrSlot(slots.subtitle, props.subtitle)
-      const body: VNodeChild[] = slots.default?.() ?? []
+      const body: VNodeChild[] = toChildArray(slots.default?.())
 
       return h(
         'div',

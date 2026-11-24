@@ -2,6 +2,7 @@ import type * as React from 'react'
 import { type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -51,17 +52,20 @@ export function InboxRow({
   sender,
   senderAvatarSrc,
   subject,
-  preview,
-  timestamp,
+  preview: previewProp,
+  timestamp: timestampProp,
   unread,
   starred,
   hasAttachment,
-  labels,
+  labels: labelsProp,
   selectionSlot,
   onClick,
   onToggleStar,
   className,
 }: InboxRowProps): React.JSX.Element {
+  const preview = slot(previewProp)
+  const timestamp = slot(timestampProp)
+  const labels = slot(labelsProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   /** Base of the two ids that name the open button (React's `useId`). */

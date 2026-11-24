@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
@@ -42,11 +43,12 @@ export function QuizCard({
   options,
   correctId,
   onAnswer,
-  progress,
+  progress: progressProp,
   timer,
   explanation,
   className,
 }: QuizCardProps): JSX.Element {
+  const progress = slot(progressProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [selected, setSelected] = useState<string | null>(null)

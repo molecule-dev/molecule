@@ -1,5 +1,6 @@
 import type { CSSProperties, JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -49,15 +50,18 @@ export interface ContentPageShellProps {
  */
 export function ContentPageShell({
   dataMolId,
-  eyebrow,
-  title,
-  subtitle,
+  eyebrow: eyebrowProp,
+  title: titleProp,
+  subtitle: subtitleProp,
   header,
   footer,
   children,
   bare = false,
   containerSize = 'md',
 }: ContentPageShellProps): JSX.Element {
+  const eyebrow = slot(eyebrowProp)
+  const title = slot(titleProp)
+  const subtitle = slot(subtitleProp)
   const cm = getClassMap()
 
   const heroStyle: CSSProperties = {

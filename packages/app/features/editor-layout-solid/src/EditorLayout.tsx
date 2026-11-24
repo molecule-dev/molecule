@@ -9,6 +9,7 @@
 
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { EditorLayoutProps } from './types.js'
@@ -26,7 +27,7 @@ import type { EditorLayoutProps } from './types.js'
 export const EditorLayout: Component<EditorLayoutProps> = (props) => {
   const cm = getClassMap()
   const position = (): 'left' | 'right' => props.sidePanelPosition ?? 'right'
-  const showPanel = (): boolean => props.sidePanel != null && (props.sidePanelOpen ?? true)
+  const panelOpen = (): boolean => props.sidePanelOpen ?? true
   return (
     <div
       data-mol-id={props.dataMolId}
@@ -34,12 +35,16 @@ export const EditorLayout: Component<EditorLayoutProps> = (props) => {
     >
       <div style={{ position: 'sticky', top: '0px', 'z-index': 10 }}>{props.topBar}</div>
       <div class={cm.cn(cm.flex({ align: 'stretch' }), cm.flex1)}>
-        {showPanel() && position() === 'left' && (
-          <aside class={cm.shrink0}>{props.sidePanel}</aside>
+        {panelOpen() && position() === 'left' && (
+          <PresentWhileNode node={props.sidePanel}>
+            {(sidePanel) => <aside class={cm.shrink0}>{sidePanel()}</aside>}
+          </PresentWhileNode>
         )}
         <main class={cm.flex1}>{props.canvas}</main>
-        {showPanel() && position() === 'right' && (
-          <aside class={cm.shrink0}>{props.sidePanel}</aside>
+        {panelOpen() && position() === 'right' && (
+          <PresentWhileNode node={props.sidePanel}>
+            {(sidePanel) => <aside class={cm.shrink0}>{sidePanel()}</aside>}
+          </PresentWhileNode>
         )}
       </div>
     </div>

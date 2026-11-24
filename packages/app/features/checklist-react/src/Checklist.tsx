@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Checkbox } from '@molecule/app-ui-react'
 
@@ -38,9 +39,10 @@ export function Checklist({
   items,
   onToggle,
   showProgress = true,
-  title,
+  title: titleProp,
   className,
 }: ChecklistProps): JSX.Element {
+  const title = slot(titleProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const total = items.length

@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link FileDropzone}. */
@@ -38,10 +39,11 @@ export function FileDropzone({
   multiple = false,
   maxSize,
   onRejected,
-  children,
+  children: childrenProp,
   disabled,
   className,
 }: FileDropzoneProps): JSX.Element {
+  const children = slot(childrenProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [dragging, setDragging] = useState(false)

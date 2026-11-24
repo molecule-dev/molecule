@@ -6,7 +6,9 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import type { Attachment } from 'svelte/attachments'
 
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { HeroSectionProps } from './types.js'
@@ -24,6 +26,21 @@
   }: HeroSectionProps = $props()
 
   const cm = $derived(getClassMap())
+
+  // React's `slot(media)`: the media column — and the root's `between` justify — exist only while
+  // the media node renders something. A snippet's `{#each}` over no rows changes the DOM without
+  // changing the prop, so presence is read from the rendered DOM: the media column is the text
+  // column's only sibling, and `PresentWhileContent` keeps it in the page while it has content.
+  let mediaRenders = $state(false)
+  const trackMedia: Attachment<HTMLElement> = (section) => {
+    const sync = (): void => {
+      mediaRenders = section.children.length > 1
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(section, { childList: true, subtree: false })
+    return () => observer.disconnect()
+  }
 </script>
 
 {#snippet node(value: string | Snippet)}
@@ -31,11 +48,12 @@
 {/snippet}
 
 <section
+  {@attach trackMedia}
   data-mol-id={dataMolId}
   class={cm.cn(
     cm.flex({
       align: 'center',
-      justify: media ? 'between' : 'start',
+      justify: mediaRenders ? 'between' : 'start',
       gap: 'lg',
       wrap: 'wrap',
     }),
@@ -45,24 +63,27 @@
 >
   <div class={cm.cn(cm.stack(4), cm.flex1, align === 'center' ? cm.textCenter : undefined)}>
     {#if eyebrow}
-      <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-        {@render node(eyebrow)}
-      </div>
+      <PresentWhileContent class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+        >{@render node(eyebrow)}</PresentWhileContent
+      >
     {/if}
     <h1 class={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>
       {#if title}{@render node(title)}{/if}
     </h1>
     {#if description}
-      <p class={cm.cn(cm.textSize('lg'), cm.maxW('2xl'))}>{@render node(description)}</p>
+      <PresentWhileContent tag="p" class={cm.cn(cm.textSize('lg'), cm.maxW('2xl'))}
+        >{@render node(description)}</PresentWhileContent
+      >
     {/if}
     {#if primaryAction || secondaryAction}
-      <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-        {#if primaryAction}{@render node(primaryAction)}{/if}
-        {#if secondaryAction}{@render node(secondaryAction)}{/if}
-      </div>
+      <PresentWhileContent class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}
+        >{#if primaryAction}{@render node(primaryAction)}{/if}{#if secondaryAction}{@render node(
+            secondaryAction,
+          )}{/if}</PresentWhileContent
+      >
     {/if}
   </div>
   {#if media}
-    <div class={cm.shrink0}>{@render node(media)}</div>
+    <PresentWhileContent class={cm.shrink0}>{@render node(media)}</PresentWhileContent>
   {/if}
 </section>

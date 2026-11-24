@@ -11,7 +11,7 @@
 import { defineComponent, h, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { BiasBucket, ReliabilityTier } from './types.js'
 
@@ -197,10 +197,13 @@ export const BiasIndicator = defineComponent({
      */
     const sourceChildren = (): VNodeChild[] => {
       const slot = slots.sourceLabel
-      if (slot) return slot()
-      return props.sourceLabel !== undefined && props.sourceLabel !== null
-        ? [props.sourceLabel]
-        : []
+      const nodes: VNodeChild[] =
+        slot !== undefined
+          ? slot()
+          : props.sourceLabel !== undefined && props.sourceLabel !== null
+            ? [props.sourceLabel]
+            : []
+      return toChildArray(nodes).length > 0 ? nodes : []
     }
 
     return (): VNode => {
@@ -210,7 +213,8 @@ export const BiasIndicator = defineComponent({
       const tierLabel = tier ? t(TIER_KEY[tier], {}, { defaultValue: TIER_FALLBACK[tier] }) : null
       const color = bucketColor(bucket)
       const dataMolId = props.dataMolId ?? 'bias-indicator'
-      const hasSource = slots.sourceLabel !== undefined || props.sourceLabel !== undefined
+      const source = sourceChildren()
+      const hasSource = source.length > 0
 
       if (props.compact) {
         return h(
@@ -230,7 +234,7 @@ export const BiasIndicator = defineComponent({
               style: { background: color },
             }),
             ...(hasSource
-              ? [h('span', { class: cm.cn(cm.textSize('xs'), cm.textMuted) }, sourceChildren())]
+              ? [h('span', { class: cm.cn(cm.textSize('xs'), cm.textMuted) }, source)]
               : []),
           ],
         )

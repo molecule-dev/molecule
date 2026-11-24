@@ -36,15 +36,13 @@ const nodeValue = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): VN
 }
 
 /**
- * Whether React's `actions && …` branch renders: a given prop decides it by
- * its own truthiness; an absent prop leaves the decision to the slot.
+ * Whether React's `actions && …` branch renders: the resolved nodes render
+ * something (an empty slot list or an empty prop is absent).
  *
- * @param prop - The prop value, when the caller passed the prop.
- * @param slot - The slot render function, when the caller passed the slot.
+ * @param nodes - The resolved actions nodes.
  * @returns Whether the wrapper renders.
  */
-const shows = (prop: VNodeChild, slot: unknown): boolean =>
-  prop !== undefined ? Boolean(prop) : slot !== undefined
+const shows = (nodes: VNodeChild[]): boolean => nodes.length > 0
 
 /**
  * Expandable section with a clickable heading. Lighter-weight than
@@ -121,7 +119,7 @@ export const CollapsibleSection = defineComponent({
                   ...nodeValue(props.badge, slots.badge),
                 ],
               ),
-              shows(props.actions, slots.actions)
+              shows(nodeValue(props.actions, slots.actions))
                 ? h('span', nodeValue(props.actions, slots.actions))
                 : null,
             ],

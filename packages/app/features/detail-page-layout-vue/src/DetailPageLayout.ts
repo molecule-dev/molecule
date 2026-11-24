@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 const SIDEBAR_WIDTH = { sm: 64, md: 80, lg: 96 } as const
 
@@ -26,8 +27,9 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
@@ -68,16 +70,20 @@ export const DetailPageLayout = defineComponent({
       }
       const sidebarLeft = slotOrProp(slots.sidebar, props.sidebar)
       const hasSidebar = sidebarLeft.length > 0
-      const body: VNodeChild[] = []
-      if (hasSidebar && props.sidebarPosition === 'left')
-        body.push(h('aside', { style: sidebarStyle }, sidebarLeft))
-      body.push(
+      // React's two sidebar places are different elements, so moving the sidebar to the other
+      // side mounts it again there. Vue's diff would move an unkeyed <aside> and keep its
+      // components, so each place has its own key.
+      const aside = (position: 'left' | 'right'): VNodeChild =>
+        hasSidebar && props.sidebarPosition === position
+          ? h('aside', { key: position, style: sidebarStyle }, sidebarLeft)
+          : null
+      const body: VNodeChild[] = [
+        aside('left'),
         h('main', { class: cm.flex1 }, [
           h('div', { class: cm.stack(4) }, slotOrProp(slots.main, props.main)),
         ]),
-      )
-      if (hasSidebar && props.sidebarPosition === 'right')
-        body.push(h('aside', { style: sidebarStyle }, sidebarLeft))
+        aside('right'),
+      ]
       return h(
         'div',
         {

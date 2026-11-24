@@ -1,6 +1,7 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link NoteCard}. */
@@ -65,15 +66,17 @@ const tintTone = (color: string | undefined): ColorVariant | undefined =>
  * @param props - Component props (see {@link NoteCardProps}).
  */
 export function NoteCard({
-  title,
+  title: titleProp,
   body,
   color,
   pinned,
   modifiedAt,
-  actions,
+  actions: actionsProp,
   onClick,
   className,
 }: NoteCardProps): JSX.Element {
+  const title = slot(titleProp)
+  const actions = slot(actionsProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   const nameId = useId()

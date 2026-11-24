@@ -18,7 +18,7 @@ import {
   Show,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import {
@@ -548,9 +548,9 @@ export const FlowCanvas: Component<FlowCanvasProps> = (props) => {
             // one, else the translated numbered label when neither a renderer
             // nor children fills the node (a nameless button is unoperable for
             // a screen reader), else the node's content as before.
-            const buttonName = (): string | undefined =>
+            const buttonName = (hasChildren: boolean): string | undefined =>
               node.ariaLabel ??
-              (!props.nodeRenderers?.[node.type] && props.children == null
+              (!props.nodeRenderers?.[node.type] && !hasChildren
                 ? t(
                     'flowCanvas.aria.node',
                     { number: index() + 1 },
@@ -588,28 +588,39 @@ export const FlowCanvas: Component<FlowCanvasProps> = (props) => {
                     it wraps, or the canvas's numbered node label. A sibling, not a
                     wrapper, so a renderer may hold its own inputs and buttons (nothing
                     interactive may nest in a button). */}
-                <button
-                  type="button"
-                  data-mol-id={`flow-canvas-node-select-${node.id}`}
-                  aria-label={buttonName()}
-                  aria-labelledby={buttonName() == null ? contentId : undefined}
-                  onClick={(event) => {
-                    // Only keyboard activation (Enter / Space on the focused
-                    // button) — a browser synthesizes those clicks with `detail === 0`.
-                    if (event.detail === 0) selectNode(node)
+                {/* A renderer replaces the children, so the children are resolved
+                    only for the node that shows them. */}
+                <ResolveNode node={props.nodeRenderers?.[node.type] ? undefined : props.children}>
+                  {(content, hasChildren) => {
+                    const name = (): string | undefined => buttonName(hasChildren())
+                    return (
+                      <>
+                        <button
+                          type="button"
+                          data-mol-id={`flow-canvas-node-select-${node.id}`}
+                          aria-label={name()}
+                          aria-labelledby={name() == null ? contentId : undefined}
+                          onClick={(event) => {
+                            // Only keyboard activation (Enter / Space on the focused
+                            // button) — a browser synthesizes those clicks with `detail === 0`.
+                            if (event.detail === 0) selectNode(node)
+                          }}
+                          class={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
+                          style={selectButtonStyle()}
+                        />
+                        <div
+                          id={contentId}
+                          class={cm.position('relative')}
+                          style={{ width: '100%', height: '100%' }}
+                        >
+                          {props.nodeRenderers?.[node.type]
+                            ? props.nodeRenderers[node.type]!(node)
+                            : content()}
+                        </div>
+                      </>
+                    )
                   }}
-                  class={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-                  style={selectButtonStyle()}
-                />
-                <div
-                  id={contentId}
-                  class={cm.position('relative')}
-                  style={{ width: '100%', height: '100%' }}
-                >
-                  {props.nodeRenderers?.[node.type]
-                    ? props.nodeRenderers[node.type]!(node)
-                    : props.children}
-                </div>
+                </ResolveNode>
                 <div
                   role="button"
                   aria-label={t(

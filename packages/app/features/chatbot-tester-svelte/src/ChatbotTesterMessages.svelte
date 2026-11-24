@@ -6,6 +6,7 @@
   Same props (React names), same DOM for the same input.
 -->
 <script lang="ts">
+  import { ContentOrElse, PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { ChatbotTesterMessagesProps } from './types.js'
@@ -16,13 +17,25 @@
 
   /** React's branch: no messages, not loading, and an empty state was given. */
   const showsEmptyState = $derived(!loading && messages.length === 0 && Boolean(emptyState))
+
+  /**
+   * React's `slot(emptyState)`: `undefined` until the empty state has rendered once, then whether
+   * it renders something — a snippet that renders nothing takes the transcript branch instead.
+   */
+  let hasEmpty = $state<boolean>()
 </script>
 
 {#if showsEmptyState}
-  <div class={cm.cn(cm.flex1, cm.flex({ align: 'center', justify: 'center' }))}>
-    {#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}
-  </div>
-{:else}
+  <PresentWhileContent
+    class={cm.cn(cm.flex1, cm.flex({ align: 'center', justify: 'center' }))}
+    present={hasEmpty}
+  >
+    <ContentOrElse bind:present={hasEmpty}>
+      {#if typeof emptyState === 'function'}{@render emptyState?.()}{:else}{emptyState}{/if}
+    </ContentOrElse>
+  </PresentWhileContent>
+{/if}
+{#if !showsEmptyState || hasEmpty === false}
   <div class={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 4), cm.chatbotTesterMessageList)}>
     <div class={cm.stack(3)}>
       {#each messages as msg (msg.id)}

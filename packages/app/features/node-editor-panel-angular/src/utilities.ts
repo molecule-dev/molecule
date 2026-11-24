@@ -1,22 +1,12 @@
 /**
- * Helpers shared by the Angular properties-panel primitives: React's
- * truthiness rule for an optional region, the generated radio-group name, and a
- * controlled radio's `checked` state written the way React writes it.
+ * Helpers shared by the Angular properties-panel primitives: the generated
+ * radio-group name and a controlled radio's `checked` state written the way
+ * React writes it.
  *
  * @module
  */
 
 import { Directive, ElementRef, inject, type OnChanges } from '@angular/core'
-
-/**
- * Whether React would render an optional value (`footer && …`): nothing for
- * `null`, `undefined`, `false` and the empty string, everything else.
- *
- * @param value - The prop value.
- * @returns True when the region renders.
- */
-export const renders = (value: unknown): boolean =>
-  value !== null && value !== undefined && value !== false && value !== ''
 
 /**
  * Source of the generated per-group radio name. The name only ties one group's

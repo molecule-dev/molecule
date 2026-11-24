@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { NotificationItem } from './types.js'
 
@@ -41,10 +41,10 @@ const nodeOr = (
   slot: (() => VNodeChild[]) | undefined,
   fallback: VNodeChild[],
 ): VNodeChild[] => {
-  if (prop !== undefined && prop !== null) return [prop]
+  if (prop !== undefined && prop !== null && toChildArray(prop).length > 0) return [prop]
   if (slot) {
     const nodes = slot()
-    if (nodes.length > 0) return nodes
+    if (toChildArray(nodes).length > 0) return nodes
   }
   return fallback
 }

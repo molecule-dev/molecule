@@ -6,7 +6,7 @@
   strings).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { AppShellSideNavProps } from './types.js'
@@ -67,8 +67,8 @@
     {/each}
   </nav>
   {#if footer}
-    <div class={mountClass}>
+    <PresentWhileContent class={mountClass}>
       {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </aside>

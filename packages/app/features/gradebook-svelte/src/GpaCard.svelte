@@ -6,7 +6,7 @@
   or plain text.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -66,8 +66,11 @@
         <span aria-hidden="true">{trendGlyph}</span>
         <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-text">{trendText}</span>
         {#if trendLabel}
-          <span class={cm.textSize('xs')} data-mol-id="gpa-card-trend-label"
-            >{#if typeof trendLabel === 'function'}{@render trendLabel?.()}{:else}{trendLabel}{/if}</span
+          <PresentWhileContent
+            tag="span"
+            class={cm.textSize('xs')}
+            data-mol-id="gpa-card-trend-label"
+            >{#if typeof trendLabel === 'function'}{@render trendLabel?.()}{:else}{trendLabel}{/if}</PresentWhileContent
           >
         {/if}
       </div>

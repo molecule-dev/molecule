@@ -1,8 +1,8 @@
 import type { Component, JSX } from 'solid-js'
-import { For, useContext } from 'solid-js'
+import { For, Show, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { I18nContext, Link, ThemeContext } from '@molecule/app-solid'
+import { I18nContext, Link, ResolveNode, ThemeContext } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-solid'
 
@@ -88,7 +88,18 @@ export const AppHeader: Component<AppHeaderProps> = (props) => {
             )}
             {/* React's default parameter: an omitted slot falls back to the
                 resilient default toggle; an explicit `null` force-hides it. */}
-            {props.themeToggle !== undefined ? props.themeToggle : <DefaultThemeToggle />}
+            {/* React's `slot(themeToggle) ?? default`, read once: an explicit `null` resolves to
+                `null`, so the fallback reads it from the same resolution. */}
+            <ResolveNode node={props.themeToggle}>
+              {(themeToggle, present) => (
+                <Show
+                  when={present()}
+                  fallback={themeToggle() === null ? null : <DefaultThemeToggle />}
+                >
+                  {themeToggle()}
+                </Show>
+              )}
+            </ResolveNode>
             {props.extraActions}
             {props.userMenu}
           </Flex>

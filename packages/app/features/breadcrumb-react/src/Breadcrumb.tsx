@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Describes a single crumb entry in a breadcrumb trail. */
@@ -48,10 +49,11 @@ export interface BreadcrumbProps {
 export function Breadcrumb({
   items,
   onNavigate,
-  separator,
+  separator: separatorProp,
   className,
   dataMolId,
 }: BreadcrumbProps): ReactElement {
+  const separator = slot(separatorProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const sep = separator ?? <span aria-hidden>/</span>

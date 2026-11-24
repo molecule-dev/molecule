@@ -10,6 +10,7 @@
 import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 /**
  * Horizontal divider with an optional centered label, common as "OR" between
@@ -44,8 +45,9 @@ export const SectionDivider = defineComponent({
         style: { borderTop: '1px solid currentColor', opacity: 0.2 },
       })
 
-    return (): VNode =>
-      h(
+    return (): VNode => {
+      const content = slots.default?.()
+      return h(
         'div',
         {
           role: 'separator',
@@ -54,17 +56,12 @@ export const SectionDivider = defineComponent({
         },
         [
           ...(props.align === 'center' || props.align === 'end' ? [line()] : []),
-          ...(slots.default
-            ? [
-                h(
-                  'span',
-                  { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) },
-                  slots.default(),
-                ),
-              ]
+          ...(toChildArray(content).length > 0
+            ? [h('span', { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')) }, content)]
             : []),
           ...(props.align === 'center' || props.align === 'start' ? [line()] : []),
         ],
       )
+    }
   },
 })

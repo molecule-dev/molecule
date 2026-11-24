@@ -17,12 +17,14 @@ import {
   type OnInit,
   type Renderer2,
   RendererFactory2,
+  signal,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
 
 import {
   MolPlacement,
+  MolSlotCopy,
   setElementPresent,
   type SlotReader,
   usePlacement,
@@ -104,12 +106,13 @@ let canvasInstances = 0
  * Node renderers are templates (`nodeRenderers[type]`, context `$implicit` =
  * the node); children passed as projected content render inside every node
  * that has no matching renderer — React renders one copy per node, so each
- * fallback node receives its own clone of the projected DOM.
+ * fallback node renders its own `MolSlotCopy` of them (a `*molLazy` child is
+ * a live instance in each node).
  */
 @Component({
   selector: 'div[mol-flow-canvas]',
   standalone: true,
-  imports: [NgTemplateOutlet],
+  imports: [MolSlotCopy, NgTemplateOutlet],
   inputs: [
     'nodes',
     'edges',
@@ -141,7 +144,7 @@ let canvasInstances = 0
     '(wheel)': 'wheel($event)',
   },
   // prettier-ignore
-  template: `@if (showGridValue()) {<div aria-hidden="true" data-mol-id="flow-canvas-grid" [style.position]="'absolute'" [style.inset]="'0px'" [style.background-image]="'radial-gradient(circle, rgba(127,127,127,0.35) 1px, transparent 1px)'" [style.background-size]="gridSize()" [style.background-position]="gridPosition()" [style.pointer-events]="'none'"></div>}<div data-mol-id="flow-canvas-world" [style.transform]="worldTransform()" [style.transform-origin]="'0 0'" [style.position]="'absolute'" [style.inset]="'0px'"><svg aria-hidden="true" data-mol-id="flow-canvas-edges" width="100%" height="100%" [style.position]="'absolute'" [style.inset]="'0px'" [style.overflow]="'visible'" [style.pointer-events]="'none'">@for (item of renderableEdges(); track item.edge.id) {<g><path [attr.d]="item.d" [attr.data-mol-id]="'flow-canvas-edge-hit-' + item.edge.id" fill="none" stroke="transparent" stroke-width="14" [style.pointer-events]="'stroke'" [style.cursor]="'pointer'" (click)="edgeClick($event, item.edge)"></path><path [attr.d]="item.d" [attr.data-mol-id]="'flow-canvas-edge-' + item.edge.id" [attr.data-selected]="item.selected ? 'true' : 'false'" fill="none" stroke="currentColor" [attr.stroke-width]="item.selected ? 2.5 : 1.5" [attr.opacity]="item.selected ? 1 : 0.6" [style.pointer-events]="'none'"></path></g>}@if (pendingPath(); as pendingD) {<path [attr.d]="pendingD" data-mol-id="flow-canvas-pending-edge" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7" [style.pointer-events]="'none'"></path>}</svg>@for (node of nodeList(); track node.id; let i = $index) {<div role="group" [attr.data-mol-id]="'flow-canvas-node-' + node.id" [attr.data-selected]="isNodeSelected(node) ? 'true' : 'false'" [attr.data-node-type]="node.type" [class]="nodeClasses(node)" (pointerdown)="nodePointerDown($event, node)" (pointermove)="nodePointerMove($event)" (pointerup)="nodePointerUp($event, node)" [style.position]="'absolute'" [style.transform]="nodeTransform(node)" [style.width.px]="nodeWidth(node)" [style.height.px]="nodeHeight(node)"><button type="button" [attr.data-mol-id]="'flow-canvas-node-select-' + node.id" [attr.aria-label]="selectButtonName(node, i)" [attr.aria-labelledby]="selectButtonLabel(node, i)" (click)="selectClick($event, node)" [class]="selectClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button><div [attr.id]="contentId(i)" [class]="relativeClass()" [style.width]="'100%'" [style.height]="'100%'">@if (rendererFor(node); as nodeTpl) {<ng-container [ngTemplateOutlet]="nodeTpl" [ngTemplateOutletContext]="rendererContext(node)" />} @else {<ng-container #fallback></ng-container>}</div><div role="button" [attr.aria-label]="handleLabel()" [attr.data-mol-id]="'flow-canvas-node-handle-' + node.id" (pointerdown)="handlePointerDown($event, node)" [style.position]="'absolute'" [style.right]="'-6px'" [style.top]="'50%'" [style.width]="'12px'" [style.height]="'12px'" [style.margin-top]="'-6px'" [style.border-radius]="'50%'" [style.background]="'currentColor'" [style.cursor]="'crosshair'"></div></div>}<div #childSlot [style.display]="'none'"><ng-content></ng-content></div></div>`,
+  template: `@if (showGridValue()) {<div aria-hidden="true" data-mol-id="flow-canvas-grid" [style.position]="'absolute'" [style.inset]="'0px'" [style.background-image]="'radial-gradient(circle, rgba(127,127,127,0.35) 1px, transparent 1px)'" [style.background-size]="gridSize()" [style.background-position]="gridPosition()" [style.pointer-events]="'none'"></div>}<div data-mol-id="flow-canvas-world" [style.transform]="worldTransform()" [style.transform-origin]="'0 0'" [style.position]="'absolute'" [style.inset]="'0px'"><svg aria-hidden="true" data-mol-id="flow-canvas-edges" width="100%" height="100%" [style.position]="'absolute'" [style.inset]="'0px'" [style.overflow]="'visible'" [style.pointer-events]="'none'">@for (item of renderableEdges(); track item.edge.id) {<g><path [attr.d]="item.d" [attr.data-mol-id]="'flow-canvas-edge-hit-' + item.edge.id" fill="none" stroke="transparent" stroke-width="14" [style.pointer-events]="'stroke'" [style.cursor]="'pointer'" (click)="edgeClick($event, item.edge)"></path><path [attr.d]="item.d" [attr.data-mol-id]="'flow-canvas-edge-' + item.edge.id" [attr.data-selected]="item.selected ? 'true' : 'false'" fill="none" stroke="currentColor" [attr.stroke-width]="item.selected ? 2.5 : 1.5" [attr.opacity]="item.selected ? 1 : 0.6" [style.pointer-events]="'none'"></path></g>}@if (pendingPath(); as pendingD) {<path [attr.d]="pendingD" data-mol-id="flow-canvas-pending-edge" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7" [style.pointer-events]="'none'"></path>}</svg>@for (node of nodeList(); track node.id; let i = $index) {<div role="group" [attr.data-mol-id]="'flow-canvas-node-' + node.id" [attr.data-selected]="isNodeSelected(node) ? 'true' : 'false'" [attr.data-node-type]="node.type" [class]="nodeClasses(node)" (pointerdown)="nodePointerDown($event, node)" (pointermove)="nodePointerMove($event)" (pointerup)="nodePointerUp($event, node)" [style.position]="'absolute'" [style.transform]="nodeTransform(node)" [style.width.px]="nodeWidth(node)" [style.height.px]="nodeHeight(node)"><button type="button" [attr.data-mol-id]="'flow-canvas-node-select-' + node.id" [attr.aria-label]="selectButtonName(node, i)" [attr.aria-labelledby]="selectButtonLabel(node, i)" (click)="selectClick($event, node)" [class]="selectClasses()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0px'"></button><div [attr.id]="contentId(i)" [class]="relativeClass()" [style.width]="'100%'" [style.height]="'100%'">@if (rendererFor(node); as nodeTpl) {<ng-container [ngTemplateOutlet]="nodeTpl" [ngTemplateOutletContext]="rendererContext(node)" />} @else {<ng-container [molSlotCopy]="fallbackChildren()" />}</div><div role="button" [attr.aria-label]="handleLabel()" [attr.data-mol-id]="'flow-canvas-node-handle-' + node.id" (pointerdown)="handlePointerDown($event, node)" [style.position]="'absolute'" [style.right]="'-6px'" [style.top]="'50%'" [style.width]="'12px'" [style.height]="'12px'" [style.margin-top]="'-6px'" [style.border-radius]="'50%'" [style.background]="'currentColor'" [style.cursor]="'crosshair'"></div></div>}<div #childSlot [style.display]="'none'"><ng-content></ng-content></div></div>`,
 })
 export class FlowCanvas implements OnInit, OnDestroy {
   /** Nodes (controlled) or initial nodes (uncontrolled). */
@@ -190,10 +193,8 @@ export class FlowCanvas implements OnInit, OnDestroy {
   /** The pan in progress. */
   private pan: { pointerId: number; startClient: FlowPoint; startVp: FlowViewport } | null = null
 
-  /** The projected children's source nodes, once the capture point is detached. */
-  private projectedChildren: Node[] = []
-  /** The copies inserted into each no-renderer node's content element. */
-  private readonly clones = new Map<HTMLElement, ChildNode[]>()
+  /** The projected children, rendered in every node that has no renderer. */
+  readonly fallbackChildren = signal<readonly Node[]>([])
 
   /** This canvas's generated-id base (React's `useId`). */
   private readonly idBase = `mol-flow-${++canvasInstances}`
@@ -399,7 +400,7 @@ export class FlowCanvas implements OnInit, OnDestroy {
    */
   selectButtonName(node: FlowNode, index: number): string | null {
     if (node.ariaLabel) return node.ariaLabel
-    if (!this.rendererFor(node) && this.projectedChildren.length === 0) {
+    if (!this.rendererFor(node) && this.fallbackChildren().length === 0) {
       return this.i18n.t(
         'flowCanvas.aria.node',
         { number: index + 1 },
@@ -420,7 +421,7 @@ export class FlowCanvas implements OnInit, OnDestroy {
    */
   selectButtonLabel(node: FlowNode, index: number): string | null {
     if (node.ariaLabel) return null
-    if (!this.rendererFor(node) && this.projectedChildren.length === 0) return null
+    if (!this.rendererFor(node) && this.fallbackChildren().length === 0) return null
     return this.contentId(index)
   }
 
@@ -745,14 +746,12 @@ export class FlowCanvas implements OnInit, OnDestroy {
   }
 
   /**
-   * Takes the projected children out of the always-mounted capture point and
-   * hides it, then fills every no-renderer node's content element with a copy.
-   * Runs from the placement function: right after Angular changes a node of the
-   * capture, when a signal it read changes, and after every render.
-   *
-   * Projection anchor comments and whitespace-only text nodes are dropped: they
-   * carry nothing the caller projected, and "did the caller project children"
-   * decides each select button's accessible name (see {@link selectButtonName}).
+   * Reads the projected children and hides the always-mounted capture point;
+   * every no-renderer node renders a copy of them. Runs from the placement
+   * function: right after Angular changes a node of the capture, when a signal
+   * it read changes, and after every render. "Did the caller project
+   * children" also decides each select button's accessible name (see
+   * {@link selectButtonName}).
    *
    * @param hasContent - Reads whether a slot has content.
    */
@@ -760,68 +759,11 @@ export class FlowCanvas implements OnInit, OnDestroy {
     const capture = this.childSlot?.nativeElement
     if (capture) {
       // `hasContent.nodes` registers the read, so a consumer @if that adds or
-      // removes a child re-runs this function in the same renderer call. Angular
-      // anchors (comments) are not projected children.
-      this.projectedChildren = hasContent
-        .nodes(capture)
-        .filter((child) => child.nodeType !== Node.COMMENT_NODE)
+      // removes a child re-runs this function in the same renderer call.
+      this.fallbackChildren.set(hasContent.nodes(capture))
       setElementPresent(capture, false)
     }
-    this.reconcileFallbackChildren()
     this.syncSelectButtonNames()
-  }
-
-  /**
-   * Fills each no-renderer node's content element with a copy of the projected
-   * children, and drops those copies once a renderer applies (React renders a
-   * fresh copy per node and keeps it mounted while the node stays) or the
-   * caller stops projecting children.
-   */
-  private reconcileFallbackChildren(): void {
-    const host = this.host.nativeElement
-    const list = this.nodeList()
-    if (this.projectedChildren.length === 0) {
-      // A consumer @if that removed its children leaves no copy behind.
-      for (const clones of this.clones.values()) {
-        for (const clone of clones) {
-          // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
-          clone.remove()
-        }
-      }
-      this.clones.clear()
-      return
-    }
-    for (let index = 0; index < list.length; index++) {
-      const node = list[index]!
-      const element = host.querySelector<HTMLElement>(`[id="${this.contentId(index)}"]`)
-      if (!element) continue
-      const existing = this.clones.get(element)
-      if (this.rendererFor(node)) {
-        if (existing) {
-          for (const clone of existing) {
-            // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
-            clone.remove()
-          }
-          this.clones.delete(element)
-        }
-        continue
-      }
-      if (existing) continue
-      const copies = this.projectedChildren.map((child) => child.cloneNode(true) as ChildNode)
-      for (const copy of copies) {
-        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
-        element.appendChild(copy)
-      }
-      this.clones.set(element, copies)
-    }
-    for (const [element, clones] of [...this.clones]) {
-      if (host.contains(element)) continue
-      for (const clone of clones) {
-        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
-        clone.remove()
-      }
-      this.clones.delete(element)
-    }
   }
 
   /**

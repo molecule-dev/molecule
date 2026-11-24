@@ -8,6 +8,8 @@
 
 import type { VNodeChild } from 'vue'
 
+import { toChildArray } from '@molecule/app-vue'
+
 /**
  * HTML-escapes an interpolation value before it enters a translation whose
  * result is rendered as HTML (`innerHTML`). Vue escapes text children
@@ -39,8 +41,8 @@ export function nodeOrSlot(
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] {
-  if (slot) return slot()
-  return prop !== undefined && prop !== null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop !== undefined && prop !== null ? toChildArray(prop) : []
 }
 
 /**

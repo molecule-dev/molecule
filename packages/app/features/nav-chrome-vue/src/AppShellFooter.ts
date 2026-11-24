@@ -10,7 +10,7 @@
 import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { nodeList, slotOrProp } from './internal.js'
 import type { FooterLink } from './types.js'
@@ -37,13 +37,9 @@ export const AppShellFooter = defineComponent({
 
     /** The copyright text (or node), wrapped the way React wraps it; omitted when absent. */
     const renderCopyright = (): VNode[] => {
-      if (slots.copyright) {
-        return [h('span', { class: cm.textSize('xs') }, slots.copyright())]
-      }
-      if (props.copyright != null) {
-        return [h('span', { class: cm.textSize('xs') }, [props.copyright])]
-      }
-      return []
+      // An empty copyright list renders nothing, as React's slot() treats it.
+      const nodes = toChildArray(slots.copyright ? slots.copyright() : props.copyright)
+      return nodes.length > 0 ? [h('span', { class: cm.textSize('xs') }, nodes)] : []
     }
 
     return (): VNode =>

@@ -31,6 +31,7 @@ import {
 import { useAuthFormState } from '@molecule/app-auth-shell-solid'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-solid'
 import {
+  PresentWhileNode,
   useAuth,
   useAuthClient,
   useI18nError,
@@ -374,13 +375,17 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
                   />
                 </Show>
                 {/* Human-verification challenge — signup only (login is not gated). */}
-                <Show when={isSignup() && props.captchaSlot}>
-                  <div
-                    data-mol-id="auth-modal-captcha"
-                    style={{ display: 'grid', 'margin-top': '2px' }}
-                  >
-                    {props.captchaSlot}
-                  </div>
+                <Show when={isSignup()}>
+                  <PresentWhileNode node={props.captchaSlot}>
+                    {(captcha) => (
+                      <div
+                        data-mol-id="auth-modal-captcha"
+                        style={{ display: 'grid', 'margin-top': '2px' }}
+                      >
+                        {captcha()}
+                      </div>
+                    )}
+                  </PresentWhileNode>
                 </Show>
                 <Button
                   type="submit"

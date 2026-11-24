@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -38,12 +39,14 @@ const TONE = (n: number): ColorVariant => (n > 0 ? 'success' : n < 0 ? 'error' :
 export function ComparisonRow({
   label,
   current,
-  previous,
+  previous: previousProp,
   deltaPct,
   formatDelta,
-  periodLabel,
+  periodLabel: periodLabelProp,
   className,
 }: ComparisonRowProps): JSX.Element {
+  const previous = slot(previousProp)
+  const periodLabel = slot(periodLabelProp)
   const cm = getClassMap()
   return (
     <div

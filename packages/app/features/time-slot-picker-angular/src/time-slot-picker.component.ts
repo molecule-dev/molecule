@@ -9,6 +9,7 @@ import { Component, type ElementRef, TemplateRef, ViewChild } from '@angular/cor
 
 import {
   MolPlacement,
+  rendersNode,
   setElementPresent,
   usePlacement,
   useTranslation,
@@ -136,12 +137,12 @@ export class TimeSlotPicker {
   }
 
   /**
-   * React's radiogroup aria-label: the title text when it is a plain string
-   * (a node title falls back to the translated label).
+   * React's radiogroup aria-label: the title text when it is a plain string that renders
+   * (`slot(title)`: an empty title, like a node title, falls back to the translated label).
    * @returns The accessible name.
    */
   ariaLabel(): string {
-    return typeof this.title === 'string'
+    return typeof this.title === 'string' && rendersNode(this.title)
       ? this.title
       : this.i18n.t('timeSlot.aria', {}, { defaultValue: 'Time slots' })
   }

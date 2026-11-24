@@ -51,7 +51,7 @@
   },
   "peerDependencies": {
     "@molecule/app-icons": "^1.0.1",
-    "@molecule/app-svelte": "^3.5.0",
+    "@molecule/app-svelte": "^3.14.0",
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-ui-svelte": "^1.1.0",
     "svelte": "^5.0.0"

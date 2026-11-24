@@ -5,6 +5,7 @@
   same input.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { Address, AddressDisplayProps } from './types.js'
@@ -45,9 +46,9 @@
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(1), cm.textSize('sm'))}>
     {#if name}
-      <span class={cm.fontWeight('semibold')}>
+      <PresentWhileContent tag="span" class={cm.fontWeight('semibold')}>
         {#if typeof name === 'function'}{@render name?.()}{:else}{name}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
     {#if inline}
       <span>{lines.join(', ')}</span>

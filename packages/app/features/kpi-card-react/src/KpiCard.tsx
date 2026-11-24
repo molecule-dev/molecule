@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -82,9 +83,9 @@ export interface KpiCardProps {
 export function KpiCard({
   title,
   value,
-  subtitle,
+  subtitle: subtitleProp,
   icon,
-  trend,
+  trend: trendProp,
   action,
   accentSide = 'none',
   accentColor,
@@ -94,6 +95,8 @@ export function KpiCard({
   className,
   dataMolId,
 }: KpiCardProps): JSX.Element {
+  const subtitle = slot(subtitleProp)
+  const trend = slot(trendProp)
   const cm = getClassMap()
   const accent = accentColor ?? cm.kpiCardAccentColor
   const accentClass =

@@ -7,6 +7,9 @@
   translation and formatting.
 -->
 <script lang="ts">
+  import type { Attachment } from 'svelte/attachments'
+
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { buildSparkline } from './sparkline.js'
@@ -38,6 +41,22 @@
         ? cm.weatherCardAlertWarning
         : cm.weatherCardAlertEmergency,
   )
+
+  // React's `slot(alertLabel) ?? alertLevel`: a label snippet that renders nothing is absent, so the
+  // level shows. The badge also holds its icon (one element), so presence counts the label only.
+  let alertLabelRenders = $state(false)
+  const trackAlert: Attachment<HTMLElement> = (element) => {
+    const sync = (): void => {
+      const rendered = Array.from(element.childNodes).filter(
+        (n) => n.nodeType === 1 || (n.nodeType === 3 && (n.textContent ?? '').trim() !== ''),
+      ).length
+      alertLabelRenders = rendered > (alertLabelRenders ? 1 : 2)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  }
 </script>
 
 <div
@@ -52,7 +71,8 @@
     <div class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'md' }))}>
       <div>
         {#if eyebrow}
-          <p
+          <PresentWhileContent
+            tag="p"
             class={cm.cn(
               cm.fontWeight('bold'),
               cm.textSize('xs'),
@@ -61,7 +81,7 @@
             )}
           >
             {@render eyebrow?.()}
-          </p>
+          </PresentWhileContent>
         {/if}
         <h2 class={cm.cn(cm.textSize('2xl'), cm.fontWeight('semibold'), cm.weatherCardLocation)}>
           {locationName}
@@ -72,6 +92,7 @@
       </div>
       {#if alertLevel}
         <span
+          {@attach trackAlert}
           class={cm.cn(
             cm.flex({ align: 'center', gap: 'xs' }),
             cm.sp('px', 3),
@@ -83,7 +104,7 @@
           )}
         >
           <span class={cm.cn(cm.iconGlyphFont, cm.textSize('sm'))} aria-hidden="true">warning</span>
-          {#if alertLabel}{@render alertLabel?.()}{:else}{alertLevel}{/if}
+          {#if alertLabel}{@render alertLabel?.()}{/if}{#if !alertLabel || !alertLabelRenders}{alertLevel}{/if}
         </span>
       {/if}
     </div>
@@ -119,12 +140,16 @@
 
     <div class={cm.cn(cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }), cm.sp('mt', 4))}>
       {#if feelsLikeLabel}
-        <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), cm.weatherCardFeelsLike)}>
+        <PresentWhileContent
+          tag="span"
+          class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), cm.weatherCardFeelsLike)}
+        >
           {@render feelsLikeLabel?.()}
-        </span>
+        </PresentWhileContent>
       {/if}
       {#if highLowLabel}
-        <span
+        <PresentWhileContent
+          tag="span"
           class={cm.cn(
             cm.flex({ align: 'center', gap: 'xs' }),
             cm.sp('px', 3),
@@ -136,11 +161,11 @@
           )}
         >
           {@render highLowLabel?.()}
-        </span>
+        </PresentWhileContent>
       {/if}
       {#if updatedLabel}
-        <span class={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}
-          >{@render updatedLabel?.()}</span
+        <PresentWhileContent tag="span" class={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}
+          >{@render updatedLabel?.()}</PresentWhileContent
         >
       {/if}
     </div>

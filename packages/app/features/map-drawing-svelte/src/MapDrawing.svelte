@@ -9,7 +9,7 @@
   import { untrack } from 'svelte'
   import { SvelteSet } from 'svelte/reactivity'
 
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { closeRing, identityBackend, pointInRect } from './geometry.js'
@@ -337,9 +337,9 @@
     style={surfaceStyleText()}
   >
     {#if mapSlot}
-      <div data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px">
+      <PresentWhileContent data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px">
         {@render mapSlot?.()}
-      </div>
+      </PresentWhileContent>
     {/if}
     <svg
       data-mol-id="map-drawing-overlay"

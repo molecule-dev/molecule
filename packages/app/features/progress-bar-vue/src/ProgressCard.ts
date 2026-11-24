@@ -10,6 +10,7 @@ import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild }
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 import { ProgressBar } from './ProgressBar.js'
 import type { ProgressCardProps } from './types.js'
@@ -42,7 +43,7 @@ const slotOrProp = (
 const renders = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
-): boolean => (slot ? true : !!prop)
+): boolean => (slot ? toChildArray(slot()).length > 0 : toChildArray(prop).length > 0)
 
 /**
  * `<Card>`-wrapped progress display with title, optional icon and description,

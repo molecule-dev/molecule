@@ -11,6 +11,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { UserChipProps } from './types.js'
 
@@ -26,23 +27,9 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
-
-/**
- * Whether an optional node-valued prop renders at all: React's
- * `{subtitle && <span>}` truthiness on the prop, plus a same-named slot being
- * present.
- *
- * @param slot - The slot render function, when the caller passed the slot.
- * @param prop - The prop value, when the caller passed the prop.
- * @returns True when the subtitle span renders.
- */
-const hasNode = (
-  slot: (() => VNodeChild[]) | undefined,
-  prop: VNodeChild | null | undefined,
-): boolean => slot != null || (prop != null && prop !== '' && prop !== false)
 
 /**
  * Avatar + name + optional subtitle row — useful in dropdowns, mention
@@ -72,6 +59,7 @@ export const UserChip = defineComponent({
     return (): VNode => {
       const subtitleSlot = slots.subtitle
       const trailingSlot = slots.trailing
+      const subtitleNodes = slotOrProp(subtitleSlot, props.subtitle)
       const avatar = h(Avatar, {
         src: props.src,
         alt: props.name,
@@ -94,9 +82,7 @@ export const UserChip = defineComponent({
                 },
                 [props.name],
               ),
-          hasNode(subtitleSlot, props.subtitle)
-            ? h('span', { class: cm.textSize('xs') }, [...slotOrProp(subtitleSlot, props.subtitle)])
-            : null,
+          subtitleNodes.length > 0 ? h('span', { class: cm.textSize('xs') }, subtitleNodes) : null,
         ]),
         ...slotOrProp(trailingSlot, props.trailing),
       ])

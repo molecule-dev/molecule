@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, RoutedView, useLocation, useTranslation } from '@molecule/app-vue'
+import { Link, RoutedView, toChildArray, useLocation, useTranslation } from '@molecule/app-vue'
 
 import type { SidebarNavItem } from './types.js'
 
@@ -145,7 +145,10 @@ export const SidebarLayout = defineComponent({
       const width = resolveSidebarWidthPx(props.sidebarWidth, props.sidebarWidthClass)
       const userMenu = slotOrProp(slots.userMenu, props.userMenu)
       const themeToggle = slotOrProp(slots.themeToggle, props.themeToggle)
-      const hasBottom = userMenu.length > 0 || themeToggle.length > 0
+      const hasUserMenu = toChildArray(userMenu).length > 0
+      const hasThemeToggle = toChildArray(themeToggle).length > 0
+      const hasBottom = hasUserMenu || hasThemeToggle
+      const children = slots.default?.()
 
       return h(
         'div',
@@ -228,7 +231,7 @@ export const SidebarLayout = defineComponent({
                       ),
                     },
                     [
-                      ...(userMenu.length > 0 ? userMenu : [h('span', { 'aria-hidden': 'true' })]),
+                      ...(hasUserMenu ? userMenu : [h('span', { 'aria-hidden': 'true' })]),
                       ...themeToggle,
                     ],
                   )
@@ -239,7 +242,7 @@ export const SidebarLayout = defineComponent({
             'main',
             { class: cm.cn(cm.pageShellContent), style: { minWidth: '0px' } },
             // The page body, or the matched child route through the app's routing bond.
-            slots.default ? slots.default() : h(RoutedView),
+            toChildArray(children).length > 0 ? children : h(RoutedView),
           ),
         ],
       )

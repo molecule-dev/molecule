@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -99,9 +100,10 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
     onSeek,
     volume,
     onVolumeChange,
-    trailing,
+    trailing: trailingProp,
     className,
   } = props
+  const trailing = slot(trailingProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

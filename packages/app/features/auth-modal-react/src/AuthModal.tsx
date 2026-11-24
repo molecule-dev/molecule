@@ -30,6 +30,7 @@ import {
   useTranslation,
 } from '@molecule/app-react'
 import { useOAuth } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-react'
 
@@ -163,9 +164,10 @@ export function AuthModal({
   oauthConfig,
   onBeforeAuth,
   onAuthenticated,
-  captchaSlot,
+  captchaSlot: captchaSlotProp,
   captchaSolved = true,
 }: AuthModalProps): JSX.Element {
+  const captchaSlot = slot(captchaSlotProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   const isTouchFirst = useTouchFirstViewport()

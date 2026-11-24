@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -26,12 +27,14 @@ export interface SettingsSectionProps {
  */
 export function SettingsSection({
   title,
-  description,
+  description: descriptionProp,
   children,
-  footer,
+  footer: footerProp,
   className,
   dataMolId,
 }: SettingsSectionProps): JSX.Element {
+  const description = slot(descriptionProp)
+  const footer = slot(footerProp)
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>

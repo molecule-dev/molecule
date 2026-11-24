@@ -6,6 +6,7 @@
   `icon` are snippets.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Badge } from '@molecule/app-ui-svelte'
 
@@ -40,12 +41,16 @@
       className,
     )}
   >
-    {#if icon}<span class={cm.sp('mr', 1)}>{@render icon?.()}</span>{/if}
+    {#if icon}<PresentWhileContent tag="span" class={cm.sp('mr', 1)}
+        >{@render icon?.()}</PresentWhileContent
+      >{/if}
     {@render children?.()}
   </span>
 {:else}
   <Badge color={KIND_TO_COLOR[kind]} {className}>
-    {#if icon}<span class={cm.sp('mr', 1)}>{@render icon?.()}</span>{/if}
+    {#if icon}<PresentWhileContent tag="span" class={cm.sp('mr', 1)}
+        >{@render icon?.()}</PresentWhileContent
+      >{/if}
     {@render children?.()}
   </Badge>
 {/if}

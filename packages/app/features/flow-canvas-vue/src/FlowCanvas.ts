@@ -20,7 +20,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import {
   addEdge,
@@ -423,10 +423,13 @@ export const FlowCanvas = defineComponent({
     const nodeContent = (node: FlowNode): VNodeChild[] => {
       const renderer = props.nodeRenderers?.[node.type]
       if (renderer) return [renderer(node)]
-      return slots.default ? slots.default() : []
+      // Called per node: a VNode mounts once, so each node needs its own.
+      return toChildArray(slots.default?.())
     }
 
     return (): VNode => {
+      // React's `slot(childrenProp)`: an empty children list is absent.
+      const hasFallback = toChildArray(slots.default?.()).length > 0
       const currentViewport = viewport.value
       const currentSelection = selection.value
       const currentPending = pendingConnection.value
@@ -521,7 +524,7 @@ export const FlowCanvas = defineComponent({
         // unoperable for a screen reader), else the node's content as before.
         const buttonName =
           node.ariaLabel ??
-          (!props.nodeRenderers?.[node.type] && !slots.default
+          (!props.nodeRenderers?.[node.type] && !hasFallback
             ? t('flowCanvas.aria.node', { number: index + 1 }, { defaultValue: 'Node {{number}}' })
             : null)
         const buttonLabelledBy = buttonName == null ? contentId : null

@@ -6,9 +6,9 @@
   and type classes come from the ClassMap bond.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { reactStyle } from './style.js'
   import type { ComparisonRowProps } from './types.js'
 
   let {
@@ -41,9 +41,9 @@
       {#if typeof label === 'function'}{@render label?.()}{:else}{label}{/if}
     </span>
     {#if periodLabel}
-      <span class={cm.textSize('xs')}>
+      <PresentWhileContent tag="span" class={cm.textSize('xs')}>
         {#if typeof periodLabel === 'function'}{@render periodLabel?.()}{:else}{periodLabel}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
   </div>
   <div class={cm.flex({ align: 'baseline', gap: 'sm' })}>
@@ -51,12 +51,13 @@
       {#if typeof current === 'function'}{@render current?.()}{:else}{current}{/if}
     </span>
     {#if previous !== undefined}
-      <span
+      <PresentWhileContent
+        tag="span"
         class={cm.cn(cm.textSize('xs'))}
-        use:reactStyle={{ textDecoration: 'line-through', opacity: 0.6 }}
+        style="text-decoration: line-through; opacity: 0.6"
       >
         {#if typeof previous === 'function'}{@render previous?.()}{:else}{previous}{/if}
-      </span>
+      </PresentWhileContent>
     {/if}
     {#if deltaPct !== undefined}
       <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), deltaToneClass)}>

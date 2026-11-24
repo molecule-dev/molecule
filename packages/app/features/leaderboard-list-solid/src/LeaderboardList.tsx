@@ -9,8 +9,9 @@
  * @module
  */
 
-import { children, type Component } from 'solid-js'
+import type { Component } from 'solid-js'
 
+import { ResolveNode, resolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { LeaderboardListProps } from './types.js'
@@ -31,22 +32,30 @@ export const LeaderboardList: Component<LeaderboardListProps> = (props) => {
   // React's `children` array: Solid's `children` helper resolves whatever the caller passed
   // (elements, text, a `<For>`, a conditional) to the flat list of rendered children, and
   // follows it when it changes, so the count and the list stay one value.
-  const resolved = children(() => props.children)
+  const resolved = resolveNode(() => props.children)
   const childCount = (): number => resolved.toArray().length
-  // React's `title &&` and `actions &&`: the value's own truthiness, so an empty list (`[]`)
-  // still renders its heading. Resolved once, so the check does not build the nodes twice.
-  const title = children(() => props.title)
-  const actions = children(() => props.actions)
   return (
     <div class={cm.cn(cm.stack(2), props.className)}>
-      {(title() || actions()) && (
-        <header class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-          {title() && (
-            <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title()}</h3>
-          )}
-          {actions()}
-        </header>
-      )}
+      <ResolveNode node={props.title}>
+        {(title, hasTitle) => (
+          // React reads `actions` as a plain node (`actions &&`), so an empty list still opens the
+          // header; `actions()` keeps that truthiness. Read inside JSX, so the header follows both.
+          <ResolveNode node={props.actions}>
+            {(actions) => (
+              <>
+                {(hasTitle() || actions()) && (
+                  <header class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+                    {hasTitle() && (
+                      <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title()}</h3>
+                    )}
+                    {actions()}
+                  </header>
+                )}
+              </>
+            )}
+          </ResolveNode>
+        )}
+      </ResolveNode>
       {childCount() === 0 ? props.emptyState : <div class={cm.stack(1 as const)}>{resolved()}</div>}
     </div>
   )

@@ -26,8 +26,8 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop != null ? toChildArray(prop) : []
 }
 
 /**

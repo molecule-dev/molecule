@@ -11,6 +11,7 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { JobListingRowProps } from './types.js'
 
@@ -27,8 +28,8 @@ const slotOrTruthy = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop ? toChildArray(prop) : []
 }
 
 /**

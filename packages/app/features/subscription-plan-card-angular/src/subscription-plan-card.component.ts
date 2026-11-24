@@ -11,6 +11,7 @@ import {
   MolPlacement,
   placeContentBefore,
   placeElement,
+  rendersNode,
   setElementPresent,
   type SlotReader,
   usePlacement,
@@ -191,11 +192,11 @@ export class SubscriptionPlanCard {
   }
 
   /**
-   * Whether the description input holds a value.
-   * @returns True when a value is set.
+   * Whether the description input renders something (React's `slot(description)`).
+   * @returns True when it does (`''` does not).
    */
   hasDescription(): boolean {
-    return this.description !== undefined && this.description !== null
+    return rendersNode(this.description)
   }
 
   /**
@@ -207,28 +208,28 @@ export class SubscriptionPlanCard {
   }
 
   /**
-   * Whether the interval input holds a value.
-   * @returns True when a value is set.
+   * Whether the interval input renders something (React's `slot(interval)`).
+   * @returns True when it does (`''` does not).
    */
   hasInterval(): boolean {
-    return this.interval !== undefined && this.interval !== null
+    return rendersNode(this.interval)
   }
 
   /**
-   * Whether the CTA label input holds a value.
-   * @returns True when a value is set.
+   * Whether the CTA label input renders something (React's `slot(ctaLabel)`).
+   * @returns True when it does (`''` does not).
    */
   hasCtaLabel(): boolean {
-    return this.ctaLabel !== undefined && this.ctaLabel !== null
+    return rendersNode(this.ctaLabel)
   }
 
   /**
-   * Whether the badge input holds a value (React's `badge ?? t(…)` treats an
-   * empty badge as a provided, blank badge).
-   * @returns True when a value is set.
+   * Whether the badge input renders something (React's `slot(badge)`): an empty badge
+   * counts as no badge, so a recommended plan shows the translated default.
+   * @returns True when it does (`''` does not).
    */
   badgeProvided(): boolean {
-    return this.badge !== undefined && this.badge !== null
+    return rendersNode(this.badge)
   }
 
   /**

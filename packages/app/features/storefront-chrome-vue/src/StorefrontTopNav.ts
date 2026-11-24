@@ -23,7 +23,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, useTranslation } from '@molecule/app-vue'
+import { Link, toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { nodeList, slotOrProp } from './internal.js'
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
@@ -253,6 +253,12 @@ export const StorefrontTopNav = defineComponent({
 
     return (): VNode => {
       const menu = props.isAuthenticated ? props.authedMenu : props.unauthedMenu
+      // An emptied label renders nothing in React, which then shows the default.
+      const signOutNodes = toChildArray(slotOrProp(slots.signOutLabel, props.signOutLabel))
+      const signOutLabel =
+        signOutNodes.length > 0
+          ? signOutNodes
+          : [t('storefrontChrome.nav.signOut', undefined, { defaultValue: 'Sign Out' })]
       const dropdown: VNodeChild = profileOpen.value
         ? h(
             'div',
@@ -284,11 +290,7 @@ export const StorefrontTopNav = defineComponent({
                         props.onSignOut?.()
                       },
                     },
-                    slotOrProp(
-                      slots.signOutLabel,
-                      props.signOutLabel ??
-                        t('storefrontChrome.nav.signOut', undefined, { defaultValue: 'Sign Out' }),
-                    ),
+                    signOutLabel,
                   )
                 : null,
             ],

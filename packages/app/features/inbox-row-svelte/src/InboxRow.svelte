@@ -13,7 +13,7 @@
   not render.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Avatar } from '@molecule/app-ui-svelte'
 
@@ -81,6 +81,11 @@
     border: 'none',
     padding: '0px',
   }
+
+  // The preview span is in the page while `preview` renders something, the
+  // separator aside — React's `preview && <span>— {preview}</span>`. Its style
+  // attribute is React's `{ opacity: 0.6 }` as the CSSOM serializes it.
+  let previewPresent = $state<boolean>()
 </script>
 
 {#snippet field(value: InboxRowProps['sender'])}
@@ -107,18 +112,24 @@
   <div class={cm.flex({ align: 'baseline', gap: 'sm' })}>
     <span id={senderId} class={cm.textSize('sm')}>{@render field(sender)}</span>
     {#if labels}
-      <span
+      <PresentWhileContent
+        tag="span"
         class={cm.cn(
           cm.flex({ align: 'center', gap: 'xs' }),
           onClick ? cm.position('relative') : undefined,
-        )}>{@render field(labels)}</span
+        )}>{@render field(labels)}</PresentWhileContent
       >
     {/if}
   </div>
   <div use:reactStyle={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-    <span id={subjectId} class={cm.textSize('sm')}>{@render field(subject)}</span>{#if preview}<span
+    <span id={subjectId} class={cm.textSize('sm')}>{@render field(subject)}</span
+    >{#if preview}<PresentWhileContent
+        tag="span"
         class={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))}
-        use:reactStyle={{ opacity: '0.6' }}>— {@render field(preview)}</span
+        style="opacity: 0.6;"
+        present={previewPresent}
+        >— <ContentOrElse bind:present={previewPresent}>{@render field(preview)}</ContentOrElse
+        ></PresentWhileContent
       >{/if}
   </div>
 {/snippet}
@@ -172,6 +183,8 @@
     <span aria-hidden="true" class={cm.bgTone('info')} use:reactStyle={dotStyle}></span>
   {/if}
   {#if timestamp}
-    <span class={cm.cn(cm.textSize('xs'), cm.shrink0)}>{@render field(timestamp)}</span>
+    <PresentWhileContent tag="span" class={cm.cn(cm.textSize('xs'), cm.shrink0)}
+      >{@render field(timestamp)}</PresentWhileContent
+    >
   {/if}
 </div>

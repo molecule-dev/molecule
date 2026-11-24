@@ -6,7 +6,7 @@
   styling layer controls the visual treatment.
 -->
 <script lang="ts">
-  import { Link } from '@molecule/app-svelte'
+  import { contentNodes, Link } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Flex } from '@molecule/app-ui-svelte'
 
@@ -29,6 +29,41 @@
   }: AppHeaderProps = $props()
 
   const cm = $derived(getClassMap())
+
+  // React's `slot(themeToggle) ?? DEFAULT_THEME_TOGGLE`: a theme-toggle snippet that renders
+  // nothing (an empty list) takes the default, like an omitted one, while an explicit `null`
+  // force-hides it. A snippet's `{#each}` over no rows changes the DOM without changing the prop,
+  // so presence is read from the rendered row; the default toggle (a `theme-toggle` button this
+  // component renders only while nothing shows) is the row's own node, not toggle content.
+  let actionsEl = $state<HTMLDivElement | null>(null)
+  let navListEl = $state<HTMLUListElement | null>(null)
+  let themeToggleRenders = $state(false)
+
+  $effect(() => {
+    const element = actionsEl
+    void themeToggle
+    if (!element) return
+    const sync = (): void => {
+      if (themeToggle === null || themeToggle === undefined) {
+        if (themeToggleRenders) themeToggleRenders = false
+        return
+      }
+      const defaultEl = themeToggleRenders
+        ? null
+        : element.querySelector(':scope > button[data-mol-id="theme-toggle"]')
+      const present = contentNodes(element).some(
+        (node) =>
+          node !== navListEl &&
+          node !== defaultEl &&
+          (node.nodeType === 1 || (node.textContent ?? '').trim() !== ''),
+      )
+      if (present !== themeToggleRenders) themeToggleRenders = present
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  })
 </script>
 
 <header class={cm.cn(cm.headerBar, fixed ? cm.headerFixed : '', className)} data-mol-id={dataMolId}>
@@ -44,9 +79,9 @@
           <span class={cm.logoText}>{appName}</span>
         </Flex>
       </Link>
-      <Flex align="center" gap="sm">
+      <Flex bind:ref={actionsEl} align="center" gap="sm">
         {#if navigation}
-          <ul class={navigation.listClassName}>
+          <ul bind:this={navListEl} class={navigation.listClassName}>
             {#each Object.entries(navigation.links) as [to, { children, className, ...anchor }] (to)}
               <li class={navigation.itemClassName}>
                 <Link class={className} {...anchor} {to}
@@ -57,7 +92,8 @@
           </ul>
         {/if}
         {#if themeToggle !== null}
-          {#if themeToggle}{@render themeToggle?.()}{:else}<DefaultThemeToggle />{/if}
+          {#if themeToggle}{@render themeToggle?.()}{/if}
+          {#if !themeToggleRenders}<DefaultThemeToggle />{/if}
         {/if}
         {#if extraActions}{@render extraActions?.()}{/if}
         {#if userMenu}{@render userMenu?.()}{/if}

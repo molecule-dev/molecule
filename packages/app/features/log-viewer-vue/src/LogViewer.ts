@@ -12,6 +12,7 @@
 import { defineComponent, Fragment, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { LogEntry, LogLevel } from './types.js'
 
@@ -70,10 +71,9 @@ export const LogViewer = defineComponent({
      *
      * @returns The children React renders for `emptyState`.
      */
-    const emptyChildren = (): VNodeChild[] => {
-      if (slots.emptyState) return slots.emptyState()
-      return props.emptyState != null ? [props.emptyState] : []
-    }
+    const emptyChildren = (): VNodeChild[] =>
+      // An empty list renders nothing, as React's slot() treats it.
+      toChildArray(slots.emptyState ? slots.emptyState() : props.emptyState)
 
     /**
      * The text a structured-data panel renders: strings verbatim, anything

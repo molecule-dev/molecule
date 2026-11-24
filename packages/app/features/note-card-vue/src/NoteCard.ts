@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { NoteCardProps } from './types.js'
 
@@ -104,6 +104,11 @@ export const NoteCard = defineComponent({
       const title = slotOrTruthy(slots.title, props.title)
       const modifiedAt = slotOrTruthy(slots.modifiedAt, props.modifiedAt)
       const actions = slotOrTruthy(slots.actions, props.actions)
+      // An empty list (a `v-for` over no rows, or `[]` as the prop) renders
+      // nothing in React, so the element wrapping it is absent too.
+      const hasTitle = toChildArray(title).length > 0
+      const hasModified = toChildArray(modifiedAt).length > 0
+      const hasActions = toChildArray(actions).length > 0
       const labelId = props.onClick ? nameId : undefined
       // The card's paper: the light tint of the note colour's tone, or the
       // warning paper when no colour is given. A colour with no tone is
@@ -112,13 +117,13 @@ export const NoteCard = defineComponent({
       const tone = tintTone(props.color) ?? 'warning'
       const dataTint = tintTone(props.color) === undefined ? props.color : undefined
       const content: VNodeChild[] = [
-        title.length > 0
+        hasTitle
           ? h('h3', { id: labelId, class: cm.cn(cm.textSize('sm'), cm.fontWeight('bold')) }, title)
           : null,
         h(
           'div',
           {
-            id: title.length > 0 ? undefined : labelId,
+            id: hasTitle ? undefined : labelId,
             class: cm.textSize('sm'),
             style: { whiteSpace: 'pre-wrap' },
           },
@@ -166,7 +171,7 @@ export const NoteCard = defineComponent({
               )
             : null,
           ...content,
-          modifiedAt.length > 0 || actions.length > 0
+          hasModified || hasActions
             ? h(
                 'footer',
                 {
@@ -176,9 +181,7 @@ export const NoteCard = defineComponent({
                   ),
                 },
                 [
-                  ...(modifiedAt.length > 0
-                    ? [h('span', { class: cm.textSize('xs') }, modifiedAt)]
-                    : []),
+                  ...(hasModified ? [h('span', { class: cm.textSize('xs') }, modifiedAt)] : []),
                   ...actions,
                 ],
               )

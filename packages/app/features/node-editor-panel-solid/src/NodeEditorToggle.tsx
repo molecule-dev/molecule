@@ -10,14 +10,13 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { createUniqueId, Show } from 'solid-js'
+import { type Component, createUniqueId, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-solid'
 
 import type { NodeEditorToggleProps } from './types.js'
-import { renders } from './utilities.js'
 
 /**
  * Toggle row — the Solid counterpart of
@@ -34,48 +33,51 @@ export const NodeEditorToggle: Component<NodeEditorToggleProps> = (props) => {
   // calls are.
   const titleId = createUniqueId()
   const subtitleId = createUniqueId()
-
   return (
-    <div
-      class={cm.cn(
-        cm.sp('p', 4),
-        cm.flex({ align: 'center', justify: 'between' }),
-        cm.nodeEditorPanelToggleRow,
-      )}
-    >
-      <div class={cm.cn(cm.flex({ align: 'center' }), cm.nodeEditorPanelToggleGroup)}>
-        <Show when={props.icon}>
-          <div class={cm.cn(cm.sp('p', 2), cm.nodeEditorPanelToggleIconTile)}>
-            <span class={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>{props.icon}</span>
+    <ResolveNode node={props.subtitle}>
+      {(subtitle, hasSubtitle) => (
+        <div
+          class={cm.cn(
+            cm.sp('p', 4),
+            cm.flex({ align: 'center', justify: 'between' }),
+            cm.nodeEditorPanelToggleRow,
+          )}
+        >
+          <div class={cm.cn(cm.flex({ align: 'center' }), cm.nodeEditorPanelToggleGroup)}>
+            <Show when={props.icon}>
+              <div class={cm.cn(cm.sp('p', 2), cm.nodeEditorPanelToggleIconTile)}>
+                <span class={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>{props.icon}</span>
+              </div>
+            </Show>
+            <div>
+              <p
+                id={titleId}
+                class={cm.cn(
+                  cm.textSize('xs'),
+                  cm.fontWeight('semibold'),
+                  cm.nodeEditorPanelToggleTitle,
+                )}
+              >
+                {props.title}
+              </p>
+              <Show when={hasSubtitle()}>
+                <p id={subtitleId} class={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>
+                  {subtitle()}
+                </p>
+              </Show>
+            </div>
           </div>
-        </Show>
-        <div>
-          <p
-            id={titleId}
-            class={cm.cn(
-              cm.textSize('xs'),
-              cm.fontWeight('semibold'),
-              cm.nodeEditorPanelToggleTitle,
-            )}
-          >
-            {props.title}
-          </p>
-          <Show when={renders(props.subtitle)}>
-            <p id={subtitleId} class={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>
-              {props.subtitle}
-            </p>
-          </Show>
+          <Switch
+            size="sm"
+            checked={props.checked}
+            aria-label={props.ariaLabel}
+            aria-labelledby={props.ariaLabel === undefined ? titleId : undefined}
+            aria-describedby={hasSubtitle() ? subtitleId : undefined}
+            data-mol-id="node-editor-toggle"
+            onChange={(event) => props.onChange((event.target as HTMLInputElement).checked)}
+          />
         </div>
-      </div>
-      <Switch
-        size="sm"
-        checked={props.checked}
-        aria-label={props.ariaLabel}
-        aria-labelledby={props.ariaLabel === undefined ? titleId : undefined}
-        aria-describedby={renders(props.subtitle) ? subtitleId : undefined}
-        data-mol-id="node-editor-toggle"
-        onChange={(event) => props.onChange((event.target as HTMLInputElement).checked)}
-      />
-    </div>
+      )}
+    </ResolveNode>
   )
 }

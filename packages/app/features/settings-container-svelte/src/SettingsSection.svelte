@@ -6,6 +6,7 @@
   node props are snippets or plain text.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -24,18 +25,21 @@
         {#if typeof title === 'function'}{@render title?.()}{:else if title != null}{title}{/if}
       </h2>
       {#if description}
-        <p class={cm.textSize('sm')}>
+        <PresentWhileContent tag="p" class={cm.textSize('sm')}>
           {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-        </p>
+        </PresentWhileContent>
       {/if}
     </header>
     <div>
       {#if children}{@render children?.()}{/if}
     </div>
     {#if footer}
-      <footer class={cm.flex({ justify: 'end', align: 'center', gap: 'sm' })}>
+      <PresentWhileContent
+        tag="footer"
+        class={cm.flex({ justify: 'end', align: 'center', gap: 'sm' })}
+      >
         {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
-      </footer>
+      </PresentWhileContent>
     {/if}
   </div>
 </Card>

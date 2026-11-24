@@ -13,7 +13,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { TimeSlot } from './types.js'
 
@@ -78,13 +78,17 @@ export const TimeSlotPicker = defineComponent({
 
     return (): VNode => {
       const title = slotOrProp(slots.title, props.title)
+      const titleNodes = toChildArray(title)
+      // React reads the RESOLVED title: an emptied one is no string, so the
+      // translated default names the group.
+      const ariaTitle = titleNodes.length === 1 ? titleNodes[0] : undefined
       const ariaLabel =
-        typeof props.title === 'string'
-          ? props.title
+        typeof ariaTitle === 'string'
+          ? ariaTitle
           : t('timeSlot.aria', {}, { defaultValue: 'Time slots' })
 
       return h('div', { class: cm.cn(cm.stack(2), props.className) }, [
-        title
+        titleNodes.length > 0
           ? h('h3', { class: cm.cn(cm.textSize('sm'), cm.fontWeight('semibold')) }, [title])
           : null,
         h(

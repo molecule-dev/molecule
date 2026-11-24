@@ -10,7 +10,7 @@
 
 import { type Component, createUniqueId } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ForumThreadRowProps } from './types.js'
@@ -89,17 +89,25 @@ export const ForumThreadRow: Component<ForumThreadRowProps> = (props) => {
           style={{ background: 'transparent', border: 'medium', padding: '0px' }}
         />
       )}
-      {props.voteControls ? (
-        <div class={cm.cn(cm.shrink0, props.onClick ? cm.position('relative') : undefined)}>
-          {props.voteControls}
-        </div>
-      ) : null}
-      {props.voteScore !== undefined && !props.voteControls ? (
-        <div class={cm.cn(cm.shrink0, cm.textCenter, cm.stack(0))}>
-          <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{props.voteScore}</span>
-          <span class={cm.textSize('xs')}>{votesLabel()}</span>
-        </div>
-      ) : null}
+      <ResolveNode node={props.voteControls}>
+        {(voteControls, hasVoteControls) => (
+          <>
+            {hasVoteControls() ? (
+              <div class={cm.cn(cm.shrink0, props.onClick ? cm.position('relative') : undefined)}>
+                {voteControls()}
+              </div>
+            ) : null}
+            {props.voteScore !== undefined && !hasVoteControls() ? (
+              <div class={cm.cn(cm.shrink0, cm.textCenter, cm.stack(0))}>
+                <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
+                  {props.voteScore}
+                </span>
+                <span class={cm.textSize('xs')}>{votesLabel()}</span>
+              </div>
+            ) : null}
+          </>
+        )}
+      </ResolveNode>
       <div class={cm.cn(cm.flex1, cm.stack(1))}>
         <header class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
           {props.pinned ? (
@@ -119,17 +127,23 @@ export const ForumThreadRow: Component<ForumThreadRowProps> = (props) => {
             {props.title}
           </h3>
         </header>
-        {props.excerpt ? <p class={cm.textSize('sm')}>{props.excerpt}</p> : null}
+        <PresentWhileNode node={props.excerpt}>
+          {(excerpt) => <p class={cm.textSize('sm')}>{excerpt()}</p>}
+        </PresentWhileNode>
         <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-          {props.author ? (
-            <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{props.author}</span>
-          ) : null}
-          {props.createdAt ? (
-            <span class={cm.textSize('xs')}>
-              {'· '}
-              {props.createdAt}
-            </span>
-          ) : null}
+          <PresentWhileNode node={props.author}>
+            {(author) => (
+              <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{author()}</span>
+            )}
+          </PresentWhileNode>
+          <PresentWhileNode node={props.createdAt}>
+            {(createdAt) => (
+              <span class={cm.textSize('xs')}>
+                {'· '}
+                {createdAt()}
+              </span>
+            )}
+          </PresentWhileNode>
           {repliesText() !== undefined ? (
             <span class={cm.textSize('xs')}>{`· ${repliesText()}`}</span>
           ) : null}
@@ -137,16 +151,18 @@ export const ForumThreadRow: Component<ForumThreadRowProps> = (props) => {
             <span class={cm.textSize('xs')}>{`· ${viewsText()}`}</span>
           ) : null}
         </div>
-        {props.tags ? (
-          <div
-            class={cm.cn(
-              cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
-              props.onClick ? cm.position('relative') : undefined,
-            )}
-          >
-            {props.tags}
-          </div>
-        ) : null}
+        <PresentWhileNode node={props.tags}>
+          {(tags) => (
+            <div
+              class={cm.cn(
+                cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+                props.onClick ? cm.position('relative') : undefined,
+              )}
+            >
+              {tags()}
+            </div>
+          )}
+        </PresentWhileNode>
       </div>
     </article>
   )

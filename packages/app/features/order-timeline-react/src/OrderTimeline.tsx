@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** A single step in an order or shipment progress timeline. */
@@ -38,10 +39,11 @@ export interface OrderTimelineProps {
  */
 export function OrderTimeline({
   milestones,
-  eta,
+  eta: etaProp,
   orientation = 'horizontal',
   className,
 }: OrderTimelineProps): JSX.Element {
+  const eta = slot(etaProp)
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(3), className)}>

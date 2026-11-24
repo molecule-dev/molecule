@@ -8,10 +8,15 @@
  * @module
  */
 
-import type { Component, JSX } from 'solid-js'
-import { createUniqueId } from 'solid-js'
+import {
+  type Accessor,
+  type Component,
+  createUniqueId,
+  type JSX,
+  type ResolvedChildren,
+} from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-solid'
 
@@ -30,12 +35,6 @@ export const InboxRow: Component<InboxRowProps> = (props) => {
   const { t } = useTranslation()
   /** Base of the two ids that name the open button (Solid's `createUniqueId`). */
   const nameId = createUniqueId()
-
-  /** React's `typeof sender === 'string'` avatar name, translated otherwise. */
-  const senderName = (): string =>
-    typeof props.sender === 'string'
-      ? props.sender
-      : t('inboxRow.sender', undefined, { defaultValue: 'Sender' })
 
   /** The star button's fixed inline style (React's object, in CSS terms). */
   const starStyle = (): Record<string, string> => ({
@@ -128,33 +127,40 @@ export const InboxRow: Component<InboxRowProps> = (props) => {
   /**
    * The row's label text: sender + labels, subject + preview. The sender and
    * the subject carry the two ids that name the open button.
+   *
+   * @param sender - The sender node, resolved once by the caller.
+   * @returns The label rows.
    */
-  const labelRows = (): JSX.Element => (
+  const labelRows = (sender: Accessor<ResolvedChildren>): JSX.Element => (
     <>
       <div class={cm.flex({ align: 'baseline', gap: 'sm' })}>
         <span id={props.onClick ? `${nameId}-sender` : undefined} class={cm.textSize('sm')}>
-          {props.sender}
+          {sender()}
         </span>
-        {props.labels ? (
-          <span
-            class={cm.cn(
-              cm.flex({ align: 'center', gap: 'xs' }),
-              props.onClick ? cm.position('relative') : undefined,
-            )}
-          >
-            {props.labels}
-          </span>
-        ) : undefined}
+        <PresentWhileNode node={props.labels}>
+          {(labels) => (
+            <span
+              class={cm.cn(
+                cm.flex({ align: 'center', gap: 'xs' }),
+                props.onClick ? cm.position('relative') : undefined,
+              )}
+            >
+              {labels()}
+            </span>
+          )}
+        </PresentWhileNode>
       </div>
       <div style={{ overflow: 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' }}>
         <span id={props.onClick ? `${nameId}-subject` : undefined} class={cm.textSize('sm')}>
           {props.subject}
         </span>
-        {props.preview ? (
-          <span class={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))} style={{ opacity: '0.6' }}>
-            — {props.preview}
-          </span>
-        ) : undefined}
+        <PresentWhileNode node={props.preview}>
+          {(preview) => (
+            <span class={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))} style={{ opacity: '0.6' }}>
+              — {preview()}
+            </span>
+          )}
+        </PresentWhileNode>
       </div>
     </>
   )
@@ -171,21 +177,44 @@ export const InboxRow: Component<InboxRowProps> = (props) => {
       style={props.unread ? { 'font-weight': '600' } : undefined}
     >
       {props.onClick ? openButton() : undefined}
-      {props.selectionSlot ? (
-        // The selection slot: inside a positioned wrapper while the open
-        // button exists (the wrapper paints above it, so a click lands on the
-        // slot and never reaches the open button), bare otherwise.
-        props.onClick ? (
-          <span class={cm.cn(cm.position('relative'))}>{props.selectionSlot}</span>
-        ) : (
-          props.selectionSlot
-        )
-      ) : undefined}
+      {/* The selection slot: inside a positioned wrapper while the open button exists (the
+          wrapper paints above it, so a click lands on the slot and never reaches the open
+          button), bare otherwise. Read inside JSX, so the wrapper follows `onClick` and the slot
+          follows what it renders. */}
+      <PresentWhileNode node={props.selectionSlot}>
+        {(selection) => (
+          <>
+            {props.onClick ? (
+              <span class={cm.cn(cm.position('relative'))}>{selection()}</span>
+            ) : (
+              selection()
+            )}
+          </>
+        )}
+      </PresentWhileNode>
       {props.onToggleStar !== undefined ? starControl() : undefined}
-      <Avatar src={props.senderAvatarSrc} alt={senderName()} name={senderName()} size="sm" />
-      <div class={cm.cn(cm.flex1, cm.stack(0))} style={{ 'min-width': '0px' }}>
-        {labelRows()}
-      </div>
+      {/* React's `typeof sender === 'string'` avatar name and the rendered sender share one read. */}
+      <ResolveNode node={props.sender}>
+        {(sender) => {
+          const senderName = (): string =>
+            typeof sender() === 'string'
+              ? (sender() as string)
+              : t('inboxRow.sender', undefined, { defaultValue: 'Sender' })
+          return (
+            <>
+              <Avatar
+                src={props.senderAvatarSrc}
+                alt={senderName()}
+                name={senderName()}
+                size="sm"
+              />
+              <div class={cm.cn(cm.flex1, cm.stack(0))} style={{ 'min-width': '0px' }}>
+                {labelRows(sender)}
+              </div>
+            </>
+          )
+        }}
+      </ResolveNode>
       {props.hasAttachment ? (
         <span
           aria-label={t('inboxRow.hasAttachment', undefined, { defaultValue: 'Has attachment' })}
@@ -196,9 +225,9 @@ export const InboxRow: Component<InboxRowProps> = (props) => {
       {props.unread ? (
         <span aria-hidden="true" class={cm.bgTone('info')} style={dotStyle()} />
       ) : undefined}
-      {props.timestamp ? (
-        <span class={cm.cn(cm.textSize('xs'), cm.shrink0)}>{props.timestamp}</span>
-      ) : undefined}
+      <PresentWhileNode node={props.timestamp}>
+        {(timestamp) => <span class={cm.cn(cm.textSize('xs'), cm.shrink0)}>{timestamp()}</span>}
+      </PresentWhileNode>
     </div>
   )
 }

@@ -18,7 +18,7 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { BreadcrumbItem } from './types.js'
 
@@ -62,9 +62,12 @@ export const Breadcrumb = defineComponent({
      * @returns The separator children of one gap.
      */
     const separatorOnce = (): VNodeChild[] => {
-      if (slots.separator) return slots.separator()
+      const fromSlot = slots.separator ? slots.separator() : undefined
+      // A separator that renders nothing is absent (React's ): use the
+      // default one instead of an empty gap.
+      if (toChildArray(fromSlot).length > 0) return fromSlot ?? []
       const given = props.separator as VNodeChild | undefined
-      if (given == null) return [h('span', { 'aria-hidden': 'true' }, '/')]
+      if (toChildArray(given).length === 0) return [h('span', { 'aria-hidden': 'true' }, '/')]
       return [isVNode(given) ? cloneVNode(given) : given]
     }
 

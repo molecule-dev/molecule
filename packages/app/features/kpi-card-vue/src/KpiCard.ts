@@ -6,10 +6,11 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, toRaw, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { KpiCardAccentSide } from './types.js'
 
@@ -21,23 +22,10 @@ import type { KpiCardAccentSide } from './types.js'
  * @param prop - The prop value, when the caller passed the prop.
  * @returns The children to render.
  */
-const slotOrProp = (slot: (() => VNodeChild[]) | undefined, prop: VNodeChild): VNodeChild[] => {
-  if (slot) return slot()
-  if (prop == null || prop === false) return []
-  // A node passed through reactive state reads as a proxy; Vue writes `el`
-  // onto every VNode it mounts, which would re-trigger the reading render.
-  const value = toRaw(prop)
-  return Array.isArray(value) ? value : [value]
-}
-
-/**
- * Whether a node-valued prop is truthy, as React's `trend || subtitle` test is:
- * `undefined`, `null`, `false` and the empty string do not render a row.
- *
- * @param prop - The prop value.
- * @returns True when the prop renders something.
- */
-const isPresent = (prop: VNodeChild): boolean => prop != null && prop !== false && prop !== ''
+const slotOrProp = (slot: (() => VNodeChild[]) | undefined, prop: VNodeChild): VNodeChild[] =>
+  // An empty list renders nothing, as React's slot() treats it; toChildArray
+  // also unwraps the reactive proxy a node passed through state reads as.
+  toChildArray(slot ? slot() : prop)
 
 /**
  * Single KPI / metric display card.
@@ -82,17 +70,6 @@ export const KpiCard = defineComponent({
   setup(props, { slots }) {
     const cm = getClassMap()
 
-    /**
-     * Whether the trend/subtitle row renders at all, as React's `trend || subtitle` does.
-     *
-     * @returns True when either node is supplied.
-     */
-    const hasTrendRow = (): boolean =>
-      slots.trend !== undefined ||
-      slots.subtitle !== undefined ||
-      isPresent(props.trend) ||
-      isPresent(props.subtitle)
-
     return (): VNode => {
       const accent = props.accentColor ?? cm.kpiCardAccentColor
       const accentClass =
@@ -106,6 +83,7 @@ export const KpiCard = defineComponent({
         ? cm.cn(cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.kpiCardTitleUppercase))
         : cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))
       const subtitleChildren = slotOrProp(slots.subtitle, props.subtitle)
+      const trendChildren = slotOrProp(slots.trend, props.trend)
 
       return h(
         Card,
@@ -133,9 +111,10 @@ export const KpiCard = defineComponent({
                 },
                 slotOrProp(slots.value, props.value),
               ),
-              hasTrendRow()
+              // React's `trend || subtitle`: an empty list is absent.
+              trendChildren.length > 0 || subtitleChildren.length > 0
                 ? h('div', { class: cm.flex({ align: 'center', gap: 'sm' }) }, [
-                    ...slotOrProp(slots.trend, props.trend),
+                    ...trendChildren,
                     ...(subtitleChildren.length > 0
                       ? [h('span', { class: cm.textSize('sm') }, subtitleChildren)]
                       : []),

@@ -8,7 +8,7 @@
   `icon`.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import AuthBrandHeaderChip from './AuthBrandHeaderChip.svelte'
@@ -47,13 +47,14 @@
      screens; a second `<header>` here reads as a duplicated app bar. This block
      is brand intro content, not a banner. -->
 <div class={wrapperClass}>
-  {#if children}
-    {@render children?.()}
-  {:else}
-    {#if icon}
-      <AuthBrandHeaderChip {icon} {chipGradient} {chipShape} />
-    {/if}
-    <AuthBrandHeaderWordmark color={wordmarkColor}>{appNameText}</AuthBrandHeaderWordmark>
-    <AuthBrandHeaderTagline>{taglineText}</AuthBrandHeaderTagline>
-  {/if}
+  <ContentOrElse>
+    {#if children}{@render children?.()}{/if}
+    {#snippet otherwise()}
+      {#if icon}
+        <AuthBrandHeaderChip {icon} {chipGradient} {chipShape} />
+      {/if}
+      <AuthBrandHeaderWordmark color={wordmarkColor}>{appNameText}</AuthBrandHeaderWordmark>
+      <AuthBrandHeaderTagline>{taglineText}</AuthBrandHeaderTagline>
+    {/snippet}
+  </ContentOrElse>
 </div>

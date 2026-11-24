@@ -6,10 +6,9 @@
 
 import { Component } from '@angular/core'
 
+import { rendersNode } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { renders } from './utilities.js'
 
 /**
  * NodeEditorSection component.
@@ -72,7 +71,7 @@ export class NodeEditorSection {
    * @returns True when the label input renders as text.
    */
   get hasLabel(): boolean {
-    return renders(this.label)
+    return rendersNode(this.label)
   }
 
   /**
@@ -80,7 +79,7 @@ export class NodeEditorSection {
    * @returns True when the trailing input renders as text.
    */
   get hasTrailing(): boolean {
-    return renders(this.trailing)
+    return rendersNode(this.trailing)
   }
 
   /**

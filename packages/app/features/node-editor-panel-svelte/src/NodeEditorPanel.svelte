@@ -6,7 +6,7 @@
   same ClassMap tokens, same DOM for the same input.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { NodeEditorPanelProps } from './types.js'
@@ -53,8 +53,8 @@
     {#if children}{@render children?.()}{/if}
   </div>
   {#if renders(footer)}
-    <div class={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>
+    <PresentWhileContent class={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>
       {#if typeof footer === 'function'}{@render footer?.()}{:else}{footer}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </aside>

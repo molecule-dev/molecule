@@ -10,7 +10,7 @@
 
 import { type Component, For, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button } from '@molecule/app-ui-solid'
 
@@ -69,9 +69,15 @@ export const NotificationCenter: Component<NotificationCenterProps> = (props) =>
       <header
         class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'sm' }), cm.sp('p', 3))}
       >
-        <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-          {props.title ?? t('notifications.title', {}, { defaultValue: 'Notifications' })}
-        </h3>
+        <ResolveNode node={props.title}>
+          {(title, hasTitle) => (
+            <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+              {hasTitle()
+                ? title()
+                : t('notifications.title', {}, { defaultValue: 'Notifications' })}
+            </h3>
+          )}
+        </ResolveNode>
         <Show when={props.onMarkAllRead && hasItems()}>
           <Button variant="ghost" size="sm" onClick={props.onMarkAllRead}>
             {t('notifications.markAllRead', {}, { defaultValue: 'Mark all as read' })}
@@ -106,11 +112,20 @@ export const NotificationCenter: Component<NotificationCenterProps> = (props) =>
       <Show
         when={hasItems()}
         fallback={
-          props.emptyState ?? (
-            <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>
-              {t('notifications.empty', {}, { defaultValue: 'No notifications' })}
-            </div>
-          )
+          <ResolveNode node={props.emptyState}>
+            {(empty, hasEmpty) => (
+              <Show
+                when={hasEmpty()}
+                fallback={
+                  <div class={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>
+                    {t('notifications.empty', {}, { defaultValue: 'No notifications' })}
+                  </div>
+                }
+              >
+                {empty()}
+              </Show>
+            )}
+          </ResolveNode>
         }
       >
         <ul class={cm.stack(0 as const)}>

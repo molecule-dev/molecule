@@ -11,6 +11,7 @@
 
 import { type Component, createSignal, For, type JSX, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
 import type { LogEntry, LogLevel, LogViewerProps } from './types.js'
@@ -170,15 +171,21 @@ export const LogViewer: Component<LogViewerProps> = (props) => {
   }
 
   return (
-    <Show
-      when={props.entries.length === 0 ? props.emptyState : undefined}
-      fallback={
-        <div class={cm.cn(cm.stack(1), props.className)} role="log">
-          <For each={keyedRows()}>{(record) => row(record)}</For>
-        </div>
-      }
-    >
-      {(empty) => empty()}
-    </Show>
+    // React renders the empty state only when there are no entries: reading it inside that
+    // condition means its components are created (and disposed) as the list empties and refills.
+    <ResolveNode node={props.entries.length === 0 ? props.emptyState : undefined}>
+      {(emptyState, hasEmptyState) => (
+        <Show
+          when={hasEmptyState()}
+          fallback={
+            <div class={cm.cn(cm.stack(1), props.className)} role="log">
+              <For each={keyedRows()}>{(record) => row(record)}</For>
+            </div>
+          }
+        >
+          {emptyState()}
+        </Show>
+      )}
+    </ResolveNode>
   )
 }

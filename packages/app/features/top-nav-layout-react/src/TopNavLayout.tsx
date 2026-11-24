@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { RoutedView, useLocation, useTranslation } from '@molecule/app-react'
 import { Link } from '@molecule/app-react/link'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { navItemActive } from './nav-item-active.js'
@@ -59,8 +60,9 @@ export function TopNavLayout({
   navAriaLabel,
   className,
   dataMolId,
-  children,
+  children: childrenProp,
 }: TopNavLayoutProps): JSX.Element {
+  const children = slot(childrenProp)
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const cm = getClassMap()

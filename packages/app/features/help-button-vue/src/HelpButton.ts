@@ -10,7 +10,7 @@
 import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { HelpButtonProps } from './types.js'
 
@@ -91,6 +91,9 @@ export const HelpButton = defineComponent({
     return (): VNode => {
       const dim = SIZE_MAP[props.size]
       const ariaLabel = props.label ?? t('helpButton.label', {}, { defaultValue: 'Help' })
+      // React's `slot(iconProp) ?? "?"`: an empty icon list renders nothing, so
+      // the default "?" shows instead.
+      const iconNodes = toChildArray(slotOrProp(slots.icon, props.icon))
       const content = h(
         'span',
         {
@@ -102,8 +105,8 @@ export const HelpButton = defineComponent({
           style: 'width: 100%; height: 100%',
         },
         [
-          ...(slots.icon || props.icon != null
-            ? slotOrProp(slots.icon, props.icon)
+          ...(iconNodes.length > 0
+            ? iconNodes
             : [
                 h(
                   'span',

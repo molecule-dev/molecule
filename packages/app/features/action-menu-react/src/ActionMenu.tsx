@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -60,11 +61,12 @@ export interface ActionMenuProps {
  */
 export function ActionMenu({
   items,
-  trigger,
+  trigger: triggerProp,
   align = 'right',
   triggerAriaLabel,
   className,
 }: ActionMenuProps): ReactElement {
+  const trigger = slot(triggerProp)
   const { t } = useTranslation()
   const cm = getClassMap()
   const [open, setOpen] = useState(false)

@@ -6,7 +6,7 @@
   controlled: it never mutates `completed`.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Checkbox } from '@molecule/app-ui-svelte'
 
@@ -49,9 +49,9 @@
 
 <div class={cm.cn(cm.stack(3), className)}>
   {#if title}
-    <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+    <PresentWhileContent tag="h3" class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
       {#if typeof title === 'string'}{title}{:else}{@render title?.()}{/if}
-    </h3>
+    </PresentWhileContent>
   {/if}
   {#if showProgress}
     <div class={cm.stack(1)}>

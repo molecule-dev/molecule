@@ -12,7 +12,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { HeroMetricTrendChip } from './HeroMetricTrendChip.js'
 import type { HeroMetricAccent, HeroMetricCardProps, HeroMetricSemanticAccent } from './types.js'
@@ -65,8 +65,8 @@ function resolveAccentBar(
  * @returns The children to render.
  */
 const slotOrProp = (slot: (() => VNodeChild[]) | undefined, prop: VNodeChild): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop != null ? toChildArray(prop) : []
 }
 
 /**
@@ -108,18 +108,22 @@ export const HeroMetricCard = defineComponent({
      * @returns The right-hand nodes (empty when neither is supplied).
      */
     const rightNodes = (): VNodeChild[] => {
-      if (slots.progressRing) return slots.progressRing()
-      if (props.progressRing != null) return props.progressRing ? [props.progressRing] : []
-      if (slots.icon) return slots.icon()
-      return props.icon ? [props.icon] : []
+      // React's `slot(progressRing) ?? icon`: an empty list is absent, so the
+      // other source (its prop or slot) still shows.
+      const ring = toChildArray(slots.progressRing ? slots.progressRing() : props.progressRing)
+      if (ring.length > 0) return ring
+      return toChildArray(slots.icon ? slots.icon() : props.icon)
     }
 
     return (): VNode => {
       const loading = Boolean(props.loading)
       const accentBar = props.accent ? resolveAccentBar(cm, props.accent) : undefined
       const loadingLabel = t('hero-metric-card.loading', {}, { defaultValue: 'Loading metric…' })
-      const hasUnit = slots.unit !== undefined || (props.unit !== undefined && props.unit !== null)
-      const hasSubtitle = slots.subtitle !== undefined || Boolean(props.subtitle)
+      // An empty unit/subtitle list is absent, as React's slot() treats it.
+      const unitNodes = toChildArray(slotOrProp(slots.unit, props.unit))
+      const subtitleNodes = toChildArray(slotOrProp(slots.subtitle, props.subtitle))
+      const hasUnit = unitNodes.length > 0
+      const hasSubtitle = subtitleNodes.length > 0
       const right = rightNodes()
 
       return h(
@@ -199,17 +203,13 @@ export const HeroMetricCard = defineComponent({
                                     cm.textMuted,
                                   ),
                                 },
-                                slotOrProp(slots.unit, props.unit),
+                                unitNodes,
                               )
                             : null,
                         ]),
                     !loading && props.trend ? h(HeroMetricTrendChip, { trend: props.trend }) : null,
                     !loading && hasSubtitle
-                      ? h(
-                          'span',
-                          { class: cm.cn(cm.textSize('sm'), cm.textMuted) },
-                          slotOrProp(slots.subtitle, props.subtitle),
-                        )
+                      ? h('span', { class: cm.cn(cm.textSize('sm'), cm.textMuted) }, subtitleNodes)
                       : null,
                   ]),
                   right.length > 0

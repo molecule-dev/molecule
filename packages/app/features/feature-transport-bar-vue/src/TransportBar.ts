@@ -8,7 +8,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { TransportBarProps } from './types.js'
 
@@ -101,24 +101,19 @@ export const TransportBar = defineComponent({
      * @returns The slot's value, its nodes and whether the wrapper renders.
      */
     const resolveSlot = (): ResolvedSlot => {
-      const named = slots.timeDisplay ? slots.timeDisplay() : undefined
-      if (named !== undefined) {
+      const named = slots.timeDisplay ? toChildArray(slots.timeDisplay()) : []
+      // An emptied slot or prop is absent (React's `slot()`): fall through to
+      // the prop, then to the children.
+      if (named.length > 0) {
         const value = named.length === 1 ? named[0] : named
-        return {
-          value,
-          nodes: named,
-          renders: named.length > 0 && Boolean(value),
-        }
+        return { value, nodes: named, renders: Boolean(value) }
       }
       const display = props.timeDisplay
-      if (display !== undefined && display !== null) {
-        return {
-          value: display,
-          nodes: display ? [display] : [],
-          renders: Boolean(display),
-        }
+      const displayNodes = toChildArray(display)
+      if (displayNodes.length > 0) {
+        return { value: display, nodes: displayNodes, renders: Boolean(display) }
       }
-      const children = slots.default ? slots.default() : []
+      const children = toChildArray(slots.default ? slots.default() : [])
       const value = children.length === 1 ? children[0] : children.length > 1 ? children : undefined
       return { value, nodes: value ? children : [], renders: Boolean(value) }
     }

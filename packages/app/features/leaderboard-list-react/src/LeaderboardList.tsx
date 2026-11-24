@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link LeaderboardList}. */
@@ -24,11 +25,12 @@ export interface LeaderboardListProps {
  */
 export function LeaderboardList({
   children,
-  title,
+  title: titleProp,
   actions,
   emptyState,
   className,
 }: LeaderboardListProps): JSX.Element {
+  const title = slot(titleProp)
   const cm = getClassMap()
   const childCount = Array.isArray(children) ? children.length : children ? 1 : 0
   return (

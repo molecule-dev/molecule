@@ -1,6 +1,7 @@
 import { type JSX, type ReactNode, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-react'
 
@@ -138,10 +139,12 @@ export interface LegalModalLinksProps extends UseLegalModalsOptions {
 export function LegalModalLinks({
   linkClassName,
   show = 'both',
-  privacyLabel,
-  termsLabel,
+  privacyLabel: privacyLabelProp,
+  termsLabel: termsLabelProp,
   ...opts
 }: LegalModalLinksProps): JSX.Element {
+  const privacyLabel = slot(privacyLabelProp)
+  const termsLabel = slot(termsLabelProp)
   const { t } = useTranslation()
   const { openPrivacy, openTerms, modals } = useLegalModals(opts)
   return (

@@ -1,6 +1,6 @@
-import { type Component, createUniqueId, type JSX } from 'solid-js'
+import { type Component, createUniqueId, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Card, Switch } from '@molecule/app-ui-solid'
 
@@ -65,20 +65,35 @@ export const ShareLinkCard: Component<ShareLinkCardProps> = (props) => {
   return (
     <Card data-mol-id={props.dataMolId} className={props.className}>
       <div class={cm.stack(3)}>
-        {(props.title || props.description) && (
-          <header class={cm.stack(1 as const)}>
-            {props.title && (
-              <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{props.title}</h3>
-            )}
-            {props.description && <p class={cm.textSize('sm')}>{props.description}</p>}
-          </header>
-        )}
+        <ResolveNode node={props.title}>
+          {(title, hasTitle) => (
+            <ResolveNode node={props.description}>
+              {(description, hasDescription) => (
+                <Show when={hasTitle() || hasDescription()}>
+                  <header class={cm.stack(1 as const)}>
+                    {hasTitle() ? (
+                      <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+                        {title()}
+                      </h3>
+                    ) : null}
+                    {hasDescription() ? <p class={cm.textSize('sm')}>{description()}</p> : null}
+                  </header>
+                </Show>
+              )}
+            </ResolveNode>
+          )}
+        </ResolveNode>
         <CopyLinkField value={props.url} />
-        {props.showQR && props.qr && (
-          <div class={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('py', 2))}>
-            {props.qr}
-          </div>
-        )}
+        {/* React's `showQR && qr && …`: the qr slot is read (and created) only while showQR. */}
+        <Show when={props.showQR}>
+          <PresentWhileNode node={props.qr}>
+            {(qr) => (
+              <div class={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('py', 2))}>
+                {qr()}
+              </div>
+            )}
+          </PresentWhileNode>
+        </Show>
         {props.passwordProtect && (
           <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
             <span id={hasPasswordLabel() ? labelId : undefined} class={cm.textSize('sm')}>

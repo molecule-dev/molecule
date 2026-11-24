@@ -16,7 +16,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-vue'
 
 import type { NodeEditorToggleProps } from './types.js'
-import { renders, slotOrProp } from './utilities.js'
+import { slotOrProp } from './utilities.js'
 
 /**
  * Toggle row — the Vue counterpart of
@@ -47,7 +47,8 @@ export const NodeEditorToggle = defineComponent({
     const subtitleId = useId()
 
     return (): VNode => {
-      const hasSubtitle = renders(slots.subtitle, props.subtitle)
+      const subtitleNodes = slotOrProp(slots.subtitle, props.subtitle)
+      const hasSubtitle = subtitleNodes.length > 0
       // React renders `aria-label` only for a given `ariaLabel`, else names the
       // switch by the title paragraph.
       const labelAttrs =
@@ -88,7 +89,7 @@ export const NodeEditorToggle = defineComponent({
                 ? h(
                     'p',
                     { id: subtitleId, class: cm.cn(cm.nodeEditorPanelToggleSubtitle) },
-                    slotOrProp(slots.subtitle, props.subtitle),
+                    subtitleNodes,
                   )
                 : null,
             ]),

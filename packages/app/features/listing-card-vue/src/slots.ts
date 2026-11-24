@@ -8,6 +8,8 @@
 
 import type { VNodeChild } from 'vue'
 
+import { toChildArray } from '@molecule/app-vue'
+
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
  * slot wins, and an absent pair contributes nothing.
@@ -20,19 +22,7 @@ export const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null && prop !== false ? [prop] : []
+  // An empty list renders nothing, as React's slot() treats it.
+  if (slot) return toChildArray(slot())
+  return prop != null && prop !== false ? toChildArray(prop) : []
 }
-
-/**
- * Whether React would render a node prop: `node && …` renders nothing for
- * `null`, `undefined`, `false` and the empty string, and everything else.
- *
- * @param slot - The slot render function, when the caller passed the slot.
- * @param prop - The prop value, when the caller passed the prop.
- * @returns True when the region renders.
- */
-export const renders = (
-  slot: (() => VNodeChild[]) | undefined,
-  prop: VNodeChild | null | undefined,
-): boolean => (slot ? true : prop != null && prop !== false && prop !== '')

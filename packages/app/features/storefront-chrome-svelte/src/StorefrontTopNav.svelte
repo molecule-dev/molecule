@@ -6,7 +6,9 @@
   names), same DOM for the same input; node props are snippets or plain text.
 -->
 <script lang="ts">
-  import { Link, useTranslation } from '@molecule/app-svelte'
+  import type { Attachment } from 'svelte/attachments'
+
+  import { contentNodes, Link, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { NavLinkSpec, StorefrontTopNavProps } from './types.js'
@@ -43,9 +45,24 @@
       t('storefrontChrome.nav.accountMenu', undefined, { defaultValue: 'Account menu' }),
   )
   /** The sign-out row's label (React's `signOutLabel` default through `t()`). */
-  const signOutLabelValue = $derived(
-    signOutLabel ?? t('storefrontChrome.nav.signOut', undefined, { defaultValue: 'Sign Out' }),
+  // React's `slot(signOutLabel) ?? default`: a label snippet that renders nothing is absent, so the
+  // default text shows. A snippet's `{#each}` over no rows changes the DOM without changing the prop,
+  // so presence follows the button's rendered content.
+  const signOutSnippet = $derived(typeof signOutLabel === 'function' ? signOutLabel : undefined)
+  const signOutText = $derived(typeof signOutLabel === 'string' ? signOutLabel : undefined)
+  const signOutDefault = $derived(
+    t('storefrontChrome.nav.signOut', undefined, { defaultValue: 'Sign Out' }),
   )
+  let signOutRenders = $state(false)
+  const trackSignOut: Attachment<HTMLElement> = (element) => {
+    const sync = (): void => {
+      signOutRenders = contentNodes(element).length > (signOutRenders ? 0 : 1)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  }
 
   let profileOpen = $state(false)
   let profileRef: HTMLDivElement | undefined = $state()
@@ -197,6 +214,7 @@
               <hr class={cm.cn(cm.sp('my', 1), cm.storefrontChromeTopNavMenuDivider)} />
               <button
                 type="button"
+                {@attach trackSignOut}
                 class={cm.cn(
                   cm.dropdownItem,
                   cm.w('full'),
@@ -208,7 +226,7 @@
                   profileOpen = false
                   onSignOut?.()
                 }}
-                >{#if typeof signOutLabelValue === 'function'}{@render signOutLabelValue?.()}{:else}{signOutLabelValue}{/if}</button
+                >{#if signOutSnippet}{@render signOutSnippet?.()}{/if}{#if signOutText !== undefined}{signOutText}{/if}{#if signOutText === undefined && (!signOutSnippet || !signOutRenders)}{signOutDefault}{/if}</button
               >
             {/if}
           </div>

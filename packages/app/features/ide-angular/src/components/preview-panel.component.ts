@@ -37,6 +37,7 @@ import {
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser'
 
 import {
+  heldElement,
   MolPlacement,
   placeContentBefore,
   setElementPresent,
@@ -539,10 +540,9 @@ class DefaultLoadingIndicator implements AfterViewInit, OnChanges, OnDestroy, On
               <div mol-preview-blank-notice [onReload]="view.handleUserRetry" [onOpenExternal]="openExternal"></div>
             } @else if (isBuilding || buildingHint != null) {
               <div mol-default-loading-indicator [hint]="buildingHint" [retryCount]="view.stuckRetryCount" [onManualRetry]="view.handleUserRetry"></div>
-            } @else if (view.everLoaded && restartingProjected()) {
-              <div #restartCapture><ng-content select="[slot=restartingIndicator]"></ng-content></div>
             } @else {
-              <ng-content select="[slot=loadingIndicator]"><div mol-default-loading-indicator [retryCount]="view.stuckRetryCount" [onManualRetry]="view.handleUserRetry"></div></ng-content>
+              <div #restartCapture><ng-content select="[slot=restartingIndicator]"></ng-content></div>
+              <div #loadingCapture><ng-content select="[slot=loadingIndicator]"><div mol-default-loading-indicator [retryCount]="view.stuckRetryCount" [onManualRetry]="view.handleUserRetry"></div></ng-content></div>
             }
           </div>
         </div>
@@ -646,9 +646,6 @@ export class PreviewPanel implements PreviewPanelProps, OnChanges, OnDestroy, On
   /** Bumped whenever the session renders, so the template re-reads {@link view}. */
   private readonly revision = signal(0)
 
-  /** Whether a `[slot=restartingIndicator]` projection landed (optimistic until a render proves otherwise). */
-  private readonly restartingProjected = signal(true)
-
   /** Stops the session's store notification. */
   private unsubscribe: (() => void) | undefined
 
@@ -738,20 +735,32 @@ export class PreviewPanel implements PreviewPanelProps, OnChanges, OnDestroy, On
 
   /** The restarting-indicator projection point (a capture the host element leaves behind). */
   @ViewChild('restartCapture') private restartCapture?: ElementRef<HTMLElement>
+  /** The loading-indicator projection point (a capture the host element leaves behind). */
+  @ViewChild('loadingCapture') private loadingCapture?: ElementRef<HTMLElement>
 
   /**
-   * Renders the restarting-indicator projection in the capture's own place and keeps the capture
-   * out of the DOM (React renders the projected node itself, with no wrapper), then falls back to
-   * the loading indicator when nothing was projected there — the slot is read wherever it renders.
+   * Renders both indicator projections in their captures' own place, keeps the captures out of the
+   * DOM (React renders the projected node itself, with no wrapper), and shows one of them: the
+   * restarting indicator once the preview has loaded and one was projected, else the loading
+   * indicator (React's `everLoaded ? restartingIndicator ?? loadingIndicator : loadingIndicator`).
+   * Both stay in the template, so the one that shows is decided from the slots before it renders:
+   * the loading indicator is not taken out of the page and put back while that is found out.
    */
   constructor() {
     usePlacement((hasContent) => {
-      const capture = this.restartCapture?.nativeElement
-      if (!capture) return
-      placeContentBefore(capture, capture)
-      setElementPresent(capture, false)
-      if (!this.restartingProjected()) return
-      if (!hasContent(capture)) this.restartingProjected.set(false)
+      const restart = this.restartCapture?.nativeElement
+      const loading = this.loadingCapture?.nativeElement
+      if (!restart || !loading) return
+      // A child this placement hid is listed by its placeholder; find it again through it.
+      const restartNodes = hasContent.nodes(restart).map((node) => heldElement(node) ?? node)
+      const loadingNodes = hasContent.nodes(loading).map((node) => heldElement(node) ?? node)
+      const showRestart = this.view.everLoaded && restartNodes.length > 0
+      for (const capture of [restart, loading]) {
+        placeContentBefore(capture, capture)
+        setElementPresent(capture, false)
+      }
+      for (const node of restartNodes) setElementPresent(node, showRestart)
+      for (const node of loadingNodes) setElementPresent(node, !showRestart)
     })
   }
 

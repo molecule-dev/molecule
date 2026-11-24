@@ -6,7 +6,7 @@
   `low <= high` always holds. The optional `label` is a snippet.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { PriceRangeSliderProps } from './types.js'
@@ -75,7 +75,9 @@
 
 <div class={cm.cn(cm.stack(2), className)}>
   {#if label}
-    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{@render label?.()}</span>
+    <PresentWhileContent tag="span" class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
+      >{@render label?.()}</PresentWhileContent
+    >
   {/if}
   <div class={cm.flex({ align: 'center', gap: 'sm' })}>
     <span class={cm.textSize('sm')}>{fmt(low)}</span>

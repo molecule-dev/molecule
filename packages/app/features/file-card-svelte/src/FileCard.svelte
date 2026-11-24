@@ -10,7 +10,7 @@
   stray whitespace text nodes render.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import FileIcon from './FileIcon.svelte'
@@ -239,12 +239,12 @@
         onclick={handleClick}
         class={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
         use:reactStyle={{ background: 'transparent', border: 'none', padding: 0 }}
-      ></button>{/if}{#if actions}<div
+      ></button>{/if}{#if actions}<PresentWhileContent
         class={cm.cn(cm.shrink0, cm.position('relative'))}
         data-mol-id="file-card-actions"
       >
         {@render actions?.()}
-      </div>{/if}
+      </PresentWhileContent>{/if}
   </div>{:else}<div
     role="group"
     aria-label={ariaLabel}
@@ -294,7 +294,7 @@
         onclick={handleClick}
         class={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
         use:reactStyle={{ background: 'transparent', border: 'none', padding: 0 }}
-      ></button>{/if}{#if actions}<div
+      ></button>{/if}{#if actions}<PresentWhileContent
         class={cm.cn(
           cm.flex({ align: 'center', justify: 'end', gap: 'sm' }),
           cm.position('relative'),
@@ -302,5 +302,5 @@
         data-mol-id="file-card-actions"
       >
         {@render actions?.()}
-      </div>{/if}
+      </PresentWhileContent>{/if}
   </div>{/if}

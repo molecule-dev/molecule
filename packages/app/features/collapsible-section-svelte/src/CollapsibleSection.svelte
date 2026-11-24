@@ -6,6 +6,7 @@
   the `children` snippet, and the heading level picks the rendered tag.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { CollapsibleSectionProps } from './types.js'
@@ -58,8 +59,8 @@
         ><span aria-hidden="true">{isOpen ? '▾' : '▸'}</span><span
           >{#if typeof title === 'function'}{@render title?.()}{:else if title !== undefined}{title}{/if}</span
         >{#if badge}{#if typeof badge === 'function'}{@render badge?.()}{:else}{badge}{/if}{/if}</button
-      >{#if actions}<span
-          >{#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}</span
+      >{#if actions}<PresentWhileContent tag="span"
+          >{#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}</PresentWhileContent
         >{/if}</span
     ></svelte:element
   >

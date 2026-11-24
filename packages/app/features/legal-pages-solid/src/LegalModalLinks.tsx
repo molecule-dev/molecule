@@ -7,7 +7,7 @@
 
 import { type Component, createSignal, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-solid'
 
@@ -106,17 +106,34 @@ export const LegalModalLinks: Component<LegalModalLinksProps> = (props) => {
   const { t } = useTranslation()
   const { openPrivacy, openTerms, modals } = useLegalModals(props)
   const show = (): 'both' | 'privacy' | 'terms' => props.show ?? 'both'
-
   return (
     <>
       <Show when={show() !== 'terms'}>
         <button type="button" class={props.linkClassName} onClick={openPrivacy}>
-          {props.privacyLabel ?? t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
+          <ResolveNode node={props.privacyLabel}>
+            {(privacyLabel, hasPrivacyLabel) => (
+              <Show
+                when={hasPrivacyLabel()}
+                fallback={t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
+              >
+                {privacyLabel()}
+              </Show>
+            )}
+          </ResolveNode>
         </button>
       </Show>
       <Show when={show() !== 'privacy'}>
         <button type="button" class={props.linkClassName} onClick={openTerms}>
-          {props.termsLabel ?? t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
+          <ResolveNode node={props.termsLabel}>
+            {(termsLabel, hasTermsLabel) => (
+              <Show
+                when={hasTermsLabel()}
+                fallback={t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
+              >
+                {termsLabel()}
+              </Show>
+            )}
+          </ResolveNode>
         </button>
       </Show>
       {modals}

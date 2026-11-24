@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props accepted by the {@link SectionDivider} component. */
@@ -19,10 +20,11 @@ export interface SectionDividerProps {
  * @param props - Component props (see {@link SectionDividerProps}).
  */
 export function SectionDivider({
-  children,
+  children: childrenProp,
   align = 'center',
   className,
 }: SectionDividerProps): JSX.Element {
+  const children = slot(childrenProp)
   const cm = getClassMap()
   return (
     <div

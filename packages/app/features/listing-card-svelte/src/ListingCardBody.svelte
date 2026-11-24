@@ -7,6 +7,7 @@
   or plain text.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { ListingCardBodyProps } from './types.js'
@@ -31,18 +32,18 @@
     {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
   </h3>
   {#if renders(subtitle)}
-    <p class={cm.textSize('sm')}>
+    <PresentWhileContent tag="p" class={cm.textSize('sm')}>
       {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
-    </p>
+    </PresentWhileContent>
   {/if}
   {#if renders(price)}
-    <p class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+    <PresentWhileContent tag="p" class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
       {#if typeof price === 'function'}{@render price?.()}{:else}{price}{/if}
-    </p>
+    </PresentWhileContent>
   {/if}
   {#if renders(meta)}
-    <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+    <PresentWhileContent class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
       {#if typeof meta === 'function'}{@render meta?.()}{:else}{meta}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </div>

@@ -6,7 +6,13 @@
 
 import { Component, ElementRef, signal, ViewChild } from '@angular/core'
 
-import { MolPlacement, usePlacement, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Select } from '@molecule/app-ui-angular'
@@ -37,7 +43,7 @@ import type { SortOption } from './types.js'
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<span #labelEl [class]="labelClasses()">{{ labelText() }}<ng-content select="[slot=label]" />{{ colon() }}</span><div #selectHost mol-select [options]="options ?? []" [value]="value" (valueChange)="handleValueChange($event)"></div>{{ syncAccessibleName() }}`,
+  template: `<span [class]="labelClasses()">{{ labelText() }}<span #labelSlot><ng-content select="[slot=label]" /></span>{{ colon() }}</span><div #selectHost mol-select [options]="options ?? []" [value]="value" (valueChange)="handleValueChange($event)"></div>{{ syncAccessibleName() }}`,
 })
 export class SortPicker {
   /** The currently selected option value. */
@@ -55,8 +61,8 @@ export class SortPicker {
   /** Extra classes. */
   className?: string
 
-  /** The label span (its projected nodes from the slot decide the text). */
-  @ViewChild('labelEl', { static: true }) private labelEl?: ElementRef<HTMLSpanElement>
+  /** The capture of the `[slot=label]` content, which renders in its place inside the label span. */
+  @ViewChild('labelSlot', { static: true }) private labelSlot?: ElementRef<HTMLSpanElement>
   /** The `Select` host, whose rest attributes belong on its native `<select>`. */
   @ViewChild('selectHost', { read: ElementRef }) private selectHost?: ElementRef<HTMLElement>
 
@@ -79,10 +85,10 @@ export class SortPicker {
    */
   constructor() {
     usePlacement((hasContent) => {
-      const el = this.labelEl?.nativeElement
-      this.labelProjected.set(
-        el ? hasContent.nodes(el).some((node) => node.nodeType === Node.ELEMENT_NODE) : false,
-      )
+      const slot = this.labelSlot?.nativeElement
+      this.labelProjected.set(hasContent(slot))
+      placeContentBefore(slot, slot)
+      setElementPresent(slot, false)
       this.syncAccessibleName()
     })
   }

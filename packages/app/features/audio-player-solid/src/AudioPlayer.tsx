@@ -11,7 +11,7 @@
 
 import { type Component, createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
 
@@ -41,6 +41,7 @@ function fmt(s: number): string {
 export const AudioPlayer: Component<AudioPlayerProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
+
   let audio: HTMLAudioElement | undefined
   // React's `useState(!!autoPlay)` / `useState(!!defaultMuted)`: captured once,
   // at mount — a later prop change does not reset them.
@@ -161,16 +162,26 @@ export const AudioPlayer: Component<AudioPlayerProps> = (props) => {
           label={props.captionsLabel ?? t('audio.captions', {}, { defaultValue: 'Captions' })}
         />
       </audio>
-      <Show when={props.title || props.subtitle}>
-        <header class={cm.stack(0)}>
-          <Show when={props.title}>
-            <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.title}</span>
-          </Show>
-          <Show when={props.subtitle}>
-            <span class={cm.textSize('xs')}>{props.subtitle}</span>
-          </Show>
-        </header>
-      </Show>
+      <ResolveNode node={props.title}>
+        {(title, hasTitle) => (
+          <ResolveNode node={props.subtitle}>
+            {(subtitle, hasSubtitle) => (
+              <Show when={hasTitle() || hasSubtitle()}>
+                <header class={cm.stack(0)}>
+                  <Show when={hasTitle()}>
+                    <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+                      {title()}
+                    </span>
+                  </Show>
+                  <Show when={hasSubtitle()}>
+                    <span class={cm.textSize('xs')}>{subtitle()}</span>
+                  </Show>
+                </header>
+              </Show>
+            )}
+          </ResolveNode>
+        )}
+      </ResolveNode>
       {props.visualizer}
       <div class={cm.flex({ align: 'center', gap: 'sm' })}>
         <Button

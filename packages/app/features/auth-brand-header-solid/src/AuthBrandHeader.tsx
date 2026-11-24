@@ -9,9 +9,9 @@
  * @module
  */
 
-import { children, type Component, Show } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type {
@@ -108,41 +108,40 @@ export const AuthBrandHeaderTagline: Component<AuthBrandHeaderTaglineProps> = (p
 export const AuthBrandHeader: Component<AuthBrandHeaderProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
-  // React's `children` value read once per render: Solid's `children` helper resolves whatever
-  // the caller passed (elements, text, a `<For>`, a conditional) to the flat list of rendered
-  // children and follows it when it changes, so the presence check and the render see one list.
-  // As React's `children ?? preset`, only an absent value selects the preset: an empty list
-  // (a `<For>` with no rows) renders nothing.
-  const resolved = children(() => props.children)
-  const hasChildren = (): boolean => resolved() != null
   return (
     // A `<div>`, not `<header>` — several hosts render their own top bar on
     // auth screens; a second `<header>` here reads as a duplicated app bar.
     // This block is brand intro content, not a banner.
     <div class={cm.cn(cm.flex({ direction: 'col', align: 'center', gap: 'sm' }), props.className)}>
-      <Show when={!hasChildren()} fallback={resolved()}>
-        {props.icon ? (
-          <AuthBrandHeaderChip
-            icon={props.icon}
-            chipGradient={props.chipGradient}
-            chipShape={props.chipShape}
-          />
-        ) : null}
-        <AuthBrandHeaderWordmark color={props.wordmarkColor}>
-          {t(
-            'authBrandHeader.appName',
-            { appName: props.appName ?? '' },
-            { defaultValue: '{{appName}}' },
-          )}
-        </AuthBrandHeaderWordmark>
-        <AuthBrandHeaderTagline>
-          {t(
-            'authBrandHeader.tagline',
-            { tagline: props.tagline ?? '' },
-            { defaultValue: '{{tagline}}' },
-          )}
-        </AuthBrandHeaderTagline>
-      </Show>
+      {/* As React's `children ?? preset`: only an absent value selects the preset; an empty
+          list (a `<For>` with no rows) renders nothing. */}
+      <ResolveNode node={props.children}>
+        {(resolved, hasChildren) => (
+          <Show when={!hasChildren()} fallback={resolved()}>
+            {props.icon ? (
+              <AuthBrandHeaderChip
+                icon={props.icon}
+                chipGradient={props.chipGradient}
+                chipShape={props.chipShape}
+              />
+            ) : null}
+            <AuthBrandHeaderWordmark color={props.wordmarkColor}>
+              {t(
+                'authBrandHeader.appName',
+                { appName: props.appName ?? '' },
+                { defaultValue: '{{appName}}' },
+              )}
+            </AuthBrandHeaderWordmark>
+            <AuthBrandHeaderTagline>
+              {t(
+                'authBrandHeader.tagline',
+                { tagline: props.tagline ?? '' },
+                { defaultValue: '{{tagline}}' },
+              )}
+            </AuthBrandHeaderTagline>
+          </Show>
+        )}
+      </ResolveNode>
     </div>
   )
 }

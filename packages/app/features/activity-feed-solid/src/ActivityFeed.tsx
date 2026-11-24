@@ -10,6 +10,7 @@
 
 import { type Component, For, type JSX, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { ActivityFeedItem } from './ActivityFeedItem.jsx'
@@ -54,19 +55,24 @@ export const ActivityFeed: Component<ActivityFeedProps> = (props) => {
   const itemFor = (id: string): ActivityFeedItemData =>
     props.items.find((item) => item.id === id) as ActivityFeedItemData
 
+  const list = (): JSX.Element => (
+    <div class={cm.cn(cm.stack(4), props.className)}>
+      <For each={keyedRows()}>
+        {(row): JSX.Element => <ActivityFeedItem item={itemFor(row.id)} />}
+      </For>
+      {props.footer}
+    </div>
+  )
+
   return (
-    <Show
-      when={props.items.length === 0 ? props.emptyState : undefined}
-      fallback={
-        <div class={cm.cn(cm.stack(4), props.className)}>
-          <For each={keyedRows()}>
-            {(row): JSX.Element => <ActivityFeedItem item={itemFor(row.id)} />}
-          </For>
-          {props.footer}
-        </div>
-      }
-    >
-      {(empty) => empty()}
+    <Show when={props.items.length === 0} fallback={list()}>
+      <ResolveNode node={props.emptyState}>
+        {(empty, hasEmpty) => (
+          <Show when={hasEmpty()} fallback={list()}>
+            {empty()}
+          </Show>
+        )}
+      </ResolveNode>
     </Show>
   )
 }

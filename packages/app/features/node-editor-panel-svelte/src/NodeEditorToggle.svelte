@@ -6,6 +6,7 @@
   from `@molecule/app-ui-svelte`.
 -->
 <script lang="ts">
+  import { ContentOrElse, PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Switch } from '@molecule/app-ui-svelte'
 
@@ -22,6 +23,11 @@
   const instanceId = $props.id()
   const titleId = `${instanceId}-title`
   const subtitleId = `${instanceId}-subtitle`
+
+  // React's `slot(subtitle)`: a subtitle snippet that renders nothing (an empty list) leaves no
+  // `<p>` and no `aria-describedby`, like an omitted one. A snippet's `{#each}` over no rows
+  // changes the DOM without changing the prop, so the `<p>` reports what its subtitle renders.
+  let subtitleRenders = $state<boolean>()
 </script>
 
 <div
@@ -45,9 +51,16 @@
         {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
       </p>
       {#if renders(subtitle)}
-        <p id={subtitleId} class={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>
-          {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
-        </p>
+        <PresentWhileContent
+          tag="p"
+          present={subtitleRenders}
+          id={subtitleId}
+          class={cm.cn(cm.nodeEditorPanelToggleSubtitle)}
+        >
+          <ContentOrElse bind:present={subtitleRenders}>
+            {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
+          </ContentOrElse>
+        </PresentWhileContent>
       {/if}
     </div>
   </div>
@@ -56,7 +69,7 @@
     {checked}
     aria-label={ariaLabel}
     aria-labelledby={ariaLabel === undefined ? titleId : undefined}
-    aria-describedby={renders(subtitle) ? subtitleId : undefined}
+    aria-describedby={renders(subtitle) && subtitleRenders ? subtitleId : undefined}
     data-mol-id="node-editor-toggle"
     onChange={(event) => onChange((event.target as HTMLInputElement).checked)}
   />

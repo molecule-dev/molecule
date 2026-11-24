@@ -10,6 +10,7 @@
 
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { PageHeaderProps } from './types.js'
@@ -38,16 +39,20 @@ export const PageHeader: Component<PageHeaderProps> = (props) => {
           {props.icon}
           <div class={cm.stack(1)}>
             <h1 class={titleClass()}>{props.title}</h1>
-            {props.subtitle ? <p class={cm.textSize('base')}>{props.subtitle}</p> : null}
+            <PresentWhileNode node={props.subtitle}>
+              {(subtitle) => <p class={cm.textSize('base')}>{subtitle()}</p>}
+            </PresentWhileNode>
           </div>
         </div>
-        {props.actions ? (
-          <div class={cm.flex({ align: 'center', gap: 'sm' })}>{props.actions}</div>
-        ) : null}
+        <PresentWhileNode node={props.actions}>
+          {(actions) => <div class={cm.flex({ align: 'center', gap: 'sm' })}>{actions()}</div>}
+        </PresentWhileNode>
       </div>
-      {props.meta ? (
-        <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{props.meta}</div>
-      ) : null}
+      <PresentWhileNode node={props.meta}>
+        {(meta) => (
+          <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{meta()}</div>
+        )}
+      </PresentWhileNode>
     </header>
   )
 }

@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link ListingCardMedia}. */
@@ -25,11 +26,13 @@ export interface ListingCardMediaProps {
 export function ListingCardMedia({
   src,
   alt,
-  children,
+  children: childrenProp,
   aspect = '4/3',
-  overlay,
+  overlay: overlayProp,
   className,
 }: ListingCardMediaProps): JSX.Element {
+  const children = slot(childrenProp)
+  const overlay = slot(overlayProp)
   const cm = getClassMap()
   return (
     <div

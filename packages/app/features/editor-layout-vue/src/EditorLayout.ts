@@ -10,6 +10,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { toChildArray } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -23,8 +24,9 @@ const slotOrProp = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : []
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  // A slot or prop that renders nothing is absent (React's `slot()`).
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**
@@ -59,7 +61,7 @@ export const EditorLayout = defineComponent({
 
     return (): VNode => {
       const panel = slotOrProp(slots.sidePanel, props.sidePanel)
-      const showPanel = (slots.sidePanel != null || props.sidePanel != null) && props.sidePanelOpen
+      const showPanel = panel.length > 0 && props.sidePanelOpen
       const position = props.sidePanelPosition
       return h(
         'div',
@@ -69,10 +71,17 @@ export const EditorLayout = defineComponent({
         },
         [
           h('div', { style: barStyle }, slotOrProp(slots.topBar, props.topBar)),
+          // React renders the panel in one of two places, so moving it to the other side mounts
+          // it again there. Vue's diff would move an unkeyed <aside> and keep its components, so
+          // each place has its own key.
           h('div', { class: cm.cn(cm.flex({ align: 'stretch' }), cm.flex1) }, [
-            showPanel && position === 'left' ? h('aside', { class: cm.shrink0 }, panel) : null,
+            showPanel && position === 'left'
+              ? h('aside', { key: 'left', class: cm.shrink0 }, panel)
+              : null,
             h('main', { class: cm.flex1 }, slotOrProp(slots.canvas, props.canvas)),
-            showPanel && position === 'right' ? h('aside', { class: cm.shrink0 }, panel) : null,
+            showPanel && position === 'right'
+              ? h('aside', { key: 'right', class: cm.shrink0 }, panel)
+              : null,
           ]),
         ],
       )

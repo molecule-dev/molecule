@@ -11,7 +11,7 @@
 
 import { type Component, For, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Checkbox } from '@molecule/app-ui-solid'
 
@@ -69,9 +69,11 @@ export const Checklist: Component<ChecklistProps> = (props) => {
 
   return (
     <div class={cm.cn(cm.stack(3), props.className)}>
-      <Show when={props.title}>
-        <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{props.title}</h3>
-      </Show>
+      <PresentWhileNode node={props.title}>
+        {(title) => (
+          <h3 class={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title()}</h3>
+        )}
+      </PresentWhileNode>
       <Show when={props.showProgress ?? true}>
         <div class={cm.stack(1)}>
           <div class={cm.flex({ justify: 'between', align: 'center' })}>

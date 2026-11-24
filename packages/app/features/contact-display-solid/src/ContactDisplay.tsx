@@ -8,6 +8,7 @@
 
 import { type Component, createUniqueId } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-solid'
 
@@ -114,11 +115,14 @@ export const ContactDisplay: Component<ContactDisplayProps> = (props) => {
           </div>
         )}
       </div>
-      {props.onClick && props.actions ? (
-        <div class={cm.position('relative')}>{props.actions}</div>
-      ) : (
-        props.actions
-      )}
+      {/* React's `onClick && actions ? <div>{actions}</div> : actions`: resolved once, wrapped only
+          while the open button covers the row. Read inside JSX, so the wrapper follows `onClick`
+          and the actions follow what they render. */}
+      <PresentWhileNode node={props.actions}>
+        {(actions) => (
+          <>{props.onClick ? <div class={cm.position('relative')}>{actions()}</div> : actions()}</>
+        )}
+      </PresentWhileNode>
     </div>
   )
 }

@@ -13,12 +13,10 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { MolPlacement, setElementPresent, usePlacement } from '@molecule/app-angular'
+import { MolPlacement, rendersNode, setElementPresent, usePlacement } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-angular'
-
-import { renders } from './utilities.js'
 
 /**
  * Next value of the module-wide toggle id counter.
@@ -122,7 +120,8 @@ export class NodeEditorToggle implements AfterViewChecked {
   constructor() {
     usePlacement((hasContent) => {
       const subtitleEl = this.subtitleEl?.nativeElement
-      const showSubtitle = renders(this.subtitle) || (subtitleEl ? hasContent(subtitleEl) : false)
+      const showSubtitle =
+        rendersNode(this.subtitle) || (subtitleEl ? hasContent(subtitleEl) : false)
       this.subtitleShown.set(showSubtitle)
       setElementPresent(subtitleEl, showSubtitle)
     })
@@ -141,7 +140,7 @@ export class NodeEditorToggle implements AfterViewChecked {
    * @returns True when the title input renders as text.
    */
   get hasTitle(): boolean {
-    return renders(this.title)
+    return rendersNode(this.title)
   }
 
   /**
@@ -149,7 +148,7 @@ export class NodeEditorToggle implements AfterViewChecked {
    * @returns True when the subtitle input renders as text.
    */
   rendersSubtitle(): boolean {
-    return renders(this.subtitle)
+    return rendersNode(this.subtitle)
   }
 
   /**
@@ -158,7 +157,7 @@ export class NodeEditorToggle implements AfterViewChecked {
    * @returns True when the subtitle shows.
    */
   showSubtitle(): boolean {
-    return renders(this.subtitle) || this.subtitleShown()
+    return rendersNode(this.subtitle) || this.subtitleShown()
   }
 
   /**

@@ -10,6 +10,7 @@
 
 import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -39,18 +40,22 @@ export const ComparisonRow: Component<ComparisonRowProps> = (props) => {
     >
       <div class={cm.stack(0)}>
         <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{props.label}</span>
-        {props.periodLabel && <span class={cm.textSize('xs')}>{props.periodLabel}</span>}
+        <PresentWhileNode node={props.periodLabel}>
+          {(periodLabel) => <span class={cm.textSize('xs')}>{periodLabel()}</span>}
+        </PresentWhileNode>
       </div>
       <div class={cm.flex({ align: 'baseline', gap: 'sm' })}>
         <span class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{props.current}</span>
-        {props.previous !== undefined && (
-          <span
-            class={cm.cn(cm.textSize('xs'))}
-            style={{ 'text-decoration': 'line-through', opacity: 0.6 }}
-          >
-            {props.previous}
-          </span>
-        )}
+        <PresentWhileNode node={props.previous}>
+          {(previous) => (
+            <span
+              class={cm.cn(cm.textSize('xs'))}
+              style={{ 'text-decoration': 'line-through', opacity: 0.6 }}
+            >
+              {previous()}
+            </span>
+          )}
+        </PresentWhileNode>
         {props.deltaPct !== undefined && (
           <span
             class={cm.cn(

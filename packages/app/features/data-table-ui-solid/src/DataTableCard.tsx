@@ -10,6 +10,7 @@
 
 import { For, type JSX, Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { DataTableCardProps } from './types.js'
@@ -78,22 +79,32 @@ export function DataTableCard<T>(props: DataTableCardProps<T>): JSX.Element {
       data-mol-id={props.dataMolId}
       class={cm.cn(cm.stack(4), cm.dataTableCardShell, props.className)}
     >
-      <Show when={props.title !== undefined || props.titleAction !== undefined}>
-        <div
-          class={cm.cn(
-            cm.flex({ justify: 'between', align: 'center' }),
-            cm.sp('px', 8),
-            cm.sp('pt', 8),
-          )}
-        >
-          <Show when={props.title !== undefined}>
-            <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}>
-              {props.title}
-            </h3>
-          </Show>
-          {props.titleAction}
-        </div>
-      </Show>
+      <ResolveNode node={props.title}>
+        {(title, hasTitle) => (
+          <ResolveNode node={props.titleAction}>
+            {(titleAction, hasTitleAction) => (
+              <Show when={hasTitle() || hasTitleAction()}>
+                <div
+                  class={cm.cn(
+                    cm.flex({ justify: 'between', align: 'center' }),
+                    cm.sp('px', 8),
+                    cm.sp('pt', 8),
+                  )}
+                >
+                  <Show when={hasTitle()}>
+                    <h3
+                      class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}
+                    >
+                      {title()}
+                    </h3>
+                  </Show>
+                  <Show when={hasTitleAction()}>{titleAction()}</Show>
+                </div>
+              </Show>
+            )}
+          </ResolveNode>
+        )}
+      </ResolveNode>
       <div class={cm.dataTableCardScroller}>
         <table class={cm.cn(cm.w('full'), cm.dataTableCardTable)}>
           <thead>

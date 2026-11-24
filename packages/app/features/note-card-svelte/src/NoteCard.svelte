@@ -10,7 +10,7 @@
   button covers the whole card, exactly as React renders.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from './style.js'
@@ -79,9 +79,13 @@
 
 {#snippet content()}
   {#if title}
-    <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))} id={onClick ? nameId : undefined}>
+    <PresentWhileContent
+      tag="h3"
+      class={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}
+      id={onClick ? nameId : undefined}
+    >
       {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
-    </h3>
+    </PresentWhileContent>
   {/if}
   <div
     class={cm.textSize('sm')}
@@ -119,18 +123,15 @@
   {/if}
   {@render content()}
   {#if modifiedAt || actions}
-    <footer
+    <PresentWhileContent
+      tag="footer"
       class={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
         onClick ? cm.position('relative') : undefined,
       )}
+      >{#if modifiedAt}<span class={cm.textSize('xs')}
+          >{#if typeof modifiedAt === 'function'}{@render modifiedAt?.()}{:else}{modifiedAt}{/if}</span
+        >{/if}{#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}</PresentWhileContent
     >
-      {#if modifiedAt}
-        <span class={cm.textSize('xs')}>
-          {#if typeof modifiedAt === 'function'}{@render modifiedAt?.()}{:else}{modifiedAt}{/if}
-        </span>
-      {/if}
-      {#if typeof actions === 'function'}{@render actions?.()}{:else}{actions}{/if}
-    </footer>
   {/if}
 </article>

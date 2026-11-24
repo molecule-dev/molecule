@@ -11,6 +11,7 @@ import { defineComponent, h, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar, Card } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -39,7 +40,7 @@ const slotOrProp = (
 const hasNode = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
-): boolean => slot != null || (prop != null && prop !== '' && prop !== false)
+): boolean => toChildArray(slotOrProp(slot, prop)).length > 0
 
 /**
  * Vendor / seller / agent profile card. Used in marketplaces, agent

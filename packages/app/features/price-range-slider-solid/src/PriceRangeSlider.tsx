@@ -6,7 +6,7 @@
 
 import type { Component } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { PriceRangeSliderProps } from './types.js'
@@ -55,9 +55,11 @@ export const PriceRangeSlider: Component<PriceRangeSliderProps> = (props) => {
 
   return (
     <div class={cm.cn(cm.stack(2), props.className)}>
-      {props.label && (
-        <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{props.label}</span>
-      )}
+      <PresentWhileNode node={props.label}>
+        {(label) => (
+          <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{label()}</span>
+        )}
+      </PresentWhileNode>
       <div class={cm.flex({ align: 'center', gap: 'sm' })}>
         <span class={cm.textSize('sm')}>{fmt(low())}</span>
         <input

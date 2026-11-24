@@ -1,6 +1,6 @@
 import { type Component, For, type JSX } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { AppShellSideNavProps, NavItem } from './types.js'
@@ -20,7 +20,6 @@ import type { AppShellSideNavProps, NavItem } from './types.js'
 export const AppShellSideNav: Component<AppShellSideNavProps> = (props) => {
   const { t } = useTranslation()
   const cm = getClassMap()
-
   /** The nav region's accessible name (locale-reactive). */
   const navLabel = (): string => t('navChrome.aria.sidebar', undefined, { defaultValue: 'Sidebar' })
 
@@ -72,7 +71,9 @@ export const AppShellSideNav: Component<AppShellSideNavProps> = (props) => {
           )}
         </For>
       </nav>
-      {props.footer && <div class={mountClass()}>{props.footer}</div>}
+      <PresentWhileNode node={props.footer}>
+        {(footer) => <div class={mountClass()}>{footer()}</div>}
+      </PresentWhileNode>
     </aside>
   )
 }

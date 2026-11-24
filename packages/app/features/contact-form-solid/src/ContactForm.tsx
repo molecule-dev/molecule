@@ -12,7 +12,7 @@
 import type { Component } from 'solid-js'
 import { createEffect, createSignal, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-solid'
 
@@ -122,14 +122,24 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
         onSubmit={handle}
         class={cm.cn(cm.stack(3), props.className)}
       >
-        {(props.title || props.description) && (
-          <header class={cm.stack(1)}>
-            {props.title && (
-              <h3 class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>{props.title}</h3>
-            )}
-            {props.description && <p class={cm.textSize('sm')}>{props.description}</p>}
-          </header>
-        )}
+        <ResolveNode node={props.title}>
+          {(title, hasTitle) => (
+            <ResolveNode node={props.description}>
+              {(description, hasDescription) => (
+                <Show when={hasTitle() || hasDescription()}>
+                  <header class={cm.stack(1)}>
+                    <Show when={hasTitle()}>
+                      <h3 class={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>{title()}</h3>
+                    </Show>
+                    <Show when={hasDescription()}>
+                      <p class={cm.textSize('sm')}>{description()}</p>
+                    </Show>
+                  </header>
+                </Show>
+              )}
+            </ResolveNode>
+          )}
+        </ResolveNode>
         <Input
           type="text"
           value={name()}

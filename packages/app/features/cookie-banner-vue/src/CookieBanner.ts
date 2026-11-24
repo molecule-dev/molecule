@@ -32,8 +32,10 @@ const slotOrProp = (
   prop: VNodeChild | null | undefined,
   fallback: () => VNodeChild,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop != null ? [prop] : [fallback()]
+  const nodes: VNodeChild[] = slot ? slot() : prop != null ? [prop] : []
+  // A slot or prop that renders nothing is absent (React's `slot()`): use the
+  // fallback React renders instead.
+  return toChildArray(nodes).length > 0 ? nodes : [fallback()]
 }
 
 /** React's inline style for the banner, written the way React writes it. */

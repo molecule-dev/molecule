@@ -3,9 +3,12 @@
   `@molecule/app-faceted-search-react`'s `FilterPill` — an outlined filter pill
   with an optional `expand_more` chevron and a dropdown panel that opens beneath
   it. Same props, same DOM for the same input; the panel content is the default
-  snippet and the pill closes on an outside mousedown.
+  snippet and the pill closes on an outside mousedown. The open panel is in the
+  page only while its snippet renders something (React's `open && slot(children)`),
+  so an empty list opens no panel.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { FilterPillProps } from './types.js'
@@ -88,8 +91,8 @@
     </span>
   </button>
   {#if open && children}
-    <div class={panelClass}>
+    <PresentWhileContent class={panelClass}>
       {@render children?.()}
-    </div>
+    </PresentWhileContent>
   {/if}
 </div>

@@ -5,6 +5,7 @@
   snippets, or plain strings.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { CtaCardProps } from './types.js'
@@ -38,28 +39,28 @@
   )}
 >
   {#if media}
-    <div class={cm.shrink0}>
+    <PresentWhileContent tag="div" class={cm.shrink0}>
       {#if typeof media === 'function'}{@render media?.()}{:else}{media}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(2))}>
     {#if eyebrow}
-      <div class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+      <PresentWhileContent tag="div" class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
         {#if typeof eyebrow === 'function'}{@render eyebrow?.()}{:else}{eyebrow}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
     <h3 class={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
       {#if typeof title === 'function'}{@render title?.()}{:else}{title}{/if}
     </h3>
     {#if description}
-      <p>
+      <PresentWhileContent tag="p">
         {#if typeof description === 'function'}{@render description?.()}{:else}{description}{/if}
-      </p>
+      </PresentWhileContent>
     {/if}
     {#if action}
-      <div class={cm.sp('mt', 2)}>
+      <PresentWhileContent tag="div" class={cm.sp('mt', 2)}>
         {#if typeof action === 'function'}{@render action?.()}{:else}{action}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
   </div>
 </section>

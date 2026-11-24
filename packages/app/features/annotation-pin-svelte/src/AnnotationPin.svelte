@@ -7,6 +7,8 @@
   switch re-renders it.
 -->
 <script lang="ts">
+  import type { Attachment } from 'svelte/attachments'
+
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -106,6 +108,28 @@
     return styleString(base)
   })
 
+  // A snippet cannot tell from its value whether it renders anything, so the fallback note is in
+  // the body while the note renders nothing (React's `slot(note) ?? <span>…`).
+  let noteEmpty = $state(false)
+
+  /** Keeps `noteEmpty` true exactly while the body shows no note content. */
+  const trackNote: Attachment<HTMLDivElement> = (body) => {
+    const sync = (): void => {
+      noteEmpty = !Array.from(body.childNodes).some(
+        (node) =>
+          !(
+            node.nodeType === 1 &&
+            (node as Element).getAttribute('data-mol-id') === 'annotation-pin-popup-empty'
+          ) &&
+          (node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim() !== '')),
+      )
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(body, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  }
+
   /**
    * Stops the marker click from bubbling to arbitrary ancestor click handlers
    * and forwards it to `onClick`.
@@ -150,12 +174,9 @@
       class={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
       style={popupStyle}
     >
-      <div data-mol-id="annotation-pin-popup-body">
-        {#if note !== undefined && note !== null}
-          {#if typeof note === 'function'}{@render note?.()}{:else}{note}{/if}
-        {:else}
-          <span data-mol-id="annotation-pin-popup-empty">{emptyNote}</span>
-        {/if}
+      <div data-mol-id="annotation-pin-popup-body" {@attach trackNote}>
+        {#if typeof note === 'function'}{@render note?.()}{:else if note !== undefined && note !== null}{note}{/if}
+        {#if noteEmpty}<span data-mol-id="annotation-pin-popup-empty">{emptyNote}</span>{/if}
       </div>
     </div>
   {/if}

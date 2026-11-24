@@ -28,6 +28,32 @@
 
   let open = $state(false)
   let wrapper: HTMLSpanElement | undefined = $state()
+  let triggerButton: HTMLButtonElement | null = $state(null)
+
+  // A snippet cannot tell from its value whether it renders anything, so the default glyph stands
+  // in for it while the button shows nothing (React's `slot(trigger) ?? '⋮'`).
+  $effect(() => {
+    const el = triggerButton
+    if (!el || typeof trigger !== 'function') return
+    const glyph = document.createTextNode('⋮')
+    const hasContent = (): boolean =>
+      Array.from(el.childNodes).some(
+        (node) =>
+          node !== glyph &&
+          (node.nodeType === 1 || (node.nodeType === 3 && (node.textContent ?? '').trim() !== '')),
+      )
+    const sync = (): void => {
+      if (hasContent()) glyph.remove()
+      else if (!glyph.parentNode) el.appendChild(glyph)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(el, { childList: true, characterData: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      glyph.remove()
+    }
+  })
 
   // As in React's effect: the listeners exist only while the menu is open. The
   // returned function runs when the effect re-runs or the component unmounts.
@@ -107,6 +133,7 @@
   style="display: inline-block"
 >
   <Button
+    bind:ref={triggerButton}
     variant="ghost"
     size="sm"
     onClick={() => (open = !open)}
@@ -118,7 +145,7 @@
     {#if trigger === undefined || trigger === null}
       ⋮
     {:else if typeof trigger === 'string'}
-      {trigger}
+      {trigger || '⋮'}
     {:else}
       {@render trigger?.()}
     {/if}

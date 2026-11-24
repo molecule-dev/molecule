@@ -11,12 +11,11 @@
  */
 
 import type { Component } from 'solid-js'
-import { Show } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NodeEditorSectionProps } from './types.js'
-import { renders } from './utilities.js'
 
 /**
  * Labeled section — the Solid counterpart of
@@ -37,7 +36,7 @@ export const NodeEditorSection: Component<NodeEditorSectionProps> = (props) => {
         >
           {props.label}
         </label>
-        <Show when={renders(props.trailing)}>{props.trailing}</Show>
+        <ResolveNode node={props.trailing}>{(trailing) => <>{trailing()}</>}</ResolveNode>
       </div>
       {props.children}
     </div>

@@ -4,10 +4,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
-import { Show } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 
 import { LegalPageLayout } from './LegalPageLayout.jsx'
 import type { TermsPageProps } from './types.js'
@@ -27,7 +26,6 @@ import type { TermsPageProps } from './types.js'
  */
 export const TermsPage: Component<TermsPageProps> = (props) => {
   const { t } = useTranslation()
-
   return (
     <LegalPageLayout
       dataMolId="page-terms"
@@ -40,24 +38,28 @@ export const TermsPage: Component<TermsPageProps> = (props) => {
       )}
       stackGap={props.stackGap}
     >
-      <Show
-        when={props.children}
-        fallback={
-          <p>
-            {t(
-              props.introKey ?? 'terms.intro',
-              {},
-              {
-                defaultValue:
-                  props.introDefault ??
-                  'This is the Terms page. Replace this placeholder with real content.',
-              },
-            )}
-          </p>
-        }
-      >
-        {props.children}
-      </Show>
+      <ResolveNode node={props.children}>
+        {(content, hasContent) => (
+          <Show
+            when={hasContent()}
+            fallback={
+              <p>
+                {t(
+                  props.introKey ?? 'terms.intro',
+                  {},
+                  {
+                    defaultValue:
+                      props.introDefault ??
+                      'This is the Terms page. Replace this placeholder with real content.',
+                  },
+                )}
+              </p>
+            }
+          >
+            {content()}
+          </Show>
+        )}
+      </ResolveNode>
     </LegalPageLayout>
   )
 }

@@ -34,6 +34,7 @@ import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-vue'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-vue'
 import {
+  toChildArray,
   useAuth,
   useAuthClient,
   useI18nError,
@@ -285,8 +286,12 @@ export const AuthModal = defineComponent({
      * @returns The captcha node(s), or an empty list when neither is present.
      */
     const captchaNodes = (): VNodeChild[] => {
-      if (slots.captchaSlot) return slots.captchaSlot()
-      return props.captchaSlot != null ? [props.captchaSlot] : []
+      const nodes: VNodeChild[] = slots.captchaSlot
+        ? slots.captchaSlot()
+        : props.captchaSlot != null
+          ? [props.captchaSlot]
+          : []
+      return toChildArray(nodes).length > 0 ? nodes : []
     }
 
     return (): VNode => {

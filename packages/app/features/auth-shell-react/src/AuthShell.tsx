@@ -2,6 +2,7 @@ import type { CSSProperties, ElementType, HTMLAttributes, JSX, ReactNode } from 
 
 import { useTranslation } from '@molecule/app-react'
 import { Link } from '@molecule/app-react/link'
+import { slot } from '@molecule/app-react/render'
 import type { StorageProvider } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -398,14 +399,16 @@ export function AuthShell({
   heading,
   subheading,
   children,
-  footer,
+  footer: footerProp,
   brand,
-  decoration,
+  decoration: decorationProp,
   backTo = '/',
   showBackLink = true,
   formStateStorage,
   formStateKey,
 }: AuthShellProps): JSX.Element {
+  const footer = slot(footerProp)
+  const decoration = slot(decorationProp)
   return (
     <AuthFormStateProvider storage={formStateStorage} storageKey={formStateKey}>
       <AuthShellContainer>

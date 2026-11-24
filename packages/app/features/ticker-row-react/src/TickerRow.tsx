@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useId } from 'react'
 
 import { useLocale, useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for the {@link TickerRow} component. */
@@ -41,15 +42,18 @@ export interface TickerRowProps {
 export function TickerRow({
   symbol,
   name,
-  icon,
+  icon: iconProp,
   price,
   changePct,
   changeDisplay,
-  sparkline,
-  meta,
+  sparkline: sparklineProp,
+  meta: metaProp,
   onClick,
   className,
 }: TickerRowProps): ReactElement {
+  const icon = slot(iconProp)
+  const sparkline = slot(sparklineProp)
+  const meta = slot(metaProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   // Re-renders on a locale switch, so the formatted percentage follows it.

@@ -13,7 +13,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { PlanUpdatedPageProps } from './types.js'
 
@@ -69,28 +69,30 @@ export const PlanUpdatedPage = defineComponent({
             defaultValue: 'Your plan has been updated',
           })
 
-      const cta: VNodeChild | null = props.ctaLabel
-        ? props.ctaHref
-          ? h(
-              'a',
-              {
-                href: props.ctaHref,
-                class: cm.button({ variant: 'solid', size: 'md' }),
-                'data-mol-id': 'plan-updated-cta',
-              },
-              slotOrProp(slots.ctaLabel, props.ctaLabel),
-            )
-          : h(
-              'button',
-              {
-                type: 'button',
-                class: cm.button({ variant: 'solid', size: 'md' }),
-                onClick: (event: unknown) => props.onCta?.(event),
-                'data-mol-id': 'plan-updated-cta',
-              },
-              slotOrProp(slots.ctaLabel, props.ctaLabel),
-            )
-        : null
+      const ctaLabel = slotOrProp(slots.ctaLabel, props.ctaLabel)
+      const cta: VNodeChild | null =
+        toChildArray(ctaLabel).length > 0
+          ? props.ctaHref
+            ? h(
+                'a',
+                {
+                  href: props.ctaHref,
+                  class: cm.button({ variant: 'solid', size: 'md' }),
+                  'data-mol-id': 'plan-updated-cta',
+                },
+                ctaLabel,
+              )
+            : h(
+                'button',
+                {
+                  type: 'button',
+                  class: cm.button({ variant: 'solid', size: 'md' }),
+                  onClick: (event: unknown) => props.onCta?.(event),
+                  'data-mol-id': 'plan-updated-cta',
+                },
+                ctaLabel,
+              )
+          : null
 
       return h('section', { class: props.className, 'data-mol-id': 'plan-updated-page' }, [
         h('header', { class: cm.cardHeader }, [

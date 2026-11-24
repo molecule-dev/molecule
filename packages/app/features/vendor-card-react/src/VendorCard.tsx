@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar, Card } from '@molecule/app-ui-react'
 
@@ -35,15 +36,18 @@ export interface VendorCardProps {
 export function VendorCard({
   name,
   logoSrc,
-  description,
+  description: descriptionProp,
   rating,
   reviewCount,
-  memberSince,
+  memberSince: memberSinceProp,
   badges,
-  actions,
+  actions: actionsProp,
   onClick,
   className,
 }: VendorCardProps): JSX.Element {
+  const description = slot(descriptionProp)
+  const memberSince = slot(memberSinceProp)
+  const actions = slot(actionsProp)
   const cm = getClassMap()
   const displayName = typeof name === 'string' ? name : 'Vendor'
   return (

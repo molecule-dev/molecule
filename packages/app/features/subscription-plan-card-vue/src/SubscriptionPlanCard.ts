@@ -13,7 +13,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
@@ -73,16 +73,16 @@ export const SubscriptionPlanCard = defineComponent({
       const ctaLabel = slotOrProp(slots.ctaLabel, props.ctaLabel)
 
       // React: `(badge || recommended) && <span>{badge ?? t(…)}</span>`.
-      const badgeProvided =
-        slots.badge !== undefined || (props.badge !== undefined && props.badge !== null)
-      const showBadge =
-        slots.badge !== undefined || Boolean(props.badge) || Boolean(props.recommended)
-      const badgeText = badgeProvided
+      const hasBadge = toChildArray(badge).length > 0
+      const showBadge = hasBadge || Boolean(props.recommended)
+      const badgeText = hasBadge
         ? badge
         : [t('plan.recommended', {}, { defaultValue: 'Recommended' })]
 
       // React: `{ctaLabel && cta}` — an empty label hides the CTA.
-      const showCta = slots.ctaLabel !== undefined || Boolean(props.ctaLabel)
+      const showCta = toChildArray(ctaLabel).length > 0
+      const hasDescription = toChildArray(description).length > 0
+      const hasInterval = toChildArray(interval).length > 0
 
       const button = (onClick?: (event: MouseEvent) => void): VNode =>
         h(
@@ -119,15 +119,11 @@ export const SubscriptionPlanCard = defineComponent({
                     )
                   : null,
                 h('h3', { class: cm.cn(cm.textSize('xl'), cm.fontWeight('bold')) }, name),
-                slots.description !== undefined || Boolean(props.description)
-                  ? h('p', { class: cm.textSize('sm') }, description)
-                  : null,
+                hasDescription ? h('p', { class: cm.textSize('sm') }, description) : null,
               ]),
               h('div', { class: cm.flex({ align: 'baseline', gap: 'xs' }) }, [
                 h('span', { class: cm.cn(cm.textSize('4xl'), cm.fontWeight('bold')) }, price),
-                slots.interval !== undefined || Boolean(props.interval)
-                  ? h('span', { class: cm.textSize('sm') }, interval)
-                  : null,
+                hasInterval ? h('span', { class: cm.textSize('sm') }, interval) : null,
               ]),
               h(
                 'ul',

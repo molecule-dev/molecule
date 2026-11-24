@@ -9,6 +9,7 @@ import { Component, type ElementRef, signal, ViewChild } from '@angular/core'
 import {
   MolPlacement,
   placeContent,
+  rendersNode,
   setElementPresent,
   type SlotReader,
   usePlacement,
@@ -193,11 +194,11 @@ export class HeroMetricCard {
   }
 
   /**
-   * Whether a text unit input renders (React's `unit !== undefined && unit !== null`).
-   * @returns True when the unit input renders (an empty string included).
+   * Whether a text unit input renders (React's `slot(unit)` then `unit !== undefined`).
+   * @returns True when the unit input renders something (`''` does not).
    */
   get hasUnitInput(): boolean {
-    return this.unit !== undefined && this.unit !== null
+    return rendersNode(this.unit)
   }
 
   /**
@@ -209,11 +210,11 @@ export class HeroMetricCard {
   }
 
   /**
-   * React's `progressRing ?? icon`.
+   * React's `slot(progressRing) ?? icon`: a progress ring that renders nothing gives way to the icon.
    * @returns The right-hand input, or undefined.
    */
   get rightValue(): unknown {
-    return this.progressRing ?? this.icon
+    return rendersNode(this.progressRing) ? this.progressRing : this.icon
   }
 
   /**

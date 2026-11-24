@@ -10,7 +10,7 @@
 
 import { type Component, createSignal, type JSX, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FileDropzoneProps } from './types.js'
@@ -195,9 +195,13 @@ export const FileDropzone: Component<FileDropzoneProps> = (props) => {
         }}
         style={{ display: 'none' }}
       />
-      <Show when={props.children} fallback={defaultCopy()}>
-        {props.children}
-      </Show>
+      <ResolveNode node={props.children}>
+        {(content, hasContent) => (
+          <Show when={hasContent()} fallback={defaultCopy()}>
+            {content()}
+          </Show>
+        )}
+      </ResolveNode>
     </div>
   )
 }

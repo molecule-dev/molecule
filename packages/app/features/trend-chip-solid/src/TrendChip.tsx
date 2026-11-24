@@ -9,6 +9,7 @@
 
 import type { Component } from 'solid-js'
 
+import { ResolveNode } from '@molecule/app-solid'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -42,33 +43,43 @@ export const TrendChip: Component<TrendChipProps> = (props) => {
     props.direction ?? (props.delta > 0 ? 'up' : props.delta < 0 ? 'down' : 'flat')
   const tone = (): ColorVariant => TONE[dir()]
   const abs = (): number => Math.abs(props.delta)
-  const label = (): string => {
-    const prefix =
-      typeof props.prefix === 'string' || typeof props.prefix === 'number'
-        ? String(props.prefix)
-        : ''
-    return props.ariaLabel ?? `${prefix}${ARROW[dir()]} ${abs()}${props.suffix ?? '%'}`
-  }
   return (
-    <span
-      aria-label={label()}
-      class={cm.cn(
-        cm.flex({ align: 'center', gap: 'xs' }),
-        cm.textSize('xs'),
-        cm.fontWeight('semibold'),
-        props.variant === 'pill' ? cm.cn(cm.bgTone(tone()), cm.textOnTone) : cm.textTone(tone()),
-        props.className,
-      )}
-      style={
-        props.variant === 'pill' ? { padding: '2px 6px', 'border-radius': '999px' } : undefined
-      }
-    >
-      {props.prefix}
-      <span aria-hidden="true">{ARROW[dir()]}</span>
-      <span>
-        {abs()}
-        {props.suffix ?? '%'}
-      </span>
-    </span>
+    // React derives the aria label from the prefix and renders it: both read it through this
+    // one resolution, so the prefix's components are created once.
+    <ResolveNode node={props.prefix}>
+      {(prefix) => {
+        const label = (): string => {
+          const text =
+            typeof prefix() === 'string' || typeof prefix() === 'number' ? String(prefix()) : ''
+          return props.ariaLabel ?? `${text}${ARROW[dir()]} ${abs()}${props.suffix ?? '%'}`
+        }
+        return (
+          <span
+            aria-label={label()}
+            class={cm.cn(
+              cm.flex({ align: 'center', gap: 'xs' }),
+              cm.textSize('xs'),
+              cm.fontWeight('semibold'),
+              props.variant === 'pill'
+                ? cm.cn(cm.bgTone(tone()), cm.textOnTone)
+                : cm.textTone(tone()),
+              props.className,
+            )}
+            style={
+              props.variant === 'pill'
+                ? { padding: '2px 6px', 'border-radius': '999px' }
+                : undefined
+            }
+          >
+            {prefix()}
+            <span aria-hidden="true">{ARROW[dir()]}</span>
+            <span>
+              {abs()}
+              {props.suffix ?? '%'}
+            </span>
+          </span>
+        )
+      }}
+    </ResolveNode>
   )
 }

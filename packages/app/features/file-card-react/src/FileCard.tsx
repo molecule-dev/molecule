@@ -1,6 +1,7 @@
 import type { JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import { FileIcon, type FileKind } from './FileIcon.js'
@@ -202,11 +203,12 @@ export function FileCard({
   onClick,
   onContextMenu,
   layout = 'grid',
-  actions,
+  actions: actionsProp,
   now,
   className,
   dataMolId,
 }: FileCardProps): JSX.Element {
+  const actions = slot(actionsProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

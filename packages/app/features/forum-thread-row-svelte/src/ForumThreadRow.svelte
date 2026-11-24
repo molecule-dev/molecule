@@ -10,7 +10,7 @@
   renders.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { ForumThreadRowProps } from './types.js'
@@ -66,6 +66,10 @@
   // `border: medium` and `0px` — Svelte writes the style attribute directly,
   // so this writes that same serialized form (identical computed style).
   const nameId = $props.id()
+
+  // The timestamp span is in the page while `createdAt` renders something, the
+  // separator aside — React's `createdAt && <span>· {createdAt}</span>`.
+  let createdAtPresent = $state<boolean>()
 </script>
 
 <article
@@ -87,9 +91,9 @@
     ></button>
   {/if}
   {#if voteControls}
-    <div class={cm.cn(cm.shrink0, onClick ? cm.position('relative') : undefined)}>
+    <PresentWhileContent class={cm.cn(cm.shrink0, onClick ? cm.position('relative') : undefined)}>
       {#if typeof voteControls === 'function'}{@render voteControls?.()}{:else}{voteControls}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
   {#if voteScore !== undefined && !voteControls}
     <div class={cm.cn(cm.shrink0, cm.textCenter, cm.stack(0))}>
@@ -113,20 +117,22 @@
       </h3>
     </header>
     {#if excerpt}
-      <p class={cm.textSize('sm')}>
+      <PresentWhileContent tag="p" class={cm.textSize('sm')}>
         {#if typeof excerpt === 'function'}{@render excerpt?.()}{:else}{excerpt}{/if}
-      </p>
+      </PresentWhileContent>
     {/if}
     <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
       {#if author}
-        <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+        <PresentWhileContent tag="span" class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
           {#if typeof author === 'function'}{@render author?.()}{:else}{author}{/if}
-        </span>
+        </PresentWhileContent>
       {/if}
       {#if createdAt}
-        <span class={cm.textSize('xs')}>
-          · {#if typeof createdAt === 'function'}{@render createdAt?.()}{:else}{createdAt}{/if}
-        </span>
+        <PresentWhileContent tag="span" class={cm.textSize('xs')} present={createdAtPresent}
+          >· <ContentOrElse bind:present={createdAtPresent}
+            >{#if typeof createdAt === 'function'}{@render createdAt?.()}{:else}{createdAt}{/if}</ContentOrElse
+          ></PresentWhileContent
+        >
       {/if}
       {#if repliesText() !== undefined}
         <span class={cm.textSize('xs')}>· {repliesText()}</span>
@@ -136,14 +142,14 @@
       {/if}
     </div>
     {#if tags}
-      <div
+      <PresentWhileContent
         class={cm.cn(
           cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
           onClick ? cm.position('relative') : undefined,
         )}
       >
         {#if typeof tags === 'function'}{@render tags?.()}{:else}{tags}{/if}
-      </div>
+      </PresentWhileContent>
     {/if}
   </div>
 </article>

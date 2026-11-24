@@ -1,5 +1,6 @@
 import type { KeyboardEvent, ReactElement, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -39,11 +40,12 @@ export function LeaderboardRow({
   avatarSrc,
   score,
   rankDelta,
-  subtitle,
+  subtitle: subtitleProp,
   isMe,
   onClick,
   className,
 }: LeaderboardRowProps): ReactElement {
+  const subtitle = slot(subtitleProp)
   const cm = getClassMap()
   const dispName = typeof name === 'string' ? name : 'Player'
   // When the row is interactive, promote the <div> to a real button in the

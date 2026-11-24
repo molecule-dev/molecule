@@ -8,6 +8,8 @@
 
 import type { VNodeChild } from 'vue'
 
+import { toChildArray } from '@molecule/app-vue'
+
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: a
  * given prop wins (React's single source of truth — a later `null` removes the
@@ -36,4 +38,4 @@ export const nodeValue = (
  * @returns True when the node renders.
  */
 export const hasNode = (prop: VNodeChild, slot: (() => VNodeChild[]) | undefined): boolean =>
-  Boolean(prop) || (prop === undefined && slot !== undefined)
+  toChildArray(nodeValue(prop, slot)).length > 0

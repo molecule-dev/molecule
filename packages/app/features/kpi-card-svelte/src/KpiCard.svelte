@@ -5,6 +5,7 @@
   props are snippets, or plain strings.
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
@@ -49,7 +50,6 @@
     cm.cn(cm.textSize('3xl'), emphasizeValue ? cm.fontWeight('extrabold') : cm.fontWeight('bold')),
   )
   const subtitleClass = $derived(cm.textSize('sm'))
-  const hasTrendRow = $derived(Boolean(trend || subtitle))
 </script>
 
 <Card className={cardClass} data-mol-id={dataMolId}>
@@ -66,15 +66,12 @@
     <div class={valueClass}>
       {#if typeof value === 'function'}{@render value?.()}{:else}{value}{/if}
     </div>
-    {#if hasTrendRow}
-      <div class={innerClass}>
-        {#if typeof trend === 'function'}{@render trend?.()}{:else if trend}{trend}{/if}
-        {#if subtitle}
-          <span class={subtitleClass}>
-            {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
-          </span>
-        {/if}
-      </div>
-    {/if}
+    <PresentWhileContent class={innerClass}
+      >{#if typeof trend === 'function'}{@render trend?.()}{:else if trend}{trend}{/if}{#if subtitle}<PresentWhileContent
+          tag="span"
+          class={subtitleClass}
+          >{#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}</PresentWhileContent
+        >{/if}</PresentWhileContent
+    >
   </div>
 </Card>

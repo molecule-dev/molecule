@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link CollapsibleSection}. */
@@ -41,10 +42,11 @@ export function CollapsibleSection({
   defaultExpanded = false,
   onExpandedChange,
   badge,
-  actions,
+  actions: actionsProp,
   level = 3,
   className,
 }: CollapsibleSectionProps): JSX.Element {
+  const actions = slot(actionsProp)
   const cm = getClassMap()
   const [internal, setInternal] = useState(defaultExpanded)
   const isOpen = expanded ?? internal

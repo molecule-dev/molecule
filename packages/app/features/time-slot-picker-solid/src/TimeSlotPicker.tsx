@@ -12,7 +12,7 @@
 
 import { type Component, For, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TimeSlot, TimeSlotPickerProps } from './types.js'
@@ -57,16 +57,6 @@ export const TimeSlotPicker: Component<TimeSlotPickerProps> = (props) => {
   const slotFor = (id: string): TimeSlot | undefined => props.slots.find((slot) => slot.id === id)
 
   /**
-   * React's radiogroup aria-label: the title text when it is a plain string
-   * (a node title falls back to the translated label).
-   * @returns The accessible name.
-   */
-  const ariaLabel = (): string =>
-    typeof props.title === 'string'
-      ? props.title
-      : t('timeSlot.aria', {}, { defaultValue: 'Time slots' })
-
-  /**
    * The slot container's class list: React's fixed-column grid or the list
    * stack.
    * @returns The class string.
@@ -88,35 +78,52 @@ export const TimeSlotPicker: Component<TimeSlotPickerProps> = (props) => {
     )
 
   return (
-    <div class={cm.cn(cm.stack(2), props.className)}>
-      <Show when={props.title}>
-        <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.title}</h3>
-      </Show>
-      <div role="radiogroup" aria-label={ariaLabel()} class={groupClass()}>
-        <For each={keyedRows()}>
-          {(row) => {
-            const slot = (): TimeSlot => slotFor(row.id) as TimeSlot
-            return (
-              <button
-                type="button"
-                role="radio"
-                aria-checked={slot().id === props.selectedId ? 'true' : 'false'}
-                disabled={slot().disabled}
-                onClick={() => {
-                  if (!slot().disabled) props.onSelect?.(slot())
+    <ResolveNode node={props.title}>
+      {(title, hasTitle) => {
+        /**
+         * React's radiogroup aria-label: the title text when it is a plain string
+         * (a node title falls back to the translated label).
+         * @returns The accessible name.
+         */
+        const ariaLabel = (): string => {
+          const value = hasTitle() ? title() : undefined
+          return typeof value === 'string'
+            ? value
+            : t('timeSlot.aria', {}, { defaultValue: 'Time slots' })
+        }
+        return (
+          <div class={cm.cn(cm.stack(2), props.className)}>
+            <Show when={hasTitle()}>
+              <h3 class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title()}</h3>
+            </Show>
+            <div role="radiogroup" aria-label={ariaLabel()} class={groupClass()}>
+              <For each={keyedRows()}>
+                {(row) => {
+                  const slot = (): TimeSlot => slotFor(row.id) as TimeSlot
+                  return (
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={slot().id === props.selectedId ? 'true' : 'false'}
+                      disabled={slot().disabled}
+                      onClick={() => {
+                        if (!slot().disabled) props.onSelect?.(slot())
+                      }}
+                      class={buttonClass(slot())}
+                      style={slot().disabled ? { opacity: 0.4 } : undefined}
+                    >
+                      <span>{slot().label}</span>
+                      <Show when={slot().meta}>
+                        <span class={cm.textSize('xs')}>{slot().meta}</span>
+                      </Show>
+                    </button>
+                  )
                 }}
-                class={buttonClass(slot())}
-                style={slot().disabled ? { opacity: 0.4 } : undefined}
-              >
-                <span>{slot().label}</span>
-                <Show when={slot().meta}>
-                  <span class={cm.textSize('xs')}>{slot().meta}</span>
-                </Show>
-              </button>
-            )
-          }}
-        </For>
-      </div>
-    </div>
+              </For>
+            </div>
+          </div>
+        )
+      }}
+    </ResolveNode>
   )
 }

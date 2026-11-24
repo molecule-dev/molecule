@@ -17,7 +17,7 @@ import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } f
 import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
 import { ConfirmDialog, Icon } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { ImageGalleryEditorProps } from './types.js'
 
@@ -191,18 +191,21 @@ export const ImageGalleryEditor = defineComponent({
         { defaultValue: 'Remove image?' },
       )
 
+      // React's slot() reads: an empty header/counter/status list is absent.
+      const headerNodes = toChildArray(slots.header ? slots.header() : props.header)
+      const counterNodes = toChildArray(slots.counter ? slots.counter() : props.counter)
+      const statusNodes = toChildArray(
+        slots.statusMessage ? slots.statusMessage() : props.statusMessage,
+      )
+
       return h('section', [
-        props.header || props.counter
+        headerNodes.length > 0 || counterNodes.length > 0
           ? h(
               'div',
               { class: cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6)) },
               [
-                ...(slots.header
-                  ? slots.header()
-                  : props.header != null
-                    ? [props.header]
-                    : [h('div')]),
-                ...(props.counter
+                ...(headerNodes.length > 0 ? headerNodes : [h('div')]),
+                ...(counterNodes.length > 0
                   ? [
                       h(
                         'span',
@@ -215,7 +218,7 @@ export const ImageGalleryEditor = defineComponent({
                             cm.trackingWide,
                           ),
                         },
-                        slotPropOrFallback(slots.counter, props.counter, ''),
+                        counterNodes,
                       ),
                     ]
                   : []),
@@ -358,14 +361,14 @@ export const ImageGalleryEditor = defineComponent({
             ),
           ),
         ]),
-        props.statusMessage
+        statusNodes.length > 0
           ? h(
               'p',
               {
                 class: cm.cn(cm.sp('mt', 3), cm.textSize('xs'), cm.textMuted),
                 'data-mol-id': 'image-gallery-editor-status',
               },
-              slotPropOrFallback(slots.statusMessage, props.statusMessage, ''),
+              statusNodes,
             )
           : null,
         // Hidden trigger input. `display:none` is the robust, framework-agnostic

@@ -5,6 +5,7 @@
   same DOM for the same input; the node props are snippets (or plain strings).
 -->
 <script lang="ts">
+  import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { DetailHeaderProps } from './types.js'
@@ -41,9 +42,9 @@
           {#if typeof status === 'function'}{@render status?.()}{:else if status}{status}{/if}
         </div>
         {#if subtitle}
-          <p class={cm.textSize('sm')}>
+          <PresentWhileContent tag="p" class={cm.textSize('sm')}>
             {#if typeof subtitle === 'function'}{@render subtitle?.()}{:else}{subtitle}{/if}
-          </p>
+          </PresentWhileContent>
         {/if}
       </div>
     </div>
@@ -53,8 +54,8 @@
     </div>
   </div>
   {#if meta}
-    <div class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+    <PresentWhileContent tag="div" class={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
       {#if typeof meta === 'function'}{@render meta?.()}{:else}{meta}{/if}
-    </div>
+    </PresentWhileContent>
   {/if}
 </header>

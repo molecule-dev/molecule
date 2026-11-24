@@ -1,6 +1,6 @@
-import { type Component, createUniqueId } from 'solid-js'
+import { type Component, createUniqueId, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ProgressBarProps } from './types.js'
@@ -35,43 +35,53 @@ export const ProgressBar: Component<ProgressBarProps> = (props) => {
   const max = (): number => props.max ?? 100
   const size = (): 'sm' | 'md' | 'lg' => props.size ?? 'md'
   const color = (): 'primary' | 'success' | 'warning' | 'error' | 'info' => props.color ?? 'primary'
-  // The rendered label is the track's name unless an explicit labelledBy wins.
-  const namedByLabel = (): boolean => props.labelledBy === undefined && !!props.label
 
   return (
-    <div class={cm.cn(cm.stack(2), props.className)}>
-      {(props.label || props.valueLabel) && (
-        <div class={cm.flex({ justify: 'between', align: 'center' })}>
-          {props.label && (
-            <span
-              id={namedByLabel() ? nameId : undefined}
-              class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
-            >
-              {props.label}
-            </span>
-          )}
-          {props.valueLabel && <span class={cm.textSize('sm')}>{props.valueLabel}</span>}
-        </div>
+    <ResolveNode node={props.label}>
+      {(label, hasLabel) => (
+        <ResolveNode node={props.valueLabel}>
+          {(valueLabel, hasValueLabel) => {
+            // The rendered label is the track's name unless an explicit labelledBy wins.
+            const namedByLabel = (): boolean => props.labelledBy === undefined && hasLabel()
+            return (
+              <div class={cm.cn(cm.stack(2), props.className)}>
+                <Show when={hasLabel() || hasValueLabel()}>
+                  <div class={cm.flex({ justify: 'between', align: 'center' })}>
+                    {hasLabel() ? (
+                      <span
+                        id={namedByLabel() ? nameId : undefined}
+                        class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
+                      >
+                        {label()}
+                      </span>
+                    ) : null}
+                    {hasValueLabel() ? <span class={cm.textSize('sm')}>{valueLabel()}</span> : null}
+                  </div>
+                </Show>
+                <div
+                  class={cm.cn(cm.progress(), cm.progressHeight(size()))}
+                  role="progressbar"
+                  aria-valuenow={props.value}
+                  aria-valuemin={0}
+                  aria-valuemax={max()}
+                  aria-labelledby={props.labelledBy ?? (namedByLabel() ? nameId : undefined)}
+                  aria-label={
+                    props.labelledBy === undefined && !hasLabel()
+                      ? t('progressBar.label', undefined, { defaultValue: 'Progress' })
+                      : undefined
+                  }
+                  aria-describedby={props.describedBy}
+                >
+                  <div
+                    class={cm.cn(cm.progressBar(), cm.progressColor(color()))}
+                    style={{ width: `${fillPercent(props.value, max())}%` }}
+                  />
+                </div>
+              </div>
+            )
+          }}
+        </ResolveNode>
       )}
-      <div
-        class={cm.cn(cm.progress(), cm.progressHeight(size()))}
-        role="progressbar"
-        aria-valuenow={props.value}
-        aria-valuemin={0}
-        aria-valuemax={max()}
-        aria-labelledby={props.labelledBy ?? (namedByLabel() ? nameId : undefined)}
-        aria-label={
-          props.labelledBy === undefined && !props.label
-            ? t('progressBar.label', undefined, { defaultValue: 'Progress' })
-            : undefined
-        }
-        aria-describedby={props.describedBy}
-      >
-        <div
-          class={cm.cn(cm.progressBar(), cm.progressColor(color()))}
-          style={{ width: `${fillPercent(props.value, max())}%` }}
-        />
-      </div>
-    </div>
+    </ResolveNode>
   )
 }

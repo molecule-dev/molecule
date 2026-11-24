@@ -2,6 +2,7 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 import {
@@ -133,7 +134,7 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
     edges: edgesProp,
     onChange,
     nodeRenderers,
-    children,
+    children: childrenProp,
     onSelectionChange,
     onEdgeClick,
     onNodeClick,
@@ -145,6 +146,7 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
     className,
   } = props
 
+  const children = slot(childrenProp)
   const controlled = typeof onChange === 'function'
 
   // Internal mirror used in uncontrolled mode.

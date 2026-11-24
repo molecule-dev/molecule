@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
@@ -34,10 +35,11 @@ export function FlashcardCard({
   front,
   back,
   onGrade,
-  progress,
+  progress: progressProp,
   defaultRevealed,
   className,
 }: FlashcardCardProps): ReactElement {
+  const progress = slot(progressProp)
   const cm = getClassMap()
   const { t } = useTranslation()
   const [revealed, setRevealed] = useState(!!defaultRevealed)

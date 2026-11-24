@@ -9,7 +9,7 @@
 import { defineComponent, h, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Link, useTranslation } from '@molecule/app-vue'
+import { Link, toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { AuthFormStateProvider } from './AuthFormStateProvider.js'
 
@@ -26,9 +26,8 @@ const nodeOrSlot = (
   prop: VNodeChild | null | undefined,
   slot: (() => VNodeChild[]) | undefined,
 ): VNodeChild[] => {
-  if (prop !== undefined && prop !== null) return [prop]
-  if (slot) return slot()
-  return []
+  const nodes: VNodeChild[] = prop !== undefined && prop !== null ? [prop] : slot ? slot() : []
+  return toChildArray(nodes).length > 0 ? nodes : []
 }
 
 /**

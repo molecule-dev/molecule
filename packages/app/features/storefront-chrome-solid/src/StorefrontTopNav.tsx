@@ -23,7 +23,7 @@ import {
   Switch,
 } from 'solid-js'
 
-import { Link, useTranslation } from '@molecule/app-solid'
+import { Link, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem, StorefrontTopNavProps } from './types.js'
@@ -47,8 +47,6 @@ export const StorefrontTopNav: Component<StorefrontTopNavProps> = (props) => {
   const accountMenuLabel = (): string =>
     props.accountMenuLabel ??
     t('storefrontChrome.nav.accountMenu', undefined, { defaultValue: 'Account menu' })
-  const signOutLabel = (): JSX.Element =>
-    props.signOutLabel ?? t('storefrontChrome.nav.signOut', undefined, { defaultValue: 'Sign Out' })
   const links = (): NavLinkSpec[] => props.links ?? []
   const actions = (): NavActionSpec[] => props.actions ?? []
   const menu = (): ProfileMenuItem[] =>
@@ -231,22 +229,30 @@ export const StorefrontTopNav: Component<StorefrontTopNavProps> = (props) => {
                 <For each={menu()}>{renderMenuItem}</For>
                 <Show when={props.isAuthenticated && props.onSignOut}>
                   <hr class={cm.cn(cm.sp('my', 1), cm.storefrontChromeTopNavMenuDivider)} />
-                  <button
-                    type="button"
-                    class={cm.cn(
-                      cm.dropdownItem,
-                      cm.w('full'),
-                      cm.textSize('sm'),
-                      cm.touchTargetCompact,
+                  <ResolveNode node={props.signOutLabel}>
+                    {(signOutLabel, hasSignOutLabel) => (
+                      <button
+                        type="button"
+                        class={cm.cn(
+                          cm.dropdownItem,
+                          cm.w('full'),
+                          cm.textSize('sm'),
+                          cm.touchTargetCompact,
+                        )}
+                        data-mol-id="profile-link-signout"
+                        onClick={() => {
+                          setProfileOpen(false)
+                          props.onSignOut?.()
+                        }}
+                      >
+                        {hasSignOutLabel()
+                          ? signOutLabel()
+                          : t('storefrontChrome.nav.signOut', undefined, {
+                              defaultValue: 'Sign Out',
+                            })}
+                      </button>
                     )}
-                    data-mol-id="profile-link-signout"
-                    onClick={() => {
-                      setProfileOpen(false)
-                      props.onSignOut?.()
-                    }}
-                  >
-                    {signOutLabel()}
-                  </button>
+                  </ResolveNode>
                 </Show>
               </div>
             </Show>

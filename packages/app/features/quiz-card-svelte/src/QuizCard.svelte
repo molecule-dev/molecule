@@ -6,7 +6,7 @@
   timer and explanation props are snippets (or plain strings).
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Card } from '@molecule/app-ui-svelte'
 
@@ -67,9 +67,9 @@
   <div class={cm.stack(4)}>
     <header class={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
       {#if progress}
-        <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+        <PresentWhileContent tag="span" class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
           {#if typeof progress === 'function'}{@render progress?.()}{:else}{progress}{/if}
-        </span>
+        </PresentWhileContent>
       {/if}
       {#if timer}
         {#if typeof timer === 'function'}{@render timer?.()}{:else}{timer}{/if}

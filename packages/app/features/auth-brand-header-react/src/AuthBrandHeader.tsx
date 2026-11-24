@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -172,7 +173,7 @@ export interface AuthBrandHeaderProps {
  * Centered auth-page brand header supporting both composable children and preset mode.
  */
 export function AuthBrandHeader({
-  children,
+  children: childrenProp,
   className,
   appName,
   tagline,
@@ -181,6 +182,7 @@ export function AuthBrandHeader({
   chipShape,
   wordmarkColor,
 }: AuthBrandHeaderProps): JSX.Element {
+  const children = slot(childrenProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

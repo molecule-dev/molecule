@@ -14,7 +14,7 @@ import { defineComponent, h, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-vue'
-import { useTranslation } from '@molecule/app-vue'
+import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot,
@@ -29,8 +29,8 @@ const slotOrTruthy = (
   slot: (() => VNodeChild[]) | undefined,
   prop: VNodeChild | null | undefined,
 ): VNodeChild[] => {
-  if (slot) return slot()
-  return prop ? [prop] : []
+  if (slot) return toChildArray(slot())
+  return prop ? toChildArray(prop) : []
 }
 
 /**

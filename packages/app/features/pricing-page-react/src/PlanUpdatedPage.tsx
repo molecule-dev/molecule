@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for `<PlanUpdatedPage />`. */
@@ -38,7 +39,8 @@ export interface PlanUpdatedPageProps {
  * @returns The rendered success page.
  */
 export function PlanUpdatedPage(props: PlanUpdatedPageProps): React.ReactElement {
-  const { planName, ctaLabel, onCta, ctaHref, className } = props
+  const { planName, ctaLabel: ctaLabelProp, onCta, ctaHref, className } = props
+  const ctaLabel = slot(ctaLabelProp)
   const cm = getClassMap()
   const { t } = useTranslation()
 

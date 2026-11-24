@@ -10,7 +10,7 @@ import { defineComponent, h, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 
-import { renders, slotOrProp } from './slots.js'
+import { slotOrProp } from './slots.js'
 
 /**
  * Body of a `<ListingCard>` — title / subtitle / price / meta rows stacked.
@@ -40,13 +40,11 @@ export const ListingCardBody = defineComponent({
 
       return h('div', { class: cm.cn(cm.stack(1), cm.sp('p', 3), props.className) }, [
         h('h3', { class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) }, title),
-        ...(renders(slots.subtitle, props.subtitle)
-          ? [h('p', { class: cm.textSize('sm') }, subtitle)]
-          : []),
-        ...(renders(slots.price, props.price)
+        ...(subtitle.length > 0 ? [h('p', { class: cm.textSize('sm') }, subtitle)] : []),
+        ...(price.length > 0
           ? [h('p', { class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, price)]
           : []),
-        ...(renders(slots.meta, props.meta)
+        ...(meta.length > 0
           ? [h('div', { class: cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' }) }, meta)]
           : []),
       ])

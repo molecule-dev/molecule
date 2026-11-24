@@ -10,6 +10,7 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-vue'
+import { toChildArray } from '@molecule/app-vue'
 
 import type { StatusKind } from './types.js'
 
@@ -70,7 +71,7 @@ export const StatusBadge = defineComponent({
       const children = nodeOf(slots.default, props.children as VNodeChild | null | undefined)
       const icon = nodeOf(slots.icon, props.icon as VNodeChild | null | undefined)
       const content: VNodeChild[] = [
-        ...(icon.length > 0 ? [h('span', { class: cm.sp('mr', 1) }, icon)] : []),
+        ...(toChildArray(icon).length > 0 ? [h('span', { class: cm.sp('mr', 1) }, icon)] : []),
         ...children,
       ]
       const color = KIND_TO_COLOR[props.kind]

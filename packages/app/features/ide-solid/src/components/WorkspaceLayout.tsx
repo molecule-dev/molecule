@@ -30,11 +30,11 @@
  */
 
 import type { JSX } from 'solid-js'
-import { children, createMemo, For, Show } from 'solid-js'
+import { createMemo, For, Show } from 'solid-js'
 
 import type { PanelConfig } from '@molecule/app-ide'
 import { clampPanelSize, livePanelSize } from '@molecule/app-ide-panel-logic'
-import { useWorkspace } from '@molecule/app-solid'
+import { resolveNode, useWorkspace } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { ResizeHandle } from './ResizeHandle.jsx'
@@ -77,7 +77,7 @@ function toPanels(value: unknown): Element[] {
 export function WorkspaceLayout(props: WorkspaceLayoutProps): JSX.Element {
   const cm = getClassMap()
   const { layout, resizePanel } = useWorkspace()
-  const resolved = children(() => props.children)
+  const resolved = resolveNode(() => props.children)
 
   /** The rendered panes, in row order. */
   const panels = createMemo(() => toPanels(resolved()))

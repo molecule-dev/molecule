@@ -8,8 +8,9 @@
  * @module
  */
 
-import type { Component, JSX } from 'solid-js'
+import type { Component } from 'solid-js'
 
+import { PresentWhileNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { DetailPageLayoutProps } from './types.js'
@@ -33,7 +34,6 @@ export const DetailPageLayout: Component<DetailPageLayoutProps> = (props) => {
     'flex-basis': `${SIDEBAR_WIDTH[props.sidebarWidth ?? 'md'] * 4}px`,
     'flex-shrink': 0,
   })
-  const aside = (): JSX.Element => <aside style={sidebarStyle()}>{props.sidebar}</aside>
   return (
     <div class={cm.cn(cm.stack(4), props.className)} data-mol-id={props.dataMolId}>
       {props.breadcrumb}
@@ -47,11 +47,19 @@ export const DetailPageLayout: Component<DetailPageLayoutProps> = (props) => {
           }),
         )}
       >
-        {props.sidebar && position() === 'left' && aside()}
+        {position() === 'left' && (
+          <PresentWhileNode node={props.sidebar}>
+            {(sidebar) => <aside style={sidebarStyle()}>{sidebar()}</aside>}
+          </PresentWhileNode>
+        )}
         <main class={cm.flex1}>
           <div class={cm.stack(4)}>{props.main}</div>
         </main>
-        {props.sidebar && position() === 'right' && aside()}
+        {position() === 'right' && (
+          <PresentWhileNode node={props.sidebar}>
+            {(sidebar) => <aside style={sidebarStyle()}>{sidebar()}</aside>}
+          </PresentWhileNode>
+        )}
       </div>
     </div>
   )

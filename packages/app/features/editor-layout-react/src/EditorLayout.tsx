@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link EditorLayout}. */
@@ -31,12 +32,13 @@ export interface EditorLayoutProps {
 export function EditorLayout({
   topBar,
   canvas,
-  sidePanel,
+  sidePanel: sidePanelProp,
   sidePanelPosition = 'right',
   sidePanelOpen = true,
   className,
   dataMolId,
 }: EditorLayoutProps): JSX.Element {
+  const sidePanel = slot(sidePanelProp)
   const cm = getClassMap()
   const showPanel = sidePanel && sidePanelOpen
   return (

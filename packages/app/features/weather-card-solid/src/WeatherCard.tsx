@@ -10,8 +10,9 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
+import { type Component, Show } from 'solid-js'
 
+import { PresentWhileNode, ResolveNode } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { WeatherCardProps, WeatherTracePoint } from './types.js'
@@ -87,18 +88,20 @@ export const WeatherCard: Component<WeatherCardProps> = (props) => {
       <div class={cm.cn(cm.weatherCardContent)}>
         <div class={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'md' }))}>
           <div>
-            {props.eyebrow ? (
-              <p
-                class={cm.cn(
-                  cm.fontWeight('bold'),
-                  cm.textSize('xs'),
-                  cm.sp('mb', 1),
-                  cm.weatherCardEyebrow,
-                )}
-              >
-                {props.eyebrow}
-              </p>
-            ) : null}
+            <PresentWhileNode node={props.eyebrow}>
+              {(eyebrow) => (
+                <p
+                  class={cm.cn(
+                    cm.fontWeight('bold'),
+                    cm.textSize('xs'),
+                    cm.sp('mb', 1),
+                    cm.weatherCardEyebrow,
+                  )}
+                >
+                  {eyebrow()}
+                </p>
+              )}
+            </PresentWhileNode>
             <h2
               class={cm.cn(cm.textSize('2xl'), cm.fontWeight('semibold'), cm.weatherCardLocation)}
             >
@@ -125,7 +128,13 @@ export const WeatherCard: Component<WeatherCardProps> = (props) => {
               <span class={cm.cn(cm.iconGlyphFont, cm.textSize('sm'))} aria-hidden="true">
                 warning
               </span>
-              {props.alertLabel ?? props.alertLevel}
+              <ResolveNode node={props.alertLabel}>
+                {(alertLabel, hasAlertLabel) => (
+                  <Show when={hasAlertLabel()} fallback={props.alertLevel}>
+                    {alertLabel()}
+                  </Show>
+                )}
+              </ResolveNode>
             </span>
           ) : null}
         </div>
@@ -168,33 +177,37 @@ export const WeatherCard: Component<WeatherCardProps> = (props) => {
         </div>
 
         <div class={cm.cn(cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }), cm.sp('mt', 4))}>
-          {props.feelsLikeLabel ? (
-            <span
-              class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), cm.weatherCardFeelsLike)}
-            >
-              {props.feelsLikeLabel}
-            </span>
-          ) : null}
-          {props.highLowLabel ? (
-            <span
-              class={cm.cn(
-                cm.flex({ align: 'center', gap: 'xs' }),
-                cm.sp('px', 3),
-                cm.sp('py', 1),
-                cm.roundedFull,
-                cm.textSize('xs'),
-                cm.fontWeight('bold'),
-                cm.weatherCardHighLowChip,
-              )}
-            >
-              {props.highLowLabel}
-            </span>
-          ) : null}
-          {props.updatedLabel ? (
-            <span class={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}>
-              {props.updatedLabel}
-            </span>
-          ) : null}
+          <PresentWhileNode node={props.feelsLikeLabel}>
+            {(feelsLikeLabel) => (
+              <span
+                class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), cm.weatherCardFeelsLike)}
+              >
+                {feelsLikeLabel()}
+              </span>
+            )}
+          </PresentWhileNode>
+          <PresentWhileNode node={props.highLowLabel}>
+            {(highLowLabel) => (
+              <span
+                class={cm.cn(
+                  cm.flex({ align: 'center', gap: 'xs' }),
+                  cm.sp('px', 3),
+                  cm.sp('py', 1),
+                  cm.roundedFull,
+                  cm.textSize('xs'),
+                  cm.fontWeight('bold'),
+                  cm.weatherCardHighLowChip,
+                )}
+              >
+                {highLowLabel()}
+              </span>
+            )}
+          </PresentWhileNode>
+          <PresentWhileNode node={props.updatedLabel}>
+            {(updatedLabel) => (
+              <span class={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}>{updatedLabel()}</span>
+            )}
+          </PresentWhileNode>
         </div>
       </div>
 
