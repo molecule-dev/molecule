@@ -36,6 +36,7 @@ const path = require('node:path')
 const process = require('node:process')
 
 const { defaults, names } = require('./preset-tokens.cjs')
+const fontSizes = require('./preset-font-sizes.cjs')
 
 /** Whether Tailwind is building for a device (NativeWind sets `NATIVEWIND_OS`; unset means web). */
 const native = ['ios', 'android', 'native'].includes(process.env.NATIVEWIND_OS ?? '')
@@ -95,6 +96,11 @@ const webScales = {
   borderColor: { DEFAULT: 'currentColor' },
   // v4 takes any whole-number duration; the ClassMap uses this one.
   transitionDuration: { 250: '250ms' },
+  // v4's sizes set a unitless line height, which a child that sets only a font size inherits as a
+  // ratio; NativeWind resolves a unitless line height against each element's own font size.
+  fontSize: Object.fromEntries(
+    Object.entries(fontSizes).map(([name, { size, lineHeight }]) => [name, [size, { lineHeight }]]),
+  ),
 }
 
 /**
@@ -123,6 +129,15 @@ function sansFont() {
 const fontRoles = { body: sansFont(), label: sansFont(), display: sansFont(), headline: sansFont() }
 /** `font-inherit` (the Textarea entry) on Expo web, as base.css defines it; a device drops it. */
 const webFonts = native ? {} : { inherit: 'inherit' }
+
+/**
+ * `font-document`: the font `base.css` gives the web's `html` and `body`, which every text
+ * inherits there. A device has no document: native elements start their text from it
+ * (`nativeRootText` in the ClassMap).
+ */
+const documentFont = {
+  document: native ? sansFont() : 'var(--mol-font-sans, system-ui, sans-serif)',
+}
 
 /**
  * The animations the ClassMap names, as `base.css` defines them on the web.
@@ -212,7 +227,7 @@ module.exports = {
       colors,
       ...webScales,
       ...animations,
-      fontFamily: { ...fontRoles, ...webFonts },
+      fontFamily: { ...fontRoles, ...documentFont, ...webFonts },
     },
   },
   plugins: [

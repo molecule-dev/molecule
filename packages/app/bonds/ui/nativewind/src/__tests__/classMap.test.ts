@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { UIClassMap } from '@molecule/app-ui'
+import { classMap as tailwindClassMap } from '@molecule/app-ui-tailwind'
 
 import { classMap } from '../classMap.js'
 
@@ -204,7 +205,7 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   })
 
   // =================================================================
-  // flex() — defaults to column direction (RN default)
+  // flex() — the web's classes: a row unless a direction is given
   // =================================================================
 
   describe('flex()', () => {
@@ -213,9 +214,9 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       expect(result).toContain('flex')
     })
 
-    it('should default to column direction (RN convention)', () => {
-      const result = classMap.flex()
-      expect(result).toContain('flex-col')
+    it('defaults to a row, as on the web', () => {
+      expect(classMap.flex()).toBe(tailwindClassMap.flex())
+      expect(classMap.flex()).toContain('flex-row')
     })
 
     it('should respect explicit direction override', () => {
@@ -352,16 +353,13 @@ describe('@molecule/app-ui-nativewind classMap', () => {
   })
 
   // =================================================================
-  // Display utilities — empty on RN
+  // Display utilities
   // =================================================================
 
   describe('display utilities (unsupported in RN)', () => {
-    it('displayBlock should be empty', () => {
-      expect(classMap.displayBlock).toBe('')
-    })
-
-    it('displayInlineBlock should be empty', () => {
-      expect(classMap.displayInlineBlock).toBe('')
+    it('block and inline-block keep the web classes the native elements read', () => {
+      expect(classMap.displayBlock).toBe(tailwindClassMap.displayBlock)
+      expect(classMap.displayInlineBlock).toBe(tailwindClassMap.displayInlineBlock)
     })
 
     it('displayContents should be empty', () => {

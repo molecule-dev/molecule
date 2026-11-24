@@ -8,14 +8,19 @@
 
 import { readdirSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { colorTokens, themeVariables } from '@molecule/app-ui-tailwind'
 
-import { deviceOnlyClasses, words } from '../../scripts/device-classes.mjs'
+import {
+  deviceOnlyClasses,
+  expandBraces,
+  inlineSourceClasses,
+  words,
+} from '../../scripts/device-classes.mjs'
 import { classMap } from '../classMap.js'
 import { forDevice } from '../device.js'
 
@@ -147,6 +152,44 @@ describe("what an app's Tailwind scan finds", () => {
     const own = [...scripts(join(packageDir, 'src')), deviceOnlyClasses(web, forDevice).join(' ')]
     const named = new Set([...web, ...own].flatMap(words))
     expect(staticClasses.filter((cls) => !named.has(cls))).toEqual([])
+  })
+
+  it("lists every class base.css's @source inline() asks for (classes built at run time)", () => {
+    const packageDir = fileURLToPath(new URL('../..', import.meta.url))
+    const listed = new Set(
+      words(readFileSync(join(packageDir, 'dist/device-classes.cjs'), 'utf8')).map((w) =>
+        w.replace(/,$/, ''),
+      ),
+    )
+    const webCss = readFileSync(
+      join(
+        dirname(fileURLToPath(import.meta.resolve('@molecule/app-ui-tailwind'))),
+        '..',
+        'base.css',
+      ),
+      'utf8',
+    )
+    const wanted = inlineSourceClasses(webCss).flatMap((cls) => forDevice(cls).split(/\s+/))
+    expect(wanted).toContain('text-4xl')
+    expect(wanted.filter((cls) => cls && !listed.has(cls))).toEqual([])
+  })
+
+  it('expands @source inline() patterns as Tailwind 4 does', () => {
+    expect(expandBraces('text-{xs,4xl}')).toEqual(['text-xs', 'text-4xl'])
+    expect(expandBraces('{w,h}-{0,{1..3}}')).toEqual([
+      'w-0',
+      'w-1',
+      'w-2',
+      'w-3',
+      'h-0',
+      'h-1',
+      'h-2',
+      'h-3',
+    ])
+    expect(expandBraces('gap-{0..20..10}')).toEqual(['gap-0', 'gap-10', 'gap-20'])
+    expect(
+      inlineSourceClasses('@source inline("sm:a-{1,2} b");\n@source not inline("c");'),
+    ).toEqual(['b', 'sm:a-1', 'sm:a-2'])
   })
 
   it('lists a rewritten class no web file names, and nothing a web file names', () => {

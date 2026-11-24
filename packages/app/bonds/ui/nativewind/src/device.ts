@@ -12,7 +12,7 @@
  * @param cls - One class.
  * @returns The variants and the utility.
  */
-function splitVariants(cls: string): { variants: string[]; utility: string } {
+export function splitVariants(cls: string): { variants: string[]; utility: string } {
   const parts: string[] = []
   let depth = 0
   let start = 0

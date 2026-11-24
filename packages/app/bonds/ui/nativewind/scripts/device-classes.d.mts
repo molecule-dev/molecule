@@ -24,3 +24,20 @@ export declare function deviceOnlyClasses(
   texts: string[],
   forDevice: (classes: string) => string,
 ): string[]
+
+/**
+ * Expands one class pattern as Tailwind 4's `@source inline()` does: `{a,b}` alternatives
+ * (nested too) and `{1..96}` / `{0..100..10}` numeric ranges.
+ *
+ * @param pattern - A pattern without whitespace.
+ * @returns The classes.
+ */
+export declare function expandBraces(pattern: string): string[]
+
+/**
+ * The classes a stylesheet's `@source inline("…")` rules ask Tailwind 4 to generate.
+ *
+ * @param css - The stylesheet.
+ * @returns The classes, sorted.
+ */
+export declare function inlineSourceClasses(css: string): string[]

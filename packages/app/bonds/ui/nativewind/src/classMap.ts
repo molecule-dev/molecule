@@ -21,7 +21,6 @@
 import type {
   ClassMapValue,
   ContainerClassOptions,
-  FlexClassOptions,
   GridClassOptions,
   ModalClassOptions,
   ResponsiveBreakpoint,
@@ -32,6 +31,7 @@ import type {
 import { classMap as tailwindClassMap } from '@molecule/app-ui-tailwind'
 
 import { forDevice } from './device.js'
+import { splitForNative } from './split.js'
 
 /**
  * The web ClassMap with every entry passed through {@link forDevice}: static
@@ -65,6 +65,11 @@ for (const [key, value] of Object.entries(tailwindClassMap)) {
  */
 export const classMap: UIClassMap = {
   ...deviceClassMap,
+
+  splitForNative,
+  // What base.css gives the web's html and body (font, 16px on a 24px line, the foreground colour).
+  nativeRootText: 'font-document text-base text-foreground',
+  nativeButtonText: 'text-center',
 
   // ---- Overrides for RN-incompatible classes ----
 
@@ -153,14 +158,6 @@ export const classMap: UIClassMap = {
     return opts?.horizontal ? `w-${val}` : `h-${val}`
   },
 
-  // Flex: Same but ensure default direction (RN defaults to column, Tailwind defaults to row)
-  flex(opts?: FlexClassOptions): string {
-    return tailwindClassMap.flex({
-      ...opts,
-      direction: opts?.direction || 'col',
-    })
-  },
-
   // ---- Static token overrides ----
 
   // Replace fixed with absolute (RN has no "fixed")
@@ -184,9 +181,8 @@ export const classMap: UIClassMap = {
   // Unconditional, like touchTarget (RN is touch-first).
   touchTargetCompact: 'min-h-[36px] min-w-[36px]',
 
-  // Display utilities: RN doesn't have inline-block or block/inline distinction
-  displayBlock: '',
-  displayInlineBlock: '',
+  // A device view has no display: contents. Block and inline-block keep the web's classes: the
+  // native elements read them (splitForNative) to lay out inline flow, and leave them off the view.
   displayContents: '',
 
   // Prose: @tailwindcss/typography not supported in NativeWind
@@ -228,8 +224,8 @@ export const classMap: UIClassMap = {
   alertDescription: 'text-sm leading-relaxed',
   // A gradient background does not paint on a device; the wave pulses instead.
   skeletonWave: 'animate-shimmer',
-  // Web-only: a ScrollView hides its indicator with a prop, and a device renders
-  // icons as SVG and does not bundle the Material Symbols glyph font.
+  // Web-only: a ScrollView hides its indicator with a prop.
   facetedSearchBar: 'absolute z-40 border-b border-outline-variant/20 overflow-x-auto',
-  iconGlyphFont: '',
+  // The family comes from the icon font (`getFont('icon')`), which the GlyphIcon element sets.
+  iconGlyphFont: 'font-normal not-italic leading-none tracking-normal normal-case',
 }
