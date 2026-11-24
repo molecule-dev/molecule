@@ -12,6 +12,8 @@
  * @module
  */
 
+import type { ElementRole, UIClassMapNativeSplit } from './elements.js'
+
 // ============================================================================
 // FRAMEWORK-AGNOSTIC BASE TYPES
 // ============================================================================
@@ -189,7 +191,7 @@ export interface HTMLElementProps extends BaseProps {
   id?: string
   title?: string
   tabIndex?: number
-  role?: string
+  role?: ElementRole
   'aria-label'?: string
   'aria-labelledby'?: string
   'aria-describedby'?: string
@@ -2097,7 +2099,7 @@ export type AccentTone = 'default' | 'primary' | 'info' | 'success' | 'warning' 
  * const classes = cm.cn(cm.button({ variant: 'solid', size: 'md' }), className)
  * ```
  */
-export interface UIClassMap {
+export interface UIClassMap extends UIClassMapNativeSplit {
   /**
    * Merges class names with library-specific conflict resolution
    * (e.g. tailwind-merge for Tailwind).
