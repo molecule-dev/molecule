@@ -1,5 +1,6 @@
 [
   "@molecule/api-activity",
+  "@molecule/api-activity-capture",
   "@molecule/api-activity-console",
   "@molecule/api-activity-http",
   "@molecule/api-agent-run",
