@@ -34,7 +34,7 @@
     "mailparser": "3.12.4"
   },
   "devDependencies": {
-    "@molecule/api-emails": "1.0.3",
+    "@molecule/api-emails": "1.0.4",
     "@molecule/api-emails-inbound": "1.0.7",
     "@types/mailparser": "3.9.0",
     "@types/node": "26.6.5",

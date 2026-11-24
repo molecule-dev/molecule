@@ -1,5 +1,11 @@
 # @molecule/app-locales-common
 
+## 1.0.10
+
+### Patch Changes
+
+- Corrects the Amharic, Hebrew, Malayalam and Traditional Chinese translations of `nav.free`.
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-angular
 
+## 3.0.1
+
+### Patch Changes
+
+- `BillingSection` with no `plan` shows the translated `settings.billing.freePlan` instead of an English "Free".
+
 ## 3.0.0
 
 ### Major Changes

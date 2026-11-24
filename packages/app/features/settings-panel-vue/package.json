@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-settings-panel-vue",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Composable settings panel — a SettingsContainer + family of section sub-components (Account, Auth, Notifications, Billing, Devices, ThisDevice, LogOutDelete). Apps compose via the default slot, picking which sections to include and what order.",
   "homepage": "https://www.molecule.dev/packages/app-settings-panel-vue",
   "type": "module",

@@ -30,7 +30,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-emails": "1.0.3",
+    "@molecule/api-emails": "1.0.4",
     "@molecule/api-emails-inbound": "1.0.7",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

@@ -1,5 +1,11 @@
 # @molecule/api-emails
 
+## 1.0.4
+
+### Patch Changes
+
+- The Quick Start defines the sender address it sends from.
+
 ## 1.0.1
 
 ### Patch Changes

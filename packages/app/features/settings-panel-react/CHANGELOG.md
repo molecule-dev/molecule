@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 5.0.1
+
+### Patch Changes
+
+- `BillingSection` with no `plan` shows the translated `settings.billing.freePlan` instead of an English "Free".
+
 ## 5.0.0
 
 ### Major Changes

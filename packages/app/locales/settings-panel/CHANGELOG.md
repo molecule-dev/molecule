@@ -1,5 +1,11 @@
 # @molecule/app-locales-settings-panel
 
+## 1.1.0
+
+### Minor Changes
+
+- `BillingSection` with no `plan` shows the translated `settings.billing.freePlan` instead of an English "Free".
+
 ## 1.0.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.11.2
+
+### Patch Changes
+
+- Scaffolds mount the password reset, two-factor and plan routes only when an email, two-factor or payments provider is installed.
+
 ## 1.11.1
 
 ### Patch Changes
