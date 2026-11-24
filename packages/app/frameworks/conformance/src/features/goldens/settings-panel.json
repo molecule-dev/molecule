@@ -867,7 +867,7 @@
    "with no page to open it offers no Upgrade, then a locale switch": {
     "snapshots": [
      "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\nBilling\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nPlan: \n<strong>\nFree\n</strong>\n</span>\n</div>\n</section>\n@route /",
-     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\n⟦Billing⟧\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n⟦Plan: ⟧\n<strong>\nFree\n</strong>\n</span>\n</div>\n</section>\n@route /"
+     "<section>\n<h3 class=\"c445db9b9 c7f74399a c8c7220fe ce823b5bf\">\n⟦Billing⟧\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n⟦Plan: ⟧\n<strong>\n⟦Free⟧\n</strong>\n</span>\n</div>\n</section>\n@route /"
     ],
     "calls": [
      {

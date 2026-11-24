@@ -17,6 +17,7 @@ export const ha: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Haɓaka shirin ku',
   'settings.billing.noTiers': 'Babu tsare-tsare da aka biya.',
   'settings.billing.subscribe': 'Yi rijista',
+  'settings.billing.freePlan': 'Kyauta',
   'settings.failedToUpdateProfile': 'An kasa sabunta bayanin martaba',
   'settings.name': 'Suna',
   'settings.twoFactorCode': 'Lambar tabbatarwa',

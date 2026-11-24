@@ -17,6 +17,7 @@ export const cs: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Upgradujte svůj tarif',
   'settings.billing.noTiers': 'Nejsou nakonfigurovány žádné placené tarify.',
   'settings.billing.subscribe': 'Upsat',
+  'settings.billing.freePlan': 'Zdarma',
   'settings.failedToUpdateProfile': 'Profil se nepodařilo aktualizovat',
   'settings.name': 'Jméno',
   'settings.twoFactorCode': 'Ověřovací kód',

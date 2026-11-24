@@ -17,6 +17,7 @@ export const sq: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Përmirësoni planin tuaj',
   'settings.billing.noTiers': 'Nuk janë konfiguruar plane me pagesë.',
   'settings.billing.subscribe': 'Abonohu',
+  'settings.billing.freePlan': 'Falas',
   'settings.failedToUpdateProfile': 'Përditësimi i profilit dështoi',
   'settings.name': 'Emri',
   'settings.twoFactorCode': 'Kodi i vërtetimit',

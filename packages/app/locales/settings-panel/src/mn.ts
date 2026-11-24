@@ -17,6 +17,7 @@ export const mn: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Төлөвлөгөөгөө сайжруулна уу',
   'settings.billing.noTiers': 'Төлбөртэй төлөвлөгөө тохируулагдаагүй байна.',
   'settings.billing.subscribe': 'Захиалах',
+  'settings.billing.freePlan': 'Үнэгүй',
   'settings.failedToUpdateProfile': 'Профайлыг шинэчилж чадсангүй',
   'settings.name': 'Нэр',
   'settings.twoFactorCode': 'Баталгаажуулах код',

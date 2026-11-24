@@ -17,6 +17,7 @@ export const fr: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Passez à un forfait supérieur',
   'settings.billing.noTiers': 'Aucun forfait payant configuré.',
   'settings.billing.subscribe': "S'abonner",
+  'settings.billing.freePlan': 'Gratuit',
   'settings.failedToUpdateProfile': 'Impossible de mettre à jour le profil',
   'settings.name': 'Nom',
   'settings.twoFactorCode': "Code d'authentification",

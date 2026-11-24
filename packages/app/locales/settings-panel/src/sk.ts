@@ -17,6 +17,7 @@ export const sk: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Zlepšite si svoj plán',
   'settings.billing.noTiers': 'Nie sú nakonfigurované žiadne platené programy.',
   'settings.billing.subscribe': 'Prihlásiť sa na odber',
+  'settings.billing.freePlan': 'Zadarmo',
   'settings.failedToUpdateProfile': 'Aktualizácia profilu zlyhala',
   'settings.name': 'Meno',
   'settings.twoFactorCode': 'Autentifikačný kód',

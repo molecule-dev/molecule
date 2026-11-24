@@ -17,6 +17,7 @@ export const en: SettingsPanelTranslations = {
   'settings.billing.upgradeTitle': 'Upgrade your plan',
   'settings.billing.noTiers': 'No paid plans configured.',
   'settings.billing.subscribe': 'Subscribe',
+  'settings.billing.freePlan': 'Free',
   'settings.failedToUpdateProfile': 'Failed to update profile',
   'settings.name': 'Name',
   'settings.twoFactorCode': 'Authentication code',

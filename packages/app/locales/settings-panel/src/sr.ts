@@ -17,6 +17,7 @@ export const sr: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Надоградите свој план',
   'settings.billing.noTiers': 'Није конфигурисан ниједан плаћени план.',
   'settings.billing.subscribe': 'Претплатите се',
+  'settings.billing.freePlan': 'Бесплатно',
   'settings.failedToUpdateProfile': 'Ажурирање профила није успело',
   'settings.name': 'Име',
   'settings.twoFactorCode': 'Код за аутентификацију',

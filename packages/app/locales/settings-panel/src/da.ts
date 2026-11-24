@@ -17,6 +17,7 @@ export const da: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Opgrader din plan',
   'settings.billing.noTiers': 'Ingen betalte planer konfigureret.',
   'settings.billing.subscribe': 'Abonner',
+  'settings.billing.freePlan': 'Gratis',
   'settings.failedToUpdateProfile': 'Profilen kunne ikke opdateres',
   'settings.name': 'Navn',
   'settings.twoFactorCode': 'Godkendelseskode',

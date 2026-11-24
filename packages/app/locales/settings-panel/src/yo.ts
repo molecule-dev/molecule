@@ -17,6 +17,7 @@ export const yo: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Ṣe igbesoke eto rẹ',
   'settings.billing.noTiers': 'Kò sí ètò ìsanwó tí a ṣètò.',
   'settings.billing.subscribe': 'Ṣe alabapin',
+  'settings.billing.freePlan': 'Ọfẹ',
   'settings.failedToUpdateProfile': 'Kò ṣe àtúnṣe ìwífúnni',
   'settings.name': 'Orúkọ',
   'settings.twoFactorCode': 'Kóòdù ìfàṣẹsí',

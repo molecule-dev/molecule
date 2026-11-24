@@ -17,6 +17,7 @@ export const ur: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'اپنا منصوبہ اپ گریڈ کریں۔',
   'settings.billing.noTiers': 'کوئی بامعاوضہ منصوبہ ترتیب نہیں دیا گیا ہے۔',
   'settings.billing.subscribe': 'سبسکرائب کریں۔',
+  'settings.billing.freePlan': 'مفت',
   'settings.failedToUpdateProfile': 'پروفائل اپ ڈیٹ کرنے میں ناکام',
   'settings.name': 'نام',
   'settings.twoFactorCode': 'تصدیقی کوڈ',

@@ -17,6 +17,7 @@ export const az: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Planınızı təkmilləşdirin',
   'settings.billing.noTiers': 'Ödənişli planlar konfiqurasiya edilməyib.',
   'settings.billing.subscribe': 'Abunə olun',
+  'settings.billing.freePlan': 'Pulsuz',
   'settings.failedToUpdateProfile': 'Profil yenilənmədi',
   'settings.name': 'Ad',
   'settings.twoFactorCode': 'Doğrulama kodu',

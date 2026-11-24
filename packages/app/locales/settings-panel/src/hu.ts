@@ -17,6 +17,7 @@ export const hu: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Frissítse csomagját',
   'settings.billing.noTiers': 'Nincsenek konfigurált fizetős csomagok.',
   'settings.billing.subscribe': 'Feliratkozás',
+  'settings.billing.freePlan': 'Ingyenes',
   'settings.failedToUpdateProfile': 'Nem sikerült frissíteni a profilt',
   'settings.name': 'Név',
   'settings.twoFactorCode': 'Hitelesítési kód',

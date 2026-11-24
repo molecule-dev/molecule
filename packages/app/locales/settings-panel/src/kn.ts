@@ -17,6 +17,7 @@ export const kn: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'ನಿಮ್ಮ ಯೋಜನೆಯನ್ನು ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ',
   'settings.billing.noTiers': 'ಯಾವುದೇ ಪಾವತಿಸಿದ ಯೋಜನೆಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.',
   'settings.billing.subscribe': 'ಚಂದಾದಾರರಾಗಿ',
+  'settings.billing.freePlan': 'ಉಚಿತ',
   'settings.failedToUpdateProfile': 'ಪ್ರೊಫೈಲ್ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ',
   'settings.name': 'ಹೆಸರು',
   'settings.twoFactorCode': 'ದೃಢೀಕರಣ ಕೋಡ್',

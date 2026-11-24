@@ -17,6 +17,7 @@ export const fil: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'I-upgrade ang iyong plano',
   'settings.billing.noTiers': 'Walang naka-configure na mga bayad na plano.',
   'settings.billing.subscribe': 'Mag-subscribe',
+  'settings.billing.freePlan': 'Libre',
   'settings.failedToUpdateProfile': 'Nabigong i-update ang profile',
   'settings.name': 'Pangalan',
   'settings.twoFactorCode': 'Kodigo ng pagpapatunay',

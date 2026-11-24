@@ -17,6 +17,7 @@ export const bn: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'আপনার প্ল্যান আপগ্রেড করুন',
   'settings.billing.noTiers': 'কোনো পেইড প্ল্যান কনফিগার করা নেই।',
   'settings.billing.subscribe': 'সাবস্ক্রাইব করুন',
+  'settings.billing.freePlan': 'বিনামূল্যে',
   'settings.failedToUpdateProfile': 'প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে',
   'settings.name': 'নাম',
   'settings.twoFactorCode': 'প্রমাণীকরণ কোড',

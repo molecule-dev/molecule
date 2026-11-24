@@ -17,6 +17,7 @@ export const uz: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Rejangizni yangilang',
   'settings.billing.noTiers': 'Pullik rejalar sozlanmagan.',
   'settings.billing.subscribe': "Obuna bo'lish",
+  'settings.billing.freePlan': 'Bepul',
   'settings.failedToUpdateProfile': 'Profilni yangilashda xatolik yuz berdi',
   'settings.name': 'Ism',
   'settings.twoFactorCode': 'Autentifikatsiya kodi',

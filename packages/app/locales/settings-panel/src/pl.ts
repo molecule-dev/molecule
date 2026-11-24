@@ -13,6 +13,7 @@ export const pl: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Ulepsz',
   'settings.billing.cancel': 'Anuluj',
   'settings.billing.subscribe': 'Subskrybuj',
+  'settings.billing.freePlan': 'Bezpłatny',
   'settings.darkMode': 'Tryb ciemny',
   'settings.plan': 'Plan',
   'settings.billing.upgradeTitle': 'Ulepsz swój plan',

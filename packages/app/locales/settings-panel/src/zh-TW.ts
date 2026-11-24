@@ -17,6 +17,7 @@ export const zhTW: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': '升級您的套餐',
   'settings.billing.noTiers': '未配置付費方案。',
   'settings.billing.subscribe': '訂閱',
+  'settings.billing.freePlan': '免費',
   'settings.failedToUpdateProfile': '更新個人資料失敗',
   'settings.name': '姓名',
   'settings.twoFactorCode': '驗證碼',

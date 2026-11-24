@@ -17,6 +17,7 @@ export const uk: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Оновіть свій план',
   'settings.billing.noTiers': 'Платні плани не налаштовані.',
   'settings.billing.subscribe': 'Підписатися',
+  'settings.billing.freePlan': 'Безкоштовно',
   'settings.failedToUpdateProfile': 'Не вдалося оновити профіль',
   'settings.name': "Ім'я",
   'settings.twoFactorCode': 'Код автентифікації',

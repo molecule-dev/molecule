@@ -17,6 +17,7 @@ export const eu: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Berritu zure plana',
   'settings.billing.noTiers': 'Ez dago ordainpeko planik konfiguratuta.',
   'settings.billing.subscribe': 'Harpidetu',
+  'settings.billing.freePlan': 'Doan',
   'settings.failedToUpdateProfile': 'Ezin izan da profila eguneratu',
   'settings.name': 'Izena',
   'settings.twoFactorCode': 'Autentifikazio kodea',

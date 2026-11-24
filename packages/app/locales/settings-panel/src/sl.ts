@@ -17,6 +17,7 @@ export const sl: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Nadgradite svoj paket',
   'settings.billing.noTiers': 'Ni konfiguriranih plačljivih paketov.',
   'settings.billing.subscribe': 'Naročite se',
+  'settings.billing.freePlan': 'Brezplačno',
   'settings.failedToUpdateProfile': 'Posodobitev profila ni uspela',
   'settings.name': 'Ime',
   'settings.twoFactorCode': 'Koda za preverjanje pristnosti',

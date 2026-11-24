@@ -17,6 +17,7 @@ export const mt: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Aġġorna l-pjan tiegħek',
   'settings.billing.noTiers': 'L-ebda pjan imħallas ma ġie kkonfigurat.',
   'settings.billing.subscribe': 'Abbona',
+  'settings.billing.freePlan': "B'xejn",
   'settings.failedToUpdateProfile': 'Ma rnexxiex naġġorna l-profil',
   'settings.name': 'Isem',
   'settings.twoFactorCode': "Kodiċi ta' awtentikazzjoni",

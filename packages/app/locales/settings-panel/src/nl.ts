@@ -14,6 +14,7 @@ export const nl: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Upgraden',
   'settings.billing.cancel': 'Annuleren',
   'settings.billing.subscribe': 'Abonneren',
+  'settings.billing.freePlan': 'Gratis',
   'settings.darkMode': 'Donkere modus',
   'settings.billing.upgradeTitle': 'Upgrade uw abonnement',
   'settings.billing.noTiers': 'Er zijn geen betaalde abonnementen geconfigureerd.',

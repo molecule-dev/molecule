@@ -17,6 +17,7 @@ export const ro: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Actualizați-vă planul',
   'settings.billing.noTiers': 'Nu sunt configurate planuri plătite.',
   'settings.billing.subscribe': 'Abonează-te',
+  'settings.billing.freePlan': 'Gratuit',
   'settings.failedToUpdateProfile': 'Nu s-a putut actualiza profilul',
   'settings.name': 'Nume',
   'settings.twoFactorCode': 'Cod de autentificare',

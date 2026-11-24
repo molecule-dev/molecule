@@ -17,6 +17,7 @@ export const ig: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Melite atụmatụ gị',
   'settings.billing.noTiers': 'Enweghị atụmatụ akwụ ụgwọ ahaziri.',
   'settings.billing.subscribe': 'Idenye aha',
+  'settings.billing.freePlan': "N'efu",
   'settings.failedToUpdateProfile': 'Emeliteghị profaịlụ agaghị emelite',
   'settings.name': 'Aha',
   'settings.twoFactorCode': 'Koodu nkwenye',

@@ -17,6 +17,7 @@ export const ms: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Naik taraf pelan anda',
   'settings.billing.noTiers': 'Tiada pelan berbayar dikonfigurasikan.',
   'settings.billing.subscribe': 'Langgan',
+  'settings.billing.freePlan': 'Percuma',
   'settings.failedToUpdateProfile': 'Gagal mengemas kini profil',
   'settings.name': 'Nama',
   'settings.twoFactorCode': 'Kod pengesahan',

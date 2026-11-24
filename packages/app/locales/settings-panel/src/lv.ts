@@ -17,6 +17,7 @@ export const lv: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Jauniniet savu plānu',
   'settings.billing.noTiers': 'Nav konfigurēti maksas plāni.',
   'settings.billing.subscribe': 'Abonēt',
+  'settings.billing.freePlan': 'Bezmaksas',
   'settings.failedToUpdateProfile': 'Neizdevās atjaunināt profilu',
   'settings.name': 'Vārds',
   'settings.twoFactorCode': 'Autentifikācijas kods',

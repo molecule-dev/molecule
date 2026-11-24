@@ -14,6 +14,7 @@ export const ja: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'アップグレード',
   'settings.billing.cancel': 'キャンセル',
   'settings.billing.subscribe': '登録する',
+  'settings.billing.freePlan': '無料',
   'settings.darkMode': 'ダークモード',
   'settings.billing.upgradeTitle': 'プランをアップグレードする',
   'settings.billing.noTiers': '有料プランは設定されていません。',

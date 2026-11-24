@@ -37,7 +37,6 @@ export const BillingSection = defineComponent({
     /** Fallback plan label when the status endpoint is unavailable. */
     plan: {
       type: String,
-      default: 'Free',
     },
     /** The app's page for choosing a plan, which the Upgrade button opens. */
     upgradeTo: {
@@ -82,7 +81,11 @@ export const BillingSection = defineComponent({
         h(Flex, { align: 'center', justify: 'between' }, () => [
           h('span', { class: cm.textSize('sm') }, [
             t('settings.plan', undefined, { defaultValue: 'Plan: ' }),
-            h('strong', [livePlan.value ?? props.plan]),
+            h('strong', [
+              livePlan.value ??
+                props.plan ??
+                t('settings.billing.freePlan', undefined, { defaultValue: 'Free' }),
+            ]),
           ]),
           props.upgradeTo
             ? h(

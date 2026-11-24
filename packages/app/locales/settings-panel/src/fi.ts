@@ -17,6 +17,7 @@ export const fi: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Päivitä sopimuksesi',
   'settings.billing.noTiers': 'Ei maksullisia sopimuksia määritettynä.',
   'settings.billing.subscribe': 'Tilaa',
+  'settings.billing.freePlan': 'Ilmainen',
   'settings.failedToUpdateProfile': 'Profiilin päivittäminen epäonnistui',
   'settings.name': 'Nimi',
   'settings.twoFactorCode': 'Todennuskoodi',

@@ -17,6 +17,7 @@ export const he: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'שדרגו את התוכנית שלכם',
   'settings.billing.noTiers': 'לא הוגדרו תוכניות בתשלום.',
   'settings.billing.subscribe': 'הירשם',
+  'settings.billing.freePlan': 'חינם',
   'settings.failedToUpdateProfile': 'עדכון הפרופיל נכשל',
   'settings.name': 'שֵׁם',
   'settings.twoFactorCode': 'קוד אימות',

@@ -19,7 +19,7 @@
   import { getClassMap } from '@molecule/app-ui'
   import { Button, Flex } from '@molecule/app-ui-svelte'
 
-  let { plan = 'Free', upgradeTo }: { plan?: string; upgradeTo: string } = $props()
+  let { plan, upgradeTo }: { plan?: string; upgradeTo: string } = $props()
 
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
@@ -56,7 +56,10 @@
   </h3>
   <Flex align="center" justify="between">
     <span class={cm.textSize('sm')}
-      >{t('settings.plan', undefined, { defaultValue: 'Plan: ' })}<strong>{livePlan ?? plan}</strong
+      >{t('settings.plan', undefined, { defaultValue: 'Plan: ' })}<strong
+        >{livePlan ??
+          plan ??
+          t('settings.billing.freePlan', undefined, { defaultValue: 'Free' })}</strong
       ></span
     >
     {#if upgradeTo}

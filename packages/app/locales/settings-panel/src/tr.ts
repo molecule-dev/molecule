@@ -13,6 +13,7 @@ export const tr: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Yükselt',
   'settings.billing.cancel': 'İptal',
   'settings.billing.subscribe': 'Abone ol',
+  'settings.billing.freePlan': 'Ücretsiz',
   'settings.darkMode': 'Karanlık mod',
   'settings.plan': 'Plan',
   'settings.billing.upgradeTitle': 'Planınızı yükseltin',

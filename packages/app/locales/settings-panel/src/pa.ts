@@ -17,6 +17,7 @@ export const pa: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'ਆਪਣੀ ਯੋਜਨਾ ਨੂੰ ਅੱਪਗ੍ਰੇਡ ਕਰੋ',
   'settings.billing.noTiers': 'ਕੋਈ ਭੁਗਤਾਨ ਕੀਤੇ ਪਲਾਨ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤੇ ਗਏ।',
   'settings.billing.subscribe': 'ਸਬਸਕ੍ਰਾਈਬ ਕਰੋ',
+  'settings.billing.freePlan': 'ਮੁਫ਼ਤ',
   'settings.failedToUpdateProfile': 'ਪ੍ਰੋਫਾਈਲ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ ਰਿਹਾ',
   'settings.name': 'ਨਾਮ',
   'settings.twoFactorCode': 'ਪ੍ਰਮਾਣੀਕਰਨ ਕੋਡ',

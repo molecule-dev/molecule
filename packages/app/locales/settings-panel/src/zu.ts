@@ -17,6 +17,7 @@ export const zu: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Thuthukisa uhlelo lwakho',
   'settings.billing.noTiers': 'Azikho izinhlelo ezikhokhelwayo ezihleliwe.',
   'settings.billing.subscribe': 'Bhalisa',
+  'settings.billing.freePlan': 'Mahhala',
   'settings.failedToUpdateProfile': 'Yehlulekile ukubuyekeza iphrofayela',
   'settings.name': 'Igama',
   'settings.twoFactorCode': 'Ikhodi yokuqinisekisa',

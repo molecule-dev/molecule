@@ -17,6 +17,7 @@ export const si: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'ඔබේ සැලැස්ම උත්ශ්‍රේණි කරන්න',
   'settings.billing.noTiers': 'ගෙවූ සැලසුම් වින්‍යාස කර නොමැත.',
   'settings.billing.subscribe': 'දායක වන්න',
+  'settings.billing.freePlan': 'නොමිලේ',
   'settings.failedToUpdateProfile': 'පැතිකඩ යාවත්කාලීන කිරීමට අසමත් විය.',
   'settings.name': 'නම',
   'settings.twoFactorCode': 'සත්‍යාපන කේතය',

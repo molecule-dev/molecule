@@ -13,6 +13,7 @@ export const it: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Aggiorna',
   'settings.billing.cancel': 'Annulla',
   'settings.billing.subscribe': 'Iscriviti',
+  'settings.billing.freePlan': 'Gratuito',
   'settings.darkMode': 'Modalità scura',
   'settings.billing.cancelConfirm': "Vuoi annullare l'abbonamento?",
   'settings.billing.upgradeTitle': 'Passa a un piano superiore',

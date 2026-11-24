@@ -17,6 +17,7 @@ export const lo: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'ອັບເກຣດແຜນການຂອງທ່ານ',
   'settings.billing.noTiers': 'ບໍ່ມີແຜນການຈ່າຍເງິນທີ່ຖືກຕັ້ງຄ່າໄວ້.',
   'settings.billing.subscribe': 'ສະໝັກສະມາຊິກ',
+  'settings.billing.freePlan': 'ຟຣີ',
   'settings.failedToUpdateProfile': 'ອັບເດດໂປຣໄຟລ໌ບໍ່ສຳເລັດ',
   'settings.name': 'ຊື່',
   'settings.twoFactorCode': 'ລະຫັດການພິສູດຢືນຢັນຕົວຕົນ',

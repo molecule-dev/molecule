@@ -17,6 +17,7 @@ export const ta: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'உங்கள் திட்டத்தை மேம்படுத்துங்கள்',
   'settings.billing.noTiers': 'கட்டணத் திட்டங்கள் எதுவும் அமைக்கப்படவில்லை.',
   'settings.billing.subscribe': 'சந்தா சேருங்கள்',
+  'settings.billing.freePlan': 'இலவசம்',
   'settings.failedToUpdateProfile': 'சுயவிவரத்தைப் புதுப்பிக்க முடியவில்லை',
   'settings.name': 'பெயர்',
   'settings.twoFactorCode': 'அங்கீகாரக் குறியீடு',

@@ -17,6 +17,7 @@ export const et: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Uuenda oma paketti',
   'settings.billing.noTiers': 'Tasulisi pakette pole konfigureeritud.',
   'settings.billing.subscribe': 'Telli',
+  'settings.billing.freePlan': 'Tasuta',
   'settings.failedToUpdateProfile': 'Profiili värskendamine ebaõnnestus',
   'settings.name': 'Nimi',
   'settings.twoFactorCode': 'Autentimiskood',

@@ -17,6 +17,7 @@ export const ga: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Uasghrádaigh do phlean',
   'settings.billing.noTiers': 'Níl aon phleananna íoctha cumraithe.',
   'settings.billing.subscribe': 'Liostáil',
+  'settings.billing.freePlan': 'Saor in aisce',
   'settings.failedToUpdateProfile': 'Theip ar an bpróifíl a nuashonrú',
   'settings.name': 'Ainm',
   'settings.twoFactorCode': 'Cód fíordheimhnithe',

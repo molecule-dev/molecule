@@ -52,7 +52,7 @@ import { Button, Flex } from '@molecule/app-ui-angular'
 })
 export class BillingSection {
   /** Fallback plan name when `/api/billing/status` is unavailable. */
-  plan = 'Free'
+  plan?: string
   /** The app's page for choosing a plan, which the Upgrade button opens. */
   upgradeTo!: string
 
@@ -78,7 +78,11 @@ export class BillingSection {
    * @returns The plan name.
    */
   protected planLabel(): string {
-    return this.livePlan() ?? this.plan
+    return (
+      this.livePlan() ??
+      this.plan ??
+      this.t('settings.billing.freePlan', undefined, { defaultValue: 'Free' })
+    )
   }
 
   /**

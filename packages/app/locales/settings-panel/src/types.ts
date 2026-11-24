@@ -15,6 +15,7 @@ export type SettingsPanelTranslationKey =
   | 'settings.billing.upgradeTitle'
   | 'settings.billing.noTiers'
   | 'settings.billing.subscribe'
+  | 'settings.billing.freePlan'
   | 'settings.failedToUpdateProfile'
   | 'settings.name'
   | 'settings.twoFactorCode'

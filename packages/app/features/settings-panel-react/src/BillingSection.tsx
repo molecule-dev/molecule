@@ -21,7 +21,7 @@ import { Button, Flex } from '@molecule/app-ui-react'
  * check) shows the plan without the button.
  */
 export function BillingSection({
-  plan = 'Free',
+  plan,
   upgradeTo,
 }: {
   plan?: string
@@ -63,7 +63,11 @@ export function BillingSection({
       <Flex align="center" justify="between">
         <span className={cm.textSize('sm')}>
           {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
-          <strong>{livePlan ?? plan}</strong>
+          <strong>
+            {livePlan ??
+              plan ??
+              t('settings.billing.freePlan', undefined, { defaultValue: 'Free' })}
+          </strong>
         </span>
         {upgradeTo ? (
           <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo)}>

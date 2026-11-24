@@ -17,6 +17,7 @@ export const ca: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Actualitza el teu pla',
   'settings.billing.noTiers': 'No hi ha cap pla de pagament configurat.',
   'settings.billing.subscribe': 'Subscriu-te',
+  'settings.billing.freePlan': 'Gratuït',
   'settings.failedToUpdateProfile': "No s'ha pogut actualitzar el perfil",
   'settings.name': 'Nom',
   'settings.twoFactorCode': "Codi d'autenticació",

@@ -17,6 +17,7 @@ export const is: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Uppfærðu áætlunina þína',
   'settings.billing.noTiers': 'Engar greiddar áætlanir stilltar.',
   'settings.billing.subscribe': 'Gerast áskrifandi',
+  'settings.billing.freePlan': 'Ókeypis',
   'settings.failedToUpdateProfile': 'Mistókst að uppfæra prófílinn',
   'settings.name': 'Nafn',
   'settings.twoFactorCode': 'Auðkenningarkóði',

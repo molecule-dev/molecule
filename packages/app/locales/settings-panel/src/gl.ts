@@ -17,6 +17,7 @@ export const gl: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Actualiza o teu plan',
   'settings.billing.noTiers': 'Non hai plans de pago configurados.',
   'settings.billing.subscribe': 'Subscribirse',
+  'settings.billing.freePlan': 'Gratis',
   'settings.failedToUpdateProfile': 'Non se puido actualizar o perfil',
   'settings.name': 'Nome',
   'settings.twoFactorCode': 'Código de autenticación',

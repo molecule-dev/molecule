@@ -17,6 +17,7 @@ export const el: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Αναβαθμίστε το πρόγραμμά σας',
   'settings.billing.noTiers': 'Δεν έχουν διαμορφωθεί προγράμματα επί πληρωμή.',
   'settings.billing.subscribe': 'Συνεισφέρω',
+  'settings.billing.freePlan': 'Δωρεάν',
   'settings.failedToUpdateProfile': 'Η ενημέρωση του προφίλ απέτυχε',
   'settings.name': 'Ονομα',
   'settings.twoFactorCode': 'Κωδικός ελέγχου ταυτότητας',

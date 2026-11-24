@@ -17,6 +17,7 @@ export const kk: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Жоспарыңызды жаңартыңыз',
   'settings.billing.noTiers': 'Ақылы жоспарлар конфигурацияланбаған.',
   'settings.billing.subscribe': 'Жазылу',
+  'settings.billing.freePlan': 'Тегін',
   'settings.failedToUpdateProfile': 'Профиль жаңартылмады',
   'settings.name': 'Аты',
   'settings.twoFactorCode': 'Аутентификация коды',

@@ -17,6 +17,7 @@ export const fa: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'طرح خود را ارتقا دهید',
   'settings.billing.noTiers': 'هیچ طرح پولی پیکربندی نشده است.',
   'settings.billing.subscribe': 'اشتراک',
+  'settings.billing.freePlan': 'رایگان',
   'settings.failedToUpdateProfile': 'به‌روزرسانی نمایه انجام نشد',
   'settings.name': 'نام',
   'settings.twoFactorCode': 'کد احراز هویت',

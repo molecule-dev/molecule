@@ -17,6 +17,7 @@ export const my: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'သင့်အစီအစဉ်ကို အဆင့်မြှင့်တင်ပါ',
   'settings.billing.noTiers': 'ငွေပေးချေသည့် အစီအစဉ်များကို ပြင်ဆင်သတ်မှတ်ခြင်း မရှိပါ။',
   'settings.billing.subscribe': 'စာရင်းသွင်းပါ',
+  'settings.billing.freePlan': 'အခမဲ့',
   'settings.failedToUpdateProfile': 'ပရိုဖိုင်ကို အပ်ဒိတ်လုပ်၍မရပါ',
   'settings.name': 'အမည်',
   'settings.twoFactorCode': 'အထောက်အထားစိစစ်ရေးကုဒ်',

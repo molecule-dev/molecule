@@ -17,6 +17,7 @@ export const ka: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'განაახლეთ თქვენი გეგმა',
   'settings.billing.noTiers': 'ფასიანი გეგმები კონფიგურირებული არ არის.',
   'settings.billing.subscribe': 'გამოწერა',
+  'settings.billing.freePlan': 'უფასო',
   'settings.failedToUpdateProfile': 'პროფილის განახლება ვერ მოხერხდა',
   'settings.name': 'სახელი',
   'settings.twoFactorCode': 'ავტორიზაციის კოდი',

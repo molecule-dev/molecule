@@ -17,6 +17,7 @@ export const ne: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'आफ्नो योजना अपग्रेड गर्नुहोस्',
   'settings.billing.noTiers': 'कुनै सशुल्क योजनाहरू कन्फिगर गरिएको छैन।',
   'settings.billing.subscribe': 'सदस्यता लिनुहोस्',
+  'settings.billing.freePlan': 'नि:शुल्क',
   'settings.failedToUpdateProfile': 'प्रोफाइल अद्यावधिक गर्न असफल भयो',
   'settings.name': 'नाम',
   'settings.twoFactorCode': 'प्रमाणीकरण कोड',

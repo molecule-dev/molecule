@@ -17,6 +17,7 @@ export const gu: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'તમારા પ્લાનને અપગ્રેડ કરો',
   'settings.billing.noTiers': 'કોઈ પેઇડ પ્લાન ગોઠવેલા નથી.',
   'settings.billing.subscribe': 'સબ્સ્ક્રાઇબ કરો',
+  'settings.billing.freePlan': 'મફત',
   'settings.failedToUpdateProfile': 'પ્રોફાઇલ અપડેટ કરવામાં નિષ્ફળ થયાં',
   'settings.name': 'નામ',
   'settings.twoFactorCode': 'પ્રમાણીકરણ કોડ',

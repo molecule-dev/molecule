@@ -17,6 +17,7 @@ export const am: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'ዕቅድዎን ያሻሽሉ',
   'settings.billing.noTiers': 'ምንም የሚከፈልባቸው ዕቅዶች አልተዋቀሩም።',
   'settings.billing.subscribe': 'ሰብስክራይብ ያድርጉ',
+  'settings.billing.freePlan': 'ነፃ',
   'settings.failedToUpdateProfile': 'መገለጫ ማዘመን አልተሳካም',
   'settings.name': 'ስም',
   'settings.twoFactorCode': 'የማረጋገጫ ኮድ',

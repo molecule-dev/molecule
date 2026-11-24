@@ -17,6 +17,7 @@ export const bg: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Надстройте плана си',
   'settings.billing.noTiers': 'Няма конфигурирани платени планове.',
   'settings.billing.subscribe': 'Абониране',
+  'settings.billing.freePlan': 'Безплатно',
   'settings.failedToUpdateProfile': 'Актуализирането на профила не бе успешно',
   'settings.name': 'Име',
   'settings.twoFactorCode': 'Код за удостоверяване',

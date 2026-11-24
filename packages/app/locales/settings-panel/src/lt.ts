@@ -17,6 +17,7 @@ export const lt: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Atnaujinkite savo planą',
   'settings.billing.noTiers': 'Nėra sukonfigūruotų mokamų planų.',
   'settings.billing.subscribe': 'Prenumeruoti',
+  'settings.billing.freePlan': 'Nemokama',
   'settings.failedToUpdateProfile': 'Nepavyko atnaujinti profilio',
   'settings.name': 'Vardas',
   'settings.twoFactorCode': 'Autentifikavimo kodas',

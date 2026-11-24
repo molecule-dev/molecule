@@ -17,6 +17,7 @@ export const th: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'อัปเกรดแพ็กเกจของคุณ',
   'settings.billing.noTiers': 'ไม่ได้ตั้งค่าแพ็กเกจแบบชำระเงินใดๆ',
   'settings.billing.subscribe': 'สมัครสมาชิก',
+  'settings.billing.freePlan': 'ฟรี',
   'settings.failedToUpdateProfile': 'ไม่สามารถอัปเดตโปรไฟล์ได้',
   'settings.name': 'ชื่อ',
   'settings.twoFactorCode': 'รหัสยืนยันตัวตน',

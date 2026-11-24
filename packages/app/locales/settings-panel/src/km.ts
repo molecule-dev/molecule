@@ -17,6 +17,7 @@ export const km: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'ធ្វើឱ្យប្រសើរឡើងនូវផែនការរបស់អ្នក',
   'settings.billing.noTiers': 'គ្មានផែនការបង់ប្រាក់ដែលបានកំណត់រចនាសម្ព័ន្ធទេ។',
   'settings.billing.subscribe': 'ជាវ',
+  'settings.billing.freePlan': 'ឥតគិតថ្លៃ',
   'settings.failedToUpdateProfile': 'មិនអាចធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបបានទេ',
   'settings.name': 'ឈ្មោះ',
   'settings.twoFactorCode': 'លេខកូដផ្ទៀងផ្ទាត់',

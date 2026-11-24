@@ -17,6 +17,7 @@ export const hy: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Թարմացրեք ձեր պլանը',
   'settings.billing.noTiers': 'Վճարովի պլաններ կարգավորված չեն։',
   'settings.billing.subscribe': 'Բաժանորդագրվել',
+  'settings.billing.freePlan': 'Անվճար',
   'settings.failedToUpdateProfile': 'Չհաջողվեց թարմացնել պրոֆիլը',
   'settings.name': 'Անուն',
   'settings.twoFactorCode': 'Հաստատման կոդ',

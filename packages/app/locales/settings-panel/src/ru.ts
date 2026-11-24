@@ -17,6 +17,7 @@ export const ru: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Обновите свой тарифный план',
   'settings.billing.noTiers': 'Платные тарифные планы не настроены.',
   'settings.billing.subscribe': 'Подписаться',
+  'settings.billing.freePlan': 'Бесплатно',
   'settings.failedToUpdateProfile': 'Не удалось обновить профиль.',
   'settings.name': 'Имя',
   'settings.twoFactorCode': 'Код аутентификации',

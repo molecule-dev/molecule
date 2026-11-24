@@ -17,6 +17,7 @@ export const sw: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Boresha mpango wako',
   'settings.billing.noTiers': 'Hakuna mipango ya kulipia iliyosanidiwa.',
   'settings.billing.subscribe': 'Jisajili',
+  'settings.billing.freePlan': 'Bure',
   'settings.failedToUpdateProfile': 'Imeshindwa kusasisha wasifu',
   'settings.name': 'Jina',
   'settings.twoFactorCode': 'Nambari ya uthibitishaji',

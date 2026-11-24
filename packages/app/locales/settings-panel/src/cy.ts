@@ -17,6 +17,7 @@ export const cy: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Uwchraddiwch eich cynllun',
   'settings.billing.noTiers': "Dim cynlluniau taledig wedi'u ffurfweddu.",
   'settings.billing.subscribe': 'Tanysgrifiwch',
+  'settings.billing.freePlan': 'Am ddim',
   'settings.failedToUpdateProfile': 'Methwyd diweddaru proffil',
   'settings.name': 'Enw',
   'settings.twoFactorCode': 'Cod dilysu',

@@ -41,7 +41,8 @@ export function BillingSection(props: {
   const http = useHttpClient()
   const [livePlan, setLivePlan] = createSignal<string | null>(null)
 
-  const plan = (): string => props.plan ?? 'Free'
+  const plan = (): string =>
+    props.plan ?? t('settings.billing.freePlan', undefined, { defaultValue: 'Free' })
 
   // Refresh the current plan from the bonded entitlements/billing
   // status endpoint on mount. Fire-and-forget; the prop-supplied

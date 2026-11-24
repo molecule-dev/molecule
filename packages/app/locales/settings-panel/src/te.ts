@@ -17,6 +17,7 @@ export const te: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'మీ ప్లాన్‌ను అప్‌గ్రేడ్ చేసుకోండి',
   'settings.billing.noTiers': 'చెల్లింపు ప్లాన్‌లు ఏవీ కాన్ఫిగర్ చేయబడలేదు.',
   'settings.billing.subscribe': 'సబ్స్క్రయిబ్ చేసుకోండి',
+  'settings.billing.freePlan': 'ఉచితం',
   'settings.failedToUpdateProfile': 'ప్రొఫైల్‌ను అప్‌డేట్ చేయడంలో విఫలమైంది',
   'settings.name': 'పేరు',
   'settings.twoFactorCode': 'ప్రమాణీకరణ కోడ్',

@@ -17,6 +17,7 @@ export const ml: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'നിങ്ങളുടെ പ്ലാൻ അപ്‌ഗ്രേഡ് ചെയ്യുക',
   'settings.billing.noTiers': 'പണമടച്ചുള്ള പ്ലാനുകളൊന്നും കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
   'settings.billing.subscribe': 'സബ്സ്ക്രൈബ് ചെയ്യുക',
+  'settings.billing.freePlan': 'സൗജന്യം',
   'settings.failedToUpdateProfile': 'പ്രൊഫൈൽ അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു',
   'settings.name': 'പേര്',
   'settings.twoFactorCode': 'പ്രാമാണീകരണ കോഡ്',

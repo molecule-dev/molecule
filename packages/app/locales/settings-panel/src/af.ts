@@ -17,6 +17,7 @@ export const af: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Gradeer jou plan op',
   'settings.billing.noTiers': 'Geen betaalde planne gekonfigureer nie.',
   'settings.billing.subscribe': 'Teken in',
+  'settings.billing.freePlan': 'Gratis',
   'settings.failedToUpdateProfile': 'Kon nie profiel opdateer nie',
   'settings.name': 'Naam',
   'settings.twoFactorCode': 'Verifikasiekode',
