@@ -1,5 +1,11 @@
 # @molecule/app-faceted-search-react
 
+## 4.0.4
+
+### Patch Changes
+
+- An open `FilterPill` shows no panel while its children render nothing, such as an empty list.
+
 ## 4.0.3
 
 ### Patch Changes

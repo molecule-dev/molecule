@@ -1,5 +1,11 @@
 # @molecule/app-share-link-card-svelte
 
+## 1.2.2
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty string or an empty list, leaves out the element around it, as the React component does.
+
 ## 1.2.1
 
 ### Patch Changes

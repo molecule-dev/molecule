@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-file-card-react",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "React file card primitives — icon, name, size, modified date, actions; grid + row layouts",
   "homepage": "https://www.molecule.dev/packages/app-file-card-react",
   "type": "module",

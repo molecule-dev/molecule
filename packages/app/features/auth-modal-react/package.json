@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-modal-react",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "In-app login / signup modal + click-interceptor + popup OAuth — authenticate and upgrade without ever navigating away or losing work",
   "homepage": "https://www.molecule.dev/packages/app-auth-modal-react",
   "type": "module",
@@ -46,12 +46,12 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-auth-shell-react": "4.1.0",
+    "@molecule/app-auth-shell-react": "4.1.1",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-oauth-buttons-react": "4.1.0",
     "@molecule/app-react": "4.13.0",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-react": "4.3.1",
+    "@molecule/app-ui-react": "4.3.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

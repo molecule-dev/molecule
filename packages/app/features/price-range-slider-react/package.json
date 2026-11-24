@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-price-range-slider-react",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Price range slider — two clamped min/max range inputs with formatted labels (low always ≤ high)",
   "homepage": "https://www.molecule.dev/packages/app-price-range-slider-react",
   "type": "module",
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@molecule/app-react": "4.13.0",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-react": "4.3.1",
+    "@molecule/app-ui-react": "4.3.2",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

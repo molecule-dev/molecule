@@ -1,5 +1,11 @@
 # @molecule/app-help-button-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- A node prop is created once where the component renders it, so components inside it keep their state.
+
 ## 1.1.0
 
 ### Minor Changes

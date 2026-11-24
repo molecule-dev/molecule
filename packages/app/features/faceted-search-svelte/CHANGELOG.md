@@ -1,5 +1,11 @@
 # @molecule/app-faceted-search-svelte
 
+## 1.1.2
+
+### Patch Changes
+
+- An open `FilterPill` shows no panel while its children render nothing, such as an empty list.
+
 ## 1.1.1
 
 ### Patch Changes

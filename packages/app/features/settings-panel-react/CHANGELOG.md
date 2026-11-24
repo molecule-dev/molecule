@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 4.4.0
+
+### Minor Changes
+
+- `AuthSection` takes a `twoFactor` option (default `true`); set it to `false` to hide two-factor settings when the API has no two-factor provider.
+
 ## 4.3.0
 
 ### Minor Changes

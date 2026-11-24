@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-react
 
+## 4.0.5
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty list, `false` or `''`, renders the same as leaving the prop out.
+
 ## 4.0.4
 
 ### Patch Changes

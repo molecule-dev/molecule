@@ -1,5 +1,11 @@
 # @molecule/app-locales-settings-panel
 
+## 1.0.6
+
+### Patch Changes
+
+- The two-factor "On" status is translated as a status, not a preposition, in 27 languages.
+
 ## 1.0.5
 
 ### Patch Changes

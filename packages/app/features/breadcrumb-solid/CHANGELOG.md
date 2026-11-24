@@ -1,5 +1,11 @@
 # @molecule/app-breadcrumb-solid
 
+## 1.1.3
+
+### Patch Changes
+
+- A node prop is created once where the component renders it, so components inside it keep their state.
+
 ## 1.1.2
 
 ### Patch Changes

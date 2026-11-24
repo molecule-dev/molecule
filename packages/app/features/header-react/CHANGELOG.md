@@ -1,5 +1,11 @@
 # @molecule/app-header-react
 
+## 4.2.1
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty list, `false` or `''`, renders the same as leaving the prop out.
+
 ## 4.2.0
 
 ### Minor Changes

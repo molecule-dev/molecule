@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-solid
 
+## 1.3.0
+
+### Minor Changes
+
+- `AuthSection` takes a `twoFactor` option (default `true`); set it to `false` to hide two-factor settings when the API has no two-factor provider.
+
 ## 1.2.1
 
 ### Patch Changes

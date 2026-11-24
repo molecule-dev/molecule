@@ -1,5 +1,11 @@
 # @molecule/app-ide-svelte
 
+## 2.0.2
+
+### Patch Changes
+
+- A node prop is created once where the component renders it, so components inside it keep their state.
+
 ## 2.0.1
 
 ### Patch Changes

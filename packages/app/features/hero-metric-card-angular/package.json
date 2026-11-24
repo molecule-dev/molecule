@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-hero-metric-card-angular",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Top-of-dashboard hero metric card — large primary value, optional trend chip + progress-ring slot, accent border",
   "homepage": "https://www.molecule.dev/packages/app-hero-metric-card-angular",
   "type": "module",
@@ -62,7 +62,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-angular": "1.5.1",
+    "@molecule/app-ui-angular": "1.5.2",
     "@molecule/app-ui-tailwind": "1.4.0",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",

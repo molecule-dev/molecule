@@ -1,5 +1,11 @@
 # @molecule/app-flow-canvas-react
 
+## 4.1.1
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty list, `false` or `''`, renders the same as leaving the prop out.
+
 ## 4.1.0
 
 ### Minor Changes

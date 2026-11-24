@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.3.2
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty string or an empty list, leaves out the element around it.
+
 ## 4.3.1
 
 ### Patch Changes

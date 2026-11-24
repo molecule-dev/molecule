@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.4.2
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty string or an empty list, leaves out the element around it.
+
 ## 1.4.1
 
 ### Patch Changes

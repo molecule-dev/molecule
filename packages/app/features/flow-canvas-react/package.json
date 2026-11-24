@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-flow-canvas-react",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "React node-and-edge flow canvas — drag nodes, connect ports, pan + zoom, build DAGs / workflows visually",
   "homepage": "https://www.molecule.dev/packages/app-flow-canvas-react",
   "type": "module",

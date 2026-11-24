@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-image-gallery-editor-svelte",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Hero drop zone + thumbnail slot grid",
   "homepage": "https://www.molecule.dev/packages/app-image-gallery-editor-svelte",
   "type": "module",
@@ -62,7 +62,7 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-svelte": "3.14.0",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-svelte": "1.4.1",
+    "@molecule/app-ui-svelte": "1.4.2",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",

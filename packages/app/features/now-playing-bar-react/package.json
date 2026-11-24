@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-now-playing-bar-react",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Persistent now-playing bar — track artwork, title/artist, transport controls (prev/play-pause/next), scrubber, and volume slider",
   "homepage": "https://www.molecule.dev/packages/app-now-playing-bar-react",
   "type": "module",

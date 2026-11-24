@@ -1,5 +1,11 @@
 # @molecule/app-feature-transport-bar-svelte
 
+## 1.1.2
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty string or an empty list, leaves out the element around it, as the React component does.
+
 ## 1.1.1
 
 ### Patch Changes

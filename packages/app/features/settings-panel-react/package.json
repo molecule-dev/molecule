@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-settings-panel-react",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "Composable settings panel — a SettingsContainer + family of section sub-components (Account, Auth, Notifications, Billing, Devices, ThisDevice, LogOutDelete). Apps compose via JSX children, picking which sections to include and what order.",
   "homepage": "https://www.molecule.dev/packages/app-settings-panel-react",
   "type": "module",
@@ -40,7 +40,7 @@
     "@molecule/app-push": "1.2.0",
     "@molecule/app-react": "4.13.0",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-react": "4.3.1",
+    "@molecule/app-ui-react": "4.3.2",
     "@molecule/app-utilities": "1.0.7",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

@@ -1,5 +1,11 @@
 # @molecule/app-collapsible-section-svelte
 
+## 2.0.2
+
+### Patch Changes
+
+- A node prop that renders nothing, such as an empty string or an empty list, leaves out the element around it, as the React component does.
+
 ## 2.0.1
 
 ### Patch Changes

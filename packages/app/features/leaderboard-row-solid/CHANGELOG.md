@@ -1,5 +1,12 @@
 # @molecule/app-leaderboard-row-solid
 
+## 1.1.3
+
+### Patch Changes
+
+- A node prop is created once where the component renders it, so components inside it keep their state.
+- A node prop that renders nothing, such as an empty string or an empty list, leaves out the element around it, as the React component does.
+
 ## 1.1.2
 
 ### Patch Changes

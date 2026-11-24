@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-image-gallery-editor-react",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Hero drop zone + thumbnail slot grid",
   "homepage": "https://www.molecule.dev/packages/app-image-gallery-editor-react",
   "type": "module",
@@ -45,7 +45,7 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-react": "4.13.0",
     "@molecule/app-ui": "1.5.0",
-    "@molecule/app-ui-react": "4.3.1",
+    "@molecule/app-ui-react": "4.3.2",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-svelte
 
+## 1.2.0
+
+### Minor Changes
+
+- `AuthSection` takes a `twoFactor` option (default `true`); set it to `false` to hide two-factor settings when the API has no two-factor provider.
+
 ## 1.1.3
 
 ### Patch Changes
