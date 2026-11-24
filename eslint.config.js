@@ -13,6 +13,7 @@ import angularTestHostChangeDetection from './eslint-rules/angular-test-host-cha
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
 import noHandPlacedNodes from './eslint-rules/no-hand-placed-nodes.mjs'
+import noOnceReadResolvedNode from './eslint-rules/no-once-read-resolved-node.mjs'
 import noRequiredSnippetRender from './eslint-rules/no-required-snippet-render.mjs'
 import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
 import {
@@ -66,6 +67,11 @@ import {
  * `angular-test-host-change-detection` makes every component an Angular test declares state its
  * change detection: Angular 22 checks one that sets none as OnPush, so a prop the test changes is
  * never rendered and the test asserts the first render. molecule-only, so it is not in the package.
+ *
+ * `no-once-read-resolved-node` makes a Solid port's `ResolveNode` or `PresentWhileNode` callback
+ * return JSX and read the accessors it receives inside it: the callback runs once, so a value it
+ * reads itself (`(node) => node()`, `props.onClick ? … : …`) never updates when the node or the
+ * prop changes. molecule-only, so it is not in the package.
  */
 const moleculeLocal = {
   rules: {
@@ -74,6 +80,7 @@ const moleculeLocal = {
     'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
     'no-hand-placed-nodes': noHandPlacedNodes,
     'no-required-snippet-render': noRequiredSnippetRender,
+    'no-once-read-resolved-node': noOnceReadResolvedNode,
     'angular-test-host-change-detection': angularTestHostChangeDetection,
   },
 }
@@ -141,6 +148,20 @@ const ANGULAR_SIGNAL_COMPONENT_APIS = [
       "Declare the output in the component's metadata (`outputs: ['name']` with an `EventEmitter`): Angular tests here compile with the JIT compiler, which does not see `outputFromObservable()`.",
   },
 ]
+
+/**
+ * Solid's `children()` helper reads a node and every function in it in one memo, so a change
+ * inside what an accessor item returned (the `<Show>` at the root of `() => <Row />`) calls the
+ * accessor again and replaces the row, losing its state (2026-11-24: ShowMore's accessor rows).
+ * `resolveNode` from `@molecule/app-solid` has the same shape and reads each function in a scope of
+ * its own. Shared by the Solid blocks below, like {@link APP_CROSS_STACK_IMPORTS}.
+ */
+const SOLID_CHILDREN_HELPER = {
+  name: 'solid-js',
+  importNames: ['children'],
+  message:
+    "Resolve a node prop with `resolveNode(() => props.x)` from '@molecule/app-solid' (the same accessor and `toArray()`): solid-js's `children()` calls an accessor item again whenever what it rendered changes, which replaces the item and loses its state.",
+}
 
 /**
  * Solid packages write .tsx too, but it is not React: rules for React components skip them,
@@ -420,6 +441,26 @@ export default tseslint.config(
             },
             ...ANGULAR_SIGNAL_COMPONENT_APIS,
             ...ANGULAR_LIFECYCLE_SLOT_READERS,
+            SOLID_CHILDREN_HELPER,
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The Solid binding's own components resolve node props with its resolveNode too. Its .ts
+    // files keep the entries of the packages/app/**/*.ts block, which this one replaces for them.
+    files: ['packages/app/frameworks/solid/src/**/*.{ts,tsx}'],
+    ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [APP_CROSS_STACK_IMPORTS],
+          paths: [
+            ...ANGULAR_SIGNAL_COMPONENT_APIS,
+            ...ANGULAR_LIFECYCLE_SLOT_READERS,
+            SOLID_CHILDREN_HELPER,
           ],
         },
       ],
@@ -573,6 +614,17 @@ export default tseslint.config(
     ],
     ignores: ['**/__tests__/**'],
     rules: { 'molecule-local/no-required-snippet-render': 'error' },
+  },
+  {
+    // A ResolveNode or PresentWhileNode callback runs once, so what it returns or reads itself is
+    // read once: ShowMore's `(node) => node()` kept a row's first output after its root changed.
+    files: [
+      'packages/app/features/*-solid/src/**/*.tsx',
+      'packages/app/frameworks/solid-ui/src/**/*.tsx',
+      'packages/app/frameworks/solid/src/**/*.tsx',
+    ],
+    ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    rules: { 'molecule-local/no-once-read-resolved-node': 'error' },
   },
   {
     // Angular 22 checks a component with no changeDetection as OnPush: a test host whose props the
