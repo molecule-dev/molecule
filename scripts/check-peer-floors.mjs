@@ -561,6 +561,8 @@ export function declaredExports(typesFile, specifier) {
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
     noEmit: true,
     skipLibCheck: true,
+    // A package's source re-exports `.tsx` modules, which resolve only with JSX enabled.
+    jsx: ts.JsxEmit.Preserve,
     // Export names need no type checking: skipping the default lib and @types makes
     // each program parse only the package's own declarations.
     noLib: true,
@@ -630,8 +632,9 @@ const versionedCache = new Map()
 
 /**
  * The names an unpublished workspace version exports where its release publishes it from: the
- * package's source at {@link versionCommit}. The tree is extracted under the repository's
- * `node_modules/.cache`, so its imports of other packages resolve as the workspace's do.
+ * package's source at {@link versionCommit}. The tree is extracted into this check's cache, beside
+ * a link to the repository's `node_modules`, so its imports of other packages resolve as the
+ * workspace's do (TypeScript reads no `.ts` source under a `node_modules` path).
  *
  * @param root - The repository.
  * @param dir - The package directory.
@@ -648,10 +651,12 @@ export function versionedExports(root, dir, version, entry = '.') {
   let names = null
   if (commit !== null) {
     const rel = relative(root, dir)
-    const out = join(root, 'node_modules', '.cache', 'check-peer-floors', commit.slice(0, 12))
+    const out = join(CACHE, 'versioned', commit.slice(0, 12))
     const pkgDir = join(out, rel)
     if (!existsSync(join(pkgDir, 'package.json'))) {
       mkdirSync(out, { recursive: true })
+      if (!existsSync(join(out, 'node_modules')))
+        symlinkSync(join(root, 'node_modules'), join(out, 'node_modules'))
       const archive = execFileSync('git', ['archive', '--format=tar', commit, '--', rel], {
         cwd: root,
         maxBuffer: 1 << 28,

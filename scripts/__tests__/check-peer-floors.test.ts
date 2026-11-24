@@ -701,6 +701,16 @@ describe('classMapReads', () => {
 })
 
 describe('declaredExports', () => {
+  it('reads the names a source entry re-exports from a .tsx module', () => {
+    // 2026-11-24: app-react's RoutedView (providers.tsx) read as missing from its source.
+    const root = tree({
+      'src/index.ts': "export * from './view.js'\nexport const plain = 1\n",
+      'src/view.tsx': 'export function View(): null {\n  return null\n}\n',
+    })
+    expect([...declaredExports(join(root, 'src/index.ts'))].sort()).toEqual(['View', 'plain'])
+    rmSync(root, { recursive: true, force: true })
+  })
+
   it('names each member of an exported UIClassMap interface', () => {
     const root = tree({
       'index.d.ts': "export * from './types.js'\nexport declare function getClassMap(): UIClassMap",
