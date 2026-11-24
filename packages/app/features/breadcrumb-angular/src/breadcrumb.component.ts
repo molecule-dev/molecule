@@ -17,6 +17,7 @@ import {
 
 import {
   MolPlacement,
+  MolSlotCopy,
   placeContent,
   setElementPresent,
   type SlotReader,
@@ -29,18 +30,6 @@ import { getClassMap } from '@molecule/app-ui'
 import type { BreadcrumbItem } from './types.js'
 
 /**
- * Builds the default separator (React's `<span aria-hidden>/</span>`).
- *
- * @returns The default separator element.
- */
-const defaultSeparator = (): HTMLSpanElement => {
-  const el = document.createElement('span')
-  el.setAttribute('aria-hidden', 'true')
-  el.textContent = '/'
-  return el
-}
-
-/**
  * Breadcrumb component.
  *
  * Breadcrumb navigation: each item before the last is a link; the last item
@@ -50,9 +39,9 @@ const defaultSeparator = (): HTMLSpanElement => {
  * they render as plain `<a href>` anchors.
  *
  * The separator renders once per gap: the projected `[slot=separator]`
- * content when given (cloned into every gap — Angular projects a node once,
- * React renders the same element in every gap), else the default
- * `<span aria-hidden>/</span>`.
+ * content when given (itself in the first gap, a `MolSlotCopy` of it in the
+ * others: Angular projects a node once, React renders the element in every
+ * gap), else the default `<span aria-hidden>/</span>`.
  *
  * The nav's accessible name flows through `t()` with the English default
  * `'Breadcrumb'`, so it follows the app's locale.
@@ -61,7 +50,7 @@ const defaultSeparator = (): HTMLSpanElement => {
   selector: 'nav[mol-breadcrumb]',
   standalone: true,
   hostDirectives: [MolPlacement],
-  imports: [NgTemplateOutlet],
+  imports: [MolSlotCopy, NgTemplateOutlet],
   inputs: ['items', 'onNavigate', 'className', 'dataMolId'],
   host: {
     '[class]': 'classes()',
@@ -93,7 +82,13 @@ const defaultSeparator = (): HTMLSpanElement => {
           </a>
         }
         @if (!isLast($index)) {
-          <span #gapSep></span>
+          <span #gapSep>
+            @if (!customSeparator()) {
+              <span aria-hidden="true">/</span>
+            } @else if ($index > 0) {
+              <ng-container [molSlotCopy]="separatorNodes()" />
+            }
+          </span>
         }
       </span>
     }
@@ -125,17 +120,14 @@ export class Breadcrumb {
 
   /** The separator slot capture span (kept out of the DOM once its content is placed). */
   @ViewChild('sepSlot') private sepSlot?: ElementRef<HTMLSpanElement>
-  /** One empty span per gap, filled with the projected separator clones. */
+  /** One span per gap; the first holds the projected separator itself. */
   @ViewChildren('gapSep') private gapSeps?: QueryList<ElementRef<HTMLSpanElement>>
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
 
-  /** The projected separator nodes, cloned into every gap but the first. */
-  private originals: Node[] = []
-
-  /** The nodes this component created in each gap (default separators and clones). */
-  private readonly created = new WeakMap<HTMLElement, Node[]>()
+  /** The projected separator's children, copied into every gap but the first. */
+  readonly separatorNodes = signal<readonly Node[]>([])
 
   /** Whether the caller projected a separator (drives the per-gap default's `@if`). */
   readonly customSeparator = signal(false)
@@ -244,11 +236,9 @@ export class Breadcrumb {
   }
 
   /**
-   * Reads the projected separator and fills every gap: the projected content
-   * in the first gap and a fresh clone in the others when the caller projected
-   * a separator (React renders the same element in every gap; Angular projects
-   * a node once), else the default `/` (built here, because the gap count
-   * follows the items, which a template cannot fill from outside the loop).
+   * Reads the projected separator: its content goes in the first gap, and the
+   * template renders a copy of it in the others, or the default `/` in every
+   * gap when the caller projected none.
    *
    * @param hasContent - Reads whether a slot has content.
    */
@@ -256,56 +246,11 @@ export class Breadcrumb {
     const slot = this.sepSlot?.nativeElement
     if (!slot) return
     // The children are read where the capture rendered them, moved ones included.
-    const originals = hasContent.nodes(slot)
-    const present = originals.length > 0
-    this.originals = originals
-    this.customSeparator.set(present)
+    const nodes = hasContent.nodes(slot)
+    this.separatorNodes.set(nodes)
+    this.customSeparator.set(nodes.length > 0)
     setElementPresent(slot, false)
-    this.fillGaps(present)
-  }
-
-  /**
-   * Places the separator content in the first gap and clones it into the rest.
-   *
-   * @param present - Whether the caller projected a separator.
-   */
-  private fillGaps(present: boolean): void {
-    const gaps = this.gapSeps?.toArray() ?? []
-    const elements = gaps.map((ref) => ref.nativeElement)
-    // Only the nodes this component created; the projected run's anchors stay.
-    for (const gap of elements) this.clearCreated(gap)
-    if (!present) {
-      for (const gap of elements) {
-        const separator = defaultSeparator()
-        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- the default separator this component created, not a node Angular rendered
-        gap.appendChild(separator)
-        this.created.set(gap, [separator])
-      }
-      return
-    }
-    const [first, ...rest] = elements
-    const capture = this.sepSlot?.nativeElement
-    if (capture && first) placeContent(capture, first)
-    for (const gap of rest) {
-      const nodes = this.originals.map((original) => original.cloneNode(true))
-      for (const node of nodes) {
-        // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- a copy this component made, not a node Angular rendered
-        gap.appendChild(node)
-      }
-      this.created.set(gap, nodes)
-    }
-  }
-
-  /**
-   * Removes the nodes this component created in a gap, leaving Angular's.
-   *
-   * @param gap - The gap span.
-   */
-  private clearCreated(gap: HTMLElement): void {
-    for (const node of this.created.get(gap) ?? []) {
-      // eslint-disable-next-line molecule-local/no-hand-placed-nodes -- only the nodes this component created (above)
-      node.parentNode?.removeChild(node)
-    }
-    this.created.delete(gap)
+    const first = this.gapSeps?.first?.nativeElement
+    if (first && nodes.length > 0) placeContent(slot, first)
   }
 }
