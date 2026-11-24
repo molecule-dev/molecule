@@ -9,6 +9,9 @@
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { RouterProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -49,11 +52,14 @@ afterEach(() => {
 
 describe('PageHeader breadcrumb landmark', () => {
   it('PageHeader names its breadcrumb landmark through t()', () => {
+    // A breadcrumb with an href is a router link, which an app always mounts inside its router.
     render(
-      <PageHeader
-        title="Dashboard"
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Reports' }]}
-      />,
+      <RouterProvider router={createMemoryRouter({ initialEntries: ['/reports'] })}>
+        <PageHeader
+          title="Dashboard"
+          breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Reports' }]}
+        />
+      </RouterProvider>,
     )
     const nav = document.body.querySelector('nav')
     expect(nav).not.toBeNull()
