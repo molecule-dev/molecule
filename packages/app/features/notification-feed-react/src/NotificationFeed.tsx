@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 
-import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Link, Text } from '@molecule/app-ui-react/elements'
 
 import { fmtRelativeShort } from './fmtRelativeShort.js'
 
@@ -57,14 +57,16 @@ export function NotificationFeed({
 }: NotificationFeedProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <ul
+    <Box
+      as="ul"
       className={cm.cn(cm.notificationFeedList, className)}
       aria-label={ariaLabel}
       data-mol-id={dataMolId}
     >
       {items.map((item) => {
         const content = (
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.card(),
               cm.sp('p', 4),
@@ -72,7 +74,8 @@ export function NotificationFeed({
               item.unread ? cm.notificationFeedUnreadAccent : '',
             )}
           >
-            <div
+            <Box
+              as="div"
               className={cm.cn(
                 cm.shrink0,
                 cm.flex({ align: 'center', justify: 'center' }),
@@ -81,27 +84,28 @@ export function NotificationFeed({
                 cm.notificationFeedIconTile,
               )}
             >
-              <span className={cm.iconGlyphFont} aria-hidden="true">
-                {item.icon}
-              </span>
-            </div>
-            <div className={cm.cn(cm.flex1, cm.minW(0))}>
-              <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-                <h2 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+              <GlyphIcon name={item.icon} aria-hidden />
+            </Box>
+            <Box as="div" className={cm.cn(cm.flex1, cm.minW(0))}>
+              <Box as="div" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+                <Text as="h2" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
                   {item.title}
-                </h2>
-                <span
+                </Text>
+                <Text
+                  as="span"
                   className={cm.cn(cm.textSize('xs'), cm.textMuted, cm.notificationFeedTimestamp)}
                 >
                   {fmtRelativeShort(item.createdAt)}
-                </span>
-              </div>
-              <p className={cm.cn(cm.textSize('sm'), cm.textMuted)}>{item.body}</p>
-            </div>
-          </div>
+                </Text>
+              </Box>
+              <Text as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+                {item.body}
+              </Text>
+            </Box>
+          </Box>
         )
         return (
-          <li key={item.id}>
+          <Box as="li" key={item.id}>
             {item.href ? (
               <Link to={item.href} className={cm.displayBlock}>
                 {content}
@@ -109,9 +113,9 @@ export function NotificationFeed({
             ) : (
               content
             )}
-          </li>
+          </Box>
         )
       })}
-    </ul>
+    </Box>
   )
 }
