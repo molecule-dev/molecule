@@ -490,7 +490,7 @@ export const ml: Partial<CommonTranslations> = {
   'nav.status': 'പദവി',
   'nav.progress': 'പുരോഗതി',
   'nav.plan': 'പ്ലാൻ ചെയ്യുക',
-  'nav.free': 'സൗ ജന്യം',
+  'nav.free': 'സൗജന്യം',
   'nav.current': 'നിലവിലുള്ളത്',
   'nav.paymentMethod': 'പണമടയ്ക്കൽ രീതി',
   'nav.orderSummary': 'ഓർഡർ സംഗ്രഹം',

@@ -486,7 +486,7 @@ export const he: Partial<CommonTranslations> = {
   'nav.subtotal': 'סכום ביניים',
   'nav.total': 'סַך הַכֹּל',
   'nav.plan': 'לְתַכְנֵן',
-  'nav.free': 'לְשַׁחְרֵר',
+  'nav.free': 'חינם',
   'nav.paymentMethod': 'אמצעי תשלום',
   'nav.orderSummary': 'סיכום הזמנה',
   'nav.subscriptionCancelled': 'המנוי בוטל.',

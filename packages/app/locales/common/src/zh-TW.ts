@@ -478,7 +478,7 @@ export const zhTW: Partial<CommonTranslations> = {
   'nav.status': '地位',
   'nav.progress': '進步',
   'nav.plan': '計劃',
-  'nav.free': '自由的',
+  'nav.free': '免費',
   'nav.current': '目前的',
   'nav.paymentMethod': '付款方式',
   'nav.orderSummary': '訂單摘要',

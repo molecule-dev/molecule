@@ -480,7 +480,7 @@ export const am: Partial<CommonTranslations> = {
   'nav.status': 'ሁኔታ',
   'nav.progress': 'እድገት',
   'nav.plan': 'እቅድ',
-  'nav.free': 'ፍርይ',
+  'nav.free': 'ነፃ',
   'nav.current': 'የአሁኑ',
   'nav.paymentMethod': 'የክፍያ ዘዴ',
   'nav.orderSummary': 'የትዕዛዝ ማጠቃለያ',
