@@ -37,6 +37,7 @@ import {
   raisedRange,
   scanFleet,
   scriptText,
+  versionCommit,
 } from '../check-peer-floors.mjs'
 
 afterAll(() => {
@@ -285,29 +286,61 @@ describe('findFloorGaps', () => {
     ).toEqual(['^2.0.0'])
   })
 
-  it('skips a range no published version satisfies and a floor above the workspace version', () => {
-    const imports = importsOf('@molecule/core', ['added'])
-    const read = vi.fn(exportsAt)
-    // Nothing published satisfies the range: the first installable version is
-    // released from this source (a floor above the workspace version, or the
-    // workspace version itself after the version commit).
-    for (const range of ['^1.5.0', '^1.4.0', '^1.1.0'])
+  it('checks an unpublished workspace version the range allows at the commit that versioned it', () => {
+    // 2026-11-24: 14 Svelte ports imported ContentOrElse under ^3.13.0 while the release was
+    // publishing app-svelte 3.13.0 from its version commit, which lacks it.
+    for (const range of ['^1.4.0', '^1.1.0'])
       expect(
         findFloorGaps(
           { peerDependencies: { '@molecule/core': range } },
-          imports,
+          importsOf('@molecule/core', ['old', 'added']),
           versions,
-          read,
+          exportsOf({ '1.4.0': ['old'] }),
           publishing('1.0.0'),
         ),
-      ).toEqual([])
-    // A peer npm has never published.
+      ).toEqual([
+        {
+          peer: '@molecule/core',
+          range,
+          floor: '1.4.0',
+          fix: '^1.5.0',
+          missing: [{ name: 'added', files: ['src/a.ts'] }],
+        },
+      ])
+    // Its version commit has the name: nothing to raise.
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.4.0' } },
+        importsOf('@molecule/core', ['old', 'added']),
+        versions,
+        exportsOf({ '1.4.0': ['old', 'added'] }),
+        publishing('1.0.0'),
+      ),
+    ).toEqual([])
+  })
+
+  it('skips a range no published version satisfies and a floor above the workspace version', () => {
+    const imports = importsOf('@molecule/core', ['added'])
+    const read = vi.fn(exportsAt)
+    // Nothing published or in the workspace satisfies the range: the first installable
+    // version is released from this source.
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.5.0' } },
+        imports,
+        versions,
+        read,
+        publishing('1.0.0'),
+      ),
+    ).toEqual([])
+    // A peer npm has never published: its workspace version is read where its release
+    // publishes it from (released from this source, it has every name).
     expect(
       findFloorGaps(
         { peerDependencies: { '@molecule/core': '^1.0.0' } },
         imports,
         versions,
-        read,
+        exportsOf({ '1.4.0': ['added'] }),
         new Map(),
       ),
     ).toEqual([])
@@ -466,6 +499,49 @@ describe('findFloorGaps', () => {
         ],
       }),
     ])
+  })
+})
+
+describe('versionCommit', () => {
+  /** A git repository whose package.json moves through the given versions, one commit each. */
+  const history = (versions: string[]): string => {
+    const root = tree({})
+    const git = (...args: string[]) =>
+      execFileSync('git', args, {
+        cwd: root,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          GIT_AUTHOR_NAME: 't',
+          GIT_AUTHOR_EMAIL: 't@t',
+          GIT_COMMITTER_NAME: 't',
+          GIT_COMMITTER_EMAIL: 't@t',
+        },
+      })
+    git('init', '-q')
+    mkdirSync(join(root, 'pkg/src'), { recursive: true })
+    for (const [i, version] of versions.entries()) {
+      writeFileSync(join(root, 'pkg/package.json'), JSON.stringify({ name: 'p', version }))
+      writeFileSync(join(root, 'pkg/src/index.ts'), `export const v${i} = 1\n`)
+      git('add', '-A')
+      git('commit', '-q', '-m', `c${i}`)
+    }
+    return root
+  }
+  const subject = (root: string, ref: string): string =>
+    execFileSync('git', ['log', '-1', '--format=%s', ref], { cwd: root, encoding: 'utf8' }).trim()
+
+  it('names the commit that changed the version to it, past later commits', () => {
+    const root = history(['1.0.0', '1.1.0', '1.1.0', '1.1.0'])
+    expect(subject(root, versionCommit(root, join(root, 'pkg'), '1.1.0')!)).toBe('c1')
+    rmSync(root, { recursive: true, force: true })
+  })
+
+  it('names none for a version the package was created with, or one no commit holds', () => {
+    const root = history(['1.0.0', '1.0.0'])
+    expect(versionCommit(root, join(root, 'pkg'), '1.0.0')).toBeNull()
+    expect(versionCommit(root, join(root, 'pkg'), '1.2.0')).toBeNull()
+    rmSync(root, { recursive: true, force: true })
   })
 })
 

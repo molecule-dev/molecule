@@ -84,7 +84,7 @@
  * and held the whole package wave for a second CI pass.)
  */
 import { Buffer } from 'node:buffer'
-import { execFile } from 'node:child_process'
+import { execFile, execFileSync } from 'node:child_process'
 import console from 'node:console'
 import {
   existsSync,
@@ -339,7 +339,16 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
   const gaps = []
   for (const { peer, range, current, entries } of checkedPeers(pkg, imports, workspaceVersions)) {
     const published = publishedVersions.get(peer) ?? []
-    const floor = semver.minSatisfying(published, range)
+    // A workspace version npm does not serve yet is what the range installs first when it
+    // allows it: the release in flight publishes it from the commit that versioned it, which
+    // lacks the names added since (2026-11-24: 14 Svelte ports imported `ContentOrElse`
+    // under `^3.13.0` while app-svelte 3.13.0 was publishing from an earlier commit).
+    // `exportsAt` reads that version's names there.
+    const floor =
+      semver.minSatisfying(published, range) ??
+      (current !== null && !published.includes(current) && semver.satisfies(current, range)
+        ? current
+        : null)
     if (!floor || (current !== null && semver.gt(floor, current))) continue
     const lacks = (version) =>
       entries.flatMap(({ entry, names }) => {
@@ -405,7 +414,7 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
     report(
       lowest
         ? `^${lowest}`
-        : published.includes(current)
+        : published.includes(current) || floor === current
           ? `^${semver.inc(current, 'minor')}`
           : `^${current}`,
     )
@@ -577,6 +586,91 @@ export function declaredExports(typesFile, specifier) {
 
 const exportCache = new Map()
 const execFileAsync = promisify(execFile)
+
+/**
+ * Run git in a repository.
+ *
+ * @param root - The repository.
+ * @returns A function that runs git with the given arguments and returns its output.
+ */
+const gitAt = (root) => (args) =>
+  execFileSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 })
+
+/**
+ * The commit that set a workspace package's version to `version`: a release publishes the
+ * version from the commit its version stage made, so names its source gained after that commit
+ * are not in it.
+ *
+ * @param root - The repository.
+ * @param dir - The package directory.
+ * @param version - Its workspace version.
+ * @param git - Runs git in `root`.
+ * @returns The commit, or `null` when no commit set that version (it is uncommitted, or came
+ *   with the package's first commit), so the version is first published from the source as it
+ *   is now.
+ */
+export function versionCommit(root, dir, version, git = gitAt(root)) {
+  const file = relative(root, join(dir, 'package.json'))
+  const versionAt = (rev) => {
+    const listed = git(['ls-tree', '--name-only', rev, '--', file]).trim()
+    return listed === '' ? null : JSON.parse(git(['show', `${rev}:${file}`])).version
+  }
+  let found = null
+  for (const commit of git(['log', '--format=%H', '-n', '200', '--', file]).split('\n')) {
+    if (commit === '') break
+    if (versionAt(commit) !== version) break
+    found = commit
+  }
+  if (found === null) return null
+  const parent = git(['rev-list', '--parents', '-n', '1', found]).trim().split(' ')[1]
+  return parent !== undefined && versionAt(parent) !== null ? found : null
+}
+
+const versionedCache = new Map()
+
+/**
+ * The names an unpublished workspace version exports where its release publishes it from: the
+ * package's source at {@link versionCommit}. The tree is extracted under the repository's
+ * `node_modules/.cache`, so its imports of other packages resolve as the workspace's do.
+ *
+ * @param root - The repository.
+ * @param dir - The package directory.
+ * @param version - Its workspace version.
+ * @param entry - The entry (`.` or `./sub`).
+ * @returns The names, or `null` when the version is first published from the source as it is
+ *   now (no commit set it).
+ */
+export function versionedExports(root, dir, version, entry = '.') {
+  const key = `${dir}@${version}${entry}`
+  if (versionedCache.has(key)) return versionedCache.get(key)
+  const git = gitAt(root)
+  const commit = versionCommit(root, dir, version, git)
+  let names = null
+  if (commit !== null) {
+    const rel = relative(root, dir)
+    const out = join(root, 'node_modules', '.cache', 'check-peer-floors', commit.slice(0, 12))
+    const pkgDir = join(out, rel)
+    if (!existsSync(join(pkgDir, 'package.json'))) {
+      mkdirSync(out, { recursive: true })
+      const archive = execFileSync('git', ['archive', '--format=tar', commit, '--', rel], {
+        cwd: root,
+        maxBuffer: 1 << 28,
+      })
+      execFileSync('tar', ['-x', '-C', out], { input: archive })
+    }
+    const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
+    const types = entryTypesPath(manifest, entry)
+    const inSrc =
+      types === null ? null : types.replace(/^\.?\/?dist\//, 'src/').replace(/\.d\.ts$/, '')
+    const candidates =
+      inSrc === null ? [] : [`${inSrc}.ts`, `${inSrc}.tsx`].map((f) => join(pkgDir, f))
+    if (entry === '.') candidates.push(join(pkgDir, 'src/index.ts'), join(pkgDir, 'src/index.tsx'))
+    const file = candidates.find((f) => existsSync(f))
+    names = file === undefined ? new Set() : declaredExports(file)
+  }
+  versionedCache.set(key, names)
+  return names
+}
 
 /**
  * The cache directory of one published version.
@@ -1056,7 +1150,7 @@ function readFleet(root, only = null) {
     }
     packages.push({ dir, pkg, imports })
   }
-  return { packages, workspaceVersions }
+  return { packages, workspaceVersions, workspaceDirs: dirOf }
 }
 
 /**
@@ -1064,8 +1158,9 @@ function readFleet(root, only = null) {
  *
  * @param root - The monorepo root (its `packages/` is scanned).
  * @param deps - Injected npm access: `versionsOf` (see {@link fetchPublishedVersions}),
- *   `exportsAt` (see {@link findFloorGaps}) and `prefetch`, which receives each
- *   `name@version` before it is read.
+ *   `exportsAt` (see {@link findFloorGaps}), `prefetch`, which receives each
+ *   `name@version` before it is read, and `versionedOf`, which reads an unpublished workspace
+ *   version's names (see {@link versionedExports}).
  * @param options - `only`: package directories relative to `root` to check (see
  *   {@link packagesForPaths}); omitted checks every package.
  * @returns One row per package with a gap.
@@ -1076,10 +1171,11 @@ export async function scanFleet(
     versionsOf = fetchPublishedVersions,
     exportsAt = publishedExports,
     prefetch = prefetchTarballs,
+    versionedOf = versionedExports,
   } = {},
   { only = null } = {},
 ) {
-  const { packages, workspaceVersions } = readFleet(root, only)
+  const { packages, workspaceVersions, workspaceDirs } = readFleet(root, only)
   const publishedVersions = await versionsOf([
     ...new Set(
       packages.flatMap(({ pkg, imports }) =>
@@ -1095,6 +1191,12 @@ export async function scanFleet(
     const wanted = new Set()
     const read = (name, version, entry) => {
       const key = `${name}@${version}`
+      // An unpublished workspace version (see findFloorGaps): its names at its version commit.
+      if (
+        version === workspaceVersions.get(name) &&
+        !(publishedVersions.get(name) ?? []).includes(version)
+      )
+        return versionedOf(root, workspaceDirs.get(name), version, entry) ?? EVERY_NAME
       if (fetched.has(key)) return exportsAt(name, version, entry)
       wanted.add(key)
       return EVERY_NAME
