@@ -133,6 +133,12 @@
  * (`playwright.config.ts` → `testDir: './e2e'`); if you override
  * `test.exclude`, keep the `**\/e2e/**` entry.
  *
+ * **A framework binding's test setup runs without being listed.** Each `@molecule/*`
+ * package the app's package.json declares can name the vitest setup files its component
+ * tests need (`"molecule": { "vitestSetupFiles": [...] }` in its own package.json;
+ * `@molecule/app-vue` names its event timing), and the config puts them in
+ * `test.setupFiles`.
+ *
  * @module
  */
 

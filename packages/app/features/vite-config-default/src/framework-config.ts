@@ -240,6 +240,61 @@ export function isInstalled(spec: string, appRoot: string): boolean {
 }
 
 /**
+ * Whether a value is a list of strings.
+ *
+ * @param value - The value to check.
+ * @returns True for an array whose every item is a string.
+ */
+const isStringList = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string')
+
+/**
+ * The vitest setup files the app's declared `@molecule/*` packages name in their package.json
+ * (`"molecule": { "vitestSetupFiles": ["@molecule/app-vue/testing/setup"] }`), in the order the
+ * app declares them. Each manifest is read where Node resolves the package from the app (the
+ * nearest `node_modules/<name>` on the way up), and only the app's own dependencies count: a
+ * workspace installs every framework's binding beside a React app.
+ *
+ * @param appRoot - The app's directory.
+ * @param packages - The `@molecule/*` names the app's package.json declares.
+ * @returns The setup files, each once.
+ * @throws {Error} When a package's `molecule.vitestSetupFiles` is not a list of module specifiers,
+ *   or its package.json does not parse.
+ */
+function declaredTestSetupFiles(appRoot: string, packages: string[]): string[] {
+  const files: string[] = []
+  for (const name of packages) {
+    let dir = resolve(appRoot)
+    for (let i = 0; i < 8; i++) {
+      const manifest = resolve(dir, 'node_modules', name, 'package.json')
+      if (existsSync(manifest)) {
+        let declared: unknown
+        try {
+          declared = (
+            JSON.parse(readFileSync(manifest, 'utf8')) as {
+              molecule?: { vitestSetupFiles?: unknown }
+            }
+          ).molecule?.vitestSetupFiles
+        } catch (error) {
+          throw new Error(`[vite-config-default] could not read ${manifest}.`, { cause: error })
+        }
+        if (declared === undefined) break
+        if (!isStringList(declared))
+          throw new Error(
+            `[vite-config-default] ${name}'s package.json molecule.vitestSetupFiles must be a list of module specifiers.`,
+          )
+        for (const file of declared) if (!files.includes(file)) files.push(file)
+        break
+      }
+      const parent = dirname(dir)
+      if (parent === dir) break
+      dir = parent
+    }
+  }
+  return files
+}
+
+/**
  * The Vite config every Molecule app uses, for any UI framework: the framework's
  * plugins plus the PWA, push worker, release notes and root-relative asset plugins,
  * molecule-package pre-bundle exclusion, one module identity per package, the dev
@@ -311,14 +366,21 @@ export function createFrameworkViteConfig(
   // Vite never optimizes packages the app doesn't use.
   const isLocaleBondPackage = (name: string): boolean => name.startsWith('@molecule/app-locales-')
   let localePackages: string[] = []
+  let declaredMoleculePackages: string[] = []
   try {
     const appPkg = JSON.parse(readFileSync(resolve(appRoot, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
+      devDependencies?: Record<string, string>
     }
     localePackages = Object.keys(appPkg.dependencies ?? {}).filter(isLocaleBondPackage)
+    declaredMoleculePackages = [
+      ...Object.keys(appPkg.dependencies ?? {}),
+      ...Object.keys(appPkg.devDependencies ?? {}),
+    ].filter((name) => name.startsWith('@molecule/'))
   } catch (_error) {
     /* no readable package.json in cwd — keep every @molecule package excluded */
   }
+  const testSetupFiles = declaredTestSetupFiles(appRoot, declaredMoleculePackages)
 
   // Collect per-package `molecule.viteOptimizeInclude` declarations from
   // every installed @molecule/* package.json. Each package that depends
@@ -665,6 +727,9 @@ export function createFrameworkViteConfig(
       // to jsdom otherwise, which no scaffold installs. A test file that needs a DOM
       // names its environment in a `@vitest-environment` comment.
       environment: 'node',
+      // The setup a declared framework binding needs for its component tests
+      // (@molecule/app-vue's event timing), from its package.json.
+      ...(testSetupFiles.length ? { setupFiles: testSetupFiles } : {}),
       // A test resolves @molecule packages the way the build does. Left external, Node
       // loads each one from its real path and takes the framework from whatever
       // node_modules sits beside it (a workspace's nested install, a linked package's own

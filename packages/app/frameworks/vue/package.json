@@ -97,5 +97,10 @@
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"
+  },
+  "molecule": {
+    "vitestSetupFiles": [
+      "@molecule/app-vue/testing/setup"
+    ]
   }
 }

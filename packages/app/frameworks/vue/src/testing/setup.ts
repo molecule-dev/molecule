@@ -1,5 +1,7 @@
 /**
- * Vitest setup for Vue component tests: list it in the config's `setupFiles`.
+ * Vitest setup for Vue component tests. A Molecule app's vite config (`createFrameworkViteConfig`
+ * from `@molecule/app-vite-config-default/framework`) runs it already: this package's package.json
+ * names it in `molecule.vitestSetupFiles`. Any other vitest config lists it in `setupFiles`:
  *
  * ```ts
  * export default defineConfig({

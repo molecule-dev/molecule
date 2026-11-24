@@ -116,6 +116,71 @@ describe('createFrameworkViteConfig', () => {
     expect(registration.transform).toBeDefined()
   })
 
+  it("runs the vitest setup each of the app's declared bindings names, and no other", () => {
+    const workspace = join(root, 'setup-workspace')
+    const app = join(workspace, 'app')
+    const installed = (dir: string, name: string, molecule?: object): void => {
+      mkdirSync(join(dir, 'node_modules', name), { recursive: true })
+      writeFileSync(
+        join(dir, 'node_modules', name, 'package.json'),
+        JSON.stringify({ name, ...(molecule ? { molecule } : {}) }),
+      )
+    }
+    // The binding is hoisted to the workspace; the app's own node_modules holds another package.
+    installed(workspace, '@molecule/app-vue', {
+      vitestSetupFiles: ['@molecule/app-vue/testing/setup'],
+    })
+    installed(workspace, '@molecule/app-svelte', {
+      vitestSetupFiles: ['@molecule/app-svelte/testing/setup'],
+    })
+    installed(app, '@molecule/app-notes')
+    writeFileSync(
+      join(app, 'package.json'),
+      JSON.stringify({
+        name: 'app',
+        dependencies: { '@molecule/app-notes': '1.0.0', '@molecule/app-vue': '3.12.0' },
+        devDependencies: { '@molecule/app-vue': '3.12.0' },
+      }),
+    )
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(app)
+    try {
+      expect(createFrameworkViteConfig(branding, { plugins: [] }).test?.setupFiles).toEqual([
+        '@molecule/app-vue/testing/setup',
+      ])
+      // A React app in the same workspace gets none.
+      writeFileSync(
+        join(app, 'package.json'),
+        JSON.stringify({ name: 'app', dependencies: { '@molecule/app-notes': '1.0.0' } }),
+      )
+      expect(createFrameworkViteConfig(branding, { plugins: [] }).test).not.toHaveProperty(
+        'setupFiles',
+      )
+    } finally {
+      cwd.mockRestore()
+    }
+  })
+
+  it('refuses a vitestSetupFiles that is not a list of specifiers', () => {
+    const app = join(root, 'setup-bad', 'app')
+    mkdirSync(join(app, 'node_modules', '@molecule', 'app-vue'), { recursive: true })
+    writeFileSync(
+      join(app, 'node_modules', '@molecule', 'app-vue', 'package.json'),
+      JSON.stringify({ name: '@molecule/app-vue', molecule: { vitestSetupFiles: 'setup.js' } }),
+    )
+    writeFileSync(
+      join(app, 'package.json'),
+      JSON.stringify({ name: 'app', dependencies: { '@molecule/app-vue': '3.12.0' } }),
+    )
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(app)
+    try {
+      expect(() => createFrameworkViteConfig(branding, { plugins: [] })).toThrow(
+        "@molecule/app-vue's package.json molecule.vitestSetupFiles must be a list",
+      )
+    } finally {
+      cwd.mockRestore()
+    }
+  })
+
   it('walks past an empty node_modules/@molecule to the one the packages are in', () => {
     const app = join(root, 'workspace', 'app')
     mkdirSync(join(app, 'node_modules', '@molecule'), { recursive: true })
