@@ -51,6 +51,22 @@ export interface FontSource {
   faces?: FontFaceDescriptor[]
 }
 
+/**
+ * What a renderer without ligatures or variable axes (React Native) needs to draw an icon font's
+ * glyphs by name.
+ */
+export interface FontGlyphs {
+  /**
+   * The codepoint that draws a glyph name.
+   *
+   * @param name - The glyph name (`check_circle`).
+   * @returns The codepoint, or `undefined` for a name the font does not draw.
+   */
+  codepoint(name: string): number | undefined
+  /** The family of the font's filled form (its `FILL` axis at 1), when it has one. */
+  filledFamily?: string
+}
+
 /** Complete definition for a single font family. */
 export interface FontDefinition {
   /** CSS font-family name (e.g., 'Arimo', 'Inter'). */
@@ -67,6 +83,14 @@ export interface FontDefinition {
    * Only meaningful for `icon`-role fonts; ignored for text roles.
    */
   utilityCss?: string
+  /** An icon font's glyphs by name, for a renderer that draws them by codepoint. */
+  glyphs?: FontGlyphs
+  /**
+   * The font files a React Native app loads before it renders (the map expo-font's `loadAsync`
+   * takes: family name to bundled asset). A definition for React Native carries them, with a
+   * `system` source, since the platform loads the files.
+   */
+  nativeFiles?: Readonly<Record<string, number>>
 }
 
 /** Options for `setFont()`. */

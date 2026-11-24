@@ -27,4 +27,5 @@
  * @module
  */
 
+export * from './glyphs.js'
 export * from './provider.js'
