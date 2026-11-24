@@ -123,6 +123,13 @@ describe('packageNameOf', () => {
     expect(packageNameOf('$lib/Article.svelte')).toBeNull()
     expect(packageNameOf('#lib/bonds/index.js')).toBeNull()
   })
+
+  it('needs no declaration for a wildcard asset module, but a package wildcard names its package', () => {
+    expect(packageNameOf('*.ttf')).toBeNull()
+    expect(packageNameOf('*?raw')).toBeNull()
+    expect(packageNameOf('some-lib/*')).toBe('some-lib')
+    expect(packageNameOf('@scope/pkg/*')).toBe('@scope/pkg')
+  })
 })
 
 describe('isTestFile', () => {

@@ -190,6 +190,9 @@ export function packageNameOf(specifier) {
   // Aliases, never package names (npm names hold neither character): SvelteKit's `$app/…`, `$lib`, `$env/…`
   // and Node's `#` subpath imports.
   if (specifier.startsWith('$') || specifier.startsWith('#')) return null
+  // A wildcard module declaration (`declare module '*.ttf'`) types files a bundler loads as assets,
+  // not a package; `'pkg/*'` still names pkg.
+  if (specifier.startsWith('*')) return null
   if (/^[a-z][a-z0-9+.-]*:/i.test(specifier)) return null
   const parts = specifier.split('/')
   const name = specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
