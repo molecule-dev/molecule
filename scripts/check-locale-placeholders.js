@@ -57,6 +57,8 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { isMainModule } from './lib/is-main.mjs'
+
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..')
 const LOCALE_DIRS = [join(ROOT, 'packages/app/locales'), join(ROOT, 'packages/api/locales')]
 // `loader.ts` is a locale bond's lazy loader (its exported list of locale codes), not a table.
@@ -852,7 +854,7 @@ export function analyzeLocalePlaceholders() {
   return { problems, drifts, filesScanned, packagesScanned }
 }
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url)
+const isMain = isMainModule(import.meta.url)
 
 if (isMain) {
   const { problems, filesScanned, packagesScanned } = analyzeLocalePlaceholders()

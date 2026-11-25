@@ -2,9 +2,9 @@
 
 > **Parallel-agent machine:** before a release, any `npm install`, or killing a
 > process, register with the shared presence registry:
-> `node ../scripts/agent-presence.mjs register --repo molecule --work "<what>"`
+> `node "$(node scripts/lib/aggregate-root.mjs)/scripts/agent-presence.mjs" register --repo molecule --work "<what>"`
 > then `list` / `claim --exclusive release` / `verify --pid <pid>` — see
-> `../docs/agent-presence.md`. Claude Code sessions are auto-registered by hook.
+> `docs/agent-presence.md` in the aggregate. Claude Code sessions are auto-registered by hook.
 
 ## The Decoupling Principle
 

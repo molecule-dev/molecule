@@ -30,6 +30,8 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { isMainModule } from './lib/is-main.mjs'
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 /** The tsconfig exclude that keeps a package's tests out of its build. */
 export const TEST_EXCLUDE = 'src/**/__tests__/**'
@@ -177,7 +179,7 @@ export function listFiles(root) {
   return files
 }
 
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]
+const isMain = isMainModule(import.meta.url)
 if (isMain) {
   const files = listFiles(realpathSync(ROOT))
   const findings = findPublishedTests(ROOT, files)

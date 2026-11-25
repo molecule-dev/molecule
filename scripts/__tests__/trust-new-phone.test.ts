@@ -12,6 +12,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs'
 import http from 'node:http'
@@ -135,14 +136,19 @@ function scratchRepo({
   ledger = [A, B],
   inWorkspace = false,
   names = [A, B],
-}: { ledger?: string[]; inWorkspace?: boolean; names?: string[] } = {}) {
+}: { ledger?: string[]; inWorkspace?: boolean | 'sibling'; names?: string[] } = {}) {
   const base = mkdtempSync(join(tmpdir(), 'trust-new-'))
   cleanups.push(() => rmSync(base, { recursive: true, force: true }))
   // Inside the workspace the repo sits next to the workspace's own scripts/release.mjs.
   const root = inWorkspace ? join(base, 'molecule') : base
   if (inWorkspace) {
-    mkdirSync(join(base, 'scripts'), { recursive: true })
-    writeFileSync(join(base, 'scripts', 'release.mjs'), '')
+    const aggregate = inWorkspace === 'sibling' ? join(base, 'aggregate') : base
+    mkdirSync(join(aggregate, 'scripts'), { recursive: true })
+    writeFileSync(join(aggregate, 'scripts', 'release.mjs'), '')
+    if (inWorkspace === 'sibling') {
+      writeFileSync(join(aggregate, 'package.json'), '{"name":"molecule-workspace"}')
+      symlinkSync('../molecule', join(aggregate, 'molecule'))
+    }
   }
   mkdirSync(join(root, 'scripts'), { recursive: true })
   // A `gh` that only records how it was called.
@@ -763,13 +769,16 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
     expect(run.out).not.toMatch(/not in the commit being pushed|could not read the pushed refs/)
   })
 
-  it('inside the workspace, --release points at the release runner instead of dispatching Release by hand (OLD MUSTFAIL)', async () => {
-    const root = scratchRepo({ ledger: [], inWorkspace: true })
-    const run = await runTrustNew(root, ['--ci', '--release'], { ci: true, absent: [A, B] })
-    expect(run.code).toBe(0)
-    expect(existsSync(join(root, 'gh.log'))).toBe(false)
-    expect(run.out).toMatch(/--release does not dispatch Release inside the workspace/)
-  })
+  it.each([true, 'sibling'] as const)(
+    'inside the workspace (%s), --release points at the release runner instead of dispatching Release by hand (OLD MUSTFAIL)',
+    async (inWorkspace) => {
+      const root = scratchRepo({ ledger: [], inWorkspace })
+      const run = await runTrustNew(root, ['--ci', '--release'], { ci: true, absent: [A, B] })
+      expect(run.code).toBe(0)
+      expect(existsSync(join(root, 'gh.log'))).toBe(false)
+      expect(run.out).toMatch(/--release does not dispatch Release inside the workspace/)
+    },
+  )
 
   it('a standalone clone keeps dispatching Release with --release', async () => {
     const root = scratchRepo({ ledger: [] })

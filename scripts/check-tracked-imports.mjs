@@ -51,6 +51,8 @@ import process from 'node:process'
 
 import ts from 'typescript'
 
+import { isMainModule } from './lib/is-main.mjs'
+
 /** Files whose imports are read. */
 export const SOURCE_FILE = /\.(?:[cm]?[jt]sx?|svelte|vue)$/
 
@@ -298,4 +300,4 @@ function main(argv) {
   return 1
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(main(process.argv.slice(2)))
+if (isMainModule(import.meta.url)) process.exit(main(process.argv.slice(2)))

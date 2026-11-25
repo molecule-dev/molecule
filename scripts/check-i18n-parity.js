@@ -51,6 +51,8 @@ import { fileURLToPath } from 'node:url'
 
 import ts from 'typescript'
 
+import { isMainModule } from './lib/is-main.mjs'
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const BASELINE_PATH = join(ROOT, 'scripts', 'i18n-parity-baseline.json')
 
@@ -514,7 +516,7 @@ export function newDefaultProblems() {
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
-const isMain = process.argv[1] === fileURLToPath(import.meta.url)
+const isMain = isMainModule(import.meta.url)
 if (isMain) {
   const mode = process.argv.includes('--check')
     ? 'check'

@@ -23,6 +23,8 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { URL } from 'node:url'
 
+import { isMainModule } from './is-main.mjs'
+
 /** Overridable so tests can point the seed at a scratch dir. */
 export const SEED_PATH =
   process.env.MOL_NPM_TOTP_SEED ?? join(homedir(), '.config', 'molecule', 'npm-2fa-seed')
@@ -157,7 +159,7 @@ export function storeSeed(buf) {
 // Standalone enrollment: `node scripts/lib/npm-2fa.mjs <secret|otpauth-uri>`
 // stores the seed and prints the current code, so the one-time setup does not
 // have to wait for a trust:new run to prompt.
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (isMainModule(import.meta.url)) {
   const parsed = parseSecret(process.argv[2] ?? '')
   if (!parsed) {
     console.error('usage: node scripts/lib/npm-2fa.mjs <base32-secret | otpauth:// URI>')

@@ -120,6 +120,7 @@ import ts from 'typescript'
 
 import { BINDING_REFERENCE } from './check-framework-conformance.mjs'
 import { isTestFile, packageNameOf } from './check-undeclared-imports.mjs'
+import { isMainModule } from './lib/is-main.mjs'
 import {
   bindingGuardProblems,
   consumerGuardProblems,
@@ -1532,7 +1533,7 @@ export async function scanRoutingGuard(
   return problems
 }
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url)
+const isMain = isMainModule(import.meta.url)
 if (isMain) {
   // Read as a stream, not readFileSync(0): `import process from 'node:process'` evaluates every property of
   // process, `process.stdin` included, which opens a piped stdin non-blocking. A synchronous read then throws

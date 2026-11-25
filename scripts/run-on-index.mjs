@@ -29,9 +29,11 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import console from 'node:console'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
+
+import { aggregateRoot } from './lib/aggregate-root.mjs'
+import { isMainModule } from './lib/is-main.mjs'
 
 /**
  * Exports the index of `repo` into `dest` and links the checkout's
@@ -47,8 +49,11 @@ export function exportIndex(repo, dest, files) {
     ['checkout-index', `--prefix=${dest}/`, ...(files === undefined ? ['-a'] : ['-z', '--stdin'])],
     { cwd: repo, input: files },
   )
-  const modules = [join(repo, 'node_modules'), join(repo, '..', 'node_modules')].find(existsSync)
-  if (modules) symlinkSync(modules, join(dest, 'node_modules'), 'dir')
+  const localModules = join(repo, 'node_modules')
+  const modules = existsSync(localModules)
+    ? localModules
+    : join(aggregateRoot(repo), 'node_modules')
+  if (existsSync(modules)) symlinkSync(modules, join(dest, 'node_modules'), 'dir')
 }
 
 /**
@@ -125,7 +130,7 @@ export function runOnIndex(repo, commands, scope) {
   return status
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   const commands = process.argv.slice(2)
   if (!commands.length) {
     console.error('usage: node scripts/run-on-index.mjs "<script> [args]" …')

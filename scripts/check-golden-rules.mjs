@@ -36,9 +36,10 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
+
+import { isMainModule } from './lib/is-main.mjs'
 
 /** The conformance kit, relative to the repository root. */
 export const KIT = 'packages/app/frameworks/conformance'
@@ -107,7 +108,7 @@ function changedPaths(repo, base) {
     .filter(Boolean)
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   const base =
     process.argv.find((arg) => arg.startsWith('--base='))?.slice('--base='.length) ?? 'HEAD'
   const tree = process.cwd()

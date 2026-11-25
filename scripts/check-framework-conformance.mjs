@@ -93,6 +93,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { BINDING_MOCK_FIX, partialBindingMocks } from './lib/binding-mocks.mjs'
+import { isMainModule } from './lib/is-main.mjs'
 import { testFilesOf, testTitlesOf } from './lib/test-titles.mjs'
 import {
   ROUTER_LIBRARY_FIX,
@@ -1661,7 +1662,7 @@ export function ciBase(env, mergeBase) {
   return null
 }
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url)
+const isMain = isMainModule(import.meta.url)
 if (isMain && process.argv.includes('--prune-title-pending')) {
   // Shrinks the title ledger to what is still missing; the check itself runs without the flag.
   writeFileSync(

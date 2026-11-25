@@ -19,6 +19,7 @@ printf '%s\n' "$refs" | node scripts/trust-new-packages.mjs --from-hook || exit 
 # Inside the molecule workspace, refuse a push of main while another session holds the release
 # claim: CI cancels an in-progress run on main when a newer push arrives, and a release waits on
 # that run. The release's own push runs as the claim's holder and passes.
-if [ -f ../scripts/refuse-push-during-release.mjs ]; then
-  printf '%s\n' "$refs" | node ../scripts/refuse-push-during-release.mjs || exit 1
+aggregate=$(node scripts/lib/aggregate-root.mjs) || exit 1
+if [ -f "$aggregate/scripts/refuse-push-during-release.mjs" ]; then
+  printf '%s\n' "$refs" | node "$aggregate/scripts/refuse-push-during-release.mjs" || exit 1
 fi

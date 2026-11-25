@@ -14,7 +14,6 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { text } from 'node:stream/consumers'
-import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 
 import semver from 'semver'
@@ -31,6 +30,7 @@ import {
   resolvePeerFloor,
 } from './check-peer-floors.mjs'
 import { isTestFile, packageNameOf } from './check-undeclared-imports.mjs'
+import { isMainModule } from './lib/is-main.mjs'
 
 const ROOT = resolve(import.meta.dirname, '..')
 const isMolecule = (name) => name?.startsWith('@molecule/')
@@ -639,7 +639,7 @@ function print(rows) {
   return failed ? 1 : 0
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   const { values, positionals } = parseArgs({
     options: {
       all: { type: 'boolean' },

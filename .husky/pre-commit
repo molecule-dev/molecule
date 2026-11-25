@@ -74,12 +74,15 @@ esac
 STAGED=$(staged_diff --name-only --no-renames --diff-filter=AMT)
 ALL_STAGED=$(staged_diff --name-only --no-renames)
 
+AGGREGATE=$(node scripts/lib/aggregate-root.mjs)
+MLCL_ROOT="$AGGREGATE/mlcl"
+
 # mlcl is a workspace member of the parent checkout, so its bins hoist to the
 # workspace root; a standalone mlcl install keeps them local. Check availability
 # once, then use Node's tsx loader: these one-shot checks need no CLI IPC socket,
 # whose Unix path limit rejects long private TMPDIRs.
 MLCL_TSX=""
-if [ -x ../mlcl/node_modules/.bin/tsx ] || [ -x ../node_modules/.bin/tsx ]; then MLCL_TSX=1
+if [ -x "$MLCL_ROOT/node_modules/.bin/tsx" ] || [ -x "$AGGREGATE/node_modules/.bin/tsx" ]; then MLCL_TSX=1
 fi
 # Published source/export changes need a pending changeset in THIS staged tree.
 # Run before the STAGED early exit too: that list intentionally excludes deletions,
@@ -98,9 +101,9 @@ node scripts/check-tracked-imports.mjs --staged || gate_failed check-tracked-imp
 # to its parent. The ordinary workspace `npm run verify:molecule-versions` still
 # judges the whole tree; a release's version-to-pins window or a peer's existing
 # incoherence must not refuse an unrelated commit. Skipped in a standalone clone.
-if [ -f ../scripts/verify-molecule-versions.mjs ] &&
+if [ -f "$AGGREGATE/scripts/verify-molecule-versions.mjs" ] &&
   printf '%s\n' "$ALL_STAGED" | grep -qE '^(package(-lock)?\.json|packages/.+/package\.json|\.changeset/held\.json)$'; then
-  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) ||
+  ( cd "$AGGREGATE" && node scripts/verify-molecule-versions.mjs --quiet --staged ) ||
     gate_failed verify-molecule-versions
 fi
 
@@ -190,16 +193,17 @@ fi
 # commit that did not touch it (2026-10-17, ai-tools), and made the README regen
 # below document code no commit had. It lives under the workspace root so
 # packages resolve the same node_modules the checkout does (prepareDocsCheckTree
-# in ../scripts/lib/release-ci-gates.mjs).
+# in the aggregate's scripts/lib/release-ci-gates.mjs).
 INDEX_TREE=""
 index_tree() {
   if [ -z "$INDEX_TREE" ]; then
-    INDEX_TREE="$(cd .. && pwd)/.precommit-docs-$$"
+    INDEX_TREE="$AGGREGATE/.precommit-docs-$$"
     rm -rf "$INDEX_TREE"
     # set -e exits on a failed gate; the 190 MB export must not outlive the hook.
     trap 'rm -rf "$INDEX_TREE"' EXIT
     git checkout-index -a --prefix="$INDEX_TREE/"
-    node -e "import('../scripts/lib/release-ci-gates.mjs').then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" "$INDEX_TREE"
+    node -e "import(require('node:url').pathToFileURL(process.argv[2])).then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" \
+      "$INDEX_TREE" "$AGGREGATE/scripts/lib/release-ci-gates.mjs"
   fi
 }
 
@@ -233,7 +237,7 @@ if [ -n "$DOC_MANIFEST_PATHS" ] && [ -n "$MLCL_TSX" ]; then
   # Word-split on purpose (package paths carry no whitespace). On failure the
   # helper prints nothing, so keep EVERY manifest rather than silently narrowing.
   # shellcheck disable=SC2086
-  if DOC_MANIFEST_KEEP=$( cd ../mlcl && node --import tsx scripts/doc-manifest-scope.mjs \
+  if DOC_MANIFEST_KEEP=$( cd "$MLCL_ROOT" && node --import tsx scripts/doc-manifest-scope.mjs \
       --staged --base="${DIFF_BASE:-HEAD}" --repo="$MOLECULE_REPO" $DOC_MANIFEST_PATHS ); then
     # `|| true`: an empty keep-list would otherwise leave the substitution's
     # while-loop status at 1 and `set -e` would fail the commit.
@@ -258,11 +262,11 @@ if [ "${1:-}" = --index-only ]; then
     index_tree
     # Word-split on purpose: package paths carry no whitespace.
     # shellcheck disable=SC2086
-    if ! ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null ); then
-      if ! env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C ../mlcl show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null ||
-        ! ( cd ../mlcl && MLCL_REGISTRY_PATH="$INDEX_TREE/.mlcl-head-registry.json" MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null 2>&1 ); then
+    if ! ( cd "$MLCL_ROOT" && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null ); then
+      if ! env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C "$MLCL_ROOT" show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null ||
+        ! ( cd "$MLCL_ROOT" && MLCL_REGISTRY_PATH="$INDEX_TREE/.mlcl-head-registry.json" MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs --check $DOC_DIRS >/dev/null 2>&1 ); then
         echo 'pre-commit: README.md is stale for a package this commit changes. Regenerate it and add it to this commit:' >&2
-        echo "  (cd ../mlcl && node --import tsx scripts/regen-molecule-docs.mjs $(echo $DOC_DIRS))" >&2
+        echo "  (cd \"$MLCL_ROOT\" && node --import tsx scripts/regen-molecule-docs.mjs $(echo $DOC_DIRS))" >&2
         gate_failed 'README check'
       fi
     fi
@@ -275,15 +279,15 @@ fi
 # and publish README files. A producer index owns its own generated files.
 
 # Secret-scanner drift (cross-repo). scripts/precommit-secret-scan.mjs here is a
-# VENDORED copy of the workspace canonical (../scripts/precommit-secret-scan.mjs).
+# VENDORED copy of the aggregate's scripts/precommit-secret-scan.mjs.
 # This repo's copy was the NEWEST when they diverged — the false-positive
 # exemptions were added here and nowhere else, so the other three kept blocking
 # `postgres://postgres:postgres@localhost` in docs. Fix the canonical, then sync.
 # Only checked when this copy is staged; skipped in a standalone clone.
 if staged_diff --name-only --diff-filter=ACM |
   grep -q '^scripts/precommit-secret-scan\.mjs$'; then
-  if [ -f ../scripts/sync-secret-scanner.mjs ]; then
-    (cd .. && node scripts/sync-secret-scanner.mjs --check) || gate_failed 'secret scanner sync'
+  if [ -f "$AGGREGATE/scripts/sync-secret-scanner.mjs" ]; then
+    (cd "$AGGREGATE" && node scripts/sync-secret-scanner.mjs --check) || gate_failed 'secret scanner sync'
   fi
 fi
 
@@ -295,8 +299,8 @@ fi
 # when a rule or the snapshot is staged; skipped in a standalone clone.
 if staged_diff --name-only --diff-filter=ACMR |
   grep -qE '^packages/tooling/eslint-config/src/(rules/.+|registry-snapshot)\.mjs$'; then
-  if [ -f ../scripts/sync-eslint-rules.mjs ]; then
-    (cd .. && node scripts/sync-eslint-rules.mjs --check) || gate_failed 'eslint rule sync'
+  if [ -f "$AGGREGATE/scripts/sync-eslint-rules.mjs" ]; then
+    (cd "$AGGREGATE" && node scripts/sync-eslint-rules.mjs --check) || gate_failed 'eslint rule sync'
   fi
 fi
 
@@ -332,12 +336,12 @@ if [ -n "$PKG_SRC" ]; then
     # this commit stages refused a commit that changed none of its exports (2026-11-20,
     # app-ui-react's Kit* types). A package also passes when mlcl HEAD's entry agrees with the
     # source this commit carries; one that neither registry agrees with is still refused. The
-    # commit's own GIT_DIR / GIT_INDEX_FILE would point `git -C ../mlcl` at molecule's repository.
+    # commit's own GIT_DIR / GIT_INDEX_FILE would point the mlcl git call at molecule's repository.
     REGISTRY_FALLBACK=""
-    if env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C ../mlcl show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null; then
+    if env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE git -C "$MLCL_ROOT" show HEAD:registry.json > "$INDEX_TREE/.mlcl-head-registry.json" 2>/dev/null; then
       REGISTRY_FALLBACK="--fallback-registry=$INDEX_TREE/.mlcl-head-registry.json"
     fi
-    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $REGISTRY_FALLBACK $PKG_DIRS ) || gate_failed 'registry exports'
+    ( cd "$MLCL_ROOT" && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $REGISTRY_FALLBACK $PKG_DIRS ) || gate_failed 'registry exports'
   else
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
@@ -350,9 +354,9 @@ fi
 # src/index.ts changed, so it stays fast under parallel agents. The fleet was
 # brought to zero failures when this gate landed — keep it there.
 IDX_CHANGED=$(echo "$STAGED" | grep -E '^packages/.+/src/index\.ts$' || true)
-if [ -n "$IDX_CHANGED" ] && [ -f ../scripts/verify-doc-examples.mjs ]; then
+if [ -n "$IDX_CHANGED" ] && [ -f "$AGGREGATE/scripts/verify-doc-examples.mjs" ]; then
   IDX_DIRS=$(echo "$IDX_CHANGED" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
-  ( cd .. && node scripts/verify-doc-examples.mjs $IDX_DIRS ) || gate_failed 'doc examples'
+  ( cd "$AGGREGATE" && node scripts/verify-doc-examples.mjs $IDX_DIRS ) || gate_failed 'doc examples'
 fi
 
 # Every check above has run. The README regen below writes to the index, so it
@@ -378,14 +382,14 @@ refuse_if_failed
 # `browser-storage.ts`, and the release's docs gate then failed on READMEs
 # describing code no commit had. The export lives under the workspace root so
 # packages resolve the same `node_modules` the checkout does (see
-# prepareDocsCheckTree in ../scripts/lib/release-ci-gates.mjs). Uses its own
+# prepareDocsCheckTree in the aggregate's scripts/lib/release-ci-gates.mjs). Uses its own
 # diff-filter (incl. D): a deleted src file changes the public API and thus the
 # doc, which --diff-filter=AM would miss.
 #
 if [ -n "$DOC_DIRS" ]; then
   if [ -n "$MLCL_TSX" ]; then
     index_tree
-    REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    REGENERATED=$( cd "$MLCL_ROOT" && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs $DOC_DIRS )
     if [ -n "$REGENERATED" ]; then
       # Each generated doc enters THIS index as a blob object — `git hash-object`
       # + `update-index` honour a private index and a pathspec commit's temporary
@@ -465,8 +469,8 @@ fi
 # keys are skipped inside the gate, never failed.
 if staged_diff --name-only --diff-filter=ACM |
   grep -q '^packages/api/resources/ai-models/src/models\.ts$'; then
-  if [ -f ../molecule-dev/scripts/verify-model-dispatch.mjs ]; then
-    ( cd .. && node molecule-dev/scripts/verify-model-dispatch.mjs --staged-catalog molecule )
+  if [ -f "$AGGREGATE/molecule-dev/scripts/verify-model-dispatch.mjs" ]; then
+    ( cd "$AGGREGATE" && node molecule-dev/scripts/verify-model-dispatch.mjs --staged-catalog molecule )
   else
     echo "ℹ model-dispatch gate skipped: molecule-dev not a sibling — run 'npm run verify:model-dispatch <changed-ids>' in molecule-dev before shipping catalog changes"
   fi

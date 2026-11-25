@@ -37,7 +37,8 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
-import { pathToFileURL } from 'node:url'
+
+import { isMainModule } from './lib/is-main.mjs'
 
 /** Name prefix of every run root this runner creates. */
 export const VITEST_TMP_PREFIX = 'mol-vitest-'
@@ -251,7 +252,7 @@ export function runVitest(args = [], options = {}) {
 
 // `npm test` runs this file directly; the exported helpers above exist so the
 // behaviour can be tested without starting a real suite.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMainModule(import.meta.url)) {
   runVitest(process.argv.slice(2)).then((code) => {
     process.exitCode = code
   })

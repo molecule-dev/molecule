@@ -65,7 +65,11 @@ function runHook(
   writeFileSync(join(root, 'scripts/verify-doc-examples.mjs'), '')
   executable(
     join(bin, 'node'),
-    `printf '%s\\n' "$*" >> '${log}'
+    `if [ "$1" = scripts/lib/aggregate-root.mjs ]; then
+  printf '%s\\n' '${root}'
+  exit 0
+fi
+printf '%s\\n' "$*" >> '${log}'
 for name in $MOL_GATES_FIXTURE_FAIL; do case "$*" in *"$name"*) exit 1 ;; esac; done
 case "$*" in *--check*) ;; *regen-molecule-docs.mjs*)
   for arg in "$@"; do case "$arg" in packages/*)

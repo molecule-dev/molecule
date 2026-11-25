@@ -24,6 +24,8 @@ import { createRequire, isBuiltin } from 'node:module'
 import { basename, isAbsolute, join, relative, resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 
+import { isMainModule } from './lib/is-main.mjs'
+
 const FORMAT = 3
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const canonical = (value) =>
@@ -399,7 +401,7 @@ export function distCache(root, mode) {
   return { fresh, rebuild: inputs.packages.size - fresh }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   if (process.argv.includes('--check')) {
     console.log(`build scripts verifiable: ${checkBuildCommands(ROOT)} package(s)`)
     process.exit(0)

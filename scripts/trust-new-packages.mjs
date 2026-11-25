@@ -50,6 +50,7 @@ import { createInterface } from 'node:readline/promises'
 import { text as streamText } from 'node:stream/consumers'
 import { ReadStream, WriteStream } from 'node:tty'
 
+import { aggregateRoot } from './lib/aggregate-root.mjs'
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
 import { buildFirstPublishes } from './lib/build-first-publishes.mjs'
 import { commitTrustState } from './lib/commit-trust-state.mjs'
@@ -896,7 +897,7 @@ for (const pkg of firstPublishes) {
       // it to the workspace root's .bin (mlcl/node_modules/.bin/tsx has not
       // existed here since 2026-08-16 — a silent skip there sent the
       // 2026-10-07 embeddings wave into the pack gate's README error).
-      const mlclDir = join(ROOT, '..', 'mlcl')
+      const mlclDir = join(aggregateRoot(ROOT), 'mlcl')
       const regen = join(mlclDir, 'scripts', 'regen-molecule-docs.mjs')
       const tsx = [
         join(mlclDir, 'node_modules', '.bin', 'tsx'),
@@ -1164,21 +1165,23 @@ if (failed.length)
   )
 if (refused.length || failed.length) process.exit(1)
 
+const aggregate = aggregateRoot(ROOT)
+const WORKSPACE_RELEASE = join(aggregate, 'scripts', 'release.mjs')
+const releaseCommand = `node ${JSON.stringify(WORKSPACE_RELEASE)} --only=gates,version,publish,pins,lockfiles`
 console.log(
   `\nTrusted ${trusted.length}. Their links are PENDING until CI publishes through them — npm ` +
     'gives about two days. Run the release now so CI publishes their real versions:\n' +
-    '  node ../scripts/release.mjs --only=gates,version,publish,pins,lockfiles\n' +
-    'Then `node ../scripts/audit-npm-trust.mjs` lists any package still never published over OIDC.',
+    `  ${releaseCommand}\n` +
+    `Then \`node ${JSON.stringify(join(aggregate, 'scripts', 'audit-npm-trust.mjs'))}\` lists any package still never published over OIDC.`,
 )
 
 // Inside the molecule workspace, releases go through its release runner, which holds the
 // shared release claim and watches only its own run; a Release dispatched by hand here
 // collided with a live release once. Standalone clones keep the direct dispatch.
-const WORKSPACE_RELEASE = join(ROOT, '..', 'scripts', 'release.mjs')
 if (RELEASE && existsSync(WORKSPACE_RELEASE)) {
   console.error(
     '\n--release does not dispatch Release inside the workspace. Run the release runner:\n' +
-      '  node ../scripts/release.mjs --only=gates,version,publish,pins,lockfiles',
+      `  ${releaseCommand}`,
   )
 } else if (RELEASE) {
   // The packages are trusted but still do not exist on npm. CI creates them over

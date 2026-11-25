@@ -14,7 +14,8 @@
  * Exits 1, naming each such path, when the commit would revert one; 0 otherwise.
  */
 import { spawnSync } from 'node:child_process'
-import { pathToFileURL } from 'node:url'
+
+import { isMainModule } from './lib/is-main.mjs'
 
 /**
  * Run git in the current repository (its index is whatever `GIT_INDEX_FILE` names).
@@ -57,7 +58,7 @@ export function revertedSince(start, cwd = process.cwd()) {
   return { head, paths }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMainModule(import.meta.url)) {
   const start = process.argv[2] ?? ''
   const { head, paths } = revertedSince(start)
   if (paths.length) {

@@ -29,7 +29,8 @@
  */
 import { execFile } from 'node:child_process'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
+
+import { isMainModule } from './lib/is-main.mjs'
 
 /** Conclusions of a run withdrawn before it judged the commit; every other one is a verdict. */
 const WITHDRAWN = new Set(['cancelled', 'skipped', 'stale'])
@@ -137,7 +138,7 @@ function ghLines([endpoint, jq], { exec = execFile, timeoutMs = 60_000 } = {}) {
   })
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   const [repo, sha] = process.argv.slice(2)
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo ?? '') || !/^[0-9a-f]{40}$/.test(sha ?? '')) {
     console.error('usage: ci-green-for-commit.mjs <owner/repo> <40-hex sha>')

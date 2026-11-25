@@ -26,9 +26,10 @@ import console from 'node:console'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
-import { pathToFileURL } from 'node:url'
 
 import semver from 'semver'
+
+import { isMainModule } from './lib/is-main.mjs'
 
 const PACKAGES_DIR = join(import.meta.dirname, '..', 'packages')
 
@@ -150,7 +151,7 @@ function walk(dir) {
   return found
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+if (isMainModule(import.meta.url)) {
   const found = walk(PACKAGES_DIR)
   const manifests = new Map(found.map(({ pkg }) => [pkg.name, pkg]))
   const problems = found.flatMap(({ pkg, workspace }) => [

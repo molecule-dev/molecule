@@ -40,7 +40,7 @@ describe('the pre-commit hook checks READMEs for a private-index commit', () => 
   })
 
   it('also accepts a README that matches mlcl HEAD’s registry', () => {
-    expect(branch).toContain('git -C ../mlcl show HEAD:registry.json')
+    expect(branch).toContain('git -C "$MLCL_ROOT" show HEAD:registry.json')
     expect(branch).toContain('MLCL_REGISTRY_PATH=')
   })
 

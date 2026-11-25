@@ -59,6 +59,7 @@ import { dirname, join, posix, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
+import { isMainModule } from './lib/is-main.mjs'
 import { createRunRoot, runVitest } from './vitest-with-tmp-root.mjs'
 
 /** The most projects one Vitest process starts, unless `MOL_VITEST_GROUP_PROJECTS` says otherwise. */
@@ -490,7 +491,7 @@ export async function rootProjectPatterns(root = ROOT) {
   return projects
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMainModule(import.meta.url)) {
   runGrouped(process.argv.slice(2)).then(
     (code) => process.exit(code),
     (error) => {

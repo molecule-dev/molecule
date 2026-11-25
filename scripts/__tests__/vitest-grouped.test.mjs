@@ -7,6 +7,7 @@ import { stripVTControlCharacters } from 'node:util'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { aggregateRoot } from '../lib/aggregate-root.mjs'
 import * as grouped from '../vitest-grouped.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
 
@@ -25,7 +26,7 @@ const {
 } = grouped
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
-const scratch = path.resolve(ROOT, '../.experiments/vitest-grouped-tests')
+const scratch = path.join(aggregateRoot(ROOT), '.experiments/vitest-grouped-tests')
 const fixtures = []
 
 /**
@@ -48,6 +49,7 @@ function fixture({ red = [], slow = [], timed = {}, nested = false } = {}) {
     'scripts/vitest-grouped.mjs',
     'scripts/vitest-budget-reporter.mjs',
     'scripts/vitest-with-tmp-root.mjs',
+    'scripts/lib/is-main.mjs',
     'scripts/vitest.config.ts',
     'vitest.config.ts',
   ])

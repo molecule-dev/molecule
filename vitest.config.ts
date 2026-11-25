@@ -34,6 +34,7 @@ export default defineConfig({
       'packages/app/infrastructure/*/vitest.config.ts',
       'packages/app/features/*/vitest.config.ts',
       'packages/app/native/*/vitest.config.ts',
+      'packages/app/utilities/*/vitest.config.ts',
 
       // App framework packages
       'packages/app/frameworks/*/vitest.config.ts',

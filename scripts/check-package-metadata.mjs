@@ -36,7 +36,9 @@ import {
 } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import process from 'node:process'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
+
+import { isMainModule } from './lib/is-main.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const FIX = process.argv.includes('--fix')
@@ -194,7 +196,7 @@ function refuse(heading, fix) {
   process.exit(1)
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+if (isMainModule(import.meta.url)) {
   walk(join(ROOT, 'packages'))
 
   if (FIX) {

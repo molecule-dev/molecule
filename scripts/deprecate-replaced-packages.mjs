@@ -16,7 +16,7 @@
  *   node scripts/deprecate-replaced-packages.mjs           # deprecate what is due
  *   node scripts/deprecate-replaced-packages.mjs --list    # report only (exit 1 when some are due)
  *
- * MLCL_REGISTRY_PATH names another registry file (default: ../mlcl/registry.json).
+ * MLCL_REGISTRY_PATH names another registry file (default: mlcl/registry.json in the aggregate).
  */
 import { spawnSync } from 'node:child_process'
 import console from 'node:console'
@@ -25,6 +25,8 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { aggregateRoot } from './lib/aggregate-root.mjs'
+import { isMainModule } from './lib/is-main.mjs'
 import {
   approvalServiceAvailable,
   npmApprovalLink,
@@ -114,7 +116,8 @@ async function whoamiStatus(bearer) {
  */
 async function main() {
   const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-  const registryPath = process.env.MLCL_REGISTRY_PATH || join(root, '..', 'mlcl', 'registry.json')
+  const registryPath =
+    process.env.MLCL_REGISTRY_PATH || join(aggregateRoot(root), 'mlcl', 'registry.json')
   const due = await deprecationsDue(
     replacedPackages(JSON.parse(readFileSync(registryPath, 'utf8'))),
     registryPackument,
@@ -186,5 +189,4 @@ async function main() {
   return failed ? 1 : 0
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1])
-  process.exit(await main())
+if (isMainModule(import.meta.url)) process.exit(await main())

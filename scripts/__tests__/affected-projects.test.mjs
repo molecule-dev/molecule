@@ -6,10 +6,11 @@ import process from 'node:process'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { aggregateRoot } from '../lib/aggregate-root.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
-const scratch = path.resolve(ROOT, '../.experiments/affected-project-tests')
+const scratch = path.join(aggregateRoot(ROOT), '.experiments/affected-project-tests')
 const fixtures = []
 
 /** A tiny repository with real affected logic, npm runner and Vitest projects. */
@@ -32,6 +33,7 @@ function fixture() {
     'scripts/vitest-grouped.mjs',
     'scripts/vitest-budget-reporter.mjs',
     'scripts/vitest-with-tmp-root.mjs',
+    'scripts/lib/is-main.mjs',
     'scripts/vitest.config.ts',
     'vitest.config.ts',
   ]) {

@@ -1,5 +1,13 @@
 import { execFileSync, spawnSync } from 'node:child_process'
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -57,6 +65,7 @@ function fixture() {
     },
   })
   mkdirSync(join(root, 'scripts/lib'), { recursive: true })
+  copyFileSync(join(SCRIPTS, 'lib/is-main.mjs'), join(root, 'scripts/lib/is-main.mjs'))
   copyFileSync(join(SCRIPTS, 'check-lockfile.js'), join(root, 'scripts/check-lockfile.js'))
   copyFileSync(
     join(SCRIPTS, 'lib/lockfile-ranges.mjs'),
@@ -75,6 +84,23 @@ function fixture() {
 }
 
 describe('run-on-index', () => {
+  it('links the aggregate install when a sibling checkout has no local install', () => {
+    const root = fixture()
+    const parent = mkdtempSync(join(tmpdir(), 'run-on-index-sibling-'))
+    roots.push(parent)
+    const aggregate = join(parent, 'aggregate')
+    const checkout = join(parent, 'molecule')
+    mkdirSync(aggregate)
+    write(aggregate, 'package.json', { name: 'molecule-workspace' })
+    symlinkSync('../molecule', join(aggregate, 'molecule'))
+    renameSync(root, checkout)
+    renameSync(join(checkout, 'node_modules'), join(aggregate, 'node_modules'))
+
+    const result = run(checkout, ['scripts/check-lockfile.js'])
+    expect(result.status, result.stderr).toBe(0)
+    expect(result.stdout).toContain('Lock file OK')
+  })
+
   it('runs a script on the tree the index carries, without untracked or unstaged files', () => {
     const root = fixture()
     write(root, 'packages/b/package.json', { name: 'b', version: '1.0.0' })

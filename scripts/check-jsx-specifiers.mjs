@@ -31,6 +31,7 @@ import process from 'node:process'
 import ts from 'typescript'
 
 import { relativeImports, SOURCE_FILE } from './check-tracked-imports.mjs'
+import { isMainModule } from './lib/is-main.mjs'
 
 const ROOT = resolve(import.meta.dirname, '..')
 
@@ -105,7 +106,7 @@ function sourceFiles(dir, out = []) {
   return out
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   const dirs =
     process.argv.length > 2
       ? process.argv.slice(2).map((d) => resolve(d))

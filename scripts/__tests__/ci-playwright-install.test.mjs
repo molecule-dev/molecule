@@ -7,6 +7,8 @@ import process from 'node:process'
 import { load } from 'js-yaml'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { aggregateRoot } from '../lib/aggregate-root.mjs'
+
 const ROOT = path.resolve(import.meta.dirname, '../..')
 const workflow = load(fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8'))
 // Steps are found in whichever job holds them: the affected tests run in their own sharded job,
@@ -26,7 +28,10 @@ afterEach(() => {
 
 /** Run the actual scope, installer and test shell; no downloads or installs. */
 function execute(filter, { installExit = 0, scopeExit = 0, browserExit = 0 } = {}) {
-  const scratch = path.resolve(ROOT, '../.experiments/x0/live/ship/P14-ci-chromium-scope/fixtures')
+  const scratch = path.join(
+    aggregateRoot(ROOT),
+    '.experiments/x0/live/ship/P14-ci-chromium-scope/fixtures',
+  )
   fs.mkdirSync(scratch, { recursive: true })
   const dir = fs.mkdtempSync(path.join(scratch, 'shell-'))
   fixtures.push(dir)

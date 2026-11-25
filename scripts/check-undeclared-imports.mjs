@@ -62,6 +62,7 @@ import { fileURLToPath } from 'node:url'
 
 import ts from 'typescript'
 
+import { isMainModule } from './lib/is-main.mjs'
 import { moduleImports } from './lib/module-imports.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -504,7 +505,7 @@ export function scanFleet(root = ROOT) {
   return rows
 }
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url)
+const isMain = isMainModule(import.meta.url)
 if (isMain) {
   const rows = scanFleet()
   if (process.argv.includes('--json')) {
