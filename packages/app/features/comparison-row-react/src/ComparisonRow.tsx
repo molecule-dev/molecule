@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { slot } from '@molecule/app-react/render'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ComparisonRow}. */
 export interface ComparisonRowProps {
@@ -49,25 +50,37 @@ export function ComparisonRow({
   const periodLabel = slot(periodLabelProp)
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.flex({ align: 'baseline', justify: 'between', gap: 'md' }), className)}
     >
-      <div className={cm.stack(0 as const)}>
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{label}</span>
-        {periodLabel && <span className={cm.textSize('xs')}>{periodLabel}</span>}
-      </div>
-      <div className={cm.flex({ align: 'baseline', gap: 'sm' })}>
-        <span className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{current}</span>
+      <Box as="div" className={cm.stack(0 as const)}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {label}
+        </Text>
+        {periodLabel && (
+          <Text as="span" className={cm.textSize('xs')}>
+            {periodLabel}
+          </Text>
+        )}
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'baseline', gap: 'sm' })}>
+        <Text as="span" className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          {current}
+        </Text>
         {previous !== undefined && (
-          <span
+          <Text
+            as="span"
             className={cm.cn(cm.textSize('xs'))}
-            style={{ textDecoration: 'line-through', opacity: 0.6 }}
+            style={{ opacity: 0.6 }}
+            webStyle={{ textDecoration: 'line-through' }}
           >
             {previous}
-          </span>
+          </Text>
         )}
         {deltaPct !== undefined && (
-          <span
+          <Text
+            as="span"
             className={cm.cn(
               cm.textSize('xs'),
               cm.fontWeight('semibold'),
@@ -81,9 +94,9 @@ export function ComparisonRow({
                 {ARROW(deltaPct)} {Math.abs(deltaPct).toFixed(1)}%
               </>
             )}
-          </span>
+          </Text>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

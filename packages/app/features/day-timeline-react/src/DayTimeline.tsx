@@ -1,7 +1,8 @@
-import type { CSSProperties, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import type { DayTimelineEvent, DayTimelineProps } from './types.js'
 
@@ -67,41 +68,43 @@ export function DayTimeline({
 
   const wrapperClass = cm.cn(className)
 
-  const wrapperStyle: CSSProperties = {
+  const wrapperStyle: WebStyle = {
     position: 'relative',
     display: 'grid',
     gridTemplateColumns: showAxisLabels ? '64px 1fr' : '1fr',
     minHeight: totalHeight,
   }
 
-  const axisStyle: CSSProperties = {
+  const axisStyle: WebStyle = {
     position: 'relative',
     height: totalHeight,
   }
 
-  const railStyle: CSSProperties = {
+  const railStyle: WebStyle = {
     position: 'relative',
     height: totalHeight,
   }
 
   return (
-    <div
+    <Box
+      as="div"
       className={wrapperClass}
       data-mol-id={dataMolId ?? 'day-timeline'}
       role="list"
       aria-label={t('dayTimeline.group', {}, { defaultValue: 'Day timeline' })}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
     >
       {showAxisLabels && (
-        <div style={axisStyle} aria-hidden>
+        <Box as="div" webStyle={axisStyle} aria-hidden>
           {ticks.map((h) => {
             const top = (h - safeStart) * pxPerHour
             return (
-              <div
+              <Box
+                as="div"
                 key={`tick-${h}`}
                 data-axis-tick={h}
                 className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-                style={{
+                webStyle={{
                   position: 'absolute',
                   top,
                   right: 8,
@@ -109,25 +112,27 @@ export function DayTimeline({
                 }}
               >
                 {formatHour(h)}
-              </div>
+              </Box>
             )
           })}
-        </div>
+        </Box>
       )}
 
-      <div
+      <Box
+        as="div"
         className={showAxisLabels ? cm.borderL : undefined}
-        style={railStyle}
+        webStyle={railStyle}
         data-mol-id="day-timeline-rail"
       >
         {ticks.map((h) => {
           const top = (h - safeStart) * pxPerHour
           return (
-            <div
+            <Box
+              as="div"
               key={`gridline-${h}`}
               aria-hidden
               className={cm.bgBorder}
-              style={{
+              webStyle={{
                 position: 'absolute',
                 top,
                 left: 0,
@@ -141,8 +146,8 @@ export function DayTimeline({
         {events.map((ev) => (
           <DayEvent key={ev.id} event={ev} startHour={safeStart} pxPerHour={pxPerHour} t={t} />
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -181,7 +186,7 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
   // geometry and look only. The interaction lives on an inner element that
   // fills the card — a native button when the event is clickable, a plain
   // content block otherwise (nothing to activate, nothing to focus).
-  const cardStyle: CSSProperties = {
+  const cardStyle: WebStyle = {
     position: 'absolute',
     top,
     left: 6,
@@ -198,7 +203,7 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
   // Fills the card so the whole surface is the click target. The 30px left
   // padding keeps the text clear of the accent bar's inset (`ACCENT_BAR`'s
   // `pl-[30px]` sits on the listitem above, not on this element).
-  const contentStyle: CSSProperties = {
+  const contentStyle: WebStyle = {
     position: 'absolute',
     inset: 0,
     padding: '0.4rem 0.6rem 0.4rem 30px',
@@ -219,22 +224,30 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
 
   const content = (
     <>
-      <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{event.title}</div>
-      {event.subtitle && <div className={cm.accentCardLabel({ tone })}>{event.subtitle}</div>}
+      <Box as="div" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+        {event.title}
+      </Box>
+      {event.subtitle && (
+        <Box as="div" className={cm.accentCardLabel({ tone })}>
+          {event.subtitle}
+        </Box>
+      )}
     </>
   )
 
   return (
-    <div
+    <Box
+      as="div"
       role="listitem"
       data-event-id={event.id}
       data-mol-id="day-timeline-event"
       aria-label={ariaLabel}
       className={cm.cn(cm.accentCard({ tone }), cm.surfaceSecondary)}
-      style={cardStyle}
+      webStyle={cardStyle}
     >
       {event.onClick ? (
-        <button
+        <Pressable
+          as="button"
           type="button"
           data-mol-id="day-timeline-event-action"
           aria-label={ariaLabel}
@@ -244,13 +257,15 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
              cm.button() CTA recipe would restyle it as a solid pill. This
              button is transparent over the card's own surface tint and
              contributes no look of its own. */
-          style={{ ...contentStyle, cursor: 'pointer', background: 'transparent' }}
+          webStyle={{ ...contentStyle, cursor: 'pointer', background: 'transparent' }}
         >
           {content}
-        </button>
+        </Pressable>
       ) : (
-        <div style={contentStyle}>{content}</div>
+        <Box as="div" webStyle={contentStyle}>
+          {content}
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

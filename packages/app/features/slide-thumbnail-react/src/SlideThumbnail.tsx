@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link SlideThumbnail} component. */
 export interface SlideThumbnailProps {
@@ -40,10 +41,11 @@ export function SlideThumbnail({
   const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <button
+    <Pressable
+      as="button"
       type="button"
       onClick={onClick}
-      aria-current={active ? 'true' : undefined}
+      aria-current={active ? true : undefined}
       data-mol-id="slide-thumbnail"
       data-slide-index={index}
       aria-label={t('slideThumbnail.label', { index }, { defaultValue: 'Slide {{index}}' })}
@@ -52,7 +54,7 @@ export function SlideThumbnail({
          it and its whole face is the live preview, so the inline
          border/padding are the card's canvas, not button chrome; the canvas
          colour comes from `cm.surface` (the theme's surface token). */
-      style={{
+      webStyle={{
         width,
         aspectRatio: aspect.replace('/', ' / '),
         outline: active ? '2px solid currentColor' : 'none',
@@ -63,9 +65,10 @@ export function SlideThumbnail({
       }}
     >
       {children}
-      <span
+      <Text
+        as="span"
         className={cm.cn(cm.bgScrim, cm.textOnTone)}
-        style={{
+        webStyle={{
           position: 'absolute',
           left: 4,
           top: 4,
@@ -76,7 +79,7 @@ export function SlideThumbnail({
         }}
       >
         {index}
-      </span>
-    </button>
+      </Text>
+    </Pressable>
   )
 }

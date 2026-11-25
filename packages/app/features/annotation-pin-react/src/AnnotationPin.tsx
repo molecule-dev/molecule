@@ -1,8 +1,9 @@
-import type { CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
+import type { JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { type BoxStyle, type CSSProperties, getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A single pin to display on a parent surface. `position` is in the
@@ -98,56 +99,64 @@ export function AnnotationPin(props: AnnotationPinProps): JSX.Element {
   const x = normalised ? `${position.x * 100}%` : `${position.x}px`
   const y = normalised ? `${position.y * 100}%` : `${position.y}px`
 
-  const wrapperStyle: CSSProperties = {
+  // Layout both renderers apply goes in `style`; CSS only a browser draws
+  // (transforms, shadows, the button's chrome reset) in `webStyle`.
+  const wrapperStyle: BoxStyle = {
     position: 'absolute',
+    zIndex: selected ? 2 : 1,
+  }
+  const wrapperWebStyle: CSSProperties = {
     left: x,
     top: y,
     transform: 'translate(-50%, -50%)',
-    zIndex: selected ? 2 : 1,
   }
 
-  const markerStyle: CSSProperties = {
+  const markerStyle: BoxStyle = {
     width: 24,
     height: 24,
-    border: 'none',
     padding: 0,
-    cursor: 'pointer',
-    display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+  }
+  const markerWebStyle: CSSProperties = {
+    border: 'none',
+    cursor: 'pointer',
+    display: 'inline-flex',
     boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
   }
 
-  const popupStyle: CSSProperties = {
+  const popupStyle: BoxStyle = {
     position: 'absolute',
     minWidth: 160,
     maxWidth: 240,
     padding: 8,
     borderRadius: 4,
-    boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
     zIndex: 3,
+  }
+  const popupWebStyle: CSSProperties = {
+    boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
   }
   switch (popupSide) {
     case 'top':
       popupStyle.bottom = '100%'
       popupStyle.left = '50%'
-      popupStyle.transform = 'translate(-50%, -8px)'
+      popupWebStyle.transform = 'translate(-50%, -8px)'
       break
     case 'bottom':
       popupStyle.top = '100%'
       popupStyle.left = '50%'
-      popupStyle.transform = 'translate(-50%, 8px)'
+      popupWebStyle.transform = 'translate(-50%, 8px)'
       break
     case 'left':
       popupStyle.right = '100%'
       popupStyle.top = '50%'
-      popupStyle.transform = 'translate(-8px, -50%)'
+      popupWebStyle.transform = 'translate(-8px, -50%)'
       break
     case 'right':
     default:
       popupStyle.left = '100%'
       popupStyle.top = '50%'
-      popupStyle.transform = 'translate(8px, -50%)'
+      popupWebStyle.transform = 'translate(8px, -50%)'
       break
   }
 
@@ -166,43 +175,55 @@ export function AnnotationPin(props: AnnotationPinProps): JSX.Element {
   }
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(className)}
       data-mol-id="annotation-pin"
       data-pin-selected={selected ? 'true' : 'false'}
       style={wrapperStyle}
+      webStyle={wrapperWebStyle}
     >
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={handleMarkerClick}
         aria-label={markerLabel}
-        aria-expanded={selected ? 'true' : 'false'}
+        aria-expanded={!!selected}
         data-mol-id="annotation-pin-marker"
         className={cm.cn(cm.roundedFull, cm.cursorPointer)}
         style={markerStyle}
+        webStyle={markerWebStyle}
       >
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
           data-mol-id="annotation-pin-label"
-          style={{ lineHeight: 1, pointerEvents: 'none' }}
+          style={{ pointerEvents: 'none' }}
+          webStyle={{ lineHeight: 1 }}
         >
           {label}
-        </span>
-      </button>
+        </Text>
+      </Pressable>
       {selected && (
-        <div
+        <Box
+          as="div"
           role="dialog"
           aria-label={popupLabel}
           data-mol-id="annotation-pin-popup"
           data-popup-side={popupSide}
           className={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
           style={popupStyle}
+          webStyle={popupWebStyle}
         >
-          <div data-mol-id="annotation-pin-popup-body">
-            {note ?? <span data-mol-id="annotation-pin-popup-empty">{emptyNote}</span>}
-          </div>
-        </div>
+          <Box as="div" data-mol-id="annotation-pin-popup-body">
+            {note ?? (
+              <Text as="span" data-mol-id="annotation-pin-popup-empty">
+                {emptyNote}
+              </Text>
+            )}
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

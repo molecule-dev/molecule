@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Represents a single selectable time slot with an optional meta line and disabled state. */
 export interface TimeSlot {
@@ -51,9 +52,14 @@ export function TimeSlotPicker({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
-      {title && <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title}</h3>}
-      <div
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
+      {title && (
+        <Text as="h3" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {title}
+        </Text>
+      )}
+      <Box
+        as="div"
         role="radiogroup"
         aria-label={
           typeof title === 'string' ? title : t('timeSlot.aria', {}, { defaultValue: 'Time slots' })
@@ -63,7 +69,8 @@ export function TimeSlotPicker({
         {slots.map((s) => {
           const selected = s.id === selectedId
           return (
-            <button
+            <Pressable
+              as="button"
               key={s.id}
               type="button"
               role="radio"
@@ -76,14 +83,18 @@ export function TimeSlotPicker({
                 cm.textSize('sm'),
                 selected ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
               )}
-              style={s.disabled ? { opacity: 0.4 } : undefined}
+              webStyle={s.disabled ? { opacity: 0.4 } : undefined}
             >
-              <span>{s.label}</span>
-              {s.meta && <span className={cm.textSize('xs')}>{s.meta}</span>}
-            </button>
+              <Box as="span">{s.label}</Box>
+              {s.meta && (
+                <Box as="span" className={cm.textSize('xs')}>
+                  {s.meta}
+                </Box>
+              )}
+            </Pressable>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

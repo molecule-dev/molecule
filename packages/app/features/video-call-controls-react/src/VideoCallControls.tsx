@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link VideoCallControls} component. */
 export interface VideoCallControlsProps {
@@ -38,7 +39,8 @@ export function VideoCallControls({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'center', gap: 'sm' }),
         cm.sp('p', 3),
@@ -76,6 +78,6 @@ export function VideoCallControls({
       <Button variant="solid" color="error" onClick={onLeave}>
         {t('call.leave', {}, { defaultValue: 'Leave' })}
       </Button>
-    </div>
+    </Box>
   )
 }

@@ -8,6 +8,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 interface SegmentedControlOption<T extends string> {
   value: T
@@ -32,12 +33,14 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       role="tablist"
       className={cm.cn(cm.tabsList({ variant: 'solid-rounded', size: 'sm' }), className)}
     >
       {options.map((opt) => (
-        <button
+        <Pressable
+          as="button"
           key={opt.value}
           type="button"
           role="tab"
@@ -54,9 +57,9 @@ export function SegmentedControl<T extends string>({
           )}
         >
           {opt.label}
-        </button>
+        </Pressable>
       ))}
-    </div>
+    </Box>
   )
 }
 

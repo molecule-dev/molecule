@@ -1,9 +1,9 @@
 import type { JSX, ReactNode } from 'react'
 
 import { RoutedView, useLocation, useTranslation } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Link, Text } from '@molecule/app-ui-react/elements'
 
 import { navItemActive } from './nav-item-active.js'
 
@@ -70,12 +70,14 @@ export function TopNavLayout({
     navAriaLabel ??
     t('topNavLayout.aria.primaryNavigation', undefined, { defaultValue: 'Primary navigation' })
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.minH('screen'), cm.topNavLayoutRoot, className)}
       data-mol-id={dataMolId}
     >
-      <header className={cm.cn(cm.topNavLayoutHeader)}>
-        <div
+      <Box as="header" className={cm.cn(cm.topNavLayoutHeader)}>
+        <Box
+          as="div"
           className={cm.cn(
             cm.maxW('7xl'),
             cm.mxAuto,
@@ -87,7 +89,7 @@ export function TopNavLayout({
           <Link to={logoTo} className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
             {appName}
           </Link>
-          <nav className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel}>
+          <Box as="nav" className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel}>
             {navItems.map((item) => {
               const isActive = navItemActive(pathname, item.to)
               return (
@@ -111,20 +113,18 @@ export function TopNavLayout({
                       : cm.cn(cm.textMuted, cm.topNavLayoutNavItemIdle),
                   )}
                 >
-                  {item.icon ? (
-                    <span className={cm.iconGlyphFont} aria-hidden="true">
-                      {item.icon}
-                    </span>
-                  ) : null}
-                  <span className={cm.topNavLayoutNavItemLabel}>{item.label}</span>
+                  {item.icon ? <GlyphIcon name={item.icon} aria-hidden /> : null}
+                  <Text as="span" className={cm.topNavLayoutNavItemLabel}>
+                    {item.label}
+                  </Text>
                 </Link>
               )
             })}
-          </nav>
+          </Box>
           {userMenu}
-        </div>
-      </header>
-      <main>{children ?? <RoutedView />}</main>
-    </div>
+        </Box>
+      </Box>
+      <Box as="main">{children ?? <RoutedView />}</Box>
+    </Box>
   )
 }

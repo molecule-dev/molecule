@@ -4,6 +4,7 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link CodeBlock}. */
 export interface CodeBlockProps {
@@ -53,17 +54,21 @@ export function CodeBlock({
   }, [code])
   const lines = code.split('\n')
   return (
-    <div className={cm.cn(cm.stack(0 as const), className)}>
+    <Box as="div" className={cm.cn(cm.stack(0 as const), className)}>
       {(filename || language || showCopy) && (
-        <header className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Box as="header" className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {filename && (
-              <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                 {filename}
-              </span>
+              </Text>
             )}
-            {language && <span className={cm.textSize('xs')}>{language}</span>}
-          </div>
+            {language && (
+              <Text as="span" className={cm.textSize('xs')}>
+                {language}
+              </Text>
+            )}
+          </Box>
           {showCopy && (
             <Button variant="ghost" size="sm" onClick={copy}>
               {copied
@@ -71,17 +76,18 @@ export function CodeBlock({
                 : t('codeBlock.copy', {}, { defaultValue: 'Copy' })}
             </Button>
           )}
-        </header>
+        </Box>
       )}
-      <pre className={cm.cn(cm.sp('p', 3), cm.textSize('sm'))}>
-        <code>
+      <Text as="pre" className={cm.cn(cm.sp('p', 3), cm.textSize('sm'))}>
+        <Text as="code">
           {showLineNumbers ? (
-            <span>
+            <Text as="span">
               {lines.map((line, i) => (
-                <span key={i}>
-                  <span
+                <Text as="span" key={i}>
+                  <Text
+                    as="span"
                     aria-hidden
-                    style={{
+                    webStyle={{
                       display: 'inline-block',
                       width: '2.5em',
                       opacity: 0.4,
@@ -89,17 +95,17 @@ export function CodeBlock({
                     }}
                   >
                     {i + 1}
-                  </span>
+                  </Text>
                   {line}
                   {'\n'}
-                </span>
+                </Text>
               ))}
-            </span>
+            </Text>
           ) : (
             code
           )}
-        </code>
-      </pre>
-    </div>
+        </Text>
+      </Text>
+    </Box>
   )
 }

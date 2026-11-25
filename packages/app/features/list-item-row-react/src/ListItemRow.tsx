@@ -3,6 +3,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { OptimisticToggleButton, type OptimisticToggleButtonProps } from '@molecule/app-ui-react'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ListItemRow}. */
 export interface ListItemRowProps {
@@ -72,8 +73,9 @@ export function ListItemRow({
   const padY = density === 'compact' ? 2 : 3
 
   return (
-    <div
-      aria-current={selected ? 'true' : undefined}
+    <Box
+      as="div"
+      aria-current={selected ? true : undefined}
       aria-disabled={disabled}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
@@ -85,7 +87,8 @@ export function ListItemRow({
       style={disabled ? { opacity: 0.5 } : undefined}
     >
       {onClick && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           aria-labelledby={nameId}
           data-mol-id="list-item-row-open"
@@ -101,26 +104,39 @@ export function ListItemRow({
             cm.inset0,
             disabled ? undefined : cm.cursorPointer,
           )}
-          style={{ background: 'transparent', border: 'none', padding: 0 }}
+          webStyle={{ background: 'transparent', border: 'none', padding: 0 }}
         />
       )}
-      {leading && <div className={cm.shrink0}>{leading}</div>}
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <div
+      {leading && (
+        <Box as="div" className={cm.shrink0}>
+          {leading}
+        </Box>
+      )}
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+        <Box
+          as="div"
           id={onClick ? nameId : undefined}
           className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
         >
           {title}
-        </div>
-        {subtitle && <div className={cm.textSize('sm')}>{subtitle}</div>}
-        {metadata && <div className={cm.textSize('xs')}>{metadata}</div>}
-      </div>
+        </Box>
+        {subtitle && (
+          <Box as="div" className={cm.textSize('sm')}>
+            {subtitle}
+          </Box>
+        )}
+        {metadata && (
+          <Box as="div" className={cm.textSize('xs')}>
+            {metadata}
+          </Box>
+        )}
+      </Box>
       {(toggle || actions) && (
-        <div className={cm.cn(cm.shrink0, cm.position('relative'))}>
+        <Box as="div" className={cm.cn(cm.shrink0, cm.position('relative'))}>
           {toggle && <OptimisticToggleButton {...toggle} />}
           {actions}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

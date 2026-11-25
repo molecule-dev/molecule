@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link SettingsActionsBar} component. */
 export interface SettingsActionsBarProps {
@@ -66,7 +67,8 @@ export function SettingsActionsBar({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         // A real theme surface + top border so the (sticky) bar is opaque and
         // page content no longer shows through it while scrolling. Both are
@@ -78,22 +80,26 @@ export function SettingsActionsBar({
         cm.sp('py', 3),
         className,
       )}
-      style={sticky ? { position: 'sticky', bottom: 0, zIndex: 5 } : undefined}
+      webStyle={sticky ? { position: 'sticky', bottom: 0, zIndex: 5 } : undefined}
     >
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {leading}
         {savedAt !== null && savedAt !== undefined && (
-          <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
             {t(
               'settingsActions.saved',
               { at: formatRelativeShort(savedAt) },
               { defaultValue: 'Saved {{at}}' },
             )}
-          </span>
+          </Text>
         )}
-        {error && <span className={cm.textSize('sm')}>{error}</span>}
-      </div>
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+        {error && (
+          <Box as="span" className={cm.textSize('sm')}>
+            {error}
+          </Box>
+        )}
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {onCancel && (
           <Button variant="ghost" onClick={onCancel} disabled={loading}>
             {t('settingsActions.cancel', {}, { defaultValue: 'Cancel' })}
@@ -109,7 +115,7 @@ export function SettingsActionsBar({
             ? t('settingsActions.saving', {}, { defaultValue: 'Saving…' })
             : t('settingsActions.save', {}, { defaultValue: 'Save changes' })}
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

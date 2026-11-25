@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link DangerZoneSection}. */
 export interface DangerZoneSectionProps {
@@ -45,18 +46,22 @@ export function DangerZoneSection({
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>
-      <div className={cm.stack(3)}>
-        <header className={cm.stack(1 as const)}>
-          <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-          <p className={cm.textSize('sm')}>{description}</p>
-        </header>
+      <Box as="div" className={cm.stack(3)}>
+        <Box as="header" className={cm.stack(1 as const)}>
+          <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+            {title}
+          </Text>
+          <Text as="p" className={cm.textSize('sm')}>
+            {description}
+          </Text>
+        </Box>
         {children}
-        <div className={cm.flex({ justify: 'end' })}>
+        <Box as="div" className={cm.flex({ justify: 'end' })}>
           <Button variant="solid" color="error" onClick={onAction} disabled={disabled || loading}>
             {loading ? '…' : actionLabel}
           </Button>
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Card>
   )
 }

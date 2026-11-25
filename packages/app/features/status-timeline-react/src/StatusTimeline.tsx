@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** A single step entry in a StatusTimeline. */
 export interface StatusTimelineStep {
@@ -43,7 +44,8 @@ export function StatusTimeline({
   const cm = getClassMap()
   const currentIdx = steps.findIndex((s) => s.key === currentKey)
   return (
-    <ol
+    <Box
+      as="ol"
       className={cm.cn(cm.statusTimelineList, cm.textSize('sm'), className)}
       aria-label={ariaLabel}
       data-mol-id={dataMolId}
@@ -52,26 +54,28 @@ export function StatusTimeline({
         const reached = currentIdx >= 0 && i <= currentIdx
         const isCurrent = i === currentIdx
         return (
-          <li key={step.key} className={cm.flex({ align: 'center', gap: 'sm' })}>
-            <span
+          <Box as="li" key={step.key} className={cm.flex({ align: 'center', gap: 'sm' })}>
+            <Box
+              as="span"
               className={cm.cn(
                 cm.roundedFull,
                 cm.statusTimelineDot,
                 reached ? cm.bgPrimary : cm.statusTimelineDotIdle,
               )}
-              aria-hidden="true"
+              aria-hidden
             />
-            <span
+            <Text
+              as="span"
               className={cm.cn(
                 reached ? '' : cm.textMuted,
                 isCurrent ? cm.fontWeight('semibold') : '',
               )}
             >
               {step.label}
-            </span>
-          </li>
+            </Text>
+          </Box>
         )
       })}
-    </ol>
+    </Box>
   )
 }

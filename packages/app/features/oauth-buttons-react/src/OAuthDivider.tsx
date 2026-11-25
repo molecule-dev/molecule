@@ -7,6 +7,7 @@ import type { JSX } from 'react'
  */
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { OAuthDividerProps } from './types.js'
 
@@ -29,10 +30,13 @@ export function OAuthDivider({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div className={cm.cn(cm.oauthDivider, cm.flex({ align: 'center', gap: 4 }), className)}>
-      <span className={cm.cn(cm.flex1, cm.separator())} />
-      <span>{t(labelKey, {}, { defaultValue: labelDefault })}</span>
-      <span className={cm.cn(cm.flex1, cm.separator())} />
-    </div>
+    <Box
+      as="div"
+      className={cm.cn(cm.oauthDivider, cm.flex({ align: 'center', gap: 4 }), className)}
+    >
+      <Box as="span" className={cm.cn(cm.flex1, cm.separator())} />
+      <Text as="span">{t(labelKey, {}, { defaultValue: labelDefault })}</Text>
+      <Box as="span" className={cm.cn(cm.flex1, cm.separator())} />
+    </Box>
   )
 }

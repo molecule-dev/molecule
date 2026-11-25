@@ -16,6 +16,7 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, TextField } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link CopyLinkField} component. */
 export interface CopyLinkFieldProps {
@@ -41,8 +42,9 @@ export function CopyLinkField({ value, className }: CopyLinkFieldProps): JSX.Ele
     })
   }, [value])
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
-      <input
+    <Box as="div" className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
+      <TextField
+        as="input"
         type="text"
         readOnly
         value={value}
@@ -55,6 +57,6 @@ export function CopyLinkField({ value, className }: CopyLinkFieldProps): JSX.Ele
           ? t('copyLink.copied', {}, { defaultValue: 'Copied!' })
           : t('copyLink.copy', {}, { defaultValue: 'Copy' })}
       </Button>
-    </div>
+    </Box>
   )
 }

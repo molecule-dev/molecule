@@ -1,7 +1,8 @@
-import type { JSX, KeyboardEvent, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Link, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link RelatedItemsCard} component. */
 export interface RelatedItemsCardProps<T> {
@@ -57,7 +58,7 @@ export function RelatedItemsCard<T>({
    * `preventDefault` keeps the browser's own key-driven click from firing the
    * handler a second time.
    */
-  const handleRowKeyDown = (event: KeyboardEvent<HTMLDivElement>, item: T, index: number): void => {
+  const handleRowKeyDown = (event: KitKeyboardEvent, item: T, index: number): void => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
     onItemClick?.(item, index)
@@ -65,29 +66,32 @@ export function RelatedItemsCard<T>({
 
   return (
     <Card className={className} data-mol-id={dataMolId}>
-      <div className={cm.stack(3)}>
-        <header className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.stack(3)}>
+        <Box as="header" className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {icon}
-            <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-          </div>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+            <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+              {title}
+            </Text>
+          </Box>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {headerActions}
             {viewAllHref && (
-              <a href={viewAllHref} className={cm.cn(cm.textSize('sm'), cm.link)}>
+              <Link to={viewAllHref} className={cm.cn(cm.textSize('sm'), cm.link)}>
                 View all
-              </a>
+              </Link>
             )}
-          </div>
-        </header>
+          </Box>
+        </Box>
         {items.length === 0 ? (
           emptyState
         ) : (
-          <ul className={cm.stack(2)}>
+          <Box as="ul" className={cm.stack(2)}>
             {items.map((item, i) => (
-              <li key={i}>
+              <Box as="li" key={i}>
                 {onItemClick ? (
-                  <div
+                  <Pressable
+                    as="div"
                     role="button"
                     tabIndex={0}
                     className={cm.cursorPointer}
@@ -95,15 +99,15 @@ export function RelatedItemsCard<T>({
                     onKeyDown={(event) => handleRowKeyDown(event, item, i)}
                   >
                     {renderItem(item, i)}
-                  </div>
+                  </Pressable>
                 ) : (
                   renderItem(item, i)
                 )}
-              </li>
+              </Box>
             ))}
-          </ul>
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

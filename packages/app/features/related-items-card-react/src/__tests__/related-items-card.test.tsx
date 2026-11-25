@@ -39,6 +39,23 @@ vi.mock('@molecule/app-ui-react', () => ({
   }) => createElement('div', { 'data-card': '', 'data-mol-id': molId, className }, children),
 }))
 
+// The "View all" link is the element `Link`, whose anchor is `@molecule/app-react/link` and renders only
+// inside a mounted router. This file mounts none, so the anchor is drawn plain with what the
+// element passes it; the conformance golden test renders the real one.
+vi.mock('@molecule/app-react/link', async () => {
+  const { createElement } = await import('react')
+  return {
+    Link: ({
+      to,
+      children,
+      ...anchor
+    }: {
+      to: string
+      children?: ReactNode
+    } & Record<string, unknown>) => createElement('a', { ...anchor, href: to }, children),
+  }
+})
+
 const { RelatedItemsCard } = await import('../RelatedItemsCard.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)

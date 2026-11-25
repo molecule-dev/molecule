@@ -1,8 +1,8 @@
 import type React from 'react'
-import type { CSSProperties } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type BoxStyle, type CSSProperties, getClassMap, type TextStyle } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { LoyaltyTier, LoyaltyTierBadgeProps } from './types.js'
 
@@ -133,37 +133,44 @@ export function LoyaltyTierBadge({
 
   const wrapperClass = cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)
 
-  const glyphStyle: CSSProperties = {
+  // Layout and text paint both renderers apply go in `style`; CSS only a browser
+  // draws (a round corner, a gradient, `inline-flex`, a transition) in `webStyle`.
+  const glyphStyle: TextStyle = {
     width: px,
     height: px,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    fontWeight: '700',
+    fontSize: Math.round(px * 0.45),
+  }
+  const glyphWebStyle: CSSProperties = {
     borderRadius: '50%',
     // The tier's metallic accent is data (the tier's identity), not a theme tone.
     background: `radial-gradient(circle at 30% 30%, ${accent} 0%, ${accent}99 60%, ${accent}66 100%)`,
     display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    fontWeight: 700,
-    fontSize: Math.round(px * 0.45),
   }
 
-  const progressOuter: CSSProperties = {
+  const progressOuter: BoxStyle = {
     position: 'relative',
     height: 6,
     borderRadius: 3,
     overflow: 'hidden',
     width: '100%',
   }
-  const progressInner: CSSProperties = {
+  const progressInner: BoxStyle = {
     width: `${Math.round(progress * 100)}%`,
     height: '100%',
+  }
+  const progressInnerWebStyle: CSSProperties = {
     // The fill carries the tier's accent (data).
     background: accent,
     transition: 'width 200ms ease',
   }
 
   return (
-    <div
+    <Box
+      as="div"
       className={wrapperClass}
       role="group"
       data-mol-id={dataMolId ?? 'loyalty-tier-badge'}
@@ -174,19 +181,24 @@ export function LoyaltyTierBadge({
         { defaultValue: '{{tier}} tier' },
       )}
     >
-      <span
+      <Text
+        as="span"
         aria-hidden
         className={cm.borderAll}
         style={glyphStyle}
+        webStyle={glyphWebStyle}
         data-mol-id="loyalty-tier-glyph"
       >
         {tierName.charAt(0)}
-      </span>
-      <div className={cm.flex({ direction: 'col', gap: 'xs' })} style={{ flex: 1 }}>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{tierName}</span>
+      </Text>
+      <Box as="div" className={cm.flex({ direction: 'col', gap: 'xs' })} style={{ flex: 1 }}>
+        <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {tierName}
+        </Text>
         {showProgress ? (
           <>
-            <div
+            <Box
+              as="div"
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={100}
@@ -200,9 +212,10 @@ export function LoyaltyTierBadge({
               className={cm.surfaceSecondary}
               style={progressOuter}
             >
-              <div style={progressInner} />
-            </div>
-            <span
+              <Box as="div" style={progressInner} webStyle={progressInnerWebStyle} />
+            </Box>
+            <Text
+              as="span"
               className={cm.cn(cm.textSize('xs'), cm.textMuted)}
               data-mol-id="loyalty-tier-progress-label"
             >
@@ -211,16 +224,20 @@ export function LoyaltyTierBadge({
                 { remaining, next: nextName },
                 { defaultValue: '{{remaining}} to {{next}}' },
               )}
-            </span>
+            </Text>
           </>
         ) : (
           next === null && (
-            <span className={cm.cn(cm.textSize('xs'), cm.textMuted)} data-mol-id="loyalty-tier-top">
+            <Text
+              as="span"
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+              data-mol-id="loyalty-tier-top"
+            >
               {t('loyaltyTierBadge.topTier', {}, { defaultValue: 'Top tier reached' })}
-            </span>
+            </Text>
           )
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

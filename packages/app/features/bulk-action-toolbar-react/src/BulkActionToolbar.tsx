@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Descriptor for a single action button rendered inside BulkActionToolbar. */
 export interface BulkAction {
@@ -45,14 +46,15 @@ export function BulkActionToolbar({
   const { t } = useTranslation()
   const toolbarLabel = t('bulkActions.aria.toolbar', {}, { defaultValue: 'Bulk actions' })
   if (count <= 0) return null
-  const stickyStyle: React.CSSProperties | undefined =
+  const stickyStyle =
     position === 'sticky-bottom'
       ? { position: 'sticky', bottom: 16, zIndex: 30 }
       : position === 'sticky-top'
         ? { position: 'sticky', top: 16, zIndex: 30 }
         : undefined
   return (
-    <div
+    <Box
+      as="div"
       role="region"
       aria-label={toolbarLabel}
       className={cm.cn(
@@ -61,12 +63,12 @@ export function BulkActionToolbar({
         cm.sp('py', 2),
         className,
       )}
-      style={stickyStyle}
+      webStyle={stickyStyle}
     >
-      <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+      <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
         {t('bulkActions.selected', { count }, { defaultValue: '{{count}} selected' })}
-      </span>
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      </Text>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {actions.map((a) => (
           <Button
             key={a.id}
@@ -77,7 +79,7 @@ export function BulkActionToolbar({
             disabled={a.disabled}
           >
             {a.icon}
-            {a.label && <span>{a.label}</span>}
+            {a.label && <Box as="span">{a.label}</Box>}
           </Button>
         ))}
         {onClearSelection && (
@@ -85,7 +87,7 @@ export function BulkActionToolbar({
             {t('bulkActions.clear', {}, { defaultValue: 'Clear' })}
           </Button>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

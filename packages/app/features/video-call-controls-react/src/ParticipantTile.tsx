@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link ParticipantTile} component. */
 export interface ParticipantTileProps {
@@ -42,7 +43,8 @@ export function ParticipantTile({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.position('relative'),
         cm.surface,
@@ -54,56 +56,50 @@ export function ParticipantTile({
          and the theme, and the speaking ring is a status outline whose colour
          rides the success tone (`cm.textTone('success')` sets the element's
          ink; `currentColor` paints the ring with it). */
-      style={{
-        aspectRatio: '16 / 9',
-        borderRadius: 8,
-        overflow: 'hidden',
-        outline: speaking ? '3px solid currentColor' : undefined,
-      }}
+      style={{ borderRadius: 8, overflow: 'hidden' }}
+      webStyle={{ aspectRatio: '16 / 9', outline: speaking ? '3px solid currentColor' : undefined }}
     >
-      <div
+      <Box
+        as="div"
         style={{
           position: 'absolute',
-          inset: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
+        webStyle={{ inset: 0 }}
       >
         {videoSlot ?? avatarSlot}
-      </div>
-      <div
+      </Box>
+      <Box
+        as="div"
         className={cm.cn(cm.bgScrim, cm.textOnTone)}
-        style={{
-          position: 'absolute',
-          left: 8,
-          bottom: 8,
-          padding: '2px 6px',
-          borderRadius: 4,
-          fontSize: 12,
-        }}
+        style={{ position: 'absolute', left: 8, bottom: 8, borderRadius: 4 }}
+        webStyle={{ padding: '2px 6px', fontSize: 12 }}
       >
         {name}
         {isLocal ? ` ${t('call.label.you', {}, { defaultValue: '(you)' })}` : ''}
-      </div>
-      <div style={{ position: 'absolute', right: 8, bottom: 8, display: 'flex', gap: 6 }}>
+      </Box>
+      <Box as="div" style={{ position: 'absolute', right: 8, bottom: 8, display: 'flex', gap: 6 }}>
         {!audioEnabled && (
-          <span
+          <Text
+            as="span"
             aria-label={t('call.aria.muted', {}, { defaultValue: 'Muted' })}
             style={{ fontSize: 12 }}
           >
             🔇
-          </span>
+          </Text>
         )}
         {handRaised && (
-          <span
+          <Text
+            as="span"
             aria-label={t('call.aria.handRaised', {}, { defaultValue: 'Hand raised' })}
             style={{ fontSize: 12 }}
           >
             ✋
-          </span>
+          </Text>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -5,6 +5,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -42,8 +44,6 @@ vi.mock('@molecule/app-clipboard', () => ({
   copyTextWithFallback: vi.fn(async () => true),
 }))
 
-import { copyTextWithFallback } from '@molecule/app-clipboard'
-
 const { CopyLinkField } = await import('../CopyLinkField.js')
 
 const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
@@ -70,6 +70,15 @@ describe('CopyLinkField', () => {
     const markup = html(createElement(CopyLinkField, { value: 'https://x.test/abc' }))
     expect(markup).toContain('value="https://x.test/abc"')
     expect(markup).toContain('readOnly')
+  })
+
+  it('selects the whole value when the web field receives focus', () => {
+    const value = 'https://x.test/abc'
+    const { getByRole } = render(createElement(CopyLinkField, { value }))
+    const field = getByRole('textbox')
+    fireEvent.focus(field)
+    expect(field).toHaveProperty('selectionStart', 0)
+    expect(field).toHaveProperty('selectionEnd', value.length)
   })
 
   it('renders the label when present and omits it otherwise', () => {

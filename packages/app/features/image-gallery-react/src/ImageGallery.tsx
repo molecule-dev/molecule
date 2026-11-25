@@ -2,6 +2,7 @@ import { type JSX, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image, Pressable } from '@molecule/app-ui-react/elements'
 
 /**
  * Column counts the ClassMap `cm.grid()` resolver can actually render. The
@@ -75,9 +76,9 @@ export function ImageGallery({
   const visible = images.slice(0, maxThumbnails)
   const overflow = Math.max(0, images.length - visible.length)
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
-      <div style={{ aspectRatio: '4 / 3' }}>
-        <img
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
+      <Box as="div" webStyle={{ aspectRatio: '4 / 3' }}>
+        <Image
           src={images[idx]}
           alt={
             alts?.[idx] ??
@@ -87,17 +88,18 @@ export function ImageGallery({
               { defaultValue: 'Image {{number}}' },
             )
           }
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          webStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-      </div>
+      </Box>
       {images.length > 1 && (
-        <div className={cm.grid({ cols: toGridCols(maxThumbnails), gap: 'sm' })}>
+        <Box as="div" className={cm.grid({ cols: toGridCols(maxThumbnails), gap: 'sm' })}>
           {visible.map((src, i) => (
-            <button
+            <Pressable
+              as="button"
               key={i}
               type="button"
               onClick={() => setIdx(i)}
-              aria-current={i === idx ? 'true' : undefined}
+              aria-current={i === idx ? true : undefined}
               aria-label={
                 alts?.[i] ??
                 t(
@@ -106,25 +108,30 @@ export function ImageGallery({
                   { defaultValue: 'Image {{number}}' },
                 )
               }
-              style={{ aspectRatio: '1 / 1' }}
+              webStyle={{ aspectRatio: '1 / 1' }}
             >
-              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </button>
+              <Image
+                src={src}
+                alt=""
+                webStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Pressable>
           ))}
           {overflow > 0 && (
-            <div
+            <Box
+              as="div"
               className={cm.cn(
                 cm.flex({ align: 'center', justify: 'center' }),
                 cm.textSize('sm'),
                 cm.fontWeight('semibold'),
               )}
-              style={{ aspectRatio: '1 / 1' }}
+              webStyle={{ aspectRatio: '1 / 1' }}
             >
               {t('imageGallery.overflow.more', { count: overflow }, { defaultValue: '+{{count}}' })}
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

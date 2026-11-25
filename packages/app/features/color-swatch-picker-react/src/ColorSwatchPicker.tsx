@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** A single color option in the swatch picker with its value, CSS color, and optional label. */
 export interface ColorSwatch {
@@ -49,8 +50,9 @@ export function ColorSwatchPicker({
 }: ColorSwatchPickerProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
-      <div
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
+      <Box
+        as="div"
         role="radiogroup"
         aria-label={ariaLabel}
         className={cm.flex({ align: 'center', gap, wrap: 'wrap' })}
@@ -58,7 +60,8 @@ export function ColorSwatchPicker({
         {swatches.map((s) => {
           const selected = s.value === value
           return (
-            <button
+            <Pressable
+              as="button"
               key={s.value}
               type="button"
               role="radio"
@@ -72,7 +75,7 @@ export function ColorSwatchPicker({
                  a design token, and a `cm.button()` fill would hide it. Cursor
                  and the compact touch floor come from the ClassMap. */
               className={cm.cn(cm.roundedFull, cm.cursorPointer, cm.touchTargetCompact)}
-              style={{
+              webStyle={{
                 width: size,
                 height: size,
                 background: s.color,
@@ -83,8 +86,8 @@ export function ColorSwatchPicker({
             />
           )
         })}
-      </div>
+      </Box>
       {preview}
-    </div>
+    </Box>
   )
 }

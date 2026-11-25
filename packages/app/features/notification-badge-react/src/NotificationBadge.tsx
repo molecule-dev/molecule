@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NotificationBadge}. */
 export interface NotificationBadgeProps {
@@ -46,7 +47,8 @@ export function NotificationBadge({
   if (hideOnZero && count <= 0) return null
   const display = count > max ? `${max}+` : String(count)
   return (
-    <span
+    <Text
+      as="span"
       aria-label={`${count}`}
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'center' }),
@@ -57,9 +59,9 @@ export function NotificationBadge({
         VARIANT_BG[variant],
         className,
       )}
-      style={{ minWidth: 20, height: 20 }}
+      webStyle={{ minWidth: 20, height: 20 }}
     >
       {display}
-    </span>
+    </Text>
   )
 }

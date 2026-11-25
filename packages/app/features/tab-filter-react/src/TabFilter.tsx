@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Shape of a single tab entry passed to {@link TabFilter}. */
 export interface TabFilterTab {
@@ -62,15 +63,17 @@ export function TabFilter({
     ? [defaultTab, ...tabs.filter((tab) => tab.id !== defaultTab.id)]
     : tabs
   return (
-    <div
+    <Box
+      as="div"
       role="tablist"
       className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
-      style={scrollable ? { overflowX: 'auto', whiteSpace: 'nowrap' } : undefined}
+      webStyle={scrollable ? { overflowX: 'auto', whiteSpace: 'nowrap' } : undefined}
     >
       {visibleTabs.map((t) => {
         const active = t.id === activeId
         return (
-          <button
+          <Pressable
+            as="button"
             key={t.id}
             type="button"
             role="tab"
@@ -93,18 +96,18 @@ export function TabFilter({
           >
             {/* Inner row owns the gap — `tabsTrigger` is already `inline-flex`,
                 so a second display utility on the button would fight it. */}
-            <span className={cm.flex({ align: 'center', gap: 'xs' })}>
+            <Box as="span" className={cm.flex({ align: 'center', gap: 'xs' })}>
               {t.icon}
-              <span>{t.label}</span>
+              <Box as="span">{t.label}</Box>
               {t.count !== undefined && (
-                <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
+                <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
                   ({t.count.toLocaleString()})
-                </span>
+                </Text>
               )}
-            </span>
-          </button>
+            </Box>
+          </Pressable>
         )
       })}
-    </div>
+    </Box>
   )
 }

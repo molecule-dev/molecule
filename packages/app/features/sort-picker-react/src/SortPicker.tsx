@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Select } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** A single option entry for the SortPicker select list. */
 export interface SortOption<T extends string = string> {
@@ -79,16 +80,20 @@ export function SortPicker<T extends string = string>({
   )
   if (labelPosition === 'above') {
     return (
-      <div className={cm.cn(cm.stack(1 as const), className)}>
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{labelNode}</span>
+      <Box as="div" className={cm.cn(cm.stack(1 as const), className)}>
+        <Box as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {labelNode}
+        </Box>
         {select}
-      </div>
+      </Box>
     )
   }
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
-      <span className={cm.textSize('sm')}>{labelNode}:</span>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
+      <Box as="span" className={cm.textSize('sm')}>
+        {labelNode}:
+      </Box>
       {select}
-    </div>
+    </Box>
   )
 }

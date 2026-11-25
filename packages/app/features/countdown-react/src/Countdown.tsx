@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { useCountdown } from './useCountdown.js'
 
@@ -37,7 +38,13 @@ export function Countdown({
   const cm = getClassMap()
   const state = useCountdown(target)
   if (state.expired && expired !== undefined) return <>{expired}</>
-  if (render) return <span className={className}>{render(state)}</span>
+  if (render) {
+    return (
+      <Box as="span" className={className}>
+        {render(state)}
+      </Box>
+    )
+  }
   const { days, hours, minutes, seconds } = state
   let display: string
   if (format === 'colon') {
@@ -58,5 +65,9 @@ export function Countdown({
     parts.push(`${seconds}s`)
     display = parts.join(' ')
   }
-  return <span className={cm.cn(className)}>{display}</span>
+  return (
+    <Text as="span" className={cm.cn(className)}>
+      {display}
+    </Text>
+  )
 }

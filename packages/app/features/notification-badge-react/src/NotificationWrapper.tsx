@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { NotificationBadge } from './NotificationBadge.js'
 
@@ -35,17 +36,21 @@ export function NotificationWrapper({
   className,
 }: NotificationWrapperProps): React.JSX.Element {
   const cm = getClassMap()
-  const style: React.CSSProperties = { position: 'absolute' }
+  const style: CSSProperties = { position: 'absolute' }
   if (placement.includes('top')) style.top = -4
   if (placement.includes('bottom')) style.bottom = -4
   if (placement.includes('right')) style.right = -4
   if (placement.includes('left')) style.left = -4
   return (
-    <span className={cm.cn(cm.position('relative'), className)} style={{ display: 'inline-block' }}>
+    <Box
+      as="span"
+      className={cm.cn(cm.position('relative'), className)}
+      webStyle={{ display: 'inline-block' }}
+    >
       {children}
-      <span style={style}>
+      <Box as="span" webStyle={style}>
         <NotificationBadge count={count} hideOnZero={hideOnZero} variant={variant} />
-      </span>
-    </span>
+      </Box>
+    </Box>
   )
 }

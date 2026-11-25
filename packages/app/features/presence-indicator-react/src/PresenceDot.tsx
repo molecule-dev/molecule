@@ -1,7 +1,8 @@
 import type React from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Union of supported user-presence states displayed by the dot. */
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'
@@ -78,7 +79,7 @@ export function PresenceDot({
     busy: cm.progressColor('error'),
     offline: cm.bgBorder,
   }
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     display: 'inline-block',
     width: size,
     height: size,
@@ -93,7 +94,8 @@ export function PresenceDot({
     if (corner.includes('left')) style.left = 0
   }
   return (
-    <span
+    <Box
+      as="span"
       role="status"
       aria-label={
         ariaLabel ??
@@ -106,7 +108,7 @@ export function PresenceDot({
         )
       }
       className={cm.cn(statusClass[status], className)}
-      style={style}
+      webStyle={style}
     />
   )
 }

@@ -3,6 +3,7 @@ import { type JSX, useState } from 'react'
 import { OAuthButtons as OAuthButtonRow, OAuthDivider } from '@molecule/app-oauth-buttons-react'
 import { useOAuth, type UseOAuthConfig } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link OAuthButtons}. */
 export interface OAuthButtonsProps {
@@ -83,12 +84,12 @@ export function OAuthButtons({
   if (!providers.length) return null
 
   return (
-    <div className={className}>
+    <Box as="div" className={className}>
       <OAuthDivider labelKey={dividerKey} labelDefault={dividerDefault} />
       {error && (
-        <div className={cm.authFormError} role="alert" data-mol-id="oauth-error">
+        <Box as="div" className={cm.authFormError} role="alert" data-mol-id="oauth-error">
           {error}
-        </div>
+        </Box>
       )}
       <OAuthButtonRow
         providers={providers}
@@ -97,6 +98,6 @@ export function OAuthButtons({
         iconMode={iconMode}
         showLabels={showLabels}
       />
-    </div>
+    </Box>
   )
 }

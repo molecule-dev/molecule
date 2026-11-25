@@ -9,6 +9,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link FacetedSearchBar}. */
 export interface FacetedSearchBarProps {
@@ -26,9 +27,10 @@ export function FacetedSearchBar({
 }: FacetedSearchBarProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       data-mol-id="filter-bar"
-      style={{ top: `${topOffsetPx}px` }}
+      webStyle={{ top: `${topOffsetPx}px` }}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'md' }),
         cm.sp('px', 6),
@@ -40,7 +42,7 @@ export function FacetedSearchBar({
       )}
     >
       {children}
-    </div>
+    </Box>
   )
 }
 

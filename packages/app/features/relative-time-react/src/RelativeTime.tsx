@@ -2,6 +2,7 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 
 import { useLocale } from '@molecule/app-react'
+import { Text } from '@molecule/app-ui-react/elements'
 
 import { formatRelativeTime } from './formatRelativeTime.js'
 
@@ -68,8 +69,8 @@ export function RelativeTime({
         )
       : undefined
   return (
-    <time dateTime={iso} title={titleFmt} className={className}>
+    <Text as="time" dateTime={iso} title={titleFmt} className={className}>
       {formatRelativeTime(date, now, locale ?? activeLocale)}
-    </time>
+    </Text>
   )
 }

@@ -3,6 +3,7 @@ import type { JSX } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Select } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link PaginationBar}. */
 export interface PaginationBarProps {
@@ -74,20 +75,21 @@ export function PaginationBar({
   const window = buildWindow(page, totalPages)
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ justify: 'between', align: 'center', gap: 'md', wrap: 'wrap' }),
         className,
       )}
     >
-      <p className={cm.textSize('sm')}>
+      <Text as="p" className={cm.textSize('sm')}>
         {t(
           showingKey,
           { start, end, total: total.toLocaleString() },
           { defaultValue: showingDefault },
         )}
-      </p>
-      <div className={cm.flex({ align: 'center', gap: 'xs' })}>
+      </Text>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
         <Button
           variant="ghost"
           size="sm"
@@ -99,9 +101,9 @@ export function PaginationBar({
         </Button>
         {window.map((p, i) =>
           p === '...' ? (
-            <span key={`el-${i}`} className={cm.sp('px', 2)}>
+            <Text as="span" key={`el-${i}`} className={cm.sp('px', 2)}>
               …
-            </span>
+            </Text>
           ) : (
             <Button
               key={p}
@@ -124,7 +126,7 @@ export function PaginationBar({
         >
           ›
         </Button>
-      </div>
+      </Box>
       {pageSizeOptions && onPageSizeChange && (
         <Select
           value={String(pageSize)}
@@ -133,6 +135,6 @@ export function PaginationBar({
           aria-label={t('pagination.pageSize', {}, { defaultValue: 'Page size' })}
         />
       )}
-    </div>
+    </Box>
   )
 }

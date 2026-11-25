@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link EditorLayout}. */
 export interface EditorLayoutProps {
@@ -42,20 +43,29 @@ export function EditorLayout({
   const cm = getClassMap()
   const showPanel = sidePanel && sidePanelOpen
   return (
-    <div
+    <Box
+      as="div"
       data-mol-id={dataMolId}
       className={cm.cn(cm.flex({ direction: 'col' }), cm.h('screen'), className)}
     >
-      <div style={{ position: 'sticky', top: 0, zIndex: 10 }}>{topBar}</div>
-      <div className={cm.cn(cm.flex({ align: 'stretch' }), cm.flex1)}>
+      <Box as="div" webStyle={{ position: 'sticky', top: 0, zIndex: 10 }}>
+        {topBar}
+      </Box>
+      <Box as="div" className={cm.cn(cm.flex({ align: 'stretch' }), cm.flex1)}>
         {showPanel && sidePanelPosition === 'left' && (
-          <aside className={cm.shrink0}>{sidePanel}</aside>
+          <Box as="aside" className={cm.shrink0}>
+            {sidePanel}
+          </Box>
         )}
-        <main className={cm.flex1}>{canvas}</main>
+        <Box as="main" className={cm.flex1}>
+          {canvas}
+        </Box>
         {showPanel && sidePanelPosition === 'right' && (
-          <aside className={cm.shrink0}>{sidePanel}</aside>
+          <Box as="aside" className={cm.shrink0}>
+            {sidePanel}
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

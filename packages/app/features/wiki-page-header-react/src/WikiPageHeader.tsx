@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link WikiPageHeader} component. */
 export interface WikiPageHeaderProps {
@@ -51,11 +52,16 @@ export function WikiPageHeader({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <header className={cm.cn(cm.stack(2), className)}>
+    <Box as="header" className={cm.cn(cm.stack(2), className)}>
       {breadcrumb}
-      <div className={cm.flex({ justify: 'between', align: 'start', gap: 'md', wrap: 'wrap' })}>
-        <h1 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>{title}</h1>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box
+        as="div"
+        className={cm.flex({ justify: 'between', align: 'start', gap: 'md', wrap: 'wrap' })}
+      >
+        <Text as="h1" className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
+          {title}
+        </Text>
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {onEdit && (
             <Button variant="ghost" size="sm" onClick={onEdit}>
               {t('wiki.edit', {}, { defaultValue: 'Edit' })}
@@ -67,20 +73,30 @@ export function WikiPageHeader({
             </Button>
           )}
           {extraActions}
-        </div>
-      </div>
-      <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+        </Box>
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
         {version && (
-          <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{version}</span>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+            {version}
+          </Text>
         )}
         {updatedAt && (
-          <span className={cm.textSize('xs')}>
+          <Text as="span" className={cm.textSize('xs')}>
             {t('wiki.updatedAt', {}, { defaultValue: 'Updated' })} {updatedAt}
-          </span>
+          </Text>
         )}
-        {updatedBy && <span className={cm.textSize('xs')}>· {updatedBy}</span>}
-        {tags && <span className={cm.flex({ align: 'center', gap: 'xs' })}>{tags}</span>}
-      </div>
-    </header>
+        {updatedBy && (
+          <Text as="span" className={cm.textSize('xs')}>
+            · {updatedBy}
+          </Text>
+        )}
+        {tags && (
+          <Box as="span" className={cm.flex({ align: 'center', gap: 'xs' })}>
+            {tags}
+          </Box>
+        )}
+      </Box>
+    </Box>
   )
 }

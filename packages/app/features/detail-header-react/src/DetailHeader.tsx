@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link DetailHeader}. */
 export interface DetailHeaderProps {
@@ -51,28 +52,42 @@ export function DetailHeader({
   const meta = slot(metaProp)
   const cm = getClassMap()
   return (
-    <header
+    <Box
+      as="header"
       data-mol-id={dataMolId}
       className={cm.cn(cm.stack(2), className)}
-      style={sticky ? { position: 'sticky', top: 0, zIndex: 10 } : undefined}
+      webStyle={sticky ? { position: 'sticky', top: 0, zIndex: 10 } : undefined}
     >
-      <div className={cm.flex({ justify: 'between', align: 'center', gap: 'md', wrap: 'wrap' })}>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box
+        as="div"
+        className={cm.flex({ justify: 'between', align: 'center', gap: 'md', wrap: 'wrap' })}
+      >
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {leading}
-          <div className={cm.stack(1 as const)}>
-            <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-              <h1 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>{title}</h1>
+          <Box as="div" className={cm.stack(1 as const)}>
+            <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+              <Text as="h1" className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
+                {title}
+              </Text>
               {status}
-            </div>
-            {subtitle && <p className={cm.textSize('sm')}>{subtitle}</p>}
-          </div>
-        </div>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+            </Box>
+            {subtitle && (
+              <Text as="p" className={cm.textSize('sm')}>
+                {subtitle}
+              </Text>
+            )}
+          </Box>
+        </Box>
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {search}
           {actions}
-        </div>
-      </div>
-      {meta && <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{meta}</div>}
-    </header>
+        </Box>
+      </Box>
+      {meta && (
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          {meta}
+        </Box>
+      )}
+    </Box>
   )
 }

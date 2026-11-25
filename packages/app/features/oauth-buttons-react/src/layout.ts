@@ -16,6 +16,8 @@
  * @module
  */
 
+import type { CSSProperties } from '@molecule/app-ui'
+
 import type { OAuthButtonsLayout } from './types.js'
 
 /**
@@ -24,12 +26,11 @@ import type { OAuthButtonsLayout } from './types.js'
  *
  * @param layout - Selected layout variant.
  * @param providerCount - Number of buttons rendered (drives grid columns).
- * @returns Inline-style object to spread onto the wrapper element.
+ * @returns Inline-style object to spread onto the wrapper element (the framework-agnostic
+ *   `CSSProperties` of `@molecule/app-ui`, which a React element's `style` and the elements'
+ *   `webStyle` both take). The `grid` variant's `display: grid` is CSS only a browser lays out.
  */
-export function getLayoutStyle(
-  layout: OAuthButtonsLayout,
-  providerCount: number,
-): React.CSSProperties {
+export function getLayoutStyle(layout: OAuthButtonsLayout, providerCount: number): CSSProperties {
   switch (layout) {
     case 'vertical':
       return { flexDirection: 'column', flexWrap: 'nowrap' }
@@ -53,7 +54,7 @@ export function getLayoutStyle(
  * @param layout - Selected layout variant.
  * @returns Inline-style object to spread onto the button element.
  */
-export function getButtonLayoutStyle(layout: OAuthButtonsLayout): React.CSSProperties {
+export function getButtonLayoutStyle(layout: OAuthButtonsLayout): CSSProperties {
   if (layout === 'vertical') return { width: '100%' }
   return {}
 }

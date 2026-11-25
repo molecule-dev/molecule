@@ -86,6 +86,15 @@ describe('CopyLinkField', () => {
     expect(input.hasAttribute('readonly')).toBe(true)
   })
 
+  it('selects the whole value when the web field receives focus', () => {
+    const value = 'https://x.test/abc'
+    const { input } = render({ value })
+    input.focus()
+    flushSync()
+    expect(input.selectionStart).toBe(0)
+    expect(input.selectionEnd).toBe(value.length)
+  })
+
   it('renders the label when present and omits it otherwise', () => {
     const { wrapper } = render({ value: 'u', label: 'Webhook URL' })
     expect(wrapper.textContent).toContain('Webhook URL')

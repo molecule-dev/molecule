@@ -11,6 +11,7 @@
  */
 
 import type { OAuthProviderId } from '@molecule/app-oauth-logos-react'
+import type { CSSProperties } from '@molecule/app-ui'
 
 /** Inline-style payload for a single brand button. */
 export interface BrandStyle {
@@ -51,12 +52,13 @@ export const BRAND_STYLES: Readonly<Record<OAuthProviderId, BrandStyle>> = Objec
  * behavior of `<OAuthProviderLogo fallback={...} />`.
  *
  * @param provider - Canonical provider id (e.g. `'google'`).
- * @returns Inline-style object for the button element.
+ * @returns Inline-style object for the button element (the framework-agnostic `CSSProperties`
+ *   of `@molecule/app-ui`, which a React element's `style` and the elements' `webStyle` both take).
  */
-export function getBrandStyle(provider: string): React.CSSProperties {
+export function getBrandStyle(provider: string): CSSProperties {
   const entry = BRAND_STYLES[provider as OAuthProviderId]
   if (!entry) return {}
-  const out: React.CSSProperties = {
+  const out: CSSProperties = {
     background: entry.background,
     color: entry.color,
   }

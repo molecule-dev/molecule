@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** A single label/value pair rendered inside a DefinitionList. */
 export interface DefinitionField {
@@ -35,15 +36,17 @@ export function DefinitionList({
 }: DefinitionListProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <dl
+    <Box
+      as="dl"
       className={cm.cn(
         columns === 1 ? cm.stack(3) : cm.grid({ cols: columns, gap: 'md' }),
         className,
       )}
     >
       {fields.map((f, i) => (
-        <div key={i} className={cm.stack(0 as const)}>
-          <dt
+        <Box as="div" key={i} className={cm.stack(0 as const)}>
+          <Text
+            as="dt"
             className={cm.cn(
               cm.textSize('xs'),
               cm.fontWeight('semibold'),
@@ -51,11 +54,13 @@ export function DefinitionList({
             )}
           >
             {f.icon}
-            <span>{f.label}</span>
-          </dt>
-          <dd className={cm.textSize('sm')}>{f.value}</dd>
-        </div>
+            <Text as="span">{f.label}</Text>
+          </Text>
+          <Box as="dd" className={cm.textSize('sm')}>
+            {f.value}
+          </Box>
+        </Box>
       ))}
-    </dl>
+    </Box>
   )
 }

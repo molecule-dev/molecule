@@ -5,6 +5,7 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text, TextField } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link CopyLinkField}. */
 export interface CopyLinkFieldProps {
@@ -47,16 +48,28 @@ export function CopyLinkField({
     })
   }, [value, feedbackMs, onCopy])
   return (
-    <div className={cm.cn(cm.stack(1 as const), className)}>
+    <Box as="div" className={cm.cn(cm.stack(1 as const), className)}>
       {label && (
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{label}</span>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {label}
+        </Text>
       )}
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-        <input
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <TextField
+          as="input"
           type="text"
           readOnly
           value={value}
-          onFocus={(e) => (e.target as HTMLInputElement).select()}
+          onFocus={({ target }) => {
+            if (
+              typeof target === 'object' &&
+              target &&
+              'select' in target &&
+              typeof target.select === 'function'
+            ) {
+              target.select()
+            }
+          }}
           className={cm.cn(cm.input(), cm.flex1)}
           aria-label={label ?? t('copyLink.field', {}, { defaultValue: 'Link' })}
         />
@@ -65,7 +78,7 @@ export function CopyLinkField({
             ? t('copyLink.copied', {}, { defaultValue: 'Copied!' })
             : t('copyLink.copy', {}, { defaultValue: 'Copy' })}
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

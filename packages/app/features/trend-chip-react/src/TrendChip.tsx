@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link TrendChip} component. */
 export interface TrendChipProps {
@@ -53,7 +54,8 @@ export function TrendChip({
   const dir = direction ?? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')
   const tone = TONE[dir]
   return (
-    <span
+    <Box
+      as="span"
       aria-label={ariaLabel ?? `${prefix ?? ''}${ARROW[dir]} ${Math.abs(delta)}${suffix}`}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'xs' }),
@@ -62,14 +64,16 @@ export function TrendChip({
         variant === 'pill' ? cm.cn(cm.bgTone(tone), cm.textOnTone) : cm.textTone(tone),
         className,
       )}
-      style={variant === 'pill' ? { padding: '2px 6px', borderRadius: 999 } : undefined}
+      webStyle={variant === 'pill' ? { padding: '2px 6px', borderRadius: 999 } : undefined}
     >
       {prefix}
-      <span aria-hidden>{ARROW[dir]}</span>
-      <span>
+      <Text as="span" aria-hidden>
+        {ARROW[dir]}
+      </Text>
+      <Text as="span">
         {Math.abs(delta)}
         {suffix}
-      </span>
-    </span>
+      </Text>
+    </Box>
   )
 }

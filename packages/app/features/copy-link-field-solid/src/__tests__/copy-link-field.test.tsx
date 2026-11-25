@@ -118,6 +118,16 @@ describe('CopyLinkField', () => {
     expect(markup).toContain('readonly')
   })
 
+  it('selects the whole value when the web field receives focus', () => {
+    const value = 'https://x.test/abc'
+    const { container } = mountLive({ value })
+    const field = container.querySelector('input')
+    if (!field) throw new Error('Expected the input')
+    field.focus()
+    expect(field.selectionStart).toBe(0)
+    expect(field.selectionEnd).toBe(value.length)
+  })
+
   it('renders the label when present and omits it otherwise', () => {
     expect(renderField({ value: 'u', label: 'Webhook URL' })).toContain('Webhook URL')
     const without = renderField({ value: 'u' })

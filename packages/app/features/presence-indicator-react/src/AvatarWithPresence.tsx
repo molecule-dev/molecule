@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { PresenceDot, type PresenceStatus } from './PresenceDot.js'
 
@@ -32,9 +33,13 @@ export function AvatarWithPresence({
 }: AvatarWithPresenceProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <span className={cm.cn(cm.position('relative'), className)} style={{ display: 'inline-block' }}>
+    <Box
+      as="span"
+      className={cm.cn(cm.position('relative'), className)}
+      webStyle={{ display: 'inline-block' }}
+    >
       {children}
       {status && <PresenceDot status={status} position="overlay" corner={corner} size={dotSize} />}
-    </span>
+    </Box>
   )
 }

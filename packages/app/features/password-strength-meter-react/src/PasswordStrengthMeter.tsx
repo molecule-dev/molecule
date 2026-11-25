@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { PasswordChecklist, PasswordScore } from './scorer.js'
 import { scorePassword } from './scorer.js'
@@ -177,8 +178,9 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
   )
 
   return (
-    <div className={cm.cn(cm.stack(2), className)} data-mol-id="password-strength-meter">
-      <div
+    <Box as="div" className={cm.cn(cm.stack(2), className)} data-mol-id="password-strength-meter">
+      <Box
+        as="div"
         className={cm.flex({ gap: 'xs' })}
         role="progressbar"
         aria-label={t('passwordStrengthMeter.barLabel', undefined, {
@@ -195,11 +197,12 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
         {SCORE_BUCKETS.map((bucket) => {
           const filled = password.length > 0 && bucket <= score
           return (
-            <span
+            <Box
+              as="span"
               key={bucket}
               data-mol-id={`password-strength-meter-segment-${bucket}`}
               data-filled={filled ? 'true' : 'false'}
-              style={{
+              webStyle={{
                 flex: '1 1 0%',
                 height: '6px',
                 borderRadius: '3px',
@@ -211,51 +214,55 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
             />
           )
         })}
-      </div>
+      </Box>
       {showLabel && (
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
           data-mol-id="password-strength-meter-label"
           style={{ color: password.length === 0 ? undefined : colorForScore(score) }}
         >
           {labelText}
-        </span>
+        </Text>
       )}
       {showChecklist && (
-        <ul
+        <Box
+          as="ul"
           className={cm.stack(1)}
           data-mol-id="password-strength-meter-checklist"
-          style={{ listStyle: 'none', padding: 0, margin: 0 }}
+          style={{ padding: 0, margin: 0 }}
+          webStyle={{ listStyle: 'none' }}
         >
           {CHECKLIST_FIELDS.map((field) => {
             const ok = checklist[field]
             const ruleText = ruleLabelForField(field, t)
             return (
-              <li
+              <Box
+                as="li"
                 key={field}
                 className={cm.cn(cm.flex({ gap: 'xs', align: 'center' }), cm.textSize('sm'))}
                 data-mol-id={`password-strength-meter-rule-${field}`}
                 data-ok={ok ? 'true' : 'false'}
               >
-                <span
-                  aria-hidden="true"
+                <Text
+                  as="span"
+                  aria-hidden
                   style={{
                     color: ok
                       ? 'var(--mol-color-success, #16a34a)'
                       : 'var(--mol-color-error, #dc2626)',
-                    fontWeight: 600,
-                    width: '1em',
-                    display: 'inline-block',
+                    fontWeight: '600',
                   }}
+                  webStyle={{ width: '1em', display: 'inline-block' }}
                 >
                   {ok ? '✓' : '✗'}
-                </span>
-                <span>{ruleText}</span>
-              </li>
+                </Text>
+                <Text as="span">{ruleText}</Text>
+              </Box>
             )
           })}
-        </ul>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

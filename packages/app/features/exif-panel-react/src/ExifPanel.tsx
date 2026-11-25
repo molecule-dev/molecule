@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Link, Text } from '@molecule/app-ui-react/elements'
 
 import { buildMapLink, formatCamera, formatGps, formatTimestamp } from './format.js'
 import {
@@ -102,7 +103,8 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
   ): ReactElement | null => {
     if (value === null || value === undefined || value === '') return null
     return (
-      <div
+      <Box
+        as="div"
         key={key}
         data-mol-id={molId}
         className={cm.cn(
@@ -112,38 +114,47 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
           cm.borderB,
         )}
       >
-        <dt className={cm.cn(cm.textSize(labelSize), cm.fontWeight('medium'), cm.textMuted)}>
+        <Text
+          as="dt"
+          className={cm.cn(cm.textSize(labelSize), cm.fontWeight('medium'), cm.textMuted)}
+        >
           {label}
-        </dt>
-        <dd className={cm.cn(cm.textSize(valueSize), cm.textRight)}>{value}</dd>
-      </div>
+        </Text>
+        <Box as="dd" className={cm.cn(cm.textSize(valueSize), cm.textRight)}>
+          {value}
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <aside
+    <Box
+      as="aside"
       data-mol-id="exif-panel"
       aria-label={t('exifPanel.aria.region', {}, { defaultValue: 'EXIF metadata' })}
       className={cm.cn(cm.surface, className)}
     >
-      <header
+      <Box
+        as="header"
         data-mol-id="exif-panel-header"
         className={cm.cn(cm.sp('px', padScale), cm.sp('py', padScale), cm.borderB)}
       >
-        <p
+        <Text
+          as="p"
           data-mol-id="exif-panel-eyebrow"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'), cm.textMuted)}
         >
           {eyebrowText}
-        </p>
-        <h3
+        </Text>
+        <Text
+          as="h3"
           data-mol-id="exif-panel-heading"
           className={cm.cn(cm.textSize(compact ? 'sm' : 'base'), cm.fontWeight('bold'))}
         >
           {headingText}
-        </h3>
-      </header>
-      <dl data-mol-id="exif-panel-list">
+        </Text>
+      </Box>
+      <Box as="dl" data-mol-id="exif-panel-list">
         {renderRow(
           'camera',
           t('exifPanel.camera', {}, { defaultValue: 'Camera' }),
@@ -175,15 +186,15 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
               'gps',
               t('exifPanel.gps', {}, { defaultValue: 'GPS' }),
               mapHref ? (
-                <a
-                  href={mapHref}
+                <Link
+                  to={mapHref}
                   target="_blank"
                   rel="noreferrer noopener"
                   data-mol-id="exif-panel-map-link"
                   className={cm.link}
                 >
                   {gpsText}
-                </a>
+                </Link>
               ) : (
                 gpsText
               ),
@@ -208,7 +219,7 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
           copyright,
           'exif-panel-row-copyright',
         )}
-      </dl>
-    </aside>
+      </Box>
+    </Box>
   )
 }

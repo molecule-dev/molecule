@@ -1,7 +1,7 @@
 import { useAuth, useTranslation, useVerifyPaymentReturn } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
+import { Box, Link, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Props for {@link PlanUpdated}. All optional — defaults reproduce the original
@@ -90,18 +90,20 @@ export function PlanUpdated({
 
   if (verification.status === 'failed') {
     return (
-      <section
+      <Box
+        as="section"
         className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('px', 6), cm.sp('py', 16))}
         data-mol-id="plan-updated-page"
       >
-        <h2
+        <Text
+          as="h2"
           className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 4))}
           data-mol-id="plan-updated-error"
         >
           {t('planUpdated.verifyFailed', undefined, {
             defaultValue: 'We could not confirm your payment yet.',
           })}
-        </h2>
+        </Text>
         <Button
           variant="solid"
           size="lg"
@@ -110,16 +112,18 @@ export function PlanUpdated({
         >
           {t('planUpdated.retry', undefined, { defaultValue: 'Try again' })}
         </Button>
-      </section>
+      </Box>
     )
   }
 
   return (
-    <section
+    <Box
+      as="section"
       className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('px', 6), cm.sp('py', 16))}
       data-mol-id="plan-updated-page"
     >
-      <div
+      <Box
+        as="div"
         className={cm.cn(
           cm.mxAuto,
           cm.sp('mb', 8),
@@ -134,27 +138,29 @@ export function PlanUpdated({
         // generated. Width/height aren't managed by any ClassMap token, so
         // inline style is safe per the "no inline that conflicts with
         // ClassMap" rule.
-        style={{ width: '7rem', height: '7rem' }}
+        webStyle={{ width: '7rem', height: '7rem' }}
       >
-        <Icon name="check-circle" size={64} aria-hidden="true" data-mol-id="plan-updated-icon" />
-      </div>
+        <Icon name="check-circle" size={64} aria-hidden data-mol-id="plan-updated-icon" />
+      </Box>
       {/* Both message + thankYou stay as <h2> for backward compatibility
           with per-app plan-updated.spec.ts assertions that two level-2
           headings are present. Visual hierarchy comes from the font
           scale, not the heading level. */}
-      <h2
+      <Text
+        as="h2"
         className={cm.cn(cm.textSize('4xl'), cm.italic, cm.fontWeight('bold'), cm.sp('mb', 4))}
-        style={{ fontFamily: 'var(--font-headline, inherit)' }}
+        webStyle={{ fontFamily: 'var(--font-headline, inherit)' }}
         data-mol-id="plan-updated-heading"
       >
         {t(messageKey, {}, { defaultValue: messageDefault })}
-      </h2>
-      <h2
+      </Text>
+      <Text
+        as="h2"
         className={cm.cn(cm.textSize('lg'), cm.fontWeight('normal'), cm.textMuted, cm.sp('mb', 10))}
         data-mol-id="plan-updated-subheading"
       >
         {t(thankYouKey, {}, { defaultValue: thankYouDefault })}
-      </h2>
+      </Text>
       <Link to={actionHref}>
         <Button
           variant="solid"
@@ -166,7 +172,7 @@ export function PlanUpdated({
         </Button>
       </Link>
       {receiptHref !== null && (
-        <div className={cm.sp('mt', 6)}>
+        <Box as="div" className={cm.sp('mt', 6)}>
           <Link
             to={receiptHref}
             className={cm.cn(
@@ -181,8 +187,8 @@ export function PlanUpdated({
           >
             {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
           </Link>
-        </div>
+        </Box>
       )}
-    </section>
+    </Box>
   )
 }

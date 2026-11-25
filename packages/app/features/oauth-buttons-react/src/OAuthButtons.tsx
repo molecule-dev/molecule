@@ -8,6 +8,7 @@ import type { JSX } from 'react'
 import { OAuthProviderLogo } from '@molecule/app-oauth-logos-react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { getBrandStyle } from './brand-styles.js'
 import { dedupeProviders, getProviderLabel } from './labels.js'
@@ -96,13 +97,14 @@ export function OAuthButtons({
   const buttonStyle = getButtonLayoutStyle(layout)
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.oauthButtonGroup, className)}
       role="group"
       aria-label={t('oauthButtons.groupLabel', undefined, {
         defaultValue: 'Continue with another account',
       })}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
       data-mol-id="oauth-buttons"
       data-layout={layout}
     >
@@ -116,7 +118,8 @@ export function OAuthButtons({
           { defaultValue: 'Continue with {{provider}}' },
         )
         return (
-          <button
+          <Pressable
+            as="button"
             key={provider}
             type="button"
             onClick={onSelect ? () => activate(provider) : undefined}
@@ -124,15 +127,19 @@ export function OAuthButtons({
             className={cm.oauthButton}
             data-mol-id={`oauth-button-${provider}`}
             data-provider={provider}
-            style={{ ...brandStyle, ...buttonStyle }}
+            webStyle={{ ...brandStyle, ...buttonStyle }}
           >
-            <span className={cm.oauthButtonIcon}>
+            <Box as="span" className={cm.oauthButtonIcon}>
               <OAuthProviderLogo provider={provider} size={iconSize} mode={iconMode} ariaLabel="" />
-            </span>
-            {showLabels && <span className={cm.oauthProviderLabel}>{localizedName}</span>}
-          </button>
+            </Box>
+            {showLabels && (
+              <Text as="span" className={cm.oauthProviderLabel}>
+                {localizedName}
+              </Text>
+            )}
+          </Pressable>
         )
       })}
-    </div>
+    </Box>
   )
 }

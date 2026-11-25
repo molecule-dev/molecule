@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { formatCurrency, formatCurrencyCompact } from './formatCurrency.js'
 
@@ -58,22 +59,26 @@ export function CurrencyDisplay({
   const saved = discounted ? originalAmount - amount : 0
   const savedPct = discounted && originalAmount > 0 ? Math.round((saved / originalAmount) * 100) : 0
   return (
-    <span className={cm.cn(cm.flex({ align: 'baseline', gap: 'sm' }), className)}>
-      <span className={cm.cn(cm.textSize(SIZE_CLASS[size]), cm.fontWeight('bold'))}>
+    <Box as="span" className={cm.cn(cm.flex({ align: 'baseline', gap: 'sm' }), className)}>
+      <Text as="span" className={cm.cn(cm.textSize(SIZE_CLASS[size]), cm.fontWeight('bold'))}>
         {fmt(amount, currency, locale)}
-      </span>
+      </Text>
       {discounted && (
         <>
-          <span className={cm.cn(cm.textSize('sm'))} style={{ textDecoration: 'line-through' }}>
+          <Text
+            as="span"
+            className={cm.cn(cm.textSize('sm'))}
+            webStyle={{ textDecoration: 'line-through' }}
+          >
             {fmt(originalAmount!, currency, locale)}
-          </span>
+          </Text>
           {showSavings && (
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
               {savingsLabel ? savingsLabel(saved, savedPct) : `−${savedPct}%`}
-            </span>
+            </Text>
           )}
         </>
       )}
-    </span>
+    </Box>
   )
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Image, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A single photo entry for the lightbox, with src, optional alt text, and optional caption.
@@ -64,7 +65,7 @@ export function PhotoLightbox({
   }
 
   useEffect(() => {
-    if (!open) return
+    if (!open || typeof document === 'undefined') return
     /**
      * Handles keyboard events for lightbox navigation and closing.
      * @param e
@@ -86,13 +87,14 @@ export function PhotoLightbox({
     // it directly closes; clicks on the controls inside do not. The dialog
     // itself is the element inside it, so Escape (handled on `document`
     // below) stays the keyboard path.
-    <div
+    <Pressable
+      as="div"
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
       className={cm.cn(cm.position('fixed'), cm.bgScrim)}
-      style={{
+      webStyle={{
         position: 'fixed',
         inset: 0,
         zIndex: 100,
@@ -101,9 +103,10 @@ export function PhotoLightbox({
         justifyContent: 'center',
       }}
     >
-      <div
+      <Box
+        as="div"
         role="dialog"
-        aria-modal="true"
+        aria-modal
         aria-label={photo.alt ?? `Image ${index + 1} of ${total}`}
       >
         <Button
@@ -127,18 +130,25 @@ export function PhotoLightbox({
             ‹
           </Button>
         )}
-        <figure style={{ margin: 0, maxWidth: '90vw', maxHeight: '90vh', textAlign: 'center' }}>
-          <img
+        <Box
+          as="figure"
+          webStyle={{ margin: 0, maxWidth: '90vw', maxHeight: '90vh', textAlign: 'center' }}
+        >
+          <Image
             src={photo.src}
             alt={photo.alt ?? `Image ${index + 1}`}
-            style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain' }}
+            webStyle={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain' }}
           />
           {photo.caption && (
-            <figcaption className={cm.textOnTone} style={{ padding: 12, fontSize: 14 }}>
+            <Text
+              as="figcaption"
+              className={cm.textOnTone}
+              webStyle={{ padding: 12, fontSize: 14 }}
+            >
               {photo.caption}
-            </figcaption>
+            </Text>
           )}
-        </figure>
+        </Box>
         {total > 1 && (
           <Button
             variant="ghost"
@@ -151,9 +161,10 @@ export function PhotoLightbox({
             ›
           </Button>
         )}
-        <div
+        <Box
+          as="div"
           className={cm.textOnTone}
-          style={{
+          webStyle={{
             position: 'absolute',
             bottom: 16,
             left: 0,
@@ -163,8 +174,8 @@ export function PhotoLightbox({
           }}
         >
           {index + 1} / {total}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Pressable>
   )
 }

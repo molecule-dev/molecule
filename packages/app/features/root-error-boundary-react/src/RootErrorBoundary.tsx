@@ -3,6 +3,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { error as logError } from '@molecule/app-logger'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 interface Props {
   children: ReactNode
@@ -23,17 +24,18 @@ function RootErrorFallback(): ReactNode {
   const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
         cm.sp('p', 8),
       )}
       role="alert"
     >
-      <p className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+      <Text as="p" className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
         {t('error.unknown', {}, { defaultValue: 'An unexpected error occurred.' })}
-      </p>
-    </div>
+      </Text>
+    </Box>
   )
 }
 

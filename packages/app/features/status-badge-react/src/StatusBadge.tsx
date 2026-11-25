@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Semantic status kind used to select badge color variants. */
 export type StatusKind = 'success' | 'warning' | 'error' | 'info' | 'neutral'
@@ -63,7 +64,8 @@ export function StatusBadge({
   const cm = getClassMap()
   if (appearance === 'uppercase-pill') {
     return (
-      <span
+      <Box
+        as="span"
         className={cm.cn(
           cm.badge({ variant: KIND_TO_COLOR[kind] }),
           cm.uppercase,
@@ -71,14 +73,22 @@ export function StatusBadge({
           className,
         )}
       >
-        {icon && <span className={cm.sp('mr', 1)}>{icon}</span>}
+        {icon && (
+          <Box as="span" className={cm.sp('mr', 1)}>
+            {icon}
+          </Box>
+        )}
         {children}
-      </span>
+      </Box>
     )
   }
   return (
     <Badge color={KIND_TO_COLOR[kind]} className={className}>
-      {icon && <span className={cm.sp('mr', 1)}>{icon}</span>}
+      {icon && (
+        <Box as="span" className={cm.sp('mr', 1)}>
+          {icon}
+        </Box>
+      )}
       {children}
     </Badge>
   )

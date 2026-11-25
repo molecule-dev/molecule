@@ -1,8 +1,10 @@
-import type { CSSProperties, ReactElement, RefObject } from 'react'
+import type { ReactElement, RefObject } from 'react'
 import { useEffect, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { WebStyle } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /**
  * Computes the scroll progress (0..1) of an element, measured by how much of
@@ -154,7 +156,7 @@ export function ReadingProgressBar({
 
   const pct = Math.round(progress * 1000) / 10
 
-  const wrapperStyle: CSSProperties = {
+  const wrapperStyle: WebStyle = {
     position: 'fixed',
     left: 0,
     right: 0,
@@ -164,7 +166,7 @@ export function ReadingProgressBar({
     pointerEvents: 'none',
   }
 
-  const fillStyle: CSSProperties = {
+  const fillStyle: WebStyle = {
     width: `${pct}%`,
     height: '100%',
     background: color ?? 'currentColor',
@@ -172,7 +174,8 @@ export function ReadingProgressBar({
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="progressbar"
       aria-label={t('readingProgressBar.aria.label', {}, { defaultValue: 'Reading progress' })}
       aria-valuenow={pct}
@@ -181,9 +184,9 @@ export function ReadingProgressBar({
       data-mol-id={dataMolId ?? 'reading-progress-bar'}
       data-position={position}
       className={cm.cn(className)}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
     >
-      <div data-mol-id="reading-progress-bar-fill" style={fillStyle} />
-    </div>
+      <Box as="div" data-mol-id="reading-progress-bar-fill" webStyle={fillStyle} />
+    </Box>
   )
 }

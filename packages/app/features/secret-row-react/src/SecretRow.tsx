@@ -5,6 +5,7 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Data model for a single secret/credential entry in a vault UI. */
 export interface SecretRowData {
@@ -67,37 +68,49 @@ export function SecretRow({
   const masked = maskChar.repeat(Math.max(8, Math.min(secret.value.length, 24)))
   const expired = secret.daysUntilRotation !== undefined && secret.daysUntilRotation < 0
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('py', 2), className)}>
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <span className={cm.cn(cm.fontWeight('semibold'))}>{secret.key}</span>
-        {secret.description && <span className={cm.textSize('xs')}>{secret.description}</span>}
-      </div>
-      <code className={cm.cn(cm.sp('px', 2), cm.sp('py', 1), cm.textSize('xs'))}>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('py', 2), className)}
+    >
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+        <Text as="span" className={cm.cn(cm.fontWeight('semibold'))}>
+          {secret.key}
+        </Text>
+        {secret.description && (
+          <Text as="span" className={cm.textSize('xs')}>
+            {secret.description}
+          </Text>
+        )}
+      </Box>
+      <Text as="code" className={cm.cn(cm.sp('px', 2), cm.sp('py', 1), cm.textSize('xs'))}>
         {revealed ? secret.value : masked}
-      </code>
+      </Text>
       {secret.version && (
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
           v{secret.version}
-        </span>
+        </Text>
       )}
       {expired && (
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone('error'))}>
+        <Text
+          as="span"
+          className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone('error'))}
+        >
           {t('secretRow.expired', {}, { defaultValue: 'Expired' })}
-        </span>
+        </Text>
       )}
       {secret.daysUntilRotation !== undefined && secret.daysUntilRotation >= 0 && (
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
           {t(
             'secretRow.rotateIn',
             { days: secret.daysUntilRotation },
             { defaultValue: 'Rotate in {{days}}d' },
           )}
-        </span>
+        </Text>
       )}
       {secret.lastRotatedAt !== undefined && secret.lastRotatedAt !== null && (
-        <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
           {t('secretRow.lastRotated', {}, { defaultValue: 'Last rotated' })} {secret.lastRotatedAt}
-        </span>
+        </Text>
       )}
       <Button variant="ghost" size="sm" onClick={() => setRevealed((x) => !x)}>
         {revealed
@@ -119,6 +132,6 @@ export function SecretRow({
           {t('secretRow.delete', {}, { defaultValue: 'Delete' })}
         </Button>
       )}
-    </div>
+    </Box>
   )
 }

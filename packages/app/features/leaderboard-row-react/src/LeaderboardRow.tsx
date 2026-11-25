@@ -1,8 +1,10 @@
-import type { KeyboardEvent, ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
+import type { KitKeyboardEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link LeaderboardRow}. */
 export interface LeaderboardRowProps {
@@ -52,7 +54,7 @@ export function LeaderboardRow({
   // a11y tree: role/tabIndex make it focusable and Enter/Space activate it,
   // matching native button keyboard semantics.
   const handleKeyDown = onClick
-    ? (event: KeyboardEvent<HTMLDivElement>): void => {
+    ? (event: KitKeyboardEvent): void => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
           onClick()
@@ -60,7 +62,8 @@ export function LeaderboardRow({
       }
     : undefined
   return (
-    <div
+    <Pressable
+      as="div"
       onClick={onClick}
       onKeyDown={handleKeyDown}
       role={onClick ? 'button' : undefined}
@@ -73,21 +76,29 @@ export function LeaderboardRow({
         isMe ? cm.bgTone('info', { subtle: true }) : undefined,
         className,
       )}
-      style={isMe ? { borderRadius: 8 } : undefined}
+      webStyle={isMe ? { borderRadius: 8 } : undefined}
     >
-      <span
+      <Text
+        as="span"
         className={cm.cn(cm.shrink0, cm.fontWeight('bold'), cm.textCenter)}
-        style={{ minWidth: 32 }}
+        webStyle={{ minWidth: 32 }}
       >
         {MEDAL[rank] ?? `#${rank}`}
-      </span>
+      </Text>
       <Avatar src={avatarSrc} alt={dispName} name={dispName} size="sm" />
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{name}</span>
-        {subtitle && <span className={cm.textSize('xs')}>{subtitle}</span>}
-      </div>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+        <Box as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {name}
+        </Box>
+        {subtitle && (
+          <Box as="span" className={cm.textSize('xs')}>
+            {subtitle}
+          </Box>
+        )}
+      </Box>
       {rankDelta !== undefined && rankDelta !== 0 && (
-        <span
+        <Text
+          as="span"
           className={cm.cn(
             cm.textSize('xs'),
             cm.fontWeight('semibold'),
@@ -95,9 +106,11 @@ export function LeaderboardRow({
           )}
         >
           {rankDelta > 0 ? '▲' : '▼'} {Math.abs(rankDelta)}
-        </span>
+        </Text>
       )}
-      <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{score}</span>
-    </div>
+      <Box as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
+        {score}
+      </Box>
+    </Pressable>
   )
 }

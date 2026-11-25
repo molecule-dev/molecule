@@ -3,6 +3,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NoteCard}. */
 export interface NoteCardProps {
@@ -93,21 +94,23 @@ export function NoteCard({
   const content = (
     <>
       {title && (
-        <h3 id={labelId} className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
+        <Text as="h3" id={labelId} className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
           {title}
-        </h3>
+        </Text>
       )}
-      <div
+      <Box
+        as="div"
         id={title ? undefined : labelId}
         className={cm.textSize('sm')}
-        style={{ whiteSpace: 'pre-wrap' }}
+        webStyle={{ whiteSpace: 'pre-wrap' }}
       >
         {body}
-      </div>
+      </Box>
     </>
   )
   return (
-    <article
+    <Box
+      as="article"
       className={cm.cn(
         cm.stack(2),
         cm.sp('p', 3),
@@ -115,16 +118,14 @@ export function NoteCard({
         cm.shadowLifted,
         className,
       )}
-      style={{
-        background: dataTint,
-        borderRadius: 8,
-        // The card owns its absolute children: the open button's overlay and
-        // the pinned indicator both sit inside it.
-        position: 'relative',
-      }}
+      // The card owns its absolute children: the open button's overlay and
+      // the pinned indicator both sit inside it.
+      style={{ borderRadius: 8, position: 'relative' }}
+      webStyle={{ background: dataTint }}
     >
       {onClick ? (
-        <button
+        <Pressable
+          as="button"
           type="button"
           aria-labelledby={nameId}
           data-mol-id="note-card-open"
@@ -133,30 +134,36 @@ export function NoteCard({
              transparent button over the row; the inline background/border/padding are
              native resets. */
           className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-          style={{ background: 'transparent', border: 'none', padding: 0 }}
+          webStyle={{ background: 'transparent', border: 'none', padding: 0 }}
         />
       ) : null}
       {pinned && (
-        <span
+        <Text
+          as="span"
           role="img"
           aria-label={t('noteCard.aria.pinned', undefined, { defaultValue: 'Pinned' })}
           style={{ position: 'absolute', top: 6, right: 6 }}
         >
           📌
-        </span>
+        </Text>
       )}
       {content}
       {(modifiedAt || actions) && (
-        <footer
+        <Box
+          as="footer"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
             onClick ? cm.position('relative') : undefined,
           )}
         >
-          {modifiedAt && <span className={cm.textSize('xs')}>{modifiedAt}</span>}
+          {modifiedAt && (
+            <Text as="span" className={cm.textSize('xs')}>
+              {modifiedAt}
+            </Text>
+          )}
           {actions}
-        </footer>
+        </Box>
       )}
-    </article>
+    </Box>
   )
 }

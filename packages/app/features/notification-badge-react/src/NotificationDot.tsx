@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NotificationDot}. */
 export interface NotificationDotProps {
@@ -44,10 +45,11 @@ export function NotificationDot({
   const cm = getClassMap()
   if (!visible) return null
   return (
-    <span
+    <Box
+      as="span"
       aria-hidden
       className={cm.cn(cm.roundedFull, VARIANT_BG[variant], className)}
-      style={
+      webStyle={
         position === 'corner'
           ? { position: 'absolute', top: 2, right: 2, width: size, height: size }
           : { display: 'inline-block', width: size, height: size }

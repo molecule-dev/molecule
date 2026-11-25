@@ -3,6 +3,7 @@ import { type JSX, useState } from 'react'
 import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link MiniCalendar}. */
 export interface MiniCalendarProps {
@@ -114,8 +115,8 @@ export function MiniCalendar({
   const weekdayHeader = days.slice(0, 7)
 
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
-      <header className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
+      <Box as="header" className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
         <Button
           variant="ghost"
           size="sm"
@@ -126,9 +127,9 @@ export function MiniCalendar({
         >
           ‹
         </Button>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+        <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
           {monthFmt.format(visibleMonth)}
-        </span>
+        </Text>
         <Button
           variant="ghost"
           size="sm"
@@ -137,22 +138,24 @@ export function MiniCalendar({
         >
           ›
         </Button>
-      </header>
-      <div className={cm.grid({ cols: 7, gap: 'xs' })}>
+      </Box>
+      <Box as="div" className={cm.grid({ cols: 7, gap: 'xs' })}>
         {weekdayHeader.map((d, i) => (
-          <span
+          <Text
+            as="span"
             key={i}
             className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}
           >
             {weekdayFmt.format(d)}
-          </span>
+          </Text>
         ))}
         {days.map((d, i) => {
           const outOfMonth = d.getMonth() !== visibleMonth.getMonth()
           const isSelected = selectedDate && isSameDay(d, selectedDate)
           const disabled = isDisabled?.(d) ?? false
           return (
-            <button
+            <Pressable
+              as="button"
               key={i}
               type="button"
               onClick={() => !disabled && onSelect?.(d)}
@@ -165,13 +168,13 @@ export function MiniCalendar({
                 cm.roundedFull,
                 isSelected ? cm.fontWeight('bold') : cm.fontWeight('medium'),
               )}
-              style={outOfMonth ? { opacity: 0.3 } : undefined}
+              webStyle={outOfMonth ? { opacity: 0.3 } : undefined}
             >
               {d.getDate()}
-            </button>
+            </Pressable>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

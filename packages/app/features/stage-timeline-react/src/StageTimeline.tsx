@@ -1,7 +1,8 @@
-import type { CSSProperties, JSX } from 'react'
+import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import type { StageStatus, StageTimelineProps, StageTimelineStage } from './types.js'
 
@@ -54,7 +55,8 @@ export function StageTimeline({
 
   if (stages.length === 0) {
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(className)}
         role="list"
         aria-label={t('stageTimeline.group', {}, { defaultValue: 'Stage timeline' })}
@@ -67,7 +69,7 @@ export function StageTimeline({
   const denom = Math.max(1, stages.length - 1)
   const fillRatio = Math.max(0, Math.min(1, currentIndex / denom))
 
-  const wrapperStyle: CSSProperties = {
+  const wrapperStyle: WebStyle = {
     position: 'relative',
     display: 'grid',
     gridTemplateColumns: `repeat(${stages.length}, minmax(0, 1fr))`,
@@ -75,7 +77,7 @@ export function StageTimeline({
   }
 
   // Connector rail track + filled portion behind the dots.
-  const railContainerStyle: CSSProperties = {
+  const railContainerStyle: WebStyle = {
     position: 'absolute',
     top: 14, // line up with dot center (dot is 28 ⇒ radius 14)
     left: `${(0.5 / stages.length) * 100}%`,
@@ -85,23 +87,26 @@ export function StageTimeline({
   }
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(className)}
       role="list"
       aria-label={t('stageTimeline.group', {}, { defaultValue: 'Stage timeline' })}
       data-mol-id={dataMolId ?? 'stage-timeline'}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
     >
-      <div aria-hidden style={railContainerStyle} data-mol-id="stage-timeline-rail">
-        <div
-          style={{
+      <Box as="div" aria-hidden webStyle={railContainerStyle} data-mol-id="stage-timeline-rail">
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
             inset: 0,
             background: 'var(--mol-color-surface-variant, rgba(0,0,0,0.12))',
           }}
         />
-        <div
-          style={{
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
             top: 0,
             bottom: 0,
@@ -112,7 +117,7 @@ export function StageTimeline({
           }}
           data-mol-id="stage-timeline-rail-fill"
         />
-      </div>
+      </Box>
 
       {stages.map((stage, i) => (
         <StageDot
@@ -124,7 +129,7 @@ export function StageTimeline({
           t={t}
         />
       ))}
-    </div>
+    </Box>
   )
 }
 
@@ -154,7 +159,7 @@ function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Elemen
   const isCompleted = status === 'completed'
   const isCurrent = status === 'current'
 
-  const dotStyle: CSSProperties = {
+  const dotStyle: WebStyle = {
     width: dotSize,
     height: dotSize,
     borderRadius: '50%',
@@ -181,7 +186,7 @@ function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Elemen
     transition: 'box-shadow 200ms ease, background 200ms ease',
   }
 
-  const wrapperStyle: CSSProperties = {
+  const wrapperStyle: WebStyle = {
     position: 'relative',
     zIndex: 1,
     display: 'flex',
@@ -203,16 +208,18 @@ function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Elemen
   )
 
   return (
-    <div
+    <Box
+      as="div"
       role="listitem"
       data-stage-id={stage.id}
       data-stage-status={status}
       data-mol-id="stage-timeline-stage"
       aria-current={isCurrent ? 'step' : undefined}
       aria-label={ariaLabel}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
     >
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={stage.onClick}
         disabled={!stage.onClick}
@@ -223,14 +230,15 @@ function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Elemen
            which no `cm.button()` variant expresses, and which has to line up
            with the connector line either side of it. Every colour already
            comes from a `--mol-color-*` token (see `dotStyle`). */
-        style={{ ...dotStyle, padding: 0 }}
+        webStyle={{ ...dotStyle, padding: 0 }}
       >
         {isCompleted ? '✓' : index + 1}
-      </button>
-      <span
+      </Pressable>
+      <Text
+        as="span"
         className={cm.cn(cm.textSize('xs'), cm.fontWeight(isCurrent ? 'semibold' : 'normal'))}
         data-mol-id="stage-timeline-label"
-        style={{
+        webStyle={{
           textAlign: 'center',
           color: isCurrent
             ? 'var(--mol-color-primary, #3366ff)'
@@ -240,19 +248,20 @@ function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Elemen
         }}
       >
         {stage.label}
-      </span>
+      </Text>
       {stage.subtitle && (
-        <span
+        <Text
+          as="span"
           className={cm.textSize('xs')}
           data-mol-id="stage-timeline-subtitle"
-          style={{
+          webStyle={{
             textAlign: 'center',
             color: 'var(--mol-color-on-surface-variant, #888)',
           }}
         >
           {stage.subtitle}
-        </span>
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }

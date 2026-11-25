@@ -15,6 +15,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { operatorById, operatorsFor } from './operators.js'
 import type { Rule, RuleField, RuleGroup, RuleLeaf, RuleLeafValue, RuleSchema } from './types.js'
@@ -62,7 +63,8 @@ export function RuleBuilder({ schema, rules, onChange, className }: RuleBuilderP
     rules.kind === 'group' ? rules : { kind: 'group', id: 'root', op: 'AND', children: [rules] }
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.flex({ direction: 'col', gap: 'sm' }), className)}
       data-mol-id="rule-builder"
     >
@@ -73,7 +75,7 @@ export function RuleBuilder({ schema, rules, onChange, className }: RuleBuilderP
         onReplace={(next) => onChange(next)}
         onRemove={() => onChange(emptyGroup())}
       />
-    </div>
+    </Box>
   )
 }
 
@@ -128,13 +130,14 @@ function RenderGroup({ group, schema, isRoot, onReplace, onRemove }: RenderGroup
       : t('ruleBuilder.op.or', {}, { defaultValue: 'OR' })
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }), cm.borderAll, cm.surface)}
-      style={cm.sp({ p: 3 })}
+      webStyle={cm.sp({ p: 3 })}
       data-mol-id={`rule-builder-group-${group.id}`}
       data-group-op={group.op}
     >
-      <div className={cm.flex({ align: 'center', gap: 'xs' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
         <Button
           variant="outline"
           size="sm"
@@ -144,11 +147,11 @@ function RenderGroup({ group, schema, isRoot, onReplace, onRemove }: RenderGroup
         >
           {opLabel}
         </Button>
-        <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
           {group.op === 'AND'
             ? t('ruleBuilder.help.allMustMatch', {}, { defaultValue: 'All conditions must match' })
             : t('ruleBuilder.help.anyMustMatch', {}, { defaultValue: 'Any condition may match' })}
-        </span>
+        </Text>
         {!isRoot && (
           <Button
             variant="ghost"
@@ -160,9 +163,9 @@ function RenderGroup({ group, schema, isRoot, onReplace, onRemove }: RenderGroup
             {t('ruleBuilder.action.removeGroup', {}, { defaultValue: 'Remove group' })}
           </Button>
         )}
-      </div>
+      </Box>
 
-      <div className={cm.flex({ direction: 'col', gap: 'xs' })} style={cm.sp({ p: 2 })}>
+      <Box as="div" className={cm.flex({ direction: 'col', gap: 'xs' })} webStyle={cm.sp({ p: 2 })}>
         {group.children.map((child) =>
           child.kind === 'group' ? (
             <RenderGroup
@@ -182,9 +185,9 @@ function RenderGroup({ group, schema, isRoot, onReplace, onRemove }: RenderGroup
             />
           ),
         )}
-      </div>
+      </Box>
 
-      <div className={cm.flex({ align: 'center', gap: 'xs' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
         <Button
           variant="outline"
           size="sm"
@@ -201,8 +204,8 @@ function RenderGroup({ group, schema, isRoot, onReplace, onRemove }: RenderGroup
         >
           {t('ruleBuilder.action.addGroup', {}, { defaultValue: '+ Add group' })}
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -260,7 +263,8 @@ function RenderLeaf({ leaf, schema, onReplace, onRemove }: RenderLeafProps): Rea
   const operatorOptions = ops.map((o) => ({ value: o.id, label: o.label }))
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' })}
       data-mol-id={`rule-builder-leaf-${leaf.id}`}
     >
@@ -290,7 +294,7 @@ function RenderLeaf({ leaf, schema, onReplace, onRemove }: RenderLeafProps): Rea
       >
         {t('ruleBuilder.action.removeCondition', {}, { defaultValue: 'Remove' })}
       </Button>
-    </div>
+    </Box>
   )
 }
 
@@ -343,21 +347,21 @@ function ValueEditor({ field, arity, value, onChange }: ValueEditorProps): React
       onChange(next)
     }
     return (
-      <span className={cm.flex({ align: 'center', gap: 'xs' })}>
+      <Box as="span" className={cm.flex({ align: 'center', gap: 'xs' })}>
         <Input
           type={inputType}
           value={String(tuple[0] ?? '')}
           onChange={(e) => setFrom((e.target as HTMLInputElement).value)}
           aria-label={t('ruleBuilder.aria.valueFrom', {}, { defaultValue: 'From' })}
         />
-        <span>{t('ruleBuilder.between.separator', {}, { defaultValue: '–' })}</span>
+        <Text as="span">{t('ruleBuilder.between.separator', {}, { defaultValue: '–' })}</Text>
         <Input
           type={inputType}
           value={String(tuple[1] ?? '')}
           onChange={(e) => setTo((e.target as HTMLInputElement).value)}
           aria-label={t('ruleBuilder.aria.valueTo', {}, { defaultValue: 'To' })}
         />
-      </span>
+      </Box>
     )
   }
 

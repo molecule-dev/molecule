@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** A single drawing tool entry rendered as a toolbar button. */
 export interface DrawingTool {
@@ -55,7 +56,8 @@ export function DrawingToolbar({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         orientation === 'vertical' ? cm.stack(1 as const) : cm.flex({ align: 'center', gap: 'xs' }),
         className,
@@ -78,6 +80,6 @@ export function DrawingToolbar({
         </Button>
       ))}
       {extras}
-    </div>
+    </Box>
   )
 }

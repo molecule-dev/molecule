@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link SectionDivider} component. */
 export interface SectionDividerProps {
@@ -27,28 +28,33 @@ export function SectionDivider({
   const children = slot(childrenProp)
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       role="separator"
       aria-orientation="horizontal"
       className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}
     >
       {(align === 'center' || align === 'end') && (
-        <span
+        <Box
+          as="span"
           className={cm.flex1}
           aria-hidden
-          style={{ borderTop: '1px solid currentColor', opacity: 0.2 }}
+          webStyle={{ borderTop: '1px solid currentColor', opacity: 0.2 }}
         />
       )}
       {children && (
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{children}</span>
+        <Box as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {children}
+        </Box>
       )}
       {(align === 'center' || align === 'start') && (
-        <span
+        <Box
+          as="span"
           className={cm.flex1}
           aria-hidden
-          style={{ borderTop: '1px solid currentColor', opacity: 0.2 }}
+          webStyle={{ borderTop: '1px solid currentColor', opacity: 0.2 }}
         />
       )}
-    </div>
+    </Box>
   )
 }

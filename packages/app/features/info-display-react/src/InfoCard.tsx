@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { type DefinitionField, DefinitionList } from './DefinitionList.js'
 
@@ -43,16 +44,18 @@ export function InfoCard({
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>
-      <div className={cm.stack(3)}>
-        <header className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.stack(3)}>
+        <Box as="header" className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {icon}
-            <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-          </div>
+            <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+              {title}
+            </Text>
+          </Box>
           {actions}
-        </header>
+        </Box>
         <DefinitionList fields={fields} columns={columns} />
-      </div>
+      </Box>
     </Card>
   )
 }

@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Represents a single emoji reaction with its aggregated count and current-user state. */
 export interface EmojiReaction {
@@ -75,8 +76,9 @@ function ReactionChip({
     { defaultValue: '{{count}} reactions' },
   )
   return (
-    <span className={cm.position('relative')} style={{ display: 'inline-block' }}>
-      <button
+    <Box as="span" className={cm.position('relative')} webStyle={{ display: 'inline-block' }}>
+      <Pressable
+        as="button"
         type="button"
         data-mol-id="emoji-reaction"
         onClick={() => onToggle?.(reaction.emoji)}
@@ -95,23 +97,26 @@ function ReactionChip({
           cm.textSize('xs'),
           cm.roundedFull,
         )}
-        style={
+        webStyle={
           reaction.reactedByMe
             ? { outline: '1px solid currentColor', outlineOffset: -1 }
             : undefined
         }
       >
-        <span aria-hidden>{reaction.emoji}</span>
-        <span>{reaction.count}</span>
-      </button>
+        <Text as="span" aria-hidden>
+          {reaction.emoji}
+        </Text>
+        <Text as="span">{reaction.count}</Text>
+      </Pressable>
       {hasTip && (
-        <span
+        <Box
+          as="span"
           role="tooltip"
           id={tipId}
           className={cm.cn(cm.tooltip(), cm.position('absolute'))}
           // Kept in the DOM for accessibility (aria-describedby) and revealed on
           // hover/focus; positioned above the chip.
-          style={{
+          webStyle={{
             bottom: 'calc(100% + 4px)',
             left: 0,
             pointerEvents: 'none',
@@ -120,9 +125,9 @@ function ReactionChip({
           }}
         >
           {tip}
-        </span>
+        </Box>
       )}
-    </span>
+    </Box>
   )
 }
 
@@ -145,7 +150,10 @@ export function EmojiReactions({
   const { t } = useTranslation()
   const [pickerOpen, setPickerOpen] = useState(false)
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}
+    >
       {reactions.map((r) => (
         <ReactionChip
           key={r.emoji}
@@ -157,8 +165,9 @@ export function EmojiReactions({
         />
       ))}
       {onAdd && (
-        <span className={cm.position('relative')} style={{ display: 'inline-block' }}>
-          <button
+        <Box as="span" className={cm.position('relative')} webStyle={{ display: 'inline-block' }}>
+          <Pressable
+            as="button"
             type="button"
             data-mol-id="emoji-reaction-add"
             onClick={() => setPickerOpen((x) => !x)}
@@ -174,15 +183,16 @@ export function EmojiReactions({
             )}
           >
             +
-          </button>
+          </Pressable>
           {pickerOpen && (
-            <span
+            <Box
+              as="span"
               className={cm.cn(
                 cm.flex({ align: 'center', gap: 'xs' }),
                 cm.sp('p', 1),
                 cm.position('absolute'),
               )}
-              style={{
+              webStyle={{
                 top: 'calc(100% + 4px)',
                 left: 0,
                 zIndex: 50,
@@ -196,7 +206,8 @@ export function EmojiReactions({
               }}
             >
               {quickPicks.map((emoji) => (
-                <button
+                <Pressable
+                  as="button"
                   key={emoji}
                   type="button"
                   data-mol-id="emoji-reaction-pick"
@@ -214,12 +225,12 @@ export function EmojiReactions({
                   )}
                 >
                   {emoji}
-                </button>
+                </Pressable>
               ))}
-            </span>
+            </Box>
           )}
-        </span>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

@@ -1,8 +1,9 @@
-import type { CSSProperties, JSX } from 'react'
+import type { JSX } from 'react'
 import { useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box, Path, Pressable, Svg, Text } from '@molecule/app-ui-react/elements'
 
 import type { VoteClusterProps, VoteValue } from './types.js'
 
@@ -35,9 +36,9 @@ function nextVote(current: VoteValue, direction: 1 | -1): VoteValue {
  */
 function UpArrow({ size }: { size: number }): JSX.Element {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
-      <path d="M12 5l7 9H5l7-9z" fill="currentColor" />
-    </svg>
+    <Svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
+      <Path d="M12 5l7 9H5l7-9z" fill="currentColor" />
+    </Svg>
   )
 }
 
@@ -50,9 +51,9 @@ function UpArrow({ size }: { size: number }): JSX.Element {
  */
 function DownArrow({ size }: { size: number }): JSX.Element {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
-      <path d="M12 19l-7-9h14l-7 9z" fill="currentColor" />
-    </svg>
+    <Svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
+      <Path d="M12 19l-7-9h14l-7 9z" fill="currentColor" />
+    </Svg>
   )
 }
 
@@ -118,7 +119,7 @@ export function VoteCluster({
   // Inline styles cover only what ClassMap can't express: the bare
   // button reset + per-state `color` driven by `--mol-color-*` tokens
   // and the smooth color transition on vote change.
-  const buttonBase: CSSProperties = {
+  const buttonBase: WebStyle = {
     background: 'none',
     border: 'none',
     padding: 0,
@@ -131,18 +132,18 @@ export function VoteCluster({
     lineHeight: 0,
   }
 
-  const upStyle: CSSProperties = {
+  const upStyle: WebStyle = {
     ...buttonBase,
     color: upPressed ? 'var(--mol-color-primary)' : 'var(--mol-color-on-surface-variant)',
     transform: upPressed ? 'scale(1.1)' : 'scale(1)',
   }
-  const downStyle: CSSProperties = {
+  const downStyle: WebStyle = {
     ...buttonBase,
     color: downPressed ? 'var(--mol-color-info)' : 'var(--mol-color-on-surface-variant)',
     transform: downPressed ? 'scale(1.1)' : 'scale(1)',
   }
 
-  const scoreStyle: CSSProperties = {
+  const scoreStyle: WebStyle = {
     transition: 'color 150ms ease',
     color: upPressed
       ? 'var(--mol-color-primary)'
@@ -162,8 +163,15 @@ export function VoteCluster({
   )
 
   return (
-    <div className={wrapperClass} role="group" aria-label={groupLabel} data-mol-id={dataMolId}>
-      <button
+    <Box
+      as="div"
+      className={wrapperClass}
+      role="group"
+      aria-label={groupLabel}
+      data-mol-id={dataMolId}
+    >
+      <Pressable
+        as="button"
         type="button"
         onClick={() => emit(1)}
         disabled={disabled}
@@ -175,20 +183,22 @@ export function VoteCluster({
         // button surface) and already themed via `--mol-color-*`; the 44px
         // floor is the one thing it was missing.
         className={cm.touchTarget}
-        style={upStyle}
+        webStyle={upStyle}
       >
         <UpArrow size={20} />
-      </button>
-      <span
+      </Pressable>
+      <Text
+        as="span"
         className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
         aria-label={scoreLabel}
         aria-live="polite"
         data-vote="score"
-        style={scoreStyle}
+        webStyle={scoreStyle}
       >
         {score}
-      </span>
-      <button
+      </Text>
+      <Pressable
+        as="button"
         type="button"
         onClick={() => emit(-1)}
         disabled={disabled}
@@ -198,10 +208,10 @@ export function VoteCluster({
         data-mol-id="vote-cluster-down"
         // Same icon-only arrow as the up vote above.
         className={cm.touchTarget}
-        style={downStyle}
+        webStyle={downStyle}
       >
         <DownArrow size={20} />
-      </button>
-    </div>
+      </Pressable>
+    </Box>
   )
 }

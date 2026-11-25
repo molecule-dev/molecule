@@ -1,9 +1,9 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { RoutedView, useLocation, useTranslation } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box, GlyphIcon, Link, Text } from '@molecule/app-ui-react/elements'
 
 /** Describes a single item in the sidebar's vertical navigation list. */
 export interface SidebarNavItem {
@@ -143,7 +143,7 @@ export function SidebarLayout({
   // Width is a "specific value" a swappable ClassMap can't express as a token,
   // so it is applied inline (Rule 5's documented exception) — keeping the
   // sidebar restylable by any bond without a Tailwind width utility leaking in.
-  const asideStyle: CSSProperties = {
+  const asideStyle: WebStyle = {
     width: resolveSidebarWidthPx(sidebarWidth, sidebarWidthClass),
   }
 
@@ -169,8 +169,9 @@ export function SidebarLayout({
   }
 
   return (
-    <div className={cm.cn(cm.pageShell, cm.page, className)} data-mol-id={dataMolId}>
-      <aside
+    <Box as="div" className={cm.cn(cm.pageShell, cm.page, className)} data-mol-id={dataMolId}>
+      <Box
+        as="aside"
         className={cm.cn(
           cm.sp('p', 4),
           cm.shrink0,
@@ -178,7 +179,7 @@ export function SidebarLayout({
           cm.surface,
           cm.borderR,
         )}
-        style={asideStyle}
+        webStyle={asideStyle}
       >
         <Link
           to={safeTarget(logoTo)}
@@ -192,7 +193,7 @@ export function SidebarLayout({
           {appName}
         </Link>
 
-        <nav className={cm.cn(cm.flex1, cm.stack(1))} aria-label={navLabel}>
+        <Box as="nav" className={cm.cn(cm.flex1, cm.stack(1))} aria-label={navLabel}>
           {navItems.map((item) => {
             const isActive = item.key === activeKey
             return (
@@ -220,36 +221,33 @@ export function SidebarLayout({
                     : cm.cn(cm.textMuted, cm.link),
                 )}
               >
-                {item.icon ? (
-                  <span className={cm.cn(cm.iconGlyphFont)} aria-hidden="true">
-                    {item.icon}
-                  </span>
-                ) : null}
-                <span>{item.label}</span>
+                {item.icon ? <GlyphIcon name={item.icon} aria-hidden /> : null}
+                <Text as="span">{item.label}</Text>
               </Link>
             )
           })}
-        </nav>
+        </Box>
 
         {userMenu || themeToggle ? (
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.sp('pt', 4),
               cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
               cm.borderT,
             )}
           >
-            {userMenu ?? <span aria-hidden="true" />}
+            {userMenu ?? <Box as="span" aria-hidden />}
             {themeToggle ?? null}
-          </div>
+          </Box>
         ) : null}
-      </aside>
+      </Box>
 
       {/* `minWidth: 0` lets the scroll area shrink below its content width in the
           flex row (no min-w-0 token exists) — the documented ClassMap can't-express case. */}
-      <main className={cm.cn(cm.pageShellContent)} style={{ minWidth: 0 }}>
+      <Box as="main" className={cm.cn(cm.pageShellContent)} webStyle={{ minWidth: 0 }}>
         {children ?? <RoutedView />}
-      </main>
-    </div>
+      </Box>
+    </Box>
   )
 }

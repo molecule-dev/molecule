@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Container } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link AppShellLayout} component. */
 export interface AppShellLayoutProps {
@@ -47,12 +48,12 @@ export function AppShellLayout({
 }: AppShellLayoutProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.page, cm.appLayout, className)} data-mol-id={dataMolId}>
+    <Box as="div" className={cm.cn(cm.page, cm.appLayout, className)} data-mol-id={dataMolId}>
       {header}
-      <main className={mainClassName}>
+      <Box as="main" className={mainClassName}>
         <Container maxWidth={maxWidth}>{children}</Container>
-      </main>
+      </Box>
       {footer}
-    </div>
+    </Box>
   )
 }

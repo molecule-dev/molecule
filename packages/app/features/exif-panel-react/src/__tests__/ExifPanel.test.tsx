@@ -3,11 +3,28 @@
 import { render } from '@testing-library/react'
 import React from 'react'
 import { act, type ReactNode } from 'react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
+
+// The map link is the element `Link`, whose anchor is `@molecule/app-react/link` and renders only
+// inside a mounted router. This file mounts none, so the anchor is drawn plain with what the
+// element passes it; the conformance golden test renders the real one.
+vi.mock('@molecule/app-react/link', async () => {
+  const { createElement } = await import('react')
+  return {
+    Link: ({
+      to,
+      children,
+      ...anchor
+    }: {
+      to: string
+      children?: ReactNode
+    } & Record<string, unknown>) => createElement('a', { ...anchor, href: to }, children),
+  }
+})
 
 import { ExifPanel } from '../ExifPanel.js'
 import type { ExifData } from '../types.js'

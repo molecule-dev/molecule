@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link LeaderboardList}. */
 export interface LeaderboardListProps {
@@ -34,16 +35,24 @@ export function LeaderboardList({
   const cm = getClassMap()
   const childCount = Array.isArray(children) ? children.length : children ? 1 : 0
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
       {(title || actions) && (
-        <header className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+        <Box as="header" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
           {title && (
-            <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title}</h3>
+            <Text as="h3" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+              {title}
+            </Text>
           )}
           {actions}
-        </header>
+        </Box>
       )}
-      {childCount === 0 ? emptyState : <div className={cm.stack(1 as const)}>{children}</div>}
-    </div>
+      {childCount === 0 ? (
+        emptyState
+      ) : (
+        <Box as="div" className={cm.stack(1 as const)}>
+          {children}
+        </Box>
+      )}
+    </Box>
   )
 }

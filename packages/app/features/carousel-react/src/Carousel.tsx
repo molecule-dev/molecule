@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import type { CSSProperties } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 // Arrow offsets + vertical centering. `cm.position('absolute')` gives the
 // positioning context, but the ClassMap contract exposes no left/right/top or
@@ -88,14 +89,16 @@ export function Carousel({
   if (total === 0) return null
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.position('relative'), className)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div style={{ overflow: 'hidden' }}>
-        <div
-          style={{
+      <Box as="div" webStyle={{ overflow: 'hidden' }}>
+        <Box
+          as="div"
+          webStyle={{
             display: 'flex',
             width: `${total * 100}%`,
             transform: `translateX(-${(active / total) * 100}%)`,
@@ -103,17 +106,18 @@ export function Carousel({
           }}
         >
           {children.map((c, i) => (
-            <div
+            <Box
+              as="div"
               key={i}
               data-mol-id="carousel-slide"
               aria-hidden={i !== active}
-              style={{ width: `${100 / total}%`, flexShrink: 0 }}
+              webStyle={{ width: `${100 / total}%`, flexShrink: 0 }}
             >
               {c}
-            </div>
+            </Box>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
       {showArrows && total > 1 && (
         <>
           <Button
@@ -139,14 +143,16 @@ export function Carousel({
         </>
       )}
       {showDots && total > 1 && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'center', gap: 'xs' }),
             cm.sp('py', 2),
           )}
         >
           {children.map((_, i) => (
-            <button
+            <Pressable
+              as="button"
               key={i}
               type="button"
               data-mol-id="carousel-dot"
@@ -156,7 +162,7 @@ export function Carousel({
                 { index: i + 1 },
                 { defaultValue: 'Go to slide {{index}}' },
               )}
-              aria-current={i === active ? 'true' : undefined}
+              aria-current={i === active ? true : undefined}
               onClick={() => setIdx(i)}
               /* mol-bespoke-button: slide-position dot indicator, no label —
                  the 8px dot is the whole control, so the button is a bare
@@ -169,11 +175,12 @@ export function Carousel({
                 cm.touchTargetCompact,
                 cm.flex({ align: 'center', justify: 'center' }),
               )}
-              style={{ background: 'transparent', border: 'none', padding: 4 }}
+              webStyle={{ background: 'transparent', border: 'none', padding: 4 }}
             >
-              <span
-                aria-hidden="true"
-                style={{
+              <Box
+                as="span"
+                aria-hidden
+                webStyle={{
                   display: 'block',
                   width: 8,
                   height: 8,
@@ -186,10 +193,10 @@ export function Carousel({
                       : 'var(--mol-color-border, rgba(128,128,128,0.4))',
                 }}
               />
-            </button>
+            </Pressable>
           ))}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

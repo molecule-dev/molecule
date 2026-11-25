@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** SM-2-compatible grade values the caller uses to schedule the next review. */
 export type SrsGrade = 'again' | 'hard' | 'good' | 'easy'
@@ -55,21 +56,24 @@ export function FlashcardCard({
 
   return (
     <Card className={className}>
-      <div className={cm.stack(4)}>
+      <Box as="div" className={cm.stack(4)}>
         {progress && (
-          <div className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}>
+          <Box
+            as="div"
+            className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textCenter)}
+          >
             {progress}
-          </div>
+          </Box>
         )}
-        <div className={cm.cn(cm.sp('p', 6), cm.textCenter, cm.cn(cm.textSize('xl')))}>
+        <Box as="div" className={cm.cn(cm.sp('p', 6), cm.textCenter, cm.cn(cm.textSize('xl')))}>
           {revealed ? back : front}
-        </div>
+        </Box>
         {!revealed ? (
           <Button variant="solid" color="primary" onClick={() => setRevealed(true)}>
             {t('flashcard.reveal', {}, { defaultValue: 'Show answer' })}
           </Button>
         ) : (
-          <div className={cm.grid({ cols: 4, gap: 'sm' })}>
+          <Box as="div" className={cm.grid({ cols: 4, gap: 'sm' })}>
             <Button variant="outline" color="error" onClick={() => grade('again')}>
               {t('flashcard.again', {}, { defaultValue: 'Again' })}
             </Button>
@@ -82,9 +86,9 @@ export function FlashcardCard({
             <Button variant="outline" color="success" onClick={() => grade('easy')}>
               {t('flashcard.easy', {}, { defaultValue: 'Easy' })}
             </Button>
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

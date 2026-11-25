@@ -3,6 +3,7 @@ import type { JSX } from 'react'
 import type { UserProfile } from '@molecule/app-auth'
 import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Authenticated home page — a personalized greeting headline.
@@ -27,8 +28,10 @@ export function Home(): JSX.Element {
   const headline = `${t('home.greeting')}${user?.name || user?.email || t('home.world')}!`
 
   return (
-    <div className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
-      <h2 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>{headline}</h2>
-    </div>
+    <Box as="div" className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
+      <Text as="h2" className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
+        {headline}
+      </Text>
+    </Box>
   )
 }

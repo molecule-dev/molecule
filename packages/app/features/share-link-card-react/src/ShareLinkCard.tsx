@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card, Switch } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { CopyLinkField } from './CopyLinkField.js'
 
@@ -72,35 +73,48 @@ export function ShareLinkCard({
   const hasPasswordLabel = !(typeof passwordLabel === 'string' && passwordLabel.trim() === '')
   return (
     <Card data-mol-id={dataMolId} className={className}>
-      <div className={cm.stack(3)}>
+      <Box as="div" className={cm.stack(3)}>
         {(title || description) && (
-          <header className={cm.stack(1 as const)}>
+          <Box as="header" className={cm.stack(1 as const)}>
             {title && (
-              <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
+              <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+                {title}
+              </Text>
             )}
-            {description && <p className={cm.textSize('sm')}>{description}</p>}
-          </header>
+            {description && (
+              <Text as="p" className={cm.textSize('sm')}>
+                {description}
+              </Text>
+            )}
+          </Box>
         )}
         <CopyLinkField value={url} />
         {showQR && qr && (
-          <div className={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('py', 2))}>
+          <Box
+            as="div"
+            className={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('py', 2))}
+          >
             {qr}
-          </div>
+          </Box>
         )}
         {passwordProtect && (
-          <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-            <span id={hasPasswordLabel ? passwordLabelId : undefined} className={cm.textSize('sm')}>
+          <Box as="div" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+            <Text
+              as="span"
+              id={hasPasswordLabel ? passwordLabelId : undefined}
+              className={cm.textSize('sm')}
+            >
               {passwordLabel}
-            </span>
+            </Text>
             <Switch
               checked={passwordProtect.enabled}
               onChange={(e) => passwordProtect.onChange((e.target as HTMLInputElement).checked)}
               aria-labelledby={hasPasswordLabel ? passwordLabelId : undefined}
               aria-label={hasPasswordLabel ? undefined : fallbackPasswordLabel}
             />
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

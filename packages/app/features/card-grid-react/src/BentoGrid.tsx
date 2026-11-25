@@ -1,6 +1,7 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Data descriptor for a single cell in a BentoGrid layout. */
 export interface BentoItem {
@@ -47,23 +48,24 @@ export function BentoGrid({
   className,
 }: BentoGridProps): ReactElement {
   const cm = getClassMap()
-  const gridStyle: CSSProperties = areas
+  const gridStyle: WebStyle = areas
     ? { display: 'grid', gridTemplateAreas: areas }
     : { display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }
   return (
-    <div className={cm.cn(cm.grid({ gap }), className)} style={gridStyle}>
+    <Box as="div" className={cm.cn(cm.grid({ gap }), className)} webStyle={gridStyle}>
       {items.map((it) => (
-        <div
+        <Box
+          as="div"
           key={it.id}
-          style={
+          webStyle={
             areas
               ? { gridArea: it.area }
               : { gridColumn: `span ${it.colSpan ?? 4}`, gridRow: `span ${it.rowSpan ?? 1}` }
           }
         >
           {it.content}
-        </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }

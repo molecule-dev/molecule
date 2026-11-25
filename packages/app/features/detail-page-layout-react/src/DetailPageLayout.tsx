@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link DetailPageLayout}. */
 export interface DetailPageLayoutProps {
@@ -47,10 +48,11 @@ export function DetailPageLayout({
   const cm = getClassMap()
   const sidebarStyle = { flexBasis: `${SIDEBAR_WIDTH[sidebarWidth] * 4}px`, flexShrink: 0 }
   return (
-    <div data-mol-id={dataMolId} className={cm.cn(cm.stack(4), className)}>
+    <Box as="div" data-mol-id={dataMolId} className={cm.cn(cm.stack(4), className)}>
       {breadcrumb}
       {topBar}
-      <div
+      <Box
+        as="div"
         className={cm.cn(
           cm.flex({
             align: 'start',
@@ -59,12 +61,22 @@ export function DetailPageLayout({
           }),
         )}
       >
-        {sidebar && sidebarPosition === 'left' && <aside style={sidebarStyle}>{sidebar}</aside>}
-        <main className={cm.flex1}>
-          <div className={cm.stack(4)}>{main}</div>
-        </main>
-        {sidebar && sidebarPosition === 'right' && <aside style={sidebarStyle}>{sidebar}</aside>}
-      </div>
-    </div>
+        {sidebar && sidebarPosition === 'left' && (
+          <Box as="aside" webStyle={sidebarStyle}>
+            {sidebar}
+          </Box>
+        )}
+        <Box as="main" className={cm.flex1}>
+          <Box as="div" className={cm.stack(4)}>
+            {main}
+          </Box>
+        </Box>
+        {sidebar && sidebarPosition === 'right' && (
+          <Box as="aside" webStyle={sidebarStyle}>
+            {sidebar}
+          </Box>
+        )}
+      </Box>
+    </Box>
   )
 }

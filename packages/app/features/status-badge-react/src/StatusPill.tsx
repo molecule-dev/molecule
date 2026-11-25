@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import type { StatusKind } from './StatusBadge.js'
 
@@ -40,7 +41,8 @@ export function StatusPill({
 }: StatusPillProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <span
+    <Box
+      as="span"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'xs' }),
         cm.sp('px', 3),
@@ -52,9 +54,13 @@ export function StatusPill({
       )}
     >
       {dot && (
-        <span className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, DOT_COLOR[kind])} aria-hidden />
+        <Box
+          as="span"
+          className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, DOT_COLOR[kind])}
+          aria-hidden
+        />
       )}
       {children}
-    </span>
+    </Box>
   )
 }

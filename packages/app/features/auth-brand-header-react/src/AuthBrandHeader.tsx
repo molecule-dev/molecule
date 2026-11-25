@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Auth-page brand header — a centered `<div>` wrapper holding a
@@ -57,15 +58,18 @@ export function AuthBrandHeaderChip({
     cm.authBrandHeaderChipShadow,
   )
   return (
-    <div className={chipClass} style={chipGradient ? { background: chipGradient } : undefined}>
-      <span
-        className={cm.cn(cm.textSize('3xl'), cm.iconGlyphFont, cm.authBrandHeaderChipIcon)}
-        style={{ fontVariationSettings: "'FILL' 1" }}
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
-    </div>
+    <Box
+      as="div"
+      className={chipClass}
+      webStyle={chipGradient ? { background: chipGradient } : undefined}
+    >
+      <GlyphIcon
+        name={icon}
+        filled
+        className={cm.cn(cm.textSize('3xl'), cm.authBrandHeaderChipIcon)}
+        aria-hidden
+      />
+    </Box>
   )
 }
 
@@ -97,12 +101,13 @@ export function AuthBrandHeaderWordmark({
   // style) or override via `className` still win — the cm.cn call
   // appends `className` last.
   return (
-    <h1
+    <Text
+      as="h1"
       className={cm.cn(cm.textSize('4xl'), cm.authBrandHeaderWordmark, className)}
-      style={color ? { color } : undefined}
+      webStyle={color ? { color } : undefined}
     >
       {children}
-    </h1>
+    </Text>
   )
 }
 
@@ -125,7 +130,8 @@ export function AuthBrandHeaderTagline({
 }: AuthBrandHeaderTaglineProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <p
+    <Text
+      as="p"
       className={cm.cn(
         cm.textSize('sm'),
         cm.fontWeight('medium'),
@@ -134,7 +140,7 @@ export function AuthBrandHeaderTagline({
       )}
     >
       {children}
-    </p>
+    </Text>
   )
 }
 
@@ -190,7 +196,10 @@ export function AuthBrandHeader({
     // A `<div>`, not `<header>` — several hosts render their own top bar on
     // auth screens; a second `<header>` here reads as a duplicated app bar.
     // This block is brand intro content, not a banner.
-    <div className={cm.cn(cm.flex({ direction: 'col', align: 'center', gap: 'sm' }), className)}>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ direction: 'col', align: 'center', gap: 'sm' }), className)}
+    >
       {children ?? (
         <>
           {icon ? (
@@ -212,7 +221,7 @@ export function AuthBrandHeader({
           </AuthBrandHeaderTagline>
         </>
       )}
-    </div>
+    </Box>
   )
 }
 

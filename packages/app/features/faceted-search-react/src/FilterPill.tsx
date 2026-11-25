@@ -11,6 +11,7 @@ import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link FilterPill}. */
 export interface FilterPillProps {
@@ -53,10 +54,11 @@ export function FilterPill({
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
   return (
-    <div className={cm.cn(cm.position('relative'))} ref={ref}>
-      <button
+    <Box as="div" className={cm.cn(cm.position('relative'))} ref={ref}>
+      <Pressable
+        as="button"
         type="button"
-        aria-haspopup="true"
+        aria-haspopup
         aria-expanded={open}
         data-mol-id={dataMolId}
         onClick={() => setOpen((v) => !v)}
@@ -70,24 +72,21 @@ export function FilterPill({
           cm.touchTargetCompact,
         )}
       >
-        <span className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Box as="span" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {leadingIcon ? (
-            <span aria-hidden="true" className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>
-              {leadingIcon}
-            </span>
+            <GlyphIcon name={leadingIcon} aria-hidden className={cm.textSize('sm')} />
           ) : null}
           {label}
           {!hideChevron ? (
             // The icon-font ligature name is decoration; the pill's own label
             // names the filter, so screen readers must not read the glyph out.
-            <span aria-hidden="true" className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>
-              expand_more
-            </span>
+            <GlyphIcon name="expand_more" aria-hidden className={cm.textSize('sm')} />
           ) : null}
-        </span>
-      </button>
+        </Box>
+      </Pressable>
       {open && children !== undefined ? (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.sp('mt', 2),
             cm.sp('p', 4),
@@ -96,9 +95,9 @@ export function FilterPill({
           )}
         >
           {children}
-        </div>
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }
 

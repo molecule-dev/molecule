@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import type { KitKeyboardEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link InlineEdit}. */
 export interface InlineEditProps {
@@ -104,7 +105,8 @@ export function InlineEdit({
 
   if (!editing) {
     return (
-      <span
+      <Pressable
+        as="span"
         role="button"
         tabIndex={0}
         onClick={() => setEditing(true)}
@@ -120,16 +122,16 @@ export function InlineEdit({
             value
           )
         ) : (
-          <span style={{ opacity: 0.5 }}>
+          <Text as="span" webStyle={{ opacity: 0.5 }}>
             {placeholder ?? t('inlineEdit.empty', {}, { defaultValue: 'Click to edit' })}
-          </span>
+          </Text>
         )}
-      </span>
+      </Pressable>
     )
   }
 
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
       {variant === 'input' ? (
         <Input
           ref={inputRef as React.Ref<HTMLInputElement>}
@@ -156,6 +158,6 @@ export function InlineEdit({
           ? t('inlineEdit.saving', {}, { defaultValue: 'Saving…' })
           : t('inlineEdit.save', {}, { defaultValue: 'Save' })}
       </Button>
-    </div>
+    </Box>
   )
 }

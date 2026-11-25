@@ -4,6 +4,7 @@ import { useId, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** A single step in an onboarding flow, with a title, body, and optional media. */
 export interface OnboardingStep {
@@ -65,30 +66,34 @@ export function OnboardingModal({
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby={titleId}>
-      <div className={cm.stack(4)}>
+      <Box as="div" className={cm.stack(4)}>
         {current.media && (
-          <div className={cm.flex({ align: 'center', justify: 'center' })}>{current.media}</div>
+          <Box as="div" className={cm.flex({ align: 'center', justify: 'center' })}>
+            {current.media}
+          </Box>
         )}
-        <h2 id={titleId} className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
+        <Text as="h2" id={titleId} className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
           {current.title}
-        </h2>
-        <div className={cm.textSize('sm')}>{current.body}</div>
-        <footer className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-          <div className={cm.flex({ align: 'center', gap: 'xs' })}>
+        </Text>
+        <Box as="div" className={cm.textSize('sm')}>
+          {current.body}
+        </Box>
+        <Box as="footer" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
             {steps.map((s, i) => (
-              <span
+              <Box
+                as="span"
                 key={s.id}
                 aria-hidden
-                style={{
-                  width: 6,
-                  height: 6,
+                style={{ width: 6, height: 6 }}
+                webStyle={{
                   borderRadius: '50%',
                   background: i === step ? 'currentColor' : 'rgba(0,0,0,0.2)',
                 }}
               />
             ))}
-          </div>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+          </Box>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {allowSkip && !isLast && (
               <Button variant="ghost" size="sm" onClick={onClose}>
                 {t('onboarding.skip', {}, { defaultValue: 'Skip' })}
@@ -104,9 +109,9 @@ export function OnboardingModal({
                 ? t('onboarding.done', {}, { defaultValue: 'Get started' })
                 : t('onboarding.next', {}, { defaultValue: 'Next' })}
             </Button>
-          </div>
-        </footer>
-      </div>
+          </Box>
+        </Box>
+      </Box>
     </Modal>
   )
 }

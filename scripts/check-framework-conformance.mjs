@@ -805,6 +805,14 @@ export const TITLE_PARITY_EXEMPT = {
     'src/__tests__/useRouter.route-params-hook.test.tsx':
       "tests `RouterProvider`'s `useRouteParams`, a hook only React Router needs: it scopes route params to the calling component, while Vue Router, SvelteKit, Solid Router and Angular Router answer params at the router's root, so no other binding takes such a hook",
   },
+  '@molecule/app-copy-link-field-react': {
+    'src/__tests__/copy-link-field-native-focus.test.tsx':
+      "calls the field's focus handler with a React Native focus event, which has no selectable web field; a Vue, Svelte, Solid or Angular port renders a DOM input, and each tests selecting it on focus",
+  },
+  '@molecule/app-photo-lightbox-react': {
+    'src/__tests__/photo-lightbox-no-document.test.tsx':
+      'opens the lightbox with no global `document`, as on React Native; a Vue, Svelte, Solid or Angular port renders in a browser, which always has one',
+  },
   '@molecule/app-routing-react-router': {
     'src/__tests__/main-entry-without-react-dom.test.ts':
       'keeps the main entry loadable without react-dom, which only the react-router/dom split has',

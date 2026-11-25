@@ -1,7 +1,8 @@
-import type { CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
+import type { JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type BoxStyle, type CSSProperties, getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import { AnnotationPin, type Pin } from './AnnotationPin.js'
 
@@ -40,7 +41,11 @@ export interface AnnotationLayerProps {
   popupSide?: 'top' | 'bottom' | 'left' | 'right'
   /** Extra classes merged onto the layer root. */
   className?: string
-  /** Inline style for the layer root. */
+  /**
+   * Inline style for the layer root (the framework-agnostic `CSSProperties` of
+   * `@molecule/app-ui`). Applied after the layer's own `position: relative` and
+   * `width`/`height: 100%`, so it can override them.
+   */
   style?: CSSProperties
 }
 
@@ -89,11 +94,10 @@ export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
   const regionLabel = t('annotationPin.aria.layer', {}, { defaultValue: 'Annotation layer' })
   const addPinLabel = t('annotationPin.aria.addPin', {}, { defaultValue: 'Add annotation pin' })
 
-  const rootStyle: CSSProperties = {
+  const rootStyle: BoxStyle = {
     position: 'relative',
     width: '100%',
     height: '100%',
-    ...style,
   }
 
   // Reset the browser's default button chrome — the add-pin button is an
@@ -133,22 +137,26 @@ export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="region"
       aria-label={regionLabel}
       data-mol-id="annotation-layer"
       className={cm.cn(className)}
       style={rootStyle}
+      // The caller's inline style comes last, so it overrides the layer's own sizing.
+      webStyle={style}
     >
       {children}
       {onSurfaceClick && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           aria-label={addPinLabel}
           data-mol-id="annotation-layer-add-pin"
           onClick={handleSurfaceClick}
           className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-          style={addPinStyle}
+          webStyle={addPinStyle}
         />
       )}
       {pins.map((pin) => (
@@ -163,6 +171,6 @@ export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
           onClick={() => onPinClick?.(pin.id)}
         />
       ))}
-    </div>
+    </Box>
   )
 }

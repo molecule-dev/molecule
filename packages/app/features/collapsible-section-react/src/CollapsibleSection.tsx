@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link CollapsibleSection}. */
 export interface CollapsibleSectionProps {
@@ -58,13 +59,14 @@ export function CollapsibleSection({
   }
   const Heading = `h${level}` as 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   return (
-    <section className={cm.cn(cm.stack(2), className)}>
-      <Heading>
+    <Box as="section" className={cm.cn(cm.stack(2), className)}>
+      <Text as={Heading}>
         {/* The header row is a container, not a button: a button may not
             contain other controls, and `actions` typically holds them. The
             toggle wraps the label; `actions` sits beside it, so a click there
             never reaches the toggle (no stopPropagation needed). */}
-        <span
+        <Box
+          as="span"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
             cm.w('full'),
@@ -73,21 +75,24 @@ export function CollapsibleSection({
             cm.fontWeight('semibold'),
           )}
         >
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={toggle}
             aria-expanded={isOpen}
             className={cm.flex({ align: 'center', gap: 'sm' })}
           >
-            <span aria-hidden>{isOpen ? '▾' : '▸'}</span>
-            <span>{title}</span>
+            <Text as="span" aria-hidden>
+              {isOpen ? '▾' : '▸'}
+            </Text>
+            <Text as="span">{title}</Text>
             {badge}
-          </button>
-          {actions && <span>{actions}</span>}
-        </span>
-      </Heading>
-      {isOpen && <div>{children}</div>}
-    </section>
+          </Pressable>
+          {actions && <Box as="span">{actions}</Box>}
+        </Box>
+      </Text>
+      {isOpen && <Box as="div">{children}</Box>}
+    </Box>
   )
 }
 
@@ -123,10 +128,11 @@ export function ShowMore({
   const visible = expanded ? children : children.slice(0, initialCount)
   const remaining = Math.max(0, children.length - initialCount)
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
       {visible}
       {remaining > 0 && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={() => setExpanded((x) => !x)}
           className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), cm.link)}
@@ -134,8 +140,8 @@ export function ShowMore({
           {expanded
             ? t(lessKey, {}, { defaultValue: 'Show less' })
             : t(moreKey, { remaining }, { defaultValue: `Show ${remaining} more` })}
-        </button>
+        </Pressable>
       )}
-    </div>
+    </Box>
   )
 }
