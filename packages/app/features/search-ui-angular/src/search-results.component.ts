@@ -25,6 +25,7 @@ import {
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { WebHoverDirective } from '@molecule/app-ui-angular'
 
 import { Highlight } from './highlight.component.js'
 import type {
@@ -33,30 +34,6 @@ import type {
   SearchResultsProps,
   SearchResultView,
 } from './types.js'
-
-/** One row's hover state, kept for as long as its element is rendered. */
-interface HoverState {
-  /** A mouse or a pen is over the row. */
-  inside: boolean
-  /** The last entry was a finger, so the mouse event a browser sends after it is not a hover. */
-  fromTouch: boolean
-}
-
-/** Each row's hover state, by its element. */
-const hoverStates = new WeakMap<Element, HoverState>()
-
-/**
- * Whether a row's `over` or `out` event crossed the row's edge. React derives
- * its enter and leave events from these pairs through `relatedTarget`, so a
- * move between two of the row's own children is neither.
- *
- * @param event - The row's pointer or mouse `over`/`out` event.
- * @returns True when the other end of the move lies outside the row.
- */
-const crossesRowEdge = (event: PointerEvent | MouseEvent): boolean => {
-  const other = event.relatedTarget
-  return !(other instanceof Node && (event.currentTarget as Node).contains(other))
-}
 
 /**
  * Registers its row's element with the results list under the hit's id, for as
@@ -104,7 +81,7 @@ class ResultsRow {
   selector: 'mol-search-results',
   standalone: true,
   hostDirectives: [MolPlacement],
-  imports: [Highlight, NgTemplateOutlet, ResultsRow],
+  imports: [Highlight, WebHoverDirective, NgTemplateOutlet, ResultsRow],
   inputs: [
     'hits',
     'view',
@@ -137,10 +114,8 @@ class ResultsRow {
             [attr.data-mol-id]="id() + '-hit'"
             [attr.data-hit-id]="hit.id"
             [class]="itemClasses(i)"
-            (pointerover)="onRowHover($event, true, i, hit)"
-            (pointerout)="onRowHover($event, false, i, hit)"
-            (mouseover)="onRowHover($event, true, i, hit)"
-            (mouseout)="onRowHover($event, false, i, hit)"
+            [molHover]="true"
+            (molHoverEnter)="activateRow(i, hit)"
             (focusin)="onPrefetch?.(hit.doc)"
             (touchstart)="onPrefetch?.(hit.doc)"
           >
@@ -398,39 +373,14 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
   }
 
   /**
-   * Handles a row's pointer or mouse `over` and `out` events the way React's
-   * kit handles its `onMouseEnter`: a mouse or a pen entering makes the row
-   * active and warms its page once per entry. A finger is not a hover, and
-   * neither is the mouse event a browser sends after one.
+   * Activates and prefetches a row on hover entry.
    *
-   * @param event - The row's `over` or `out` event.
-   * @param entered - Whether the pointer moved onto the row (true) or off it.
    * @param index - The row's index.
    * @param hit - The row's hit.
    */
-  onRowHover(
-    event: PointerEvent | MouseEvent,
-    entered: boolean,
-    index: number,
-    hit: SearchResultHit<T>,
-  ): void {
-    if (!crossesRowEdge(event)) return
-    const row = event.currentTarget as HTMLElement
-    const state = hoverStates.get(row) ?? { inside: false, fromTouch: false }
-    hoverStates.set(row, state)
-    if ('pointerType' in event) {
-      state.fromTouch = event.pointerType === 'touch'
-      if (state.fromTouch) return
-    } else if (state.fromTouch) {
-      // A compatibility mouse entry after a touch is not a hover.
-      return
-    }
-    if (state.inside === entered) return
-    state.inside = entered
-    if (entered) {
-      this.onActivate?.(index)
-      this.onPrefetch?.(hit.doc)
-    }
+  activateRow(index: number, hit: SearchResultHit<T>): void {
+    this.onActivate?.(index)
+    this.onPrefetch?.(hit.doc)
   }
 
   /** The rendered rows, by the id of the hit each one shows. */

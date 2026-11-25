@@ -69,15 +69,22 @@
  * - Recompute reactively: components take `className`/`style` props, and generator calls
  *   belong in `$:` or `$derived` so class strings update when props change.
  *
+ *
+ * Use `use:webDrag={handlers}`, `use:webHover={{ onEnter, onLeave }}`, or
+ * `use:webWheelZoom={onStep}` on an element. The actions share drag, mouse and pen hover,
+ * and Ctrl-wheel zoom with the other web UI kits. Pass undefined to disable a gesture.
+ *
  * @module
  */
 
 export * from './components/index.js'
 export * from './drag.js'
 export * from './hooks.js'
+export * from './hover.js'
 export * from './panel-close.js'
 export * from './toast.js'
 export * from './types.js'
 export * from './user-menu-popover.svelte.js'
 export * from './utilities.js'
 export * from './utilities/index.js'
+export * from './wheel-zoom.js'

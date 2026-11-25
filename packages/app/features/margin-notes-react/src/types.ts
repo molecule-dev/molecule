@@ -1,4 +1,6 @@
-import type { HTMLAttributes, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+
+import type { BoxProps, ForwardedElementProps } from '@molecule/app-ui'
 
 /**
  * One block of the text — usually a paragraph or heading from your markdown
@@ -48,7 +50,7 @@ export interface MarginNoteKind {
 }
 
 /** `<MarginNotes>` props. */
-export interface MarginNotesProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface MarginNotesProps extends ForwardedElementProps<BoxProps<ReactNode>, 'children'> {
   /** The text, in reading order. */
   blocks: MarginNotesBlock[]
   /** Every note the blocks refer to. A document with none renders centred prose with no gutter. */

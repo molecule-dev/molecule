@@ -22,10 +22,9 @@ import {
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
-import { Icon, Switch } from '@molecule/app-ui-solid'
+import { Icon, Switch, webHover } from '@molecule/app-ui-solid'
 
 import { elementStyle, styleString } from './css.js'
-import { hover } from './hover.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNoteKind, MarginNotesProps } from './types.js'
 
@@ -276,6 +275,12 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
    */
   const noteView = (note: MarginNote, where: NotePlacement): JSX.Element => {
     const emphasised = (): boolean => activeBlockNotes().has(note.id) || activeNote() === note.id
+    const onEnter = (): void => {
+      setActiveNote(note.id)
+    }
+    const onLeave = (): void => {
+      setActiveNote(null)
+    }
     return (
       <aside
         hidden={where === 'panel' ? !inPanel(note) : !isShown(note)}
@@ -283,48 +288,11 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
         data-note-kind={note.kind}
         data-note-emphasis={emphasised() ? 'true' : undefined}
         data-mol-id={`margin-note-${where}-${note.id}`}
-        onPointerEnter={
-          where === 'gutter'
-            ? hover(true, () => {
-                setActiveNote(note.id)
-              })
-            : undefined
-        }
-        onPointerLeave={
-          where === 'gutter'
-            ? hover(false, () => {
-                setActiveNote(null)
-              })
-            : undefined
-        }
-        onMouseEnter={
-          where === 'gutter'
-            ? hover(true, () => {
-                setActiveNote(note.id)
-              })
-            : undefined
-        }
-        onMouseLeave={
-          where === 'gutter'
-            ? hover(false, () => {
-                setActiveNote(null)
-              })
-            : undefined
-        }
-        onFocusIn={
-          where === 'gutter'
-            ? () => {
-                setActiveNote(note.id)
-              }
-            : undefined
-        }
-        onFocusOut={
-          where === 'gutter'
-            ? () => {
-                setActiveNote(null)
-              }
-            : undefined
-        }
+        ref={(host) => {
+          if (where === 'gutter') webHover(host, () => ({ onEnter, onLeave }))
+        }}
+        onFocusIn={where === 'gutter' ? onEnter : undefined}
+        onFocusOut={where === 'gutter' ? onLeave : undefined}
         class={cm.cn(
           cm.sp('p', 3),
           cm.textSize('sm'),
@@ -395,15 +363,15 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
                       onCleanup(() => blockRefs.delete(block.id))
                       return (
                         <div
-                          ref={(el) => blockRefs.set(block.id, el)}
+                          ref={(host) => {
+                            blockRefs.set(block.id, host)
+                            if (interactive)
+                              webHover(host, () => ({ onEnter: enter, onLeave: leave }))
+                          }}
                           id={block.id}
                           data-mol-id={`margin-notes-block-${block.id}`}
                           data-block-marked={block.marked ? 'true' : undefined}
                           data-block-pinned={pinnedBlock() === block.id ? 'true' : undefined}
-                          onPointerEnter={interactive ? hover(true, enter) : undefined}
-                          onPointerLeave={interactive ? hover(false, leave) : undefined}
-                          onMouseEnter={interactive ? hover(true, enter) : undefined}
-                          onMouseLeave={interactive ? hover(false, leave) : undefined}
                           onFocusIn={interactive ? enter : undefined}
                           onFocusOut={interactive ? leave : undefined}
                           class={cm.cn(cm.position('relative'), tinted() && cm.bgPrimarySubtle)}

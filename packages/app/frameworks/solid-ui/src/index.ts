@@ -44,10 +44,17 @@
  * - Follow Solid rules: pass signals as accessors in JSX (`open={open()}`), and don't
  *   destructure component props.
  *
+ *
+ * In an element ref, call `webDrag`, `webHover`, or `webWheelZoom` with the host and an
+ * accessor for the current handlers. Hover takes `{ onEnter, onLeave }`, and Ctrl-wheel
+ * zoom takes an `onStep` callback. Return undefined from the accessor to disable a gesture.
+ *
  * @module
  */
 
 export * from './components/index.js'
 export * from './drag.js'
+export * from './hover.js'
 export * from './types.js'
 export * from './utilities.js'
+export * from './wheel-zoom.js'

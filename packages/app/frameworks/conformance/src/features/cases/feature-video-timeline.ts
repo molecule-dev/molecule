@@ -57,6 +57,9 @@ const laneCallbacks = ['onClipMove', 'onClipResize', 'onClipClick']
 /** The ruler body's selector. */
 const RULER = '[data-mol-id="video-timeline-ruler"]'
 
+/** The scrollable surface that listens for Ctrl-wheel. */
+const TRACKS = '[data-mol-id="video-timeline-tracks"]'
+
 /** Every clip element's selector. */
 const CLIP = '[data-mol-id="track-lane-clip"]'
 
@@ -436,6 +439,62 @@ export const featureVideoTimelineFeature: FeatureCases = {
           props: { tracks: [tracks[0]], currentTime: 0, duration: 60 },
           callbacks: ['onZoomChange'],
           interactions: [{ type: 'click', selector: ZOOM_IN }],
+        },
+        {
+          name: 'a touch ruler scrub follows the window and stops on cancellation',
+          props: { tracks: [], currentTime: 0, duration: 15, pixelsPerSecond: 20 },
+          callbacks: ['onSeek'],
+          layout: [{ selector: RULER, rect: { x: 40, y: 0, width: 1200, height: 28 } }],
+          interactions: [
+            {
+              type: 'pointer',
+              selector: RULER,
+              event: 'pointerdown',
+              pointerType: 'touch',
+              clientX: 140,
+            },
+            {
+              type: 'pointer',
+              selector: 'window',
+              event: 'pointermove',
+              pointerType: 'touch',
+              clientX: 144,
+            },
+            {
+              type: 'pointer',
+              selector: 'window',
+              event: 'pointermove',
+              pointerType: 'touch',
+              clientX: 240,
+            },
+            { type: 'pointer', selector: 'window', event: 'pointercancel', pointerType: 'touch' },
+            {
+              type: 'pointer',
+              selector: RULER,
+              event: 'pointermove',
+              pointerType: 'touch',
+              clientX: 340,
+            },
+          ],
+        },
+        {
+          name: 'Ctrl-wheel zooms one step and leaves unhandled wheel input to the browser',
+          props: {
+            tracks: [],
+            currentTime: 0,
+            duration: 15,
+            pixelsPerSecond: 20,
+            onZoomChange: { $callback: 'onZoomChange' },
+          },
+          interactions: [
+            { type: 'wheel', selector: TRACKS, deltaY: -3 },
+            { type: 'wheel', selector: TRACKS, deltaY: 0, ctrlKey: true },
+            { type: 'wheel', selector: TRACKS, deltaY: -3, ctrlKey: true },
+            { type: 'wheel', selector: TRACKS, deltaY: 70, ctrlKey: true },
+            { type: 'wheel', selector: RULER, deltaY: -3, ctrlKey: true },
+            { type: 'props', props: { onZoomChange: undefined } },
+            { type: 'wheel', selector: TRACKS, deltaY: -3, ctrlKey: true },
+          ],
         },
         {
           name: 'the zoom buttons clamp into the bounds',

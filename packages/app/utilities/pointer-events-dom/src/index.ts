@@ -1,10 +1,12 @@
 /**
- * DOM pointer drag gestures for the Molecule web UI kits.
+ * Shared DOM drag, hover, and Ctrl-wheel zoom gestures for the Molecule web UI kits.
  *
  * Use the renderer's drag binding with `ElementDrag` from `@molecule/app-ui`.
  * All web kits share press ownership, pointer capture, touch intent, and
  * cancellation on pointer cancel, lost capture, window blur, and host removal.
  * Use `markPressTarget` for custom controls that must keep their own presses.
+ * Use `bindWebHover` for one mouse or pen transition per boundary and
+ * `bindWebWheelZoom` to handle Ctrl-wheel steps on a surface.
  *
  * @example
  * ```ts
@@ -21,3 +23,5 @@
  */
 
 export * from './web-drag.js'
+export * from './web-hover.js'
+export * from './web-wheel-zoom.js'

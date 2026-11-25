@@ -297,6 +297,30 @@ const searchResultsCases: UICase[] = [
     ],
   },
   {
+    name: 'mouse hover resumes after touch when the next pointer event omits its device type',
+    props: { hits: HITS.slice(0, 1), view, activeIndex: -1, emptyText: 'Nothing', molId: 'cat' },
+    callbacks: ['onActivate', 'onPrefetch'],
+    interactions: [
+      {
+        type: 'pointer',
+        selector: '[data-mol-id="cat-hit"]',
+        event: 'pointerover',
+        pointerType: 'touch',
+      },
+      {
+        type: 'pointer',
+        selector: '[data-mol-id="cat-hit"]',
+        event: 'pointerout',
+        pointerType: 'touch',
+      },
+      { type: 'event', selector: '[data-mol-id="cat-hit"]', event: 'mouseover', bubbles: true },
+      { type: 'event', selector: '[data-mol-id="cat-hit"]', event: 'mouseout', bubbles: true },
+      { type: 'event', selector: '[data-mol-id="cat-hit"]', event: 'pointerover', bubbles: true },
+      { type: 'mouseenter', selector: '[data-mol-id="cat-hit"]' },
+      { type: 'mouseleave', selector: '[data-mol-id="cat-hit"]' },
+    ],
+  },
+  {
     name: 'a bare view and a focus or a touch warm the row',
     props: {
       hits: HITS,

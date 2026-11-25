@@ -15,6 +15,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-solid'
 import { setClassMap } from '@molecule/app-ui'
+import type * as UI from '@molecule/app-ui-solid'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import type {
@@ -35,7 +36,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
           ),
   }),
 }))
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<typeof UI>()),
   Icon: (props: { name: string }) => <svg data-icon={props.name} />,
   Modal: (props: { open: boolean; 'aria-label'?: string; children?: JSX.Element }) =>
     props.open ? (

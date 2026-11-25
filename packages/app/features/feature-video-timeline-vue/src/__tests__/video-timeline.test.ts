@@ -349,6 +349,30 @@ describe('formatTickTime', () => {
 })
 
 describe('<VideoTimeline>', () => {
+  it('lets a control inside the ruler keep its own pointer press', () => {
+    const onSeek = vi.fn()
+    const container = render({
+      tracks: [],
+      currentTime: 0,
+      duration: 10,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    const button = document.createElement('button')
+    ruler.append(button)
+
+    dispatchPointer(button, 'pointerdown', { clientX: 40 })
+    dispatchPointer(window, 'pointermove', { clientX: 60 })
+    dispatchPointer(window, 'pointerup', { clientX: 60 })
+    expect(onSeek).not.toHaveBeenCalled()
+
+    dispatchPointer(ruler, 'pointerdown', { clientX: 40 })
+    dispatchPointer(window, 'pointermove', { clientX: 60 })
+    dispatchPointer(window, 'pointerup', { clientX: 80 })
+    expect(onSeek.mock.calls).toEqual([[2], [3]])
+  })
+
   it('renders one track row per track', () => {
     const container = render({ tracks: baseTracks, currentTime: 0, duration: 60 })
     const trackEls = container.querySelectorAll('[data-mol-id="video-timeline-track"]')

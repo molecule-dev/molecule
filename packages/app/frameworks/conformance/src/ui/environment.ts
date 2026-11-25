@@ -381,8 +381,7 @@ const focusOnce = (el: HTMLElement, type: 'focusin' | 'focusout', selector: stri
  * steps are handled by the step runner, not here.
  *
  * @param step - The interaction to perform.
- * @returns A note for the snapshot after the step (a `click` inside an anchor reports
- *   whether the anchor's default was prevented), or `undefined`.
+ * @returns A note when a step records an event outcome, or undefined.
  */
 export function performDomInteraction(step: Interaction): string | undefined {
   switch (step.type) {
@@ -475,6 +474,16 @@ export function performDomInteraction(step: Interaction): string | undefined {
       window.dispatchEvent(new FocusEvent(step.focused ? 'focus' : 'blur'))
       return
     }
+    case 'wheel': {
+      const event = new WheelEvent('wheel', {
+        deltaY: step.deltaY,
+        ctrlKey: step.ctrlKey,
+        bubbles: true,
+        cancelable: true,
+      })
+      query(step.selector).dispatchEvent(event)
+      return event.defaultPrevented ? '@wheel default prevented' : '@wheel default kept'
+    }
     case 'resize': {
       const elements = Array.from(document.querySelectorAll(step.selector))
       if (elements.length === 0) throw new Error(`resize: no element matches ${step.selector}`)
@@ -492,6 +501,7 @@ export function performDomInteraction(step: Interaction): string | undefined {
     }
     case 'pointer': {
       const target = eventTarget(step.selector)
+      const pointerType = step.pointerType ?? 'mouse'
       const pressed = step.event === 'pointerdown' || step.event === 'pointermove'
       const init = {
         bubbles: true,
@@ -506,7 +516,7 @@ export function performDomInteraction(step: Interaction): string | undefined {
         new PointerEvent(step.event, {
           ...init,
           pointerId: 1,
-          pointerType: 'mouse',
+          pointerType,
           isPrimary: true,
         }),
       )
@@ -516,8 +526,10 @@ export function performDomInteraction(step: Interaction): string | undefined {
         pointerup: 'mouseup',
         pointercancel: undefined,
         lostpointercapture: undefined,
+        pointerover: undefined,
+        pointerout: undefined,
       }[step.event]
-      if (mouse) target.dispatchEvent(new MouseEvent(mouse, init))
+      if (mouse && pointerType === 'mouse') target.dispatchEvent(new MouseEvent(mouse, init))
       return
     }
     case 'transfer': {

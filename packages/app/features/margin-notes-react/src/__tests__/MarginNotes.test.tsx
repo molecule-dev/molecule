@@ -17,6 +17,41 @@ const byMol = (id: string): HTMLElement => {
 describe('<MarginNotes>', () => {
   beforeAll(installStubClassMap)
 
+  it('aligns each gutter to the content in its own registered block when IDs repeat', () => {
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      const top = this.tagName === 'P' ? (this.textContent === 'First heading' ? 32 : 56) : 12
+      return new DOMRect(0, top, 200, 20)
+    })
+    const notes = [{ id: 'shared-note', kind: 'summary', content: 'Side note' }]
+    const block = (heading: string) => ({
+      id: 'heading',
+      content: <p>{heading}</p>,
+      noteIds: ['shared-note'],
+    })
+    try {
+      const { getByTestId } = render(
+        withI18n(
+          <>
+            <div data-testid="first-document">
+              <MarginNotes blocks={[block('First heading')]} notes={notes} />
+            </div>
+            <div data-testid="second-document">
+              <MarginNotes blocks={[block('Second heading')]} notes={notes} />
+            </div>
+          </>,
+        ),
+      )
+      const offset = (documentId: string) =>
+        getByTestId(documentId).querySelector<HTMLElement>('[role="complementary"]')?.style
+          .paddingTop
+      expect(offset('first-document')).toBe('20px')
+      expect(offset('second-document')).toBe('44px')
+    } finally {
+      rect.mockRestore()
+    }
+  })
+
   it('a switch hides and restores its kind, in the gutter and the phone panel', () => {
     render(withI18n(<MarginNotes {...doc} />))
     expect(byMol('margin-note-gutter-q1').hidden).toBe(true)

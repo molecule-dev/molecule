@@ -14,6 +14,7 @@
  * @module
  */
 
+import type { Interaction } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
 
 /** A block's rendered content: a paragraph of plain text. */
@@ -316,6 +317,25 @@ export const marginNotesFeature: FeatureCases = {
             { type: 'mouseenter', selector: noteQ1 },
             { type: 'mouseleave', selector: noteQ1 },
           ],
+        },
+        {
+          name: 'touch and its compatibility mouse events do not hover a block or note',
+          props: {
+            blocks: [block('p2', 'Annotated paragraph.', { noteIds: ['q1'] })],
+            notes: [{ id: 'q1', kind: 'prompt', content: 'Write the paragraph.' }],
+          },
+          interactions: [blockP2, noteQ1].flatMap((selector): Interaction[] => [
+            { type: 'pointer', selector, event: 'pointerover', pointerType: 'touch' },
+            { type: 'pointer', selector, event: 'pointerout', pointerType: 'touch' },
+            { type: 'event', selector, event: 'mouseover', bubbles: true },
+            { type: 'event', selector, event: 'mouseenter' },
+            { type: 'event', selector, event: 'mouseout', bubbles: true },
+            { type: 'event', selector, event: 'mouseleave' },
+            { type: 'pointer', selector, event: 'pointerover', pointerType: 'mouse' },
+            { type: 'mouseenter', selector },
+            { type: 'pointer', selector, event: 'pointerout', pointerType: 'mouse' },
+            { type: 'mouseleave', selector },
+          ]),
         },
         {
           name: 'focusing a note tints its blocks and blur clears it',

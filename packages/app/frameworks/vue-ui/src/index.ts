@@ -41,10 +41,17 @@
  *   `<script setup>`) and in render functions as above. Slots are the default slot unless a
  *   component documents named slots.
  *
+ *
+ * Use `vWebDrag` for drag, `vWebHover` with `{ onEnter, onLeave }` for mouse and pen hover, and
+ * `vWebWheelZoom` with a zoom callback for Ctrl-wheel. In render functions pass the same
+ * bindings to `withDirectives`. Pass undefined to disable a gesture.
+ *
  * @module
  */
 
 export * from './components/index.js'
 export * from './drag.js'
+export * from './hover.js'
 export * from './types.js'
 export * from './utilities.js'
+export * from './wheel-zoom.js'

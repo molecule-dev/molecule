@@ -6,22 +6,18 @@
  * @module
  */
 
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  type OnChanges,
-  type OnDestroy,
-  type SimpleChanges,
-  ViewChild,
-} from '@angular/core'
+import { Component } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-angular'
-import type { UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type ElementDrag,
+  type ElementDragPoint,
+  getClassMap,
+  type UIClassMap,
+} from '@molecule/app-ui'
+import { WebDragDirective, WebWheelZoomDirective } from '@molecule/app-ui-angular'
 
-import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
 import {
   clampZoom,
   computeRippleUpdates,
@@ -56,7 +52,7 @@ import type { Track, TrackKind, VideoTimelineMode } from './types.js'
 @Component({
   selector: 'div[mol-video-timeline]',
   standalone: true,
-  imports: [TrackLane],
+  imports: [TrackLane, WebDragDirective, WebWheelZoomDirective],
   inputs: [
     'tracks',
     'currentTime',
@@ -86,9 +82,9 @@ import type { Track, TrackKind, VideoTimelineMode } from './types.js'
     '[style.overflow]': `'hidden'`,
   },
   // prettier-ignore
-  template: `<div data-mol-id="video-timeline-controls" [class]="controlsClasses()"><span data-mol-id="video-timeline-mode"><span [class]="srOnlyClasses()">{{ modeLabel() }}</span>{{ modeText() }}</span><button type="button" data-mol-id="video-timeline-zoom-out" [attr.aria-label]="zoomOutLabel()" [class]="buttonClasses()" (click)="stepZoom('out', true)"> {{ zoomOutIcon() }} </button><input type="range" data-mol-id="video-timeline-zoom-slider" [attr.aria-label]="zoomLabel()" [attr.min]="zoomMinOf()" [attr.max]="zoomMaxOf()" step="1" [attr.value]="sliderValue()" (input)="handleZoomInput($event)" /><button type="button" data-mol-id="video-timeline-zoom-in" [attr.aria-label]="zoomInLabel()" [class]="buttonClasses()" (click)="stepZoom('in', true)"> {{ zoomInIcon() }} </button></div><div data-mol-id="video-timeline-ruler-row" [style]="rulerRowStyle()"><div data-mol-id="video-timeline-ruler-header" [style]="rulerHeaderStyle()"></div><div role="slider" tabindex="0" [attr.aria-label]="rulerLabel()" aria-valuemin="0" [attr.aria-valuemax]="safeDuration()" [attr.aria-valuenow]="currentTime ?? null" [attr.aria-valuetext]="playheadLabel()" data-mol-id="video-timeline-ruler" [style]="rulerBodyStyle()" (pointerdown)="onRulerPointerDown($event)">@for (tick of ticks(); track tick.time) {<div><div data-mol-id="video-timeline-tick" [attr.data-time]="tick.time" [style]="tickStyle(tick)"></div><span data-mol-id="video-timeline-tick-label" [attr.data-time]="tick.time" [style]="tickLabelStyle(tick)"> {{ tickText(tick) }} </span></div>}<div data-mol-id="video-timeline-playhead-ruler" aria-hidden="true" [style]="playheadInRulerStyle()"></div></div></div><div #tracksBody data-mol-id="video-timeline-tracks" [style]="tracksScrollStyle()"><div [style]="tracksInnerStyle()">@for (track of tracks ?? []; track track.id) {<div data-mol-id="video-timeline-track" [attr.data-track-id]="track.id" [attr.data-track-kind]="track.kind"><div mol-track-lane [name]="laneName(track)" [clips]="track.clips" [pixelsPerSecond]="safeScale()" [height]="trackHeightOf()" [lane]="track.id" [selectedClipId]="selectedClipId" [onClipMove]="moveFor(track)" [onClipResize]="resizeFor(track)" [onClipClick]="clickFor(track)"></div></div>}<div data-mol-id="video-timeline-playhead" aria-hidden="true" [style]="playheadStyle()"></div></div></div>`,
+  template: `<div data-mol-id="video-timeline-controls" [class]="controlsClasses()"><span data-mol-id="video-timeline-mode"><span [class]="srOnlyClasses()">{{ modeLabel() }}</span>{{ modeText() }}</span><button type="button" data-mol-id="video-timeline-zoom-out" [attr.aria-label]="zoomOutLabel()" [class]="buttonClasses()" (click)="stepZoom('out', true)"> {{ zoomOutIcon() }} </button><input type="range" data-mol-id="video-timeline-zoom-slider" [attr.aria-label]="zoomLabel()" [attr.min]="zoomMinOf()" [attr.max]="zoomMaxOf()" step="1" [attr.value]="sliderValue()" (input)="handleZoomInput($event)" /><button type="button" data-mol-id="video-timeline-zoom-in" [attr.aria-label]="zoomInLabel()" [class]="buttonClasses()" (click)="stepZoom('in', true)"> {{ zoomInIcon() }} </button></div><div data-mol-id="video-timeline-ruler-row" [style]="rulerRowStyle()"><div data-mol-id="video-timeline-ruler-header" [style]="rulerHeaderStyle()"></div><div role="slider" tabindex="0" [attr.aria-label]="rulerLabel()" aria-valuemin="0" [attr.aria-valuemax]="safeDuration()" [attr.aria-valuenow]="currentTime ?? null" [attr.aria-valuetext]="playheadLabel()" data-mol-id="video-timeline-ruler" [style]="rulerBodyStyle()" [molDrag]="onSeek ? rulerDrag : undefined">@for (tick of ticks(); track tick.time) {<div><div data-mol-id="video-timeline-tick" [attr.data-time]="tick.time" [style]="tickStyle(tick)"></div><span data-mol-id="video-timeline-tick-label" [attr.data-time]="tick.time" [style]="tickLabelStyle(tick)"> {{ tickText(tick) }} </span></div>}<div data-mol-id="video-timeline-playhead-ruler" aria-hidden="true" [style]="playheadInRulerStyle()"></div></div></div><div [molWheelZoom]="onZoomChange ? stepWheelZoom : undefined" data-mol-id="video-timeline-tracks" [style]="tracksScrollStyle()"><div [style]="tracksInnerStyle()">@for (track of tracks ?? []; track track.id) {<div data-mol-id="video-timeline-track" [attr.data-track-id]="track.id" [attr.data-track-kind]="track.kind"><div mol-track-lane [name]="laneName(track)" [clips]="track.clips" [pixelsPerSecond]="safeScale()" [height]="trackHeightOf()" [lane]="track.id" [selectedClipId]="selectedClipId" [onClipMove]="moveFor(track)" [onClipResize]="resizeFor(track)" [onClipClick]="clickFor(track)"></div></div>}<div data-mol-id="video-timeline-playhead" aria-hidden="true" [style]="playheadStyle()"></div></div></div>`,
 })
-export class VideoTimeline implements AfterViewInit, OnChanges, OnDestroy {
+export class VideoTimeline {
   /** Tracks to render, in display order. */
   tracks?: Track[]
   /** Current playhead time in seconds. */
@@ -126,18 +122,6 @@ export class VideoTimeline implements AfterViewInit, OnChanges, OnDestroy {
 
   /** The i18n state; `t` re-reads the provider on every call and on every locale switch. */
   private readonly i18n = useTranslation()
-
-  /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
-  @ViewChild('tracksBody') tracksBodyRef?: ElementRef<HTMLDivElement>
-
-  /** The ruler scrub (React's `drag` on the ruler `Box`). */
-  private readonly scrub = createRulerScrub(
-    (x) => this.seekAt(x),
-    () => Boolean(this.onSeek),
-  )
-
-  /** Removes the Ctrl-wheel shortcut's listener, while it is attached. */
-  private detachWheelZoom?: () => void
 
   /**
    * The current class map.
@@ -460,20 +444,17 @@ export class VideoTimeline implements AfterViewInit, OnChanges, OnDestroy {
    * Converts the pointer's horizontal offset from the ruler's left edge to a
    * time value, clamped into `[0, duration]` (React's `seekAt`).
    *
-   * @param x - The pointer's offset into the ruler body, in pixels.
+   * @param point - A drag sample relative to the ruler.
    */
-  private seekAt(x: number): void {
+  private readonly seekAt = ({ x }: ElementDragPoint): void => {
     this.onSeek?.(Math.min(pixelsToTime(x, this.safeScale()), this.safeDuration()))
   }
 
-  /**
-   * The ruler body's `pointerdown` handler: the pointer seeks to where it
-   * landed and owns the scrub until it lifts or is interrupted.
-   *
-   * @param event - The pointer event from the ruler body.
-   */
-  onRulerPointerDown(event: PointerEvent): void {
-    this.scrub.press(event)
+  /** Seeks during a horizontal drag on the ruler. */
+  readonly rulerDrag: ElementDrag = {
+    axis: 'horizontal',
+    onStart: this.seekAt,
+    onMove: this.seekAt,
   }
 
   /**
@@ -483,7 +464,7 @@ export class VideoTimeline implements AfterViewInit, OnChanges, OnDestroy {
    * @param direction - Which way to step.
    * @param notifyAtLimit - Whether to report a step that stays at the bound.
    */
-  stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
+  stepZoom(direction: 'in' | 'out', notifyAtLimit = false): void {
     const next = zoomFromWheelDelta(
       this.safeScale(),
       direction === 'in' ? -1 : 1,
@@ -493,45 +474,8 @@ export class VideoTimeline implements AfterViewInit, OnChanges, OnDestroy {
     if (notifyAtLimit || next !== this.safeScale()) this.onZoomChange?.(next)
   }
 
-  /** Attaches the Ctrl-wheel shortcut: the tracks area exists once the view is up. */
-  ngAfterViewInit(): void {
-    this.syncWheelZoom()
-  }
-
-  /**
-   * Keeps the Ctrl-wheel shortcut and the scrub in step with their handlers:
-   * the shortcut follows `onZoomChange`, and a scrub ends when `onSeek` is taken
-   * away. A handler bound again (a parent that passes a new inline function on
-   * each render, as one does when the seek moves its own state) keeps the scrub
-   * going, as React's does: the next move seeks through the new handler.
-   *
-   * @param changes - The changed inputs.
-   */
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['onZoomChange']) this.syncWheelZoom()
-    const seek = changes['onSeek']
-    if (seek && !seek.currentValue) this.scrub.end()
-  }
-
-  /** Removes the Ctrl-wheel shortcut, as React's unmount drops its listener, and ends any scrub. */
-  ngOnDestroy(): void {
-    this.detachWheelZoom?.()
-    this.detachWheelZoom = undefined
-    this.scrub.end()
-  }
-
-  /**
-   * Attaches the Ctrl-wheel shortcut while the tracks area and a zoom handler
-   * are both there, and detaches it otherwise.
-   */
-  private syncWheelZoom(): void {
-    this.detachWheelZoom?.()
-    this.detachWheelZoom = undefined
-    const host = this.tracksBodyRef?.nativeElement
-    if (host && this.onZoomChange) {
-      this.detachWheelZoom = listenForWheelZoom(host, (direction) => this.stepZoom(direction))
-    }
-  }
+  /** Applies a zoom step from the tracks surface. */
+  readonly stepWheelZoom = (direction: 'in' | 'out'): void => this.stepZoom(direction)
 
   /**
    * Forward a track-lane clip move to `onClipMove`, fanning out via

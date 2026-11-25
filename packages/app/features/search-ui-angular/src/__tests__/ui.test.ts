@@ -35,6 +35,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { provideDomPlacement } from '@molecule/app-angular'
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-angular'
+import type * as UI from '@molecule/app-ui-angular'
 
 import type { SearchResultHit, SearchResultLinkProps, SearchResultView } from '../types.js'
 
@@ -65,9 +66,10 @@ vi.mock('@molecule/app-ui', () => ({
 // element — the same observable contracts the React suite's mocks have
 // (Icon → `data-icon`; Modal → a dialog role only while open; Tooltip → the
 // trigger beside an inline data-tooltip copy of the content).
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<typeof UI>()),
     Icon: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',

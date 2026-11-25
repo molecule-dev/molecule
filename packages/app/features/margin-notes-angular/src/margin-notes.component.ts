@@ -21,9 +21,8 @@ import {
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { asTemplate, Icon, styleText, Switch } from '@molecule/app-ui-angular'
+import { asTemplate, Icon, styleText, Switch, WebHoverDirective } from '@molecule/app-ui-angular'
 
-import { hoverChanged } from './hover.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNotesBlock, MarginNotesProps, MarginNotesRow } from './types.js'
 
@@ -93,7 +92,7 @@ const elementStyle = (
 @Component({
   selector: 'div[mol-margin-notes]',
   standalone: true,
-  imports: [NgTemplateOutlet, Icon, Switch],
+  imports: [NgTemplateOutlet, Icon, Switch, WebHoverDirective],
   inputs: [
     'blocks',
     'notes',
@@ -113,7 +112,7 @@ const elementStyle = (
     'data-mol-id': 'margin-notes',
   },
   // prettier-ignore
-  template: `@if (hasNotes() && kindsCount() > 0) {<div [class]="sideSwitchesClasses()"><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'side' }"></ng-container></div>}<div [class]="textClasses()">@for (row of rows(); track row.id) {<div [class]="rowClasses()" [attr.data-mol-id]="'margin-notes-row-' + row.id"><div [class]="cm().flex1" [style]="blockColumnStyle()">@for (block of row.blocks; track block.id) {<div [attr.id]="block.id" [attr.data-mol-id]="'margin-notes-block-' + block.id" [attr.data-block-marked]="block.marked ? 'true' : null" [attr.data-block-pinned]="pinnedBlock() === block.id ? 'true' : null" (pointerenter)="blockHover($event, block, true)" (pointerleave)="blockHover($event, block, false)" (mouseenter)="blockHover($event, block, true)" (mouseleave)="blockHover($event, block, false)" (focusin)="focusBlock(block)" (focusout)="blurBlock()" [class]="blockClasses(block)">@if (block.marked) {<span [attr.role]="markNamed() ? 'img' : null" [attr.aria-label]="markNamed() ? markLabel : null" [attr.aria-hidden]="markNamed() ? null : 'true'" [attr.data-mol-id]="'margin-notes-mark-' + block.id" [class]="markClasses()" [style]="markStyle()"></span>}@if (templateOf(block.content); as contentTpl) {<ng-container [ngTemplateOutlet]="contentTpl"></ng-container>} @else if (textOf(block.content) !== null) {{{ textOf(block.content) }}}@if (isInteractive(block)) {<div [class]="pinRowClasses()"><button type="button" [attr.aria-pressed]="pinnedBlock() === block.id ? 'true' : 'false'" [attr.aria-label]="pinLabel()" [attr.data-mol-id]="'margin-notes-pin-' + block.id" (click)="togglePin(block.id)" [class]="pinButtonClasses()"><svg mol-icon-root [name]="'pin'" [size]="16" [ariaHidden]="'true'"></svg></button></div>}</div>}</div>@if (hasNotes()) {<div [class]="gutterClasses()" [style]="gutterStyle(row)" [attr.aria-label]="notesLabel()" role="complementary">@for (note of row.notes; track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'gutter' }"></ng-container>}</div>}</div>}</div>@if (hasNotes()) {<div [class]="cm().hiddenFrom('md')" [style]="spacerStyle()" aria-hidden="true"></div><div [class]="barClasses()" [style]="barStyle()" data-mol-id="margin-notes-bar"><div role="region" aria-live="polite" [attr.aria-label]="panelLabel()" [style]="panelStyle()" data-mol-id="margin-notes-panel">@for (note of panelNotes(); track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'panel' }"></ng-container>}@if (pinnedBlock()) {<button type="button" (click)="unpin()" [class]="dismissClasses()" data-mol-id="margin-notes-dismiss">{{ dismissLabel() }}</button>}</div><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'bar' }"></ng-container></div>}<ng-template #switchesTpl let-placement="placement">@if (kindsCount() > 0) {<div role="group" [attr.aria-label]="togglesLabel()" [class]="switchesClasses(placement)" [attr.data-mol-id]="'margin-notes-switches-' + placement">@for (kind of kinds; track kind.id) {<mol-switch [label]="kind.label" [checked]="isKindShown(kind.id)" (change)="onSwitchChange(kind.id, $event)" [className]="placement === 'bar' ? cm().touchTarget : cm().touchTargetCompact" [attr.data-mol-id]="'margin-notes-switch-' + placement + '-' + kind.id"></mol-switch>}</div>}</ng-template><ng-template #noteTpl let-note="note" let-where="where"><aside [attr.hidden]="hiddenFor(note, where)" [attr.tabindex]="where === 'gutter' ? 0 : -1" [attr.data-note-kind]="note.kind" [attr.data-note-emphasis]="isEmphasised(note) ? 'true' : null" [attr.data-mol-id]="'margin-note-' + where + '-' + note.id" (pointerenter)="noteHover($event, note, where, true)" (pointerleave)="noteHover($event, note, where, false)" (mouseenter)="noteHover($event, note, where, true)" (mouseleave)="noteHover($event, note, where, false)" (focusin)="focusNote(note, where)" (focusout)="blurNote()" [class]="noteClasses(note)">@if (templateOf(note.content); as noteTplContent) {<ng-container [ngTemplateOutlet]="noteTplContent"></ng-container>} @else if (textOf(note.content) !== null) {{{ textOf(note.content) }}}</aside></ng-template>`,
+  template: `@if (hasNotes() && kindsCount() > 0) {<div [class]="sideSwitchesClasses()"><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'side' }"></ng-container></div>}<div [class]="textClasses()">@for (row of rows(); track row.id) {<div [class]="rowClasses()" [attr.data-mol-id]="'margin-notes-row-' + row.id"><div [class]="cm().flex1" [style]="blockColumnStyle()">@for (block of row.blocks; track block.id) {<div [attr.id]="block.id" [attr.data-mol-id]="'margin-notes-block-' + block.id" [attr.data-block-marked]="block.marked ? 'true' : null" [attr.data-block-pinned]="pinnedBlock() === block.id ? 'true' : null" [molHover]="isInteractive(block)" (molHoverEnter)="activateBlock(block)" (molHoverLeave)="clearBlock()" (focusin)="activateBlock(block)" (focusout)="clearBlock()" [class]="blockClasses(block)">@if (block.marked) {<span [attr.role]="markNamed() ? 'img' : null" [attr.aria-label]="markNamed() ? markLabel : null" [attr.aria-hidden]="markNamed() ? null : 'true'" [attr.data-mol-id]="'margin-notes-mark-' + block.id" [class]="markClasses()" [style]="markStyle()"></span>}@if (templateOf(block.content); as contentTpl) {<ng-container [ngTemplateOutlet]="contentTpl"></ng-container>} @else if (textOf(block.content) !== null) {{{ textOf(block.content) }}}@if (isInteractive(block)) {<div [class]="pinRowClasses()"><button type="button" [attr.aria-pressed]="pinnedBlock() === block.id ? 'true' : 'false'" [attr.aria-label]="pinLabel()" [attr.data-mol-id]="'margin-notes-pin-' + block.id" (click)="togglePin(block.id)" [class]="pinButtonClasses()"><svg mol-icon-root [name]="'pin'" [size]="16" [ariaHidden]="'true'"></svg></button></div>}</div>}</div>@if (hasNotes()) {<div [class]="gutterClasses()" [style]="gutterStyle(row)" [attr.aria-label]="notesLabel()" role="complementary">@for (note of row.notes; track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'gutter' }"></ng-container>}</div>}</div>}</div>@if (hasNotes()) {<div [class]="cm().hiddenFrom('md')" [style]="spacerStyle()" aria-hidden="true"></div><div [class]="barClasses()" [style]="barStyle()" data-mol-id="margin-notes-bar"><div role="region" aria-live="polite" [attr.aria-label]="panelLabel()" [style]="panelStyle()" data-mol-id="margin-notes-panel">@for (note of panelNotes(); track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'panel' }"></ng-container>}@if (pinnedBlock()) {<button type="button" (click)="unpin()" [class]="dismissClasses()" data-mol-id="margin-notes-dismiss">{{ dismissLabel() }}</button>}</div><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'bar' }"></ng-container></div>}<ng-template #switchesTpl let-placement="placement">@if (kindsCount() > 0) {<div role="group" [attr.aria-label]="togglesLabel()" [class]="switchesClasses(placement)" [attr.data-mol-id]="'margin-notes-switches-' + placement">@for (kind of kinds; track kind.id) {<mol-switch [label]="kind.label" [checked]="isKindShown(kind.id)" (change)="onSwitchChange(kind.id, $event)" [className]="placement === 'bar' ? cm().touchTarget : cm().touchTargetCompact" [attr.data-mol-id]="'margin-notes-switch-' + placement + '-' + kind.id"></mol-switch>}</div>}</ng-template><ng-template #noteTpl let-note="note" let-where="where"><aside [attr.hidden]="hiddenFor(note, where)" [attr.tabindex]="where === 'gutter' ? 0 : -1" [attr.data-note-kind]="note.kind" [attr.data-note-emphasis]="isEmphasised(note) ? 'true' : null" [attr.data-mol-id]="'margin-note-' + where + '-' + note.id" [molHover]="where === 'gutter'" (molHoverEnter)="activateNote(note, where)" (molHoverLeave)="clearNote()" (focusin)="activateNote(note, where)" (focusout)="clearNote()" [class]="noteClasses(note)">@if (templateOf(note.content); as noteTplContent) {<ng-container [ngTemplateOutlet]="noteTplContent"></ng-container>} @else if (textOf(note.content) !== null) {{{ textOf(note.content) }}}</aside></ng-template>`,
 })
 export class MarginNotes implements OnChanges, OnInit, AfterViewInit, OnDestroy {
   /** The text, in reading order. */
@@ -396,56 +395,31 @@ export class MarginNotes implements OnChanges, OnInit, AfterViewInit, OnDestroy 
   }
 
   /**
-   * Marks a block as hovered, or clears it, when it has notes and the pointer or
-   * mouse event reporting the move is a real hover (see `hoverChanged`).
-   * @param event - The enter or the leave.
-   * @param block - The block.
-   * @param entered - Whether it is an entry.
-   */
-  blockHover(event: Event, block: MarginNotesBlock, entered: boolean): void {
-    if (!this.isInteractive(block) || !hoverChanged(event, entered)) return
-    this.activeBlock.set(entered ? block.id : null)
-  }
-
-  /**
-   * Marks a block as focused when it has notes.
+   * Marks a block as active on hover or focus when it has notes.
    * @param block - The block.
    */
-  focusBlock(block: MarginNotesBlock): void {
+  activateBlock(block: MarginNotesBlock): void {
     if (!this.isInteractive(block)) return
     this.activeBlock.set(block.id)
   }
 
   /** Clears the hovered or focused block. */
-  blurBlock(): void {
+  clearBlock(): void {
     this.activeBlock.set(null)
   }
 
   /**
-   * Marks a gutter note as hovered, or clears it, when the pointer or mouse
-   * event reporting the move is a real hover (the phone panel never does).
-   * @param event - The enter or the leave.
-   * @param note - The note.
-   * @param where - Which surface renders it.
-   * @param entered - Whether it is an entry.
-   */
-  noteHover(event: Event, note: MarginNote, where: NotePlacement, entered: boolean): void {
-    if (where !== 'gutter' || !hoverChanged(event, entered)) return
-    this.activeNote.set(entered ? note.id : null)
-  }
-
-  /**
-   * Marks a gutter note as focused (the phone panel never does).
+   * Marks a gutter note as active on hover or focus.
    * @param note - The note.
    * @param where - Which surface renders it.
    */
-  focusNote(note: MarginNote, where: NotePlacement): void {
+  activateNote(note: MarginNote, where: NotePlacement): void {
     if (where !== 'gutter') return
     this.activeNote.set(note.id)
   }
 
   /** Clears the hovered or focused note. */
-  blurNote(): void {
+  clearNote(): void {
     this.activeNote.set(null)
   }
 

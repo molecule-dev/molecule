@@ -7,22 +7,6 @@
   hidden status region after the list. Apps pass a router link through
   `renderLink`.
 -->
-<script lang="ts" module>
-  /**
-   * Whether a row's `over` or `out` event crossed the row's edge. React derives
-   * its enter and leave events from these pairs through `relatedTarget`, so a
-   * move between two of the row's own children is neither.
-   *
-   * @param row - The row the event reached.
-   * @param event - Its pointer or mouse `over`/`out` event.
-   * @returns True when the other end of the move lies outside the row.
-   */
-  const crossesRowEdge = (row: Element, event: MouseEvent | PointerEvent): boolean => {
-    const other = event.relatedTarget
-    return !(other instanceof Node && row.contains(other))
-  }
-</script>
-
 <script lang="ts" generics="T extends ClientSearchDocument">
   import { untrack } from 'svelte'
   import type { Action } from 'svelte/action'
@@ -31,6 +15,7 @@
   import type { ClientSearchDocument } from '@molecule/app-client-search'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { webHover } from '@molecule/app-ui-svelte'
 
   import Highlight from './Highlight.svelte'
   import type { SearchResultLinkProps, SearchResultsProps } from './types.js'
@@ -92,70 +77,6 @@
     if (activeRowIndex < 0 || activeHitId === undefined) return
     untrack(() => rows.get(activeHitId))?.scrollIntoView?.({ block: 'nearest' })
   })
-
-  /**
-   * Wires a row's hover the way React's kit wires its `onMouseEnter`: a mouse
-   * or a pen entering the row calls `onEnter` once per entry, while a finger
-   * is not a hover, and neither is the mouse event a browser sends after one.
-   *
-   * @param node - The row's element.
-   * @param onEnter - What a hover entering the row does.
-   * @returns The action's update and teardown.
-   */
-  const rowHover: Action<HTMLLIElement, () => void> = (node, onEnter) => {
-    let inside = false
-    let fromTouch = false
-    /**
-     * Routes one of the row's `over` and `out` events through its enter transition.
-     *
-     * @param entered - Whether the pointer moved onto the row (true) or off it.
-     * @returns The event listener.
-     */
-    const handler =
-      (entered: boolean) =>
-      (event: PointerEvent | MouseEvent): void => {
-        if (!crossesRowEdge(node, event)) return
-        if ('pointerType' in event) {
-          fromTouch = event.pointerType === 'touch'
-          if (fromTouch) return
-        } else if (fromTouch) {
-          // A compatibility mouse entry after a touch is not a hover.
-          return
-        }
-        if (inside === entered) return
-        inside = entered
-        if (entered) onEnter()
-      }
-    /**
-     * Listens for one pointer or mouse event on the row.
-     *
-     * @param type - The event type (`pointerover`, `mouseout`, ...).
-     * @param listener - Its handler.
-     * @returns What stops the listener.
-     */
-    const listen = (
-      type: string,
-      listener: (event: PointerEvent | MouseEvent) => void,
-    ): (() => void) => {
-      const onEvent: EventListener = (event) => listener(event as PointerEvent | MouseEvent)
-      node.addEventListener(type, onEvent)
-      return () => node.removeEventListener(type, onEvent)
-    }
-    const stops = [
-      listen('pointerover', handler(true)),
-      listen('pointerout', handler(false)),
-      listen('mouseover', handler(true)),
-      listen('mouseout', handler(false)),
-    ]
-    return {
-      update(next: () => void) {
-        onEnter = next
-      },
-      destroy() {
-        for (const stop of stops) stop()
-      },
-    }
-  }
 
   // The active row's announcement; empty when no row is keyboard-active.
   const activeHitText = (): string => {
@@ -225,9 +146,11 @@
         data-mol-id={`${molId}-hit`}
         data-hit-id={hit.id}
         class={cm.cn(cm.resultItem, active && cm.resultItemActive)}
-        use:rowHover={() => {
-          onActivate?.(i)
-          onPrefetch?.(hit.doc)
+        use:webHover={{
+          onEnter: () => {
+            onActivate?.(i)
+            onPrefetch?.(hit.doc)
+          },
         }}
         onfocusin={() => onPrefetch?.(hit.doc)}
         ontouchstart={() => onPrefetch?.(hit.doc)}

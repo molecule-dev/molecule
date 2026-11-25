@@ -1,8 +1,9 @@
-import { type MouseEvent, type PointerEvent, useRef } from 'react'
+import { type MouseEvent, type PointerEvent, useState } from 'react'
 
+import { createWebHover } from '@molecule/app-pointer-events-dom'
 import type { InteractionProps } from '@molecule/app-ui'
 
-/** Routes both browser hover streams through the same enter/leave transition. */
+/** Routes React's synthetic hover events through the shared transition. */
 export function useWebHover<T extends Element>({
   onMouseEnter,
   onMouseLeave,
@@ -12,26 +13,18 @@ export function useWebHover<T extends Element>({
   onMouseEnter?: (event: MouseEvent<T>) => void
   onMouseLeave?: (event: MouseEvent<T>) => void
 } {
-  const inside = useRef(false)
-  const fromTouch = useRef(false)
+  const [transition] = useState(createWebHover)
   if (!onMouseEnter && !onMouseLeave) return {}
-  const transition = (entered: boolean, event: MouseEvent<T> | PointerEvent<T>): void => {
-    if ('pointerType' in event) {
-      fromTouch.current = event.pointerType === 'touch'
-      if (fromTouch.current) return
-    } else if (fromTouch.current) {
-      // A compatibility mouse entry after a touch is not a hover. A real pointer entry clears it.
-      return
-    }
-    if (inside.current === entered) return
-    inside.current = entered
-    if (entered) onMouseEnter?.(event)
-    else onMouseLeave?.(event)
+  const enter = (event: MouseEvent<T>): void => {
+    if (transition(true, event)) onMouseEnter?.(event)
+  }
+  const leave = (event: MouseEvent<T>): void => {
+    if (transition(false, event)) onMouseLeave?.(event)
   }
   return {
-    onPointerEnter: (event) => transition(true, event),
-    onPointerLeave: (event) => transition(false, event),
-    onMouseEnter: (event) => transition(true, event),
-    onMouseLeave: (event) => transition(false, event),
+    onPointerEnter: enter,
+    onPointerLeave: leave,
+    onMouseEnter: enter,
+    onMouseLeave: leave,
   }
 }

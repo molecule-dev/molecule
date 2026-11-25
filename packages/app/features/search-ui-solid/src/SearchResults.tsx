@@ -9,6 +9,7 @@ import { createEffect, createMemo, For, type JSX, onCleanup, Show } from 'solid-
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
+import { webHover } from '@molecule/app-ui-solid'
 
 import { Highlight } from './Highlight.jsx'
 import type { SearchResultHit, SearchResultLinkProps, SearchResultsProps } from './types.js'
@@ -27,30 +28,6 @@ const defaultLink = (linkProps: SearchResultLinkProps): JSX.Element => {
       {children}
     </a>
   )
-}
-
-/** One row's hover state, kept for as long as its element is rendered. */
-interface HoverState {
-  /** A mouse or a pen is over the row. */
-  inside: boolean
-  /** The last entry was a finger, so the mouse event a browser sends after it is not a hover. */
-  fromTouch: boolean
-}
-
-/** Each row's hover state, by its element. */
-const hoverStates = new WeakMap<Element, HoverState>()
-
-/**
- * Whether a row's `over` or `out` event crossed the row's edge. React derives
- * its enter and leave events from these pairs through `relatedTarget`, so a
- * move between two of the row's own children is neither.
- *
- * @param event - The row's pointer or mouse `over`/`out` event.
- * @returns True when the other end of the move lies outside the row.
- */
-const crossesRowEdge = (event: MouseEvent | PointerEvent): boolean => {
-  const other = event.relatedTarget
-  return !(other instanceof Node && (event.currentTarget as Node).contains(other))
 }
 
 /** One stable record per hit id, created on first sight (React keys rows by the hit's id). */
@@ -100,39 +77,6 @@ export const SearchResults = <T,>(props: SearchResultsProps<T>): JSX.Element => 
     if (index < 0 || id === undefined) return
     rowEls.get(id)?.scrollIntoView?.({ block: 'nearest' })
   })
-
-  /**
-   * Handles a row's pointer or mouse `over` and `out` events the way React's
-   * kit handles its `onMouseEnter`: a mouse or a pen entering makes the row
-   * active and warms its page once per entry. A finger is not a hover, and
-   * neither is the mouse event a browser sends after one.
-   *
-   * @param entered - Whether the pointer moved onto the row (true) or off it.
-   * @param index - The row's index.
-   * @param hit - The row's hit.
-   * @returns The row's event handler.
-   */
-  const onRowHover =
-    (entered: boolean, index: () => number, hit: () => SearchResultHit<T>) =>
-    (event: PointerEvent | MouseEvent): void => {
-      if (!crossesRowEdge(event)) return
-      const row = event.currentTarget as HTMLElement
-      const state = hoverStates.get(row) ?? { inside: false, fromTouch: false }
-      hoverStates.set(row, state)
-      if ('pointerType' in event) {
-        state.fromTouch = event.pointerType === 'touch'
-        if (state.fromTouch) return
-      } else if (state.fromTouch) {
-        // A compatibility mouse entry after a touch is not a hover.
-        return
-      }
-      if (state.inside === entered) return
-      state.inside = entered
-      if (entered) {
-        props.onActivate?.(index())
-        props.onPrefetch?.(hit().doc)
-      }
-    }
 
   const records = new Map<string, Row>()
   const keyedHits = (): Row[] => {
@@ -256,7 +200,15 @@ export const SearchResults = <T,>(props: SearchResultsProps<T>): JSX.Element => 
                 return (
                   <li
                     // React's per-row ref: the row's element, by the id of its hit.
-                    ref={(el) => rowEls.set(row.id, el)}
+                    ref={(host) => {
+                      rowEls.set(row.id, host)
+                      webHover(host, () => ({
+                        onEnter: () => {
+                          props.onActivate?.(index())
+                          props.onPrefetch?.(hit().doc)
+                        },
+                      }))
+                    }}
                     aria-current={index() === props.activeIndex ? 'true' : undefined}
                     data-index={index()}
                     data-mol-id={`${molId()}-hit`}
@@ -265,10 +217,6 @@ export const SearchResults = <T,>(props: SearchResultsProps<T>): JSX.Element => 
                       cm.resultItem,
                       index() === props.activeIndex && cm.resultItemActive,
                     )}
-                    onPointerOver={onRowHover(true, index, hit)}
-                    onPointerOut={onRowHover(false, index, hit)}
-                    onMouseOver={onRowHover(true, index, hit)}
-                    onMouseOut={onRowHover(false, index, hit)}
                     onFocusIn={() => props.onPrefetch?.(hit().doc)}
                     onTouchStart={() => props.onPrefetch?.(hit().doc)}
                   >

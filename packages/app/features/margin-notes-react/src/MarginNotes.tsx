@@ -1,18 +1,17 @@
-import type { CSSProperties, JSX } from 'react'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { JSX } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Switch } from '@molecule/app-ui-react'
+import { Box, Pressable, ScrollArea } from '@molecule/app-ui-react/elements'
 
 import { buildRows, defaultShownKinds } from './rows.js'
-import type { MarginNote, MarginNotesProps } from './types.js'
+import type { MarginNote, MarginNoteKind, MarginNotesProps } from './types.js'
+import { useReadingPosition } from './useReadingPosition.js'
 
-/** Layout effect in the browser, plain effect on the server (where it never runs). */
-const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
-
-/** Where a phone reader's "current section" is read: this fraction down the viewport. */
-const READING_LINE = 0.35
+const NO_NOTES: MarginNote[] = []
+const NO_KINDS: MarginNoteKind[] = []
 
 /**
  * Long-form text with notes beside each paragraph.
@@ -32,8 +31,8 @@ const READING_LINE = 0.35
 export function MarginNotes(props: MarginNotesProps): JSX.Element {
   const {
     blocks,
-    notes = [],
-    kinds = [],
+    notes = NO_NOTES,
+    kinds = NO_KINDS,
     markLabel,
     measure = '38rem',
     gutterWidth = '18rem',
@@ -41,6 +40,7 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
     onShownKindsChange,
     className,
     style,
+    webStyle,
     ...rest
   } = props
   const cm = getClassMap()
@@ -81,63 +81,10 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
   }, [activeBlock, blocks])
 
   // Phone: the section being read, and a block the reader pinned.
-  const firstWithNotes = rows.find((r) => r.noteIds.length > 0)?.id ?? null
-  const [readingRow, setReadingRow] = useState<string | null>(firstWithNotes)
   const [pinnedBlock, setPinnedBlock] = useState<string | null>(null)
-  const rowRefs = useRef(new Map<string, HTMLDivElement>())
-
-  useEffect(() => {
-    if (!hasNotes || typeof window === 'undefined') return
-    let frame = 0
-    const read = (): void => {
-      frame = 0
-      const line = window.innerHeight * READING_LINE
-      let current: string | null = null
-      for (const row of rows) {
-        const el = rowRefs.current.get(row.id)
-        if (!el) continue
-        if (el.getBoundingClientRect().top > line) break
-        if (row.noteIds.length > 0) current = row.id
-      }
-      setReadingRow(current ?? firstWithNotes)
-    }
-    const onScroll = (): void => {
-      if (!frame) frame = window.requestAnimationFrame(read)
-    }
-    read()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      if (frame) window.cancelAnimationFrame(frame)
-    }
-  }, [hasNotes, rows, firstWithNotes])
-
-  // A row that opens on a heading (or any block with a top margin) starts its
-  // text below the row's top; push the notes down by the same distance so a
-  // note lines up with the first line it covers, not the margin above it.
-  const [noteOffsets, setNoteOffsets] = useState<Record<string, number>>({})
-  useBrowserLayoutEffect(() => {
-    if (!hasNotes) return
-    const measureOffsets = (): void => {
-      const next: Record<string, number> = {}
-      for (const row of rows) {
-        if (row.notes.length === 0) continue
-        const rowEl = rowRefs.current.get(row.id)
-        const blockEl = document.getElementById(row.blocks[0].id)
-        const first = blockEl?.firstElementChild ?? blockEl
-        if (!rowEl || !first) continue
-        const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
-        const offset = Math.max(0, Math.round(top))
-        if (offset) next[row.id] = offset
-      }
-      setNoteOffsets((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next))
-    }
-    measureOffsets()
-    window.addEventListener('resize', measureOffsets)
-    return () => window.removeEventListener('resize', measureOffsets)
-  }, [hasNotes, rows])
+  const { rootRef, rowRefs, blockRefs, deviceHeight, readingRow, noteOffsets, onScroll } =
+    useReadingPosition(rows, hasNotes)
+  const device = deviceHeight !== undefined
 
   // Kinds that reach the panel only through a block's pin (notes about one paragraph).
   const tapOnly = useMemo(
@@ -165,7 +112,8 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
 
   const switches = (placement: 'side' | 'bar'): JSX.Element | null =>
     kinds.length === 0 ? null : (
-      <div
+      <Box
+        as="div"
         role="group"
         aria-label={t('marginNotes.aria.toggles', undefined, {
           defaultValue: 'Show or hide notes',
@@ -178,18 +126,23 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
             key={kind.id}
             label={kind.label}
             checked={shown.includes(kind.id)}
-            onChange={(event) => setShown(kind.id, (event.target as HTMLInputElement).checked)}
+            onChange={({ target }) => {
+              if (target && 'checked' in target && typeof target.checked === 'boolean') {
+                setShown(kind.id, target.checked)
+              }
+            }}
             className={placement === 'bar' ? cm.touchTarget : cm.touchTargetCompact}
             data-mol-id={`margin-notes-switch-${placement}-${kind.id}`}
           />
         ))}
-      </div>
+      </Box>
     )
 
   const noteView = (note: MarginNote, where: 'gutter' | 'panel'): JSX.Element => {
     const emphasised = activeBlockNotes.has(note.id) || activeNote === note.id
     return (
-      <aside
+      <Box
+        as="aside"
         key={note.id}
         hidden={where === 'panel' ? !inPanel(note) : !isShown(note)}
         tabIndex={where === 'gutter' ? 0 : -1}
@@ -209,28 +162,37 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
         )}
       >
         {note.content}
-      </aside>
+      </Box>
     )
   }
 
-  const containerStyle: CSSProperties = {
-    ...style,
-    maxWidth: hasNotes ? `calc(${measure} + ${gutterWidth} + 4rem)` : measure,
-  }
-
   return (
-    <div
+    <Box
       {...rest}
+      as="div"
+      ref={rootRef}
       className={cm.cn(cm.mxAuto, cm.w('full'), className)}
-      style={containerStyle}
+      style={device ? { height: deviceHeight, flexShrink: 1, ...style } : style}
+      webStyle={{
+        ...webStyle,
+        maxWidth: hasNotes ? `calc(${measure} + ${gutterWidth} + 4rem)` : measure,
+      }}
       data-mol-id="margin-notes"
     >
       {hasNotes && kinds.length > 0 && (
-        <div className={cm.cn(cm.hiddenBelow('md'), cm.sp('mb', 6))}>{switches('side')}</div>
+        <Box as="div" className={cm.cn(cm.hiddenBelow('md'), cm.sp('mb', 6))}>
+          {switches('side')}
+        </Box>
       )}
-      <div className={cm.cn(cm.textSize('xl'), cm.stack(0))}>
+      <ScrollArea
+        as="div"
+        onScroll={device ? onScroll : undefined}
+        className={cm.cn(cm.textSize('xl'), cm.stack(0))}
+        style={device ? { flexGrow: 1 } : undefined}
+      >
         {rows.map((row) => (
-          <div
+          <Box
+            as="div"
             key={row.id}
             ref={(el) => {
               if (el) rowRefs.current.set(row.id, el)
@@ -239,7 +201,7 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
             className={cm.flex({ direction: 'row', align: 'start', gap: 'xl' })}
             data-mol-id={`margin-notes-row-${row.id}`}
           >
-            <div className={cm.flex1} style={{ maxWidth: measure, minWidth: 0 }}>
+            <Box as="div" className={cm.flex1} webStyle={{ maxWidth: measure, minWidth: 0 }}>
               {row.blocks.map((block) => {
                 const ids = block.noteIds ?? []
                 const tinted = !!activeNote && ids.includes(activeNote)
@@ -250,8 +212,13 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                   // The block stays plain prose (its own links stay links); a
                   // noted block carries a pin toggle, shown where the phone bar
                   // is, with `aria-pressed` for the pinned state.
-                  <div
+                  <Box
+                    as="div"
                     key={block.id}
+                    ref={(element) => {
+                      if (element) blockRefs.current.set(block.id, element)
+                      else blockRefs.current.delete(block.id)
+                    }}
                     id={block.id}
                     data-mol-id={`margin-notes-block-${block.id}`}
                     data-block-marked={block.marked ? 'true' : undefined}
@@ -263,7 +230,8 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                     className={cm.cn(cm.position('relative'), tinted && cm.bgPrimarySubtle)}
                   >
                     {block.marked && (
-                      <span
+                      <Box
+                        as="span"
                         role={markNamed ? 'img' : undefined}
                         aria-label={markNamed ? markLabel : undefined}
                         aria-hidden={markNamed ? undefined : 'true'}
@@ -274,13 +242,18 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                           cm.bgPrimary,
                           cm.hiddenBelow('md'),
                         )}
-                        style={{ left: '-0.9rem', top: '0.75em', width: '6px', height: '6px' }}
+                        style={device ? { top: 15 } : undefined}
+                        webStyle={{ left: '-0.9rem', top: '0.75em', width: '6px', height: '6px' }}
                       />
                     )}
                     {block.content}
                     {interactive && (
-                      <div className={cm.cn(cm.hiddenFrom('md'), cm.flex({ justify: 'end' }))}>
-                        <button
+                      <Box
+                        as="div"
+                        className={cm.cn(cm.hiddenFrom('md'), cm.flex({ justify: 'end' }))}
+                      >
+                        <Pressable
+                          as="button"
                           type="button"
                           aria-pressed={pinnedBlock === block.id}
                           aria-label={pinLabel}
@@ -289,31 +262,44 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                           className={cm.button({ variant: 'ghost', size: 'sm' })}
                         >
                           <Icon name="pin" size={16} aria-hidden="true" />
-                        </button>
-                      </div>
+                        </Pressable>
+                      </Box>
                     )}
-                  </div>
+                  </Box>
                 )
               })}
-            </div>
+            </Box>
             {hasNotes && (
-              <div
+              <Box
+                as="div"
                 className={cm.cn(cm.hiddenBelow('md'), cm.stack(3))}
-                style={{ width: gutterWidth, flexShrink: 0, paddingTop: noteOffsets[row.id] }}
+                webStyle={{
+                  width: gutterWidth,
+                  flexShrink: 0,
+                  paddingTop: noteOffsets.get(row.id),
+                }}
                 aria-label={t('marginNotes.aria.notes', undefined, { defaultValue: 'Notes' })}
                 role="complementary"
               >
                 {row.notes.map((note) => noteView(note, 'gutter'))}
-              </div>
+              </Box>
             )}
-          </div>
+          </Box>
         ))}
-      </div>
+      </ScrollArea>
       {hasNotes && (
         <>
-          {/* Room for the phone bar, so it never covers the last paragraph. */}
-          <div className={cm.hiddenFrom('md')} style={{ height: '14rem' }} aria-hidden="true" />
-          <div
+          {/* On web the bar floats above the document. Device layout reserves its actual height. */}
+          {!device && (
+            <Box
+              as="div"
+              className={cm.hiddenFrom('md')}
+              webStyle={{ height: '14rem' }}
+              aria-hidden="true"
+            />
+          )}
+          <Box
+            as="div"
             className={cm.cn(
               cm.hiddenFrom('md'),
               cm.position('fixed'),
@@ -323,34 +309,41 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
               cm.sp('p', 3),
               cm.stack(2),
             )}
-            style={{ left: 0, right: 0, bottom: 0, zIndex: 20 }}
+            style={
+              device
+                ? { position: 'relative', flexShrink: 0, zIndex: 20 }
+                : { left: 0, right: 0, bottom: 0, zIndex: 20 }
+            }
             data-mol-id="margin-notes-bar"
           >
-            <div
+            <ScrollArea
+              as="div"
               role="region"
               aria-live="polite"
               aria-label={t('marginNotes.aria.panel', undefined, {
                 defaultValue: 'Notes for this section',
               })}
-              style={{ maxHeight: '40vh', overflowY: 'auto' }}
+              style={deviceHeight === undefined ? undefined : { maxHeight: deviceHeight * 0.4 }}
+              webStyle={{ maxHeight: '40vh', overflowY: 'auto' }}
               data-mol-id="margin-notes-panel"
             >
               {panelNotes.map((note) => noteView(note, 'panel'))}
               {pinnedBlock && (
-                <button
+                <Pressable
+                  as="button"
                   type="button"
                   onClick={() => setPinnedBlock(null)}
                   className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTarget)}
                   data-mol-id="margin-notes-dismiss"
                 >
                   {t('marginNotes.dismiss', undefined, { defaultValue: 'Hide notes' })}
-                </button>
+                </Pressable>
               )}
-            </div>
+            </ScrollArea>
             {switches('bar')}
-          </div>
+          </Box>
         </>
       )}
-    </div>
+    </Box>
   )
 }

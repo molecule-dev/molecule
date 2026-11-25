@@ -69,6 +69,11 @@
  * - The original first-pass components remain exported under their `Molecule*` names
  *   (`MoleculeButton`, `MoleculeInput`, `MoleculeModal`, …) as deprecated aliases.
  *
+ *
+ * Import `WebDragDirective`, `WebHoverDirective`, or `WebWheelZoomDirective` into a
+ * standalone component. Bind `[molDrag]` or `[molWheelZoom]` to the current handler,
+ * or add `molHover` and listen for `(molHoverEnter)` and `(molHoverLeave)`.
+ *
  * @module
  */
 
@@ -77,3 +82,5 @@ export * from './hooks/index.js'
 export * from './types.js'
 export * from './utilities/index.js'
 export * from './web-drag.directive.js'
+export * from './web-hover.directive.js'
+export * from './web-wheel-zoom.directive.js'

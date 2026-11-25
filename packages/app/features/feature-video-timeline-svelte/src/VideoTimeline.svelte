@@ -8,13 +8,11 @@
   locale switch re-renders it.
 -->
 <script lang="ts">
-  import { onDestroy } from 'svelte'
-
   import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-svelte'
   import { useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { type ElementDrag, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+  import { webDrag, webWheelZoom } from '@molecule/app-ui-svelte'
 
-  import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
   import {
     clampZoom,
     computeRippleUpdates,
@@ -52,9 +50,6 @@
 
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
-
-  /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
-  let tracksBody: HTMLDivElement | undefined = $state()
 
   const safeDuration = $derived(duration > 0 ? duration : 0)
   const safeScale = $derived(
@@ -126,14 +121,13 @@
    * Convert a pointer's horizontal offset from the ruler's left edge to a
    * time value, clamped into `[0, duration]`.
    *
-   * @param x - The pointer's offset into the ruler body, in pixels.
+   * @param point - A drag sample relative to the ruler.
    */
-  function seekAt(x: number): void {
+  function seekAt({ x }: ElementDragPoint): void {
     onSeek?.(Math.min(pixelsToTime(x, safeScale), safeDuration))
   }
 
-  /** The ruler scrub (React's `drag` on the ruler `Box`). */
-  const scrub = createRulerScrub(seekAt, () => onSeek !== undefined)
+  const rulerDrag: ElementDrag = { axis: 'horizontal', onStart: seekAt, onMove: seekAt }
 
   /**
    * Apply one zoom step of the wheel factor. The zoom buttons use it too;
@@ -142,23 +136,10 @@
    * @param direction - Which way to step.
    * @param notifyAtLimit - Whether to report a step that stays at the bound.
    */
-  function stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
+  function stepZoom(direction: 'in' | 'out', notifyAtLimit = false): void {
     const next = zoomFromWheelDelta(safeScale, direction === 'in' ? -1 : 1, zoomMinOf, zoomMaxOf)
     if (notifyAtLimit || next !== safeScale) onZoomChange?.(next)
   }
-
-  // Ctrl+wheel over the tracks zooms; plain wheel scrolls the tracks. The shortcut listens
-  // once the tracks area exists and a zoom handler is given, and stops when either goes away.
-  $effect(() => {
-    if (!tracksBody || !onZoomChange) return
-    return listenForWheelZoom(tracksBody, (direction) => stepZoom(direction))
-  })
-
-  // A scrub in progress ends when the ruler stops seeking, and when the timeline goes away.
-  $effect(() => {
-    if (onSeek === undefined) scrub.end()
-  })
-  onDestroy(() => scrub.end())
 
   /**
    * Forward a track-lane clip move to `onClipMove`, fanning out via
@@ -278,7 +259,7 @@
       aria-valuetext={playheadLabel}
       data-mol-id="video-timeline-ruler"
       style={`flex: 1 1 auto; position: relative; height: ${rulerHeightOf}px; min-width: ${bodyWidth}px; overflow: hidden; cursor: ${onSeek ? 'pointer' : 'default'}; touch-action: none`}
-      onpointerdown={(event) => scrub.press(event)}
+      use:webDrag={onSeek ? rulerDrag : undefined}
     >
       {#each ticks as tick (tick.time)}
         <div>
@@ -304,7 +285,7 @@
   </div>
 
   <div
-    bind:this={tracksBody}
+    use:webWheelZoom={onZoomChange ? stepZoom : undefined}
     data-mol-id="video-timeline-tracks"
     style="position: relative; overflow-x: auto; overflow-y: auto; width: 100%"
   >

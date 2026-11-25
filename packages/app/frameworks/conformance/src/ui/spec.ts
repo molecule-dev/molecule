@@ -391,19 +391,29 @@ export type Interaction =
    */
   | { type: 'control'; name: string; args?: unknown[] }
   /**
-   * A pointer event at viewport coordinates, for drag handles and resizers: the primary mouse
-   * pointer (`pointerId` 1), pressing the main button from `pointerdown` to `pointerup`. The
-   * mouse event a browser sends after it (`mousedown`, `mousemove`, `mouseup`) follows.
+   * A primary pointer event at viewport coordinates. The device defaults to a mouse, whose
+   * press and move events are followed by their mouse counterparts. For hover, send
+   * `pointerover` or `pointerout` and add explicit mouse events to exercise both streams.
    * `selector` may be `window` or `document` (a move that left the element). Send
    * `lostpointercapture` to the element that held capture.
    */
   | {
       type: 'pointer'
       selector: string
-      event: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel' | 'lostpointercapture'
+      event:
+        | 'pointerdown'
+        | 'pointermove'
+        | 'pointerup'
+        | 'pointercancel'
+        | 'lostpointercapture'
+        | 'pointerover'
+        | 'pointerout'
+      pointerType?: 'mouse' | 'pen' | 'touch'
       clientX?: number
       clientY?: number
     }
+  /** Sends a wheel event and records whether the browser's default action was prevented. */
+  | { type: 'wheel'; selector: string; deltaY: number; ctrlKey?: boolean }
   /**
    * A paste (the data as `clipboardData`) or a drag event (as `dataTransfer`). `files` or
    * `data` start new data; a step with neither reuses the case's last data, so what a

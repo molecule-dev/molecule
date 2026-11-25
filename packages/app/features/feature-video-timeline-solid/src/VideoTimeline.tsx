@@ -10,13 +10,13 @@
  * @module
  */
 
-import { type Component, createEffect, createMemo, For, type JSX, onCleanup, Show } from 'solid-js'
+import { type Component, createEffect, createMemo, For, type JSX, Show } from 'solid-js'
 
 import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-solid'
 import { useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+import { webDrag, webWheelZoom } from '@molecule/app-ui-solid'
 
-import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
 import {
   clampZoom,
   computeRippleUpdates,
@@ -61,8 +61,6 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
-  let tracksBody: HTMLDivElement | undefined
   /** The zoom slider element, for React's controlled-value restore. */
   let sliderEl: HTMLInputElement | undefined
 
@@ -190,14 +188,13 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
    * Convert a pointer's horizontal offset from the ruler's left edge to a
    * time value, clamped into `[0, duration]`.
    *
-   * @param x - The pointer's offset into the ruler body, in pixels.
+   * @param point - A drag sample relative to the ruler.
    */
-  function seekAt(x: number): void {
+  function seekAt({ x }: ElementDragPoint): void {
     props.onSeek?.(Math.min(pixelsToTime(x, safeScale()), safeDuration()))
   }
 
-  /** The ruler scrub (React's `drag` on the ruler `Box`). */
-  const scrub = createRulerScrub(seekAt, () => Boolean(props.onSeek))
+  const rulerDrag: ElementDrag = { axis: 'horizontal', onStart: seekAt, onMove: seekAt }
 
   /**
    * Apply one zoom step of the wheel factor. The zoom buttons use it too;
@@ -206,7 +203,7 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
    * @param direction - Which way to step.
    * @param notifyAtLimit - Whether to report a step that stays at the bound.
    */
-  function stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
+  function stepZoom(direction: 'in' | 'out', notifyAtLimit = false): void {
     const next = zoomFromWheelDelta(
       safeScale(),
       direction === 'in' ? -1 : 1,
@@ -215,20 +212,6 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
     )
     if (notifyAtLimit || next !== safeScale()) props.onZoomChange?.(next)
   }
-
-  // Ctrl+wheel over the tracks zooms; plain wheel scrolls the tracks. The shortcut listens
-  // once the tracks area exists and a zoom handler is given, and stops when either goes away.
-  createEffect(() => {
-    const host = tracksBody
-    if (!host || !props.onZoomChange) return
-    onCleanup(listenForWheelZoom(host, (direction) => stepZoom(direction)))
-  })
-
-  // A scrub in progress ends when the ruler stops seeking, and when the timeline goes away.
-  createEffect(() => {
-    if (!props.onSeek) scrub.end()
-  })
-  onCleanup(() => scrub.end())
 
   /**
    * Forward a track-lane clip move to `onClipMove`, fanning out via
@@ -375,7 +358,7 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
             cursor: props.onSeek ? 'pointer' : 'default',
             'touch-action': 'none',
           }}
-          onPointerDown={(event) => scrub.press(event)}
+          ref={(element) => webDrag(element, () => (props.onSeek ? rulerDrag : undefined))}
         >
           <For each={ticks()}>
             {(tk) => (
@@ -419,9 +402,7 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
 
       {/* Tracks (scrollable) */}
       <div
-        ref={(element) => {
-          tracksBody = element
-        }}
+        ref={(element) => webWheelZoom(element, () => (props.onZoomChange ? stepZoom : undefined))}
         data-mol-id="video-timeline-tracks"
         style={{
           position: 'relative',

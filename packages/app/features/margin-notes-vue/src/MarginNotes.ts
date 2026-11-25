@@ -18,10 +18,11 @@ import {
   type VNode,
   type VNodeChild,
   watch,
+  withDirectives,
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Icon, Switch } from '@molecule/app-ui-vue'
+import { Icon, Switch, vWebHover } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, elementStyle, reactStyle, restAttrs, styleOf } from './attrs.js'
@@ -36,65 +37,6 @@ type NotePlacement = 'gutter' | 'panel'
 
 /** Where a switch group is shown: above the text, or in the phone bar. */
 type SwitchPlacement = 'side' | 'bar'
-
-/** Where one element's hover stands: inside or out, and whether a touch pointer last moved it. */
-interface HoverState {
-  inside: boolean
-  fromTouch: boolean
-}
-
-/** The hover state of each element that reported an enter or a leave. */
-const hoverStates = new WeakMap<Element, HoverState>()
-
-/**
- * Routes the pointer and the mouse enter/leave of one element through a single
- * transition, as the React kit's element does (React's `MarginNotes` renders
- * its blocks and notes with it). Whichever stream arrives first makes the
- * transition and the other repeats nothing. A touch contact never hovers, nor
- * does the mouse event a browser raises after one, until a real pointer (a
- * mouse, a pen) enters.
- *
- * @param event - The enter or the leave, on the element it happened to.
- * @param entered - Whether it is an entry.
- * @returns Whether the element's hover changed.
- */
-function hoverChanged(event: Event, entered: boolean): boolean {
-  const element = event.currentTarget
-  if (!(element instanceof Element)) return false
-  const state = hoverStates.get(element) ?? { inside: false, fromTouch: false }
-  hoverStates.set(element, state)
-  if ('pointerType' in event) {
-    state.fromTouch = event.pointerType === 'touch'
-    if (state.fromTouch) return false
-  } else if (state.fromTouch) {
-    return false
-  }
-  if (state.inside === entered) return false
-  state.inside = entered
-  return true
-}
-
-/**
- * The enter and leave handlers of one hoverable element, both streams routed
- * through {@link hoverChanged}.
- *
- * @param onEnter - What an entry does.
- * @param onLeave - What a leave does.
- * @returns The handlers `h()` spreads onto the element.
- */
-function hoverHandlers(onEnter: () => void, onLeave: () => void): Record<string, unknown> {
-  const handler =
-    (entered: boolean, run: () => void) =>
-    (event: Event): void => {
-      if (hoverChanged(event, entered)) run()
-    }
-  return {
-    onPointerenter: handler(true, onEnter),
-    onPointerleave: handler(false, onLeave),
-    onMouseenter: handler(true, onEnter),
-    onMouseleave: handler(false, onLeave),
-  }
-}
 
 /**
  * Long-form text with notes beside each paragraph.
@@ -361,32 +303,35 @@ export const MarginNotes = defineComponent({
      */
     const noteView = (note: MarginNote, where: NotePlacement): VNode => {
       const emphasised = activeBlockNotes.value.has(note.id) || activeNote.value === note.id
-      return h(
-        'aside',
-        {
-          key: note.id,
-          hidden: where === 'panel' ? !inPanel(note) : !isShown(note),
-          tabindex: where === 'gutter' ? 0 : -1,
-          'data-note-kind': note.kind,
-          'data-note-emphasis': emphasised ? 'true' : undefined,
-          'data-mol-id': `margin-note-${where}-${note.id}`,
-          ...(where === 'gutter'
-            ? hoverHandlers(
-                () => (activeNote.value = note.id),
-                () => (activeNote.value = null),
-              )
-            : {}),
-          onFocusin: where === 'gutter' ? () => (activeNote.value = note.id) : undefined,
-          onFocusout: where === 'gutter' ? () => (activeNote.value = null) : undefined,
-          class: cm.cn(
-            cm.sp('p', 3),
-            cm.textSize('sm'),
-            cm.textMuted,
-            emphasised && cm.bgPrimarySubtle,
-            emphasised && cm.shadowLifted,
-          ),
-        },
-        [note.content as VNodeChild],
+      const onEnter = (): void => {
+        activeNote.value = note.id
+      }
+      const onLeave = (): void => {
+        activeNote.value = null
+      }
+      return withDirectives(
+        h(
+          'aside',
+          {
+            key: note.id,
+            hidden: where === 'panel' ? !inPanel(note) : !isShown(note),
+            tabindex: where === 'gutter' ? 0 : -1,
+            'data-note-kind': note.kind,
+            'data-note-emphasis': emphasised ? 'true' : undefined,
+            'data-mol-id': `margin-note-${where}-${note.id}`,
+            onFocusin: where === 'gutter' ? onEnter : undefined,
+            onFocusout: where === 'gutter' ? onLeave : undefined,
+            class: cm.cn(
+              cm.sp('p', 3),
+              cm.textSize('sm'),
+              cm.textMuted,
+              emphasised && cm.bgPrimarySubtle,
+              emphasised && cm.shadowLifted,
+            ),
+          },
+          [note.content as VNodeChild],
+        ),
+        [[vWebHover, where === 'gutter' ? { onEnter, onLeave } : undefined]],
       )
     }
 
@@ -447,73 +392,77 @@ export const MarginNotes = defineComponent({
                       const togglePin = (): void => {
                         pinnedBlock.value = pinnedBlock.value === block.id ? null : block.id
                       }
-                      return h(
-                        'div',
-                        {
-                          key: block.id,
-                          ref: (el) => {
-                            if (el) blockRefs.set(block.id, el as HTMLElement)
-                            else blockRefs.delete(block.id)
+                      const onEnter = (): void => {
+                        activeBlock.value = block.id
+                      }
+                      const onLeave = (): void => {
+                        activeBlock.value = null
+                      }
+                      return withDirectives(
+                        h(
+                          'div',
+                          {
+                            key: block.id,
+                            ref: (el) => {
+                              if (el) blockRefs.set(block.id, el as HTMLElement)
+                              else blockRefs.delete(block.id)
+                            },
+                            id: block.id,
+                            'data-mol-id': `margin-notes-block-${block.id}`,
+                            'data-block-marked': block.marked ? 'true' : undefined,
+                            'data-block-pinned':
+                              pinnedBlock.value === block.id ? 'true' : undefined,
+                            onFocusin: interactive ? onEnter : undefined,
+                            onFocusout: interactive ? onLeave : undefined,
+                            class: cm.cn(cm.position('relative'), tinted && cm.bgPrimarySubtle),
                           },
-                          id: block.id,
-                          'data-mol-id': `margin-notes-block-${block.id}`,
-                          'data-block-marked': block.marked ? 'true' : undefined,
-                          'data-block-pinned': pinnedBlock.value === block.id ? 'true' : undefined,
-                          ...(interactive
-                            ? hoverHandlers(
-                                () => (activeBlock.value = block.id),
-                                () => (activeBlock.value = null),
-                              )
-                            : {}),
-                          onFocusin: interactive ? () => (activeBlock.value = block.id) : undefined,
-                          onFocusout: interactive ? () => (activeBlock.value = null) : undefined,
-                          class: cm.cn(cm.position('relative'), tinted && cm.bgPrimarySubtle),
-                        },
-                        [
-                          block.marked
-                            ? h('span', {
-                                role: markNamed.value ? 'img' : undefined,
-                                'aria-label': markNamed.value ? props.markLabel : undefined,
-                                'aria-hidden': markNamed.value ? undefined : 'true',
-                                'data-mol-id': `margin-notes-mark-${block.id}`,
-                                class: cm.cn(
-                                  cm.position('absolute'),
-                                  cm.roundedFull,
-                                  cm.bgPrimary,
-                                  cm.hiddenBelow('md'),
-                                ),
-                                style: {
-                                  left: '-0.9rem',
-                                  top: '0.75em',
-                                  width: '6px',
-                                  height: '6px',
-                                },
-                              })
-                            : null,
-                          block.content as VNodeChild,
-                          interactive
-                            ? h(
-                                'div',
-                                {
-                                  class: cm.cn(cm.hiddenFrom('md'), cm.flex({ justify: 'end' })),
-                                },
-                                [
-                                  h(
-                                    'button',
-                                    {
-                                      type: 'button',
-                                      'aria-pressed': pinnedBlock.value === block.id,
-                                      'aria-label': pinLabel.value,
-                                      'data-mol-id': `margin-notes-pin-${block.id}`,
-                                      onClick: togglePin,
-                                      class: cm.button({ variant: 'ghost', size: 'sm' }),
-                                    },
-                                    [h(Icon, { name: 'pin', size: 16, 'aria-hidden': 'true' })],
+                          [
+                            block.marked
+                              ? h('span', {
+                                  role: markNamed.value ? 'img' : undefined,
+                                  'aria-label': markNamed.value ? props.markLabel : undefined,
+                                  'aria-hidden': markNamed.value ? undefined : 'true',
+                                  'data-mol-id': `margin-notes-mark-${block.id}`,
+                                  class: cm.cn(
+                                    cm.position('absolute'),
+                                    cm.roundedFull,
+                                    cm.bgPrimary,
+                                    cm.hiddenBelow('md'),
                                   ),
-                                ],
-                              )
-                            : null,
-                        ],
+                                  style: {
+                                    left: '-0.9rem',
+                                    top: '0.75em',
+                                    width: '6px',
+                                    height: '6px',
+                                  },
+                                })
+                              : null,
+                            block.content as VNodeChild,
+                            interactive
+                              ? h(
+                                  'div',
+                                  {
+                                    class: cm.cn(cm.hiddenFrom('md'), cm.flex({ justify: 'end' })),
+                                  },
+                                  [
+                                    h(
+                                      'button',
+                                      {
+                                        type: 'button',
+                                        'aria-pressed': pinnedBlock.value === block.id,
+                                        'aria-label': pinLabel.value,
+                                        'data-mol-id': `margin-notes-pin-${block.id}`,
+                                        onClick: togglePin,
+                                        class: cm.button({ variant: 'ghost', size: 'sm' }),
+                                      },
+                                      [h(Icon, { name: 'pin', size: 16, 'aria-hidden': 'true' })],
+                                    ),
+                                  ],
+                                )
+                              : null,
+                          ],
+                        ),
+                        [[vWebHover, interactive ? { onEnter, onLeave } : undefined]],
                       )
                     }),
                   ),

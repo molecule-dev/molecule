@@ -17,12 +17,18 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-svelte'
 import { getProvider } from '@molecule/app-i18n'
+import type * as UI from '@molecule/app-ui-svelte'
 
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const Icon = (await import('./mocks/IconMock.svelte')).default
   const Modal = (await import('./mocks/ModalMock.svelte')).default
   const Tooltip = (await import('./mocks/TooltipMock.svelte')).default
-  return { Icon, Modal, Tooltip }
+  return {
+    ...(await importOriginal<typeof UI>()),
+    Icon,
+    Modal,
+    Tooltip,
+  }
 })
 
 import Highlight from '../Highlight.svelte'

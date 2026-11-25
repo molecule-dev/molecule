@@ -26,6 +26,7 @@ import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-vue'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
+import type * as UI from '@molecule/app-ui-vue'
 
 beforeAll(() => setClassMap(classMap))
 
@@ -40,9 +41,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
           ),
   }),
 }))
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<typeof UI>()),
     Icon: defineComponent({
       props: { name: { type: String, required: true } },
       setup: (props) => () => h('svg', { 'data-icon': props.name }),

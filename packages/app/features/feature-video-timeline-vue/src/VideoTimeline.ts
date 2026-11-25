@@ -15,20 +15,17 @@ import {
   type CSSProperties,
   defineComponent,
   h,
-  onBeforeUnmount,
-  onMounted,
   type PropType,
-  ref,
   type VNode,
   type VNodeChild,
-  watch,
+  withDirectives,
 } from 'vue'
 
 import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-vue'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+import { vWebDrag, vWebWheelZoom } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
-import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
 import {
   clampZoom,
   computeRippleUpdates,
@@ -142,9 +139,6 @@ export const VideoTimeline = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
-    /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
-    const tracksBody = ref<HTMLDivElement | null>(null)
-
     /** The duration clamped to >= 0 (React's `safeDuration`). */
     const safeDuration = (): number => (props.duration > 0 ? props.duration : 0)
     /** The horizontal scale in effect (default 20). */
@@ -207,14 +201,13 @@ export const VideoTimeline = defineComponent({
      * Convert a pointer's horizontal offset from the ruler's left edge to a
      * time value, clamped into `[0, duration]`.
      *
-     * @param x - The pointer's offset into the ruler body, in pixels.
+     * @param point - A drag sample relative to the ruler.
      */
-    function seekAt(x: number): void {
+    function seekAt({ x }: ElementDragPoint): void {
       props.onSeek?.(Math.min(pixelsToTime(x, safeScale()), safeDuration()))
     }
 
-    /** The ruler scrub (React's `drag` on the ruler `Box`). */
-    const scrub = createRulerScrub(seekAt, () => Boolean(props.onSeek))
+    const rulerDrag: ElementDrag = { axis: 'horizontal', onStart: seekAt, onMove: seekAt }
 
     /**
      * Apply one zoom step of the wheel factor. The zoom buttons use it too;
@@ -223,7 +216,7 @@ export const VideoTimeline = defineComponent({
      * @param direction - Which way to step.
      * @param notifyAtLimit - Whether to report a step that stays at the bound.
      */
-    function stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
+    function stepZoom(direction: 'in' | 'out', notifyAtLimit = false): void {
       const next = zoomFromWheelDelta(
         safeScale(),
         direction === 'in' ? -1 : 1,
@@ -232,36 +225,6 @@ export const VideoTimeline = defineComponent({
       )
       if (notifyAtLimit || next !== safeScale()) props.onZoomChange?.(next)
     }
-
-    /** Removes the Ctrl-wheel shortcut's listener, while it is attached. */
-    let detachWheelZoom: (() => void) | undefined
-
-    /**
-     * Attach the Ctrl-wheel shortcut while the tracks area and a zoom handler
-     * are both there, and detach it otherwise.
-     */
-    function syncWheelZoom(): void {
-      detachWheelZoom?.()
-      detachWheelZoom = undefined
-      const host = tracksBody.value
-      if (host && props.onZoomChange) {
-        detachWheelZoom = listenForWheelZoom(host, (direction) => stepZoom(direction))
-      }
-    }
-
-    // A scrub in progress ends when the ruler stops seeking, and when the timeline goes away.
-    watch(
-      () => Boolean(props.onSeek),
-      () => scrub.end(),
-      { flush: 'sync' },
-    )
-    watch(() => Boolean(props.onZoomChange), syncWheelZoom, { flush: 'sync' })
-    // The tracks area exists once the timeline is mounted.
-    onMounted(syncWheelZoom)
-    onBeforeUnmount(() => {
-      detachWheelZoom?.()
-      scrub.end()
-    })
 
     /**
      * Forward a track-lane clip move to `onClipMove`, fanning out via
@@ -474,75 +437,79 @@ export const VideoTimeline = defineComponent({
                   boxSizing: 'border-box',
                 } as CSSProperties,
               }),
-              h(
-                'div',
-                {
-                  role: 'slider',
-                  tabIndex: 0,
-                  'aria-label': rulerLabel,
-                  'aria-valuemin': 0,
-                  'aria-valuemax': safeDuration(),
-                  'aria-valuenow': props.currentTime,
-                  'aria-valuetext': playheadLabel,
-                  'data-mol-id': 'video-timeline-ruler',
-                  style: {
-                    flex: '1 1 auto',
-                    position: 'relative',
-                    height: `${rulerHeight}px`,
-                    minWidth: `${bodyWidth()}px`,
-                    overflow: 'hidden',
-                    cursor: props.onSeek ? 'pointer' : 'default',
-                    touchAction: 'none',
-                  } as CSSProperties,
-                  onPointerdown: (event: PointerEvent) => scrub.press(event),
-                },
-                [
-                  ...tickNodes,
-                  h('div', {
-                    'data-mol-id': 'video-timeline-playhead-ruler',
-                    'aria-hidden': 'true',
-                    style: { ...playheadShared, left: `${playhead}px` } as CSSProperties,
-                  }),
-                ],
+              withDirectives(
+                h(
+                  'div',
+                  {
+                    role: 'slider',
+                    tabIndex: 0,
+                    'aria-label': rulerLabel,
+                    'aria-valuemin': 0,
+                    'aria-valuemax': safeDuration(),
+                    'aria-valuenow': props.currentTime,
+                    'aria-valuetext': playheadLabel,
+                    'data-mol-id': 'video-timeline-ruler',
+                    style: {
+                      flex: '1 1 auto',
+                      position: 'relative',
+                      height: `${rulerHeight}px`,
+                      minWidth: `${bodyWidth()}px`,
+                      overflow: 'hidden',
+                      cursor: props.onSeek ? 'pointer' : 'default',
+                      touchAction: 'none',
+                    } as CSSProperties,
+                  },
+                  [
+                    ...tickNodes,
+                    h('div', {
+                      'data-mol-id': 'video-timeline-playhead-ruler',
+                      'aria-hidden': 'true',
+                      style: { ...playheadShared, left: `${playhead}px` } as CSSProperties,
+                    }),
+                  ],
+                ),
+                [[vWebDrag, props.onSeek ? rulerDrag : undefined]],
               ),
             ],
           ),
           // Tracks (scrollable).
-          h(
-            'div',
-            {
-              ref: tracksBody,
-              'data-mol-id': 'video-timeline-tracks',
-              style: {
-                position: 'relative',
-                overflowX: 'auto',
-                overflowY: 'auto',
-                width: '100%',
-              } as CSSProperties,
-            },
-            [
-              h(
-                'div',
-                {
-                  style: {
-                    position: 'relative',
-                    minWidth: `${bodyWidth() + laneHeaderWidth}px`,
-                  } as CSSProperties,
-                },
-                [
-                  ...trackRows,
-                  h('div', {
-                    'data-mol-id': 'video-timeline-playhead',
-                    'aria-hidden': 'true',
+          withDirectives(
+            h(
+              'div',
+              {
+                'data-mol-id': 'video-timeline-tracks',
+                style: {
+                  position: 'relative',
+                  overflowX: 'auto',
+                  overflowY: 'auto',
+                  width: '100%',
+                } as CSSProperties,
+              },
+              [
+                h(
+                  'div',
+                  {
                     style: {
-                      ...playheadShared,
-                      left: `${playhead + laneHeaderWidth}px`,
-                      zIndex: 2,
+                      position: 'relative',
+                      minWidth: `${bodyWidth() + laneHeaderWidth}px`,
                     } as CSSProperties,
-                  }),
-                ],
-              ),
-            ],
+                  },
+                  [
+                    ...trackRows,
+                    h('div', {
+                      'data-mol-id': 'video-timeline-playhead',
+                      'aria-hidden': 'true',
+                      style: {
+                        ...playheadShared,
+                        left: `${playhead + laneHeaderWidth}px`,
+                        zIndex: 2,
+                      } as CSSProperties,
+                    }),
+                  ],
+                ),
+              ],
+            ),
+            [[vWebWheelZoom, props.onZoomChange ? stepZoom : undefined]],
           ),
         ],
       )

@@ -10,9 +10,8 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Icon, Switch } from '@molecule/app-ui-svelte'
+  import { Icon, Switch, webHover } from '@molecule/app-ui-svelte'
 
-  import { hoverChanged } from './hover.js'
   import { buildRows, defaultShownKinds } from './rows.js'
   import { elementStyle, styleString } from './style.js'
   import type { MarginNote, MarginNotesProps } from './types.js'
@@ -213,34 +212,6 @@
   )
 
   /**
-   * Moves a gutter note's hover when the pointer or the mouse event reporting it
-   * is a real hover (see `hoverChanged`).
-   *
-   * @param note - The note.
-   * @param entered - Whether this is an entry.
-   * @returns The event handler.
-   */
-  function noteHover(note: MarginNote, entered: boolean): (event: Event) => void {
-    return (event) => {
-      if (hoverChanged(event, entered)) activeNote = entered ? note.id : null
-    }
-  }
-
-  /**
-   * Moves a block's hover when the pointer or the mouse event reporting it is a
-   * real hover (see `hoverChanged`).
-   *
-   * @param id - The block's id.
-   * @param entered - Whether this is an entry.
-   * @returns The event handler.
-   */
-  function blockHover(id: string, entered: boolean): (event: Event) => void {
-    return (event) => {
-      if (hoverChanged(event, entered)) activeBlock = entered ? id : null
-    }
-  }
-
-  /**
    * The outer wrapper's inline style: React's `containerStyle`, which takes
    * the element's `webStyle` too (the web-only paint, after `style`, whose
    * `coverImage` is painted as the React element paints it).
@@ -282,6 +253,12 @@
 {/snippet}
 
 {#snippet noteView(note: MarginNote, where: 'gutter' | 'panel')}
+  {@const onEnter = (): void => {
+    activeNote = note.id
+  }}
+  {@const onLeave = (): void => {
+    activeNote = null
+  }}
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <aside
     hidden={where === 'panel' ? !inPanel(note) : !isShown(note)}
@@ -291,20 +268,9 @@
       ? 'true'
       : undefined}
     data-mol-id={`margin-note-${where}-${note.id}`}
-    onpointerenter={where === 'gutter' ? noteHover(note, true) : undefined}
-    onpointerleave={where === 'gutter' ? noteHover(note, false) : undefined}
-    onmouseenter={where === 'gutter' ? noteHover(note, true) : undefined}
-    onmouseleave={where === 'gutter' ? noteHover(note, false) : undefined}
-    onfocusin={where === 'gutter'
-      ? () => {
-          activeNote = note.id
-        }
-      : undefined}
-    onfocusout={where === 'gutter'
-      ? () => {
-          activeNote = null
-        }
-      : undefined}
+    use:webHover={where === 'gutter' ? { onEnter, onLeave } : undefined}
+    onfocusin={where === 'gutter' ? onEnter : undefined}
+    onfocusout={where === 'gutter' ? onLeave : undefined}
     class={cm.cn(
       cm.sp('p', 3),
       cm.textSize('sm'),
@@ -338,27 +304,21 @@
             {@const ids = block.noteIds ?? []}
             {@const interactive = ids.length > 0}
             {@const tinted = !!activeNote && ids.includes(activeNote)}
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            {@const onEnter = (): void => {
+              activeBlock = block.id
+            }}
+            {@const onLeave = (): void => {
+              activeBlock = null
+            }}
             <div
               use:trackBlock={block.id}
               id={block.id}
               data-mol-id={`margin-notes-block-${block.id}`}
               data-block-marked={block.marked ? 'true' : undefined}
               data-block-pinned={pinnedBlock === block.id ? 'true' : undefined}
-              onpointerenter={interactive ? blockHover(block.id, true) : undefined}
-              onpointerleave={interactive ? blockHover(block.id, false) : undefined}
-              onmouseenter={interactive ? blockHover(block.id, true) : undefined}
-              onmouseleave={interactive ? blockHover(block.id, false) : undefined}
-              onfocusin={interactive
-                ? () => {
-                    activeBlock = block.id
-                  }
-                : undefined}
-              onfocusout={interactive
-                ? () => {
-                    activeBlock = null
-                  }
-                : undefined}
+              use:webHover={interactive ? { onEnter, onLeave } : undefined}
+              onfocusin={interactive ? onEnter : undefined}
+              onfocusout={interactive ? onLeave : undefined}
               class={cm.cn(cm.position('relative'), tinted && cm.bgPrimarySubtle)}
             >
               {#if block.marked}
