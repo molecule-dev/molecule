@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Represents a single day's completion data for the heatmap strip. */
 export interface StreakDay {
@@ -79,62 +80,64 @@ export function HabitStreakCard({
     )
   return (
     <Card className={className}>
-      <div className={cm.stack(3)}>
-        <header className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.stack(3)}>
+        <Box as="header" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {icon}
-          <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{name}</h3>
-        </header>
-        <div className={cm.flex({ align: 'baseline', gap: 'lg' })}>
-          <div>
-            <div className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>{currentStreak}</div>
-            <div className={cm.textSize('xs')}>
+          <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+            {name}
+          </Text>
+        </Box>
+        <Box as="div" className={cm.flex({ align: 'baseline', gap: 'lg' })}>
+          <Box as="div">
+            <Box as="div" className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
+              {currentStreak}
+            </Box>
+            <Box as="div" className={cm.textSize('xs')}>
               {t('habit.currentStreak', {}, { defaultValue: 'day streak' })}
-            </div>
-          </div>
+            </Box>
+          </Box>
           {bestStreak !== undefined && (
-            <div>
-              <div className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+            <Box as="div">
+              <Box as="div" className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
                 {bestStreak}
-              </div>
-              <div className={cm.textSize('xs')}>
+              </Box>
+              <Box as="div" className={cm.textSize('xs')}>
                 {t('habit.bestStreak', {}, { defaultValue: 'best' })}
-              </div>
-            </div>
+              </Box>
+            </Box>
           )}
           {totalCompletions !== undefined && (
-            <div>
-              <div className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+            <Box as="div">
+              <Box as="div" className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
                 {totalCompletions}
-              </div>
-              <div className={cm.textSize('xs')}>
+              </Box>
+              <Box as="div" className={cm.textSize('xs')}>
                 {t('habit.total', {}, { defaultValue: 'total' })}
-              </div>
-            </div>
+              </Box>
+            </Box>
           )}
-        </div>
+        </Box>
         {days.length > 0 && (
-          <div
+          <Box
+            as="div"
             className={cm.flex({ align: 'center', gap: 'xs' })}
             role="group"
             aria-label={t('habit.aria.recentActivity', {}, { defaultValue: 'Recent activity' })}
           >
             {days.map((d) => (
-              <span
+              <Box
+                as="span"
                 key={d.date}
                 role="img"
                 aria-label={dayLabel(d)}
                 title={dayLabel(d)}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 2,
-                  background: intensityColor(d.count, max),
-                }}
+                style={{ width: 10, height: 10, borderRadius: 2 }}
+                webStyle={{ background: intensityColor(d.count, max) }}
               />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

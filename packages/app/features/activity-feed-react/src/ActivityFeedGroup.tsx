@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
@@ -28,13 +29,15 @@ export function ActivityFeedGroup({
 }: ActivityFeedGroupProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <section className={cm.cn(cm.stack(3), className)}>
-      <h3 className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{heading}</h3>
-      <div className={cm.stack(4)}>
+    <Box as="section" className={cm.cn(cm.stack(3), className)}>
+      <Text as="h3" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+        {heading}
+      </Text>
+      <Box as="div" className={cm.stack(4)}>
         {items.map((it) => (
           <ActivityFeedItem key={it.id} item={it} />
         ))}
-      </div>
-    </section>
+      </Box>
+    </Box>
   )
 }

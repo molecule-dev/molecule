@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link TimelineDate} component. */
 export interface TimelineDateProps {
@@ -17,7 +18,8 @@ export interface TimelineDateProps {
 export function TimelineDate({ children, className }: TimelineDateProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('py', 2),
@@ -26,7 +28,9 @@ export function TimelineDate({ children, className }: TimelineDateProps): JSX.El
         className,
       )}
     >
-      <span className={cm.flex1}>{children}</span>
-    </div>
+      <Box as="span" className={cm.flex1}>
+        {children}
+      </Box>
+    </Box>
   )
 }

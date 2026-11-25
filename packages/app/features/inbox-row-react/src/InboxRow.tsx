@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link InboxRow}. */
 export interface InboxRowProps {
@@ -85,16 +86,18 @@ export function InboxRow({
    * a button may carry it.
    */
   const openButton = onClick ? (
-    <button
+    <Pressable
+      as="button"
       type="button"
       aria-labelledby={openLabelledBy}
       data-mol-id="inbox-row-open"
       onClick={() => onClick()}
-      /* mol-bespoke-button: the whole row is the hit area, not a CTA — an empty,
-         transparent button over the row; the inline background/border/padding are
+      /* mol-bespoke-button: the whole row is the hit area, not a CTA — an
+         empty, transparent button over the row; the inline background/border/padding are
          native resets. */
       className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-      style={{ background: 'transparent', border: 'none', padding: 0 }}
+      style={{ padding: 0 }}
+      webStyle={{ background: 'transparent', border: 'none' }}
     />
   ) : null
 
@@ -104,7 +107,8 @@ export function InboxRow({
    */
   const starButton =
     onToggleStar !== undefined ? (
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={() => onToggleStar()}
         aria-pressed={starred}
@@ -124,10 +128,10 @@ export function InboxRow({
           cm.touchTarget,
           starred ? cm.textTone('warning') : cm.textMuted,
         )}
-        style={{ background: 'none', border: 'none', fontSize: 16 }}
+        webStyle={{ background: 'none', border: 'none', fontSize: 16 }}
       >
         ★
-      </button>
+      </Pressable>
     ) : null
 
   /**
@@ -137,7 +141,9 @@ export function InboxRow({
    */
   const starControl =
     starButton && onClick ? (
-      <span className={cm.cn(cm.position('relative'))}>{starButton}</span>
+      <Box as="span" className={cm.cn(cm.position('relative'))}>
+        {starButton}
+      </Box>
     ) : (
       starButton
     )
@@ -148,7 +154,9 @@ export function InboxRow({
    */
   const selectionControl = selectionSlot ? (
     onClick ? (
-      <span className={cm.cn(cm.position('relative'))}>{selectionSlot}</span>
+      <Box as="span" className={cm.cn(cm.position('relative'))}>
+        {selectionSlot}
+      </Box>
     ) : (
       selectionSlot
     )
@@ -160,36 +168,46 @@ export function InboxRow({
    */
   const labelRows = (
     <>
-      <div className={cm.flex({ align: 'baseline', gap: 'sm' })}>
-        <span id={senderId} className={cm.textSize('sm')}>
+      <Box as="div" className={cm.flex({ align: 'baseline', gap: 'sm' })}>
+        <Box as="span" id={senderId} className={cm.textSize('sm')}>
           {sender}
-        </span>
+        </Box>
         {labels && (
-          <span
+          <Box
+            as="span"
             className={cm.cn(
               cm.flex({ align: 'center', gap: 'xs' }),
               onClick ? cm.position('relative') : undefined,
             )}
           >
             {labels}
-          </span>
+          </Box>
         )}
-      </div>
-      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-        <span id={subjectId} className={cm.textSize('sm')}>
+      </Box>
+      <Box
+        as="div"
+        style={{ overflow: 'hidden' }}
+        webStyle={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+      >
+        <Box as="span" id={subjectId} className={cm.textSize('sm')}>
           {subject}
-        </span>
+        </Box>
         {preview && (
-          <span className={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))} style={{ opacity: 0.6 }}>
+          <Box
+            as="span"
+            className={cm.cn(cm.textSize('sm'), cm.sp('ml', 2))}
+            style={{ opacity: 0.6 }}
+          >
             — {preview}
-          </span>
+          </Box>
         )}
-      </div>
+      </Box>
     </>
   )
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
@@ -197,30 +215,37 @@ export function InboxRow({
         onClick ? cm.position('relative') : undefined,
         className,
       )}
-      style={unread ? { fontWeight: 600 } : undefined}
+      webStyle={unread ? { fontWeight: 600 } : undefined}
     >
       {openButton}
       {selectionControl}
       {starControl}
       <Avatar src={senderAvatarSrc} alt={senderName} name={senderName} size="sm" />
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))} style={{ minWidth: 0 }}>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))} style={{ minWidth: 0 }}>
         {labelRows}
-      </div>
+      </Box>
       {hasAttachment && (
-        <span
+        <Text
+          as="span"
           aria-label={t('inboxRow.hasAttachment', undefined, { defaultValue: 'Has attachment' })}
         >
           📎
-        </span>
+        </Text>
       )}
       {unread && (
-        <span
+        <Box
+          as="span"
           aria-hidden
           className={cm.bgTone('info')}
-          style={{ width: 8, height: 8, borderRadius: '50%' }}
+          style={{ width: 8, height: 8 }}
+          webStyle={{ borderRadius: '50%' }}
         />
       )}
-      {timestamp && <span className={cm.cn(cm.textSize('xs'), cm.shrink0)}>{timestamp}</span>}
-    </div>
+      {timestamp && (
+        <Box as="span" className={cm.cn(cm.textSize('xs'), cm.shrink0)}>
+          {timestamp}
+        </Box>
+      )}
+    </Box>
   )
 }

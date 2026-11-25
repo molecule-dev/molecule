@@ -2,6 +2,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link JobListingRow}. */
 export interface JobListingRowProps {
@@ -67,7 +68,8 @@ export function JobListingRow({
   // wrappers rather than their parent, so the raised slots stay reachable
   // controls and keep their own clicks.
   const openButton = onClick ? (
-    <button
+    <Pressable
+      as="button"
       type="button"
       aria-labelledby={nameId}
       data-mol-id="job-listing-row-open"
@@ -76,11 +78,13 @@ export function JobListingRow({
          empty, transparent button over the row; the inline background/border/
          padding are native resets. */
       className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-      style={{ background: 'transparent', border: 'none', padding: 0 }}
+      style={{ padding: 0 }}
+      webStyle={{ background: 'transparent', border: 'none' }}
     />
   ) : null
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'start', gap: 'md' }),
         cm.sp('p', 3),
@@ -89,33 +93,57 @@ export function JobListingRow({
       )}
     >
       {openButton}
-      {leading && <div className={cm.shrink0}>{leading}</div>}
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-        <h3 id={nameId} className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+      {leading && (
+        <Box as="div" className={cm.shrink0}>
+          {leading}
+        </Box>
+      )}
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const))}>
+        <Text as="h3" id={nameId} className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
           {title}
-        </h3>
-        {company && <span className={cm.textSize('sm')}>{company}</span>}
-        <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-          {location && <span className={cm.textSize('xs')}>📍 {location}</span>}
-          {type && <span className={cm.textSize('xs')}>· {type}</span>}
-          {salary && (
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>· {salary}</span>
+        </Text>
+        {company && (
+          <Box as="span" className={cm.textSize('sm')}>
+            {company}
+          </Box>
+        )}
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          {location && (
+            <Box as="span" className={cm.textSize('xs')}>
+              📍 {location}
+            </Box>
           )}
-          {postedAt && <span className={cm.textSize('xs')}>· {postedAt}</span>}
-        </div>
+          {type && (
+            <Box as="span" className={cm.textSize('xs')}>
+              · {type}
+            </Box>
+          )}
+          {salary && (
+            <Box as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              · {salary}
+            </Box>
+          )}
+          {postedAt && (
+            <Box as="span" className={cm.textSize('xs')}>
+              · {postedAt}
+            </Box>
+          )}
+        </Box>
         {tags && (
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
               cm.position('relative'),
             )}
           >
             {tags}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
       {actions && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ align: 'center', gap: 'sm' }),
             cm.shrink0,
@@ -123,8 +151,8 @@ export function JobListingRow({
           )}
         >
           {actions}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

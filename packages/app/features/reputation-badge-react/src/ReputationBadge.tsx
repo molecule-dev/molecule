@@ -3,6 +3,7 @@ import type React from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { colorForLevel, DEFAULT_THRESHOLDS, levelForScore } from './levels.js'
 import type { ReputationLevel, ReputationThresholds } from './types.js'
@@ -100,38 +101,45 @@ export function ReputationBadge({
 
   if (variant === 'full') {
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.stack(1 as const), className)}
         data-mol-id="reputation-badge"
         aria-label={ariaLabel}
       >
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
           {t('reputationBadge.caption', {}, { defaultValue: 'Reputation' })}
-        </span>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })} data-mol-id="reputation-badge-row">
-          <span
+        </Text>
+        <Box
+          as="div"
+          className={cm.flex({ align: 'center', gap: 'sm' })}
+          data-mol-id="reputation-badge-row"
+        >
+          <Text
+            as="span"
             className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
             data-mol-id="reputation-badge-score"
           >
             {formattedScore}
-          </span>
+          </Text>
           <Badge color={color}>{levelLabelText}</Badge>
-        </div>
-      </div>
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <span
+    <Box
+      as="span"
       className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
       data-mol-id="reputation-badge"
       aria-label={ariaLabel}
     >
-      <span className={cm.fontWeight('semibold')} data-mol-id="reputation-badge-score">
+      <Text as="span" className={cm.fontWeight('semibold')} data-mol-id="reputation-badge-score">
         {formattedScore}
-      </span>
+      </Text>
       <Badge color={color}>{levelLabelText}</Badge>
-    </span>
+    </Box>
   )
 }
 

@@ -3,6 +3,7 @@ import { type ReactNode, useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ForumThreadRow}. */
 export interface ForumThreadRowProps {
@@ -87,7 +88,8 @@ export function ForumThreadRow({
   // so the row's accessible name is the thread title.
   const nameId = useId()
   return (
-    <article
+    <Box
+      as="article"
       className={cm.cn(
         cm.flex({ align: 'start', gap: 'sm' }),
         cm.sp('p', 3),
@@ -96,7 +98,8 @@ export function ForumThreadRow({
       )}
     >
       {onClick && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           aria-labelledby={nameId}
           data-mol-id="forum-thread-row-open"
@@ -105,59 +108,83 @@ export function ForumThreadRow({
              empty, transparent button over the row; the inline background/
              border/padding are native resets. */
           className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-          style={{ background: 'transparent', border: 'none', padding: 0 }}
+          webStyle={{ background: 'transparent', border: 'none', padding: 0 }}
         />
       )}
       {voteControls && (
-        <div className={cm.cn(cm.shrink0, onClick ? cm.position('relative') : undefined)}>
+        <Box as="div" className={cm.cn(cm.shrink0, onClick ? cm.position('relative') : undefined)}>
           {voteControls}
-        </div>
+        </Box>
       )}
       {voteScore !== undefined && !voteControls && (
-        <div className={cm.cn(cm.shrink0, cm.textCenter, cm.stack(0 as const))}>
-          <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{voteScore}</span>
-          <span className={cm.textSize('xs')}>{votesLabel}</span>
-        </div>
+        <Box as="div" className={cm.cn(cm.shrink0, cm.textCenter, cm.stack(0 as const))}>
+          <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
+            {voteScore}
+          </Text>
+          <Text as="span" className={cm.textSize('xs')}>
+            {votesLabel}
+          </Text>
+        </Box>
       )}
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-        <header className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const))}>
+        <Box as="header" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
           {pinned && (
-            <span role="img" aria-label={pinnedLabel} title={pinnedLabel}>
+            <Text as="span" role="img" aria-label={pinnedLabel} title={pinnedLabel}>
               📌
-            </span>
+            </Text>
           )}
           {locked && (
-            <span role="img" aria-label={lockedLabel} title={lockedLabel}>
+            <Text as="span" role="img" aria-label={lockedLabel} title={lockedLabel}>
               🔒
-            </span>
+            </Text>
           )}
-          <h3
+          <Text
+            as="h3"
             id={onClick ? nameId : undefined}
             className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}
           >
             {title}
-          </h3>
-        </header>
-        {excerpt && <p className={cm.textSize('sm')}>{excerpt}</p>}
-        <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          </Text>
+        </Box>
+        {excerpt && (
+          <Text as="p" className={cm.textSize('sm')}>
+            {excerpt}
+          </Text>
+        )}
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
           {author && (
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{author}</span>
+            <Box as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              {author}
+            </Box>
           )}
-          {createdAt && <span className={cm.textSize('xs')}>· {createdAt}</span>}
-          {repliesText !== undefined && <span className={cm.textSize('xs')}>· {repliesText}</span>}
-          {viewsText !== undefined && <span className={cm.textSize('xs')}>· {viewsText}</span>}
-        </div>
+          {createdAt && (
+            <Box as="span" className={cm.textSize('xs')}>
+              · {createdAt}
+            </Box>
+          )}
+          {repliesText !== undefined && (
+            <Text as="span" className={cm.textSize('xs')}>
+              · {repliesText}
+            </Text>
+          )}
+          {viewsText !== undefined && (
+            <Text as="span" className={cm.textSize('xs')}>
+              · {viewsText}
+            </Text>
+          )}
+        </Box>
         {tags && (
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
               onClick ? cm.position('relative') : undefined,
             )}
           >
             {tags}
-          </div>
+          </Box>
         )}
-      </div>
-    </article>
+      </Box>
+    </Box>
   )
 }

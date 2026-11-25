@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ListingCardMedia}. */
 export interface ListingCardMediaProps {
@@ -35,19 +36,24 @@ export function ListingCardMedia({
   const overlay = slot(overlayProp)
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.position('relative'), className)}
-      style={{ aspectRatio: aspect.replace('/', ' / ') }}
+      webStyle={{ aspectRatio: aspect.replace('/', ' / ') }}
     >
       {children ??
         (src && (
-          <img
+          <Image
             src={src}
             alt={alt ?? ''}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ))}
-      {overlay && <div className={cm.cn(cm.position('absolute'), cm.inset0)}>{overlay}</div>}
-    </div>
+      {overlay && (
+        <Box as="div" className={cm.cn(cm.position('absolute'), cm.inset0)}>
+          {overlay}
+        </Box>
+      )}
+    </Box>
   )
 }

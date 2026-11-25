@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A single chapter entry inside an episode / video / podcast track.
@@ -115,30 +116,33 @@ export function ChapterList(props: ChapterListProps): ReactNode {
 
   if (chapters.length === 0) {
     return (
-      <div
+      <Box
+        as="div"
         role="region"
         aria-label={regionLabel}
         data-mol-id="chapter-list"
         className={cm.cn(cm.sp('p', 3), className)}
       >
-        <p className={cm.cn(cm.textSize('sm'))} data-mol-id="chapter-list-empty">
+        <Text as="p" className={cm.cn(cm.textSize('sm'))} data-mol-id="chapter-list-empty">
           {emptyLabel}
-        </p>
-      </div>
+        </Text>
+      </Box>
     )
   }
 
   const activeIndex = findActiveChapterIndex(chapters, currentTime)
 
   return (
-    <ul
+    <Box
+      as="ul"
       // Explicit: Safari/VoiceOver drop the list role from a <ul> styled without
       // bullets, so the role is stated rather than left implicit.
       role="list"
       aria-label={regionLabel}
       data-mol-id="chapter-list"
       className={cm.cn(cm.stack(0 as const), className)}
-      style={{ listStyle: 'none', padding: 0, margin: 0 }}
+      style={{ padding: 0, margin: 0 }}
+      webStyle={{ listStyle: 'none' }}
     >
       {chapters.map((chapter, index) => {
         const isActive = index === activeIndex
@@ -154,17 +158,19 @@ export function ChapterList(props: ChapterListProps): ReactNode {
         )
 
         const rowContent = (
-          <div
+          <Box
+            as="div"
             className={cm.cn(cm.flex({ align: 'center', gap: 'md' }), cm.sp('p', 2))}
             data-mol-id="chapter-list-row-content"
           >
-            <div
+            <Box
+              as="div"
               className={cm.cn(cm.shrink0)}
               data-mol-id="chapter-list-row-thumbnail"
               style={{ width: 48, height: 48 }}
             >
               {chapter.thumbnail ? (
-                <img
+                <Image
                   src={chapter.thumbnail}
                   alt={thumbnailAlt}
                   style={{
@@ -175,7 +181,8 @@ export function ChapterList(props: ChapterListProps): ReactNode {
                   }}
                 />
               ) : (
-                <div
+                <Box
+                  as="div"
                   aria-hidden="true"
                   style={{
                     width: '100%',
@@ -184,48 +191,57 @@ export function ChapterList(props: ChapterListProps): ReactNode {
                   }}
                 />
               )}
-            </div>
+            </Box>
 
-            <div
+            <Box
+              as="div"
               className={cm.cn(cm.stack(0 as const))}
               data-mol-id="chapter-list-row-meta"
-              style={{ minWidth: 0, flex: '1 1 0%' }}
+              style={{ minWidth: 0 }}
+              webStyle={{ flex: '1 1 0%' }}
             >
-              <span
+              <Text
+                as="span"
                 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
                 data-mol-id="chapter-list-row-title"
-                style={{
-                  overflow: 'hidden',
+                style={{ overflow: 'hidden' }}
+                webStyle={{
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                   display: 'block',
                 }}
               >
                 {chapter.title}
-              </span>
-              <span className={cm.textSize('xs')} data-mol-id="chapter-list-row-timestamp">
+              </Text>
+              <Text
+                as="span"
+                className={cm.textSize('xs')}
+                data-mol-id="chapter-list-row-timestamp"
+              >
                 {formatTimestamp(chapter.startTime)}
                 {isActive ? ` · ${currentBadge}` : null}
-              </span>
-            </div>
+              </Text>
+            </Box>
 
             {rowTrailing && (
-              <div className={cm.cn(cm.shrink0)} data-mol-id="chapter-list-row-trailing">
+              <Box as="div" className={cm.cn(cm.shrink0)} data-mol-id="chapter-list-row-trailing">
                 {rowTrailing(chapter)}
-              </div>
+              </Box>
             )}
-          </div>
+          </Box>
         )
 
         return (
-          <li
+          <Box
+            as="li"
             key={chapter.id}
             data-mol-id="chapter-list-row"
             data-active={isActive ? 'true' : 'false'}
             data-chapter-id={chapter.id}
           >
             {onSeek ? (
-              <button
+              <Pressable
+                as="button"
                 type="button"
                 onClick={() => onSeek(chapter.startTime)}
                 aria-label={seekLabel}
@@ -237,28 +253,28 @@ export function ChapterList(props: ChapterListProps): ReactNode {
                    padding are native resets rather than a competing design.
                    The row is already taller than the touch floor. */
                 className={cm.cn(cm.cursorPointer)}
-                style={{
+                style={{ width: '100%', padding: 0 }}
+                webStyle={{
                   display: 'block',
-                  width: '100%',
                   textAlign: 'left',
                   background: 'transparent',
                   border: 'none',
-                  padding: 0,
                 }}
               >
                 {rowContent}
-              </button>
+              </Pressable>
             ) : (
-              <div
+              <Box
+                as="div"
                 aria-current={isActive ? 'true' : undefined}
                 data-mol-id="chapter-list-row-static"
               >
                 {rowContent}
-              </div>
+              </Box>
             )}
-          </li>
+          </Box>
         )
       })}
-    </ul>
+    </Box>
   )
 }

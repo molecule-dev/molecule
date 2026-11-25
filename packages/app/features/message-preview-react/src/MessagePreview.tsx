@@ -1,7 +1,7 @@
 import type { JSX, KeyboardEvent, ReactNode } from 'react'
 
-import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Link, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Presence state of the contact shown in the avatar dot. */
 export type MessagePreviewPresence = 'online' | 'away' | 'offline'
@@ -70,8 +70,9 @@ export function MessagePreview({
 
   const body = (
     <>
-      <div className={cm.messagePreviewAvatarWrap}>
-        <div
+      <Box as="div" className={cm.messagePreviewAvatarWrap}>
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'center' }),
             cm.w(9),
@@ -83,9 +84,10 @@ export function MessagePreview({
           )}
         >
           {initialsLabel}
-        </div>
+        </Box>
         {presence ? (
-          <span
+          <Box
+            as="span"
             aria-hidden="true"
             className={cm.cn(
               cm.messagePreviewPresenceDot,
@@ -96,10 +98,11 @@ export function MessagePreview({
             )}
           />
         ) : null}
-      </div>
-      <div className={cm.cn(cm.flex({ direction: 'col', gap: 1 }), cm.flex1, cm.minW(0))}>
-        <div className={cm.cn(cm.flex({ justify: 'between', align: 'center', gap: 2 }))}>
-          <span
+      </Box>
+      <Box as="div" className={cm.cn(cm.flex({ direction: 'col', gap: 1 }), cm.flex1, cm.minW(0))}>
+        <Box as="div" className={cm.cn(cm.flex({ justify: 'between', align: 'center', gap: 2 }))}>
+          <Text
+            as="span"
             className={cm.cn(
               cm.textSize('sm'),
               cm.fontWeight(unread > 0 ? 'bold' : 'semibold'),
@@ -107,22 +110,26 @@ export function MessagePreview({
             )}
           >
             {name}
-          </span>
-          <span className={cm.cn(cm.textSize('xs'), cm.messagePreviewTimestamp)}>{timestamp}</span>
-        </div>
-        <div className={cm.cn(cm.flex({ align: 'center', gap: 2 }))}>
+          </Text>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.messagePreviewTimestamp)}>
+            {timestamp}
+          </Text>
+        </Box>
+        <Box as="div" className={cm.cn(cm.flex({ align: 'center', gap: 2 }))}>
           {channelIcon ? (
-            <span
-              className={cm.cn(cm.iconGlyphFont, cm.messagePreviewChannelIcon)}
+            <GlyphIcon
+              name={channelIcon}
+              className={cm.messagePreviewChannelIcon}
               style={{ fontSize: 14 }}
               aria-hidden="true"
-            >
-              {channelIcon}
-            </span>
+            />
           ) : null}
-          <p className={cm.cn(cm.textSize('xs'), cm.messagePreviewText)}>{preview}</p>
+          <Text as="p" className={cm.cn(cm.textSize('xs'), cm.messagePreviewText)}>
+            {preview}
+          </Text>
           {unread > 0 ? (
-            <span
+            <Text
+              as="span"
               aria-label={unreadAriaLabel ?? `${unread} unread`}
               className={cm.cn(
                 cm.flex({ align: 'center', justify: 'center' }),
@@ -132,10 +139,10 @@ export function MessagePreview({
               )}
             >
               {unread}
-            </span>
+            </Text>
           ) : null}
-        </div>
-      </div>
+        </Box>
+      </Box>
     </>
   )
 
@@ -167,7 +174,8 @@ export function MessagePreview({
       }
     : undefined
   return (
-    <div
+    <Pressable
+      as="div"
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
@@ -175,7 +183,7 @@ export function MessagePreview({
       className={wrapperClass}
     >
       {body}
-    </div>
+    </Pressable>
   )
 }
 

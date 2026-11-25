@@ -3,6 +3,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { ProgressBar } from './ProgressBar.js'
 
@@ -54,27 +55,31 @@ export function ProgressCard({
   const descriptionId = useId()
   return (
     <Card className={className}>
-      <div className={cm.stack(3)}>
-        <div className={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.stack(3)}>
+        <Box as="div" className={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {icon}
-            <div>
-              <h3 id={titleId} className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+            <Box as="div">
+              <Text
+                as="h3"
+                id={titleId}
+                className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}
+              >
                 {title}
-              </h3>
+              </Text>
               {description && (
-                <p id={descriptionId} className={cm.textSize('sm')}>
+                <Text as="p" id={descriptionId} className={cm.textSize('sm')}>
                   {description}
-                </p>
+                </Text>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
           {valueLabel && (
-            <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+            <Box as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
               {valueLabel}
-            </span>
+            </Box>
           )}
-        </div>
+        </Box>
         <ProgressBar
           value={value}
           max={max}
@@ -83,7 +88,7 @@ export function ProgressCard({
           describedBy={description ? descriptionId : undefined}
         />
         {children}
-      </div>
+      </Box>
     </Card>
   )
 }

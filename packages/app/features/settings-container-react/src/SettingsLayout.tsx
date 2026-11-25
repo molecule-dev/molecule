@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link SettingsLayout} component. */
 export interface SettingsLayoutProps {
@@ -33,14 +34,18 @@ export function SettingsLayout({
 }: SettingsLayoutProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div data-mol-id={dataMolId} className={cm.cn(cm.stack(4), className)}>
+    <Box as="div" data-mol-id={dataMolId} className={cm.cn(cm.stack(4), className)}>
       {header}
-      <div className={cm.flex({ align: 'start', gap: 'lg' })}>
-        <aside className={cm.shrink0}>{sidebar}</aside>
-        <main className={cm.flex1}>
-          <div className={cm.stack(6)}>{children}</div>
-        </main>
-      </div>
-    </div>
+      <Box as="div" className={cm.flex({ align: 'start', gap: 'lg' })}>
+        <Box as="aside" className={cm.shrink0}>
+          {sidebar}
+        </Box>
+        <Box as="main" className={cm.flex1}>
+          <Box as="div" className={cm.stack(6)}>
+            {children}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   )
 }

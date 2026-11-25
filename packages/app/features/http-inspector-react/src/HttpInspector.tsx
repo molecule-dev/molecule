@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select, Textarea } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** HTTP method verb for a request. */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
@@ -96,8 +97,8 @@ export function HttpInspector({
     onHeadersChange(next)
   }
   return (
-    <div className={cm.cn(cm.stack(3), className)}>
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+    <Box as="div" className={cm.cn(cm.stack(3), className)}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {/* The options are protocol tokens (GET, POST, …): never translated,
             so the element carries HTML's own `translate="no"`. */}
         <Select
@@ -122,13 +123,13 @@ export function HttpInspector({
             ? t('httpInspector.sending', {}, { defaultValue: 'Sending…' })
             : t('httpInspector.send', {}, { defaultValue: 'Send' })}
         </Button>
-      </div>
-      <div className={cm.stack(1 as const)}>
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+      </Box>
+      <Box as="div" className={cm.stack(1 as const)}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
           {t('httpInspector.headers', {}, { defaultValue: 'Headers' })}
-        </span>
+        </Text>
         {headers.map((h, i) => (
-          <div key={i} className={cm.flex({ align: 'center', gap: 'xs' })}>
+          <Box as="div" key={i} className={cm.flex({ align: 'center', gap: 'xs' })}>
             <Input
               type="text"
               value={h.key}
@@ -149,7 +150,7 @@ export function HttpInspector({
             >
               ×
             </Button>
-          </div>
+          </Box>
         ))}
         <Button
           variant="ghost"
@@ -158,12 +159,12 @@ export function HttpInspector({
         >
           + {t('httpInspector.addHeader', {}, { defaultValue: 'Add header' })}
         </Button>
-      </div>
+      </Box>
       {method !== 'GET' && method !== 'HEAD' && (
-        <div className={cm.stack(1 as const)}>
-          <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+        <Box as="div" className={cm.stack(1 as const)}>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
             {t('httpInspector.body', {}, { defaultValue: 'Body' })}
-          </span>
+          </Text>
           {/* The placeholder is a JSON example — input, not prose: never translated. */}
           <Textarea
             {...NOT_TRANSLATED}
@@ -172,30 +173,34 @@ export function HttpInspector({
             rows={6}
             placeholder='{"key": "value"}'
           />
-        </div>
+        </Box>
       )}
       {response && (
-        <div className={cm.stack(2)}>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-            <span
+        <Box as="div" className={cm.stack(2)}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+            <Text
+              as="span"
               className={cm.cn(cm.bgTone(statusTone(response.statusCode)), cm.textOnTone)}
-              style={{
-                padding: '2px 8px',
-                borderRadius: 4,
-                fontWeight: 700,
-              }}
+              style={{ borderRadius: 4, fontWeight: '700' }}
+              webStyle={{ padding: '2px 8px' }}
             >
               {response.statusCode} {response.statusText ?? ''}
-            </span>
+            </Text>
             {response.durationMs !== undefined && (
-              <span className={cm.textSize('xs')}>{response.durationMs}ms</span>
+              <Text as="span" className={cm.textSize('xs')}>
+                {response.durationMs}ms
+              </Text>
             )}
-          </div>
-          <pre className={cm.cn(cm.sp('p', 3), cm.textSize('xs'))} style={{ overflowX: 'auto' }}>
+          </Box>
+          <Text
+            as="pre"
+            className={cm.cn(cm.sp('p', 3), cm.textSize('xs'))}
+            webStyle={{ overflowX: 'auto' }}
+          >
             {response.body}
-          </pre>
-        </div>
+          </Text>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

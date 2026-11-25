@@ -1,6 +1,7 @@
-import type { JSX, KeyboardEvent, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Shape of a single audit / activity log entry displayed by AuditLogRow. */
 export interface AuditLogEntry {
@@ -45,7 +46,7 @@ export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JS
   // a11y tree: role/tabIndex make it focusable and Enter/Space activate it,
   // matching native button keyboard semantics.
   const handleKeyDown = onClick
-    ? (event: KeyboardEvent<HTMLDivElement>): void => {
+    ? (event: KitKeyboardEvent): void => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
           onClick()
@@ -53,7 +54,8 @@ export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JS
       }
     : undefined
   return (
-    <div
+    <Pressable
+      as="div"
       onClick={onClick}
       onKeyDown={handleKeyDown}
       role={onClick ? 'button' : undefined}
@@ -66,28 +68,53 @@ export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JS
         className,
       )}
     >
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-        <div className={cm.cn(cm.textSize('sm'))}>
-          <span className={cm.fontWeight('semibold')}>{actor}</span> <span>{action}</span>{' '}
-          {target && <span className={cm.fontWeight('medium')}>{target}</span>}
-          <span className={cm.cn(cm.sp('ml', 2), cm.textSize('xs'))}>· {timestamp}</span>
-          {environment && (
-            <span className={cm.cn(cm.sp('ml', 2), cm.textSize('xs'), cm.fontWeight('semibold'))}>
-              [{environment}]
-            </span>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const))}>
+        <Box as="div" className={cm.cn(cm.textSize('sm'))}>
+          <Box as="span" className={cm.fontWeight('semibold')}>
+            {actor}
+          </Box>{' '}
+          <Box as="span">{action}</Box>{' '}
+          {target && (
+            <Box as="span" className={cm.fontWeight('medium')}>
+              {target}
+            </Box>
           )}
-        </div>
+          <Box as="span" className={cm.cn(cm.sp('ml', 2), cm.textSize('xs'))}>
+            · {timestamp}
+          </Box>
+          {environment && (
+            <Box
+              as="span"
+              className={cm.cn(cm.sp('ml', 2), cm.textSize('xs'), cm.fontWeight('semibold'))}
+            >
+              [{environment}]
+            </Box>
+          )}
+        </Box>
         {showDelta && (
-          <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}>
+          <Box
+            as="div"
+            className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
+          >
             {oldValue !== undefined && (
-              <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>{oldValue}</span>
+              <Box as="span" style={{ opacity: 0.7 }} webStyle={{ textDecoration: 'line-through' }}>
+                {oldValue}
+              </Box>
             )}
-            {oldValue !== undefined && newValue !== undefined && <span aria-hidden>→</span>}
-            {newValue !== undefined && <span>{newValue}</span>}
-          </div>
+            {oldValue !== undefined && newValue !== undefined && (
+              <Text as="span" aria-hidden>
+                →
+              </Text>
+            )}
+            {newValue !== undefined && <Box as="span">{newValue}</Box>}
+          </Box>
         )}
-        {traceId && <span className={cm.textSize('xs')}>{traceId}</span>}
-      </div>
-    </div>
+        {traceId && (
+          <Box as="span" className={cm.textSize('xs')}>
+            {traceId}
+          </Box>
+        )}
+      </Box>
+    </Pressable>
   )
 }

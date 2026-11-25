@@ -3,6 +3,7 @@ import { slot } from '@molecule/app-react/render'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { HeroMetricTrendChip } from './HeroMetricTrendChip.js'
 import type { HeroMetricAccent, HeroMetricCardProps, HeroMetricSemanticAccent } from './types.js'
@@ -107,19 +108,23 @@ export function HeroMetricCard({
       data-mol-id={dataMolId}
     >
       {accentBar ? (
-        <span
+        <Box
+          as="span"
           aria-hidden="true"
           className={cm.cn(accentBar.className)}
-          style={{ display: 'block', height: '4px', backgroundColor: accentBar.backgroundColor }}
+          style={{ backgroundColor: accentBar.backgroundColor }}
+          webStyle={{ display: 'block', height: '4px' }}
         />
       ) : null}
-      <div className={cm.cardPadding('md')}>
-        <div
+      <Box as="div" className={cm.cardPadding('md')}>
+        <Box
+          as="div"
           className={cm.flex({ justify: 'between', align: 'center', gap: 'md' })}
           aria-busy={loading || undefined}
         >
-          <div className={cm.stack(2)}>
-            <span
+          <Box as="div" className={cm.stack(2)}>
+            <Box
+              as="span"
               className={cm.cn(
                 cm.textSize('xs'),
                 cm.fontWeight('bold'),
@@ -129,18 +134,20 @@ export function HeroMetricCard({
               )}
             >
               {title}
-            </span>
+            </Box>
             {loading ? (
-              <span
+              <Text
+                as="span"
                 className={cm.cn(cm.textSize('5xl'), cm.fontWeight('bold'))}
                 role="status"
                 aria-live="polite"
               >
                 {loadingLabel}
-              </span>
+              </Text>
             ) : (
-              <div className={cm.flex({ align: 'baseline', gap: 'xs' })}>
-                <span
+              <Box as="div" className={cm.flex({ align: 'baseline', gap: 'xs' })}>
+                <Box
+                  as="span"
                   className={cm.cn(
                     cm.textSize('5xl'),
                     cm.fontWeight('extrabold'),
@@ -148,24 +155,31 @@ export function HeroMetricCard({
                   )}
                 >
                   {value}
-                </span>
+                </Box>
                 {unit !== undefined && unit !== null ? (
-                  <span className={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}>
+                  <Box
+                    as="span"
+                    className={cm.cn(cm.textSize('lg'), cm.fontWeight('medium'), cm.textMuted)}
+                  >
                     {unit}
-                  </span>
+                  </Box>
                 ) : null}
-              </div>
+              </Box>
             )}
             {!loading && trend ? <HeroMetricTrendChip trend={trend} /> : null}
             {!loading && subtitle ? (
-              <span className={cm.cn(cm.textSize('sm'), cm.textMuted)}>{subtitle}</span>
+              <Box as="span" className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+                {subtitle}
+              </Box>
             ) : null}
-          </div>
+          </Box>
           {rightSlot ? (
-            <div className={cm.flex({ align: 'center', justify: 'center' })}>{rightSlot}</div>
+            <Box as="div" className={cm.flex({ align: 'center', justify: 'center' })}>
+              {rightSlot}
+            </Box>
           ) : null}
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Card>
   )
 }

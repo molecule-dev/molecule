@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ListingCardBody}. */
 export interface ListingCardBodyProps {
@@ -33,11 +34,25 @@ export function ListingCardBody({
   const meta = slot(metaProp)
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.stack(1 as const), cm.sp('p', 3), className)}>
-      <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-      {subtitle && <p className={cm.textSize('sm')}>{subtitle}</p>}
-      {price && <p className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{price}</p>}
-      {meta && <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{meta}</div>}
-    </div>
+    <Box as="div" className={cm.cn(cm.stack(1 as const), cm.sp('p', 3), className)}>
+      <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+        {title}
+      </Text>
+      {subtitle && (
+        <Text as="p" className={cm.textSize('sm')}>
+          {subtitle}
+        </Text>
+      )}
+      {price && (
+        <Text as="p" className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          {price}
+        </Text>
+      )}
+      {meta && (
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          {meta}
+        </Box>
+      )}
+    </Box>
   )
 }

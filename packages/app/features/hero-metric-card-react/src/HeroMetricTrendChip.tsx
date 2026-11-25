@@ -2,6 +2,7 @@ import type React from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { HeroMetricTrend } from './types.js'
 
@@ -36,7 +37,8 @@ export function HeroMetricTrendChip({
       ? t('hero-metric-card.trend.up', {}, { defaultValue: 'Trending up' })
       : t('hero-metric-card.trend.down', {}, { defaultValue: 'Trending down' })
   return (
-    <span
+    <Box
+      as="span"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'xs' }),
         cm.textSize('sm'),
@@ -44,10 +46,10 @@ export function HeroMetricTrendChip({
         className,
       )}
     >
-      <span aria-label={label} role="img">
+      <Text as="span" aria-label={label} role="img">
         {arrow}
-      </span>
-      <span>{trend.delta}</span>
-    </span>
+      </Text>
+      <Text as="span">{trend.delta}</Text>
+    </Box>
   )
 }

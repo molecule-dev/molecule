@@ -5,6 +5,7 @@ import { type FeedItem, NotificationFeed } from '@molecule/app-notification-feed
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { useValueAtKeyChange } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { resolveTypeIcon } from './typeIcons.js'
 import type {
@@ -179,7 +180,8 @@ export function NotificationsPage({
   }
 
   return (
-    <section
+    <Box
+      as="section"
       className={cm.cn(
         cm.sp('px', 6),
         cm.sp('py', 8),
@@ -191,13 +193,17 @@ export function NotificationsPage({
       data-mol-id={dataMolId ?? 'notifications-page'}
       aria-busy={state.loading || undefined}
     >
-      <header className={cm.stack(2 as const)}>
-        <div className={cm.flex({ align: 'center', justify: 'between', gap: 'md', wrap: 'wrap' })}>
-          <h1 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
+      <Box as="header" className={cm.stack(2 as const)}>
+        <Box
+          as="div"
+          className={cm.flex({ align: 'center', justify: 'between', gap: 'md', wrap: 'wrap' })}
+        >
+          <Text as="h1" className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
             {t('notificationsPage.title', {}, { defaultValue: 'Notifications' })}
-          </h1>
+          </Text>
           {unreadCount > 0 && (
-            <button
+            <Pressable
+              as="button"
               type="button"
               onClick={onMarkAllRead}
               data-mol-id="notifications-page-mark-all-read"
@@ -208,12 +214,13 @@ export function NotificationsPage({
                 { count: unreadCount },
                 { defaultValue: 'Mark {{count}} as read' },
               )}
-            </button>
+            </Pressable>
           )}
-        </div>
-      </header>
+        </Box>
+      </Box>
 
-      <div
+      <Box
+        as="div"
         role="tablist"
         aria-label={t(
           'notificationsPage.filterAriaLabel',
@@ -225,7 +232,8 @@ export function NotificationsPage({
         {FILTERS.map((key) => {
           const active = filter === key
           return (
-            <button
+            <Pressable
+              as="button"
               key={key}
               type="button"
               role="tab"
@@ -241,13 +249,14 @@ export function NotificationsPage({
               )}
             >
               {filterLabels[key]}
-            </button>
+            </Pressable>
           )
         })}
-      </div>
+      </Box>
 
       {state.error ? (
-        <div
+        <Box
+          as="div"
           role="alert"
           data-mol-id="notifications-page-error"
           className={cm.cn(cm.sp('p', 4), cm.textCenter, cm.textSize('sm'))}
@@ -257,32 +266,34 @@ export function NotificationsPage({
             { message: state.error.message },
             { defaultValue: 'Could not load notifications.' },
           )}
-        </div>
+        </Box>
       ) : state.loading && state.items.length === 0 ? (
-        <div
+        <Box
+          as="div"
           role="status"
           aria-live="polite"
           data-mol-id="notifications-page-loading"
           className={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'), cm.textMuted)}
         >
           {t('notificationsPage.loading', {}, { defaultValue: 'Loading notifications…' })}
-        </div>
+        </Box>
       ) : feedItems.length === 0 ? (
-        <div
+        <Box
+          as="div"
           data-mol-id="notifications-page-empty"
           className={cm.cn(cm.sp('p', 8), cm.textCenter, cm.stack(2 as const))}
         >
-          <span className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+          <Text as="span" className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
             {t('notificationsPage.emptyTitle', {}, { defaultValue: 'You’re all caught up' })}
-          </span>
-          <span className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+          </Text>
+          <Text as="span" className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
             {t(
               'notificationsPage.emptyBody',
               {},
               { defaultValue: 'New notifications will appear here.' },
             )}
-          </span>
-        </div>
+          </Text>
+        </Box>
       ) : (
         <NotificationFeed
           items={feedItems}
@@ -292,7 +303,8 @@ export function NotificationsPage({
       )}
 
       {state.total > limit && (
-        <nav
+        <Box
+          as="nav"
           aria-label={t(
             'notificationsPage.paginationAriaLabel',
             {},
@@ -300,7 +312,8 @@ export function NotificationsPage({
           )}
           className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}
         >
-          <button
+          <Pressable
+            as="button"
             type="button"
             disabled={!hasPrev}
             onClick={() => {
@@ -315,15 +328,16 @@ export function NotificationsPage({
             )}
           >
             {t('notificationsPage.prev', {}, { defaultValue: 'Previous' })}
-          </button>
-          <span className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+          </Pressable>
+          <Text as="span" className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
             {t(
               'notificationsPage.pageOf',
               { current: currentPage, total: totalPages },
               { defaultValue: 'Page {{current}} of {{total}}' },
             )}
-          </span>
-          <button
+          </Text>
+          <Pressable
+            as="button"
             type="button"
             disabled={!hasNext}
             onClick={() => {
@@ -338,9 +352,9 @@ export function NotificationsPage({
             )}
           >
             {t('notificationsPage.next', {}, { defaultValue: 'Next' })}
-          </button>
-        </nav>
+          </Pressable>
+        </Box>
       )}
-    </section>
+    </Box>
   )
 }

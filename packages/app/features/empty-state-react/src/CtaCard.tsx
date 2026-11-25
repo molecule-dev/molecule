@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link CtaCard}. */
 export interface CtaCardProps {
@@ -48,7 +49,8 @@ export function CtaCard({
   const cm = getClassMap()
   const direction = layout === 'horizontal' ? 'row' : 'col'
   return (
-    <section
+    <Box
+      as="section"
       data-mol-id={dataMolId}
       className={cm.cn(
         cm.flex({ direction, align: layout === 'horizontal' ? 'center' : 'stretch', gap: 'md' }),
@@ -56,15 +58,27 @@ export function CtaCard({
         className,
       )}
     >
-      {media && <div className={cm.shrink0}>{media}</div>}
-      <div className={cm.cn(cm.flex1, cm.stack(2))}>
+      {media && (
+        <Box as="div" className={cm.shrink0}>
+          {media}
+        </Box>
+      )}
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(2))}>
         {eyebrow && (
-          <div className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{eyebrow}</div>
+          <Box as="div" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+            {eyebrow}
+          </Box>
         )}
-        <h3 className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>{title}</h3>
-        {description && <p>{description}</p>}
-        {action && <div className={cm.sp('mt', 2)}>{action}</div>}
-      </div>
-    </section>
+        <Text as="h3" className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
+          {title}
+        </Text>
+        {description && <Text as="p">{description}</Text>}
+        {action && (
+          <Box as="div" className={cm.sp('mt', 2)}>
+            {action}
+          </Box>
+        )}
+      </Box>
+    </Box>
   )
 }

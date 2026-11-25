@@ -7,6 +7,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { ActivityTimelineRow } from './ActivityTimelineRow.js'
 import type { TimelineEventData, TimelineKindTone } from './types.js'
@@ -46,25 +47,21 @@ export function ActivityTimeline({
 }: ActivityTimelineProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.card(), cm.sp('p', 6), className)}>
+    <Box as="div" className={cm.cn(cm.card(), cm.sp('p', 6), className)}>
       {header ?? null}
-      <div className={cm.cn(cm.stack(8), cm.position('relative'))}>
+      <Box as="div" className={cm.cn(cm.stack(8), cm.position('relative'))}>
         {/*
           Connector rail. Color comes from the theme border token (cm.bgBorder,
           light/dark aware); the exact geometry (offsets + 1px width) has no
           ClassMap resolver, so it stays inline. Absolutely positioned, so it is
           out of the flex flow and never affects row spacing.
         */}
-        <span
+        <Box
+          as="span"
           aria-hidden
           className={cm.cn(cm.bgBorder)}
-          style={{
-            position: 'absolute',
-            left: '0.75rem',
-            top: '0.5rem',
-            bottom: '0.5rem',
-            width: 1,
-          }}
+          style={{ position: 'absolute', width: 1 }}
+          webStyle={{ left: '0.75rem', top: '0.5rem', bottom: '0.5rem' }}
         />
         {events.map((event) => {
           const tone = toneByKind?.[event.kind] ?? defaultTone ?? FALLBACK_TONE
@@ -77,9 +74,9 @@ export function ActivityTimeline({
             />
           )
         })}
-      </div>
+      </Box>
       {footer ?? null}
-    </div>
+    </Box>
   )
 }
 

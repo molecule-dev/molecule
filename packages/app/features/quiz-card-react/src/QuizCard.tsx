@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** A single selectable answer option in a quiz question. */
 export interface QuizOption {
@@ -63,21 +64,26 @@ export function QuizCard({
 
   return (
     <Card className={className}>
-      <div className={cm.stack(4)}>
-        <header className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.stack(4)}>
+        <Box as="header" className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
           {progress && (
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{progress}</span>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              {progress}
+            </Text>
           )}
           {timer}
-        </header>
-        <h2 className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{question}</h2>
-        <div className={cm.stack(2)}>
+        </Box>
+        <Text as="h2" className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          {question}
+        </Text>
+        <Box as="div" className={cm.stack(2)}>
           {options.map((o) => {
             const isSelected = o.id === selected
             const isCorrect = submitted && correctId && o.id === correctId
             const isWrong = submitted && correctId && isSelected && o.id !== correctId
             return (
-              <button
+              <Pressable
+                as="button"
                 key={o.id}
                 type="button"
                 onClick={() => !submitted && setSelected(o.id)}
@@ -102,8 +108,8 @@ export function QuizCard({
                    Every colour is a theme token now (`#22c55e` / `#ef4444` /
                    `rgba(0,0,0,0.15)` ignored the theme and lost the verdict
                    contrast in dark mode); compact touch floor applied. */
-                style={{
-                  borderRadius: 8,
+                style={{ borderRadius: 8 }}
+                webStyle={{
                   border: `1px solid ${
                     isCorrect
                       ? 'var(--mol-color-success, #22c55e)'
@@ -120,21 +126,33 @@ export function QuizCard({
                       : undefined,
                 }}
               >
-                <span>{o.label}</span>
-                {isCorrect && <span aria-hidden>✓</span>}
-                {isWrong && <span aria-hidden>×</span>}
-              </button>
+                <Text as="span">{o.label}</Text>
+                {isCorrect && (
+                  <Text as="span" aria-hidden>
+                    ✓
+                  </Text>
+                )}
+                {isWrong && (
+                  <Text as="span" aria-hidden>
+                    ×
+                  </Text>
+                )}
+              </Pressable>
             )
           })}
-        </div>
+        </Box>
         {!submitted ? (
           <Button variant="solid" color="primary" onClick={submit} disabled={!selected}>
             {t('quizCard.submit', {}, { defaultValue: 'Submit answer' })}
           </Button>
         ) : (
-          explanation && <p className={cm.textSize('sm')}>{explanation}</p>
+          explanation && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {explanation}
+            </Text>
+          )
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

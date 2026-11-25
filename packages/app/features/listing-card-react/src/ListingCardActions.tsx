@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ListingCardActions}. */
 export interface ListingCardActionsProps {
@@ -23,7 +24,8 @@ export function ListingCardActions({
 }: ListingCardActionsProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ direction: layout === 'stacked' ? 'col' : 'row', gap: 'sm', align: 'stretch' }),
         cm.sp('p', 3),
@@ -31,6 +33,6 @@ export function ListingCardActions({
       )}
     >
       {children}
-    </div>
+    </Box>
   )
 }

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Textarea } from '@molecule/app-ui-react'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link MessageComposer}. */
 export interface MessageComposerProps {
@@ -49,7 +50,7 @@ export function MessageComposer({
   }
 
   return (
-    <div className={cm.cn(cm.flex({ align: 'end', gap: 'sm' }), cm.sp('p', 2), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'end', gap: 'sm' }), cm.sp('p', 2), className)}>
       {leading}
       <Textarea
         value={value}
@@ -70,6 +71,6 @@ export function MessageComposer({
       <Button onClick={submit} disabled={disabled || !value.trim()}>
         {t('composer.send', {}, { defaultValue: 'Send' })}
       </Button>
-    </div>
+    </Box>
   )
 }

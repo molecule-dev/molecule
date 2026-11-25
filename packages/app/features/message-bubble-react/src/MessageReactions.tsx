@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** A single emoji reaction with its count and current-user state. */
 export interface MessageReaction {
@@ -37,9 +38,13 @@ export function MessageReactions({
 }: MessageReactionsProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}
+    >
       {reactions.map((r) => (
-        <button
+        <Pressable
+          as="button"
           key={r.emoji}
           type="button"
           onClick={() => onToggle?.(r.emoji)}
@@ -52,19 +57,20 @@ export function MessageReactions({
             cm.roundedFull,
           )}
         >
-          <span>{r.emoji}</span>
-          <span>{r.count}</span>
-        </button>
+          <Text as="span">{r.emoji}</Text>
+          <Text as="span">{r.count}</Text>
+        </Pressable>
       ))}
       {onAdd && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onAdd}
           className={cm.cn(cm.sp('px', 2), cm.sp('py', 1), cm.textSize('xs'))}
         >
           +
-        </button>
+        </Pressable>
       )}
-    </div>
+    </Box>
   )
 }

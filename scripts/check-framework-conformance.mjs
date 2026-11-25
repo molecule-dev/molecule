@@ -809,6 +809,10 @@ export const TITLE_PARITY_EXEMPT = {
     'src/__tests__/copy-link-field-native-focus.test.tsx':
       "calls the field's focus handler with a React Native focus event, which has no selectable web field; a Vue, Svelte, Solid or Angular port renders a DOM input, and each tests selecting it on focus",
   },
+  '@molecule/app-diff-viewer-react': {
+    'src/__tests__/diff-viewer-keys.test.tsx':
+      "checks React's missing-key warning for list rows; Vue, Svelte, Solid and Angular key their lists in their own templates and log no such warning",
+  },
   '@molecule/app-photo-lightbox-react': {
     'src/__tests__/photo-lightbox-no-document.test.tsx':
       'opens the lightbox with no global `document`, as on React Native; a Vue, Svelte, Solid or Angular port renders in a browser, which always has one',

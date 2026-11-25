@@ -4,6 +4,7 @@ import { useId } from 'react'
 import { useLocale, useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link TickerRow} component. */
 export interface TickerRowProps {
@@ -78,7 +79,8 @@ export function TickerRow({
         }).format(changePct / 100)
       : ''
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('py', 2),
@@ -88,7 +90,8 @@ export function TickerRow({
       )}
     >
       {onClick && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           aria-labelledby={nameId}
           data-mol-id="ticker-row-open"
@@ -97,35 +100,59 @@ export function TickerRow({
              transparent button over the row; the inline background/border/padding are
              native resets. */
           className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-          style={{ background: 'transparent', border: 'none', padding: 0 }}
+          style={{ padding: 0 }}
+          webStyle={{ background: 'transparent', border: 'none' }}
         />
       )}
-      {icon && <div className={cm.shrink0}>{icon}</div>}
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <span
+      {icon && (
+        <Box as="div" className={cm.shrink0}>
+          {icon}
+        </Box>
+      )}
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+        <Box
+          as="span"
           id={onClick ? nameId : undefined}
           className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}
         >
           {symbol}
-        </span>
-        {name && <span className={cm.textSize('xs')}>{name}</span>}
-      </div>
-      {sparkline && <div className={cm.shrink0}>{sparkline}</div>}
-      <div className={cm.cn(cm.textCenter, cm.stack(0 as const))}>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{price}</span>
-        {(changeDisplay !== undefined || changePct !== undefined) && (
-          <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), colorClass)}>
-            <span aria-hidden="true">{arrow}</span>
-            <span className={cm.cn(cm.srOnly)}>{directionLabel}</span>{' '}
-            {changeDisplay ?? formattedChange}
-          </span>
+        </Box>
+        {name && (
+          <Box as="span" className={cm.textSize('xs')}>
+            {name}
+          </Box>
         )}
-      </div>
+      </Box>
+      {sparkline && (
+        <Box as="div" className={cm.shrink0}>
+          {sparkline}
+        </Box>
+      )}
+      <Box as="div" className={cm.cn(cm.textCenter, cm.stack(0 as const))}>
+        <Box as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {price}
+        </Box>
+        {(changeDisplay !== undefined || changePct !== undefined) && (
+          <Box
+            as="span"
+            className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), colorClass)}
+          >
+            <Text as="span" aria-hidden="true">
+              {arrow}
+            </Text>
+            <Text as="span" className={cm.cn(cm.srOnly)}>
+              {directionLabel}
+            </Text>{' '}
+            {changeDisplay ?? formattedChange}
+          </Box>
+        )}
+      </Box>
       {meta && (
         // Raised above the open button in its positioned wrapper while the row
         // is clickable, so a click on its content lands here and keeps its own
         // clicks.
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.textSize('xs'),
             cm.shrink0,
@@ -133,8 +160,8 @@ export function TickerRow({
           )}
         >
           {meta}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

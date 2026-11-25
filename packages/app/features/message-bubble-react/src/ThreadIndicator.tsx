@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ThreadIndicator}. */
 export interface ThreadIndicatorProps {
@@ -29,7 +30,8 @@ export function ThreadIndicator({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <button
+    <Pressable
+      as="button"
       type="button"
       onClick={onOpen}
       className={cm.cn(
@@ -39,7 +41,7 @@ export function ThreadIndicator({
         className,
       )}
     >
-      <span className={cm.fontWeight('semibold')}>
+      <Text as="span" className={cm.fontWeight('semibold')}>
         {t(
           'thread.replies',
           { count: replyCount },
@@ -49,8 +51,8 @@ export function ThreadIndicator({
             defaultValue_one: '{{count}} reply',
           },
         )}
-      </span>
-      {lastReplyAt && <span>· {lastReplyAt}</span>}
-    </button>
+      </Text>
+      {lastReplyAt && <Box as="span">· {lastReplyAt}</Box>}
+    </Pressable>
   )
 }

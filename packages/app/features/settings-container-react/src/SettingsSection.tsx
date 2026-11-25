@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link SettingsSection} component. */
 export interface SettingsSectionProps {
@@ -38,18 +39,24 @@ export function SettingsSection({
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>
-      <div className={cm.stack(4)}>
-        <header className={cm.stack(1 as const)}>
-          <h2 className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>{title}</h2>
-          {description && <p className={cm.textSize('sm')}>{description}</p>}
-        </header>
-        <div>{children}</div>
+      <Box as="div" className={cm.stack(4)}>
+        <Box as="header" className={cm.stack(1 as const)}>
+          <Text as="h2" className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+            {title}
+          </Text>
+          {description && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {description}
+            </Text>
+          )}
+        </Box>
+        <Box as="div">{children}</Box>
         {footer && (
-          <footer className={cm.flex({ justify: 'end', align: 'center', gap: 'sm' })}>
+          <Box as="footer" className={cm.flex({ justify: 'end', align: 'center', gap: 'sm' })}>
             {footer}
-          </footer>
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

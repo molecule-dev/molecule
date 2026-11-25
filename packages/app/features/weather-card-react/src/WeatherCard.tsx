@@ -14,6 +14,7 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Path, Svg, Text } from '@molecule/app-ui-react/elements'
 
 /** Severity level for a weather alert badge. */
 export type WeatherAlertLevel = 'watch' | 'warning' | 'emergency'
@@ -114,7 +115,8 @@ export function WeatherCard({
         : cm.weatherCardAlertEmergency
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ direction: 'col', justify: 'between' }),
         cm.sp('p', 10),
@@ -122,11 +124,12 @@ export function WeatherCard({
         className,
       )}
     >
-      <div className={cm.cn(cm.weatherCardContent)}>
-        <div className={cm.flex({ align: 'center', justify: 'between', gap: 'md' })}>
-          <div>
+      <Box as="div" className={cm.cn(cm.weatherCardContent)}>
+        <Box as="div" className={cm.flex({ align: 'center', justify: 'between', gap: 'md' })}>
+          <Box as="div">
             {eyebrow ? (
-              <p
+              <Text
+                as="p"
                 className={cm.cn(
                   cm.fontWeight('bold'),
                   cm.textSize('xs'),
@@ -135,9 +138,10 @@ export function WeatherCard({
                 )}
               >
                 {eyebrow}
-              </p>
+              </Text>
             ) : null}
-            <h2
+            <Text
+              as="h2"
               className={cm.cn(
                 cm.textSize('2xl'),
                 cm.fontWeight('semibold'),
@@ -145,15 +149,19 @@ export function WeatherCard({
               )}
             >
               {locationName}
-            </h2>
+            </Text>
             {region ? (
-              <p className={cm.cn(cm.textSize('xs'), cm.sp('mt', 1), cm.weatherCardRegion)}>
+              <Text
+                as="p"
+                className={cm.cn(cm.textSize('xs'), cm.sp('mt', 1), cm.weatherCardRegion)}
+              >
                 {region}
-              </p>
+              </Text>
             ) : null}
-          </div>
+          </Box>
           {alertLevel ? (
-            <span
+            <Box
+              as="span"
               className={cm.cn(
                 cm.flex({ align: 'center', gap: 'xs' }),
                 cm.sp('px', 3),
@@ -164,18 +172,17 @@ export function WeatherCard({
                 alertTone,
               )}
             >
-              <span className={cm.cn(cm.iconGlyphFont, cm.textSize('sm'))} aria-hidden="true">
-                warning
-              </span>
+              <GlyphIcon name="warning" className={cm.textSize('sm')} aria-hidden="true" />
               {alertLabel ?? alertLevel}
-            </span>
+            </Box>
           ) : null}
-        </div>
+        </Box>
 
-        <div className={cm.cn(cm.flex({ align: 'baseline', gap: 'lg' }), cm.sp('mt', 8))}>
-          <span
+        <Box as="div" className={cm.cn(cm.flex({ align: 'baseline', gap: 'lg' }), cm.sp('mt', 8))}>
+          <Text
+            as="span"
             className={cm.cn(cm.weatherCardTemperature)}
-            style={{
+            webStyle={{
               fontSize: '4.5rem',
               fontWeight: 200,
               letterSpacing: '-0.03em',
@@ -184,8 +191,9 @@ export function WeatherCard({
           >
             {Math.round(temperature)}
             {unit}
-          </span>
-          <div
+          </Text>
+          <Box
+            as="div"
             className={cm.cn(
               cm.flex({ align: 'center', gap: 'sm' }),
               cm.sp('px', 3),
@@ -194,33 +202,35 @@ export function WeatherCard({
               cm.weatherCardConditionPill,
             )}
           >
-            <span
-              className={cm.cn(cm.iconGlyphFont, cm.textSize('2xl'))}
-              style={{ fontVariationSettings: "'FILL' 1" }}
+            <GlyphIcon
+              name={conditionIcon}
+              filled
+              className={cm.textSize('2xl')}
               aria-hidden="true"
-            >
-              {conditionIcon}
-            </span>
+            />
             {condition ? (
-              <span className={cm.cn(cm.fontWeight('semibold'), cm.textSize('sm'))}>
+              <Text as="span" className={cm.cn(cm.fontWeight('semibold'), cm.textSize('sm'))}>
                 {condition}
-              </span>
+              </Text>
             ) : null}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }), cm.sp('mt', 4))}
         >
           {feelsLikeLabel ? (
-            <span
+            <Box
+              as="span"
               className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), cm.weatherCardFeelsLike)}
             >
               {feelsLikeLabel}
-            </span>
+            </Box>
           ) : null}
           {highLowLabel ? (
-            <span
+            <Box
+              as="span"
               className={cm.cn(
                 cm.flex({ align: 'center', gap: 'xs' }),
                 cm.sp('px', 3),
@@ -232,35 +242,40 @@ export function WeatherCard({
               )}
             >
               {highLowLabel}
-            </span>
+            </Box>
           ) : null}
           {updatedLabel ? (
-            <span className={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}>{updatedLabel}</span>
+            <Box as="span" className={cm.cn(cm.textSize('xs'), cm.weatherCardUpdated)}>
+              {updatedLabel}
+            </Box>
           ) : null}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className={cm.cn(cm.sp('mt', 10), cm.h(24), cm.w('full'), cm.weatherCardContent)}>
-        <svg
+      <Box
+        as="div"
+        className={cm.cn(cm.sp('mt', 10), cm.h(24), cm.w('full'), cm.weatherCardContent)}
+      >
+        <Svg
           className={cm.cn(cm.w('full'), cm.h('full'))}
           viewBox="0 0 400 100"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <path d={sparkline.fill} fill="white" opacity="0.25" />
-          <path
+          <Path d={sparkline.fill} fill="white" opacity={0.25} />
+          <Path
             d={sparkline.stroke}
             fill="none"
             stroke="white"
-            strokeWidth="2.5"
+            strokeWidth={2.5}
             strokeLinecap="round"
           />
-        </svg>
-      </div>
+        </Svg>
+      </Box>
 
-      <div className={cm.cn(cm.weatherCardGlowLarge)} aria-hidden="true" />
-      <div className={cm.cn(cm.weatherCardGlowSmall)} aria-hidden="true" />
-    </div>
+      <Box as="div" className={cm.cn(cm.weatherCardGlowLarge)} aria-hidden="true" />
+      <Box as="div" className={cm.cn(cm.weatherCardGlowSmall)} aria-hidden="true" />
+    </Box>
   )
 }
 

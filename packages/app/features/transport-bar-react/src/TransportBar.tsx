@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Transport-bar component props. */
 export interface TransportBarProps {
@@ -125,22 +126,24 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
   // the visual look. Inline styles are limited to properties ClassMap
   // does not expose (background:transparent, border:none) per the
   // architecture rule about not duplicating ClassMap-managed properties.
-  const buttonBaseStyle = {
+  const buttonBaseStyle = { padding: 0 } as const
+  const buttonBaseWebStyle = {
     background: 'transparent',
     border: 'none',
     cursor: 'pointer',
-    padding: 0,
   } as const
 
   return (
-    <div
+    <Box
+      as="div"
       role="toolbar"
       aria-label={regionLabel}
       data-mol-id="transport-bar"
       className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('p', 2), className)}
     >
       {onSkipBack && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onSkipBack}
           disabled={!canSkip}
@@ -148,12 +151,16 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
           data-mol-id="transport-bar-skip-back"
           className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
           style={buttonBaseStyle}
+          webStyle={buttonBaseWebStyle}
         >
-          <span aria-hidden="true">{'⏮'}</span>
-        </button>
+          <Text as="span" aria-hidden="true">
+            {'⏮'}
+          </Text>
+        </Pressable>
       )}
 
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={onPlayToggle}
         aria-label={isPlaying ? pauseLabel : playLabel}
@@ -162,11 +169,15 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
         data-state={isPlaying ? 'playing' : 'paused'}
         className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
         style={buttonBaseStyle}
+        webStyle={buttonBaseWebStyle}
       >
-        <span aria-hidden="true">{isPlaying ? '⏸' : '▶'}</span>
-      </button>
+        <Text as="span" aria-hidden="true">
+          {isPlaying ? '⏸' : '▶'}
+        </Text>
+      </Pressable>
 
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={onStop}
         disabled={!canStop}
@@ -174,12 +185,16 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
         data-mol-id="transport-bar-stop"
         className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
         style={buttonBaseStyle}
+        webStyle={buttonBaseWebStyle}
       >
-        <span aria-hidden="true">{'⏹'}</span>
-      </button>
+        <Text as="span" aria-hidden="true">
+          {'⏹'}
+        </Text>
+      </Pressable>
 
       {onSkipForward && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onSkipForward}
           disabled={!canSkip}
@@ -187,13 +202,17 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
           data-mol-id="transport-bar-skip-forward"
           className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
           style={buttonBaseStyle}
+          webStyle={buttonBaseWebStyle}
         >
-          <span aria-hidden="true">{'⏭'}</span>
-        </button>
+          <Text as="span" aria-hidden="true">
+            {'⏭'}
+          </Text>
+        </Pressable>
       )}
 
       {onRecordToggle && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onRecordToggle}
           aria-label={isRecording ? stopRecordingLabel : recordLabel}
@@ -202,13 +221,17 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
           data-state={isRecording ? 'recording' : 'idle'}
           className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
           style={buttonBaseStyle}
+          webStyle={buttonBaseWebStyle}
         >
-          <span aria-hidden="true">{'●'}</span>
-        </button>
+          <Text as="span" aria-hidden="true">
+            {'●'}
+          </Text>
+        </Pressable>
       )}
 
       {onLoopToggle && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onLoopToggle}
           aria-label={loop ? loopOnLabel : loopOffLabel}
@@ -217,19 +240,23 @@ export function TransportBar(props: TransportBarProps): JSX.Element {
           data-state={loop ? 'on' : 'off'}
           className={cm.cn(cm.cursorPointer, cm.sp('p', 1))}
           style={buttonBaseStyle}
+          webStyle={buttonBaseWebStyle}
         >
-          <span aria-hidden="true">{'↻'}</span>
-        </button>
+          <Text as="span" aria-hidden="true">
+            {'↻'}
+          </Text>
+        </Pressable>
       )}
 
       {timeSlot && (
-        <div
+        <Box
+          as="div"
           data-mol-id="transport-bar-time-display"
           className={cm.cn(cm.textSize('sm'), cm.sp('px', 2))}
         >
           {timeSlot}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

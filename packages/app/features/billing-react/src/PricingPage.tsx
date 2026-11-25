@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, getClassMap } from '@molecule/app-ui'
 import { Icon } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { usePricingTiers, useStartCheckout } from './hooks.js'
 import { billingBilledLabel, billingLimitLabel, billingLimitValue } from './labels.js'
@@ -29,9 +30,9 @@ import type { PricingTierEntry, PricingTierPrice } from './types.js'
 export function LimitsList({ children }: { children: ReactNode }): React.ReactElement {
   const cm = getClassMap()
   return (
-    <ul className={cm.stack(3)} data-mol-id="pricing-limits-list">
+    <Box as="ul" className={cm.stack(3)} data-mol-id="pricing-limits-list">
       {children}
-    </ul>
+    </Box>
   )
 }
 
@@ -54,7 +55,8 @@ export interface LimitsItemProps {
 export function LimitsItem({ children, included = true }: LimitsItemProps): React.ReactElement {
   const cm = getClassMap()
   return (
-    <li
+    <Box
+      as="li"
       className={cm.cn(
         cm.flex({ direction: 'row', align: 'start', gap: 'sm' }),
         cm.textSize('sm'),
@@ -67,8 +69,8 @@ export function LimitsItem({ children, included = true }: LimitsItemProps): Reac
         aria-hidden="true"
         className={included ? cm.textPrimary : cm.textSubtle}
       />
-      <span>{children}</span>
-    </li>
+      <Box as="span">{children}</Box>
+    </Box>
   )
 }
 
@@ -201,29 +203,31 @@ export function PricingPage<TLimits = unknown>(
 
   if (loading) {
     return (
-      <section
+      <Box
+        as="section"
         className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('py', 16), className)}
         data-mol-id="pricing-page"
       >
-        <p className={cm.textMuted}>
+        <Text as="p" className={cm.textMuted}>
           {t('billing.pricing.loading', undefined, { defaultValue: 'Loading plans…' })}
-        </p>
-      </section>
+        </Text>
+      </Box>
     )
   }
 
   if (error || !data) {
     return (
-      <section
+      <Box
+        as="section"
         className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('py', 16), className)}
         data-mol-id="pricing-page"
       >
-        <p className={cm.formError}>
+        <Text as="p" className={cm.formError}>
           {t('billing.pricing.error', undefined, {
             defaultValue: 'Could not load pricing. Try again later.',
           })}
-        </p>
-      </section>
+        </Text>
+      </Box>
     )
   }
 
@@ -264,31 +268,35 @@ export function PricingPage<TLimits = unknown>(
   }
 
   return (
-    <section
+    <Box
+      as="section"
       className={cm.cn(cm.maxW('6xl'), cm.mxAuto, cm.sp('px', 6), cm.sp('py', 12), className)}
       data-mol-id="pricing-page"
     >
       {/* A `<section>`, not `<header>`: the app's own top bar (the `header` slot
          most hosts pass to this page) is the page's single banner — a second
          header element here reads as a duplicated app bar. */}
-      <section className={cm.cn(cm.textCenter, cm.sp('mb', 10))}>
-        <h1
+      <Box as="section" className={cm.cn(cm.textCenter, cm.sp('mb', 10))}>
+        <Text
+          as="h1"
           className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'), cm.sp('mb', 3))}
-          style={headlineStyle}
+          webStyle={headlineStyle}
           data-mol-id="pricing-page-heading"
         >
           {t(headingKey, undefined, { defaultValue: headingDefault })}
-        </h1>
+        </Text>
         {subheadingKey !== null && (
-          <p
+          <Text
+            as="p"
             className={cm.cn(cm.textSize('lg'), cm.textMuted, cm.maxW('2xl'), cm.mxAuto)}
             data-mol-id="pricing-page-subheading"
           >
             {t(subheadingKey, undefined, { defaultValue: subheadingDefault })}
-          </p>
+          </Text>
         )}
-      </section>
-      <div
+      </Box>
+      <Box
+        as="div"
         className={cm.flex({
           direction: 'row',
           wrap: 'wrap',
@@ -311,23 +319,24 @@ export function PricingPage<TLimits = unknown>(
             headlineStyle={headlineStyle}
           />
         ))}
-      </div>
+      </Box>
       {startError && (
-        <p className={cm.cn(cm.formError, cm.sp('mt', 6), cm.textCenter)} role="alert">
+        <Text as="p" className={cm.cn(cm.formError, cm.sp('mt', 6), cm.textCenter)} role="alert">
           {t('billing.pricing.checkoutError', undefined, {
             defaultValue: 'Could not start checkout. Please try again.',
           })}
-        </p>
+        </Text>
       )}
-      <p
+      <Text
+        as="p"
         className={cm.cn(cm.sp('mt', 10), cm.textCenter, cm.textSize('xs'), cm.textSubtle)}
         data-mol-id="pricing-page-reassurance"
       >
         {t('billing.pricing.reassurance', undefined, {
           defaultValue: 'Cancel anytime · No credit card required to start',
         })}
-      </p>
-    </section>
+      </Text>
+    </Box>
   )
 }
 
@@ -340,7 +349,7 @@ interface TierCardProps<TLimits> {
   onUpgrade: (priceId: string | null) => Promise<void>
   starting: boolean
   popular: boolean
-  headlineStyle: React.CSSProperties | undefined
+  headlineStyle: CSSProperties | undefined
 }
 
 /**
@@ -359,19 +368,21 @@ function TierCard<TLimits>({
 }: TierCardProps<TLimits>): React.ReactElement {
   const price = tier.prices.find((p) => p.period === period) ?? tier.prices[0]
   return (
-    <div
+    <Box
+      as="div"
       // Outer wrapper keeps the popular tier physically larger (taller
       // + wider) than its neighbors. The "Most popular" tag sits
       // INSIDE the card at the top-right, matching the Stitch
       // reference — not floating above the top edge.
-      style={{
+      webStyle={{
         position: 'relative',
         width: popular ? '24rem' : '19rem',
         marginTop: popular ? '-1.5rem' : 0,
         marginBottom: popular ? '-1.5rem' : 0,
       }}
     >
-      <article
+      <Box
+        as="article"
         className={cm.cn(
           // `elevated` removes the default 1px all-sides border so the
           // popular tier's `borderTPrimary` accent shows ONLY as a top
@@ -383,7 +394,7 @@ function TierCard<TLimits>({
           cm.flex({ direction: 'col' }),
           popular && cm.borderTPrimary,
         )}
-        style={{
+        webStyle={{
           position: 'relative',
           height: '100%',
           // Generous internal padding matches the Stitch reference's
@@ -399,14 +410,15 @@ function TierCard<TLimits>({
         data-popular={popular ? 'true' : undefined}
       >
         {popular && (
-          <span
+          <Text
+            as="span"
             className={cm.cn(
               cm.uppercase,
               cm.trackingWide,
               cm.fontWeight('bold'),
               cm.textSize('xs'),
             )}
-            style={{
+            webStyle={{
               position: 'absolute',
               top: '1rem',
               right: '1rem',
@@ -420,12 +432,13 @@ function TierCard<TLimits>({
             data-mol-id={`pricing-tier-${tier.key}-popular-badge`}
           >
             {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
-          </span>
+          </Text>
         )}
         {/* Card heading, not a page banner — see the section note above. */}
-        <div className={cm.cardHeader}>
+        <Box as="div" className={cm.cardHeader}>
           {!popular && (
-            <p
+            <Text
+              as="p"
               className={cm.cn(
                 cm.textSize('xs'),
                 cm.textSubtle,
@@ -437,38 +450,44 @@ function TierCard<TLimits>({
               data-mol-id={`pricing-tier-${tier.key}-eyebrow`}
             >
               {t('billing.pricing.tierEyebrow', undefined, { defaultValue: 'Tier' })}
-            </p>
+            </Text>
           )}
-          <h2
+          <Text
+            as="h2"
             className={cm.cn(
               cm.textSize('2xl'),
               cm.italic,
               cm.fontWeight('semibold'),
               cm.sp('mb', 4),
             )}
-            style={headlineStyle}
+            webStyle={headlineStyle}
           >
             {tier.name}
-          </h2>
-          <p>
-            <span
+          </Text>
+          <Text as="p">
+            <Text
+              as="span"
               className={cm.cn(
                 cm.textSize('5xl'),
                 cm.fontWeight('bold'),
                 popular && cm.textPrimary,
               )}
-              style={headlineStyle}
+              webStyle={headlineStyle}
             >
               {price?.price ?? '—'}
-            </span>
+            </Text>
             {tier.perSeat && (
-              <span className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.fontWeight('normal'))}>
+              <Text
+                as="span"
+                className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.fontWeight('normal'))}
+              >
                 {' '}
                 {t('billing.pricing.perSeat', undefined, { defaultValue: 'per seat' })}
-              </span>
+              </Text>
             )}
-          </p>
-          <p
+          </Text>
+          <Text
+            as="p"
             className={cm.cn(
               cm.textSize('xs'),
               cm.textSubtle,
@@ -482,20 +501,23 @@ function TierCard<TLimits>({
             {price?.savings && (
               <>
                 {' · '}
-                <span className={cm.textSuccess}>{price.savings.toUpperCase()}</span>
+                <Text as="span" className={cm.textSuccess}>
+                  {price.savings.toUpperCase()}
+                </Text>
               </>
             )}
-          </p>
-        </div>
-        <div className={cm.cn(cm.cardContent, cm.flex1)}>
+          </Text>
+        </Box>
+        <Box as="div" className={cm.cn(cm.cardContent, cm.flex1)}>
           {renderLimits ? (
             renderLimits(tier.limits)
           ) : (
             <DefaultLimits limits={tier.limits} cm={cm} />
           )}
-        </div>
-        <footer className={cm.cardFooter}>
-          <button
+        </Box>
+        <Box as="footer" className={cm.cardFooter}>
+          <Pressable
+            as="button"
             type="button"
             // A page-level CTA takes the design system's largest tier. It used
             // to hand-override height and padding inline, which silently beat
@@ -526,10 +548,10 @@ function TierCard<TLimits>({
                   { defaultValue: 'Upgrade to {{tierName}}' },
                 )
               : t('billing.pricing.currentCta', undefined, { defaultValue: 'Current plan' })}
-          </button>
-        </footer>
-      </article>
-    </div>
+          </Pressable>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 
@@ -559,9 +581,10 @@ function DefaultLimits<TLimits>({ limits, cm }: DefaultLimitsProps<TLimits>): Re
   }
   const entries = Object.entries(limits as Record<string, unknown>)
   return (
-    <ul className={cm.stack(2)}>
+    <Box as="ul" className={cm.stack(2)}>
       {entries.map(([key, value]) => (
-        <li
+        <Box
+          as="li"
           key={key}
           className={cm.cn(
             cm.flex({ direction: 'row', align: 'start', gap: 'sm' }),
@@ -569,13 +592,17 @@ function DefaultLimits<TLimits>({ limits, cm }: DefaultLimitsProps<TLimits>): Re
           )}
         >
           <Icon name="check-circle" size={16} className={cm.textSuccess} aria-hidden="true" />
-          <span>
-            <span className={cm.textMuted}>{billingLimitLabel(key, t)}: </span>
-            <span className={cm.fontWeight('medium')}>{billingLimitValue(value, t)}</span>
-          </span>
-        </li>
+          <Box as="span">
+            <Text as="span" className={cm.textMuted}>
+              {billingLimitLabel(key, t)}:{' '}
+            </Text>
+            <Text as="span" className={cm.fontWeight('medium')}>
+              {billingLimitValue(value, t)}
+            </Text>
+          </Box>
+        </Box>
       ))}
-    </ul>
+    </Box>
   )
 }
 

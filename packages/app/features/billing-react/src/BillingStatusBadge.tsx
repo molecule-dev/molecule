@@ -1,5 +1,6 @@
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { useBillingStatus, useCancelSubscription } from './hooks.js'
 
@@ -37,9 +38,9 @@ export function BillingStatusBadge(props: BillingStatusBadgeProps): React.ReactE
 
   if (loading) {
     return (
-      <span className={className} data-mol-id="billing-status-loading">
+      <Text as="span" className={className} data-mol-id="billing-status-loading">
         {t('billing.status.loading', undefined, { defaultValue: 'Loading…' })}
-      </span>
+      </Text>
     )
   }
 
@@ -55,16 +56,17 @@ export function BillingStatusBadge(props: BillingStatusBadgeProps): React.ReactE
   }
 
   return (
-    <div className={className} data-mol-id="billing-status">
-      <span className={cm.cardDescription}>
+    <Box as="div" className={className} data-mol-id="billing-status">
+      <Text as="span" className={cm.cardDescription}>
         {t(
           'billing.status.currentPlan',
           { tierName: status.name },
           { defaultValue: 'Current plan: {{tierName}}' },
         )}
-      </span>
+      </Text>
       {showCancel && !isFree && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           className={cm.button({ variant: 'outline', size: 'sm' })}
           disabled={canceling}
@@ -72,15 +74,15 @@ export function BillingStatusBadge(props: BillingStatusBadgeProps): React.ReactE
           data-mol-id="billing-cancel-button"
         >
           {t('billing.status.cancelCta', undefined, { defaultValue: 'Cancel subscription' })}
-        </button>
+        </Pressable>
       )}
       {cancelError && (
-        <p className={cm.formError} role="alert">
+        <Text as="p" className={cm.formError} role="alert">
           {t('billing.status.cancelError', undefined, {
             defaultValue: 'Could not cancel. Please try again.',
           })}
-        </p>
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }

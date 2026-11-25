@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link MedicationRow}. */
 export interface MedicationRowProps {
@@ -57,48 +58,66 @@ export function MedicationRow({
   const { t } = useTranslation()
   return (
     <Card className={className}>
-      <div className={cm.flex({ align: 'start', gap: 'md' })}>
+      <Box as="div" className={cm.flex({ align: 'start', gap: 'md' })}>
         {color && (
-          <span
+          <Box
+            as="span"
             aria-hidden
             className={cm.cn(cm.shrink0, cm.roundedFull)}
-            style={{ width: 24, height: 24, background: color }}
+            style={{ width: 24, height: 24 }}
+            webStyle={{ background: color }}
           />
         )}
-        <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-          <header className={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
-            <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>{name}</h3>
+        <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const))}>
+          <Box as="header" className={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
+            <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>
+              {name}
+            </Text>
             {dosage && (
-              <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{dosage}</span>
+              <Box as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+                {dosage}
+              </Box>
             )}
-            {form && <span className={cm.textSize('xs')}>{form}</span>}
-          </header>
-          {instructions && <p className={cm.textSize('sm')}>{instructions}</p>}
-          <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+            {form && (
+              <Box as="span" className={cm.textSize('xs')}>
+                {form}
+              </Box>
+            )}
+          </Box>
+          {instructions && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {instructions}
+            </Text>
+          )}
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
             {prescriber && (
-              <span className={cm.textSize('xs')}>
+              <Box as="span" className={cm.textSize('xs')}>
                 {t('medication.prescribedBy', {}, { defaultValue: 'Prescribed by' })} {prescriber}
-              </span>
+              </Box>
             )}
             {supplyDays !== undefined && (
-              <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                 ·{' '}
                 {t(
                   'medication.supplyDays',
                   { days: supplyDays },
                   { defaultValue: '{{days}} day supply' },
                 )}
-              </span>
+              </Text>
             )}
             {refills !== undefined && (
-              <span className={cm.textSize('xs')}>
+              <Text as="span" className={cm.textSize('xs')}>
                 · {t('medication.refills', { refills }, { defaultValue: '{{refills}} refills' })}
-              </span>
+              </Text>
             )}
-          </div>
-        </div>
-        {actions && <div className={cm.shrink0}>{actions}</div>}
-      </div>
+          </Box>
+        </Box>
+        {actions && (
+          <Box as="div" className={cm.shrink0}>
+            {actions}
+          </Box>
+        )}
+      </Box>
     </Card>
   )
 }

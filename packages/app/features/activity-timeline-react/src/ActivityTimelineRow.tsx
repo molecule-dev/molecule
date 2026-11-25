@@ -9,6 +9,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { ActivityTimelineDot } from './ActivityTimelineDot.js'
 import type { TimelineEventData, TimelineKindTone } from './types.js'
@@ -32,35 +33,52 @@ export function ActivityTimelineRow({
   const inner = (
     <>
       <ActivityTimelineDot tone={tone ?? DEFAULT_TONE} />
-      <div>
-        <div className={cm.cn(cm.flex({ justify: 'between', align: 'center' }), cm.sp('mb', 1))}>
+      <Box as="div">
+        <Box
+          as="div"
+          className={cm.cn(cm.flex({ justify: 'between', align: 'center' }), cm.sp('mb', 1))}
+        >
           {/* Title inherits the theme foreground from the card surface — no explicit color. */}
-          <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{event.title}</h3>
+          <Text as="h3" className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>
+            {event.title}
+          </Text>
           {event.meta ? (
-            <span
+            <Text
+              as="span"
               className={cm.cn(
                 cm.fontWeight('medium'),
                 cm.textSize('xs'),
                 cm.textMuted,
                 cm.uppercase,
               )}
-              style={{ whiteSpace: 'nowrap' }}
+              webStyle={{ whiteSpace: 'nowrap' }}
             >
               {event.meta}
-            </span>
+            </Text>
           ) : null}
-        </div>
+        </Box>
         {event.description ? (
-          <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{event.description}</p>
+          <Text as="p" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+            {event.description}
+          </Text>
         ) : null}
         {event.footer ?? null}
-      </div>
+      </Box>
     </>
   )
 
   const baseClass = cm.cn(cm.sp('pl', 10), cm.position('relative'))
-  if (wrapper) return <div className={baseClass}>{wrapper(inner)}</div>
-  return <div className={baseClass}>{inner}</div>
+  if (wrapper)
+    return (
+      <Box as="div" className={baseClass}>
+        {wrapper(inner)}
+      </Box>
+    )
+  return (
+    <Box as="div" className={baseClass}>
+      {inner}
+    </Box>
+  )
 }
 
 export default ActivityTimelineRow

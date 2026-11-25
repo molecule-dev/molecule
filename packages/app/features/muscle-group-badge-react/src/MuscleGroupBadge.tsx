@@ -1,8 +1,9 @@
-import type { CSSProperties, JSX } from 'react'
+import type { JSX } from 'react'
 
 import type { TranslateFunction } from '@molecule/app-i18n'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, getClassMap } from '@molecule/app-ui'
+import { Box, Circle, G, Path, Rect, Svg, Text } from '@molecule/app-ui-react/elements'
 
 import type { MuscleGroup, MuscleGroupBadgeProps } from './types.js'
 
@@ -130,76 +131,76 @@ function MuscleGlyph({
   const highlight = (() => {
     switch (group) {
       case 'chest':
-        return <rect x="9" y="6.5" width="6" height="3" rx="1" fill={accent} />
+        return <Rect x={9} y={6.5} width={6} height={3} rx={1} fill={accent} />
       case 'back':
-        return <rect x="9" y="7" width="6" height="4" rx="1" fill={accent} />
+        return <Rect x={9} y={7} width={6} height={4} rx={1} fill={accent} />
       case 'shoulders':
         return (
-          <g fill={accent}>
-            <circle cx="8.5" cy="6.5" r="1.4" />
-            <circle cx="15.5" cy="6.5" r="1.4" />
-          </g>
+          <G fill={accent}>
+            <Circle cx={8.5} cy={6.5} r={1.4} />
+            <Circle cx={15.5} cy={6.5} r={1.4} />
+          </G>
         )
       case 'biceps':
         return (
-          <g fill={accent}>
-            <rect x="6" y="7.5" width="2" height="3.5" rx="1" />
-            <rect x="16" y="7.5" width="2" height="3.5" rx="1" />
-          </g>
+          <G fill={accent}>
+            <Rect x={6} y={7.5} width={2} height={3.5} rx={1} />
+            <Rect x={16} y={7.5} width={2} height={3.5} rx={1} />
+          </G>
         )
       case 'triceps':
         return (
-          <g fill={accent}>
-            <rect x="5.5" y="9" width="2" height="3" rx="1" />
-            <rect x="16.5" y="9" width="2" height="3" rx="1" />
-          </g>
+          <G fill={accent}>
+            <Rect x={5.5} y={9} width={2} height={3} rx={1} />
+            <Rect x={16.5} y={9} width={2} height={3} rx={1} />
+          </G>
         )
       case 'forearms':
         return (
-          <g fill={accent}>
-            <rect x="5" y="11" width="1.8" height="3" rx="0.6" />
-            <rect x="17.2" y="11" width="1.8" height="3" rx="0.6" />
-          </g>
+          <G fill={accent}>
+            <Rect x={5} y={11} width={1.8} height={3} rx={0.6} />
+            <Rect x={17.2} y={11} width={1.8} height={3} rx={0.6} />
+          </G>
         )
       case 'core':
-        return <rect x="10" y="10.5" width="4" height="4" rx="0.8" fill={accent} />
+        return <Rect x={10} y={10.5} width={4} height={4} rx={0.8} fill={accent} />
       case 'glutes':
-        return <rect x="9" y="14" width="6" height="2.5" rx="1" fill={accent} />
+        return <Rect x={9} y={14} width={6} height={2.5} rx={1} fill={accent} />
       case 'quads':
         return (
-          <g fill={accent}>
-            <rect x="9" y="16" width="2.5" height="4" rx="0.8" />
-            <rect x="12.5" y="16" width="2.5" height="4" rx="0.8" />
-          </g>
+          <G fill={accent}>
+            <Rect x={9} y={16} width={2.5} height={4} rx={0.8} />
+            <Rect x={12.5} y={16} width={2.5} height={4} rx={0.8} />
+          </G>
         )
       case 'hamstrings':
         return (
-          <g fill={accent}>
-            <rect x="9" y="17" width="2.5" height="3" rx="0.8" opacity="0.85" />
-            <rect x="12.5" y="17" width="2.5" height="3" rx="0.8" opacity="0.85" />
-          </g>
+          <G fill={accent}>
+            <Rect x={9} y={17} width={2.5} height={3} rx={0.8} opacity={0.85} />
+            <Rect x={12.5} y={17} width={2.5} height={3} rx={0.8} opacity={0.85} />
+          </G>
         )
       case 'calves':
         return (
-          <g fill={accent}>
-            <rect x="9.5" y="20" width="2" height="2.5" rx="0.6" />
-            <rect x="12.5" y="20" width="2" height="2.5" rx="0.6" />
-          </g>
+          <G fill={accent}>
+            <Rect x={9.5} y={20} width={2} height={2.5} rx={0.6} />
+            <Rect x={12.5} y={20} width={2} height={2.5} rx={0.6} />
+          </G>
         )
       case 'fullBody':
-        return <rect x="6" y="3" width="12" height="19" rx="2" fill={accent} fillOpacity={0.2} />
+        return <Rect x={6} y={3} width={12} height={19} rx={2} fill={accent} fillOpacity={0.2} />
     }
   })()
 
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
       {/* Body silhouette — head + torso + limbs. */}
-      <g fill="currentColor" fillOpacity={0.12} stroke="currentColor" strokeOpacity={0.4}>
-        <circle cx="12" cy="3.5" r="2" />
-        <path d="M7 6 h10 a1 1 0 0 1 1 1 v9 a1 1 0 0 1 -1 1 h-2 v5 h-2 v-5 h-2 v5 h-2 v-5 h-2 a1 1 0 0 1 -1 -1 v-9 a1 1 0 0 1 1 -1 z" />
-      </g>
+      <G fill="currentColor" fillOpacity={0.12} stroke="currentColor" strokeOpacity={0.4}>
+        <Circle cx={12} cy={3.5} r={2} />
+        <Path d="M7 6 h10 a1 1 0 0 1 1 1 v9 a1 1 0 0 1 -1 1 h-2 v5 h-2 v-5 h-2 v5 h-2 v-5 h-2 a1 1 0 0 1 -1 -1 v-9 a1 1 0 0 1 1 -1 z" />
+      </G>
       {highlight}
-    </svg>
+    </Svg>
   )
 }
 
@@ -253,7 +254,8 @@ export function MuscleGroupBadge({
   }
 
   return (
-    <span
+    <Box
+      as="span"
       className={wrapperClass}
       role="group"
       aria-label={t(
@@ -263,10 +265,11 @@ export function MuscleGroupBadge({
       )}
       data-mol-id={dataMolId ?? 'muscle-group-badge'}
       data-group={group}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
     >
       <MuscleGlyph group={group} accent={accent} size={px} />
-      <span
+      <Text
+        as="span"
         className={cm.cn(
           cm.textSize(variant === 'compact' ? 'xs' : 'sm'),
           cm.fontWeight('semibold'),
@@ -274,7 +277,7 @@ export function MuscleGroupBadge({
         data-mol-id="muscle-group-label"
       >
         {resolvedLabel}
-      </span>
-    </span>
+      </Text>
+    </Box>
   )
 }

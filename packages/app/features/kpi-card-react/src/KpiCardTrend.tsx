@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { KpiTrendDirection } from './KpiCard.js'
 
@@ -35,7 +36,8 @@ export function KpiCardTrend({
   const dir: KpiTrendDirection = direction ?? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')
   const arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '–'
   return (
-    <span
+    <Box
+      as="span"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'xs' }),
         cm.textSize('sm'),
@@ -43,11 +45,13 @@ export function KpiCardTrend({
         className,
       )}
     >
-      <span aria-hidden>{arrow}</span>
-      <span>
+      <Text as="span" aria-hidden>
+        {arrow}
+      </Text>
+      <Text as="span">
         {Math.abs(delta)}
         {suffix}
-      </span>
-    </span>
+      </Text>
+    </Box>
   )
 }

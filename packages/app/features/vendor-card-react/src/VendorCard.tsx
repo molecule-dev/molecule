@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar, Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link VendorCard} component. */
 export interface VendorCardProps {
@@ -52,27 +53,48 @@ export function VendorCard({
   const displayName = typeof name === 'string' ? name : 'Vendor'
   return (
     <Card className={className} onClick={onClick}>
-      <div className={cm.flex({ align: 'start', gap: 'md' })}>
+      <Box as="div" className={cm.flex({ align: 'start', gap: 'md' })}>
         <Avatar src={logoSrc} alt={displayName} name={displayName} size="lg" />
-        <div className={cm.cn(cm.flex1, cm.stack(2))}>
-          <header>
-            <h3 className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{name}</h3>
-            {description && <p className={cm.textSize('sm')}>{description}</p>}
-          </header>
-          <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-            {rating !== undefined && (
-              <span className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'))}>
-                <span aria-hidden>★</span>
-                <span className={cm.fontWeight('semibold')}>{rating.toFixed(1)}</span>
-                {reviewCount !== undefined && <span>({reviewCount})</span>}
-              </span>
+        <Box as="div" className={cm.cn(cm.flex1, cm.stack(2))}>
+          <Box as="header">
+            <Text as="h3" className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+              {name}
+            </Text>
+            {description && (
+              <Text as="p" className={cm.textSize('sm')}>
+                {description}
+              </Text>
             )}
-            {memberSince && <span className={cm.textSize('xs')}>· {memberSince}</span>}
+          </Box>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+            {rating !== undefined && (
+              <Box
+                as="span"
+                className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'))}
+              >
+                <Text as="span" aria-hidden>
+                  ★
+                </Text>
+                <Text as="span" className={cm.fontWeight('semibold')}>
+                  {rating.toFixed(1)}
+                </Text>
+                {reviewCount !== undefined && <Text as="span">({reviewCount})</Text>}
+              </Box>
+            )}
+            {memberSince && (
+              <Box as="span" className={cm.textSize('xs')}>
+                · {memberSince}
+              </Box>
+            )}
             {badges}
-          </div>
-          {actions && <div className={cm.flex({ align: 'center', gap: 'sm' })}>{actions}</div>}
-        </div>
-      </div>
+          </Box>
+          {actions && (
+            <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+              {actions}
+            </Box>
+          )}
+        </Box>
+      </Box>
     </Card>
   )
 }

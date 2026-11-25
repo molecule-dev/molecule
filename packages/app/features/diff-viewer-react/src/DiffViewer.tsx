@@ -1,6 +1,7 @@
 import { type JSX, useMemo } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link DiffViewer}. */
 export interface DiffViewerProps {
@@ -98,25 +99,36 @@ export function DiffViewer({
    * @param text
    * @param type
    * @param n
+   * @param key - The row's React key, for a column that lists rows directly (the unified layout keys a wrapper).
    */
-  function row(text: string, type: DiffLine['type'], n: number): JSX.Element {
+  function row(text: string, type: DiffLine['type'], n: number, key?: number): JSX.Element {
     return (
-      <div
-        style={{ background: COLOR[type], display: 'flex', fontFamily: 'monospace', fontSize: 12 }}
+      <Box
+        as="div"
+        key={key}
+        style={{ display: 'flex' }}
+        webStyle={{ background: COLOR[type], fontFamily: 'monospace', fontSize: 12 }}
       >
         {showLineNumbers && (
-          <span style={{ width: 36, textAlign: 'right', opacity: 0.5, paddingRight: 6 }}>{n}</span>
+          <Text as="span" style={{ width: 36, textAlign: 'right', opacity: 0.5, paddingRight: 6 }}>
+            {n}
+          </Text>
         )}
-        <span style={{ width: 16 }}>{SIGN[type]}</span>
-        <span style={{ whiteSpace: 'pre' }}>{text}</span>
-      </div>
+        <Text as="span" style={{ width: 16 }}>
+          {SIGN[type]}
+        </Text>
+        <Text as="span" webStyle={{ whiteSpace: 'pre' }}>
+          {text}
+        </Text>
+      </Box>
     )
   }
 
   return (
-    <div className={cm.cn(cm.stack(0 as const), className)}>
+    <Box as="div" className={cm.cn(cm.stack(0 as const), className)}>
       {filename && (
-        <header
+        <Box
+          as="header"
           className={cm.cn(
             cm.sp('px', 3),
             cm.sp('py', 1),
@@ -125,28 +137,30 @@ export function DiffViewer({
           )}
         >
           {filename}
-        </header>
+        </Box>
       )}
       {mode === 'unified' ? (
-        <div>
+        <Box as="div">
           {lines.map((l, i) => (
-            <div key={i}>{row(l.text, l.type, i + 1)}</div>
+            <Box as="div" key={i}>
+              {row(l.text, l.type, i + 1)}
+            </Box>
           ))}
-        </div>
+        </Box>
       ) : (
-        <div className={cm.grid({ cols: 2, gap: 'xs' })}>
-          <div>
+        <Box as="div" className={cm.grid({ cols: 2, gap: 'xs' })}>
+          <Box as="div">
             {lines
               .filter((l) => l.type !== 'add')
-              .map((l, i) => row(l.text, l.type === 'remove' ? 'remove' : 'context', i + 1))}
-          </div>
-          <div>
+              .map((l, i) => row(l.text, l.type === 'remove' ? 'remove' : 'context', i + 1, i))}
+          </Box>
+          <Box as="div">
             {lines
               .filter((l) => l.type !== 'remove')
-              .map((l, i) => row(l.text, l.type === 'add' ? 'add' : 'context', i + 1))}
-          </div>
-        </div>
+              .map((l, i) => row(l.text, l.type === 'add' ? 'add' : 'context', i + 1, i))}
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

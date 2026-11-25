@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Discriminant for the kind of feature flag (boolean, multivariate, percentage rollout, or string variant). */
 export type FlagType = 'boolean' | 'multivariate' | 'percentage' | 'string'
@@ -75,28 +76,39 @@ export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProp
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'start', justify: 'between', gap: 'md' }),
         cm.sp('py', 2),
         className,
       )}
     >
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-          <span className={cm.cn(cm.fontWeight('semibold'))}>{flag.name}</span>
-          <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+          <Text as="span" className={cm.cn(cm.fontWeight('semibold'))}>
+            {flag.name}
+          </Text>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
             {flagTypeLabel(flag.type, t)}
-          </span>
-        </div>
-        <span className={cm.cn(cm.textSize('xs'))}>{flag.key}</span>
-        {flag.description && <p className={cm.textSize('sm')}>{flag.description}</p>}
-      </div>
-      <div className={cm.flex({ align: 'center', gap: 'md' })}>
+          </Text>
+        </Box>
+        <Text as="span" className={cm.cn(cm.textSize('xs'))}>
+          {flag.key}
+        </Text>
+        {flag.description && (
+          <Text as="p" className={cm.textSize('sm')}>
+            {flag.description}
+          </Text>
+        )}
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'md' })}>
         {flag.environments.map((env) => (
-          <div key={env.id} className={cm.cn(cm.stack(0 as const), cm.textCenter)}>
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{env.label}</span>
-            <div className={cm.flex({ align: 'center', gap: 'xs' })}>
+          <Box as="div" key={env.id} className={cm.cn(cm.stack(0 as const), cm.textCenter)}>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              {env.label}
+            </Text>
+            <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
               <Switch
                 checked={env.enabled}
                 onChange={(e) => onToggle(flag.key, env.id, (e.target as HTMLInputElement).checked)}
@@ -107,12 +119,14 @@ export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProp
                 )}
               />
               {flag.type === 'percentage' && env.rolloutPct !== undefined && (
-                <span className={cm.textSize('xs')}>{env.rolloutPct}%</span>
+                <Text as="span" className={cm.textSize('xs')}>
+                  {env.rolloutPct}%
+                </Text>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props accepted by the {@link SettingsContent} component. */
 export interface SettingsContentProps {
@@ -18,5 +19,9 @@ export interface SettingsContentProps {
  */
 export function SettingsContent({ children, className }: SettingsContentProps): JSX.Element {
   const cm = getClassMap()
-  return <div className={cm.cn(cm.stack(6), className)}>{children}</div>
+  return (
+    <Box as="div" className={cm.cn(cm.stack(6), className)}>
+      {children}
+    </Box>
+  )
 }

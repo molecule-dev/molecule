@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link AchievementCard}. */
 export interface AchievementCardProps {
@@ -65,38 +66,47 @@ export function AchievementCard({
       className={className}
       style={!earned ? { opacity: 0.5, filter: 'grayscale(0.6)' } : undefined}
     >
-      <div className={cm.flex({ align: 'start', gap: 'md' })}>
-        <div className={cm.shrink0} style={{ fontSize: 36 }}>
+      <Box as="div" className={cm.flex({ align: 'start', gap: 'md' })}>
+        <Box as="div" className={cm.shrink0} webStyle={{ fontSize: 36 }}>
           {icon}
-        </div>
-        <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-          <header className={cm.flex({ align: 'baseline', gap: 'sm' })}>
-            <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>{name}</h3>
+        </Box>
+        <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const))}>
+          <Box as="header" className={cm.flex({ align: 'baseline', gap: 'sm' })}>
+            <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}>
+              {name}
+            </Text>
             {tier && (
-              <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{tier}</span>
+              <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+                {tier}
+              </Text>
             )}
-          </header>
-          {description && <p className={cm.textSize('sm')}>{description}</p>}
+          </Box>
+          {description && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {description}
+            </Text>
+          )}
           {earned ? (
             earnedAt && (
-              <span className={cm.textSize('xs')}>
+              <Text as="span" className={cm.textSize('xs')}>
                 {earnedText} {earnedAt}
-              </span>
+              </Text>
             )
           ) : progress ? (
-            <div className={cm.cn(cm.progress(), cm.progressHeight('sm'))}>
-              <div
+            <Box as="div" className={cm.cn(cm.progress(), cm.progressHeight('sm'))}>
+              <Box
+                as="div"
                 className={cm.cn(cm.progressBar(), cm.progressColor('primary'))}
                 style={{ width: `${Math.min(100, (progress.value / progress.max) * 100)}%` }}
               />
-            </div>
+            </Box>
           ) : (
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
               {lockedText}
-            </span>
+            </Text>
           )}
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Card>
   )
 }

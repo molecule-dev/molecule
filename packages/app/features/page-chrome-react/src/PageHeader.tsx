@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link PageHeader}. */
 export interface PageHeaderProps {
@@ -61,19 +62,33 @@ export function PageHeader({
       ? cm.cn(cm.textSize('4xl'), cm.fontWeight('extrabold'))
       : cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))
   return (
-    <header data-mol-id={dataMolId} className={cm.cn(cm.stack(3), className)}>
+    <Box as="header" data-mol-id={dataMolId} className={cm.cn(cm.stack(3), className)}>
       {breadcrumbs}
-      <div className={cm.flex({ justify: 'between', align: 'start', gap: 'md' })}>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ justify: 'between', align: 'start', gap: 'md' })}>
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {icon}
-          <div className={cm.stack(1 as const)}>
-            <h1 className={titleClass}>{title}</h1>
-            {subtitle && <p className={cm.textSize('base')}>{subtitle}</p>}
-          </div>
-        </div>
-        {actions && <div className={cm.flex({ align: 'center', gap: 'sm' })}>{actions}</div>}
-      </div>
-      {meta && <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>{meta}</div>}
-    </header>
+          <Box as="div" className={cm.stack(1 as const)}>
+            <Text as="h1" className={titleClass}>
+              {title}
+            </Text>
+            {subtitle && (
+              <Text as="p" className={cm.textSize('base')}>
+                {subtitle}
+              </Text>
+            )}
+          </Box>
+        </Box>
+        {actions && (
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+            {actions}
+          </Box>
+        )}
+      </Box>
+      {meta && (
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          {meta}
+        </Box>
+      )}
+    </Box>
   )
 }

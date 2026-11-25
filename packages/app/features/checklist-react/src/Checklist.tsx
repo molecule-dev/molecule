@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Checkbox } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** A single item in the checklist, tracking its label, description, and completion state. */
 export interface ChecklistItem {
@@ -49,56 +50,67 @@ export function Checklist({
   const done = items.filter((i) => i.completed).length
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <div className={cm.cn(cm.stack(3), className)}>
-      {title && <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>}
+    <Box as="div" className={cm.cn(cm.stack(3), className)}>
+      {title && (
+        <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+          {title}
+        </Text>
+      )}
       {showProgress && (
-        <div className={cm.stack(1 as const)}>
-          <div className={cm.flex({ justify: 'between', align: 'center' })}>
-            <span className={cm.textSize('xs')}>
+        <Box as="div" className={cm.stack(1 as const)}>
+          <Box as="div" className={cm.flex({ justify: 'between', align: 'center' })}>
+            <Text as="span" className={cm.textSize('xs')}>
               {t(
                 'checklist.progress',
                 { done, total },
                 { defaultValue: '{{done}} of {{total}} complete' },
               )}
-            </span>
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{pct}%</span>
-          </div>
-          <div className={cm.cn(cm.progress(), cm.progressHeight('sm'))}>
-            <div
+            </Text>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              {pct}%
+            </Text>
+          </Box>
+          <Box as="div" className={cm.cn(cm.progress(), cm.progressHeight('sm'))}>
+            <Box
+              as="div"
               className={cm.cn(cm.progressBar(), cm.progressColor('primary'))}
               style={{ width: `${pct}%` }}
             />
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-      <ul className={cm.stack(2)}>
+      <Box as="ul" className={cm.stack(2)}>
         {items.map((item) => (
-          <li key={item.id} className={cm.flex({ align: 'start', gap: 'sm' })}>
-            <span className={cm.shrink0}>
+          <Box as="li" key={item.id} className={cm.flex({ align: 'start', gap: 'sm' })}>
+            <Box as="span" className={cm.shrink0}>
               <Checkbox
                 checked={item.completed}
                 disabled={item.disabled}
                 onChange={(e) => onToggle(item.id, (e.target as HTMLInputElement).checked)}
                 aria-label={typeof item.label === 'string' ? item.label : item.id}
               />
-            </span>
-            <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-              <span
+            </Box>
+            <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+              <Box
+                as="span"
                 className={cm.cn(
                   cm.textSize('sm'),
                   item.completed ? cm.fontWeight('medium') : cm.fontWeight('semibold'),
                 )}
-                style={
-                  item.completed ? { textDecoration: 'line-through', opacity: 0.6 } : undefined
-                }
+                style={item.completed ? { opacity: 0.6 } : undefined}
+                webStyle={item.completed ? { textDecoration: 'line-through' } : undefined}
               >
                 {item.label}
-              </span>
-              {item.description && <span className={cm.textSize('xs')}>{item.description}</span>}
-            </div>
-          </li>
+              </Box>
+              {item.description && (
+                <Box as="span" className={cm.textSize('xs')}>
+                  {item.description}
+                </Box>
+              )}
+            </Box>
+          </Box>
         ))}
-      </ul>
-    </div>
+      </Box>
+    </Box>
   )
 }

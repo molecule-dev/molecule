@@ -8,6 +8,7 @@ import type { JSX } from 'react'
  * @module
  */
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon } from '@molecule/app-ui-react/elements'
 
 import type { TimelineKindTone } from './types.js'
 
@@ -20,7 +21,8 @@ interface ActivityTimelineDotProps {
 export function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'center' }),
         cm.w(6),
@@ -36,8 +38,8 @@ export function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProp
       )}
       style={{ left: 0, top: 0 }}
     >
-      <span className={cm.cn(cm.textSize('xs'), cm.iconGlyphFont)}>{tone.icon}</span>
-    </div>
+      <GlyphIcon name={tone.icon} className={cm.textSize('xs')} />
+    </Box>
   )
 }
 

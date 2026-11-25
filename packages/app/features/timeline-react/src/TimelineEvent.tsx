@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { TimelineRail } from './TimelineRail.js'
 import type { TimelineEventData } from './types.js'
@@ -21,13 +22,21 @@ export interface TimelineEventProps {
 export function TimelineEvent({ event, isLast, className }: TimelineEventProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.flex({ align: 'stretch', gap: 'sm' }), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'stretch', gap: 'sm' }), className)}>
       <TimelineRail marker={event.marker} connector={!isLast} />
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const), cm.sp('pb', 4))}>
-        <div className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>{event.timestamp}</div>
-        <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{event.title}</div>
-        {event.body && <div className={cm.textSize('sm')}>{event.body}</div>}
-      </div>
-    </div>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const), cm.sp('pb', 4))}>
+        <Box as="div" className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
+          {event.timestamp}
+        </Box>
+        <Box as="div" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {event.title}
+        </Box>
+        {event.body && (
+          <Box as="div" className={cm.textSize('sm')}>
+            {event.body}
+          </Box>
+        )}
+      </Box>
+    </Box>
   )
 }

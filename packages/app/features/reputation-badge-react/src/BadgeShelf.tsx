@@ -2,6 +2,7 @@ import type React from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import type { Badge } from './types.js'
 
@@ -59,7 +60,8 @@ export function BadgeShelf({
   )
 
   return (
-    <ul
+    <Box
+      as="ul"
       className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
       data-mol-id="badge-shelf"
       aria-label={shelfLabel}
@@ -68,7 +70,7 @@ export function BadgeShelf({
         const tooltip = badge.description ? `${badge.name} — ${badge.description}` : badge.name
         const interactive = typeof onClick === 'function'
         const content = badge.iconSrc ? (
-          <img
+          <Image
             src={badge.iconSrc}
             alt=""
             className={cm.cn(cm.shrink0)}
@@ -76,20 +78,22 @@ export function BadgeShelf({
             data-mol-id="badge-shelf-icon-img"
           />
         ) : (
-          <span aria-hidden="true" data-mol-id="badge-shelf-icon-glyph">
+          <Text as="span" aria-hidden="true" data-mol-id="badge-shelf-icon-glyph">
             {badge.icon ?? '*'}
-          </span>
+          </Text>
         )
 
         return (
-          <li
+          <Box
+            as="li"
             key={badge.id}
             className={cm.cn(cm.flex({ align: 'center', justify: 'center' }))}
             data-mol-id="badge-shelf-item"
             data-badge-id={badge.id}
           >
             {interactive ? (
-              <button
+              <Pressable
+                as="button"
                 type="button"
                 className={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.roundedFull)}
                 onClick={() => onClick?.(badge)}
@@ -98,22 +102,24 @@ export function BadgeShelf({
                 data-mol-id="badge-shelf-button"
               >
                 {content}
-              </button>
+              </Pressable>
             ) : (
-              <span title={tooltip} aria-label={badge.name} role="img">
+              <Box as="span" title={tooltip} aria-label={badge.name} role="img">
                 {content}
-              </span>
+              </Box>
             )}
-          </li>
+          </Box>
         )
       })}
       {overflow > 0 && (
-        <li
+        <Box
+          as="li"
           className={cm.cn(cm.flex({ align: 'center', justify: 'center' }))}
           data-mol-id="badge-shelf-overflow"
         >
           {typeof onClick === 'function' ? (
-            <button
+            <Pressable
+              as="button"
               type="button"
               className={cm.cn(
                 cm.flex({ align: 'center', justify: 'center' }),
@@ -130,9 +136,10 @@ export function BadgeShelf({
               data-mol-id="badge-shelf-overflow-button"
             >
               +{overflow}
-            </button>
+            </Pressable>
           ) : (
-            <span
+            <Text
+              as="span"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               aria-label={t(
                 'badgeShelf.overflow.aria',
@@ -141,10 +148,10 @@ export function BadgeShelf({
               )}
             >
               +{overflow}
-            </span>
+            </Text>
           )}
-        </li>
+        </Box>
       )}
-    </ul>
+    </Box>
   )
 }

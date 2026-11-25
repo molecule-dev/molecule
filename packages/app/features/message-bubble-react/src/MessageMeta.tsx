@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link MessageMeta}. */
 export interface MessageMetaProps {
@@ -20,9 +21,14 @@ export interface MessageMetaProps {
 export function MessageMeta({ author, timestamp, className }: MessageMetaProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.flex({ align: 'baseline', gap: 'sm' }), cm.textSize('xs'), className)}>
-      <span className={cm.fontWeight('semibold')}>{author}</span>
-      <span>{timestamp}</span>
-    </div>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ align: 'baseline', gap: 'sm' }), cm.textSize('xs'), className)}
+    >
+      <Box as="span" className={cm.fontWeight('semibold')}>
+        {author}
+      </Box>
+      <Box as="span">{timestamp}</Box>
+    </Box>
   )
 }

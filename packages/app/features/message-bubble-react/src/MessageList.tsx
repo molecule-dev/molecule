@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { MessageBubble } from './MessageBubble.js'
 import type { MessageData } from './types.js'
@@ -32,13 +33,13 @@ export function MessageList({
   const cm = getClassMap()
   if (messages.length === 0 && emptyState) return <>{emptyState}</>
   return (
-    <div className={cm.cn(cm.stack(3), className)}>
+    <Box as="div" className={cm.cn(cm.stack(3), className)}>
       {messages.map((m, i) => (
-        <div key={m.id} className={cm.stack(2)}>
+        <Box as="div" key={m.id} className={cm.stack(2)}>
           {renderDateSeparator?.(m, i)}
           <MessageBubble message={m} isSelf={m.author.id === selfAuthorId} />
-        </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }

@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link TimelineRail} component. */
 export interface TimelineRailProps {
@@ -24,14 +25,25 @@ export function TimelineRail({
 }: TimelineRailProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col', align: 'center' }), cm.shrink0, className)}>
-      <div>{marker ?? <span aria-hidden>•</span>}</div>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ direction: 'col', align: 'center' }), cm.shrink0, className)}
+    >
+      <Box as="div">
+        {marker ?? (
+          <Text as="span" aria-hidden>
+            •
+          </Text>
+        )}
+      </Box>
       {connector && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.w(0 as const), cm.h('full'))}
-          style={{ borderLeft: '1px solid currentColor', opacity: 0.2, minHeight: 24 }}
+          style={{ opacity: 0.2, minHeight: 24 }}
+          webStyle={{ borderLeft: '1px solid currentColor' }}
         />
       )}
-    </div>
+    </Box>
   )
 }

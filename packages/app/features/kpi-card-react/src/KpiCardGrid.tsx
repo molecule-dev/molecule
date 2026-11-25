@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link KpiCardGrid}. */
 export interface KpiCardGridProps {
@@ -27,5 +28,9 @@ export function KpiCardGrid({
   className,
 }: KpiCardGridProps): JSX.Element {
   const cm = getClassMap()
-  return <div className={cm.cn(cm.grid({ cols: columns, gap }), className)}>{children}</div>
+  return (
+    <Box as="div" className={cm.cn(cm.grid({ cols: columns, gap }), className)}>
+      {children}
+    </Box>
+  )
 }

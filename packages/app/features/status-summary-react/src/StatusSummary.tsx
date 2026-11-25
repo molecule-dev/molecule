@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Union of possible component health states. */
 export type ComponentStatus =
@@ -108,8 +109,9 @@ export function StatusSummary({
   const allStatuses = groups.flatMap((g) => g.components.map((c) => c.status))
   const overall = overallStatus ?? worst(allStatuses)
   return (
-    <div className={cm.cn(cm.stack(4), className)}>
-      <div
+    <Box as="div" className={cm.cn(cm.stack(4), className)}>
+      <Box
+        as="div"
         className={cm.cn(
           cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
           cm.sp('p', 3),
@@ -118,29 +120,35 @@ export function StatusSummary({
         )}
         style={{ borderRadius: 8 }}
       >
-        <span className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+        <Text as="span" className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
           {statusLabel(overall)}
-        </span>
+        </Text>
         {header}
-      </div>
+      </Box>
       {groups.map((g) => (
-        <section key={g.id} className={cm.stack(2)}>
-          <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{g.name}</h3>
-          <ul className={cm.stack(1 as const)}>
+        <Box as="section" key={g.id} className={cm.stack(2)}>
+          <Text as="h3" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+            {g.name}
+          </Text>
+          <Box as="ul" className={cm.stack(1 as const)}>
             {g.components.map((c) => (
-              <li
+              <Box
+                as="li"
                 key={c.id}
                 className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}
               >
-                <div>
-                  <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+                <Box as="div">
+                  <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
                     {c.name}
-                  </span>
+                  </Text>
                   {c.subtitle && (
-                    <span className={cm.cn(cm.sp('ml', 2), cm.textSize('xs'))}>{c.subtitle}</span>
+                    <Text as="span" className={cm.cn(cm.sp('ml', 2), cm.textSize('xs'))}>
+                      {c.subtitle}
+                    </Text>
                   )}
-                </div>
-                <span
+                </Box>
+                <Text
+                  as="span"
                   className={cm.cn(
                     cm.sp('px', 2),
                     cm.textSize('xs'),
@@ -151,13 +159,13 @@ export function StatusSummary({
                   style={{ borderRadius: 4 }}
                 >
                   {statusLabel(c.status)}
-                </span>
-              </li>
+                </Text>
+              </Box>
             ))}
-          </ul>
-        </section>
+          </Box>
+        </Box>
       ))}
       {footer}
-    </div>
+    </Box>
   )
 }

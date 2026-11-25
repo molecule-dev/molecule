@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Reliability tier — drives the colour + label of the optional dot/chip.
@@ -212,7 +213,8 @@ export function BiasIndicator({
 
   if (compact) {
     return (
-      <span
+      <Box
+        as="span"
         role="img"
         aria-label={tierLabel ? `${biasLabel} — ${tierLabel}` : biasLabel}
         data-mol-id={dataMolId ?? 'bias-indicator'}
@@ -220,55 +222,60 @@ export function BiasIndicator({
         data-reliability-tier={tier ?? undefined}
         className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
       >
-        <span
+        <Box
+          as="span"
           aria-hidden
           className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, cm.displayInlineBlock)}
-          style={{ background: color }}
+          webStyle={{ background: color }}
         />
         {sourceLabel !== undefined && (
-          <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{sourceLabel}</span>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+            {sourceLabel}
+          </Text>
         )}
-      </span>
+      </Box>
     )
   }
 
   const percent = biasToPercent(bias)
 
   return (
-    <div
+    <Box
+      as="div"
       data-mol-id={dataMolId ?? 'bias-indicator'}
       data-bias-bucket={bucket}
       data-reliability-tier={tier ?? undefined}
       className={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }), className)}
     >
       {sourceLabel !== undefined && (
-        <span
+        <Text
+          as="span"
           data-mol-id="bias-indicator-source"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
         >
           {sourceLabel}
-        </span>
+        </Text>
       )}
-      <div
+      <Box
+        as="div"
         role="img"
         aria-label={biasLabel}
         data-mol-id="bias-indicator-scale"
         className={cm.cn(cm.position('relative'), cm.h(2))}
-        style={{
-          width: '100%',
+        style={{ width: '100%', borderRadius: 999, opacity: 0.45 }}
+        webStyle={{
           minWidth: '80px',
-          borderRadius: 999,
           background:
             'linear-gradient(to right, var(--color-info, #2563eb) 0%, var(--color-info-light, #60a5fa) 25%, var(--color-foreground-secondary, #9ca3af) 50%, var(--color-warning-light, #fbbf24) 75%, var(--color-error, #dc2626) 100%)',
-          opacity: 0.45,
         }}
       >
-        <span
+        <Box
+          as="span"
           data-mol-id="bias-indicator-marker"
           aria-hidden
           className={cm.cn(cm.position('absolute'), cm.roundedFull)}
-          style={{
-            left: `${percent}%`,
+          style={{ left: `${percent}%` }}
+          webStyle={{
             top: '50%',
             transform: 'translate(-50%, -50%)',
             width: '12px',
@@ -278,26 +285,32 @@ export function BiasIndicator({
             boxShadow: '0 0 0 1px var(--color-border, rgba(0,0,0,0.15))',
           }}
         />
-      </div>
-      <div className={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'xs' }))}>
-        <span data-mol-id="bias-indicator-bias-label" className={cm.cn(cm.textSize('xs'))}>
+      </Box>
+      <Box as="div" className={cm.cn(cm.flex({ align: 'center', justify: 'between', gap: 'xs' }))}>
+        <Text
+          as="span"
+          data-mol-id="bias-indicator-bias-label"
+          className={cm.cn(cm.textSize('xs'))}
+        >
           {biasLabel}
-        </span>
+        </Text>
         {tier && tierLabel && (
-          <span
+          <Box
+            as="span"
             data-mol-id="bias-indicator-reliability"
             data-reliability-tier={tier}
             className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('xs'))}
           >
-            <span
+            <Box
+              as="span"
               aria-hidden
               className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, cm.displayInlineBlock)}
-              style={{ background: tierColor(tier) }}
+              webStyle={{ background: tierColor(tier) }}
             />
-            <span>{tierLabel}</span>
-          </span>
+            <Text as="span">{tierLabel}</Text>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

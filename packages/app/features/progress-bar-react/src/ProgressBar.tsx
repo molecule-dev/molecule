@@ -3,6 +3,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ProgressBar}. */
 export interface ProgressBarProps {
@@ -61,21 +62,27 @@ export function ProgressBar({
   // The rendered label is the track's name unless an explicit labelledBy wins.
   const namedByLabel = labelledBy === undefined && !!label
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
       {(label || valueLabel) && (
-        <div className={cm.flex({ justify: 'between', align: 'center' })}>
+        <Box as="div" className={cm.flex({ justify: 'between', align: 'center' })}>
           {label && (
-            <span
+            <Box
+              as="span"
               id={namedByLabel ? nameId : undefined}
               className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
             >
               {label}
-            </span>
+            </Box>
           )}
-          {valueLabel && <span className={cm.textSize('sm')}>{valueLabel}</span>}
-        </div>
+          {valueLabel && (
+            <Box as="span" className={cm.textSize('sm')}>
+              {valueLabel}
+            </Box>
+          )}
+        </Box>
       )}
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.progress(), cm.progressHeight(size))}
         role="progressbar"
         aria-valuenow={value}
@@ -89,11 +96,12 @@ export function ProgressBar({
         }
         aria-describedby={describedBy}
       >
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.progressBar(), cm.progressColor(color))}
           style={{ width: `${pct}%` }}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useOptimisticValue } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card, type OptimisticToggleButtonProps } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { ListingCardActions } from './ListingCardActions.js'
 
@@ -77,7 +78,7 @@ function ListingCardToggle({
           }))
         }}
       >
-        {pressed ? activeLabel : inactiveLabel} <span>{count}</span>
+        {pressed ? activeLabel : inactiveLabel} <Text as="span">{count}</Text>
       </Button>
     </ListingCardActions>
   )
@@ -122,10 +123,10 @@ export function ListingCard({
       onClick={onClick}
       className={cm.cn(onClick ? cm.cursorPointer : undefined, className)}
     >
-      <div className={cm.stack(0 as const)}>
+      <Box as="div" className={cm.stack(0 as const)}>
         {children}
         {toggle && <ListingCardToggle {...toggle} />}
-      </div>
+      </Box>
     </Card>
   )
 }

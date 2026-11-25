@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** A single navigable item in the settings sidebar. */
 export interface SettingsSidebarItem {
@@ -48,7 +49,8 @@ export function SettingsSidebar({
   const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <nav
+    <Box
+      as="nav"
       className={cm.cn(cm.stack(1 as const), className)}
       aria-label={
         ariaLabel ?? t('settingsContainer.aria.settings', undefined, { defaultValue: 'Settings' })
@@ -57,7 +59,8 @@ export function SettingsSidebar({
       {items.map((item) => {
         const active = item.id === activeId
         return (
-          <button
+          <Pressable
+            as="button"
             key={item.id}
             type="button"
             onClick={() => onSelect(item.id)}
@@ -71,11 +74,15 @@ export function SettingsSidebar({
             )}
           >
             {item.icon}
-            <span>{item.label}</span>
-          </button>
+            <Box as="span">{item.label}</Box>
+          </Pressable>
         )
       })}
-      {footer && <div className={cm.sp('mt', 4)}>{footer}</div>}
-    </nav>
+      {footer && (
+        <Box as="div" className={cm.sp('mt', 4)}>
+          {footer}
+        </Box>
+      )}
+    </Box>
   )
 }

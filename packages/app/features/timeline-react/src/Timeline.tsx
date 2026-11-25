@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { TimelineEvent } from './TimelineEvent.js'
 import type { TimelineEventData } from './types.js'
@@ -31,17 +32,17 @@ export function Timeline({
   const cm = getClassMap()
   if (events.length === 0 && emptyState) return <>{emptyState}</>
   return (
-    <div className={cm.cn(cm.stack(0 as const), className)}>
+    <Box as="div" className={cm.cn(cm.stack(0 as const), className)}>
       {events.map((event, i) => {
         const prev = i > 0 ? events[i - 1] : undefined
         const separator = renderDateSeparator?.(event, prev)
         return (
-          <div key={event.id}>
+          <Box as="div" key={event.id}>
             {separator}
             <TimelineEvent event={event} isLast={i === events.length - 1} />
-          </div>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }

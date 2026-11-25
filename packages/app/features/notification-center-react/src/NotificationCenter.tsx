@@ -1,9 +1,10 @@
-import type { KeyboardEvent, ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button } from '@molecule/app-ui-react'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** A single notification entry rendered inside the notification panel. */
 export interface NotificationItem {
@@ -72,36 +73,38 @@ export function NotificationCenter({
   const { t } = useTranslation()
   const hasItems = items.length > 0
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.stack(0 as const), className)}
-      style={{ minWidth: 320, maxHeight: 480, overflowY: 'auto' }}
+      webStyle={{ minWidth: 320, maxHeight: 480, overflowY: 'auto' }}
     >
-      <header
+      <Box
+        as="header"
         className={cm.cn(
           cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
           cm.sp('p', 3),
         )}
       >
-        <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+        <Text as="h3" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
           {title ?? t('notifications.title', {}, { defaultValue: 'Notifications' })}
-        </h3>
+        </Text>
         {onMarkAllRead && hasItems && (
           <Button variant="ghost" size="sm" onClick={onMarkAllRead}>
             {t('notifications.markAllRead', {}, { defaultValue: 'Mark all as read' })}
           </Button>
         )}
-      </header>
+      </Box>
       {lastError && (
-        <div className={cm.sp('px', 3)}>
+        <Box as="div" className={cm.sp('px', 3)}>
           <Alert status="error">
-            <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-              <span className={cm.textSize('sm')}>
+            <Box as="div" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+              <Text as="span" className={cm.textSize('sm')}>
                 {t(
                   'notifications.loadError',
                   {},
                   { defaultValue: 'Could not load notifications.' },
                 )}
-              </span>
+              </Text>
               <Button
                 variant="ghost"
                 size="sm"
@@ -110,32 +113,33 @@ export function NotificationCenter({
               >
                 {t('notifications.retry', {}, { defaultValue: 'Retry' })}
               </Button>
-            </div>
+            </Box>
           </Alert>
-        </div>
+        </Box>
       )}
       {!hasItems ? (
         (emptyState ?? (
-          <div className={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>
+          <Box as="div" className={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>
             {t('notifications.empty', {}, { defaultValue: 'No notifications' })}
-          </div>
+          </Box>
         ))
       ) : (
-        <ul className={cm.stack(0 as const)}>
+        <Box as="ul" className={cm.stack(0 as const)}>
           {items.map((it) => (
-            <li key={it.id}>
+            <Box as="li" key={it.id}>
               {/* A `li` cannot take button semantics, so the row is a wrapper
-                around its content: when the item is clickable it is a button
-                in the a11y tree (role + tabIndex + Enter / Space activation,
-                matching native button keyboard semantics); otherwise it is the
-                plain row div. */}
-              <div
+                  around its content: when the item is clickable it is a button
+                  in the a11y tree (role + tabIndex + Enter / Space activation,
+                  matching native button keyboard semantics); otherwise it is the
+                  plain row div. */}
+              <Pressable
+                as="div"
                 role={it.onClick ? 'button' : undefined}
                 tabIndex={it.onClick ? 0 : undefined}
                 onClick={it.onClick}
                 onKeyDown={
                   it.onClick
-                    ? (event: KeyboardEvent<HTMLDivElement>) => {
+                    ? (event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
                           event.preventDefault()
                           it.onClick?.()
@@ -151,45 +155,59 @@ export function NotificationCenter({
                   it.read ? undefined : cm.bgPrimarySubtle,
                 )}
               >
-                {it.leading && <div className={cm.shrink0}>{it.leading}</div>}
-                <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+                {it.leading && (
+                  <Box as="div" className={cm.shrink0}>
+                    {it.leading}
+                  </Box>
+                )}
+                <Box as="div" className={cm.cn(cm.flex1, cm.stack(0 as const))}>
                   {/* The unread state is announced, not only shown: a screen
-                    reader reads "Unread" before the title (WCAG 1.3.1). */}
+                      reader reads "Unread" before the title (WCAG 1.3.1). */}
                   {!it.read && (
-                    <span className={cm.cn(cm.srOnly)}>
+                    <Text as="span" className={cm.cn(cm.srOnly)}>
                       {t('notifications.unread', {}, { defaultValue: 'Unread' })}
-                    </span>
+                    </Text>
                   )}
-                  <span
+                  <Box
+                    as="span"
                     className={cm.cn(
                       cm.textSize('sm'),
                       it.read ? cm.fontWeight('medium') : cm.fontWeight('semibold'),
                     )}
                   >
                     {it.title}
-                  </span>
-                  {it.body && <span className={cm.textSize('xs')}>{it.body}</span>}
-                  {it.timestamp && <span className={cm.textSize('xs')}>{it.timestamp}</span>}
-                </div>
+                  </Box>
+                  {it.body && (
+                    <Box as="span" className={cm.textSize('xs')}>
+                      {it.body}
+                    </Box>
+                  )}
+                  {it.timestamp && (
+                    <Box as="span" className={cm.textSize('xs')}>
+                      {it.timestamp}
+                    </Box>
+                  )}
+                </Box>
                 {!it.read && (
-                  <span
+                  <Box
+                    as="span"
                     aria-hidden
                     className={cm.cn(cm.bgPrimary, cm.roundedFull)}
-                    style={{ width: 8, height: 8, marginTop: 6 }}
+                    webStyle={{ width: 8, height: 8, marginTop: 6 }}
                   />
                 )}
-              </div>
-            </li>
+              </Pressable>
+            </Box>
           ))}
-        </ul>
+        </Box>
       )}
       {onViewAll && hasItems && (
-        <footer className={cm.cn(cm.sp('p', 2), cm.textCenter)}>
+        <Box as="footer" className={cm.cn(cm.sp('p', 2), cm.textCenter)}>
           <Button variant="ghost" size="sm" onClick={onViewAll}>
             {t('notifications.viewAll', {}, { defaultValue: 'View all' })}
           </Button>
-        </footer>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

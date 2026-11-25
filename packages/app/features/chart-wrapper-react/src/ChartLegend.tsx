@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Describes a single series entry rendered in the chart legend. */
 export interface ChartLegendItem {
@@ -39,7 +40,8 @@ export function ChartLegend({
 }: ChartLegendProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({
           direction: layout === 'vertical' ? 'col' : 'row',
@@ -52,39 +54,50 @@ export function ChartLegend({
     >
       {items.map((it) => {
         const content = (
-          <span className={cm.flex({ align: 'center', gap: 'xs' })}>
-            <span
+          <Box as="span" className={cm.flex({ align: 'center', gap: 'xs' })}>
+            <Box
+              as="span"
               aria-hidden
               style={{
-                display: 'inline-block',
                 width: 10,
                 height: 10,
                 borderRadius: 2,
-                background: it.color,
                 opacity: it.hidden ? 0.3 : 1,
               }}
+              webStyle={{ display: 'inline-block', background: it.color }}
             />
-            <span
+            <Box
+              as="span"
               className={cm.cn(cm.textSize('sm'), it.hidden ? cm.textSize('sm') : undefined)}
               style={it.hidden ? { opacity: 0.5 } : undefined}
             >
               {it.label}
-            </span>
-            {it.value !== undefined && <span className={cm.textSize('sm')}>{it.value}</span>}
-          </span>
+            </Box>
+            {it.value !== undefined && (
+              <Box as="span" className={cm.textSize('sm')}>
+                {it.value}
+              </Box>
+            )}
+          </Box>
         )
-        if (!onToggle) return <span key={it.id}>{content}</span>
+        if (!onToggle)
+          return (
+            <Box as="span" key={it.id}>
+              {content}
+            </Box>
+          )
         return (
-          <button
+          <Pressable
+            as="button"
             key={it.id}
             type="button"
             onClick={() => onToggle(it.id)}
             aria-pressed={!it.hidden}
           >
             {content}
-          </button>
+          </Pressable>
         )
       })}
-    </div>
+    </Box>
   )
 }

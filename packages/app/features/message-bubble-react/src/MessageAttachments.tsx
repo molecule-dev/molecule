@@ -1,4 +1,5 @@
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Describes a single file attachment rendered inside a message bubble. */
 export interface MessageAttachment {
@@ -30,17 +31,23 @@ export function MessageAttachments({
 }: MessageAttachmentsProps): React.JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.stack(1 as const), className)}>
+    <Box as="div" className={cm.cn(cm.stack(1 as const), className)}>
       {attachments.map((a) => (
-        <div key={a.id} className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Box as="div" key={a.id} className={cm.flex({ align: 'center', gap: 'sm' })}>
           {a.icon}
-          <span className={cm.cn(cm.flex1, cm.textSize('sm'))}>
-            <span className={cm.fontWeight('medium')}>{a.name}</span>
-            {a.size && <span className={cm.sp('ml', 2)}>{a.size}</span>}
-          </span>
+          <Box as="span" className={cm.cn(cm.flex1, cm.textSize('sm'))}>
+            <Text as="span" className={cm.fontWeight('medium')}>
+              {a.name}
+            </Text>
+            {a.size && (
+              <Text as="span" className={cm.sp('ml', 2)}>
+                {a.size}
+              </Text>
+            )}
+          </Box>
           {a.action}
-        </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }

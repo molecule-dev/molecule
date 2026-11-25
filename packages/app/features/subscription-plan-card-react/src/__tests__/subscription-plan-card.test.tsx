@@ -45,6 +45,13 @@ vi.mock('@molecule/app-ui-react', () => ({
   }) => createElement('div', { 'data-card': '', className, style }, children),
 }))
 
+// The CTA link is the router's `Link`, which needs a mounted router; this static-markup test
+// renders it as the plain anchor it renders on the web.
+vi.mock('@molecule/app-react/link', () => ({
+  Link: ({ to, children }: { to: string; children?: ReactNode }) =>
+    createElement('a', { href: to }, children),
+}))
+
 const { SubscriptionPlanCard } = await import('../SubscriptionPlanCard.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)

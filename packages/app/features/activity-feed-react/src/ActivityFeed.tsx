@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
@@ -34,11 +35,11 @@ export function ActivityFeed({
   const cm = getClassMap()
   if (items.length === 0 && emptyState) return <>{emptyState}</>
   return (
-    <div className={cm.cn(cm.stack(4), className)}>
+    <Box as="div" className={cm.cn(cm.stack(4), className)}>
       {items.map((it) => (
         <ActivityFeedItem key={it.id} item={it} />
       ))}
       {footer}
-    </div>
+    </Box>
   )
 }

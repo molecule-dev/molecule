@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ListingGrid}. */
 export interface ListingGridProps {
@@ -24,5 +25,9 @@ export function ListingGrid({
   className,
 }: ListingGridProps): JSX.Element {
   const cm = getClassMap()
-  return <div className={cm.cn(cm.grid({ cols: columns, gap }), className)}>{children}</div>
+  return (
+    <Box as="div" className={cm.cn(cm.grid({ cols: columns, gap }), className)}>
+      {children}
+    </Box>
+  )
 }

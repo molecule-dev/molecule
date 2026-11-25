@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Possible visual/semantic states for a single stepper step. */
 export type StepStatus = 'completed' | 'current' | 'pending' | 'error'
@@ -72,16 +73,18 @@ export function Stepper({
   if (variant === 'bar') {
     const pct = steps.length === 1 ? 100 : (currentStep / (steps.length - 1)) * 100
     return (
-      <div className={cm.cn(cm.stack(2), className)}>
-        <div className={cm.cn(cm.progress(), cm.progressHeight('sm'))}>
-          <div
+      <Box as="div" className={cm.cn(cm.stack(2), className)}>
+        <Box as="div" className={cm.cn(cm.progress(), cm.progressHeight('sm'))}>
+          <Box
+            as="div"
             className={cm.cn(cm.progressBar(), cm.progressColor('primary'))}
             style={{ width: `${pct}%` }}
           />
-        </div>
-        <div className={cm.flex({ justify: 'between' })}>
+        </Box>
+        <Box as="div" className={cm.flex({ justify: 'between' })}>
           {steps.map((s, i) => (
-            <span
+            <Box
+              as="span"
               key={s.id}
               className={cm.cn(
                 cm.textSize('xs'),
@@ -89,16 +92,17 @@ export function Stepper({
               )}
             >
               {s.label}
-            </span>
+            </Box>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
     )
   }
 
   if (variant === 'cards') {
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(
           orientation === 'vertical' ? cm.stack(2) : cm.flex({ align: 'stretch', gap: 'sm' }),
           className,
@@ -107,7 +111,8 @@ export function Stepper({
         {steps.map((s, i) => {
           const st = statusOf(i, s.status)
           return (
-            <button
+            <Pressable
+              as="button"
               key={s.id}
               type="button"
               data-mol-id={`stepper-step-${s.id}`}
@@ -118,20 +123,25 @@ export function Stepper({
               disabled={!onStepClick || st !== 'completed'}
               className={cm.cn(cm.flex1, cm.sp('p', 3), cm.stack(1 as const))}
             >
-              <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+              <Box as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                 {i + 1}. {s.label}
-              </span>
-              {s.description && <span className={cm.textSize('xs')}>{s.description}</span>}
-            </button>
+              </Box>
+              {s.description && (
+                <Box as="span" className={cm.textSize('xs')}>
+                  {s.description}
+                </Box>
+              )}
+            </Pressable>
           )
         })}
-      </div>
+      </Box>
     )
   }
 
   // dots
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         orientation === 'vertical' ? cm.stack(2) : cm.flex({ align: 'center', gap: 'sm' }),
         className,
@@ -141,14 +151,16 @@ export function Stepper({
         const st = statusOf(i, s.status)
         const isLast = i === steps.length - 1
         return (
-          <div
+          <Box
+            as="div"
             key={s.id}
             className={cm.cn(
               cm.flex({ align: 'center', gap: 'sm' }),
               !isLast ? cm.flex1 : undefined,
             )}
           >
-            <button
+            <Pressable
+              as="button"
               type="button"
               data-mol-id={`stepper-step-${s.id}`}
               // Doc contract: in `dots` the handler fires for ANY step.
@@ -165,25 +177,28 @@ export function Stepper({
               )}
             >
               {st === 'completed' ? '✓' : i + 1}
-            </button>
-            <span
+            </Pressable>
+            <Box
+              as="span"
               className={cm.cn(
                 cm.textSize('xs'),
                 st === 'current' ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
               )}
             >
               {s.label}
-            </span>
+            </Box>
             {!isLast && orientation === 'horizontal' && (
-              <span
+              <Box
+                as="span"
                 aria-hidden
                 className={cm.cn(cm.flex1, cm.h(0 as const))}
-                style={{ borderTop: '1px solid currentColor', opacity: 0.2 }}
+                style={{ opacity: 0.2 }}
+                webStyle={{ borderTop: '1px solid currentColor' }}
               />
             )}
-          </div>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }

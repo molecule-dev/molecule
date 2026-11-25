@@ -3,6 +3,7 @@ import { useCallback, useId, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import type { Comment, ThreadTreeProps } from './types.js'
 
@@ -110,25 +111,27 @@ function ThreadTreeNode({
   // Plain text is a paragraph. Rich children may already contain block elements,
   // so preserve their container rather than creating invalid nested paragraphs.
   const plainText = typeof comment.body === 'string'
-  const Body = plainText ? 'p' : 'div'
+  const bodyClasses = cm.cn(cm.textSize('sm'), cm.sp('m', 0))
 
   return (
-    <li
+    <Box
+      as="li"
       className={cm.cn(cm.stack(1 as const))}
       data-mol-id={`thread-tree-comment-${comment.id}`}
       data-thread-depth={depth}
-      style={{ paddingLeft: `${indentRem}rem` }}
+      webStyle={{ paddingLeft: `${indentRem}rem` }}
     >
-      <article
+      <Box
+        as="article"
         className={cm.cn(cm.stack(1 as const), cm.sp('py', 2))}
-        style={
-          depth > 0
-            ? { borderLeft: '2px solid currentColor', paddingLeft: '0.5rem', opacity: 0.95 }
-            : undefined
+        style={depth > 0 ? { opacity: 0.95 } : undefined}
+        webStyle={
+          depth > 0 ? { borderLeft: '2px solid currentColor', paddingLeft: '0.5rem' } : undefined
         }
       >
-        <header className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
-          <button
+        <Box as="header" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          <Pressable
+            as="button"
             type="button"
             onClick={onToggle}
             data-mol-id={`thread-tree-toggle-${comment.id}`}
@@ -148,45 +151,57 @@ function ThreadTreeNode({
             {collapsed
               ? t('threadTree.expandSymbol', {}, { defaultValue: '[+]' })
               : t('threadTree.collapseSymbol', {}, { defaultValue: '[−]' })}
-          </button>
-          <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          </Pressable>
+          <Box as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
             {comment.author}
-          </span>
+          </Box>
           {typeof comment.score === 'number' && (
-            <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
               {t(
                 'threadTree.score',
                 { count: comment.score },
                 { defaultValue: '{{count}} points' },
               )}
-            </span>
+            </Text>
           )}
           {comment.createdAt && (
-            <time dateTime={comment.createdAt} className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+            <Text
+              as="time"
+              dateTime={comment.createdAt}
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+            >
               {comment.createdAt}
-            </time>
+            </Text>
           )}
           {collapsed && hiddenCount > 0 && (
-            <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+            <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
               {t(
                 'threadTree.hiddenReplies',
                 { count: hiddenCount },
                 { defaultValue: '{{count}} hidden' },
               )}
-            </span>
+            </Text>
           )}
-        </header>
+        </Box>
         {!collapsed && (
           <>
-            <Body
-              className={cm.cn(cm.textSize('sm'), cm.sp('m', 0))}
-              style={plainText ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : undefined}
-            >
-              {comment.body}
-            </Body>
-            <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+            {plainText ? (
+              <Text
+                as="p"
+                className={bodyClasses}
+                webStyle={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
+              >
+                {comment.body}
+              </Text>
+            ) : (
+              <Box as="div" className={bodyClasses}>
+                {comment.body}
+              </Box>
+            )}
+            <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
               {onUpvote && (
-                <button
+                <Pressable
+                  as="button"
                   type="button"
                   onClick={onUpvoteClick}
                   data-mol-id={`thread-tree-upvote-${comment.id}`}
@@ -195,10 +210,11 @@ function ThreadTreeNode({
                   className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.cursorPointer)}
                 >
                   {t('threadTree.upvote', {}, { defaultValue: 'Upvote' })}
-                </button>
+                </Pressable>
               )}
               {onReply && (
-                <button
+                <Pressable
+                  as="button"
                   type="button"
                   onClick={onReplyClick}
                   data-mol-id={`thread-tree-reply-${comment.id}`}
@@ -206,19 +222,19 @@ function ThreadTreeNode({
                   className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.cursorPointer)}
                 >
                   {t('threadTree.reply', {}, { defaultValue: 'Reply' })}
-                </button>
+                </Pressable>
               )}
-            </div>
+            </Box>
           </>
         )}
-      </article>
+      </Box>
 
       {hasChildren && !collapsed && (
         // A comment thread is nested lists, not an ARIA tree widget: plain
         // `ul`/`li` semantics (with the toggle's `aria-expanded` +
         // `aria-controls` carrying the state), so every `li` keeps its
         // `listitem` role and no tree keyboard model is implied.
-        <ul id={repliesId} className={cm.cn(cm.stack(1 as const))}>
+        <Box as="ul" id={repliesId} className={cm.cn(cm.stack(1 as const))}>
           {comment.children!.map((child) => (
             <ThreadTreeNode
               key={child.id}
@@ -230,9 +246,9 @@ function ThreadTreeNode({
               onUpvote={onUpvote}
             />
           ))}
-        </ul>
+        </Box>
       )}
-    </li>
+    </Box>
   )
 }
 
@@ -288,7 +304,11 @@ export function ThreadTree({
   )
 
   return (
-    <ul className={cm.cn(cm.stack(2 as const), className)} data-mol-id={dataMolId ?? 'thread-tree'}>
+    <Box
+      as="ul"
+      className={cm.cn(cm.stack(2 as const), className)}
+      data-mol-id={dataMolId ?? 'thread-tree'}
+    >
       {comments.map((c) => (
         <ThreadTreeNode
           key={c.id}
@@ -300,6 +320,6 @@ export function ThreadTree({
           onUpvote={onUpvote}
         />
       ))}
-    </ul>
+    </Box>
   )
 }

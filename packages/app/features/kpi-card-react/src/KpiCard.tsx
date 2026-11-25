@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Direction of a KPI trend indicator: rising, falling, or unchanged. */
 export type KpiTrendDirection = 'up' | 'down' | 'flat'
@@ -108,11 +109,12 @@ export function KpiCard({
   const liftClass = hoverLift ? cm.kpiCardHoverLift : ''
   return (
     <Card className={cm.cn(accentClass, liftClass, className)} data-mol-id={dataMolId}>
-      <div className={cm.stack(3)}>
-        <div className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.stack(3)}>
+        <Box as="div" className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {icon}
-            <span
+            <Text
+              as="span"
               className={cm.cn(
                 upperLabel
                   ? cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.kpiCardTitleUppercase)
@@ -120,25 +122,30 @@ export function KpiCard({
               )}
             >
               {title}
-            </span>
-          </div>
+            </Text>
+          </Box>
           {action}
-        </div>
-        <div
+        </Box>
+        <Box
+          as="div"
           className={cm.cn(
             cm.textSize('3xl'),
             emphasizeValue ? cm.fontWeight('extrabold') : cm.fontWeight('bold'),
           )}
         >
           {value}
-        </div>
+        </Box>
         {(trend || subtitle) && (
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
             {trend}
-            {subtitle && <span className={cm.textSize('sm')}>{subtitle}</span>}
-          </div>
+            {subtitle && (
+              <Text as="span" className={cm.textSize('sm')}>
+                {subtitle}
+              </Text>
+            )}
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ChartCard}. */
 export interface ChartCardProps {
@@ -52,20 +53,34 @@ export function ChartCard({
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>
-      <div className={cm.stack(4)}>
-        <header className={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
-          <div className={cm.stack(1 as const)}>
-            <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-            {description && <p className={cm.textSize('sm')}>{description}</p>}
-          </div>
-          {actions && <div className={cm.flex({ align: 'center', gap: 'sm' })}>{actions}</div>}
-        </header>
+      <Box as="div" className={cm.stack(4)}>
+        <Box as="header" className={cm.flex({ justify: 'between', align: 'start', gap: 'sm' })}>
+          <Box as="div" className={cm.stack(1 as const)}>
+            <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+              {title}
+            </Text>
+            {description && (
+              <Text as="p" className={cm.textSize('sm')}>
+                {description}
+              </Text>
+            )}
+          </Box>
+          {actions && (
+            <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+              {actions}
+            </Box>
+          )}
+        </Box>
         {summary && (
-          <div className={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>{summary}</div>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}>
+            {summary}
+          </Box>
         )}
-        <div style={{ minHeight: minChartHeight }}>{children}</div>
-        {footer && <div>{footer}</div>}
-      </div>
+        <Box as="div" style={{ minHeight: minChartHeight }}>
+          {children}
+        </Box>
+        {footer && <Box as="div">{footer}</Box>}
+      </Box>
     </Card>
   )
 }

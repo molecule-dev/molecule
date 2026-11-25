@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link HeroSection}. */
 export interface HeroSectionProps {
@@ -49,7 +50,8 @@ export function HeroSection({
   const media = slot(mediaProp)
   const cm = getClassMap()
   return (
-    <section
+    <Box
+      as="section"
       data-mol-id={dataMolId}
       className={cm.cn(
         cm.flex({ align: 'center', justify: media ? 'between' : 'start', gap: 'lg', wrap: 'wrap' }),
@@ -57,20 +59,35 @@ export function HeroSection({
         className,
       )}
     >
-      <div className={cm.cn(cm.stack(4), cm.flex1, align === 'center' ? cm.textCenter : undefined)}>
+      <Box
+        as="div"
+        className={cm.cn(cm.stack(4), cm.flex1, align === 'center' ? cm.textCenter : undefined)}
+      >
         {eyebrow && (
-          <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{eyebrow}</div>
+          <Box as="div" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+            {eyebrow}
+          </Box>
         )}
-        <h1 className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>{title}</h1>
-        {description && <p className={cm.cn(cm.textSize('lg'), cm.maxW('2xl'))}>{description}</p>}
+        <Text as="h1" className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>
+          {title}
+        </Text>
+        {description && (
+          <Text as="p" className={cm.cn(cm.textSize('lg'), cm.maxW('2xl'))}>
+            {description}
+          </Text>
+        )}
         {(primaryAction || secondaryAction) && (
-          <div className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}>
             {primaryAction}
             {secondaryAction}
-          </div>
+          </Box>
         )}
-      </div>
-      {media && <div className={cm.shrink0}>{media}</div>}
-    </section>
+      </Box>
+      {media && (
+        <Box as="div" className={cm.shrink0}>
+          {media}
+        </Box>
+      )}
+    </Box>
   )
 }

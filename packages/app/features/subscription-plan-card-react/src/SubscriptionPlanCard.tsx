@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
+import { Box, Link, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link SubscriptionPlanCard} component. */
 export interface SubscriptionPlanCardProps {
@@ -56,11 +57,11 @@ export function SubscriptionPlanCard({
   const cm = getClassMap()
   const { t } = useTranslation()
   const cta = ctaHref ? (
-    <a href={ctaHref}>
+    <Link to={ctaHref}>
       <Button variant="solid" color={recommended ? 'primary' : 'secondary'}>
         {ctaLabel}
       </Button>
-    </a>
+    </Link>
   ) : (
     <Button variant="solid" color={recommended ? 'primary' : 'secondary'} onClick={onCta}>
       {ctaLabel}
@@ -71,30 +72,46 @@ export function SubscriptionPlanCard({
       className={className}
       style={recommended ? { outline: '2px solid currentColor', outlineOffset: -2 } : undefined}
     >
-      <div className={cm.stack(4)}>
-        <header className={cm.stack(1 as const)}>
+      <Box as="div" className={cm.stack(4)}>
+        <Box as="header" className={cm.stack(1 as const)}>
           {(badge || recommended) && (
-            <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+            <Box as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
               {badge ?? t('plan.recommended', {}, { defaultValue: 'Recommended' })}
-            </span>
+            </Box>
           )}
-          <h3 className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>{name}</h3>
-          {description && <p className={cm.textSize('sm')}>{description}</p>}
-        </header>
-        <div className={cm.flex({ align: 'baseline', gap: 'xs' })}>
-          <span className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>{price}</span>
-          {interval && <span className={cm.textSize('sm')}>{interval}</span>}
-        </div>
-        <ul className={cm.stack(2)}>
+          <Text as="h3" className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'))}>
+            {name}
+          </Text>
+          {description && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {description}
+            </Text>
+          )}
+        </Box>
+        <Box as="div" className={cm.flex({ align: 'baseline', gap: 'xs' })}>
+          <Box as="span" className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'))}>
+            {price}
+          </Box>
+          {interval && (
+            <Box as="span" className={cm.textSize('sm')}>
+              {interval}
+            </Box>
+          )}
+        </Box>
+        <Box as="ul" className={cm.stack(2)}>
           {features.map((f, i) => (
-            <li key={i} className={cm.flex({ align: 'start', gap: 'sm' })}>
-              <span aria-hidden>✓</span>
-              <span className={cm.textSize('sm')}>{f}</span>
-            </li>
+            <Box as="li" key={i} className={cm.flex({ align: 'start', gap: 'sm' })}>
+              <Text as="span" aria-hidden>
+                ✓
+              </Text>
+              <Box as="span" className={cm.textSize('sm')}>
+                {f}
+              </Box>
+            </Box>
           ))}
-        </ul>
+        </Box>
         {ctaLabel && cta}
-      </div>
+      </Box>
     </Card>
   )
 }

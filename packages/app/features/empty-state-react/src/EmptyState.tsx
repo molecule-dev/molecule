@@ -2,6 +2,7 @@ import type { JSX, ReactElement, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link EmptyState}. */
 export interface EmptyStateProps {
@@ -74,7 +75,8 @@ export function EmptyState({
   const cm = getClassMap()
   const content = view ?? { title, description, action }
   return (
-    <section
+    <Box
+      as="section"
       data-mol-id={dataMolId}
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
@@ -84,7 +86,8 @@ export function EmptyState({
       )}
     >
       {icon && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.w(20),
             cm.h(20),
@@ -95,17 +98,17 @@ export function EmptyState({
           )}
         >
           {icon}
-        </div>
+        </Box>
       )}
-      <h3 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
+      <Text as="h3" className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
         {content.title}
-      </h3>
+      </Text>
       {content.description && (
-        <p className={cm.cn(cm.maxW('md'), cm.sp('mb', content.action ? 6 : 0))}>
+        <Text as="p" className={cm.cn(cm.maxW('md'), cm.sp('mb', content.action ? 6 : 0))}>
           {content.description}
-        </p>
+        </Text>
       )}
       {content.action}
-    </section>
+    </Box>
   )
 }

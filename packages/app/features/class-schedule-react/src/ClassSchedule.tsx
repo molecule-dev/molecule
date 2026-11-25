@@ -2,6 +2,7 @@ import { type ReactElement, type ReactNode, useId } from 'react'
 
 import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A single event on the weekly schedule grid.
@@ -212,25 +213,29 @@ export function ClassSchedule({
   // grid — it has no rows and no grid keyboard model, and `role="grid"`
   // would promise one (axe: aria-required-children).
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(className)}
       data-mol-id="class-schedule"
       role="group"
       aria-label={t('classSchedule.aria.region', {}, { defaultValue: 'Weekly class schedule' })}
     >
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.grid({ cols: visibleWeekdays.length + 1, gap: 'none' }))}
-        style={{
+        webStyle={{
           gridTemplateColumns: `auto repeat(${visibleWeekdays.length}, minmax(0, 1fr))`,
         }}
       >
         {/* Header row */}
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.sp('p', 2))}
           aria-hidden="true"
         />
         {visibleWeekdays.map((weekday) => (
-          <div
+          <Box
+            as="div"
             key={`head-${weekday}`}
             id={`${baseId}-day-${weekday}`}
             data-mol-id="class-schedule-day-header"
@@ -243,50 +248,51 @@ export function ClassSchedule({
             )}
           >
             {weekdayLabel(weekday)}
-          </div>
+          </Box>
         ))}
 
         {/* Time-axis column */}
-        <div
+        <Box
+          as="div"
           data-mol-id="class-schedule-time-axis"
           className={cm.cn(cm.position('relative'))}
-          style={{ height: `${totalHeightPx}px` }}
+          webStyle={{ height: `${totalHeightPx}px` }}
         >
           {Array.from({ length: hourCount }).map((_, i) => {
             const hourMinutes = startMinutes + i * MINUTES_PER_HOUR
             return (
-              <div
+              <Box
+                as="div"
                 key={`hour-${i}`}
                 data-mol-id="class-schedule-hour-label"
                 className={cm.cn(cm.textSize('xs'), cm.sp('px', 2))}
-                style={{
-                  position: 'absolute',
+                style={{ position: 'absolute', right: 0, left: 0 }}
+                webStyle={{
                   top: `${i * cellHeight}px`,
                   height: `${cellHeight}px`,
-                  right: 0,
-                  left: 0,
                   textAlign: 'right',
                 }}
               >
                 {formatHourLabel(hourMinutes)}
-              </div>
+              </Box>
             )
           })}
-        </div>
+        </Box>
 
         {/* Day columns — each one a `group` named by its weekday header. */}
         {visibleWeekdays.map((weekday) => {
           const dayEvents = eventsByDay.get(weekday) ?? []
           const laned = assignLanes(dayEvents)
           return (
-            <div
+            <Box
+              as="div"
               key={`col-${weekday}`}
               role="group"
               aria-labelledby={`${baseId}-day-${weekday}`}
               data-mol-id="class-schedule-day-column"
               data-weekday={weekday}
               className={cm.cn(cm.position('relative'))}
-              style={{ height: `${totalHeightPx}px` }}
+              webStyle={{ height: `${totalHeightPx}px` }}
             >
               {/* Empty-slot click targets — one button per hour row, only
                   while `onSlotClick` is set: a focusable button that does
@@ -295,7 +301,8 @@ export function ClassSchedule({
                 Array.from({ length: hourCount }).map((_, i) => {
                   const slotStart = startMinutes + i * MINUTES_PER_HOUR
                   return (
-                    <button
+                    <Pressable
+                      as="button"
                       key={`slot-${weekday}-${i}`}
                       type="button"
                       data-mol-id="class-schedule-slot"
@@ -312,15 +319,12 @@ export function ClassSchedule({
                          no surface and no chrome, so the inline
                          background/border/padding are native resets. A
                          `cm.button()` fill would paint the empty grid. */
-                      style={{
-                        position: 'absolute',
+                      style={{ position: 'absolute', left: 0, right: 0, padding: 0 }}
+                      webStyle={{
                         top: `${i * cellHeight}px`,
-                        left: 0,
-                        right: 0,
                         height: `${cellHeight}px`,
                         background: 'transparent',
                         border: 0,
-                        padding: 0,
                         cursor: 'pointer',
                       }}
                     />
@@ -362,30 +366,33 @@ export function ClassSchedule({
                    start/end times and lane, and its accent bar carries
                    the caller's own `accentColor` (data, not a design
                    token). No `cm.button()` tier can express either. */
-                const tileStyle = {
-                  position: 'absolute',
+                const tileStyle = { position: 'absolute', overflow: 'hidden' } as const
+                const tileWebStyle = {
                   top: `${topPx}px`,
                   height: `${heightPx}px`,
                   left: `calc(${leftPct}% + 2px)`,
                   width: `calc(${widthPct}% - 4px)`,
-                  overflow: 'hidden',
                   textAlign: 'left',
                   cursor: onEventClick ? 'pointer' : 'default',
                   ...(event.accentColor ? { ['--mol-accent' as string]: event.accentColor } : {}),
                 } as const
                 const tileChildren = (
                   <>
-                    <span data-mol-id="class-schedule-event-title">{event.title}</span>
+                    <Box as="span" data-mol-id="class-schedule-event-title">
+                      {event.title}
+                    </Box>
                     {event.subtitle && (
-                      <span
+                      <Box
+                        as="span"
                         data-mol-id="class-schedule-event-subtitle"
                         className={cm.cn(cm.textSize('xs'), cm.fontWeight('normal'))}
                       >
                         {event.subtitle}
-                      </span>
+                      </Box>
                     )}
                     {event.meta && (
-                      <span
+                      <Box
+                        as="span"
                         data-mol-id="class-schedule-event-meta"
                         className={
                           event.accentColor
@@ -394,16 +401,19 @@ export function ClassSchedule({
                         }
                       >
                         {event.meta}
-                      </span>
+                      </Box>
                     )}
-                    <span className={cm.srOnly}>{timeLabel}</span>
+                    <Text as="span" className={cm.srOnly}>
+                      {timeLabel}
+                    </Text>
                   </>
                 )
                 // A `<button>` only while `onEventClick` is set: without a
                 // handler the tile is static content — a focusable button that
                 // does nothing would be a keyboard trap.
                 return onEventClick ? (
-                  <button
+                  <Pressable
+                    as="button"
                     key={event.id}
                     type="button"
                     data-mol-id="class-schedule-event"
@@ -411,25 +421,28 @@ export function ClassSchedule({
                     onClick={() => onEventClick(event)}
                     className={tileClassName}
                     style={tileStyle}
+                    webStyle={tileWebStyle}
                   >
                     {tileChildren}
-                  </button>
+                  </Pressable>
                 ) : (
-                  <div
+                  <Box
+                    as="div"
                     key={event.id}
                     data-mol-id="class-schedule-event"
                     data-event-id={event.id}
                     className={tileClassName}
                     style={tileStyle}
+                    webStyle={tileWebStyle}
                   >
                     {tileChildren}
-                  </div>
+                  </Box>
                 )
               })}
-            </div>
+            </Box>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
