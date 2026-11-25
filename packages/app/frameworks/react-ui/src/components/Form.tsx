@@ -7,9 +7,16 @@
 import React, { forwardRef, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import type { FormEntries, FormFieldProps, FormProps, KitEvent } from '@molecule/app-ui'
+import type {
+  AriaBoolean,
+  ElementRole,
+  FormEntries,
+  FormFieldProps,
+  FormProps,
+  KitEvent,
+} from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Box, Fieldset, FormArea } from '@molecule/app-ui-react/elements'
+import { Box, Fieldset, FormArea, Text } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
@@ -176,35 +183,37 @@ export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
       : (children as React.ReactNode)
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={cm.cn(cm.inputWrapper, cm.sp('mb', 4), className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
-        {...(rootProps(rest) as React.HTMLAttributes<HTMLDivElement>)}
+        {...rootProps(rest)}
       >
         {label && (
-          <label
+          <Text
+            as="label"
             htmlFor={
               singleChild ? (singleChild.props.id as string | undefined) || fieldId : fieldId
             }
             className={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
           >
             {label}
-          </label>
+          </Text>
         )}
         {content}
         {error && (
-          <p id={errorId} className={cm.formError}>
+          <Text as="p" id={errorId} className={cm.formError}>
             {error}
-          </p>
+          </Text>
         )}
         {hint && !error && (
-          <p id={hintId} className={cm.formHint}>
+          <Text as="p" id={hintId} className={cm.formHint}>
             {hint}
-          </p>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   },
 )
@@ -213,17 +222,36 @@ FormField.displayName = 'FormField'
 
 /**
  * Label component.
+ *
+ * It takes a label element's React attributes and renders the renderer-neutral label element.
+ * `role` and `aria-invalid` take the types that element takes (the ones every kit component's
+ * props declare); the other attributes reach the element as given.
  */
 export const Label = forwardRef<
   HTMLLabelElement,
-  React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }
->(({ children, required, className, ...props }, ref) => {
+  Omit<React.LabelHTMLAttributes<HTMLLabelElement>, 'role' | 'aria-invalid'> & {
+    /** The accessibility role (a listed role). */
+    role?: ElementRole
+    /** Whether the labelled value is invalid. */
+    'aria-invalid'?: AriaBoolean
+    /** Whether the label marks the field as required. */
+    required?: boolean
+  }
+>(({ children, required, className, style, ...props }, ref) => {
   const cm = getClassMap()
 
   return (
-    <label ref={ref} className={cm.cn(cm.label({ required: !!required }), className)} {...props}>
+    <Text
+      as="label"
+      ref={ref}
+      className={cm.cn(cm.label({ required: !!required }), className)}
+      // A caller's React style as the element's web style (the kit's CSS type has an index
+      // signature React's lacks); no style stays `undefined`.
+      webStyle={style ? { ...style } : undefined}
+      {...props}
+    >
       {children}
-    </label>
+    </Text>
   )
 })
 

@@ -8,7 +8,7 @@
 
 ### Patch Changes
 
-- Form fields, labels and PageShell render with the renderer-neutral elements. `Label` now takes `role` and `aria-invalid` with the types every kit component's props declare (`ElementRole`, `AriaBoolean`); its other attributes are unchanged.
+- Form, its fields and labels, and PageShell render with the renderer-neutral elements; their web output is unchanged. `Label` now takes `role` and `aria-invalid` with the types every kit component's props declare (`ElementRole`, `AriaBoolean`); its other attributes are unchanged.
 
 ## 4.6.0
 

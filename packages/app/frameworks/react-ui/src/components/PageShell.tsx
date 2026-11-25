@@ -10,6 +10,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /**
  * PageShell component.
@@ -38,19 +39,22 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
     const { t } = useTranslation()
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={cm.cn(cm.pageShell, className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
       >
         {sidebar ? (
-          <aside
+          <Box
+            as="aside"
             className={cm.cn(cm.pageShellSidebar, sidebarCollapsed && cm.pageShellSidebarCollapsed)}
           >
             {onSidebarToggle ? (
-              <button
+              <Pressable
+                as="button"
                 type="button"
                 className={cm.pageShellSidebarToggle}
                 onClick={onSidebarToggle}
@@ -63,16 +67,22 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
                 }
               >
                 {sidebarCollapsed ? '\u25B6' : '\u25C0'}
-              </button>
+              </Pressable>
             ) : null}
             {sidebar}
-          </aside>
+          </Box>
         ) : null}
-        <div className={cm.flex1}>
-          {topbar ? <header className={cm.pageShellTopbar}>{topbar}</header> : null}
-          <main className={cm.pageShellContent}>{children as React.ReactNode}</main>
-        </div>
-      </div>
+        <Box as="div" className={cm.flex1}>
+          {topbar ? (
+            <Box as="header" className={cm.pageShellTopbar}>
+              {topbar}
+            </Box>
+          ) : null}
+          <Box as="main" className={cm.pageShellContent}>
+            {children as React.ReactNode}
+          </Box>
+        </Box>
+      </Box>
     )
   },
 )

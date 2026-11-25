@@ -57,9 +57,7 @@
   "kitComponents": [
     "ConfirmDialog.tsx",
     "Dropdown.tsx",
-    "Form.tsx",
     "Modal.tsx",
-    "PageShell.tsx",
     "ResponsiveAppShell.tsx",
     "Toast.tsx",
     "Tooltip.tsx",
