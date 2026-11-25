@@ -34,6 +34,7 @@ import { shareGrantsText, shareRoleLabel } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { SelectField } from '@molecule/app-ui-react/elements'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import { Icon } from './Icon.js'
@@ -330,19 +331,18 @@ export function ShareLinkManager({
               <span className={cm.fontWeight('medium')}>
                 {t('ide.chat.share.roleLabel', undefined, { defaultValue: 'Role' })}
               </span>
-              <select
+              <SelectField
+                as="select"
                 value={role}
                 data-mol-id="share-role"
-                onChange={(e) => setRole(e.target.value as ShareRole)}
+                onValueChange={(selected) => {
+                  const offered = offeredRoles.find((role) => role === selected)
+                  if (offered) setRole(offered)
+                }}
                 className={cm.textSize('sm')}
-                style={fieldStyle}
-              >
-                {offeredRoles.map((r) => (
-                  <option key={r} value={r}>
-                    {shareRoleLabel(t, r)}
-                  </option>
-                ))}
-              </select>
+                webStyle={fieldStyle}
+                options={offeredRoles.map((value) => ({ value, label: shareRoleLabel(t, value) }))}
+              />
             </label>
           )}
           <button

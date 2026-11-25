@@ -4,24 +4,52 @@
  * @module
  */
 
-import React, { forwardRef, useId } from 'react'
+import { forwardRef, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import type { SelectProps } from '@molecule/app-ui'
+import type {
+  SelectFieldOption,
+  SelectFieldProps,
+  SelectOption,
+  SelectProps,
+} from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, SelectField, Text } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 import { rootProps } from '../utilities/rootProps.js'
 
-/**
- * Select component.
- */
-export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
+/** React Select props, including controlled and default arrays in multiple mode. */
+type ReactSelectProps = {
+  /** Browser translation metadata for literal labels, such as HTTP methods. */
+  translate?: SelectFieldProps['translate']
+} & (
+  | (SelectProps<string> & {
+      /** Initial selection when the caller does not hold the value. */
+      defaultValue?: string
+      onValuesChange?: never
+    })
+  | (Omit<SelectProps<string>, 'multiple' | 'value'> & {
+      multiple: true
+      /** Caller-owned selection. A legacy scalar selects the matching value. */
+      value?: readonly string[] | string
+      /** Initial selection when the caller does not hold the value. */
+      defaultValue?: readonly string[] | string
+      /** Every selected value in option order, after the event and scalar callback. */
+      onValuesChange?: (values: readonly string[]) => void
+    })
+)
+
+/** Select with an optional label, hint, validation error and grouped choices. */
+export const Select = forwardRef<HTMLSelectElement, ReactSelectProps>(
   (
     {
       options,
       value,
+      defaultValue,
+      multiple,
       onValueChange,
+      onValuesChange,
       size = 'md',
       label,
       placeholder,
@@ -55,123 +83,100 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
       className,
     )
 
-    // The clearable "no selection" option shares value="" with the
-    // placeholder option — rendering both produced two <option value="">
-    // entries in the same <select>. Suppress the redundant one; the
-    // placeholder already serves as the clear target.
-    const showClearOption = clearable && !placeholder
-
-    // Group options by group property
-    const groupedOptions = options.reduce<Record<string, typeof options>>((acc, option) => {
-      const group = option.group || ''
-      if (!acc[group]) {
-        acc[group] = []
-      }
-      acc[group].push(option)
-      return acc
-    }, {})
-
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      onChange?.(e)
-      onValueChange?.(e.target.value)
-    }
-
-    const renderOptions = (): React.ReactNode => {
-      const groups = Object.entries(groupedOptions)
-
-      if (groups.length === 1 && groups[0][0] === '') {
-        // No groups, render flat options
-        return groups[0][1].map((option) => (
-          <option key={option.value} value={option.value} disabled={option.disabled}>
-            {option.label}
-          </option>
-        ))
-      }
-
-      // Render grouped options
-      return groups.map(([group, groupOptions]) => {
-        if (group === '') {
-          return groupOptions.map((option) => (
-            <option key={option.value} value={option.value} disabled={option.disabled}>
-              {option.label}
-            </option>
-          ))
-        }
-
-        return (
-          <optgroup key={group} label={group}>
-            {groupOptions.map((option) => (
-              <option key={option.value} value={option.value} disabled={option.disabled}>
-                {option.label}
-              </option>
-            ))}
-          </optgroup>
-        )
-      })
+    const leading = placeholder
+      ? { value: '', label: placeholder, disabled: true }
+      : clearable
+        ? { value: '', label: t('ui.select.clear', undefined, { defaultValue: '--' }) }
+        : undefined
+    const controlProps = {
+      ref,
+      id: selectId,
+      name,
+      options: fieldOptions(options, leading),
+      disabled,
+      required,
+      'aria-invalid': !!error,
+      'aria-describedby': error ? `${selectId}-error` : hint ? `${selectId}-hint` : undefined,
+      className: selectClasses,
+      webStyle: style,
+      'data-testid': testId,
+      onChange,
+      ...rootProps(rest),
     }
 
     return (
-      <div className={cm.inputWrapper}>
+      <Box as="div" className={cm.inputWrapper}>
         {label && (
-          <label
+          <Text
+            as="label"
             htmlFor={selectId}
             className={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
           >
             {label}
-          </label>
+          </Text>
         )}
-        <div className={cm.inputInner}>
-          <select
-            ref={ref}
-            id={selectId}
-            name={name}
-            value={value}
-            disabled={disabled}
-            required={required}
-            aria-invalid={!!error}
-            aria-describedby={error ? `${selectId}-error` : hint ? `${selectId}-hint` : undefined}
-            className={selectClasses}
-            style={style}
-            data-testid={testId}
-            onChange={handleChange}
-            {...(rootProps(rest) as React.SelectHTMLAttributes<HTMLSelectElement>)}
-          >
-            {placeholder && (
-              <option value="" disabled>
-                {placeholder}
-              </option>
-            )}
-            {showClearOption && (
-              <option value="">{t('ui.select.clear', undefined, { defaultValue: '--' })}</option>
-            )}
-            {renderOptions()}
-          </select>
-          {/* Chevron rendered as a real inline SVG (not a CSS backgroundImage
-              data URI baked with a literal hex color) so it resolves
-              `currentColor` from `cm.textMuted` and tracks the active theme,
-              matching Input's rightElement icon treatment. `pointerEvents:
-              'none'` is inline because it fills a gap ClassMap's
-              `inputRightElement` doesn't address (that token is also used
-              to host a real clickable clear-button elsewhere) — without it
-              this purely decorative, absolutely-positioned overlay would
-              swallow clicks on the select's own chevron-sized hit area. */}
-          <div className={cm.inputRightElement} style={{ pointerEvents: 'none' }}>
+        <Box as="div" className={cm.inputInner}>
+          {multiple ? (
+            <SelectField
+              as="select"
+              multiple
+              {...(value === undefined
+                ? { defaultValue: multipleValue(defaultValue) }
+                : { value: multipleValue(value) })}
+              onValueChange={(values) => {
+                onValueChange?.(values[0] ?? '')
+                onValuesChange?.(values)
+              }}
+              {...controlProps}
+            />
+          ) : (
+            <SelectField
+              as="select"
+              multiple={multiple}
+              {...(value === undefined ? { defaultValue } : { value })}
+              onValueChange={onValueChange}
+              {...controlProps}
+            />
+          )}
+          <Box as="div" className={cm.inputRightElement} style={{ pointerEvents: 'none' }}>
             {renderIcon('chevron-down', cm.cn(cm.iconSm, cm.textMuted))}
-          </div>
-        </div>
+          </Box>
+        </Box>
         {error && (
-          <p id={`${selectId}-error`} className={cm.formError}>
+          <Text as="p" id={`${selectId}-error`} className={cm.formError}>
             {error}
-          </p>
+          </Text>
         )}
         {hint && !error && (
-          <p id={`${selectId}-hint`} className={cm.formHint}>
+          <Text as="p" id={`${selectId}-hint`} className={cm.formHint}>
             {hint}
-          </p>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   },
 )
 
 Select.displayName = 'Select'
+
+/** Adapts the kit's legacy scalar to the element's multiple selection shape. */
+function multipleValue(
+  value: string | readonly string[] | undefined,
+): readonly string[] | undefined {
+  return typeof value === 'string' ? [value] : value
+}
+
+/** Preserve the kit's object-key order, including integer-like labels and the ungrouped bucket. */
+function fieldOptions(
+  options: readonly SelectOption[],
+  leading: SelectFieldOption | undefined,
+): SelectFieldProps['options'] {
+  const grouped: Record<string, SelectFieldOption[]> = Object.create(null)
+  for (const option of options) (grouped[option.group || ''] ??= []).push(option)
+  const ordered: SelectFieldProps['options'][number][] = leading ? [leading] : []
+  for (const [label, leaves] of Object.entries(grouped)) {
+    if (label) ordered.push({ label, options: leaves })
+    else ordered.push(...leaves)
+  }
+  return ordered
+}

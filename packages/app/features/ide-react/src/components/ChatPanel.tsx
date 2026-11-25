@@ -222,6 +222,7 @@ import {
 import { useCommittedRef, useEffectEvent, useStableCallback } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
+import { SelectField } from '@molecule/app-ui-react/elements'
 
 import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
 import { useTestsBarVisible } from '../hooks/useTestsBarVisible.js'
@@ -4615,7 +4616,7 @@ function ChatInner({
   // Options for the picker's mode selector; each shows the model currently
   // active for that mode (persisted value, else its fallback labeling) so
   // re-scoping the open picker is informed. Cheap to recompute per render.
-  const pickerModeOptions = ((): { value: string; label: string }[] => {
+  const pickerModeOptions = ((): { value: ModelMode | ''; label: string }[] => {
     const label = (id: string): string => AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
     // Name the model "default" resolves to when the server told us
     // ("Default (DeepSeek V4 Flash)") — a bare "Fast default" is not decodable.
@@ -4637,7 +4638,7 @@ function ChatInner({
         { model: label(effectiveModelForMode(m)) },
         { defaultValue: 'Default ({{model}})' },
       )
-    const rows: { value: string; mode: string; model: string }[] = [
+    const rows: { value: ModelMode | ''; mode: string; model: string }[] = [
       {
         value: '',
         mode: t('ide.chat.modelMode.default', undefined, { defaultValue: 'Default' }),
@@ -4675,6 +4676,26 @@ function ChatInner({
       ),
     }))
   })()
+  const modelSortOptions: { value: ModelSortColumn; label: string }[] = [
+    { value: 'name', label: t('ide.chat.models.colName', undefined, { defaultValue: 'Model' }) },
+    {
+      value: 'context',
+      label: t('ide.chat.models.colContext', undefined, { defaultValue: 'Context' }),
+    },
+    {
+      value: 'cost',
+      label: t('ide.chat.models.colUsageRate', undefined, { defaultValue: 'Usage rate' }),
+    },
+    {
+      value: 'cutoff',
+      label: t('ide.chat.models.colCutoff', undefined, { defaultValue: 'Cutoff' }),
+    },
+    { value: 'free', label: t('ide.chat.models.colFree', undefined, { defaultValue: 'Free' }) },
+    {
+      value: 'region',
+      label: t('ide.chat.models.colRegion', undefined, { defaultValue: 'Region' }),
+    },
+  ]
 
   // The row that gets the "current" pill — the model the selected picker mode
   // actually uses (its per-mode value with the mode's REAL fallback chain), not
@@ -6323,26 +6344,29 @@ function ChatInner({
                   <span style={{ flexShrink: 0 }}>
                     {t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
                   </span>
-                  <select
+                  <SelectField
+                    as="select"
                     data-mol-id="chat-model-mode-select"
                     aria-label={t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
                     value={modelPicker.mode ?? ''}
-                    onChange={(e) => {
-                      const v = e.target.value
+                    options={pickerModeOptions}
+                    onValueChange={(selected) => {
+                      const option = pickerModeOptions.find(({ value }) => value === selected)
+                      if (!option) return
                       // Reset the highlighted row — the lock rules (and thus
                       // which rows are selectable) change with the mode.
                       setModelPicker((m) =>
                         m
                           ? {
                               ...m,
-                              mode: v === '' ? undefined : (v as ModelMode),
+                              mode: option.value || undefined,
                               selectedIdx: -1,
                             }
                           : m,
                       )
                     }}
                     className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
-                    style={{
+                    webStyle={{
                       borderRadius: 4,
                       // Extra right padding clears the native dropdown arrow so
                       // the selected label never runs underneath it.
@@ -6361,13 +6385,7 @@ function ChatInner({
                       whiteSpace: 'nowrap',
                       textOverflow: 'ellipsis',
                     }}
-                  >
-                    {pickerModeOptions.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
                 {/*
                   Sort control (replaces the old "Current: X" text — the active
@@ -6386,15 +6404,18 @@ function ChatInner({
                   <span style={{ flexShrink: 0 }}>
                     {t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}
                   </span>
-                  <select
+                  <SelectField
+                    as="select"
                     data-mol-id="model-sort-column"
                     aria-label={t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}
                     value={modelSort.column}
-                    onChange={(e) =>
-                      setModelSort((s) => ({ ...s, column: e.target.value as ModelSortColumn }))
-                    }
+                    options={modelSortOptions}
+                    onValueChange={(selected) => {
+                      const option = modelSortOptions.find(({ value }) => value === selected)
+                      if (option) setModelSort((s) => ({ ...s, column: option.value }))
+                    }}
                     className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
-                    style={{
+                    webStyle={{
                       borderRadius: 4,
                       // Extra right padding clears the native dropdown arrow so
                       // the selected label never runs underneath it.
@@ -6409,26 +6430,7 @@ function ChatInner({
                       whiteSpace: 'nowrap',
                       textOverflow: 'ellipsis',
                     }}
-                  >
-                    <option value="name">
-                      {t('ide.chat.models.colName', undefined, { defaultValue: 'Model' })}
-                    </option>
-                    <option value="context">
-                      {t('ide.chat.models.colContext', undefined, { defaultValue: 'Context' })}
-                    </option>
-                    <option value="cost">
-                      {t('ide.chat.models.colUsageRate', undefined, { defaultValue: 'Usage rate' })}
-                    </option>
-                    <option value="cutoff">
-                      {t('ide.chat.models.colCutoff', undefined, { defaultValue: 'Cutoff' })}
-                    </option>
-                    <option value="free">
-                      {t('ide.chat.models.colFree', undefined, { defaultValue: 'Free' })}
-                    </option>
-                    <option value="region">
-                      {t('ide.chat.models.colRegion', undefined, { defaultValue: 'Region' })}
-                    </option>
-                  </select>
+                  />
                   <Tooltip
                     content={t('ide.chat.modelSortDirection', undefined, {
                       defaultValue: 'Toggle sort direction',
@@ -7163,18 +7165,21 @@ function ChatInner({
                 <span style={{ flexShrink: 0 }}>
                   {t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
                 </span>
-                <select
+                <SelectField
+                  as="select"
                   data-mol-id="chat-effort-mode-select"
                   aria-label={t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
                   value={effortPicker.mode}
-                  onChange={(e) => {
-                    const v = e.target.value as EffortMode
+                  options={effortPickerModeOptions}
+                  onValueChange={(selected) => {
+                    const option = effortPickerModeOptions.find(({ value }) => value === selected)
+                    if (!option) return
                     // Reset the highlighted row — the level list changes with
                     // the mode's model.
-                    setEffortPicker((p) => (p ? { ...p, mode: v, selectedIdx: -1 } : p))
+                    setEffortPicker((p) => (p ? { ...p, mode: option.value, selectedIdx: -1 } : p))
                   }}
                   className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
-                  style={{
+                  webStyle={{
                     borderRadius: 4,
                     // Extra right padding clears the native dropdown arrow so
                     // the selected label never runs underneath it.
@@ -7189,13 +7194,7 @@ function ChatInner({
                     whiteSpace: 'nowrap',
                     textOverflow: 'ellipsis',
                   }}
-                >
-                  {effortPickerModeOptions.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <button
                 /* mol-bespoke-button: icon-only picker close — header x, no label */

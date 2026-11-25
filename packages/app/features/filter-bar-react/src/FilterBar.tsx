@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { FilterField, FilterValues } from './types.js'
 
@@ -32,8 +33,8 @@ export interface FilterBarProps {
 /**
  * Data-driven filter bar. Renders one control per field in `fields`,
  * emits a full updated values map on each change so parents can store
- * filters in URL params, zustand, etc. Multi-select uses a comma-joined
- * `<Input>` fallback since multi-select UI isn't in the primitives yet.
+ * filters in URL params, zustand, etc. Multi-value filters use a comma-delimited
+ * text editor.
  * @param props - Component props (see {@link FilterBarProps}).
  */
 export function FilterBar({
@@ -66,8 +67,13 @@ export function FilterBar({
   function withLabel(field: FilterField, children: ReactNode): ReactNode {
     if (!showLabels) return children
     return (
-      <label key={`${field.id}-label`} className={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }))}>
-        <span
+      <Box
+        as="label"
+        key={`${field.id}-label`}
+        className={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }))}
+      >
+        <Text
+          as="span"
           className={cm.cn(
             cm.textSize('xs'),
             cm.fontWeight('bold'),
@@ -77,14 +83,15 @@ export function FilterBar({
           )}
         >
           {field.label}
-        </span>
+        </Text>
         {children}
-      </label>
+      </Box>
     )
   }
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: showLabels ? 'end' : 'center', gap: 'sm', wrap: 'wrap' }),
         className,
@@ -105,11 +112,12 @@ export function FilterBar({
           )
         }
         if (f.type === 'select') {
+          const current = values[f.id]
           return withLabel(
             f,
             <Select
               key={f.id}
-              value={(values[f.id] as string) ?? ''}
+              value={typeof current === 'string' ? current : ''}
               onValueChange={(v) => set(f.id, v)}
               options={f.options}
               aria-label={f.label}
@@ -142,7 +150,7 @@ export function FilterBar({
         const range = (values[f.id] as { from?: string; to?: string } | undefined) ?? {}
         return withLabel(
           f,
-          <span key={f.id} className={cm.flex({ align: 'center', gap: 'xs' })}>
+          <Box as="span" key={f.id} className={cm.flex({ align: 'center', gap: 'xs' })}>
             <Input
               type="date"
               value={range.from ?? ''}
@@ -153,14 +161,14 @@ export function FilterBar({
                 { defaultValue: '{{label}} from' },
               )}
             />
-            <span>–</span>
+            <Text as="span">–</Text>
             <Input
               type="date"
               value={range.to ?? ''}
               onChange={(e) => set(f.id, { ...range, to: (e.target as HTMLInputElement).value })}
               aria-label={t('filterBar.to', { label: f.label }, { defaultValue: '{{label}} to' })}
             />
-          </span>,
+          </Box>,
         )
       })}
       {onClear && (
@@ -169,6 +177,6 @@ export function FilterBar({
         </Button>
       )}
       {actions}
-    </div>
+    </Box>
   )
 }

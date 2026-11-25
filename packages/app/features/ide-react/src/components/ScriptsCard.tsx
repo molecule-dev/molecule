@@ -31,6 +31,7 @@ import {
 import { getLogger } from '@molecule/app-logger'
 import { DEFAULT_AGENT_NAME, useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { SelectField } from '@molecule/app-ui-react/elements'
 
 const logger = getLogger('scripts-card')
 
@@ -573,20 +574,18 @@ function ScriptOptionsForm({
             )}
           </span>
           {param.type === 'enum' ? (
-            <select
+            <SelectField
+              as="select"
               data-mol-id={`script-option-${script.name}-${param.name}`}
               value={values[param.name] ?? ''}
-              onChange={(e) => onChange(param.name, e.target.value)}
+              onValueChange={(value) => onChange(param.name, value)}
               className={cm.textSize('xs')}
-              style={fieldStyle}
-            >
-              {!param.required && <option value="" />}
-              {(param.options ?? []).map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+              webStyle={{ ...fieldStyle }}
+              options={(param.required
+                ? (param.options ?? [])
+                : ['', ...(param.options ?? [])]
+              ).map((value) => ({ value, label: value }))}
+            />
           ) : (
             <input
               data-mol-id={`script-option-${script.name}-${param.name}`}

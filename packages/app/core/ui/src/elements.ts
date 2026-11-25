@@ -712,6 +712,80 @@ export interface RangeFieldProps extends ElementProps, InteractionProps {
   webStyle?: WebStyle
 }
 
+/** One selectable row in the browser's select and the device's option list. */
+export interface SelectFieldOption {
+  /** Value reported on selection and submitted by either renderer. */
+  value: string
+  /** Plain text shown by the browser and by the device. */
+  label: string
+  /** Both renderers keep the row visible but exclude it from edits and form entries. */
+  disabled?: boolean
+}
+
+/** A browser optgroup and the corresponding device list section. */
+export interface SelectFieldGroup {
+  /** The browser's optgroup label and the device's noninteractive heading. */
+  label: string
+  /** Options in display and submission order on both renderers. */
+  options: readonly SelectFieldOption[]
+}
+
+interface SelectFieldCommonProps extends ElementProps, InteractionProps {
+  /** Renders a `select` in the browser and a trigger with a modal option list on a device. */
+  as: 'select'
+  /** Options and groups in browser DOM and device list order. */
+  options: readonly (SelectFieldOption | SelectFieldGroup)[]
+  /** The name used for each successful option in browser and device form entries. */
+  name?: string
+  /** Both renderers validate selectedness on form submission. */
+  required?: boolean
+  /** Both renderers block edits and omit a disabled field from form submission. */
+  disabled?: boolean
+  /** Focuses the enabled browser select or device trigger when it mounts. */
+  autoFocus?: boolean
+  /** The browser tooltip and a fallback name or supplementary accessibility hint on device. */
+  title?: string
+  /** Browser translation metadata. Devices display the option labels as supplied. */
+  translate?: 'yes' | 'no'
+  /** Styles the browser select and the device trigger and its text. */
+  style?: TextStyle
+  /** CSS applied last on the browser select. The device applies the subset it can draw. */
+  webStyle?: WebStyle
+  /** Fires before the value handler with the browser change event or device selection snapshot. */
+  onChange?: ChangeEventHandler
+}
+
+type SelectFieldValue<Value> =
+  | {
+      /** Caller-owned selection on web and device. */
+      value: Value
+      /** The browser and device use the controlled value instead of a default in this mode. */
+      defaultValue?: never
+    }
+  | {
+      /** Omit on both renderers to let the field hold its selection. */
+      value?: never
+      /** Initial and reset selection for an uncontrolled browser or device field. */
+      defaultValue?: Value
+    }
+
+/** A single or multiple select with the same option and value contract on web and device. */
+export type SelectFieldProps = SelectFieldCommonProps &
+  (
+    | ({
+        /** The browser select and the device list allow one selected option. */
+        multiple?: false
+        /** Reports the selected string on user edits in either renderer. */
+        onValueChange?: (value: string) => void
+      } & SelectFieldValue<string>)
+    | ({
+        /** The browser select and the device list allow multiple selected options. */
+        multiple: true
+        /** Reports every selected string in option order on a user edit in either renderer. */
+        onValueChange?: (values: readonly string[]) => void
+      } & SelectFieldValue<readonly string[]>)
+  )
+
 /** A successful control's value, including files from a web form. */
 export type FormEntryValue = string | Blob
 

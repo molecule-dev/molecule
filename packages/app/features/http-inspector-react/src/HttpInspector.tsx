@@ -102,9 +102,12 @@ export function HttpInspector({
         {/* The options are protocol tokens (GET, POST, …): never translated,
             so the element carries HTML's own `translate="no"`. */}
         <Select
-          {...NOT_TRANSLATED}
+          translate="no"
           value={method}
-          onValueChange={(v) => onMethodChange(v as HttpMethod)}
+          onValueChange={(selected) => {
+            const next = METHODS.find((method) => method === selected)
+            if (next) onMethodChange(next)
+          }}
           options={METHODS.map((m) => ({ value: m, label: m }))}
           aria-label={t('httpInspector.methodLabel', {}, { defaultValue: 'HTTP method' })}
         />

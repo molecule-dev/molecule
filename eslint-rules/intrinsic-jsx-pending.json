@@ -19,7 +19,6 @@
     "data-table-ui-react",
     "embed-snippet-react",
     "file-dropzone-react",
-    "filter-bar-react",
     "flow-canvas-react",
     "gradebook-react",
     "heatmap-react",
@@ -64,7 +63,6 @@
     "Modal.tsx",
     "PageShell.tsx",
     "ResponsiveAppShell.tsx",
-    "Select.tsx",
     "Toast.tsx",
     "Tooltip.tsx",
     "UserMenuPopover.tsx"

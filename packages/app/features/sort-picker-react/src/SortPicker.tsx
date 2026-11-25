@@ -73,7 +73,10 @@ export function SortPicker<T extends string = string>({
   const select = (
     <Select
       value={value}
-      onValueChange={(v) => onChange(v as T)}
+      onValueChange={(selected) => {
+        const option = options.find(({ value }) => value === selected)
+        if (option) onChange(option.value)
+      }}
       options={options}
       aria-label={selectAriaLabel}
     />

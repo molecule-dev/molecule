@@ -150,12 +150,18 @@ ruleTester.run('no-intrinsic-jsx', rule as RuleModule, {
     },
     {
       ...TSX,
-      name: 'a select, which no element covers yet',
+      name: 'a select',
       code: 'const x = <select />',
+      errors: [{ message: replacedBy('select', '<SelectField as="select">') }],
+    },
+    {
+      ...TSX,
+      name: 'a rule, which no element covers yet',
+      code: 'const x = <hr />',
       errors: [
         {
           message:
-            '`<select>` cannot render on React Native: use an element from @molecule/app-ui-react/elements (add one if none fits).',
+            '`<hr>` cannot render on React Native: use an element from @molecule/app-ui-react/elements (add one if none fits).',
         },
       ],
     },
