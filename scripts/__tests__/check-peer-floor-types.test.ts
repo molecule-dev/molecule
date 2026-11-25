@@ -508,6 +508,19 @@ it('diffs the pinned release commit, including deletions and excluding later cha
   expect(pathsAgainst(root, 'HEAD', {})).toEqual(['packages/dirty/src/new.ts'])
 })
 
+it('refuses --base=ci outside CI unless the base and tip are pinned, instead of checking every package', () => {
+  // 2026-11-25: a release's pre-push run of the CI step had neither, checked all ~1900 packages and
+  // timed out at 900 s, twice.
+  expect(() => pathsAgainst(root, 'ci', { MOL_INDEX_REPO: root })).toThrow(
+    /--base=ci outside CI needs MOL_PEER_FLOOR_TYPES_BASE and MOL_PEER_FLOOR_TYPES_TIP/,
+  )
+  // In CI the push names its own base; a push that created its branch has none and checks every
+  // package there.
+  expect(
+    pathsAgainst(root, 'ci', { GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: '0'.repeat(40) }),
+  ).toBeNull()
+})
+
 it('leaves out a manifest whose change cannot alter what the package compiles against (a version stage)', () => {
   const git = (...args: string[]) =>
     execFileSync(

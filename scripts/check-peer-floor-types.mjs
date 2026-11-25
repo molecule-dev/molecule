@@ -503,6 +503,13 @@ export function pathsAgainst(root, base, env) {
       .split('\0')
       .filter(Boolean)
   const pinned = env.MOL_PEER_FLOOR_TYPES_TIP
+  // Outside CI, `ci` has no push or pull request to name a base, and checking the whole fleet
+  // instead takes hours: a caller mirroring CI pins the base and tip, as the release does.
+  if (base === 'ci' && !pinned && !env.GITHUB_EVENT_NAME)
+    throw new Error(
+      '--base=ci outside CI needs MOL_PEER_FLOOR_TYPES_BASE and MOL_PEER_FLOOR_TYPES_TIP ' +
+        '(the commits CI would compare); pass --base=<commit> for a local diff, or --all for the fleet',
+    )
   const start =
     base === 'ci'
       ? pinned
