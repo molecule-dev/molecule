@@ -1,5 +1,7 @@
+import { execFileSync } from 'node:child_process'
 import { once } from 'node:events'
 import http from 'node:http'
+import https from 'node:https'
 import type * as NodeModule from 'node:module'
 import type { AddressInfo } from 'node:net'
 import net from 'node:net'
@@ -264,6 +266,41 @@ describe('createServerFactory server (L1-1 — real /health response carries the
       await expect(create(0)).resolves.toBeDefined()
       expect(servers).toHaveLength(1)
     })
+
+    it('boots with a provider that has no HTTP transport to attach', async () => {
+      const createServer = http.createServer.bind(http)
+      vi.spyOn(http, 'createServer').mockImplementation((...args) => {
+        const server = createServer(...args)
+        servers.push(server)
+        return server
+      })
+      const create = createServerFactory({
+        setupBonds: async () => setRealtimeProvider({} as RealtimeProvider),
+        runMigrations: async () => {},
+        getRouter: async () => ({ router: expressLib.Router() }),
+      })
+
+      await expect(create(0)).resolves.toBeDefined()
+    })
+
+    it('leaves attachment of late-bound providers to the caller', async () => {
+      const createServer = http.createServer.bind(http)
+      vi.spyOn(http, 'createServer').mockImplementation((...args) => {
+        const server = createServer(...args)
+        servers.push(server)
+        return server
+      })
+      const create = createServerFactory({
+        setupBonds: async () => {},
+        runMigrations: async () => {},
+        getRouter: async () => ({ router: expressLib.Router() }),
+      })
+      await create(0)
+      if (!servers[0].listening) await once(servers[0], 'listening')
+      const attachHttpServer = vi.fn()
+      setRealtimeProvider({ attachHttpServer } as unknown as RealtimeProvider)
+      expect(attachHttpServer).not.toHaveBeenCalled()
+    })
   })
 
   describe('HTTPS mode (optional pem dependency, loaded from ESM)', () => {
@@ -305,6 +342,89 @@ describe('createServerFactory server (L1-1 — real /health response carries the
       }
       await expect(makeCreate()(0)).rejects.toThrow(/optional dependency `pem`/)
     })
+
+    it('passes the actual HTTPS listener to realtime before listen', async () => {
+      pemLoader.load = () => ({
+        createCertificate: (
+          _options: unknown,
+          done: (error: null, keys: { serviceKey: string; certificate: string }) => void,
+        ) => done(null, { serviceKey: '', certificate: '' }),
+      })
+      const attachHttpServer = vi.fn((server: http.Server | https.Server) => {
+        expect(server.listening).toBe(false)
+      })
+      const create = createServerFactory({
+        setupBonds: async () =>
+          setRealtimeProvider({ attachHttpServer } as unknown as RealtimeProvider),
+        runMigrations: async () => {},
+        getRouter: async () => ({ router: expressLib.Router() }),
+      })
+      try {
+        const server = await create(0)
+        expect(server).toBeInstanceOf(https.Server)
+        if (server instanceof https.Server) server.close()
+        expect(attachHttpServer).toHaveBeenCalledExactlyOnceWith(server)
+      } finally {
+        unbond('realtime')
+      }
+    })
+  })
+})
+
+describe('optional realtime package loading in Node', () => {
+  it.each(['absent', 'broken'])('handles the %s realtime package case', (mode) => {
+    const entry = new URL('../server.ts', import.meta.url).href
+    const program = `
+      import assert from 'node:assert/strict'
+      import { registerHooks } from 'node:module'
+      import { tmpdir } from 'node:os'
+      import { join } from 'node:path'
+      import { pathToFileURL } from 'node:url'
+      import express from 'express'
+      const mode = ${JSON.stringify(mode)}
+      const error = Object.assign(
+        new Error("Cannot find module '/broken.js' imported by '@molecule/api-realtime'"),
+        { code: 'ERR_MODULE_NOT_FOUND' },
+      )
+      const broken = 'throw ' + 'Object.assign(new Error(' + JSON.stringify(error.message) +
+        '), { code: "ERR_MODULE_NOT_FOUND" })'
+      let listener
+      const hooks = registerHooks({
+        resolve(specifier, context, nextResolve) {
+          if (specifier !== '@molecule/api-realtime') return nextResolve(specifier, context)
+          if (mode === 'broken') {
+            return { url: 'data:text/javascript,' + encodeURIComponent(broken), shortCircuit: true }
+          }
+          return nextResolve(specifier, {
+            ...context,
+            parentURL: pathToFileURL(join(tmpdir(), 'realtime-absent.mjs')).href,
+          })
+        },
+      })
+      try {
+        const { createServerFactory, registerServerCreatedHook } = await import(${JSON.stringify(entry)})
+        registerServerCreatedHook((server) => { listener = server })
+        const create = createServerFactory({
+          setupBonds: async () => {},
+          runMigrations: async () => {},
+          getRouter: async () => ({ router: express.Router() }),
+          lifecycle: { disabled: true },
+        })
+        if (mode === 'broken') await assert.rejects(create(0), error)
+        else await create(0)
+      } finally {
+        listener?.close()
+        hooks.deregister()
+      }
+    `
+    expect(() =>
+      execFileSync(process.execPath, ['--input-type=module', '--eval', program], {
+        cwd: new URL('..', import.meta.url),
+        env: { ...process.env, HTTPS: '' },
+        encoding: 'utf8',
+        timeout: 5_000,
+      }),
+    ).not.toThrow()
   })
 })
 

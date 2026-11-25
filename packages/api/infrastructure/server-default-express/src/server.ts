@@ -257,30 +257,30 @@ interface RealtimeAttachModule {
  * shares the API port. Bond setup therefore needs no server-specific hook: bond the
  * provider and the server attaches it. The providers ignore a second attach, so a
  * hook registered with {@link registerServerCreatedHook} that already attached it is
- * harmless. `@molecule/api-realtime` is imported by a variable specifier because the
- * server must boot in a project that does not install it.
+ * harmless. This checks the bond once during startup. A provider bonded later
+ * needs its own attachment. Resolve the optional package separately so errors
+ * while loading an installed module fail startup.
  *
  * @param server - The server the API is about to listen on.
  */
 async function attachBondedRealtime(server: http.Server | https.Server): Promise<void> {
   const realtimePackage = '@molecule/api-realtime'
-  let realtime: RealtimeAttachModule
+  let entry: string
   try {
-    realtime = (await import(realtimePackage)) as RealtimeAttachModule
+    entry = import.meta.resolve(realtimePackage)
   } catch (error) {
-    // Only the realtime package itself being absent means "no realtime here". A
-    // dependency missing inside an installed realtime package is a broken install.
-    const { code, message } = error as { code?: unknown; message?: unknown }
     if (
-      code === 'ERR_MODULE_NOT_FOUND' &&
-      typeof message === 'string' &&
-      message.includes(`'${realtimePackage}'`)
+      error instanceof Error &&
+      'code' in error &&
+      error.code === 'ERR_MODULE_NOT_FOUND' &&
+      error.message.startsWith(`Cannot find package '${realtimePackage}' imported from `)
     ) {
       logger.debug('No realtime package installed; no realtime provider to attach.', { error })
       return
     }
     throw error
   }
+  const realtime = (await import(entry)) as RealtimeAttachModule
   if (realtime.hasProvider()) realtime.getProvider().attachHttpServer?.(server)
 }
 
