@@ -84,7 +84,7 @@ export const yo: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Ìfitónilétí tí a ti tì kò ní àtìlẹ́yìn',
   'push.error.permissionNotGranted': 'A kò fún ni àṣẹ ìfitónilétí',
   'push.error.noServiceWorker':
-    'Kò sí service worker tí a forúkọ sílẹ̀ — àwọn ìfitónilétí titari nílò ìkọ́lé production ti app náà.',
+    'Kò sí service worker tí a forúkọsílẹ̀. Àwọn ìfitónilétí push nílò ẹ̀dà ìgbéjáde ti áàpù náà pẹ̀lú @molecule/app-pwa-default tí a fi sórí ẹ̀rọ.',
   'pwa.update': 'Ṣe àtúnṣe',
   'pwa.updateAvailable': 'Ẹ̀yà tuntun wà!',
   'pwa.updating': 'Ń ṣe àtúnṣe...',

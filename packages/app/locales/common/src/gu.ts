@@ -93,7 +93,7 @@ export const gu: Partial<CommonTranslations> = {
   'push.error.notSupported': 'પુશ સૂચનાઓ સમર્થિત નથી',
   'push.error.permissionNotGranted': 'સૂચનાની પરવાનગી આપવામાં આવી નથી',
   'push.error.noServiceWorker':
-    'કોઈ સર્વિસ વર્કર નોંધાયેલ નથી — પુશ સૂચનાઓ માટે એપ્લિકેશનનું પ્રોડક્શન બિલ્ડ જરૂરી છે.',
+    'કોઈ service worker નોંધાયેલ નથી. પુશ સૂચનાઓ માટે @molecule/app-pwa-default ઇન્સ્ટોલ કરેલ એપનું પ્રોડક્શન બિલ્ડ જરૂરી છે.',
   'pwa.update': 'અપડેટ',
   'pwa.updateAvailable': 'નવું સંસ્કરણ ઉપલબ્ધ છે!',
   'pwa.updating': 'અપડેટ કરી રહ્યું છે...',

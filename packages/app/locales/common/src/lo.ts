@@ -93,7 +93,7 @@ export const lo: Partial<CommonTranslations> = {
   'push.error.notSupported': 'ບໍ່ຮອງຮັບການແຈ້ງເຕືອນແບບ Push',
   'push.error.permissionNotGranted': 'ບໍ່ໄດ້ໃຫ້ການອະນຸຍາດການແຈ້ງເຕືອນ',
   'push.error.noServiceWorker':
-    'ບໍ່ມີ service worker ທີ່ລົງທະບຽນ — ການແຈ້ງເຕືອນແບບ push ຕ້ອງການເວີຊັນ production ຂອງແອັບ.',
+    'ບໍ່ມີ service worker ທີ່ລົງທະບຽນ. ການແຈ້ງເຕືອນ push ຕ້ອງການເວີຊັນການຜະລິດຂອງແອັບທີ່ຕິດຕັ້ງ @molecule/app-pwa-default.',
   'pwa.update': 'ອັບເດດ',
   'pwa.updateAvailable': 'ມີລຸ້ນໃໝ່ແລ້ວ!',
   'pwa.updating': 'ກຳລັງອັບເດດ...',

@@ -371,7 +371,7 @@ export const uk: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-сповіщення не підтримуються',
   'push.error.permissionNotGranted': 'Дозвіл на сповіщення не надано',
   'push.error.noServiceWorker':
-    'Service worker не зареєстрований — push-сповіщення потребують продакшн-збірки застосунку.',
+    'Service worker не зареєстровано. Для push-сповіщень потрібна production-збірка застосунку зі встановленим @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Нова версія доступна!',
   'pwa.updating': 'Оновлення...',
   'resource.error.badRequest': 'Невдалий запит.',

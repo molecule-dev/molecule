@@ -86,7 +86,7 @@ export const az: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push bildirişləri dəstəklənmir',
   'push.error.permissionNotGranted': 'Bildiriş icazəsi verilmədi',
   'push.error.noServiceWorker':
-    'Heç bir service worker qeydiyyatdan keçməyib — push bildirişləri tətbiqin istehsal quruluşunu tələb edir.',
+    'Heç bir service worker qeydiyyatdan keçməyib. Push bildirişləri @molecule/app-pwa-default quraşdırılmış tətbiqin istehsal quruluşunu tələb edir.',
   'pwa.update': 'Yeniləmə',
   'pwa.updateAvailable': 'Yeni versiya mövcuddur!',
   'pwa.updating': 'Yenilənir...',

@@ -423,7 +423,7 @@ export const id: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Notifikasi push tidak didukung.',
   'push.error.permissionNotGranted': 'Izin pemberitahuan tidak diberikan',
   'push.error.noServiceWorker':
-    'Tidak ada service worker yang terdaftar — notifikasi push memerlukan build produksi aplikasi.',
+    'Tidak ada service worker yang terdaftar. Notifikasi push memerlukan build produksi aplikasi dengan @molecule/app-pwa-default terpasang.',
   'pwa.updateAvailable': 'Versi baru tersedia!',
   'pwa.updating': 'Sedang memperbarui...',
   'resource.error.badRequest': 'Permintaan yang buruk.',

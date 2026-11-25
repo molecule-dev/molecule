@@ -93,7 +93,7 @@ export const mr: Partial<CommonTranslations> = {
   'push.error.notSupported': 'पुश नोटिफिकेशन्स समर्थित नाहीत',
   'push.error.permissionNotGranted': 'अधिसूचनेची परवानगी मंजूर नाही.',
   'push.error.noServiceWorker':
-    'कोणताही सर्व्हिस वर्कर नोंदणीकृत नाही — पुश सूचनांसाठी अ‍ॅपचे प्रोडक्शन बिल्ड आवश्यक आहे.',
+    'कोणताही service worker नोंदणीकृत नाही. पुश सूचनांसाठी @molecule/app-pwa-default इंस्टॉल केलेले ॲपचे प्रोडक्शन बिल्ड आवश्यक आहे.',
   'pwa.update': 'अपडेट करा',
   'pwa.updateAvailable': 'नवीन आवृत्ती उपलब्ध आहे!',
   'pwa.updating': 'अद्ययावत होत आहे...',

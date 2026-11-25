@@ -6,4 +6,6 @@ export const bg: PushTranslations = {
   'push.error.permissionNotGranted': 'Разрешението за известия не е предоставено',
   'push.error.missingDependency':
     '`{{library}}` е задължителна, но не е инсталирана. Инсталирайте я с: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Няма регистриран service worker. Push известията изискват продукционната компилация на приложението с инсталиран @molecule/app-pwa-default.',
 }

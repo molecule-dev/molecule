@@ -86,7 +86,7 @@ export const et: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-teavitusi ei toetata',
   'push.error.permissionNotGranted': 'Teavitusluba pole antud',
   'push.error.noServiceWorker':
-    'Ühtegi service worker’it pole registreeritud — tõuketeavitused vajavad rakenduse toodangu-buildi.',
+    'Ühtegi service workerit pole registreeritud. Tõuketeavitused vajavad rakenduse tootmisversiooni, kuhu on installitud @molecule/app-pwa-default.',
   'pwa.update': 'Värskendus',
   'pwa.updateAvailable': 'Uus versioon saadaval!',
   'pwa.updating': 'Värskendamine...',

@@ -372,7 +372,7 @@ export const ro: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Notificările push nu sunt acceptate',
   'push.error.permissionNotGranted': 'Permisiunea de notificare nu a fost acordată',
   'push.error.noServiceWorker':
-    'Niciun service worker nu este înregistrat — notificările push necesită versiunea de producție a aplicației.',
+    'Niciun service worker nu este înregistrat. Notificările push necesită versiunea de producție a aplicației cu @molecule/app-pwa-default instalat.',
   'pwa.updateAvailable': 'Versiune nouă disponibilă!',
   'pwa.updating': 'Se actualizează...',
   'resource.error.badRequest': 'Cerere greşită.',

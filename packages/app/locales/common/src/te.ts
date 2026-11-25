@@ -93,7 +93,7 @@ export const te: Partial<CommonTranslations> = {
   'push.error.notSupported': 'పుష్ నోటిఫికేషన్‌లకు మద్దతు లేదు',
   'push.error.permissionNotGranted': 'నోటిఫికేషన్ అనుమతి మంజూరు చేయబడలేదు',
   'push.error.noServiceWorker':
-    'సర్వీస్ వర్కర్ నమోదు కాలేదు — పుష్ నోటిఫికేషన్‌లకు యాప్ ప్రొడక్షన్ బిల్డ్ అవసరం.',
+    'ఏ service worker నమోదు కాలేదు. పుష్ నోటిఫికేషన్‌లకు @molecule/app-pwa-default ఇన్‌స్టాల్ చేసిన యాప్ ప్రొడక్షన్ బిల్డ్ అవసరం.',
   'pwa.update': 'నవీకరణ',
   'pwa.updateAvailable': 'కొత్త వెర్షన్ అందుబాటులో ఉంది!',
   'pwa.updating': 'నవీకరిస్తోంది...',

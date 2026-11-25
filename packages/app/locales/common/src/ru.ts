@@ -93,7 +93,7 @@ export const ru: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-уведомления не поддерживаются',
   'push.error.permissionNotGranted': 'Разрешение на уведомление не предоставлено.',
   'push.error.noServiceWorker':
-    'Service worker не зарегистрирован — push-уведомления требуют производственной сборки приложения.',
+    'Service worker не зарегистрирован. Для push-уведомлений нужна production-сборка приложения с установленным @molecule/app-pwa-default.',
   'pwa.update': 'Обновлять',
   'pwa.updateAvailable': 'Доступна новая версия!',
   'pwa.updating': 'Обновление...',

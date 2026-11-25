@@ -377,7 +377,7 @@ export const cs: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push notifikace nejsou podporovány',
   'push.error.permissionNotGranted': 'Povolení k oznámení nebylo uděleno',
   'push.error.noServiceWorker':
-    'Není zaregistrován žádný service worker — push oznámení vyžadují produkční sestavení aplikace.',
+    'Není zaregistrován žádný service worker. Push oznámení vyžadují produkční sestavení aplikace s nainstalovaným @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Nová verze k dispozici!',
   'pwa.updating': 'Aktualizace...',
   'resource.error.badRequest': 'Špatný požadavek.',

@@ -93,7 +93,7 @@ export const km: Partial<CommonTranslations> = {
   'push.error.notSupported': 'ការជូនដំណឹងជំរុញមិនត្រូវបានគាំទ្រទេ',
   'push.error.permissionNotGranted': 'មិនត្រូវបានផ្តល់ការអនុញ្ញាតឲ្យជូនដំណឹងទេ',
   'push.error.noServiceWorker':
-    'គ្មាន service worker ត្រូវបានចុះឈ្មោះទេ — ការជូនដំណឹងរុញត្រូវការកំណែផលិតកម្មរបស់កម្មវិធី។',
+    'មិនមាន service worker ដែលបានចុះឈ្មោះទេ។ ការជូនដំណឹង push ត្រូវការកំណែផលិតកម្មរបស់កម្មវិធីដែលបានដំឡើង @molecule/app-pwa-default។',
   'pwa.update': 'ធ្វើបច្ចុប្បន្នភាព',
   'pwa.updateAvailable': 'មានកំណែថ្មីហើយ!',
   'pwa.updating': 'កំពុងធ្វើបច្ចុប្បន្នភាព...',

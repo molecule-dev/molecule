@@ -81,7 +81,7 @@ export const ig: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Ọkwa ndọtị anaghị akwado',
   'push.error.permissionNotGranted': 'Enyeghị ikike ịkpọsa ọkwa',
   'push.error.noServiceWorker':
-    'Enweghị service worker edebanyere aha — ọkwa mmanye chọrọ nrụpụta mmepụta nke ngwa ahụ.',
+    'Enweghị service worker edebanyere aha. Ngosi push chọrọ ụdị mmepụta nke ngwa ahụ nwere @molecule/app-pwa-default etinyere.',
   'pwa.update': 'Melite',
   'pwa.updateAvailable': 'Ụdị ọhụrụ dị!',
   'pwa.updating': 'Na-emelite...',

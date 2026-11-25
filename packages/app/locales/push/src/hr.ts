@@ -6,4 +6,6 @@ export const hr: PushTranslations = {
   'push.error.permissionNotGranted': 'Dozvola za obavijesti nije odobrena',
   'push.error.missingDependency':
     '`{{library}}` je potreban, ali nije instaliran. Instalirajte ga s: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Nijedan service worker nije registriran. Push obavijesti zahtijevaju produkcijsku verziju aplikacije s instaliranim @molecule/app-pwa-default.',
 }

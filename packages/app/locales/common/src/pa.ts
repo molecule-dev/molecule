@@ -93,7 +93,7 @@ export const pa: Partial<CommonTranslations> = {
   'push.error.notSupported': 'ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਸਮਰਥਿਤ ਨਹੀਂ ਹਨ',
   'push.error.permissionNotGranted': 'ਸੂਚਨਾ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੱਤੀ ਗਈ',
   'push.error.noServiceWorker':
-    'ਕੋਈ ਸਰਵਿਸ ਵਰਕਰ ਰਜਿਸਟਰ ਨਹੀਂ ਹੈ — ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਲਈ ਐਪ ਦਾ ਪ੍ਰੋਡਕਸ਼ਨ ਬਿਲਡ ਲੋੜੀਂਦਾ ਹੈ।',
+    'ਕੋਈ service worker ਰਜਿਸਟਰ ਨਹੀਂ ਹੈ। ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਲਈ @molecule/app-pwa-default ਇੰਸਟਾਲ ਕੀਤੀ ਐਪ ਦਾ ਪ੍ਰੋਡਕਸ਼ਨ ਬਿਲਡ ਲੋੜੀਂਦਾ ਹੈ।',
   'pwa.update': 'ਅੱਪਡੇਟ',
   'pwa.updateAvailable': 'ਨਵਾਂ ਵਰਜਨ ਉਪਲਬਧ ਹੈ!',
   'pwa.updating': 'ਅੱਪਡੇਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...',

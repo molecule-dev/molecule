@@ -374,7 +374,7 @@ export const nb: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-varsler støttes ikke',
   'push.error.permissionNotGranted': 'Varslingstillatelse ikke gitt',
   'push.error.noServiceWorker':
-    'Ingen service worker er registrert — push-varsler krever produksjonsbygget av appen.',
+    'Ingen service worker er registrert. Push-varsler krever produksjonsbygget av appen med @molecule/app-pwa-default installert.',
   'pwa.updateAvailable': 'Ny versjon tilgjengelig!',
   'pwa.updating': 'Oppdaterer...',
   'resource.error.badRequest': 'Dårlig forespørsel.',

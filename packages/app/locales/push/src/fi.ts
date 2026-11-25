@@ -6,4 +6,6 @@ export const fi: PushTranslations = {
   'push.error.permissionNotGranted': 'Ilmoituslupaa ei myönnetty',
   'push.error.missingDependency':
     '`{{library}}` on pakollinen, mutta sitä ei ole asennettu. Asenna se komennolla: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Service workeria ei ole rekisteröity. Push-ilmoitukset tarvitsevat sovelluksen tuotantoversion, johon on asennettu @molecule/app-pwa-default.',
 }

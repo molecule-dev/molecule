@@ -86,7 +86,7 @@ export const af: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Stootkennisgewings word nie ondersteun nie',
   'push.error.permissionNotGranted': 'Kennisgewingtoestemming nie toegestaan nie',
   'push.error.noServiceWorker':
-    'Geen dienswerker is geregistreer nie — stootkennisgewings vereis die produksie-bou van die app.',
+    'Geen service worker is geregistreer nie. Stootkennisgewings benodig die produksiebou van die toepassing met @molecule/app-pwa-default geïnstalleer.',
   'pwa.update': 'Opdatering',
   'pwa.updateAvailable': 'Nuwe weergawe beskikbaar!',
   'pwa.updating': 'Opdatering...',

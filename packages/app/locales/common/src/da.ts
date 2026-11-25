@@ -369,7 +369,7 @@ export const da: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-notifikationer understøttes ikke',
   'push.error.permissionNotGranted': 'Tilladelse til notifikationer ikke givet',
   'push.error.noServiceWorker':
-    'Der er ingen registreret service worker — push-notifikationer kræver appens produktionsbuild.',
+    'Ingen service worker er registreret. Push-notifikationer kræver appens produktionsbuild med @molecule/app-pwa-default installeret.',
   'pwa.updateAvailable': 'Ny version tilgængelig!',
   'pwa.updating': 'Opdaterer...',
   'resource.error.badRequest': 'Dårlig anmodning.',

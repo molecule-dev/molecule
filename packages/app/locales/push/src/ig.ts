@@ -6,4 +6,6 @@ export const ig: PushTranslations = {
   'push.error.permissionNotGranted': 'Enyeghị ikike ịkpọsa ọkwa',
   'push.error.missingDependency':
     'A chọrọ `{{library}}` mana etinyereghị ya. Wụnye ya na: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Enweghị service worker edebanyere aha. Ngosi push chọrọ ụdị mmepụta nke ngwa ahụ nwere @molecule/app-pwa-default etinyere.',
 }

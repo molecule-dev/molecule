@@ -417,7 +417,7 @@ export const nl: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Pushmeldingen worden niet ondersteund.',
   'push.error.permissionNotGranted': 'Meldingstoestemming niet verleend',
   'push.error.noServiceWorker':
-    'Er is geen service worker geregistreerd — pushmeldingen vereisen de productieversie van de app.',
+    'Er is geen service worker geregistreerd. Pushmeldingen hebben de productiebuild van de app nodig met @molecule/app-pwa-default geïnstalleerd.',
   'pwa.updateAvailable': 'Nieuwe versie beschikbaar!',
   'pwa.updating': 'Bezig met bijwerken...',
   'resource.error.badRequest': 'Ongepast verzoek.',

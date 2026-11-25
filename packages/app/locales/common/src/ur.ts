@@ -93,7 +93,7 @@ export const ur: Partial<CommonTranslations> = {
   'push.error.notSupported': 'پش اطلاعات تعاون یافتہ نہیں ہیں۔',
   'push.error.permissionNotGranted': 'اطلاع کی اجازت نہیں دی گئی۔',
   'push.error.noServiceWorker':
-    'کوئی سروس ورکر رجسٹرڈ نہیں ہے — پش اطلاعات کے لیے ایپ کی پروڈکشن بلڈ درکار ہے۔',
+    'کوئی service worker رجسٹرڈ نہیں ہے۔ پش اطلاعات کے لیے @molecule/app-pwa-default انسٹال شدہ ایپ کا پروڈکشن بلڈ درکار ہے۔',
   'pwa.update': 'اپڈیٹ کریں۔',
   'pwa.updateAvailable': 'نیا ورژن دستیاب ہے!',
   'pwa.updating': 'اپ ڈیٹ ہو رہا ہے...',

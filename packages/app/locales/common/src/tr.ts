@@ -430,7 +430,7 @@ export const tr: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Anlık bildirimler desteklenmiyor.',
   'push.error.permissionNotGranted': 'Bildirim izni verilmedi.',
   'push.error.noServiceWorker':
-    'Kayıtlı bir service worker yok — anlık bildirimler uygulamanın üretim derlemesini gerektirir.',
+    'Kayıtlı service worker yok. Anlık bildirimler, @molecule/app-pwa-default yüklü uygulamanın üretim derlemesini gerektirir.',
   'pwa.updateAvailable': 'Yeni sürüm mevcut!',
   'pwa.updating': 'Güncelleniyor...',
   'resource.error.badRequest': 'Geçersiz istek.',

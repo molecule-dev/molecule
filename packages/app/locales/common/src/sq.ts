@@ -86,7 +86,7 @@ export const sq: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Njoftimet push nuk mbështeten',
   'push.error.permissionNotGranted': 'Leja për njoftim nuk është dhënë',
   'push.error.noServiceWorker':
-    'Asnjë service worker nuk është regjistruar — njoftimet push kërkojnë versionin e prodhimit të aplikacionit.',
+    'Nuk është regjistruar asnjë service worker. Njoftimet push kërkojnë versionin e prodhimit të aplikacionit me @molecule/app-pwa-default të instaluar.',
   'pwa.update': 'Përditëso',
   'pwa.updateAvailable': 'Versioni i ri i disponueshëm!',
   'pwa.updating': 'Duke u përditësuar...',

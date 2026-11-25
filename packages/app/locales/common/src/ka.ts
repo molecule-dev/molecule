@@ -93,7 +93,7 @@ export const ka: Partial<CommonTranslations> = {
   'push.error.notSupported': 'push-შეტყობინებები არ არის მხარდაჭერილი',
   'push.error.permissionNotGranted': 'შეტყობინების ნებართვა არ არის მინიჭებული',
   'push.error.noServiceWorker':
-    'Service worker რეგისტრირებული არ არის — push შეტყობინებებს აპლიკაციის საწარმოო ვერსია სჭირდება.',
+    'service worker არ არის რეგისტრირებული. Push შეტყობინებებს სჭირდება აპის საწარმოო ვერსია დაინსტალირებული @molecule/app-pwa-default-ით.',
   'pwa.update': 'განახლება',
   'pwa.updateAvailable': 'ახალი ვერსია ხელმისაწვდომია!',
   'pwa.updating': 'განახლება...',

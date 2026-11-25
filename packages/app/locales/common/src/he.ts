@@ -173,7 +173,7 @@ export const he: Partial<CommonTranslations> = {
   'push.error.notSupported': 'התראות דחיפה אינן נתמכות',
   'push.error.permissionNotGranted': 'לא ניתנה הרשאת התראות',
   'push.error.noServiceWorker':
-    'לא רשום service worker — התראות דחיפה דורשות את גרסת הייצור של האפליקציה.',
+    'לא רשום service worker. התראות פוש דורשות את גרסת הייצור של האפליקציה עם @molecule/app-pwa-default מותקן.',
   'pwa.update': 'לְעַדְכֵּן',
   'pwa.updateAvailable': 'גרסה חדשה זמינה!',
   'pwa.updating': 'עִדכּוּן...',

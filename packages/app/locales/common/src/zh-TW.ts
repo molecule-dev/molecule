@@ -91,7 +91,8 @@ export const zhTW: Partial<CommonTranslations> = {
   'project.error.notFound': '未找到',
   'push.error.notSupported': '不支援推播通知',
   'push.error.permissionNotGranted': '未授予通知權限',
-  'push.error.noServiceWorker': '未註冊 Service Worker — 推播通知需要應用程式的正式版建置。',
+  'push.error.noServiceWorker':
+    '尚未註冊任何 service worker。推播通知需要已安裝 @molecule/app-pwa-default 的應用程式正式版建置。',
   'pwa.update': '更新',
   'pwa.updateAvailable': '新版本已發布！',
   'pwa.updating': '正在更新…',

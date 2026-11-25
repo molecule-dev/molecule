@@ -379,7 +379,7 @@ export const fi: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-ilmoituksia ei tueta',
   'push.error.permissionNotGranted': 'Ilmoituslupaa ei myönnetty',
   'push.error.noServiceWorker':
-    'Service workeria ei ole rekisteröity — push-ilmoitukset vaativat sovelluksen tuotantoversion.',
+    'Service workeria ei ole rekisteröity. Push-ilmoitukset tarvitsevat sovelluksen tuotantoversion, johon on asennettu @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Uusi versio saatavilla!',
   'pwa.updating': 'Päivitetään...',
   'resource.error.badRequest': 'Huono pyyntö.',

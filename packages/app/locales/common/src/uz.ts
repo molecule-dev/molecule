@@ -93,7 +93,7 @@ export const uz: Partial<CommonTranslations> = {
   'push.error.notSupported': "Push-bildirishnomalar qo'llab-quvvatlanmaydi",
   'push.error.permissionNotGranted': 'Bildirishnoma ruxsati berilmagan',
   'push.error.noServiceWorker':
-    'Hech qanday service worker ro‘yxatdan o‘tmagan — push bildirishnomalari ilovaning ishlab chiqarish versiyasini talab qiladi.',
+    "Hech qanday service worker ro'yxatdan o'tmagan. Push bildirishnomalari uchun @molecule/app-pwa-default o'rnatilgan ilovaning ishlab chiqarish yig'masi kerak.",
   'pwa.update': 'Yangilash',
   'pwa.updateAvailable': 'Yangi versiya mavjud!',
   'pwa.updating': 'Yangilanmoqda...',

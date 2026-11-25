@@ -6,4 +6,6 @@ export const en: PushTranslations = {
   'push.error.permissionNotGranted': 'Notification permission not granted',
   'push.error.missingDependency':
     '`{{library}}` is required but not installed. Install it with: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'No service worker is registered. Push notifications need the production app build with @molecule/app-pwa-default installed.',
 }

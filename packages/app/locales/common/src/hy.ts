@@ -93,7 +93,7 @@ export const hy: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push ծանուցումները չեն աջակցվում',
   'push.error.permissionNotGranted': 'Ծանուցման թույլտվությունը չի տրամադրվել',
   'push.error.noServiceWorker':
-    'Service worker գրանցված չէ — push ծանուցումները պահանջում են հավելվածի արտադրական տարբերակը։',
+    'Ոչ մի service worker գրանցված չէ։ Push ծանուցումների համար անհրաժեշտ է հավելվածի արտադրական կառուցվածքը՝ տեղադրված @molecule/app-pwa-default-ով։',
   'pwa.update': 'Թարմացում',
   'pwa.updateAvailable': 'Նոր տարբերակը հասանելի է!',
   'pwa.updating': 'Թարմացվում է...',

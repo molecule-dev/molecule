@@ -6,4 +6,6 @@ export const pl: PushTranslations = {
   'push.error.permissionNotGranted': 'Nie udzielono uprawnień do powiadomień',
   'push.error.missingDependency':
     '`{{library}}` jest wymagana, ale nie jest zainstalowana. Zainstaluj ją za pomocą: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Nie zarejestrowano żadnego service workera. Powiadomienia push wymagają produkcyjnej wersji aplikacji z zainstalowanym @molecule/app-pwa-default.',
 }

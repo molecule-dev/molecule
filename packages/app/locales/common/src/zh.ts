@@ -422,7 +422,8 @@ export const zh: Partial<CommonTranslations> = {
   'project.error.notFound': '未找到',
   'push.error.notSupported': '不支持推送通知',
   'push.error.permissionNotGranted': '未授予通知权限',
-  'push.error.noServiceWorker': '未注册 Service Worker — 推送通知需要应用的生产版本。',
+  'push.error.noServiceWorker':
+    '未注册任何 service worker。推送通知需要安装了 @molecule/app-pwa-default 的应用生产构建。',
   'pwa.updateAvailable': '新版本已发布！',
   'pwa.updating': '正在更新……',
   'resource.error.badRequest': '错误的请求。',

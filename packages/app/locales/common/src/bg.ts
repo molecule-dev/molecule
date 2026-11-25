@@ -93,7 +93,7 @@ export const bg: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push известията не се поддържат',
   'push.error.permissionNotGranted': 'Разрешение за известия не е предоставено',
   'push.error.noServiceWorker':
-    'Няма регистриран service worker — push известията изискват продукционната версия на приложението.',
+    'Няма регистриран service worker. Push известията изискват продукционната компилация на приложението с инсталиран @molecule/app-pwa-default.',
   'pwa.update': 'Актуализация',
   'pwa.updateAvailable': 'Налична е нова версия!',
   'pwa.updating': 'Актуализиране...',

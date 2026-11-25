@@ -6,4 +6,6 @@ export const my: PushTranslations = {
   'push.error.permissionNotGranted': 'Notification ခွင့်ပြုချက် မပေးထားပါ',
   'push.error.missingDependency':
     '`{{library}}` ကို လိုအပ်သော်လည်း ထည့်သွင်းထားခြင်း မရှိပါ။ အောက်ပါဖြင့် ထည့်သွင်းပါ- `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'service worker တစ်ခုမှ မှတ်ပုံတင်ထားခြင်းမရှိပါ။ push အသိပေးချက်များအတွက် @molecule/app-pwa-default ထည့်သွင်းထားသော အက်ပ်၏ ထုတ်လုပ်ရေးဗားရှင်း လိုအပ်ပါသည်။',
 }

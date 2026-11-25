@@ -430,7 +430,7 @@ export const vi: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Thông báo đẩy không được hỗ trợ.',
   'push.error.permissionNotGranted': 'Không được phép gửi thông báo.',
   'push.error.noServiceWorker':
-    'Chưa có service worker nào được đăng ký — thông báo đẩy yêu cầu bản dựng production của ứng dụng.',
+    'Chưa có service worker nào được đăng ký. Thông báo đẩy cần bản dựng production của ứng dụng có cài @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Phiên bản mới đã có!',
   'pwa.updating': 'Đang cập nhật...',
   'resource.error.badRequest': 'Yêu cầu không hợp lệ.',

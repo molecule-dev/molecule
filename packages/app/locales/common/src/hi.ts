@@ -429,7 +429,7 @@ export const hi: Partial<CommonTranslations> = {
   'push.error.notSupported': 'पुश नोटिफिकेशन समर्थित नहीं हैं',
   'push.error.permissionNotGranted': 'अधिसूचना की अनुमति नहीं दी गई',
   'push.error.noServiceWorker':
-    'कोई सर्विस वर्कर पंजीकृत नहीं है — पुश सूचनाओं के लिए ऐप का प्रोडक्शन बिल्ड आवश्यक है।',
+    'कोई service worker पंजीकृत नहीं है। पुश सूचनाओं के लिए @molecule/app-pwa-default इंस्टॉल किए गए ऐप का प्रोडक्शन बिल्ड आवश्यक है।',
   'pwa.updateAvailable': 'नया संस्करण उपलब्ध है!',
   'pwa.updating': 'अपडेट हो रहा है...',
   'resource.error.badRequest': 'खराब अनुरोध।',

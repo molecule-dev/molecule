@@ -376,7 +376,7 @@ export const ms: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Pemberitahuan push tidak disokong',
   'push.error.permissionNotGranted': 'Kebenaran pemberitahuan tidak diberikan',
   'push.error.noServiceWorker':
-    'Tiada service worker yang didaftarkan — pemberitahuan tolak memerlukan binaan produksi aplikasi.',
+    'Tiada service worker yang didaftarkan. Pemberitahuan tolak memerlukan binaan pengeluaran aplikasi dengan @molecule/app-pwa-default dipasang.',
   'pwa.updateAvailable': 'Versi baharu tersedia!',
   'pwa.updating': 'Mengemas kini...',
   'resource.error.badRequest': 'Permintaan yang buruk.',

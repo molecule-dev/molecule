@@ -86,7 +86,7 @@ export const gl: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Non se admiten as notificacións push',
   'push.error.permissionNotGranted': 'Permiso de notificación non concedido',
   'push.error.noServiceWorker':
-    'Non hai ningún service worker rexistrado — as notificacións push requiren a versión de produción da aplicación.',
+    'Non hai ningún service worker rexistrado. As notificacións push necesitan a compilación de produción da aplicación con @molecule/app-pwa-default instalado.',
   'pwa.update': 'Actualizar',
   'pwa.updateAvailable': 'Nova versión dispoñible!',
   'pwa.updating': 'Actualizando...',

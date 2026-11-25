@@ -425,7 +425,7 @@ export const pl: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Powiadomienia push nie są obsługiwane',
   'push.error.permissionNotGranted': 'Nie udzielono pozwolenia na powiadomienie',
   'push.error.noServiceWorker':
-    'Nie zarejestrowano żadnego service workera — powiadomienia push wymagają produkcyjnej wersji aplikacji.',
+    'Nie zarejestrowano żadnego service workera. Powiadomienia push wymagają produkcyjnej wersji aplikacji z zainstalowanym @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Nowa wersja dostępna!',
   'pwa.updating': 'Aktualizowanie...',
   'resource.error.badRequest': 'Złe żądanie.',

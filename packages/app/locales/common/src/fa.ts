@@ -93,7 +93,7 @@ export const fa: Partial<CommonTranslations> = {
   'push.error.notSupported': 'اعلان‌های فشاری پشتیبانی نمی‌شوند',
   'push.error.permissionNotGranted': 'مجوز اعلان صادر نشد',
   'push.error.noServiceWorker':
-    'هیچ service worker ثبت نشده است — اعلان‌های فوری به نسخه تولیدی برنامه نیاز دارند.',
+    'هیچ service worker ثبت نشده است. اعلان‌های push به نسخه production برنامه با @molecule/app-pwa-default نصب‌شده نیاز دارند.',
   'pwa.update': 'به‌روزرسانی',
   'pwa.updateAvailable': 'نسخه جدید موجود شد!',
   'pwa.updating': 'در حال به‌روزرسانی...',

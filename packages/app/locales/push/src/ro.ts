@@ -6,4 +6,6 @@ export const ro: PushTranslations = {
   'push.error.permissionNotGranted': 'Permisiunea de notificare nu a fost acordată',
   'push.error.missingDependency':
     '`{{library}}` este obligatoriu, dar nu este instalat. Instalați-l cu: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Niciun service worker nu este înregistrat. Notificările push necesită versiunea de producție a aplicației cu @molecule/app-pwa-default instalat.',
 }

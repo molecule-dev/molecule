@@ -93,7 +93,7 @@ export const th: Partial<CommonTranslations> = {
   'push.error.notSupported': 'ไม่รองรับการแจ้งเตือนแบบพุช',
   'push.error.permissionNotGranted': 'ไม่ได้รับอนุญาตการแจ้งเตือน',
   'push.error.noServiceWorker':
-    'ไม่มี service worker ที่ลงทะเบียนไว้ — การแจ้งเตือนแบบพุชต้องใช้บิลด์เวอร์ชันใช้งานจริงของแอป',
+    'ไม่มี service worker ที่ลงทะเบียนไว้ การแจ้งเตือนแบบพุชต้องใช้บิลด์สำหรับใช้งานจริงของแอปที่ติดตั้ง @molecule/app-pwa-default',
   'pwa.update': 'อัปเดต',
   'pwa.updateAvailable': 'เวอร์ชั่นใหม่พร้อมให้ใช้งานแล้ว!',
   'pwa.updating': 'กำลังอัปเดต...',

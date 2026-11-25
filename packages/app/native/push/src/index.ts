@@ -39,9 +39,13 @@
  *   bonded and native registration never happens.
  * - **Web `register()` has three hard prerequisites**: (1) HTTPS (secure
  *   context), (2) a registered SERVICE WORKER — the one
- *   `@molecule/app-pwa-default` (a peer of this package) registers in the
- *   production build, which also shows the delivered notifications; dev
- *   builds don't ship one, so register() throws "requires the production app
+ *   `@molecule/app-pwa-default` registers in the production build, which also
+ *   shows the delivered notifications. It is an optional peer of this package,
+ *   because every app that uses a framework binding has this package whether
+ *   or not it sends push: `mlcl create --packages @molecule/app-push,…` and
+ *   `mlcl add @molecule/app-push` add it, and an app that installed this
+ *   package some other way runs `mlcl add @molecule/app-pwa-default`. Dev
+ *   builds don't ship a worker, so register() throws "need the production app
  *   build" (it fails fast instead of hanging), and (3) a VAPID public key
  *   (pass via `register({ vapidPublicKey })`) matching your API's
  *   `VAPID_PRIVATE_KEY` — without it Chrome may register but delivery

@@ -6,4 +6,6 @@ export const be: PushTranslations = {
   'push.error.permissionNotGranted': 'Дазвол на апавяшчэнні не прадастаўлены',
   'push.error.missingDependency':
     '`{{library}}` патрабуецца, але не ўсталяваны. Усталюйце яго з дапамогай: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Service worker не зарэгістраваны. Для push-апавяшчэнняў патрэбная вытворчая зборка праграмы з усталяваным @molecule/app-pwa-default.',
 }

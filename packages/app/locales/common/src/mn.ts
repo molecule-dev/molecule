@@ -87,7 +87,7 @@ export const mn: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Түлхэх мэдэгдлүүдийг дэмждэггүй',
   'push.error.permissionNotGranted': 'Мэдэгдлийн зөвшөөрөл олгоогүй байна',
   'push.error.noServiceWorker':
-    'Service worker бүртгэгдээгүй байна — push мэдэгдэлд аппын үйлдвэрлэлийн хувилбар шаардлагатай.',
+    'Ямар ч service worker бүртгэгдээгүй байна. Push мэдэгдэлд @molecule/app-pwa-default суулгасан аппын үйлдвэрлэлийн хувилбар шаардлагатай.',
   'pwa.update': 'Шинэчлэлт',
   'pwa.updateAvailable': 'Шинэ хувилбар гарсан байна!',
   'pwa.updating': 'Шинэчилж байна...',

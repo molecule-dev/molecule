@@ -6,4 +6,6 @@ export const ka: PushTranslations = {
   'push.error.permissionNotGranted': 'Shetkdobinebis nebartva ar aris mitsemuli',
   'push.error.missingDependency':
     '`{{library}}` აუცილებელია, მაგრამ არ არის დაინსტალირებული. დააინსტალირეთ ის: `npx expo install {{library}}` ით',
+  'push.error.noServiceWorker':
+    'service worker არ არის რეგისტრირებული. Push შეტყობინებებს სჭირდება აპის საწარმოო ვერსია დაინსტალირებული @molecule/app-pwa-default-ით.',
 }

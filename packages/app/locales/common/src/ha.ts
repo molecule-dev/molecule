@@ -84,7 +84,7 @@ export const ha: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Ba a goyan bayan sanarwar turawa ba',
   'push.error.permissionNotGranted': 'Ba a ba da izinin sanarwa ba',
   'push.error.noServiceWorker':
-    'Babu service worker da aka yi rijista — sanarwar turawa na buƙatar ginin samarwa na manhajar.',
+    'Babu service worker da aka yi rajista. Sanarwar tura tana buƙatar ginin samarwa na manhajar tare da shigar da @molecule/app-pwa-default.',
   'pwa.update': 'Sabunta',
   'pwa.updateAvailable': 'Sabon sigar yana nan!',
   'pwa.updating': 'Ana sabuntawa...',

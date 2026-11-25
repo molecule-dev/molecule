@@ -356,7 +356,7 @@ export const fil: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Hindi sinusuportahan ang mga push notification',
   'push.error.permissionNotGranted': 'Hindi ibinigay ang pahintulot sa abiso',
   'push.error.noServiceWorker':
-    'Walang nakarehistrong service worker — kailangan ng mga push notification ang production build ng app.',
+    'Walang nakarehistrong service worker. Kailangan ng mga push notification ang production build ng app na may naka-install na @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'May bagong bersyon na!',
   'pwa.updating': 'Ina-update...',
   'resource.error.badRequest': 'Masamang kahilingan.',

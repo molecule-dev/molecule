@@ -86,7 +86,7 @@ export const cy: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Ni chefnogir hysbysiadau gwthio',
   'push.error.permissionNotGranted': 'Ni roddwyd caniatâd hysbysu',
   'push.error.noServiceWorker':
-    'Nid oes gweithiwr gwasanaeth wedi’i gofrestru — mae hysbysiadau gwthio angen adeiladwaith cynhyrchu’r ap.',
+    "Nid oes service worker wedi'i gofrestru. Mae hysbysiadau gwthio angen adeiledd cynhyrchu'r ap gyda @molecule/app-pwa-default wedi'i osod.",
   'pwa.update': 'Diweddariad',
   'pwa.updateAvailable': 'Fersiwn newydd ar gael!',
   'pwa.updating': 'Yn diweddaru...',

@@ -418,7 +418,7 @@ export const ko: Partial<CommonTranslations> = {
   'push.error.notSupported': '푸시 알림은 지원되지 않습니다.',
   'push.error.permissionNotGranted': '알림 권한이 부여되지 않았습니다.',
   'push.error.noServiceWorker':
-    '등록된 서비스 워커가 없습니다 — 푸시 알림은 앱의 프로덕션 빌드가 필요합니다.',
+    '등록된 service worker가 없습니다. 푸시 알림에는 @molecule/app-pwa-default가 설치된 앱의 프로덕션 빌드가 필요합니다.',
   'pwa.updateAvailable': '새 버전이 출시되었습니다!',
   'pwa.updating': '업데이트 중...',
   'resource.error.badRequest': '잘못된 요청입니다.',

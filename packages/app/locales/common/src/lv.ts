@@ -86,7 +86,7 @@ export const lv: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push paziņojumi netiek atbalstīti',
   'push.error.permissionNotGranted': 'Paziņojumu atļauja nav piešķirta',
   'push.error.noServiceWorker':
-    'Nav reģistrēts neviens service worker — push paziņojumiem nepieciešama lietotnes produkcijas versija.',
+    'Nav reģistrēts neviens service worker. Push paziņojumiem nepieciešama lietotnes ražošanas versija ar instalētu @molecule/app-pwa-default.',
   'pwa.update': 'Atjauninājums',
   'pwa.updateAvailable': 'Pieejama jauna versija!',
   'pwa.updating': 'Notiek atjaunināšana...',

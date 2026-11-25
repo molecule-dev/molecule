@@ -93,7 +93,7 @@ export const ta: Partial<CommonTranslations> = {
   'push.error.notSupported': 'புஷ் அறிவிப்புகள் ஆதரிக்கப்படவில்லை',
   'push.error.permissionNotGranted': 'அறிவிப்பு அனுமதி வழங்கப்படவில்லை',
   'push.error.noServiceWorker':
-    'சர்வீஸ் வொர்க்கர் எதுவும் பதிவு செய்யப்படவில்லை — புஷ் அறிவிப்புகளுக்கு பயன்பாட்டின் ப்ரொடக்ஷன் பில்டு தேவை.',
+    'எந்த service worker-உம் பதிவு செய்யப்படவில்லை. புஷ் அறிவிப்புகளுக்கு @molecule/app-pwa-default நிறுவப்பட்ட பயன்பாட்டின் தயாரிப்பு பில்ட் தேவை.',
   'pwa.update': 'புதுப்பிப்பு',
   'pwa.updateAvailable': 'புதிய பதிப்பு கிடைக்கிறது!',
   'pwa.updating': 'புதுப்பிக்கப்படுகிறது...',

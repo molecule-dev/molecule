@@ -6,4 +6,6 @@ export const nl: PushTranslations = {
   'push.error.permissionNotGranted': 'Meldingstoestemming niet verleend',
   'push.error.missingDependency':
     '`{{library}}` is vereist, maar niet geïnstalleerd. Installeer het met: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Er is geen service worker geregistreerd. Pushmeldingen hebben de productiebuild van de app nodig met @molecule/app-pwa-default geïnstalleerd.',
 }

@@ -86,7 +86,7 @@ export const is: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Tilkynningar eru ekki studdar',
   'push.error.permissionNotGranted': 'Tilkynningarheimild ekki veitt',
   'push.error.noServiceWorker':
-    'Enginn service worker er skráður — ýtitilkynningar krefjast framleiðsluútgáfu forritsins.',
+    'Enginn service worker er skráður. Ýtitilkynningar þurfa framleiðsluútgáfu forritsins með @molecule/app-pwa-default uppsett.',
   'pwa.update': 'Uppfæra',
   'pwa.updateAvailable': 'Ný útgáfa fáanleg!',
   'pwa.updating': 'Uppfærir...',

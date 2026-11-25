@@ -86,7 +86,7 @@ export const sk: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push notifikácie nie sú podporované',
   'push.error.permissionNotGranted': 'Povolenie na upozornenia nebolo udelené',
   'push.error.noServiceWorker':
-    'Nie je zaregistrovaný žiadny service worker — push oznámenia vyžadujú produkčné zostavenie aplikácie.',
+    'Nie je zaregistrovaný žiadny service worker. Push upozornenia vyžadujú produkčné zostavenie aplikácie s nainštalovaným @molecule/app-pwa-default.',
   'pwa.update': 'Aktualizácia',
   'pwa.updateAvailable': 'Nová verzia k dispozícii!',
   'pwa.updating': 'Aktualizácia...',

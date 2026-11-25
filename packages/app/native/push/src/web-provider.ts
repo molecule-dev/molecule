@@ -112,7 +112,7 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
         throw new Error(
           t('push.error.noServiceWorker', undefined, {
             defaultValue:
-              'No service worker is registered — push notifications require the production app build.',
+              'No service worker is registered. Push notifications need the production app build with @molecule/app-pwa-default installed.',
           }),
         )
       }

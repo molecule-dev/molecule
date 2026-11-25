@@ -86,7 +86,7 @@ export const eu: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push jakinarazpenak ez dira onartzen',
   'push.error.permissionNotGranted': 'Jakinarazpen baimena ez da eman',
   'push.error.noServiceWorker':
-    'Ez dago service worker-ik erregistratuta — push jakinarazpenek aplikazioaren produkzio-bertsioa behar dute.',
+    'Ez dago service worker-ik erregistratuta. Push jakinarazpenek aplikazioaren ekoizpen-konpilazioa behar dute, @molecule/app-pwa-default instalatuta.',
   'pwa.update': 'Eguneratu',
   'pwa.updateAvailable': 'Bertsio berria eskuragarri!',
   'pwa.updating': 'Eguneratzen...',

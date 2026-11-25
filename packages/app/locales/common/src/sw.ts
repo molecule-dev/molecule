@@ -86,7 +86,7 @@ export const sw: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Arifa za programu zinazotumwa hazitumiki',
   'push.error.permissionNotGranted': 'Ruhusa ya arifa haijatolewa',
   'push.error.noServiceWorker':
-    'Hakuna service worker aliyesajiliwa — arifa za kusukuma zinahitaji toleo la uzalishaji la programu.',
+    'Hakuna service worker iliyosajiliwa. Arifa za push zinahitaji toleo la uzalishaji la programu lenye @molecule/app-pwa-default iliyosakinishwa.',
   'pwa.update': 'Sasisho',
   'pwa.updateAvailable': 'Toleo jipya linapatikana!',
   'pwa.updating': 'Inasasisha...',

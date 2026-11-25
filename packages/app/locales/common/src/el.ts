@@ -379,7 +379,7 @@ export const el: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Δεν υποστηρίζονται οι ειδοποιήσεις push',
   'push.error.permissionNotGranted': 'Δεν χορηγήθηκε άδεια ειδοποίησης',
   'push.error.noServiceWorker':
-    'Δεν υπάρχει εγγεγραμμένος service worker — οι ειδοποιήσεις push απαιτούν την έκδοση παραγωγής της εφαρμογής.',
+    'Δεν έχει καταχωριστεί service worker. Οι ειδοποιήσεις push χρειάζονται την έκδοση παραγωγής της εφαρμογής με εγκατεστημένο το @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Νέα έκδοση διαθέσιμη!',
   'pwa.updating': 'Ενημέρωση...',
   'resource.error.badRequest': 'Κακό αίτημα.',

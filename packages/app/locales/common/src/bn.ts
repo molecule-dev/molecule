@@ -93,7 +93,7 @@ export const bn: Partial<CommonTranslations> = {
   'push.error.notSupported': 'পুশ নোটিফিকেশন সমর্থিত নয়',
   'push.error.permissionNotGranted': 'বিজ্ঞপ্তির অনুমতি দেওয়া হয়নি',
   'push.error.noServiceWorker':
-    'কোনো সার্ভিস ওয়ার্কার নিবন্ধিত নেই — পুশ বিজ্ঞপ্তির জন্য অ্যাপের প্রোডাকশন বিল্ড প্রয়োজন।',
+    'কোনো service worker নিবন্ধিত নেই। পুশ বিজ্ঞপ্তির জন্য @molecule/app-pwa-default ইনস্টল করা অ্যাপের প্রোডাকশন বিল্ড প্রয়োজন।',
   'pwa.update': 'আপডেট',
   'pwa.updateAvailable': 'নতুন সংস্করণ উপলব্ধ!',
   'pwa.updating': 'আপডেট করা হচ্ছে...',

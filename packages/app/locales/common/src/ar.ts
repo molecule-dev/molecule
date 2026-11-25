@@ -426,7 +426,7 @@ export const ar: Partial<CommonTranslations> = {
   'push.error.notSupported': 'الإشعارات الفورية غير مدعومة',
   'push.error.permissionNotGranted': 'لم يتم منح إذن الإشعار',
   'push.error.noServiceWorker':
-    'لا يوجد عامل خدمة مسجل — تتطلب الإشعارات الفورية نسخة الإنتاج من التطبيق.',
+    'لم يتم تسجيل أي service worker. تحتاج إشعارات الدفع إلى إصدار الإنتاج من التطبيق مع تثبيت @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'الإصدار الجديد متوفر الآن!',
   'pwa.updating': 'جارٍ التحديث...',
   'resource.error.badRequest': 'اقتراح غير جيد.',

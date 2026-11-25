@@ -6,4 +6,6 @@ export const hu: PushTranslations = {
   'push.error.permissionNotGranted': 'Az értesítési engedély nem került megadásra',
   'push.error.missingDependency':
     '`{{library}}` kötelező, de nincs telepítve. Telepítse a következő paranccsal: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Nincs regisztrált service worker. A push értesítésekhez az alkalmazás éles buildje szükséges, telepített @molecule/app-pwa-default csomaggal.',
 }

@@ -6,4 +6,6 @@ export const zhTW: PushTranslations = {
   'push.error.permissionNotGranted': '未授予通知權限',
   'push.error.missingDependency':
     '`{{library}}`是必要的，但尚未安裝。請使用以下指令安裝：`npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    '尚未註冊任何 service worker。推播通知需要已安裝 @molecule/app-pwa-default 的應用程式正式版建置。',
 }

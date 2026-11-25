@@ -6,4 +6,6 @@ export const ur: PushTranslations = {
   'push.error.permissionNotGranted': 'اطلاع کی اجازت نہیں دی گئی',
   'push.error.missingDependency':
     '`{{library}}` درکار ہے لیکن انسٹال نہیں ہے۔ اسے اس کے ساتھ انسٹال کریں: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'کوئی service worker رجسٹرڈ نہیں ہے۔ پش اطلاعات کے لیے @molecule/app-pwa-default انسٹال شدہ ایپ کا پروڈکشن بلڈ درکار ہے۔',
 }

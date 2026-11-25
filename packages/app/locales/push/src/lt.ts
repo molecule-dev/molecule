@@ -6,4 +6,6 @@ export const lt: PushTranslations = {
   'push.error.permissionNotGranted': 'Pranešimų leidimas nesuteiktas',
   'push.error.missingDependency':
     '`{{library}}` yra būtina, bet neįdiegta. Įdiekite ją naudodami: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Neužregistruotas joks service worker. Tiesioginiams pranešimams reikia programos gamybinės versijos su įdiegtu @molecule/app-pwa-default.',
 }

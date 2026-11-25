@@ -426,7 +426,7 @@ export const sv: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-meddelanden stöds inte',
   'push.error.permissionNotGranted': 'Aviseringstillstånd har inte beviljats',
   'push.error.noServiceWorker':
-    'Ingen service worker är registrerad — push-notiser kräver appens produktionsbygge.',
+    'Ingen service worker är registrerad. Push-aviseringar kräver appens produktionsbygge med @molecule/app-pwa-default installerat.',
   'pwa.updateAvailable': 'Ny version tillgänglig!',
   'pwa.updating': 'Uppdaterar...',
   'resource.error.badRequest': 'Dålig begäran.',

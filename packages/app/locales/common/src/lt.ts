@@ -86,7 +86,7 @@ export const lt: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Tiesioginiai pranešimai nepalaikomi',
   'push.error.permissionNotGranted': 'Pranešimų leidimas nesuteiktas',
   'push.error.noServiceWorker':
-    'Neužregistruotas joks service worker — push pranešimams reikia programos gamybinės versijos.',
+    'Neužregistruotas joks service worker. Tiesioginiams pranešimams reikia programos gamybinės versijos su įdiegtu @molecule/app-pwa-default.',
   'pwa.update': 'Atnaujinimas',
   'pwa.updateAvailable': 'Nauja versija prieinama!',
   'pwa.updating': 'Atnaujinama...',

@@ -86,7 +86,7 @@ export const zu: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Izaziso ze-Push azisekelwa',
   'push.error.permissionNotGranted': 'Imvume yesaziso ayinikezwanga',
   'push.error.noServiceWorker':
-    'Akukho service worker ebhalisiwe — izaziso zokuphusha zidinga ukwakhiwa kokukhiqiza kohlelo lokusebenza.',
+    'Ayikho i-service worker ebhalisiwe. Izaziso ze-push zidinga ukwakhiwa kokukhiqiza kohlelo lokusebenza olufakwe i-@molecule/app-pwa-default.',
   'pwa.update': 'Isibuyekezo',
   'pwa.updateAvailable': 'Inguqulo entsha iyatholakala!',
   'pwa.updating': 'Iyabuyekeza...',

@@ -93,7 +93,7 @@ export const ml: Partial<CommonTranslations> = {
   'push.error.notSupported': 'പുഷ് അറിയിപ്പുകൾ പിന്തുണയ്ക്കുന്നില്ല',
   'push.error.permissionNotGranted': 'അറിയിപ്പ് അനുമതി നൽകിയിട്ടില്ല.',
   'push.error.noServiceWorker':
-    'സർവീസ് വർക്കർ രജിസ്റ്റർ ചെയ്തിട്ടില്ല — പുഷ് അറിയിപ്പുകൾക്ക് ആപ്പിന്റെ പ്രൊഡക്ഷൻ ബിൽഡ് ആവശ്യമാണ്.',
+    'service worker ഒന്നും രജിസ്റ്റർ ചെയ്തിട്ടില്ല. പുഷ് അറിയിപ്പുകൾക്ക് @molecule/app-pwa-default ഇൻസ്റ്റാൾ ചെയ്ത ആപ്പിന്റെ പ്രൊഡക്ഷൻ ബിൽഡ് ആവശ്യമാണ്.',
   'pwa.update': 'അപ്ഡേറ്റ് ചെയ്യുക',
   'pwa.updateAvailable': 'പുതിയ പതിപ്പ് ലഭ്യമാണ്!',
   'pwa.updating': 'അപ്ഡേറ്റ് ചെയ്യുന്നു...',

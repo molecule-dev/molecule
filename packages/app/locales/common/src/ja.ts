@@ -426,7 +426,7 @@ export const ja: Partial<CommonTranslations> = {
   'push.error.notSupported': 'プッシュ通知はサポートされていません',
   'push.error.permissionNotGranted': '通知権限が付与されていません',
   'push.error.noServiceWorker':
-    'サービスワーカーが登録されていません — プッシュ通知にはアプリの本番ビルドが必要です。',
+    'service worker が登録されていません。プッシュ通知には、@molecule/app-pwa-default をインストールしたアプリの本番ビルドが必要です。',
   'pwa.updateAvailable': '新バージョンがリリースされました！',
   'pwa.updating': '更新中...',
   'resource.error.badRequest': '要求の形式が正しくありません。',

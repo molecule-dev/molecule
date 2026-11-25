@@ -6,4 +6,6 @@ export const id: PushTranslations = {
   'push.error.permissionNotGranted': 'Izin notifikasi tidak diberikan',
   'push.error.missingDependency':
     '`{{library}}` diperlukan tetapi belum terpasang. Pasang dengan: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Tidak ada service worker yang terdaftar. Notifikasi push memerlukan build produksi aplikasi dengan @molecule/app-pwa-default terpasang.',
 }

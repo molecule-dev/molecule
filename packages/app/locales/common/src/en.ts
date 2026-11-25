@@ -105,7 +105,7 @@ export const en: CommonTranslations = {
   'push.error.notSupported': 'Push notifications not supported',
   'push.error.permissionNotGranted': 'Notification permission not granted',
   'push.error.noServiceWorker':
-    'No service worker is registered — push notifications require the production app build.',
+    'No service worker is registered. Push notifications need the production app build with @molecule/app-pwa-default installed.',
   'pwa.update': 'Update',
   'pwa.updateAvailable': 'New version available!',
   'pwa.updating': 'Updating...',

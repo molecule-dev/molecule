@@ -6,4 +6,6 @@ export const is: PushTranslations = {
   'push.error.permissionNotGranted': 'Tilkynningaheimild ekki veitt',
   'push.error.missingDependency':
     '`{{library}}` er krafist en ekki uppsett. Setjið það upp með: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Enginn service worker er skráður. Ýtitilkynningar þurfa framleiðsluútgáfu forritsins með @molecule/app-pwa-default uppsett.',
 }

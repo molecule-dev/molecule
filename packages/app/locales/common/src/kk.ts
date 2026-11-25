@@ -86,7 +86,7 @@ export const kk: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push хабарландыруларына қолдау көрсетілмейді',
   'push.error.permissionNotGranted': 'Хабарландыруға рұқсат берілмеді',
   'push.error.noServiceWorker':
-    'Service worker тіркелмеген — push хабарландырулары қолданбаның өндірістік құрастырылымын қажет етеді.',
+    'Ешбір service worker тіркелмеген. Push хабарландырулары үшін @molecule/app-pwa-default орнатылған қолданбаның өндірістік жинағы қажет.',
   'pwa.update': 'Жаңарту',
   'pwa.updateAvailable': 'Жаңа нұсқасы қолжетімді!',
   'pwa.updating': 'Жаңартылуда...',

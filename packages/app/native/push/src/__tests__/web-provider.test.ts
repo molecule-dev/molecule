@@ -78,7 +78,7 @@ describe('createWebPushProvider().register()', () => {
     // Would previously await navigator.serviceWorker.ready forever; must now
     // reject promptly with an honest, i18n'd message.
     await expect(provider.register()).rejects.toThrow(
-      'No service worker is registered — push notifications require the production app build.',
+      'No service worker is registered. Push notifications need the production app build with @molecule/app-pwa-default installed.',
     )
   })
 

@@ -424,7 +424,7 @@ export const de: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-Benachrichtigungen werden nicht unterstützt',
   'push.error.permissionNotGranted': 'Benachrichtigungsberechtigung nicht erteilt',
   'push.error.noServiceWorker':
-    'Kein Service Worker registriert — Push-Benachrichtigungen erfordern den Produktions-Build der App.',
+    'Es ist kein Service Worker registriert. Push-Benachrichtigungen benötigen den Produktions-Build der App mit installiertem @molecule/app-pwa-default.',
   'pwa.updateAvailable': 'Neue Version verfügbar!',
   'pwa.updating': 'Aktualisierung...',
   'resource.error.badRequest': 'Ungültige Anforderung.',

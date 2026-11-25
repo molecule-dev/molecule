@@ -6,4 +6,6 @@ export const af: PushTranslations = {
   'push.error.permissionNotGranted': 'Kennisgewingtoestemming nie toegestaan nie',
   'push.error.missingDependency':
     '`{{library}}` word vereis, maar is nie geïnstalleer nie. Installeer dit met: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Geen service worker is geregistreer nie. Stootkennisgewings benodig die produksiebou van die toepassing met @molecule/app-pwa-default geïnstalleer.',
 }

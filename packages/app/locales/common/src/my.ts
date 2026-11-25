@@ -93,7 +93,7 @@ export const my: Partial<CommonTranslations> = {
   'push.error.notSupported': 'တွန်းပို့အကြောင်းကြားချက်များကို မပံ့ပိုးပါ',
   'push.error.permissionNotGranted': 'အကြောင်းကြားချက်ခွင့်ပြုချက် မပေးရသေးပါ',
   'push.error.noServiceWorker':
-    'Service worker မှတ်ပုံတင်ထားခြင်း မရှိပါ — push အကြောင်းကြားချက်များအတွက် အက်ပ်၏ production build လိုအပ်ပါသည်။',
+    'service worker တစ်ခုမှ မှတ်ပုံတင်ထားခြင်းမရှိပါ။ push အသိပေးချက်များအတွက် @molecule/app-pwa-default ထည့်သွင်းထားသော အက်ပ်၏ ထုတ်လုပ်ရေးဗားရှင်း လိုအပ်ပါသည်။',
   'pwa.update': 'အပ်ဒိတ်လုပ်ပါ',
   'pwa.updateAvailable': 'ဗားရှင်းအသစ် ရရှိနိုင်ပါသည်။',
   'pwa.updating': 'အပ်ဒိတ်လုပ်နေသည်...',

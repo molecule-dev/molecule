@@ -87,7 +87,7 @@ export const ca: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Notificacions push no compatibles',
   'push.error.permissionNotGranted': 'Permís de notificació no concedit',
   'push.error.noServiceWorker':
-    'No hi ha cap service worker registrat — les notificacions push requereixen la versió de producció de l’aplicació.',
+    "No hi ha cap service worker registrat. Les notificacions push necessiten la compilació de producció de l'aplicació amb @molecule/app-pwa-default instal·lat.",
   'pwa.update': 'Actualització',
   'pwa.updateAvailable': 'Nova versió disponible!',
   'pwa.updating': 'Actualitzant...',

@@ -84,7 +84,7 @@ export const ky: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-билдирүүлөр колдоого алынбайт',
   'push.error.permissionNotGranted': 'Билдирүү уруксаты берилген жок',
   'push.error.noServiceWorker':
-    'Service worker катталган эмес — push билдирмелери колдонмонун өндүрүштүк курулушун талап кылат.',
+    'Бир дагы service worker катталган эмес. Push билдирмелери үчүн @molecule/app-pwa-default орнотулган колдонмонун өндүрүштүк жыйнагы керек.',
   'pwa.update': 'Жаңылоо',
   'pwa.updateAvailable': 'Жаңы версия жеткиликтүү!',
   'pwa.updating': 'Жаңыланууда...',

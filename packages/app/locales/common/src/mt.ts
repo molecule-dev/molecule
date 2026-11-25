@@ -86,7 +86,7 @@ export const mt: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Notifiki push mhumiex appoġġjati',
   'push.error.permissionNotGranted': "Permess ta' notifika mhux mogħti",
   'push.error.noServiceWorker':
-    'L-ebda service worker mhu rreġistrat — in-notifiki push jeħtieġu l-build tal-produzzjoni tal-app.',
+    "L-ebda service worker mhu rreġistrat. In-notifiki push jeħtieġu l-verżjoni tal-produzzjoni tal-app b'@molecule/app-pwa-default installat.",
   'pwa.update': 'Aġġornament',
   'pwa.updateAvailable': 'Verżjoni ġdida disponibbli!',
   'pwa.updating': 'Aġġornament...',

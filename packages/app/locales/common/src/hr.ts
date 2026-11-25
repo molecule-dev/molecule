@@ -86,7 +86,7 @@ export const hr: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push obavijesti nisu podržane',
   'push.error.permissionNotGranted': 'Dozvola za obavijesti nije odobrena',
   'push.error.noServiceWorker':
-    'Nijedan service worker nije registriran — push obavijesti zahtijevaju produkcijsku verziju aplikacije.',
+    'Nijedan service worker nije registriran. Push obavijesti zahtijevaju produkcijsku verziju aplikacije s instaliranim @molecule/app-pwa-default.',
   'pwa.update': 'Ažurirati',
   'pwa.updateAvailable': 'Nova verzija dostupna!',
   'pwa.updating': 'Ažuriranje...',

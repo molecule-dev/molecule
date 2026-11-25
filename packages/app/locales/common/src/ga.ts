@@ -86,7 +86,7 @@ export const ga: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Ní thacaítear le fógraí brú',
   'push.error.permissionNotGranted': 'Níor deonaíodh cead fógra',
   'push.error.noServiceWorker':
-    'Níl aon service worker cláraithe — teastaíonn leagan táirgeachta na haipe ó fhógraí brú.',
+    'Níl aon service worker cláraithe. Teastaíonn leagan táirgthe na haipe le @molecule/app-pwa-default suiteáilte ó fhógraí brú.',
   'pwa.update': 'Nuashonrú',
   'pwa.updateAvailable': 'Leagan nua ar fáil!',
   'pwa.updating': 'Ag nuashonrú...',

@@ -93,7 +93,7 @@ export const si: Partial<CommonTranslations> = {
   'push.error.notSupported': 'තල්ලු දැනුම්දීම් සහාය නොදක්වයි',
   'push.error.permissionNotGranted': 'දැනුම්දීමේ අවසරය ලබා දී නැත.',
   'push.error.noServiceWorker':
-    'Service worker ලියාපදිංචි වී නොමැත — තල්ලු දැනුම්දීම් සඳහා යෙදුමේ නිෂ්පාදන ගොඩනැගීම අවශ්‍යයි.',
+    'කිසිදු service worker එකක් ලියාපදිංචි කර නැත. Push දැනුම්දීම් සඳහා @molecule/app-pwa-default ස්ථාපනය කළ යෙදුමේ නිෂ්පාදන ගොඩනැගීම අවශ්‍ය වේ.',
   'pwa.update': 'යාවත්කාලීන කරන්න',
   'pwa.updateAvailable': 'නව අනුවාදය තිබේ!',
   'pwa.updating': 'යාවත්කාලීන කරමින්...',

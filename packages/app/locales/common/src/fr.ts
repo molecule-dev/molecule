@@ -398,7 +398,7 @@ export const fr: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Les notifications push ne sont pas prises en charge.',
   'push.error.permissionNotGranted': 'Autorisation de notification non accordée',
   'push.error.noServiceWorker':
-    'Aucun service worker n’est enregistré — les notifications push nécessitent la version de production de l’application.',
+    "Aucun service worker n'est enregistré. Les notifications push nécessitent la version de production de l'application avec @molecule/app-pwa-default installé.",
   'pwa.updateAvailable': 'Nouvelle version disponible !',
   'pwa.updating': 'Mise à jour en cours...',
   'resource.error.badRequest': 'Mauvaise demande.',

@@ -93,7 +93,7 @@ export const kn: Partial<CommonTranslations> = {
   'push.error.notSupported': 'ಪುಶ್ ಅಧಿಸೂಚನೆಗಳು ಬೆಂಬಲಿತವಾಗಿಲ್ಲ.',
   'push.error.permissionNotGranted': 'ಅಧಿಸೂಚನೆ ಅನುಮತಿ ನೀಡಲಾಗಿಲ್ಲ.',
   'push.error.noServiceWorker':
-    'ಯಾವುದೇ ಸರ್ವಿಸ್ ವರ್ಕರ್ ನೋಂದಣಿಯಾಗಿಲ್ಲ — ಪುಶ್ ಅಧಿಸೂಚನೆಗಳಿಗೆ ಅಪ್ಲಿಕೇಶನ್‌ನ ಪ್ರೊಡಕ್ಷನ್ ಬಿಲ್ಡ್ ಅಗತ್ಯವಿದೆ.',
+    'ಯಾವುದೇ service worker ನೋಂದಾಯಿಸಲಾಗಿಲ್ಲ. ಪುಶ್ ಅಧಿಸೂಚನೆಗಳಿಗೆ @molecule/app-pwa-default ಸ್ಥಾಪಿಸಿದ ಆ್ಯಪ್‌ನ ಪ್ರೊಡಕ್ಷನ್ ಬಿಲ್ಡ್ ಅಗತ್ಯವಿದೆ.',
   'pwa.update': 'ನವೀಕರಿಸಿ',
   'pwa.updateAvailable': 'ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ!',
   'pwa.updating': 'ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ...',

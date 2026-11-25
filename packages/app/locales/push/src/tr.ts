@@ -6,4 +6,6 @@ export const tr: PushTranslations = {
   'push.error.permissionNotGranted': 'Bildirim izni verilmedi',
   'push.error.missingDependency':
     '`{{library}}` kütüphanesi gereklidir ancak yüklü değil. Şu komutla yükleyin: `npx expo install {{library}}`',
+  'push.error.noServiceWorker':
+    'Kayıtlı service worker yok. Anlık bildirimler, @molecule/app-pwa-default yüklü uygulamanın üretim derlemesini gerektirir.',
 }

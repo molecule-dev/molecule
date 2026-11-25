@@ -380,7 +380,7 @@ export const hu: Partial<CommonTranslations> = {
   'push.error.notSupported': 'A push értesítések nem támogatottak',
   'push.error.permissionNotGranted': 'Értesítési engedély nincs megadva',
   'push.error.noServiceWorker':
-    'Nincs regisztrált service worker — a push-értesítésekhez az alkalmazás éles buildje szükséges.',
+    'Nincs regisztrált service worker. A push értesítésekhez az alkalmazás éles buildje szükséges, telepített @molecule/app-pwa-default csomaggal.',
   'pwa.updateAvailable': 'Új verzió elérhető!',
   'pwa.updating': 'Frissítés...',
   'resource.error.badRequest': 'Rossz kérés.',

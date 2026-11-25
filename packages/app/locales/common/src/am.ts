@@ -92,7 +92,7 @@ export const am: Partial<CommonTranslations> = {
   'push.error.notSupported': 'የግፋ ማሳወቂያዎች አይደገፉም',
   'push.error.permissionNotGranted': 'የማሳወቂያ ፈቃድ አልተሰጠም',
   'push.error.noServiceWorker':
-    'ምንም የአገልግሎት ሰራተኛ አልተመዘገበም — የግፋ ማሳወቂያዎች የመተግበሪያውን የምርት ግንባታ ይፈልጋሉ።',
+    'ምንም service worker አልተመዘገበም። የግፋ ማሳወቂያዎች @molecule/app-pwa-default የተጫነበት የመተግበሪያውን የምርት ግንባታ ይፈልጋሉ።',
   'pwa.update': 'አዘምን',
   'pwa.updateAvailable': 'አዲስ ስሪት ይገኛል!',
   'pwa.updating': 'በማዘመን ላይ...',

@@ -84,7 +84,7 @@ export const be: Partial<CommonTranslations> = {
   'push.error.notSupported': 'Push-апавяшчэнні не падтрымліваюцца',
   'push.error.permissionNotGranted': 'Дазвол на апавяшчэнні не прадастаўлены',
   'push.error.noServiceWorker':
-    'Service worker не зарэгістраваны — push-апавяшчэнні патрабуюць прадакшн-зборкі праграмы.',
+    'Service worker не зарэгістраваны. Для push-апавяшчэнняў патрэбная вытворчая зборка праграмы з усталяваным @molecule/app-pwa-default.',
   'pwa.update': 'Абнавіць',
   'pwa.updateAvailable': 'Даступная новая версія!',
   'pwa.updating': 'Абнаўленне...',
