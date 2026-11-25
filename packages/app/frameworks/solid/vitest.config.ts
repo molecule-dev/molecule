@@ -10,6 +10,11 @@ export default defineConfig({
     conditions: ['browser'],
   },
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/__tests__/useOptimisticToggle.test.tsx'],
+    },
     globals: true,
     environment: 'node',
     testTimeout: 10000,

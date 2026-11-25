@@ -21,6 +21,11 @@ export default defineConfig({
         test: {
           ...settings,
           name: 'app-ui-solid',
+          typecheck: {
+            enabled: true,
+            tsconfig: './tsconfig.tests.json',
+            include: ['src/__tests__/form-props-types.test.ts'],
+          },
           exclude: [...configDefaults.exclude, ssr],
           server: { deps: { inline: ['solid-js'] } },
         },

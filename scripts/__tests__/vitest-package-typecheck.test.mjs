@@ -7,10 +7,41 @@ import { stripVTControlCharacters } from 'node:util'
 
 import { expect, it } from 'vitest'
 
+import { findVitestTypecheckGaps } from '../lib/vitest-package-typecheck.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
 
 const repo = join(import.meta.dirname, '../..')
 const ui = join(repo, 'packages/app/core/ui')
+
+it('keeps every package type assertion inside an enabled Vitest typecheck', () => {
+  const gaps = findVitestTypecheckGaps(repo)
+  expect(gaps, gaps.map((gap) => `${gap.package}: ${gap.file ?? gap.reason}`).join('\n')).toEqual(
+    [],
+  )
+})
+
+it('names a package whose type assertions lack a Vitest typecheck', () => {
+  const root = mkdtempSync(join(tmpdir(), 'molecule-vitest-typecheck-gap-'))
+  try {
+    const packageDir = join(root, 'packages/fixture')
+    mkdirSync(join(packageDir, 'src/__tests__'), { recursive: true })
+    writeFileSync(join(packageDir, 'package.json'), '{"name":"@molecule/typecheck-fixture"}\n')
+    writeFileSync(
+      join(packageDir, 'src/__tests__/types.test.ts'),
+      "import { expectTypeOf, it } from 'vitest'\nit('checks a type', () => expectTypeOf<number>().toEqualTypeOf<number>())\n",
+    )
+    expect(findVitestTypecheckGaps(root)).toEqual([
+      {
+        package: '@molecule/typecheck-fixture',
+        dir: 'packages/fixture',
+        file: null,
+        reason: 'no enabled Vitest typecheck project',
+      },
+    ])
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
 
 it.each([
   { expected: 'number', exit: 0 },

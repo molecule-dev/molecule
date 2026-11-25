@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/__tests__/generateQrCode.test.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

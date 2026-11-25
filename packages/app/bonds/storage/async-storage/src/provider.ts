@@ -22,6 +22,8 @@ interface AsyncStorageAPI {
   clear(): Promise<void>
 }
 
+const ASYNC_STORAGE_PACKAGE = '@react-native-async-storage/async-storage'
+
 /**
  * Lazily resolved AsyncStorage instance.
  * Uses dynamic import to avoid hard compile-time dependency on the React Native runtime.
@@ -42,7 +44,7 @@ async function getAsyncStorage(): Promise<AsyncStorageAPI> {
   try {
     // Dynamic import returns the module namespace; `.default` holds the AsyncStorage instance.
     // CJS interop may nest the default export, so we resolve both shapes.
-    const mod = await import('@react-native-async-storage/async-storage')
+    const mod = await import(ASYNC_STORAGE_PACKAGE)
     const storage = (mod.default ?? (mod as unknown as AsyncStorageAPI)) as AsyncStorageAPI
     resolvedAsyncStorage = storage
     return storage

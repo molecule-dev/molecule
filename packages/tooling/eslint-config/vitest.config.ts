@@ -2,6 +2,11 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/__tests__/config-behaviour.test.ts'],
+    },
     globals: true,
     environment: 'node',
     // Most cases lint with type information, so each one builds a TypeScript program: the

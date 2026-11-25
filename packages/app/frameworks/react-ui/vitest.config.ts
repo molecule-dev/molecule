@@ -30,6 +30,7 @@ export default defineConfig({
         ...configDefaults.typecheck.include,
         'src/__tests__/web-*.types.tsx',
         'src/elements/__tests__/{DirectAttributes,Svg}.test.tsx',
+        'src/__tests__/responsive-app-shell.test.tsx',
       ],
     },
     projects: [

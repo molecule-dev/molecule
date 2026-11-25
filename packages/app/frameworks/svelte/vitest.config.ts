@@ -9,6 +9,11 @@ export default defineConfig({
     conditions: ['browser'],
   },
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/hooks/__tests__/useOptimisticToggle.test.ts'],
+    },
     // svelte-package copies every test into dist/ and stages its output under .svelte-kit/.
     exclude: [...configDefaults.exclude, 'dist/**', '.svelte-kit/**'],
     globals: true,

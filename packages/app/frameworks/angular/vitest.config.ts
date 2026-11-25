@@ -9,6 +9,11 @@ export default defineConfig({
     decorator: { legacy: true },
   },
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/hooks/__tests__/useOptimisticToggle.test.ts'],
+    },
     globals: true,
     environment: 'node',
     testTimeout: 10000,

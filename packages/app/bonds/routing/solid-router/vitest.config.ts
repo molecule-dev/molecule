@@ -9,6 +9,11 @@ export default defineConfig({
     conditions: ['browser'],
   },
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/__tests__/define-route.test.tsx', 'src/__tests__/lazy-page.test.tsx'],
+    },
     globals: true,
     environment: 'jsdom',
     testTimeout: 10000,

@@ -37,6 +37,11 @@ export default defineConfig({
     ],
   },
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/__tests__/define-route.test.ts', 'src/__tests__/lazy-page.test.ts'],
+    },
     globals: true,
     environment: 'jsdom',
     testTimeout: 10000,

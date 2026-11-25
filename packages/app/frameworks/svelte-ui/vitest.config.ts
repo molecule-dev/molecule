@@ -20,6 +20,14 @@ export default defineConfig({
         test: {
           ...settings,
           name: 'app-ui-svelte',
+          typecheck: {
+            enabled: true,
+            tsconfig: './tsconfig.tests.json',
+            include: [
+              'src/__tests__/form-props-types.test.ts',
+              'src/__tests__/toast-types.test.ts',
+            ],
+          },
           // svelte-package stages copies of tests under these directories.
           exclude: [...configDefaults.exclude, 'dist/**', '.svelte-kit/**', ssr],
           server: { deps: { inline: ['svelte'] } },

@@ -2,6 +2,11 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.tests.json',
+      include: ['src/__tests__/define-route.test.ts', 'src/__tests__/lazy-page.test.ts'],
+    },
     setupFiles: ['@molecule/app-vue/testing/setup'],
     globals: true,
     environment: 'node',

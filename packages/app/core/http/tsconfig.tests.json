@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/__tests__/http-error-instanceof.test.ts",
+    "src/__tests__/method-union.test.ts",
+    "src/__tests__/response-type.test.ts",
+    "src/__tests__/index.test.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
