@@ -13,6 +13,12 @@
  * `SHUTDOWN_TIMEOUT_MS`, default 25 s) that runs ordered shutdown hooks and
  * exits 0. Pass `lifecycle: { disabled: true }` to opt out.
  *
+ * A realtime provider bonded during `setupBonds` with
+ * `createProvider({ deferAttach: true })` (the SSE, ws and Socket.IO bonds) is
+ * attached to the API's HTTP server before it listens, so realtime shares the API
+ * port. Bond it with `setProvider` from `@molecule/api-realtime`; no
+ * server-created hook is needed.
+ *
  * @example
  * ```ts
  * import { createServerFactory } from '@molecule/api-server-default-express'

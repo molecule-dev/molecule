@@ -243,6 +243,47 @@ async function runServerCreatedHooks(server: http.Server | https.Server): Promis
   for (const hook of hooks) await hook(server)
 }
 
+/** The part of `@molecule/api-realtime` the server uses to attach a bonded provider. */
+interface RealtimeAttachModule {
+  hasProvider(): boolean
+  getProvider(): { attachHttpServer?: (server: http.Server | https.Server) => void }
+}
+
+/**
+ * Attach the bonded realtime provider, if any, to the API's HTTP(S) server.
+ *
+ * A provider created with `createProvider({ deferAttach: true })` (the SSE, ws and
+ * Socket.IO bonds) binds no port of its own and waits for this call, so realtime
+ * shares the API port. Bond setup therefore needs no server-specific hook: bond the
+ * provider and the server attaches it. The providers ignore a second attach, so a
+ * hook registered with {@link registerServerCreatedHook} that already attached it is
+ * harmless. `@molecule/api-realtime` is imported by a variable specifier because the
+ * server must boot in a project that does not install it.
+ *
+ * @param server - The server the API is about to listen on.
+ */
+async function attachBondedRealtime(server: http.Server | https.Server): Promise<void> {
+  const realtimePackage = '@molecule/api-realtime'
+  let realtime: RealtimeAttachModule
+  try {
+    realtime = (await import(realtimePackage)) as RealtimeAttachModule
+  } catch (error) {
+    // Only the realtime package itself being absent means "no realtime here". A
+    // dependency missing inside an installed realtime package is a broken install.
+    const { code, message } = error as { code?: unknown; message?: unknown }
+    if (
+      code === 'ERR_MODULE_NOT_FOUND' &&
+      typeof message === 'string' &&
+      message.includes(`'${realtimePackage}'`)
+    ) {
+      logger.debug('No realtime package installed; no realtime provider to attach.', { error })
+      return
+    }
+    throw error
+  }
+  if (realtime.hasProvider()) realtime.getProvider().attachHttpServer?.(server)
+}
+
 /**
  * Global browser-security headers applied to EVERY response (mounted before the
  * routers in `createServerFactory`, mirroring the molecule.dev platform server).
@@ -459,6 +500,7 @@ export function createServerFactory(
     httpServer.keepAliveTimeout = 65_000
     httpServer.headersTimeout = 66_000
     await runServerCreatedHooks(httpServer)
+    await attachBondedRealtime(httpServer)
     // Signal handlers are installed before the listener starts: a SIGTERM that
     // arrives during boot must still drain rather than kill the process mid-boot.
     lifecycle?.attachServer(httpServer)

@@ -8,7 +8,10 @@ import type express from 'express'
 import expressLib from 'express'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { unbond } from '@molecule/api-bond'
 import { getProvider } from '@molecule/api-process-lifecycle'
+import type { RealtimeProvider } from '@molecule/api-realtime'
+import { setProvider as setRealtimeProvider } from '@molecule/api-realtime'
 
 import {
   classifyTaggedError,
@@ -205,6 +208,62 @@ describe('createServerFactory server (L1-1 — real /health response carries the
     const server = servers[0]
     expect(server.keepAliveTimeout).toBeGreaterThan(5000)
     expect(server.headersTimeout).toBeGreaterThan(server.keepAliveTimeout)
+  })
+
+  describe('a bonded realtime provider', () => {
+    afterEach(() => {
+      unbond('realtime')
+    })
+
+    it('is attached to the server the API listens on, with no server-created hook', async () => {
+      // A provider created with `deferAttach: true` binds nothing until it is given
+      // the API's HTTP server. The server attaches whatever realtime provider is
+      // bonded, so bond setup needs no server-specific hook.
+      const realCreateServer = http.createServer.bind(http)
+      vi.spyOn(http, 'createServer').mockImplementation(
+        (...args: Parameters<typeof http.createServer>) => {
+          const s = realCreateServer(...(args as Parameters<typeof realCreateServer>))
+          servers.push(s)
+          return s
+        },
+      )
+      const attachHttpServer = vi.fn((server: http.Server) => {
+        // Attached before listen(), so a client's first request finds the route.
+        expect(server.listening).toBe(false)
+      })
+      const provider = { attachHttpServer } as Partial<RealtimeProvider>
+      const create = createServerFactory({
+        setupBonds: async () => {
+          setRealtimeProvider(provider as RealtimeProvider)
+        },
+        runMigrations: async () => {},
+        getRouter: async () => ({ router: expressLib.Router() }),
+      })
+
+      await create(0)
+
+      expect(attachHttpServer).toHaveBeenCalledTimes(1)
+      expect(attachHttpServer).toHaveBeenCalledWith(servers[0])
+    })
+
+    it('boots when no realtime provider is bonded', async () => {
+      const realCreateServer = http.createServer.bind(http)
+      vi.spyOn(http, 'createServer').mockImplementation(
+        (...args: Parameters<typeof http.createServer>) => {
+          const s = realCreateServer(...(args as Parameters<typeof realCreateServer>))
+          servers.push(s)
+          return s
+        },
+      )
+      const create = createServerFactory({
+        setupBonds: async () => {},
+        runMigrations: async () => {},
+        getRouter: async () => ({ router: expressLib.Router() }),
+      })
+
+      await expect(create(0)).resolves.toBeDefined()
+      expect(servers).toHaveLength(1)
+    })
   })
 
   describe('HTTPS mode (optional pem dependency, loaded from ESM)', () => {
