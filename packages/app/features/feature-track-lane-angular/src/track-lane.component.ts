@@ -9,10 +9,9 @@ import { NgTemplateOutlet } from '@angular/common'
 import { Component, type TemplateRef } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import type { UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, getClassMap, type UIClassMap } from '@molecule/app-ui'
+import { WebDragDirective } from '@molecule/app-ui-angular'
 
-import { createDragHosts, type DragHandlers } from './drag.js'
 import {
   clampClipMove,
   clipToPixels,
@@ -20,7 +19,6 @@ import {
   MIN_CLIP_DURATION_SECONDS,
   pixelsToTime,
 } from './geometry.js'
-import { TrackLaneDragHost } from './track-lane-drag-host.directive.js'
 import type { Clip } from './types.js'
 
 /** What a drag does to the clip: `'move'` drags its body, `'resize'` its right edge. */
@@ -67,7 +65,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
 @Component({
   selector: 'div[mol-track-lane]',
   standalone: true,
-  imports: [NgTemplateOutlet, TrackLaneDragHost],
+  imports: [NgTemplateOutlet, WebDragDirective],
   inputs: [
     'name',
     'clips',
@@ -90,7 +88,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
   // prettier-ignore
   template: `@if (hasHeader()) {
       <div data-mol-id="track-lane-header" [class]="headerClasses()" style="width: 120px; min-width: 120px"><span [class]="nameClasses()" data-mol-id="track-lane-name">@if (nameTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}@else if (nameText() !== null) { {{ nameText() }} }@else { {{ headerLabel() }} }</span></div>
-    }<div data-mol-id="track-lane-body" [style]="laneStyle()">@for (clip of clips ?? []; track clip.id) {<div role="button" tabindex="0" [attr.aria-label]="clipLabel(clip)" [attr.aria-pressed]="isSelected(clip) ? 'true' : null" data-mol-id="track-lane-clip" [attr.data-clip-id]="clip.id" [attr.data-selected]="isSelected(clip) ? 'true' : 'false'" [class]="clipClasses()" [style]="clipStyle(clip)" [molTrackLaneDragHost]="dragHosts" (pointerdown)="press($event, clip, 'move')">@if (clip.label !== undefined) {<span data-mol-id="track-lane-clip-label" [class]="labelClasses()" [style]="labelStyle">@if (labelTemplate(clip); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}@else if (labelText(clip) !== null) { {{ labelText(clip) }} }</span>}<div role="separator" [attr.aria-label]="resizeLabel()" data-mol-id="track-lane-clip-handle" [style]="handleStyle" [molTrackLaneDragHost]="dragHosts" (pointerdown)="press($event, clip, 'resize')"></div></div>}</div>`,
+    }<div data-mol-id="track-lane-body" [style]="laneStyle()">@for (clip of clips ?? []; track clip.id) {<div role="button" tabindex="0" [attr.aria-label]="clipLabel(clip)" [attr.aria-pressed]="isSelected(clip) ? 'true' : null" data-mol-id="track-lane-clip" [attr.data-clip-id]="clip.id" [attr.data-selected]="isSelected(clip) ? 'true' : 'false'" [class]="clipClasses()" [style]="clipStyle(clip)" [molDrag]="clipDrag(clip, 'move')">@if (clip.label !== undefined) {<span data-mol-id="track-lane-clip-label" [class]="labelClasses()" [style]="labelStyle">@if (labelTemplate(clip); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}@else if (labelText(clip) !== null) { {{ labelText(clip) }} }</span>}<div role="separator" [attr.aria-label]="resizeLabel()" data-mol-id="track-lane-clip-handle" [style]="handleStyle" [molDrag]="clipDrag(clip, 'resize')"></div></div>}</div>`,
 })
 export class TrackLane {
   /** Optional lane name shown in the header: text or a template. */
@@ -119,9 +117,6 @@ export class TrackLane {
 
   /** The gesture in progress, or null. */
   private drag: DragState | null = null
-
-  /** The drag hosts of this lane: every clip block and every resize handle. */
-  readonly dragHosts = createDragHosts()
 
   /** The resize handle's inline geometry (React's `handleStyle`). */
   readonly handleStyle =
@@ -352,7 +347,7 @@ export class TrackLane {
    * @param mode - `'move'` for body drags, `'resize'` for handle drags.
    * @returns What the drag host reports about the contact.
    */
-  private clipDrag(clip: Clip, mode: DragMode): DragHandlers {
+  clipDrag(clip: Clip, mode: DragMode): ElementDrag {
     /** The gesture in progress when it is this clip's and of this mode. */
     const current = (): DragState | undefined =>
       this.drag?.clipId === clip.id && this.drag.mode === mode ? this.drag : undefined
@@ -367,7 +362,7 @@ export class TrackLane {
           moved: false,
         }
       },
-      onMove: (dx): void => {
+      onMove: ({ dx }): void => {
         const state = current()
         if (!state || (!state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
         state.moved = true
@@ -382,7 +377,7 @@ export class TrackLane {
           )
         }
       },
-      onEnd: (dx): void => {
+      onEnd: ({ dx }): void => {
         const state = current()
         if (!state) return
         this.drag = null
@@ -394,17 +389,5 @@ export class TrackLane {
         if (current()) this.drag = null
       },
     }
-  }
-
-  /**
-   * A primary pointer pressed a clip block or its resize handle: the lane's
-   * drag hosts follow it until the release or an interruption.
-   *
-   * @param event - The `pointerdown`.
-   * @param clip - The clip being dragged.
-   * @param mode - `'move'` for body drags, `'resize'` for handle drags.
-   */
-  press(event: PointerEvent, clip: Clip, mode: DragMode): void {
-    this.dragHosts.press(event.currentTarget as HTMLElement, event, this.clipDrag(clip, mode))
   }
 }

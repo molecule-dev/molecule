@@ -394,12 +394,13 @@ export type Interaction =
    * A pointer event at viewport coordinates, for drag handles and resizers: the primary mouse
    * pointer (`pointerId` 1), pressing the main button from `pointerdown` to `pointerup`. The
    * mouse event a browser sends after it (`mousedown`, `mousemove`, `mouseup`) follows.
-   * `selector` may be `window` or `document` (a move that left the element).
+   * `selector` may be `window` or `document` (a move that left the element). Send
+   * `lostpointercapture` to the element that held capture.
    */
   | {
       type: 'pointer'
       selector: string
-      event: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel'
+      event: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel' | 'lostpointercapture'
       clientX?: number
       clientY?: number
     }

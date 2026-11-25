@@ -296,6 +296,64 @@ export const featureTrackLaneFeature: FeatureCases = {
             { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 200 },
           ],
         },
+        {
+          name: 'pointercancel before movement does not click',
+          props: { clips },
+          callbacks: gestureCallbacks,
+          interactions: [
+            { type: 'pointer', selector: clipSelector('c2'), event: 'pointerdown', clientX: 100 },
+            { type: 'pointer', selector: 'window', event: 'pointercancel', clientX: 100 },
+            { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 140 },
+            { type: 'pointer', selector: 'window', event: 'pointerup', clientX: 100 },
+          ],
+        },
+        {
+          name: 'window blur ends a held clip press',
+          props: { clips },
+          callbacks: gestureCallbacks,
+          interactions: [
+            { type: 'pointer', selector: clipSelector('c2'), event: 'pointerdown', clientX: 100 },
+            { type: 'windowFocus', focused: false },
+            { type: 'windowFocus', focused: true },
+            { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 140 },
+            { type: 'pointer', selector: 'window', event: 'pointerup', clientX: 140 },
+          ],
+        },
+        {
+          name: 'lost pointer capture ends a held clip press',
+          props: { clips },
+          callbacks: gestureCallbacks,
+          interactions: [
+            { type: 'pointer', selector: clipSelector('c2'), event: 'pointerdown', clientX: 100 },
+            { type: 'pointer', selector: clipSelector('c2'), event: 'lostpointercapture' },
+            { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 140 },
+            { type: 'pointer', selector: 'window', event: 'pointerup', clientX: 140 },
+          ],
+        },
+        {
+          name: 'a release past the threshold without a move does not click',
+          props: { clips },
+          callbacks: gestureCallbacks,
+          interactions: [
+            { type: 'pointer', selector: clipSelector('c2'), event: 'pointerdown', clientX: 100 },
+            { type: 'pointer', selector: 'window', event: 'pointerup', clientX: 104 },
+          ],
+        },
+        {
+          name: 'removing the dragged clip releases the lane',
+          props: { clips },
+          callbacks: gestureCallbacks,
+          interactions: [
+            { type: 'pointer', selector: clipSelector('c2'), event: 'pointerdown', clientX: 100 },
+            { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 120 },
+            { type: 'props', props: { clips: clips.filter((clip) => clip.id !== 'c2') } },
+            { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 140 },
+            { type: 'pointer', selector: 'window', event: 'pointerup', clientX: 140 },
+            { type: 'pointer', selector: clipSelector('c1'), event: 'pointerdown', clientX: 20 },
+            { type: 'pointer', selector: 'window', event: 'pointermove', clientX: 60 },
+            { type: 'pointer', selector: 'window', event: 'pointerup', clientX: 60 },
+          ],
+        },
         // Moves and releases with no press behind them are inert.
         {
           name: 'release without a press is inert',

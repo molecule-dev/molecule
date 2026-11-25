@@ -38,7 +38,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@molecule/app-overlay-dom": "1.0.0"
+    "@molecule/app-overlay-dom": "1.0.0",
+    "@molecule/app-pointer-events-dom": "1.0.0"
   },
   "peerDependencies": {
     "@angular/common": "^22.0.0",

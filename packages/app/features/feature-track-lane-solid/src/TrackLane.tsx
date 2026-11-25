@@ -9,12 +9,12 @@
  * @module
  */
 
-import { type Component, For, type JSX, onCleanup, Show } from 'solid-js'
+import { type Component, For, type JSX, Show } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, getClassMap } from '@molecule/app-ui'
+import { webDrag } from '@molecule/app-ui-solid'
 
-import { createDragHosts, type DragHandlers } from './drag.js'
 import {
   clampClipMove,
   clipToPixels,
@@ -69,9 +69,6 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
 
   /** The gesture in progress, or null. */
   let drag: DragState | null = null
-
-  /** The drag hosts of this lane: every clip block and every resize handle. */
-  const hosts = createDragHosts()
 
   /** One stable record per clip id, created on first sight. */
   const records = new Map<string, Row>()
@@ -154,7 +151,7 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
    * @param mode - `'move'` for body drags, `'resize'` for handle drags.
    * @returns What the drag host reports about the contact.
    */
-  function clipDrag(clip: Clip, mode: DragMode): DragHandlers {
+  function clipDrag(clip: Clip, mode: DragMode): ElementDrag {
     /** The gesture in progress when it is this clip's and of this mode. */
     const current = (): DragState | undefined =>
       drag?.clipId === clip.id && drag.mode === mode ? drag : undefined
@@ -169,7 +166,7 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
           moved: false,
         }
       },
-      onMove(dx) {
+      onMove({ dx }) {
         const state = current()
         if (!state || (!state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
         state.moved = true
@@ -184,7 +181,7 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
           )
         }
       },
-      onEnd(dx) {
+      onEnd({ dx }) {
         const state = current()
         if (!state) return
         drag = null
@@ -196,16 +193,6 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
         if (current()) drag = null
       },
     }
-  }
-
-  /**
-   * Takes the element of a clip block or resize handle, and ends its contact
-   * when it leaves the lane, as React's drag cleanup does when it unmounts.
-   *
-   * @param element - The clip block or its resize handle.
-   */
-  function dragHost(element: HTMLElement): void {
-    onCleanup(() => hosts.cancel(element))
   }
 
   /**
@@ -307,7 +294,7 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
             <Show when={clipFor(row.id)}>
               {(clip) => (
                 <div
-                  ref={dragHost}
+                  ref={(host) => webDrag(host, () => clipDrag(clip(), 'move'))}
                   role="button"
                   tabIndex={0}
                   aria-label={clipLabel(clip())}
@@ -317,9 +304,6 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
                   data-selected={props.selectedClipId === clip().id ? 'true' : 'false'}
                   class={cm.cn(cm.cursorPointer)}
                   style={clipStyle(clip(), props.selectedClipId === clip().id)}
-                  onPointerDown={(event) =>
-                    hosts.press(event.currentTarget, event, clipDrag(clip(), 'move'))
-                  }
                 >
                   {clip().label !== undefined ? (
                     <span
@@ -331,14 +315,11 @@ export const TrackLane: Component<TrackLaneProps> = (props) => {
                     </span>
                   ) : null}
                   <div
-                    ref={dragHost}
+                    ref={(host) => webDrag(host, () => clipDrag(clip(), 'resize'))}
                     role="separator"
                     aria-label={resizeLabel()}
                     data-mol-id="track-lane-clip-handle"
                     style={handleStyle}
-                    onPointerDown={(event) =>
-                      hosts.press(event.currentTarget, event, clipDrag(clip(), 'resize'))
-                    }
                   />
                 </div>
               )}

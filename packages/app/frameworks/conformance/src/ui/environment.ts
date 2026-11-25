@@ -510,9 +510,13 @@ export function performDomInteraction(step: Interaction): string | undefined {
           isPrimary: true,
         }),
       )
-      const mouse = { pointerdown: 'mousedown', pointermove: 'mousemove', pointerup: 'mouseup' }[
-        step.event as 'pointerdown' | 'pointermove' | 'pointerup'
-      ]
+      const mouse = {
+        pointerdown: 'mousedown',
+        pointermove: 'mousemove',
+        pointerup: 'mouseup',
+        pointercancel: undefined,
+        lostpointercapture: undefined,
+      }[step.event]
       if (mouse) target.dispatchEvent(new MouseEvent(mouse, init))
       return
     }

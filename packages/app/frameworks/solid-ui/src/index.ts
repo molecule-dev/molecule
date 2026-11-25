@@ -48,5 +48,6 @@
  */
 
 export * from './components/index.js'
+export * from './drag.js'
 export * from './types.js'
 export * from './utilities.js'

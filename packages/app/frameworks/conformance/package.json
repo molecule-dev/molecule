@@ -161,6 +161,7 @@
     "@molecule/app-feature-track-lane-react": "4.0.1",
     "@molecule/app-feature-transport-bar-react": "4.1.0",
     "@molecule/app-feature-video-scrubber-react": "4.0.0",
+    "@molecule/app-feature-video-scrubber-vue": "1.1.0",
     "@molecule/app-feature-video-timeline-react": "4.0.2",
     "@molecule/app-file-card-react": "5.0.0",
     "@molecule/app-file-dropzone-react": "4.0.2",

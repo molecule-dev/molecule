@@ -9,20 +9,12 @@
  * @module
  */
 
-import {
-  defineComponent,
-  type Directive,
-  h,
-  type PropType,
-  type VNode,
-  type VNodeChild,
-  withDirectives,
-} from 'vue'
+import { defineComponent, h, type PropType, type VNode, type VNodeChild, withDirectives } from 'vue'
 
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, getClassMap } from '@molecule/app-ui'
+import { vWebDrag } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
-import { createDragHosts, type DragHandlers } from './drag.js'
 import {
   clampClipMove,
   clipToPixels,
@@ -115,17 +107,6 @@ export const TrackLane = defineComponent({
     /** The gesture in progress, or null. */
     let drag: DragState | null = null
 
-    /** The drag hosts of this lane: every clip block and every resize handle. */
-    const hosts = createDragHosts()
-
-    /**
-     * Ends the contact of a clip block or handle that leaves the lane, as
-     * React's drag cleanup does when it unmounts.
-     */
-    const vDragHost: Directive<HTMLElement> = {
-      unmounted: (element) => hosts.cancel(element),
-    }
-
     /**
      * Binds clip movement or resizing with a fixed origin for the contact.
      *
@@ -133,7 +114,7 @@ export const TrackLane = defineComponent({
      * @param mode - `'move'` for body drags, `'resize'` for handle drags.
      * @returns What the drag host reports about the contact.
      */
-    function clipDrag(clip: Clip, mode: DragMode): DragHandlers {
+    function clipDrag(clip: Clip, mode: DragMode): ElementDrag {
       /** The gesture in progress when it is this clip's and of this mode. */
       const current = (): DragState | undefined =>
         drag?.clipId === clip.id && drag.mode === mode ? drag : undefined
@@ -148,7 +129,7 @@ export const TrackLane = defineComponent({
             moved: false,
           }
         },
-        onMove(dx) {
+        onMove({ dx }) {
           const state = current()
           if (!state || (!state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
           state.moved = true
@@ -163,7 +144,7 @@ export const TrackLane = defineComponent({
             )
           }
         },
-        onEnd(dx) {
+        onEnd({ dx }) {
           const state = current()
           if (!state) return
           drag = null
@@ -283,10 +264,8 @@ export const TrackLane = defineComponent({
               'aria-label': resizeLabel,
               'data-mol-id': 'track-lane-clip-handle',
               style: handleStyle,
-              onPointerdown: (event: PointerEvent) =>
-                hosts.press(event.currentTarget as HTMLElement, event, clipDrag(clip, 'resize')),
             }),
-            [[vDragHost]],
+            [[vWebDrag, clipDrag(clip, 'resize')]],
           ),
         )
 
@@ -304,12 +283,10 @@ export const TrackLane = defineComponent({
               'data-selected': isSelected ? 'true' : 'false',
               class: cm.cn(cm.cursorPointer),
               style: clipStyle,
-              onPointerdown: (event: PointerEvent) =>
-                hosts.press(event.currentTarget as HTMLElement, event, clipDrag(clip, 'move')),
             },
             children,
           ),
-          [[vDragHost]],
+          [[vWebDrag, clipDrag(clip, 'move')]],
         )
       })
 

@@ -73,6 +73,7 @@
  */
 
 export * from './components/index.js'
+export * from './drag.js'
 export * from './hooks.js'
 export * from './panel-close.js'
 export * from './toast.js'

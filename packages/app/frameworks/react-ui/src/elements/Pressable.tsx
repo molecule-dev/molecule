@@ -6,9 +6,10 @@
 
 import { createElement, forwardRef, type ReactElement, useCallback } from 'react'
 
+import { markPressTarget } from '@molecule/app-pointer-events-dom'
 import type { ElementHandle, KitMouseEvent, PressableProps } from '@molecule/app-ui'
 
-import { markPressTarget, useWebDrag } from './drag.js'
+import { useWebDrag } from './drag.js'
 import { useWebHover } from './hover.js'
 import { useElementRef } from './ref.js'
 import { webElementAttributes } from './style.js'

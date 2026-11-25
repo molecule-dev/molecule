@@ -6,12 +6,10 @@
   `useTranslation()` so a locale switch re-renders it.
 -->
 <script lang="ts">
-  import type { Action } from 'svelte/action'
-
   import { useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { type ElementDrag, getClassMap } from '@molecule/app-ui'
+  import { webDrag } from '@molecule/app-ui-svelte'
 
-  import { createDragHosts, type DragHandlers } from './drag.js'
   import {
     clampClipMove,
     clipToPixels,
@@ -54,15 +52,6 @@
 
   /** The gesture in progress, or null. */
   let drag: DragState | null = null
-
-  /** The drag hosts of this lane: every clip block and every resize handle. */
-  const hosts = createDragHosts()
-
-  /**
-   * Ends the contact of a clip block or handle that leaves the lane, as
-   * React's drag cleanup does when it unmounts.
-   */
-  const dragHost: Action<HTMLElement> = (node) => ({ destroy: () => hosts.cancel(node) })
 
   const scale = $derived(pixelsPerSecond ?? 20)
   const rowHeight = $derived(height ?? 44)
@@ -132,7 +121,7 @@
    * @param mode - `'move'` for body drags, `'resize'` for handle drags.
    * @returns What the drag host reports about the contact.
    */
-  function clipDrag(clip: Clip, mode: DragMode): DragHandlers {
+  function clipDrag(clip: Clip, mode: DragMode): ElementDrag {
     /** The gesture in progress when it is this clip's and of this mode. */
     const current = (): DragState | undefined =>
       drag?.clipId === clip.id && drag.mode === mode ? drag : undefined
@@ -147,7 +136,7 @@
           moved: false,
         }
       },
-      onMove(dx) {
+      onMove({ dx }) {
         const state = current()
         if (!state || (!state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
         state.moved = true
@@ -162,7 +151,7 @@
           )
         }
       },
-      onEnd(dx) {
+      onEnd({ dx }) {
         const state = current()
         if (!state) return
         drag = null
@@ -212,8 +201,7 @@
         data-selected={selectedClipId === clip.id ? 'true' : 'false'}
         class={cm.cn(cm.cursorPointer)}
         style={clipStyle(clip, selectedClipId === clip.id)}
-        use:dragHost
-        onpointerdown={(event) => hosts.press(event.currentTarget, event, clipDrag(clip, 'move'))}
+        use:webDrag={clipDrag(clip, 'move')}
       >
         {#if clip.label !== undefined}<span
             data-mol-id="track-lane-clip-label"
@@ -226,9 +214,7 @@
           aria-label={resizeLabel}
           data-mol-id="track-lane-clip-handle"
           style="position: absolute; top: 0px; right: 0px; bottom: 0px; width: 8px; cursor: ew-resize; touch-action: none"
-          use:dragHost
-          onpointerdown={(event) =>
-            hosts.press(event.currentTarget, event, clipDrag(clip, 'resize'))}
+          use:webDrag={clipDrag(clip, 'resize')}
         ></div>
       </div>
     {/each}
