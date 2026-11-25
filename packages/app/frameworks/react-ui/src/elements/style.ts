@@ -6,6 +6,7 @@
 
 import type { CSSProperties } from 'react'
 
+import { coverImageStyle } from '@molecule/app-inline-style-dom'
 import type { BoxProps, SvgStyle, WebStyle } from '@molecule/app-ui'
 
 interface StyleProps {
@@ -27,26 +28,13 @@ export function webElementStyle(
 ): CSSProperties | undefined {
   if (!style && !webStyle) return undefined
   if (style && 'coverImage' in style) {
-    const url = style.coverImage
-    const cover = {
-      backgroundImage: url ? 'url("' + escapeCssString(url) + '")' : undefined,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }
+    const cover = coverImageStyle(style.coverImage)
     const authored = Object.entries(style).flatMap(([name, value]) =>
       name === 'coverImage' ? Object.entries(cover) : [[name, value]],
     )
     return { ...Object.fromEntries(authored), ...webStyle }
   }
   return { ...style, ...webStyle }
-}
-
-/** Escapes special characters for a double-quoted CSS string. */
-function escapeCssString(value: string): string {
-  return value.replace(
-    /["\\\n\r\f]/g,
-    (character) => '\\' + character.charCodeAt(0).toString(16) + ' ',
-  )
 }
 
 /**

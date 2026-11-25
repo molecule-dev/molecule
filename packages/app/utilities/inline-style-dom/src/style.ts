@@ -96,8 +96,48 @@ export function toCssPropertyName(name: string): string {
   return name.replace(/[A-Z]/g, '-$&').toLowerCase().replace(/^ms-/, '-ms-')
 }
 
+/** The background declarations an element paints for its `style.coverImage`. */
+export interface CoverImageStyle {
+  /** The image, as a CSS `url()`; undefined for an empty URI, which paints no image. */
+  backgroundImage: string | undefined
+  /** The image covers the whole box. */
+  backgroundSize: 'cover'
+  /** The image is centred in the box. */
+  backgroundPosition: 'center'
+}
+
 /**
- * Converts the object's own entries to CSS declarations in object key order.
+ * The declarations an element's `style.coverImage` (`BoxProps['style']` in `@molecule/app-ui`)
+ * paints on the web: the image behind the contents, centred and sized to cover the box.
+ *
+ * @param url - The image URI, or undefined for none.
+ * @returns The background declarations, in the order the React kit writes them.
+ */
+export function coverImageStyle(url: string | undefined): CoverImageStyle {
+  return {
+    backgroundImage: url ? 'url("' + escapeCssString(url) + '")' : undefined,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  }
+}
+
+/**
+ * Escapes the characters a double-quoted CSS string cannot hold as they are.
+ *
+ * @param value - The raw string.
+ * @returns The escaped string.
+ */
+function escapeCssString(value: string): string {
+  return value.replace(
+    /["\\\n\r\f]/g,
+    (character) => '\\' + character.charCodeAt(0).toString(16) + ' ',
+  )
+}
+
+/**
+ * Converts the object's own entries to CSS declarations in object key order. An element style's
+ * `coverImage` becomes {@link coverImageStyle}'s declarations in the place the key had, so every
+ * renderer that serializes an element style paints the cover image the React kit paints.
  *
  * @param style - A React-shaped style object.
  * @returns CSS declaration pairs, or undefined for an absent object.
@@ -106,7 +146,12 @@ function declarations(style: unknown): [name: string, text: string][] | undefine
   if (!style || typeof style !== 'object') return undefined
 
   const parts: [string, string][] = []
-  const entries: [string, unknown][] = Object.entries(style)
+  const entries: [string, unknown][] = Object.entries(style).flatMap(
+    ([name, value]): [string, unknown][] =>
+      name === 'coverImage'
+        ? Object.entries(coverImageStyle(typeof value === 'string' ? value : undefined))
+        : [[name, value]],
+  )
   for (const [name, value] of entries) {
     if (value == null || typeof value === 'boolean' || value === '') continue
     const cssName = toCssPropertyName(name)

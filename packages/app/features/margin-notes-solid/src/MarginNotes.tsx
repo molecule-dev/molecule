@@ -20,11 +20,11 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { reactStyleText } from '@molecule/app-inline-style-dom'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Switch, webHover } from '@molecule/app-ui-solid'
 
-import { elementStyle, styleString } from './css.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNoteKind, MarginNotesProps } from './types.js'
 
@@ -313,14 +313,17 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
    *
    * @returns The `style` attribute text.
    */
-  const containerStyle = (): string =>
-    styleString({
-      ...elementStyle(props.style ?? {}),
-      ...(props.webStyle ?? {}),
-      maxWidth: hasNotes()
-        ? `calc(${props.measure ?? '38rem'} + ${props.gutterWidth ?? '18rem'} + 4rem)`
-        : (props.measure ?? '38rem'),
-    })
+  const containerStyle = (): string | undefined =>
+    reactStyleText(
+      {
+        ...props.style,
+        ...props.webStyle,
+        maxWidth: hasNotes()
+          ? `calc(${props.measure ?? '38rem'} + ${props.gutterWidth ?? '18rem'} + 4rem)`
+          : (props.measure ?? '38rem'),
+      },
+      ' ',
+    )
 
   return (
     <div
@@ -344,7 +347,7 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
               >
                 <div
                   class={cm.flex1}
-                  style={styleString({ maxWidth: props.measure ?? '38rem', minWidth: 0 })}
+                  style={reactStyleText({ maxWidth: props.measure ?? '38rem', minWidth: 0 }, ' ')}
                 >
                   <For each={row.blocks}>
                     {(block) => {
@@ -388,12 +391,15 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
                                 cm.bgPrimary,
                                 cm.hiddenBelow('md'),
                               )}
-                              style={styleString({
-                                left: '-0.9rem',
-                                top: '0.75em',
-                                width: '6px',
-                                height: '6px',
-                              })}
+                              style={reactStyleText(
+                                {
+                                  left: '-0.9rem',
+                                  top: '0.75em',
+                                  width: '6px',
+                                  height: '6px',
+                                },
+                                ' ',
+                              )}
                             />
                           </Show>
                           {rendered(block.content)}
@@ -419,11 +425,14 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
                 <Show when={hasNotes()}>
                   <div
                     class={cm.cn(cm.hiddenBelow('md'), cm.stack(3))}
-                    style={styleString({
-                      width: props.gutterWidth ?? '18rem',
-                      flexShrink: 0,
-                      paddingTop: noteOffsets()[row.id],
-                    })}
+                    style={reactStyleText(
+                      {
+                        width: props.gutterWidth ?? '18rem',
+                        flexShrink: 0,
+                        paddingTop: noteOffsets()[row.id],
+                      },
+                      ' ',
+                    )}
                     aria-label={t('marginNotes.aria.notes', undefined, { defaultValue: 'Notes' })}
                     role="complementary"
                   >
@@ -439,7 +448,7 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
         {/* Room for the phone bar, so it never covers the last paragraph. */}
         <div
           class={cm.hiddenFrom('md')}
-          style={styleString({ height: '14rem' })}
+          style={reactStyleText({ height: '14rem' }, ' ')}
           aria-hidden="true"
         />
         <div
@@ -452,7 +461,7 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
             cm.sp('p', 3),
             cm.stack(2),
           )}
-          style={styleString({ left: 0, right: 0, bottom: 0, zIndex: 20 })}
+          style={reactStyleText({ left: 0, right: 0, bottom: 0, zIndex: 20 }, ' ')}
           data-mol-id="margin-notes-bar"
         >
           <div
@@ -461,7 +470,7 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
             aria-label={t('marginNotes.aria.panel', undefined, {
               defaultValue: 'Notes for this section',
             })}
-            style={styleString({ maxHeight: '40vh', overflowY: 'auto' })}
+            style={reactStyleText({ maxHeight: '40vh', overflowY: 'auto' }, ' ')}
             data-mol-id="margin-notes-panel"
           >
             <For each={panelNotes()}>{(note) => noteView(note, 'panel')}</For>

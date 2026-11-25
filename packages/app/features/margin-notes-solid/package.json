@@ -66,5 +66,8 @@
     "typescript": "6.0.3",
     "vite-plugin-solid": "2.11.15",
     "vitest": "4.1.12"
+  },
+  "dependencies": {
+    "@molecule/app-inline-style-dom": "1.1.0"
   }
 }

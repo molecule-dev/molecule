@@ -19,6 +19,7 @@ import {
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
+import { toStyleProps } from '@molecule/app-inline-style-dom'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { asTemplate, Icon, styleText, Switch, WebHoverDirective } from '@molecule/app-ui-angular'
@@ -43,33 +44,6 @@ type SwitchPlacement = 'side' | 'bar'
  */
 const textOf = (value: unknown): string | null =>
   typeof value === 'string' || typeof value === 'number' ? String(value) : null
-
-/** Escapes special characters for a double-quoted CSS string (the React element's rule). */
-const escapeCssString = (value: string): string =>
-  value.replace(/["\\\n\r\f]/g, (character) => `\\${character.charCodeAt(0).toString(16)} `)
-
-/**
- * A React element's `style` with its `coverImage` turned into the background
- * declarations the element paints: the image behind the contents, centred and
- * sized to cover the box. An empty URI paints none.
- *
- * @param style - The React-shaped style object.
- * @returns The same declarations, `coverImage` replaced where it stood.
- */
-const elementStyle = (
-  style: Record<string, string | number | undefined>,
-): Record<string, string | number | undefined> =>
-  Object.fromEntries(
-    Object.entries(style).flatMap(([name, value]): [string, string | number | undefined][] =>
-      name === 'coverImage'
-        ? [
-            ['backgroundImage', value ? `url("${escapeCssString(String(value))}")` : undefined],
-            ['backgroundSize', 'cover'],
-            ['backgroundPosition', 'center'],
-          ]
-        : [[name, value]],
-    ),
-  )
 
 /**
  * Long-form text with notes beside each paragraph.
@@ -644,19 +618,7 @@ export class MarginNotes implements OnChanges, OnInit, AfterViewInit, OnDestroy 
    * @returns The style map.
    */
   hostStyleMap(): Record<string, string> {
-    const merged = {
-      ...elementStyle(this.style ?? {}),
-      ...this.webStyle,
-      maxWidth: this.maxWidth(),
-    }
-    const map: Record<string, string> = {}
-    for (const [key, value] of Object.entries(merged)) {
-      const text = styleText({ [key]: value })
-      if (!text) continue
-      const colon = text.indexOf(':')
-      map[text.slice(0, colon).trim()] = text.slice(colon + 1).trim()
-    }
-    return map
+    return toStyleProps({ ...this.style, ...this.webStyle, maxWidth: this.maxWidth() }) ?? {}
   }
 
   /**

@@ -51,6 +51,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@molecule/app-inline-style-dom": "1.1.0",
     "@molecule/app-overlay-dom": "1.0.0",
     "@molecule/app-pointer-events-dom": "1.1.0"
   },

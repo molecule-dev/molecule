@@ -8,12 +8,12 @@
   input.
 -->
 <script lang="ts">
+  import { reactStyleText } from '@molecule/app-inline-style-dom'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Icon, Switch, webHover } from '@molecule/app-ui-svelte'
 
   import { buildRows, defaultShownKinds } from './rows.js'
-  import { elementStyle, styleString } from './style.js'
   import type { MarginNote, MarginNotesProps } from './types.js'
 
   /** Where a phone reader's "current section" is read: this fraction down the viewport. */
@@ -219,11 +219,14 @@
    * @returns The `style` attribute text.
    */
   const containerStyle = $derived(
-    styleString({
-      ...elementStyle(style ?? {}),
-      ...webStyle,
-      maxWidth: hasNotes ? `calc(${measure} + ${gutterWidth} + 4rem)` : measure,
-    }),
+    reactStyleText(
+      {
+        ...style,
+        ...webStyle,
+        maxWidth: hasNotes ? `calc(${measure} + ${gutterWidth} + 4rem)` : measure,
+      },
+      ' ',
+    ),
   )
 </script>
 
@@ -299,7 +302,7 @@
         class={cm.flex({ direction: 'row', align: 'start', gap: 'xl' })}
         data-mol-id={`margin-notes-row-${row.id}`}
       >
-        <div class={cm.flex1} style={styleString({ maxWidth: measure, minWidth: 0 })}>
+        <div class={cm.flex1} style={reactStyleText({ maxWidth: measure, minWidth: 0 }, ' ')}>
           {#each row.blocks as block (block.id)}
             {@const ids = block.noteIds ?? []}
             {@const interactive = ids.length > 0}
@@ -333,12 +336,15 @@
                     cm.bgPrimary,
                     cm.hiddenBelow('md'),
                   )}
-                  style={styleString({
-                    left: '-0.9rem',
-                    top: '0.75em',
-                    width: '6px',
-                    height: '6px',
-                  })}
+                  style={reactStyleText(
+                    {
+                      left: '-0.9rem',
+                      top: '0.75em',
+                      width: '6px',
+                      height: '6px',
+                    },
+                    ' ',
+                  )}
                 ></span>
               {/if}
               {#if typeof block.content === 'function'}{@render block.content?.()}{:else if block.content !== undefined && block.content !== null}{block.content}{/if}
@@ -364,11 +370,14 @@
         {#if hasNotes}
           <div
             class={cm.cn(cm.hiddenBelow('md'), cm.stack(3))}
-            style={styleString({
-              width: gutterWidth,
-              flexShrink: 0,
-              paddingTop: noteOffsets[row.id],
-            })}
+            style={reactStyleText(
+              {
+                width: gutterWidth,
+                flexShrink: 0,
+                paddingTop: noteOffsets[row.id],
+              },
+              ' ',
+            )}
             aria-label={notesLabel}
             role="complementary"
           >
@@ -382,7 +391,7 @@
     <!-- Room for the phone bar, so it never covers the last paragraph. -->
     <div
       class={cm.hiddenFrom('md')}
-      style={styleString({ height: '14rem' })}
+      style={reactStyleText({ height: '14rem' }, ' ')}
       aria-hidden="true"
     ></div>
     <div
@@ -395,14 +404,14 @@
         cm.sp('p', 3),
         cm.stack(2),
       )}
-      style={styleString({ left: 0, right: 0, bottom: 0, zIndex: 20 })}
+      style={reactStyleText({ left: 0, right: 0, bottom: 0, zIndex: 20 }, ' ')}
       data-mol-id="margin-notes-bar"
     >
       <div
         role="region"
         aria-live="polite"
         aria-label={panelLabel}
-        style={styleString({ maxHeight: '40vh', overflowY: 'auto' })}
+        style={reactStyleText({ maxHeight: '40vh', overflowY: 'auto' }, ' ')}
         data-mol-id="margin-notes-panel"
       >
         {#each panelNotes as note (note.id)}{@render noteView(note, 'panel')}{/each}

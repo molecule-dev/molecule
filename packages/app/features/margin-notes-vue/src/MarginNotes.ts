@@ -25,7 +25,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Icon, Switch, vWebHover } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, elementStyle, reactStyle, restAttrs, styleOf } from './attrs.js'
+import { classOf, restAttrs, styleOf } from './attrs.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNoteKind, MarginNotesBlock, MarginNotesProps } from './types.js'
 
@@ -340,11 +340,11 @@ export const MarginNotes = defineComponent({
      * the element's `webStyle` too (the web-only paint, after `style`, whose
      * `coverImage` is painted as the React element paints it).
      *
-     * @returns The style declarations.
+     * @returns The React-shaped style object.
      */
-    const containerStyle = (): Record<string, string> => ({
-      ...(reactStyle(elementStyle(props.style)) ?? {}),
-      ...(reactStyle(props.webStyle) ?? {}),
+    const containerStyle = (): Record<string, unknown> => ({
+      ...props.style,
+      ...props.webStyle,
       maxWidth: hasNotes.value
         ? `calc(${props.measure} + ${props.gutterWidth} + 4rem)`
         : props.measure,
