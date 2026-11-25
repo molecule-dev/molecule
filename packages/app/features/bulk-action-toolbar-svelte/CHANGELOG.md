@@ -1,5 +1,11 @@
 # @molecule/app-bulk-action-toolbar-svelte
 
+## 1.1.3
+
+### Patch Changes
+
+- Use the shared React-compatible inline style helper.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-vote-cluster-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- Use the shared React-compatible inline style helper.
+
 ## 1.1.0
 
 ### Minor Changes

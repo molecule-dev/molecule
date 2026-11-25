@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-wiki-page",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Wiki page CRUD with breadcrumbs + search indexing",
   "homepage": "https://www.molecule.dev/packages/api-resource-wiki-page",
   "type": "module",

@@ -43,7 +43,7 @@
     "@molecule/app-drag-drop": "1.2.0",
     "@molecule/app-react": "4.16.1",
     "@molecule/app-ui": "1.10.0",
-    "@molecule/app-ui-react": "4.8.0",
+    "@molecule/app-ui-react": "4.8.1",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

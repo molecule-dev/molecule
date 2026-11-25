@@ -1,5 +1,11 @@
 # @molecule/app-feature-video-timeline-angular
 
+## 1.3.0
+
+### Minor Changes
+
+- Share the ruler drag and Ctrl-wheel zoom with the web UI kit so nested controls keep their presses.
+
 ## 1.2.0
 
 ### Minor Changes

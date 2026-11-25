@@ -1,5 +1,11 @@
 # @molecule/app-search-ui-angular
 
+## 1.4.0
+
+### Minor Changes
+
+- Share the web UI kit’s hover gesture so mouse and pen entries activate and prefetch each result once.
+
 ## 1.3.0
 
 ### Minor Changes

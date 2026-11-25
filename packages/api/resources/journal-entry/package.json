@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-journal-entry",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Encrypted journal + mood linkage + streaks + export",
   "homepage": "https://www.molecule.dev/packages/api-resource-journal-entry",
   "type": "module",

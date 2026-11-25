@@ -1,5 +1,11 @@
 # @molecule/app-comparison-row-svelte
 
+## 1.1.4
+
+### Patch Changes
+
+- Remove the unused inline style helper.
+
 ## 1.1.3
 
 ### Patch Changes

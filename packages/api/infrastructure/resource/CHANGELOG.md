@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `getUserId`, `requireUser`, `getParamId` and `idParamSchema` for the routes a resource package defines itself.
+
 ## 1.1.3
 
 ### Patch Changes

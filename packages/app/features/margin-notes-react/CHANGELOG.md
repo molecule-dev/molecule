@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-react
 
+## 5.0.0
+
+### Major Changes
+
+- Use Box props for MarginNotes and follow the reading position on web and React Native.
+
 ## 4.0.2
 
 ### Patch Changes

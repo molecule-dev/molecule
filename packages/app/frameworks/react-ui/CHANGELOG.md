@@ -1,5 +1,13 @@
 # @molecule/app-ui-react
 
+## 4.8.1
+
+### Patch Changes
+
+- Use the shared DOM hover and Ctrl-wheel zoom gestures in React elements.
+- Updated dependencies
+  - @molecule/app-pointer-events-dom@1.1.0
+
 ## 4.8.0
 
 ### Minor Changes

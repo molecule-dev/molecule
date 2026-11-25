@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-rag-qa",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Chunk + embed + retrieve + ground answer pipeline",
   "homepage": "https://www.molecule.dev/packages/api-ai-rag-qa",
   "type": "module",

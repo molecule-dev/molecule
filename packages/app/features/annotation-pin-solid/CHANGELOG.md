@@ -1,5 +1,11 @@
 # @molecule/app-annotation-pin-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- Use the shared React-compatible inline style helper.
+
 ## 1.1.1
 
 ### Patch Changes

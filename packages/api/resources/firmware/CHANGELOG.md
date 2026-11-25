@@ -1,5 +1,11 @@
 # @molecule/api-resource-firmware
 
+## 1.0.8
+
+### Patch Changes
+
+- Read the session and route parameters through `@molecule/api-resource`, so installing this resource no longer installs the Express bond bundle.
+
 ## 1.0.7
 
 ### Patch Changes

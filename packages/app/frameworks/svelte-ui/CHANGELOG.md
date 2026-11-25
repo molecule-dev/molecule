@@ -1,5 +1,19 @@
 # @molecule/app-ui-svelte
 
+## 1.6.0
+
+### Minor Changes
+
+- Add mouse and pen hover and Ctrl-wheel zoom bindings for DOM elements.
+- Expose a React-compatible inline style action and server serializer.
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-pointer-events-dom@1.1.0
+  - @molecule/app-inline-style-dom@1.1.0
+
 ## 1.5.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-annotation-pin-angular",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Pin/annotation marker overlay with click-to-place pins and label/note popups for 3d-model-viewer, image annotations, map pins, hotspot tours",
   "homepage": "https://www.molecule.dev/packages/app-annotation-pin-angular",
   "type": "module",
@@ -63,7 +63,7 @@
     "@molecule/app-i18n": "1.3.0",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ui": "1.10.0",
-    "@molecule/app-ui-angular": "1.6.0",
+    "@molecule/app-ui-angular": "1.7.0",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
     "rxjs": "7.8.2",

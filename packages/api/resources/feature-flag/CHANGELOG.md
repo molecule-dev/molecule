@@ -1,5 +1,11 @@
 # @molecule/api-resource-feature-flag
 
+## 1.0.6
+
+### Patch Changes
+
+- Read the session and route parameters through `@molecule/api-resource`, so installing this resource no longer installs the Express bond bundle.
+
 ## 1.0.4
 
 ### Patch Changes

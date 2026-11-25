@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-map-drawing
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds the `mapDrawing.surface.finishPath` label for the action that finishes a line or polygon.
+
 ## 1.0.6
 
 ### Patch Changes

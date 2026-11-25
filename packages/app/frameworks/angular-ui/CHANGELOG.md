@@ -1,5 +1,19 @@
 # @molecule/app-ui-angular
 
+## 1.7.0
+
+### Minor Changes
+
+- Add mouse and pen hover and Ctrl-wheel zoom bindings for DOM elements.
+- Expose React-compatible inline style helpers for Angular bindings.
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-pointer-events-dom@1.1.0
+  - @molecule/app-inline-style-dom@1.1.0
+
 ## 1.6.0
 
 ### Minor Changes

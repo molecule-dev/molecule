@@ -1,5 +1,11 @@
 # @molecule/app-detail-page-layout-svelte
 
+## 1.1.3
+
+### Patch Changes
+
+- Remove the unused inline style helper.
+
 ## 1.1.2
 
 ### Patch Changes

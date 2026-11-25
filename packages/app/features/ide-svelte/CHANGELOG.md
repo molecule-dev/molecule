@@ -1,5 +1,11 @@
 # @molecule/app-ide-svelte
 
+## 2.0.3
+
+### Patch Changes
+
+- Use the shared React-compatible inline style helper.
+
 ## 2.0.2
 
 ### Patch Changes

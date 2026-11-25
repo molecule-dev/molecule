@@ -1,5 +1,11 @@
 # @molecule/app-storage-async-storage
 
+## 1.0.7
+
+### Patch Changes
+
+- Keep the optional React Native AsyncStorage dependency out of the package's compile-time test typecheck.
+
 ## 1.0.6
 
 ### Patch Changes

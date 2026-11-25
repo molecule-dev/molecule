@@ -54,7 +54,7 @@
     "@molecule/app-routing": "1.5.3",
     "@molecule/app-solid": "3.17.0",
     "@molecule/app-ui": "1.10.0",
-    "@molecule/app-ui-solid": "1.5.0",
+    "@molecule/app-ui-solid": "1.6.0",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
     "solid-js": "1.9.17",

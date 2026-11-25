@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-svelte
 
+## 1.3.0
+
+### Minor Changes
+
+- Share the web UI kit’s hover gesture so a touch and its compatibility mouse events leave notes unhighlighted.
+
 ## 1.2.0
 
 ### Minor Changes
