@@ -59,7 +59,8 @@
  * @example
  * ```ts
  * import { getProvider, getUploads, receiveUploads, sendUpload } from '@molecule/api-uploads'
- * // a bond (e.g. `@molecule/api-uploads-filesystem`) called setProvider() at startup
+ * // a bond called setProvider() at startup; the default, `@molecule/api-uploads-filesystem`, stores
+ * // files under FILE_UPLOAD_PATH (./uploads), a folder that ignores itself in git: no .gitignore entry
  *
  * router.post(
  *   '/files',
