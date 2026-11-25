@@ -14,9 +14,9 @@
 
 import { type Request, type RequestHandler, type Response, Router } from 'express'
 
-import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
 import { validateBody as validateBodyRaw } from '@molecule/api-middleware-validation'
+import { getParamId, requireUser } from '@molecule/api-resource'
 
 import {
   createInvoiceForUser,

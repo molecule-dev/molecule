@@ -9,7 +9,7 @@ vi.mock('@molecule/api-database', () => ({
   updateById: vi.fn(),
   count: vi.fn(),
 }))
-vi.mock('@molecule/api-bonds-default-express', () => ({
+vi.mock('@molecule/api-resource', () => ({
   getUserId: vi.fn(),
   requireUser: vi.fn(),
   getParamId: vi.fn(),

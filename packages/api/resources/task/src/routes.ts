@@ -14,12 +14,12 @@
 
 import { type Request, type RequestHandler, type Response, Router } from 'express'
 
-import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
 import {
   validateBody as validateBodyRaw,
   validateQuery as validateQueryRaw,
 } from '@molecule/api-middleware-validation'
+import { getParamId, requireUser } from '@molecule/api-resource'
 
 // Cast through unknown to bridge zod v3/v4 type drift between this pkg's
 // zod and the validation pkg's zod peerDep. Behaviour-equivalent.

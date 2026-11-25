@@ -45,10 +45,10 @@
     "zod": "4.6.7"
   },
   "peerDependencies": {
-    "@molecule/api-bonds-default-express": "^1.0.1",
     "@molecule/api-database": "^1.0.1",
     "@molecule/api-i18n": "^1.0.1",
     "@molecule/api-middleware-validation": "^1.0.1",
+    "@molecule/api-resource": "^1.2.0",
     "express": "^5.0.0",
     "zod": "^4.0.0"
   }

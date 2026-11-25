@@ -1,10 +1,10 @@
 import { type Request, type RequestHandler, type Response, Router } from 'express'
 
-import { requireUser } from '@molecule/api-bonds-default-express'
 import {
   validateBody as validateBodyRaw,
   validateQuery as validateQueryRaw,
 } from '@molecule/api-middleware-validation'
+import { requireUser } from '@molecule/api-resource'
 
 import { ingestBulk, ingestReading, listAggregatedReadings, listRawReadings } from './service.js'
 import { readingBulkSchema, readingCreateSchema, readingQuerySchema } from './validation.js'

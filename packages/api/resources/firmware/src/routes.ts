@@ -12,13 +12,13 @@
 import { type Request, type RequestHandler, type Response, Router } from 'express'
 import type { z } from 'zod'
 
-import { getParamId, getUserId } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import {
   validateBody as validateBodyRaw,
   validateQuery as validateQueryRaw,
 } from '@molecule/api-middleware-validation'
+import { getParamId, getUserId } from '@molecule/api-resource'
 
 import {
   createFirmwareForOwner,

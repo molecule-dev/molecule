@@ -37,9 +37,9 @@
  *   target database before use (scaffolded apps apply it automatically).
  * - **Mounting differs from sibling resources:** this package exports an Express
  *   `Router` FACTORY — `app.use('/event-types', createEventTypeRouter())` — not a
- *   declarative `routes` array + `requestHandlerMap`. It requires the Express
- *   default bonds (`requireUser`/`getParamId` from
- *   `@molecule/api-bonds-default-express`) to be wired.
+ *   declarative `routes` array + `requestHandlerMap`. Its routes read the
+ *   session with `requireUser` from `@molecule/api-resource`, so mount it after
+ *   the app's auth middleware.
  * - **The by-slug routes are PUBLIC by design** (`GET /by-slug/:slug` and
  *   `…/availability?date=YYYY-MM-DD` power the public booking page — no auth,
  *   no owner data beyond the published event type). Everything else is

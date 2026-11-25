@@ -16,12 +16,12 @@
 import type { RequestHandler } from 'express'
 import { type Request, type Response, Router } from 'express'
 
-import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
 import {
   validateBody as validateBodyRaw,
   validateQuery as validateQueryRaw,
 } from '@molecule/api-middleware-validation'
+import { getParamId, requireUser } from '@molecule/api-resource'
 
 import {
   createPage,

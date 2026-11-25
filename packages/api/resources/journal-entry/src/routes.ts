@@ -9,13 +9,13 @@ import type { RequestHandler } from 'express'
 import { type Request, type Response, Router } from 'express'
 import type { z } from 'zod'
 
-import { getUserId, idParamSchema } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import {
   validateBody as validateBodyRaw,
   validateParams,
 } from '@molecule/api-middleware-validation'
+import { getUserId, idParamSchema } from '@molecule/api-resource'
 
 import {
   computeStreak,
