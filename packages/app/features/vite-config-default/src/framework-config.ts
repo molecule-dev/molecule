@@ -1,13 +1,14 @@
 /// <reference types="vitest/config" />
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, resolve } from 'node:path'
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 
 import {
   normalizePath,
   type Plugin,
   type PluginOption,
+  searchForWorkspaceRoot,
   type UserConfig,
   version as viteVersion,
 } from 'vite'
@@ -390,17 +391,28 @@ export function createFrameworkViteConfig(
   // can't recur. Example:
   //   { "molecule": { "viteOptimizeInclude": ["quill", "quill-delta"] } }
   const declaredOptimizeIncludes = new Set<string>()
+  const linkedOptimizeIncludes = new Set<string>()
+  const externalWorkspaces = new Set<string>()
   if (moleculeDir) {
+    const prefix = dirname(realpathSync(dirname(moleculeDir)))
     const entries = readdirSync(moleculeDir)
     moleculePackages = entries.map((name) => `@molecule/${name}`)
     for (const entry of entries) {
       try {
-        const pkgPath = resolve(moleculeDir, entry, 'package.json')
+        const packageDir = resolve(moleculeDir, entry)
+        const pkgPath = resolve(packageDir, 'package.json')
         const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
           molecule?: { viteOptimizeInclude?: string[] }
         }
+        const source = lstatSync(packageDir).isSymbolicLink() ? realpathSync(packageDir) : null
+        const location = source && relative(prefix, source)
+        const external =
+          location && (location === '..' || isAbsolute(location) || location.startsWith(`..${sep}`))
+        if (external && source) externalWorkspaces.add(searchForWorkspaceRoot(source))
         for (const dep of pkg.molecule?.viteOptimizeInclude ?? []) {
-          declaredOptimizeIncludes.add(dep)
+          if (external && source && isInstalled(dep, source))
+            linkedOptimizeIncludes.add(`@molecule/${entry} > ${dep}`)
+          else declaredOptimizeIncludes.add(dep)
         }
       } catch (error) {
         // A skipped package.json silently drops whatever CJS deps it declared,
@@ -625,7 +637,9 @@ export function createFrameworkViteConfig(
     // thrash/corrupt it. VITE_CACHE_DIR gives each app/test run its own.
     ...(process.env.VITE_CACHE_DIR ? { cacheDir: process.env.VITE_CACHE_DIR } : {}),
     resolve: {
-      preserveSymlinks: true,
+      // External file links need package-relative vendor resolution from their
+      // own npm prefix. Keep the existing logical paths for one-prefix installs.
+      preserveSymlinks: externalWorkspaces.size === 0,
       // One module identity per @molecule package. `preserveSymlinks` keeps the
       // path each importer used, so the same install reached two ways — a
       // `node_modules/node_modules` self-link, a nested copy, a bind-mounted
@@ -654,28 +668,31 @@ export function createFrameworkViteConfig(
       // pre-bundles with proper CJS→ESM interop. Only installed ones are
       // listed, so an app without React lists none of React's.
       include: [
-        // The app's declared pure-data locale bond packages (see above).
-        ...localePackages,
-        // react / react-dom are CJS proxy modules (`module.exports =
-        // require('./cjs/...')`); vite 8's optimizer needs them listed
-        // explicitly to expose named exports like `createRoot` to the
-        // excluded (@molecule/*) packages that import them.
-        'react',
-        'react-dom',
-        'react-dom/client',
-        'react/jsx-runtime',
-        'react/jsx-dev-runtime',
-        'html-parse-stringify',
-        'use-sync-external-store',
-        'use-sync-external-store/shim',
-        'use-sync-external-store/shim/with-selector',
-        // Per-package CJS deps that each @molecule/* package declares
-        // via its own `molecule.viteOptimizeInclude` field. Aggregated
-        // above. New offenders should be declared on the OWNING package
-        // (the one that depends on the CJS library) so the fix lands in
-        // the same commit as the dep — not added to this hardcoded list.
-        ...declaredOptimizeIncludes,
-      ].filter((spec) => localePackages.includes(spec) || isInstalled(spec, appRoot)),
+        ...[
+          // The app's declared pure-data locale bond packages (see above).
+          ...localePackages,
+          // react / react-dom are CJS proxy modules (`module.exports =
+          // require('./cjs/...')`); vite 8's optimizer needs them listed
+          // explicitly to expose named exports like `createRoot` to the
+          // excluded (@molecule/*) packages that import them.
+          'react',
+          'react-dom',
+          'react-dom/client',
+          'react/jsx-runtime',
+          'react/jsx-dev-runtime',
+          'html-parse-stringify',
+          'use-sync-external-store',
+          'use-sync-external-store/shim',
+          'use-sync-external-store/shim/with-selector',
+          // Per-package CJS deps that each @molecule/* package declares
+          // via its own `molecule.viteOptimizeInclude` field. Aggregated
+          // above. New offenders should be declared on the OWNING package
+          // (the one that depends on the CJS library) so the fix lands in
+          // the same commit as the dep — not added to this hardcoded list.
+          ...declaredOptimizeIncludes,
+        ].filter((spec) => localePackages.includes(spec) || isInstalled(spec, appRoot)),
+        ...linkedOptimizeIncludes,
+      ],
     },
     // `vite preview` serves the production bundle (dist/) with the same API routes as the
     // dev server, so a production-only bug can be tested before a deploy (X1 flash-m42 found
@@ -697,7 +714,11 @@ export function createFrameworkViteConfig(
       // through workspace symlinks that resolve outside the project root.
       // Standalone keeps Vite's default (strict), which confines /@fs/ to
       // the project root + workspace — see the host-exposure block above.
-      ...(inMoleculeSandbox ? { fs: { strict: false } } : {}),
+      ...(inMoleculeSandbox
+        ? { fs: { strict: false } }
+        : externalWorkspaces.size
+          ? { fs: { allow: [searchForWorkspaceRoot(appRoot), ...externalWorkspaces] } }
+          : {}),
       // Sandbox-only, for the same reason: a replaced directory cannot kill a
       // stat-based watcher (see the watcher-hardening block above).
       ...(watchPolling ? { watch: { usePolling: true, interval: 500, binaryInterval: 1000 } } : {}),

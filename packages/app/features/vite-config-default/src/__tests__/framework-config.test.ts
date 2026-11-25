@@ -2,11 +2,11 @@
  * The framework-neutral config: an app on any UI framework gets the same config as a
  * React app, from an entry that never loads React's or Tailwind's Vite plugin.
  */
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import type { Plugin, PluginOption } from 'vite'
+import { build, type Plugin, type PluginOption } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 // The framework entry must not load these: a non-React app never uses them, and an
@@ -41,6 +41,58 @@ afterAll(() => {
 })
 
 describe('createFrameworkViteConfig', () => {
+  it('builds a file-linked package with a dependency installed only in its external workspace', async () => {
+    const app = join(root, 'aggregate')
+    const prefix = join(root, 'source')
+    const pkg = join(prefix, 'packages/example')
+    const vendor = join(prefix, 'node_modules/owner-vendor')
+    mkdirSync(join(app, 'node_modules/@molecule'), { recursive: true })
+    mkdirSync(pkg, { recursive: true })
+    mkdirSync(vendor, { recursive: true })
+    writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'app', private: true }))
+    writeFileSync(
+      join(prefix, 'package.json'),
+      JSON.stringify({ name: 'source', workspaces: ['packages/*'] }),
+    )
+    writeFileSync(
+      join(pkg, 'package.json'),
+      JSON.stringify({
+        name: '@molecule/example',
+        type: 'module',
+        exports: './index.js',
+        dependencies: { 'owner-vendor': '1.0.0' },
+        molecule: { viteOptimizeInclude: ['owner-vendor'] },
+      }),
+    )
+    writeFileSync(join(pkg, 'index.js'), "export { value } from 'owner-vendor'\n")
+    writeFileSync(
+      join(vendor, 'package.json'),
+      JSON.stringify({ name: 'owner-vendor', type: 'module', exports: './index.js' }),
+    )
+    writeFileSync(join(vendor, 'index.js'), "export const value = 'source-owner'\n")
+    symlinkSync(pkg, join(app, 'node_modules/@molecule/example'))
+    const entry = join(app, 'entry.js')
+    writeFileSync(entry, "export { value } from '@molecule/example'\n")
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(app)
+    let config
+    try {
+      config = createFrameworkViteConfig(branding, { plugins: [] })
+    } finally {
+      cwd.mockRestore()
+    }
+    await expect(
+      build({
+        configFile: false,
+        root: app,
+        logLevel: 'silent',
+        resolve: config.resolve,
+        build: { write: false, lib: { entry, formats: ['es'], fileName: 'example' } },
+      }),
+    ).resolves.toBeDefined()
+    expect(config.server?.fs?.allow).toContain(prefix)
+    expect(config.optimizeDeps?.include).toContain('@molecule/example > owner-vendor')
+  })
+
   it("puts the app's framework plugins first and adds the Molecule plugins after them", () => {
     const config = createFrameworkViteConfig(branding, {
       plugins: [{ name: 'vite:vue' }, { name: 'styling' }],

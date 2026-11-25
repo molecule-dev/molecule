@@ -12,6 +12,7 @@
 import { spawn } from 'node:child_process'
 import {
   existsSync,
+  globSync,
   lstatSync,
   readdirSync,
   readFileSync,
@@ -340,6 +341,32 @@ function components(names, edgesOf) {
 }
 
 /**
+ * Build-time imports through optional peers and devDependencies. Only inspect
+ * cyclic candidates: an acyclic declared edge is already kept, and a peer used
+ * only by tests must remain removable so a real source dependency can build.
+ *
+ * @param directory - The package directory.
+ * @param candidates - Optional peer and dev dependency names in this cycle.
+ * @returns The candidates that the compiled source imports.
+ */
+function sourceEdges(directory, candidates) {
+  if (!candidates.size) return []
+  const imported = new Set()
+  for (const file of globSync('src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue,svelte}', {
+    cwd: directory,
+    exclude: ['**/__tests__/**', '**/node_modules/**', '**/*.test.*', '**/*.spec.*'],
+  })) {
+    const contents = readFileSync(join(directory, file), 'utf8')
+    for (const { fileName } of typescript.preProcessFile(contents, true, true).importedFiles) {
+      const name = fileName.split('/').slice(0, 2).join('/')
+      if (candidates.has(name)) imported.add(name)
+    }
+    if (imported.size === candidates.size) break
+  }
+  return [...imported]
+}
+
+/**
  * Assign each package its build level: a package builds after every `@molecule/*`
  * package it declares in dependencies, peerDependencies or devDependencies (a
  * devDependency can carry types its source imports).
@@ -350,12 +377,12 @@ function components(names, edgesOf) {
  * compiled before app-routing-react-router (level 9) through router → query-react
  * → react → bonds-default-react, and every clean build failed with TS2307. Two of
  * those edges were test-only devDependencies; builds exclude `src/**\/__tests__/**`.
- * So inside a cycle only devDependency and optional-peer edges are dropped (a binding
+ * Inside a cycle only devDependency and optional-peer edges unused by source are dropped (a binding
  * declares its routing bonds as optional peers to refuse an old one at install, and
- * each bond peers back on it), and a cycle through dependencies or required
- * peerDependencies alone is an error that names it.
+ * each bond peers back on it). A cycle through dependencies, required peers or
+ * source imports is an error that names it.
  *
- * @param graph - Package name → `{ deps, hardDeps }` (all declared vs dependencies + required peers).
+ * @param graph - Package name → its directory and declared dependency edges.
  * @returns Package name → level; level 0 builds first.
  */
 function buildLevels(graph) {
@@ -363,7 +390,12 @@ function buildLevels(graph) {
   const first = components(graph.keys(), declared)
   const kept = new Map()
   for (const name of graph.keys()) {
-    const hard = new Set(graph.get(name).hardDeps ?? [])
+    const { path: directory, hardDeps } = graph.get(name)
+    const hard = new Set(hardDeps)
+    const candidates = new Set(
+      declared(name).filter((dep) => first.get(dep) === first.get(name) && !hard.has(dep)),
+    )
+    for (const dep of sourceEdges(directory, candidates)) hard.add(dep)
     kept.set(
       name,
       declared(name).filter((d) => first.get(d) !== first.get(name) || hard.has(d)),
@@ -379,7 +411,7 @@ function buildLevels(graph) {
     while (path.indexOf(path.at(-1)) === path.length - 1)
       path.push(kept.get(path.at(-1)).find((d) => inGroup.has(d)))
     throw new Error(
-      `dependency cycle through dependencies/peerDependencies, so no build order exists: ${path
+      `dependency cycle through dependencies/peerDependencies or source imports, so no build order exists: ${path
         .slice(path.indexOf(path.at(-1)))
         .join(' -> ')}`,
     )

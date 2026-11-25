@@ -120,6 +120,32 @@ it(
 )
 
 it(
+  'retains a peer subpath imported by compiled source and drops the test-only return edge',
+  () => {
+    const root = fixture({
+      drag: { optionalPeers: ['elements'], devDependencies: ['elements'] },
+      elements: { peerDependencies: ['binding'] },
+      binding: { devDependencies: ['drag'] },
+    })
+    fs.mkdirSync(path.join(root, 'packages/drag/src'))
+    fs.writeFileSync(
+      path.join(root, 'packages/drag/src/drag.ts'),
+      "import type { Node } from '@molecule/elements/elements'\nexport type Children = Node\n",
+    )
+    fs.mkdirSync(path.join(root, 'packages/binding/src/__tests__'), { recursive: true })
+    fs.writeFileSync(
+      path.join(root, 'packages/binding/src/__tests__/drag.test.ts'),
+      "import { drag } from '@molecule/drag'\nvoid drag\n",
+    )
+    const { status, stderr, levels } = printLevels(root)
+    expect(stderr).toBe('')
+    expect(status).toBe(0)
+    expect(levels['@molecule/drag']).toBeGreaterThan(levels['@molecule/elements'])
+  },
+  FIXTURE_TIMEOUT_MS,
+)
+
+it(
   "orders a binding before its routing bond when the binding's optional peer on it closes a cycle",
   () => {
     // A binding refuses an old routing bond at install through an optional peer; the bond imports the binding.

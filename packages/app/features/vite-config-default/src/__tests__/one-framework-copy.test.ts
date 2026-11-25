@@ -181,6 +181,7 @@ const run = (
       '--config',
       join(app, 'vitest.config.mjs'),
       '--reporter=json',
+      '--maxWorkers=2',
       `--outputFile=${report}`,
     ],
     { cwd: app, encoding: 'utf8', env, timeout: 60_000 },
@@ -225,7 +226,7 @@ describe('one framework copy in a test run', { timeout: 60_000 }, () => {
     const config = configFor(app)
     const dedupe = (config.resolve?.dedupe ?? []).filter((name) => !runtimes.includes(name))
     const { results, failures, output } = run(app, {
-      resolve: { ...config.resolve, dedupe },
+      resolve: { ...config.resolve, preserveSymlinks: true, dedupe },
       test: { environment: 'node' },
     })
     expect(results.react, output).toBe(false)
@@ -255,7 +256,7 @@ describe('one framework copy in a test run', { timeout: 60_000 }, () => {
     const config = configFor(app)
     const dedupe = (config.resolve?.dedupe ?? []).filter((name) => !runtimes.includes(name))
     const { results, output } = run(app, {
-      resolve: { ...config.resolve, dedupe },
+      resolve: { ...config.resolve, preserveSymlinks: true, dedupe },
       test: { environment: 'node' },
     })
     expect(allPass(results), output).toEqual([])
