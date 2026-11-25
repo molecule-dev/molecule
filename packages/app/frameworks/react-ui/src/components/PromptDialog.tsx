@@ -48,7 +48,7 @@
  * @module
  */
 
-import React, { type JSX, useEffect, useId, useRef, useState } from 'react'
+import React, { type JSX, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
@@ -147,13 +147,6 @@ export function PromptDialog({
     }
   }
 
-  // The dialog exists to take one string, so opening it puts focus in the
-  // input. This effect runs after Modal's own (which focuses the dialog's first
-  // control, the close button), so the input ends up focused.
-  useEffect(() => {
-    if (open) inputRef.current?.focus()
-  }, [open])
-
   const handleSubmit = async (e: KitEvent): Promise<void> => {
     e.preventDefault()
     if (pending) return
@@ -172,6 +165,8 @@ export function PromptDialog({
     <Modal
       open={open}
       onClose={pending ? () => {} : onClose}
+      // The dialog exists to take one string, so opening it puts focus in the input.
+      initialFocus={inputRef}
       aria-labelledby={title === undefined ? undefined : titleId}
       aria-describedby={description === undefined ? undefined : descriptionId}
     >

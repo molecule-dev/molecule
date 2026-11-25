@@ -172,71 +172,24 @@ describe('Card keyboard activation', () => {
 describe('PromptDialog input focus on open', () => {
   // A real PromptDialog; the `@ViewChild(Input)` view child is a real Input
   // whose own view never mounted here, so the test hands it the native input
-  // the focus path touches (a view child cannot exist without an Angular
-  // mount).
+  // (a view child cannot exist without an Angular mount).
   const makeDialog = () => {
     const dialog = runInInjectionContext(injectionContext(), () => new PromptDialog())
     const input = document.createElement('input')
     const inputComponent = runInInjectionContext(injectionContext(), () => new Input())
     inputComponent.inputEl = new ElementRef(input)
     dialog.inputComponent = inputComponent
-    // The dialog's first control, which the composed Modal focuses on open.
-    const closeButton = document.createElement('button')
-    document.body.appendChild(input)
-    document.body.appendChild(closeButton)
-    return { dialog, input, closeButton }
+    return { dialog, input }
   }
 
-  it('focuses the input when the dialog opens at mount', () => {
-    const { dialog, input, closeButton } = makeDialog()
-    dialog.open = true
-    // Modal's view init ran first (children init first) and moved focus into
-    // the dialog.
-    closeButton.focus()
-    dialog.ngAfterViewInit()
-    dialog.ngAfterViewChecked()
-    // The focus move is an after-render hook now, so let the application
-    // render once before asserting it.
-    appRef.tick()
-    expect(document.activeElement).toBe(input)
+  it("names its input as the Modal's initial focus", () => {
+    const { dialog, input } = makeDialog()
+    expect(dialog.inputTarget.current).toBe(input)
   })
 
-  it('focuses the input after the Modal on a later open transition', () => {
-    const { dialog, input, closeButton } = makeDialog()
-    dialog.ngAfterViewInit()
-    dialog.ngAfterViewChecked()
-    appRef.tick()
-    expect(document.activeElement).not.toBe(input)
-    dialog.open = true
-    // One change-detection pass, in Angular's order: the parent's ngDoCheck
-    // sees the transition, then the child Modal's ngDoCheck moves focus into
-    // the dialog, then the parent's after-view check runs.
-    dialog.ngDoCheck()
-    closeButton.focus()
-    dialog.ngAfterViewChecked()
-    // The focus move is an after-render hook now, so let the application
-    // render once before asserting it.
-    appRef.tick()
-    expect(document.activeElement).toBe(input)
-  })
-
-  it('does not move focus on a pass without an open transition', () => {
-    const { dialog, input, closeButton } = makeDialog()
-    dialog.open = true
-    dialog.ngAfterViewInit()
-    dialog.ngAfterViewChecked()
-    appRef.tick()
-    expect(document.activeElement).toBe(input)
-    closeButton.focus()
-    dialog.ngDoCheck()
-    dialog.ngAfterViewChecked()
-    appRef.tick()
-    expect(document.activeElement).toBe(closeButton)
-  })
-
-  it('focusInput does nothing without a rendered input', () => {
+  it('names no initial focus before its input renders', () => {
     const dialog = runInInjectionContext(injectionContext(), () => new PromptDialog())
-    expect(() => dialog.focusInput()).not.toThrow()
+    expect(dialog.inputTarget.current).toBeNull()
   })
 })
 

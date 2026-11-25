@@ -6,15 +6,12 @@
  */
 
 import {
-  afterNextRender,
-  type AfterViewChecked,
   type AfterViewInit,
   Component,
   type DoCheck,
   ElementRef,
   EventEmitter,
   inject,
-  Injector,
   Output,
   signal,
   type TemplateRef,
@@ -32,6 +29,7 @@ import {
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { elementTarget } from '../utilities/element.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { asTemplate, isGiven, nodeText, rendersNode } from '../utilities/node-value.js'
 import { Button } from './button.component.js'
@@ -108,6 +106,7 @@ export interface PromptDialogProps {
   template: `<mol-modal
     #modal
     [open]="open"
+    [initialFocus]="inputTarget"
     (close)="onModalClose()"
     [attr.aria-labelledby]="ariaLabelledBy()"
     [attr.aria-describedby]="rendersNode(description) ? descriptionId : null"
@@ -180,7 +179,7 @@ export interface PromptDialogProps {
     </form></mol-modal
   >`,
 })
-export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
+export class PromptDialog implements AfterViewInit, DoCheck {
   /** Whether the dialog is open. */
   open: PromptDialogProps['open'] = false
   /** Dialog heading (node-valued prop). */
@@ -266,10 +265,9 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
 
   private lastOpen = false
   private lastInitial = ''
-  /** Whether an open transition is waiting for the after-view input focus. */
-  private pendingInputFocus = false
-  /** Schedules the deferred focus from the view hook (outside an injection context). */
-  private readonly injector = inject(Injector)
+
+  /** The dialog exists to take one string, so opening it puts focus in the input. */
+  readonly inputTarget = elementTarget(() => this.inputComponent?.inputEl?.nativeElement)
 
   /**
    * Takes the host out of the page (React renders the composed `Modal`'s
@@ -337,41 +335,17 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
     return this.placeholder ?? null
   }
 
-  /**
-   * Seeds the value when the dialog opens (React's `[open, initialValue]`
-   * effect). The composed `Modal`'s view init has already run (children init
-   * first) and moved focus into the dialog.
-   */
+  /** Seeds the value when the dialog opens (React's `[open, initialValue]` effect). */
   ngAfterViewInit(): void {
     this.lastOpen = !!this.open
     this.lastInitial = this.initialValue ?? ''
     if (this.open) {
       this.value.set(this.initialValue ?? '')
       this.pending.set(false)
-      // The dialog exists to take one string, so opening it puts focus in the
-      // input — after the Modal has focused the dialog's first control.
-      this.pendingInputFocus = true
     }
   }
 
-  /**
-   * Focuses the input after the view — and the composed `Modal`'s focus move —
-   * has settled (React's `[open]` effect running after the Modal's effects).
-   * Scheduling the DOM call here (rather than at registration) keeps it after
-   * the Modal's own deferred move, so the input wins.
-   */
-  ngAfterViewChecked(): void {
-    if (!this.pendingInputFocus) return
-    this.pendingInputFocus = false
-    afterNextRender(() => this.focusInput(), { injector: this.injector })
-  }
-
-  /**
-   * Re-seeds the value on a later open transition (React's effect). The flag
-   * set here is consumed in ngAfterViewChecked, which runs after the child
-   * `Modal`'s own check (where its open transition schedules its focus move)
-   * has completed.
-   */
+  /** Re-seeds the value on a later open transition (React's effect). */
   ngDoCheck(): void {
     const open = !!this.open
     if (open !== this.lastOpen || (open && this.initialValue !== this.lastInitial)) {
@@ -380,18 +354,8 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
       if (open) {
         this.value.set(this.initialValue ?? '')
         this.pending.set(false)
-        this.pendingInputFocus = true
       }
     }
-  }
-
-  /**
-   * Moves focus into the dialog's input after the render (the input ends up
-   * focused, exactly as React's post-Modal focus effect leaves it). Does
-   * nothing without a rendered input.
-   */
-  focusInput(): void {
-    this.inputComponent?.inputEl?.nativeElement.focus()
   }
 
   /**

@@ -9,7 +9,7 @@
   import { untrack } from 'svelte'
 
   import { contentNodes, useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 
   import { contentPresence } from '../content-presence.js'
   import { useGeneratedId } from '../dom.js'
@@ -76,13 +76,12 @@
     }
   })
 
-  // The dialog exists to take one string, so opening it puts focus in the
-  // input. Effects run child-before-parent, so this runs after Modal's own
-  // (which moves focus into the dialog) — the input ends up focused.
-  $effect(() => {
-    if (!open) return
-    formEl?.querySelector<HTMLInputElement>('input')?.focus()
-  })
+  // The dialog exists to take one string, so opening it puts focus in the input.
+  const inputTarget: OverlayTarget = {
+    get current() {
+      return formEl?.querySelector<HTMLInputElement>('input') ?? null
+    },
+  }
 
   $effect(() => {
     void title
@@ -119,6 +118,7 @@
 <Modal
   {open}
   onClose={pending ? () => undefined : onClose}
+  initialFocus={inputTarget}
   aria-labelledby={headingId}
   aria-describedby={hasDescription ? descriptionId : undefined}
 >

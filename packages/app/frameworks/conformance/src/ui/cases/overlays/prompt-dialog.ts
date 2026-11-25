@@ -23,6 +23,13 @@ export const promptDialogCases: UIComponentCases = {
       slots: { title: ['Rename board'] },
     },
     {
+      name: 'opening later focuses the input',
+      props: { open: false },
+      callbacks: ['onClose', 'onSubmit'],
+      slots: { title: ['Rename board'] },
+      interactions: [{ type: 'props', props: { open: true } }],
+    },
+    {
       name: 'placeholder and initialValue',
       props: { open: true, placeholder: 'Board name', initialValue: 'Roadmap' },
       callbacks: ['onClose', 'onSubmit'],

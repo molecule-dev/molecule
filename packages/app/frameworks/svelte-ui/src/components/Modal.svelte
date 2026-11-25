@@ -34,6 +34,7 @@
     centered = true,
     closeLabel,
     preventScroll = true,
+    initialFocus,
     className,
     style,
     testId,
@@ -67,7 +68,7 @@
       surface: { current: ref },
       dismissKey: closeOnEscape,
       dismissBackdrop: closeOnOverlayClick,
-      focus: { trap: true, restore: 'opener' },
+      focus: { trap: true, initial: initialFocus, restore: 'opener' },
       lockScroll: preventScroll,
       onDismiss: () => onClose(),
     })

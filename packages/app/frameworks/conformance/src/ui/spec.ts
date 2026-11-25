@@ -184,6 +184,25 @@ export interface CallbackValue {
 }
 
 /**
+ * An element reference placed inside props, for a prop that names a rendered element
+ * (`Modal.initialFocus`). Every adapter passes the same `{ current }` object, whose `current` is
+ * the element `document.querySelector(selector)` finds when it is read (portals included), or
+ * `null`.
+ */
+export interface TargetValue {
+  $target: string
+}
+
+/**
+ * Narrows a value to an element reference marker.
+ *
+ * @param value - Any prop value.
+ * @returns Whether it is `{ $target }`.
+ */
+export const isTargetValue = (value: unknown): value is TargetValue =>
+  typeof value === 'object' && value !== null && typeof (value as TargetValue).$target === 'string'
+
+/**
  * Narrows a value to a nested callback marker.
  *
  * @param value - Any prop value.

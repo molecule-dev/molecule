@@ -21,7 +21,6 @@ import {
   defineComponent,
   h,
   type PropType,
-  provide,
   ref,
   useId,
   type VNodeChild,
@@ -29,10 +28,9 @@ import {
 } from 'vue'
 
 import { domElement } from '@molecule/app-overlay-dom'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
-import { modalInitialFocus } from '../utilities/modal-focus.js'
 import { Button } from './Button.js'
 import { Input } from './Input.js'
 import { Modal } from './Modal.js'
@@ -149,12 +147,12 @@ export const PromptDialog = defineComponent({
     const descriptionId = useId()
     // Modal reads the native input when its portal is ready to take focus.
     const inputRef = ref<ComponentPublicInstance | null>(null)
-    provide(modalInitialFocus, {
+    const inputTarget: OverlayTarget = {
       /** The input exposed by the binding's Input component. */
       get current() {
         return domElement(inputRef.value?.$el)
       },
-    })
+    }
 
     // Re-seed from initialValue each open so a reopened dialog shows the
     // CURRENT value, not whatever the user typed last time.
@@ -198,6 +196,7 @@ export const PromptDialog = defineComponent({
         Modal,
         {
           open: props.open,
+          initialFocus: inputTarget,
           'aria-labelledby': headingId,
           'aria-describedby': hasDescription ? descriptionId : undefined,
           onClose: () => {

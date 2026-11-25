@@ -19,19 +19,16 @@ import {
   computed,
   defineComponent,
   h,
-  nextTick,
-  onMounted,
   onScopeDispose,
   type PropType,
   ref,
   type VNode,
   type VNodeChild,
-  watch,
 } from 'vue'
 
 import { useAuthFormState } from '@molecule/app-auth-shell-vue'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-vue'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-vue'
 import {
   toChildArray,
@@ -197,29 +194,14 @@ export const AuthModal = defineComponent({
     const errorMessage = useI18nError(() => (isSignup.value ? signupError.value : loginError.value))
 
     // Dialog pattern (WAI-ARIA): when the modal opens, keyboard and
-    // screen-reader users land on the form's primary field instead of on the
-    // page behind the overlay. This replaces the `autofocus` attribute, which
-    // jsx-a11y/no-autofocus bars: the attribute fires on EVERY mount of the
-    // input (e.g. the brief remount after the mode switches), while these two
-    // paths run exactly once per open transition — mount, and a later
-    // open flip. The mount path runs after the Modal's own focus-trap
-    // bookkeeping (child mounted hooks first, React's child-effects-first
-    // ordering); the flip path resolves after it in the same flush. The email
-    // field wins in both signup and login mode.
+    // screen-reader users land on the form's primary field, in signup and login
+    // mode alike. The Modal moves focus there once per open transition.
     const emailRef = ref<HTMLInputElement | null>(null)
-    const focusEmail = (): void => {
-      if (props.open) emailRef.value?.focus()
-    }
-    const focusEmailWhenPatched = (): void => {
-      void nextTick(focusEmail)
-    }
-    watch(
-      () => props.open,
-      (open) => {
-        if (open) focusEmailWhenPatched()
+    const emailTarget: OverlayTarget = {
+      get current() {
+        return emailRef.value
       },
-    )
-    onMounted(focusEmail)
+    }
 
     // Universal post-auth: refresh the session (guards + plan current), show a
     // brief confirmation, run the app's hook, then close — all in place, no
@@ -314,6 +296,7 @@ export const AuthModal = defineComponent({
           open: props.open,
           onClose: () => props.onClose?.(),
           size: 'sm',
+          initialFocus: emailTarget,
           title: isSignup.value
             ? t('auth.modal.signupTitle', undefined, { defaultValue: 'Create your account' })
             : t('auth.modal.loginTitle', undefined, { defaultValue: 'Log in' }),

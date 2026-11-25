@@ -50,6 +50,7 @@ interface MockHProps {
   onFocusin?: MockHHandler
   onFocusout?: MockHHandler
   onSubmit?: MockHHandler
+  initialFocus?: OverlayTarget
   [name: string]: unknown
 }
 
@@ -6204,10 +6205,7 @@ describe('PromptDialog component', () => {
     const { JSDOM } = await import('jsdom')
     const { OverlayLayer } = await vi.importActual<typeof OverlayDom>('@molecule/app-overlay-dom')
     const { PromptDialog } = await import('../components/PromptDialog.js')
-    const { modalInitialFocus } = await import('../utilities/modal-focus.js')
     const mockEmit = vi.fn()
-    const provideFocus = vi.fn<(key: unknown, target: OverlayTarget) => void>()
-    mockProvide.mockImplementationOnce(provideFocus)
 
     const renderFn = (
       PromptDialog.setup as (...args: unknown[]) => (...args: unknown[]) => unknown
@@ -6236,7 +6234,7 @@ describe('PromptDialog component', () => {
     if (!surface || !input) throw new Error('Expected a dialog and input')
     inputRef.value = { $el: input }
     const focus = vi.spyOn(input, 'focus')
-    const initial = provideFocus.mock.calls.find(([key]) => key === modalInitialFocus)?.[1]
+    const initial = modalCall?.[1].initialFocus
     const layer = new OverlayLayer()
     try {
       expect(initial?.current).toBe(input)

@@ -182,6 +182,36 @@ export const modalCases: UIComponentCases = {
       interactions: [{ type: 'props', props: { open: true } }],
     },
     {
+      // A dialog that exists to fill one field names it: focus lands there, not on the first
+      // control (the close button), whichever order the renderer runs its effects in.
+      name: 'initialFocus moves focus to the named control on open',
+      props: { open: false, title: 'Rename', initialFocus: { $target: '[data-parity-initial]' } },
+      callbacks: ['onClose'],
+      children: [
+        'Give the board a name.',
+        { tag: 'button', attrs: { type: 'button' }, children: ['Help'] },
+        { tag: 'input', attrs: { 'aria-label': 'Name', 'data-parity-initial': '' } },
+      ],
+      interactions: [{ type: 'props', props: { open: true } }],
+    },
+    {
+      name: 'initialFocus moves focus to the named control when the dialog mounts open',
+      props: { open: true, title: 'Rename', initialFocus: { $target: '[data-parity-initial]' } },
+      callbacks: ['onClose'],
+      children: [
+        'Give the board a name.',
+        { tag: 'button', attrs: { type: 'button' }, children: ['Help'] },
+        { tag: 'input', attrs: { 'aria-label': 'Name', 'data-parity-initial': '' } },
+      ],
+    },
+    {
+      name: 'initialFocus naming nothing rendered falls back to the first control',
+      props: { open: false, title: 'Rename', initialFocus: { $target: '[data-parity-missing]' } },
+      callbacks: ['onClose'],
+      children: ['Body'],
+      interactions: [{ type: 'props', props: { open: true } }],
+    },
+    {
       name: 'dialog without focusables focuses the dialog itself',
       props: { open: false, title: 'Bare', showCloseButton: false },
       callbacks: ['onClose'],

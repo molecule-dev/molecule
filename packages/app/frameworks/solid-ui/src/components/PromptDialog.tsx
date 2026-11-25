@@ -21,7 +21,7 @@ import {
 } from 'solid-js'
 
 import { createNodePresence, ResolveNode, useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 
 import { Button } from './Button.jsx'
 import { Input } from './Input.jsx'
@@ -103,6 +103,12 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
   const description = createNodePresence()
 
   let inputRef: HTMLInputElement | undefined
+  // The dialog exists to take one string, so opening it puts focus in the input.
+  const inputTarget: OverlayTarget = {
+    get current() {
+      return inputRef ?? null
+    },
+  }
 
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
@@ -114,25 +120,6 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
           setValue(local.initialValue ?? '')
           setPending(false)
         }
-      },
-    ),
-  )
-
-  // The dialog exists to take one string, so opening it puts focus in the
-  // input. Solid runs parent effects before child ones, so this effect runs
-  // before Modal's — which moves focus to the dialog's first control (the
-  // close button) one microtask after it runs. The double microtask queues
-  // this focus BEHIND Modal's, so the input ends up focused.
-  createEffect(
-    on(
-      () => local.open,
-      (open) => {
-        if (!open) return
-        queueMicrotask(() => {
-          queueMicrotask(() => {
-            inputRef?.focus()
-          })
-        })
       },
     ),
   )
@@ -176,6 +163,7 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
     <Modal
       open={local.open}
       onClose={handleClose}
+      initialFocus={inputTarget}
       aria-labelledby={title.present() ? titleId : undefined}
       aria-describedby={description.present() ? descriptionId : undefined}
     >

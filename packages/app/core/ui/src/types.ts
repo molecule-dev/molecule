@@ -18,6 +18,7 @@ import type {
   ElementRole,
   UIClassMapNativeSplit,
 } from './elements.js'
+import type { OverlayTarget } from './overlay.js'
 
 // ============================================================================
 // FRAMEWORK-AGNOSTIC BASE TYPES
@@ -819,6 +820,14 @@ export interface ModalProps extends HTMLElementProps {
    * @default 'Close'
    */
   closeLabel?: string
+
+  /**
+   * The control that takes focus when the modal opens, such as the field a dialog exists to fill.
+   * Without it, focus goes to the first focusable control, or to the dialog when it has none. The
+   * modal reads it once the open dialog is in the document, so a control rendered in the
+   * children can be named here.
+   */
+  initialFocus?: OverlayTarget
 }
 
 // ============================================================================

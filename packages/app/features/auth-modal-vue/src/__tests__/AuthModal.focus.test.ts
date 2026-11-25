@@ -11,7 +11,16 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createApp, defineComponent, h, nextTick, shallowReactive } from 'vue'
+import {
+  createApp,
+  defineComponent,
+  h,
+  nextTick,
+  onMounted,
+  type PropType,
+  shallowReactive,
+  watch,
+} from 'vue'
 
 import type { AuthModalProps } from '../AuthModal.js'
 
@@ -60,13 +69,23 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-ui-vue', () => ({
+  // The real Modal moves focus to its `initialFocus` once the open dialog is in the
+  // document (its own conformance cases cover that), and so does this stand-in: these
+  // tests check the control AuthModal names.
   Modal: defineComponent({
     name: 'Modal',
-    props: { open: Boolean },
-    setup:
-      (props, { slots }) =>
-      () =>
-        props.open ? h('div', slots.default?.()) : null,
+    props: {
+      open: Boolean,
+      initialFocus: Object as PropType<{ readonly current: HTMLElement | null }>,
+    },
+    setup(props, { slots }) {
+      const focusInitial = (): void => {
+        if (props.open) void nextTick(() => props.initialFocus?.current?.focus())
+      }
+      onMounted(focusInitial)
+      watch(() => props.open, focusInitial)
+      return () => (props.open ? h('div', slots.default?.()) : null)
+    },
   }),
   Icon: defineComponent({ name: 'Icon', setup: () => () => null }),
   Button: defineComponent({

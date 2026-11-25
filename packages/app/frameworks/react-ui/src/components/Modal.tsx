@@ -49,6 +49,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
       centered = true,
       closeLabel,
       preventScroll = true,
+      initialFocus,
       className,
       style,
       testId,
@@ -68,7 +69,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
       surface: dialog,
       dismissKey: closeOnEscape,
       dismissBackdrop: closeOnOverlayClick,
-      focus: { trap: true, restore: 'opener' },
+      focus: { trap: true, initial: initialFocus, restore: 'opener' },
       lockScroll: preventScroll,
       onDismiss: () => onClose(),
     })

@@ -22,6 +22,7 @@ import type { IconName } from '@molecule/app-icons'
 import type {
   ColorVariant,
   KeyboardEventHandler,
+  OverlayTarget,
   Size,
   ToastPosition,
   TooltipPlacement,
@@ -848,6 +849,8 @@ export interface ModalProps extends WithElementRef<object, HTMLDivElement> {
   closeLabel?: string
   /** Whether opening locks body scroll. */
   preventScroll?: boolean
+  /** The control that takes focus when the dialog opens; the first focusable control without it. */
+  initialFocus?: OverlayTarget
   /** Extra class names on the dialog panel. */
   className?: string
   /** Inline styles on the dialog panel. */

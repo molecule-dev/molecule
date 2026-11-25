@@ -826,8 +826,10 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID))
   private readonly environmentInjector = inject(EnvironmentInjector)
   private readonly layer = new OverlayLayer((focus) => {
+    // The read phase is a render's last: content a slot stamps once its place is in the page
+    // (`*molLazy`, in `mixedReadWrite`) exists by then, so the initial focus can be in it.
     if (!this.environmentInjector.destroyed)
-      afterNextRender(focus, { injector: this.environmentInjector })
+      afterNextRender({ read: focus }, { injector: this.environmentInjector })
   })
   private hasFooter = false
   private lastOpen: boolean | undefined

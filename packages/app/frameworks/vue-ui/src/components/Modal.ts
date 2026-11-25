@@ -8,7 +8,6 @@ import {
   computed,
   defineComponent,
   h,
-  inject,
   nextTick,
   onBeforeUnmount,
   type PropType,
@@ -18,13 +17,12 @@ import {
 } from 'vue'
 
 import { OverlayLayer } from '@molecule/app-overlay-dom'
-import type { ModalProps, ModalSize } from '@molecule/app-ui'
+import type { ModalProps, ModalSize, OverlayTarget } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
-import { modalInitialFocus } from '../utilities/modal-focus.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 import { setDisplayName } from './displayName.js'
 
@@ -88,6 +86,7 @@ export const Modal = defineComponent({
       default: true,
     },
     closeLabel: String,
+    initialFocus: Object as PropType<OverlayTarget>,
     className: String,
     style: [String, Object] as PropType<ModalProps['style']>,
     testId: String,
@@ -102,7 +101,6 @@ export const Modal = defineComponent({
 
     // The dialog is React's `forwardRef` target; it holds `null` while closed.
     const dialogRef = useElementRef<HTMLDivElement>(expose)
-    const initialFocus = inject(modalInitialFocus, undefined)
     // Vue mounts or hydrates the inline nodes before moving them to their own
     // document's body. Wait for the move before focusing a control.
     const portalTarget = computed(() => dialogRef.value?.ownerDocument.body ?? null)
@@ -117,7 +115,7 @@ export const Modal = defineComponent({
         surface: { current: dialogRef.value },
         dismissKey: props.closeOnEscape,
         dismissBackdrop: props.closeOnOverlayClick,
-        focus: { trap: true, initial: initialFocus, restore: 'opener' },
+        focus: { trap: true, initial: props.initialFocus, restore: 'opener' },
         lockScroll: props.preventScroll,
         onDismiss: () => emit('close'),
       })

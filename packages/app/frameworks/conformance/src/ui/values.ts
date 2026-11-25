@@ -1,5 +1,5 @@
 /**
- * Turns the neutral `{ $nodes }`, `{ $fn }` and `{ $callback }` markers inside a case's props
+ * Turns the neutral `{ $nodes }`, `{ $fn }`, `{ $callback }` and `{ $target }` markers inside a case's props
  * into each framework's own values, so every adapter interprets them the same
  * way and only supplies its node type.
  *
@@ -14,8 +14,10 @@ import {
   isLifetimeSpec,
   isNodesValue,
   isProbeSpec,
+  isTargetValue,
   type NodeSpec,
   type ProbeSpec,
+  type TargetValue,
   type UICase,
 } from './spec.js'
 
@@ -118,7 +120,22 @@ export function fnFromSpec(
 }
 
 /**
- * Replaces every `{ $nodes }`, `{ $fn }` and `{ $callback }` marker anywhere inside a value.
+ * Builds the element reference a `{ $target }` marker stands for. It is framework-neutral, so
+ * every adapter passes this same object.
+ *
+ * @param spec - The marker.
+ * @returns A `{ current }` reference that queries the document each time it is read.
+ */
+export function targetFromSpec(spec: TargetValue): { readonly current: Element | null } {
+  return {
+    get current() {
+      return document.querySelector(spec.$target)
+    },
+  }
+}
+
+/**
+ * Replaces every `{ $nodes }`, `{ $fn }`, `{ $callback }` and `{ $target }` marker anywhere inside a value.
  *
  * @param value - A prop value (or a whole props object).
  * @param m - The framework's builders.
@@ -127,6 +144,7 @@ export function fnFromSpec(
 export function materializeProps<T>(value: T, m: Materializer): T {
   const walk = (v: unknown): unknown => {
     if (isNodesValue(v)) return m.nodes(v.$nodes)
+    if (isTargetValue(v)) return targetFromSpec(v)
     if (isCallbackValue(v)) {
       if (!m.callback)
         throw new Error(
@@ -154,7 +172,8 @@ export function materializeProps<T>(value: T, m: Materializer): T {
  * @returns True when `materializeProps` would change it.
  */
 export function hasMarkers(value: unknown): boolean {
-  if (isNodesValue(value) || isFnValue(value) || isCallbackValue(value)) return true
+  if (isNodesValue(value) || isFnValue(value) || isCallbackValue(value) || isTargetValue(value))
+    return true
   if (Array.isArray(value)) return value.some(hasMarkers)
   if (value && typeof value === 'object') return Object.values(value).some(hasMarkers)
   return false

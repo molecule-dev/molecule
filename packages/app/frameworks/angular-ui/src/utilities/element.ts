@@ -13,6 +13,8 @@
 
 import { type ElementRef, type Signal, signal } from '@angular/core'
 
+import type { ElementHandle, OverlayTarget } from '@molecule/app-ui'
+
 /**
  * A component that gives callers its ref element.
  *
@@ -35,3 +37,17 @@ export interface HasElement<E extends Element> {
  */
 export const hostElement = <E extends Element>(host: ElementRef<E>): Signal<E | null> =>
   signal(host.nativeElement).asReadonly()
+
+/**
+ * A target that reads an element each time an overlay asks for it, such as a Modal's
+ * `initialFocus` naming a control in the dialog's content. A class field can build it, since the
+ * arrow keeps `this`: `readonly emailTarget = elementTarget(() => this.email?.nativeElement)`.
+ *
+ * @param read - Returns the element, or `null` or `undefined` while it is not rendered.
+ * @returns The target, whose `current` is the element or `null`.
+ */
+export const elementTarget = (read: () => ElementHandle | null | undefined): OverlayTarget => ({
+  get current() {
+    return read() ?? null
+  },
+})

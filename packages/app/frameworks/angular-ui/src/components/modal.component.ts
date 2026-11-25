@@ -33,7 +33,7 @@ import {
   useTranslation,
 } from '@molecule/app-angular'
 import { OverlayLayer } from '@molecule/app-overlay-dom'
-import type { ModalSize, MouseEventHandler, UIClassMap } from '@molecule/app-ui'
+import type { ModalSize, MouseEventHandler, OverlayTarget, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
@@ -84,6 +84,7 @@ let modalInstance = 0
     'centered',
     'closeLabel',
     'preventScroll',
+    'initialFocus',
     'className',
     'style',
     'testId',
@@ -170,6 +171,8 @@ export class Modal
   closeLabel?: string
   /** Whether body scroll is locked while open. */
   preventScroll = true
+  /** The control that takes focus when the dialog opens; the first focusable control without it. */
+  initialFocus?: OverlayTarget
   /** Extra classes for the dialog. */
   className?: string
   /** Inline style object for the dialog (React camelCase). */
@@ -206,8 +209,10 @@ export class Modal
   private readonly environmentInjector = inject(EnvironmentInjector)
   private readonly layer = new OverlayLayer((focus) => {
     // DoCheck and view destruction can be in the middle of another component's check.
+    // The read phase is a render's last: content a slot stamps once its place is in the page
+    // (`*molLazy`, in `mixedReadWrite`) exists by then, so the initial focus can be in it.
     if (!this.environmentInjector.destroyed)
-      afterNextRender(focus, { injector: this.environmentInjector })
+      afterNextRender({ read: focus }, { injector: this.environmentInjector })
   })
   private readonly inner = signal<HTMLDivElement | null>(null)
   /** The element a caller's ref receives: the dialog, or `null` while closed. */
@@ -408,7 +413,7 @@ export class Modal
       surface: { current: dialog },
       dismissKey: this.closeOnEscape,
       dismissBackdrop: this.closeOnOverlayClick,
-      focus: { trap: true, restore: 'opener' },
+      focus: { trap: true, initial: this.initialFocus, restore: 'opener' },
       lockScroll: this.preventScroll,
       onDismiss: () => this.requestClose(),
     })

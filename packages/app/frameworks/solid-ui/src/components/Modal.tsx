@@ -66,6 +66,7 @@ export const Modal = withDisplayName<
     'centered',
     'closeLabel',
     'preventScroll',
+    'initialFocus',
     'className',
     'style',
     'testId',
@@ -96,7 +97,7 @@ export const Modal = withDisplayName<
       surface: { current: dialog() },
       dismissKey: local.closeOnEscape ?? true,
       dismissBackdrop: local.closeOnOverlayClick ?? true,
-      focus: { trap: true, restore: 'opener' },
+      focus: { trap: true, initial: local.initialFocus, restore: 'opener' },
       lockScroll: local.preventScroll ?? true,
       onDismiss: () => local.onClose(),
     })
