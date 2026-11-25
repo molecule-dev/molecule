@@ -14,6 +14,7 @@
 </script>
 
 <script lang="ts">
+  import { measureTooltipPosition, OverlayLayer } from '@molecule/app-overlay-dom'
   import { BodyPortal, contentNodes } from '@molecule/app-svelte'
   import type { TooltipPlacement } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
@@ -59,51 +60,6 @@
     }
   }
 
-  /** Computes the tooltip position for a trigger rect, tooltip rect and placement. */
-  const calculatePosition = (
-    triggerRect: DOMRect,
-    tooltipRect: DOMRect,
-    placement: TooltipPlacement,
-    offset = 8,
-  ): { top: number; left: number } => {
-    const { top, left, width, height } = triggerRect
-    const positions: Record<TooltipPlacement, { top: number; left: number }> = {
-      top: {
-        top: top + window.scrollY - tooltipRect.height - offset,
-        left: left + window.scrollX + width / 2 - tooltipRect.width / 2,
-      },
-      bottom: {
-        top: top + window.scrollY + height + offset,
-        left: left + window.scrollX + width / 2 - tooltipRect.width / 2,
-      },
-      left: {
-        top: top + window.scrollY + height / 2 - tooltipRect.height / 2,
-        left: left + window.scrollX - tooltipRect.width - offset,
-      },
-      right: {
-        top: top + window.scrollY + height / 2 - tooltipRect.height / 2,
-        left: left + window.scrollX + width + offset,
-      },
-      'top-start': {
-        top: top + window.scrollY - tooltipRect.height - offset,
-        left: left + window.scrollX,
-      },
-      'top-end': {
-        top: top + window.scrollY - tooltipRect.height - offset,
-        left: left + window.scrollX + width - tooltipRect.width,
-      },
-      'bottom-start': {
-        top: top + window.scrollY + height + offset,
-        left: left + window.scrollX,
-      },
-      'bottom-end': {
-        top: top + window.scrollY + height + offset,
-        left: left + window.scrollX + width - tooltipRect.width,
-      },
-    }
-    return positions[placement]
-  }
-
   let {
     ref = $bindable(null),
     content,
@@ -130,41 +86,31 @@
   const attributes = $derived(reactAttrs(withoutEvents(rest)))
 
   const cm = $derived(getClassMap())
+  const layer = new OverlayLayer()
+  let owner: Document | undefined
 
   const updatePosition = (): void => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return
     if (!triggerEl || !ref) return
-    const triggerRect = triggerEl.getBoundingClientRect()
-    const tooltipRect = ref.getBoundingClientRect()
-    const newPosition = calculatePosition(triggerRect, tooltipRect, placement)
-    // Clamp into the viewport (document space; page scrollbar excluded).
-    const margin = 8
-    const minLeft = window.scrollX + margin
-    const maxLeft =
-      window.scrollX + document.documentElement.clientWidth - tooltipRect.width - margin
-    const minTop = window.scrollY + margin
-    const maxTop =
-      window.scrollY + document.documentElement.clientHeight - tooltipRect.height - margin
-    newPosition.left = Math.min(Math.max(newPosition.left, minLeft), Math.max(minLeft, maxLeft))
-    newPosition.top = Math.min(Math.max(newPosition.top, minTop), Math.max(minTop, maxTop))
-    position = newPosition
+    position = measureTooltipPosition(triggerEl, ref, placement)
   }
 
   const hide = (): void => {
     if (showTimer) clearTimeout(showTimer)
     if (hideTimer) clearTimeout(hideTimer)
-    if (typeof document !== 'undefined' && activeTooltips.get(document) === hide) {
-      activeTooltips.delete(document)
-    }
+    if (owner && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
+    owner = undefined
     isVisible = false
   }
 
   const show = (): void => {
-    if (typeof document !== 'undefined') {
-      const previous = activeTooltips.get(document)
+    const doc = triggerEl?.ownerDocument
+    if (doc) {
+      if (owner && owner !== doc && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
+      owner = doc
+      const previous = activeTooltips.get(doc)
       if (previous !== hide) previous?.()
       // Claim before scheduling so another trigger also cancels pending shows.
-      activeTooltips.set(document, hide)
+      activeTooltips.set(doc, hide)
     }
     if (hideTimer) clearTimeout(hideTimer)
     if (showTimer) clearTimeout(showTimer)
@@ -199,13 +145,14 @@
   }
 
   $effect(() => {
-    if (!isVisible) return
-    // Hovered content must dismiss while focus stays elsewhere.
-    const onEscape = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') hide()
-    }
-    document.addEventListener('keydown', onEscape)
-    return () => document.removeEventListener('keydown', onEscape)
+    layer.sync({
+      open: isVisible,
+      kind: 'tooltip',
+      surface: { current: ref },
+      anchor: { current: triggerEl },
+      dismissKey: true,
+      onDismiss: hide,
+    })
   })
 
   // Position in the same frame the box mounts (React's layout effect).
@@ -220,9 +167,8 @@
     return () => {
       if (showTimer) clearTimeout(showTimer)
       if (hideTimer) clearTimeout(hideTimer)
-      if (typeof document !== 'undefined' && activeTooltips.get(document) === hide) {
-        activeTooltips.delete(document)
-      }
+      layer.release()
+      if (owner && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
     }
   })
 
@@ -257,7 +203,7 @@
   // moving the pointer or focus — Escape hides the tooltip (the keydown on
   // the focused child bubbles up to this wrapper).
   const handleTriggerKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') hide()
+    if (!isVisible && event.key === 'Escape') hide()
   }
   // The floating box wrapper is non-semantic (the tooltip box itself carries
   // role="tooltip") and its listeners forward no consumer events, so they go
@@ -285,10 +231,10 @@
 >
   {@render children?.()}
 </div>
-{#if isVisible && typeof document !== 'undefined'}
+{#if isVisible && triggerEl}
   <!-- The arrow renders as the box's SIBLING: tooltipContent sets
        overflow-hidden, so a nested arrow would be clipped invisible. -->
-  <BodyPortal
+  <BodyPortal target={triggerEl.ownerDocument.body}
     ><div
       use:reactStyle={{
         position: 'absolute',

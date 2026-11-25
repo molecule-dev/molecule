@@ -3,8 +3,9 @@ import { useState } from 'react'
 import type { UserProfile } from '@molecule/app-auth'
 import { serverErrorMessage } from '@molecule/app-http'
 import { useAuth, useHttpClient, useNavigate, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitEvent } from '@molecule/app-ui'
 import { Alert, Button, Input, Modal } from '@molecule/app-ui-react'
+import { Box, FormArea, Text } from '@molecule/app-ui-react/elements'
 
 import { useSettingsPanelContext } from './context.js'
 
@@ -35,7 +36,7 @@ export function LogOutDeleteSection(): React.JSX.Element {
     navigate('/login')
   }
 
-  const handleDelete = async (e: React.FormEvent): Promise<void> => {
+  const handleDelete = async (e: KitEvent): Promise<void> => {
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -58,7 +59,7 @@ export function LogOutDeleteSection(): React.JSX.Element {
 
   return (
     <>
-      <section className={cm.stack(3)}>
+      <Box as="section" className={cm.stack(3)}>
         <Button color="error" fullWidth onClick={handleLogout} data-mol-id="user-menu-logout">
           {t('settings.logOut', undefined, { defaultValue: 'Sign out' })}
         </Button>
@@ -70,7 +71,7 @@ export function LogOutDeleteSection(): React.JSX.Element {
         >
           {t('settings.deleteAccount', undefined, { defaultValue: 'Delete account' })}
         </Button>
-      </section>
+      </Box>
 
       <Modal
         open={showModal}
@@ -79,29 +80,33 @@ export function LogOutDeleteSection(): React.JSX.Element {
           defaultValue: 'Delete Account',
         })}
       >
-        <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mb', 4))}>
+        <Text as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mb', 4))}>
           {t('settings.deleteAccountModal.warning', undefined, {
             defaultValue: 'This action cannot be undone. Please enter your password to confirm.',
           })}
-        </p>
+        </Text>
         {error && (
           <Alert status="error" className={cm.sp('mb', 4)}>
             {error}
           </Alert>
         )}
-        <form onSubmit={handleDelete} className={cm.stack(4)}>
-          <div>
-            <label htmlFor="delete-pw" className={cm.formLabel}>
+        <FormArea as="form" onSubmit={handleDelete} className={cm.stack(4)}>
+          <Box as="div">
+            <Text as="label" htmlFor="delete-pw" className={cm.formLabel}>
               {t('settings.deleteAccountModal.password', undefined, { defaultValue: 'Password' })}
-            </label>
+            </Text>
             <Input
               id="delete-pw"
               type="password"
               value={password}
-              onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+              onChange={({ target }) => {
+                if (target && 'value' in target && typeof target.value === 'string') {
+                  setPassword(target.value)
+                }
+              }}
               required
             />
-          </div>
+          </Box>
           <Button type="submit" color="error" fullWidth loading={loading}>
             {loading
               ? t('settings.deleteAccountModal.deleting', undefined, {
@@ -109,7 +114,7 @@ export function LogOutDeleteSection(): React.JSX.Element {
                 })
               : t('settings.deleteAccount', undefined, { defaultValue: 'Delete account' })}
           </Button>
-        </form>
+        </FormArea>
       </Modal>
     </>
   )

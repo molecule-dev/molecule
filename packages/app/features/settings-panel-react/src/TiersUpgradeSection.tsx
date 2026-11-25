@@ -4,6 +4,7 @@ import { serverErrorMessage } from '@molecule/app-http'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, ConfirmButton, Flex, Modal } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 import { openUrl } from '@molecule/app-utilities'
 
 /** One price of a billing tier, mapped from `/api/billing/tiers`. */
@@ -175,19 +176,19 @@ export function TiersUpgradeSection({
 
   return (
     <>
-      <section>
-        <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+      <Box as="section">
+        <Text as="h3" className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
           {t('settings.billing', undefined, { defaultValue: 'Billing' })}
-        </h3>
+        </Text>
         <Flex align="center" justify="between">
           {/* The plan line waits for the server: there is no plan name to guess. */}
           {plan ? (
-            <span className={cm.textSize('sm')}>
+            <Text as="span" className={cm.textSize('sm')}>
               {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
-              <strong>{plan}</strong>
-            </span>
+              <Text as="strong">{plan}</Text>
+            </Text>
           ) : (
-            <span />
+            <Text as="span" />
           )}
           {isFree ? (
             forSale.length > 0 ? (
@@ -213,7 +214,7 @@ export function TiersUpgradeSection({
             {cancelError}
           </Alert>
         ) : null}
-      </section>
+      </Box>
 
       <Modal
         open={showUpgrade}
@@ -227,16 +228,18 @@ export function TiersUpgradeSection({
             {upgradeError}
           </Alert>
         ) : null}
-        <ul className={cm.stack(3)}>
+        <Box as="ul" className={cm.stack(3)}>
           {forSale.map(({ tier, price, priceId }) => (
-            <li key={`${tier.planKey}-${priceId}`} className={cm.sp('p', 4)}>
+            <Box as="li" key={`${tier.planKey}-${priceId}`} className={cm.sp('p', 4)}>
               <Flex align="center" justify="between">
-                <div>
-                  <p className={cm.fontWeight('semibold')}>
+                <Box as="div">
+                  <Text as="p" className={cm.fontWeight('semibold')}>
                     {tier.name} ({price.interval})
-                  </p>
-                  <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{price.priceLabel}</p>
-                </div>
+                  </Text>
+                  <Text as="p" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+                    {price.priceLabel}
+                  </Text>
+                </Box>
                 <Button
                   size="sm"
                   loading={upgradeLoading === priceId}
@@ -247,9 +250,9 @@ export function TiersUpgradeSection({
                   })}
                 </Button>
               </Flex>
-            </li>
+            </Box>
           ))}
-        </ul>
+        </Box>
       </Modal>
     </>
   )

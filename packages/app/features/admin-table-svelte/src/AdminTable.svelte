@@ -184,6 +184,7 @@
                 <AdminTableRowActions
                   {row}
                   actions={rowActions}
+                  stopActionPropagation={Boolean(onRowClick)}
                   ariaLabel={rowActionsAriaLabel?.(row)}
                 />
               </td>

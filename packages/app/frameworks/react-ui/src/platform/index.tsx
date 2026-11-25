@@ -3,15 +3,35 @@
  * @module
  */
 
-import { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react'
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import { createPortal } from 'react-dom'
 
-import { domElement, OverlayLayer as DomOverlayLayer } from '@molecule/app-overlay-dom'
-import type { OverlayLayer, OverlayPlatform } from '@molecule/app-react/overlay'
-import type { OverlayLayerOptions, OverlayTarget } from '@molecule/app-ui'
+import {
+  domElement,
+  measureOverlayPosition,
+  OverlayLayer as DomOverlayLayer,
+  readOverlayAnchorWidth,
+} from '@molecule/app-overlay-dom'
+import type {
+  AnchoredPosition,
+  OverlayLayer,
+  OverlayPlatform,
+  ToastMessageProps,
+} from '@molecule/app-react/overlay'
+import type { ElementHandle, OverlayLayerOptions, OverlayTarget } from '@molecule/app-ui'
 
 import { Box } from '../elements/Box.js'
+import { useElementLayoutEffect } from '../elements/viewport.js'
 
+export { OverlayArrow } from './arrow.js'
+export { focusStaysWithin } from '@molecule/app-overlay-dom'
 export type * from '@molecule/app-react/overlay'
 export type {
   OverlayAnchorGeometry,
@@ -164,3 +184,75 @@ export const useViewportMatch: OverlayPlatform['useViewportMatch'] = (query) => 
   }, [owner, css])
   return matches
 }
+
+/** Listens for actual browser history traversal, including traversal to an identical URL. */
+export const useHistoryPop: OverlayPlatform['useHistoryPop'] = (onPop, target) => {
+  const owner = useContext(Owner)
+  useEffect(() => {
+    const view = (ownerDocument(target, owner) ?? ambientDocument())?.defaultView
+    view?.addEventListener('popstate', onPop)
+    return () => view?.removeEventListener('popstate', onPop)
+  }, [onPop, owner, target])
+}
+
+/** Measures a Tooltip before paint and defers Dropdown coordinates to its next frame. */
+export const useAnchoredPosition: OverlayPlatform['useAnchoredPosition'] = ({
+  open,
+  anchor,
+  surface,
+  placement,
+  align,
+  offset,
+  padding,
+  collision,
+  timing,
+  matchAnchorWidth,
+  contentKey,
+}) => {
+  const [sample, setSample] = useState<{
+    surface: ElementHandle
+    position: Omit<AnchoredPosition, 'anchorWidth'>
+  }>()
+  const [anchorWidth, setAnchorWidth] = useState<number>()
+  useElementLayoutEffect(() => {
+    const trigger = domElement(anchor.current)
+    setAnchorWidth(
+      open && matchAnchorWidth && trigger ? readOverlayAnchorWidth(trigger) : undefined,
+    )
+  })
+  useElementLayoutEffect(() => {
+    const trigger = domElement(anchor.current)
+    const panel = domElement(surface)
+    const view = trigger?.ownerDocument.defaultView
+    if (!open || !trigger || !panel || !surface || !view) return
+    const measure = (): void => {
+      const position = measureOverlayPosition(trigger, panel, {
+        placement,
+        align,
+        offset,
+        padding,
+        collision,
+      })
+      setSample({ surface, position: { ...position, ready: true } })
+    }
+    if (timing === 'layout') {
+      measure()
+      return
+    }
+    const frame = view.requestAnimationFrame(measure)
+    return () => view.cancelAnimationFrame(frame)
+  }, [open, anchor, surface, placement, align, offset, padding, collision, timing, contentKey])
+  return open && sample && sample.surface === surface
+    ? { ...sample.position, anchorWidth }
+    : { top: 0, left: 0, placement, ready: open, anchorWidth }
+}
+
+/** Web assistive technology reads the toast's existing role and live attributes. */
+export const ToastMessage = forwardRef<ElementHandle, Omit<ToastMessageProps, 'ref'>>(
+  function ToastMessage({ spokenContent: _spokenContent, ...props }, ref) {
+    return <Box as="div" {...props} ref={ref} />
+  },
+)
+
+/** Web descriptions are attached to the trigger while the visible tooltip exists. */
+export const useTooltipDescription: OverlayPlatform['useTooltipDescription'] = () => false

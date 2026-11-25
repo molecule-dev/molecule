@@ -4,6 +4,7 @@ import type { HttpClient } from '@molecule/app-http'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** A user's registered device (subset rendered in the settings list). */
 export interface Device {
@@ -143,49 +144,52 @@ export function DevicesSection({ renderRowIcon }: DevicesSectionProps = {}): JSX
   }
 
   return (
-    <section>
+    <Box as="section">
       <Flex align="center" gap="sm" className={cm.sp('mb', 3)}>
-        <h3 className={cm.sectionHeading}>
+        <Text as="h3" className={cm.sectionHeading}>
           {t('settings.devices', undefined, { defaultValue: 'Devices' })}
-        </h3>
+        </Text>
         {loading && <Spinner size="xs" />}
       </Flex>
       {devices.length > 0 ? (
-        <ul className={cm.stack(2)}>
+        <Box as="ul" className={cm.stack(2)}>
           {devices.map((device) => (
-            <li key={device.id}>
+            <Box as="li" key={device.id}>
               <Flex
                 align="center"
                 justify="between"
                 className={cm.cn(cm.textSize('sm'), cm.sp('py', 1))}
               >
-                <span>
+                <Text as="span">
                   {device.name || device.platform}
                   {device.isCurrent ? (
-                    <span className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}>
+                    <Text
+                      as="span"
+                      className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}
+                    >
                       {t('settings.thisDevice', undefined, { defaultValue: 'This Device' })}
-                    </span>
+                    </Text>
                   ) : null}
-                </span>
+                </Text>
                 {trailing(device)}
               </Flex>
               {confirmingId === device.id ? (
-                <p className={cm.cn(cm.textSize('xs'), cm.textMuted, cm.sp('mt', 1))}>
+                <Text as="p" className={cm.cn(cm.textSize('xs'), cm.textMuted, cm.sp('mt', 1))}>
                   {t('settings.revokeDeviceWarning', undefined, {
                     defaultValue: "This device's access will be revoked shortly. Sign it out?",
                   })}
-                </p>
+                </Text>
               ) : null}
-            </li>
+            </Box>
           ))}
-        </ul>
+        </Box>
       ) : (
         !loading && (
-          <p className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+          <Text as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
             {t('settings.noDevices', undefined, { defaultValue: 'No devices found' })}
-          </p>
+          </Text>
         )
       )}
-    </section>
+    </Box>
   )
 }

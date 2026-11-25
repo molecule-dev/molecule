@@ -3,6 +3,7 @@ import { type JSX, useEffect, useState } from 'react'
 import { useHttpClient, useNavigate, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Billing section — current plan + Upgrade button.
@@ -56,25 +57,25 @@ export function BillingSection({
   }, [http])
 
   return (
-    <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+    <Box as="section">
+      <Text as="h3" className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
         {t('settings.billing', undefined, { defaultValue: 'Billing' })}
-      </h3>
+      </Text>
       <Flex align="center" justify="between">
-        <span className={cm.textSize('sm')}>
+        <Text as="span" className={cm.textSize('sm')}>
           {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
-          <strong>
+          <Text as="strong">
             {livePlan ??
               plan ??
               t('settings.billing.freePlan', undefined, { defaultValue: 'Free' })}
-          </strong>
-        </span>
+          </Text>
+        </Text>
         {upgradeTo ? (
           <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo)}>
             {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
           </Button>
         ) : null}
       </Flex>
-    </section>
+    </Box>
   )
 }

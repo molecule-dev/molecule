@@ -11,14 +11,10 @@
     "image-canvas-react",
     "image-gallery-editor-react",
     "mind-map-canvas-react",
-    "settings-panel-react",
     "survey-question-react",
     "three-viewer-react",
     "video-player-react",
     "whiteboard-canvas-react"
   ],
-  "kitComponents": [
-    "Dropdown.tsx",
-    "UserMenuPopover.tsx"
-  ]
+  "kitComponents": []
 }

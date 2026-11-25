@@ -29,6 +29,7 @@ import {
   slotElement,
   usePlacement,
 } from '@molecule/app-angular'
+import { measureTooltipPosition, OverlayLayer } from '@molecule/app-overlay-dom'
 import type { MouseEventHandler, TooltipPlacement, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -86,70 +87,6 @@ interface Position {
   top: number
   /** Left offset in pixels. */
   left: number
-}
-
-/**
- * Calculates the tooltip position and clamps it into the viewport (React's
- * `calculatePosition` + clamp, a faithful port).
- *
- * @param triggerRect - The trigger's bounding rectangle.
- * @param tooltipRect - The tooltip's bounding rectangle.
- * @param placement - The tooltip placement.
- * @returns The clamped position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  tooltipRect: DOMRect,
-  placement: TooltipPlacement,
-): Position {
-  const { top, left, width, height } = triggerRect
-  const tooltipWidth = tooltipRect.width
-  const tooltipHeight = tooltipRect.height
-  const offset = 8
-  const positions: Record<TooltipPlacement, Position> = {
-    top: {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX + width / 2 - tooltipWidth / 2,
-    },
-    bottom: {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX + width / 2 - tooltipWidth / 2,
-    },
-    left: {
-      top: top + window.scrollY + height / 2 - tooltipHeight / 2,
-      left: left + window.scrollX - tooltipWidth - offset,
-    },
-    right: {
-      top: top + window.scrollY + height / 2 - tooltipHeight / 2,
-      left: left + window.scrollX + width + offset,
-    },
-    'top-start': {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX,
-    },
-    'top-end': {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX + width - tooltipWidth,
-    },
-    'bottom-start': {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX,
-    },
-    'bottom-end': {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX + width - tooltipWidth,
-    },
-  }
-  const position = { ...positions[placement] }
-  const margin = 8
-  const minLeft = window.scrollX + margin
-  const maxLeft = window.scrollX + document.documentElement.clientWidth - tooltipRect.width - margin
-  const minTop = window.scrollY + margin
-  const maxTop =
-    window.scrollY + document.documentElement.clientHeight - tooltipRect.height - margin
-  position.left = Math.min(Math.max(position.left, minLeft), Math.max(minLeft, maxLeft))
-  position.top = Math.min(Math.max(position.top, minTop), Math.max(minTop, maxTop))
-  return position
 }
 
 /**
@@ -300,10 +237,8 @@ export class Tooltip
   private showTimer: ReturnType<typeof setTimeout> | undefined
   private hideTimer: ReturnType<typeof setTimeout> | undefined
   private readonly hideListener = (): void => this.hide()
-  private readonly escapeListener = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') this.hide()
-  }
-  private escapeBound = false
+  private readonly layer = new OverlayLayer()
+  private owner?: Document
   private lastVisible = false
   /** The rendered content the current position was measured for. */
   private lastContentText: string | null = null
@@ -410,10 +345,13 @@ export class Tooltip
    * previous tooltip, and honours the delay.
    */
   show(): void {
-    if (typeof document !== 'undefined') {
-      const previous = activeTooltips.get(document)
+    const doc = this.triggerWrap?.nativeElement.ownerDocument
+    if (doc) {
+      this.releaseOwner()
+      this.owner = doc
+      const previous = activeTooltips.get(doc)
       if (previous !== this.hideListener) previous?.()
-      activeTooltips.set(document, this.hideListener)
+      activeTooltips.set(doc, this.hideListener)
     }
     clearTimeout(this.hideTimer)
     clearTimeout(this.showTimer)
@@ -432,9 +370,7 @@ export class Tooltip
   hide(): void {
     clearTimeout(this.showTimer)
     clearTimeout(this.hideTimer)
-    if (typeof document !== 'undefined' && activeTooltips.get(document) === this.hideListener) {
-      activeTooltips.delete(document)
-    }
+    this.releaseOwner()
     this.visible.set(false)
     this.cdr.markForCheck()
   }
@@ -471,7 +407,7 @@ export class Tooltip
    * @param event - The key event.
    */
   handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') this.hide()
+    if (!this.visible() && event.key === 'Escape') this.hide()
   }
 
   /**
@@ -524,25 +460,36 @@ export class Tooltip
   ngOnDestroy(): void {
     clearTimeout(this.showTimer)
     clearTimeout(this.hideTimer)
-    if (typeof document !== 'undefined' && activeTooltips.get(document) === this.hideListener) {
-      activeTooltips.delete(document)
-    }
-    if (this.escapeBound) document.removeEventListener('keydown', this.escapeListener)
+    this.releaseOwner()
+    this.layer.release()
     this.associateEl = null
+  }
+
+  /** Releases tooltip ownership even after the declaring view is detached. */
+  private releaseOwner(): void {
+    if (this.owner && activeTooltips.get(this.owner) === this.hideListener)
+      activeTooltips.delete(this.owner)
+    this.owner = undefined
   }
 
   /** Attaches the portal to `document.body`, positions it and associates it. */
   private attachPortal(): void {
     const portal = this.portalWrap?.nativeElement
-    if (!portal) return
-    placeElement(portal, document.body)
-    this.inner.set(this.contentEl?.nativeElement ?? null)
+    const trigger = this.triggerWrap?.nativeElement
+    if (!portal || !trigger) return
+    placeElement(portal, trigger.ownerDocument.body)
+    const surface = this.contentEl?.nativeElement ?? null
+    this.inner.set(surface)
     this.updatePosition()
     this.associateEl?.setAttribute('aria-describedby', this.boxId())
-    if (!this.escapeBound) {
-      document.addEventListener('keydown', this.escapeListener)
-      this.escapeBound = true
-    }
+    this.layer.sync({
+      open: true,
+      kind: 'tooltip',
+      surface: { current: surface },
+      anchor: { current: trigger },
+      dismissKey: true,
+      onDismiss: this.hideListener,
+    })
   }
 
   /** Detaches the portal and removes the trigger association. */
@@ -552,24 +499,14 @@ export class Tooltip
     setElementPresent(portal, false)
     this.inner.set(null)
     this.associateEl?.removeAttribute('aria-describedby')
-    if (this.escapeBound) {
-      document.removeEventListener('keydown', this.escapeListener)
-      this.escapeBound = false
-    }
+    this.layer.release()
   }
 
   /** Measures the trigger and tooltip and updates the clamped position. */
   private updatePosition(): void {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return
     const trigger = this.triggerWrap?.nativeElement
     const tooltip = this.contentEl?.nativeElement
     if (!trigger || !tooltip) return
-    this.position.set(
-      calculatePosition(
-        trigger.getBoundingClientRect(),
-        tooltip.getBoundingClientRect(),
-        this.placement,
-      ),
-    )
+    this.position.set(measureTooltipPosition(trigger, tooltip, this.placement))
   }
 }

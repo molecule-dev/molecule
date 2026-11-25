@@ -55,6 +55,7 @@ import {
   watch,
 } from 'vue'
 
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import { getClassMap } from '@molecule/app-ui'
 import { useAuth, useLocation, useTranslation } from '@molecule/app-vue'
 
@@ -182,31 +183,36 @@ export const UserMenuPopover = defineComponent({
     const onPopState = (): void => {
       open.value = false
     }
-    onMounted(() => window.addEventListener('popstate', onPopState))
-    onUnmounted(() => window.removeEventListener('popstate', onPopState))
-
-    // Close on outside click and Escape while the panel is open.
-    const onMouseDown = (event: MouseEvent): void => {
-      if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
-        open.value = false
-      }
-    }
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') open.value = false
-    }
-    const stopDismissListeners = (): void => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-    watch(open, (value) => {
-      if (value) {
-        document.addEventListener('mousedown', onMouseDown)
-        document.addEventListener('keydown', onKeyDown)
-      } else {
-        stopDismissListeners()
-      }
+    let ownerWindow: Window | null | undefined
+    onMounted(() => {
+      ownerWindow = containerRef.value?.ownerDocument.defaultView
+      ownerWindow?.addEventListener('popstate', onPopState)
     })
-    onUnmounted(stopDismissListeners)
+    const layer = new OverlayLayer()
+    const target = {
+      get current() {
+        return containerRef.value
+      },
+    }
+    watch(
+      [open, containerRef],
+      ([value]) => {
+        layer.sync({
+          open: value,
+          kind: 'popover',
+          surface: target,
+          anchor: target,
+          dismissKey: true,
+          outside: { inside: [target], phase: 'start' },
+          onDismiss: onPopState,
+        })
+      },
+      { flush: 'post' },
+    )
+    onUnmounted(() => {
+      ownerWindow?.removeEventListener('popstate', onPopState)
+      layer.release()
+    })
 
     const resolvedGuest = computed(
       () => props.guestName ?? t('userMenuPopover.guest', {}, { defaultValue: 'Account' }),

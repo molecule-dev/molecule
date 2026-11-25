@@ -19,6 +19,7 @@ import {
 } from '@angular/core'
 
 import { useAuth, useHostPresence, useRouter, useTranslation } from '@molecule/app-angular'
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -145,8 +146,11 @@ export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
   private readonly cdr = inject(ChangeDetectorRef)
-  private listeners: (() => void)[] = []
-  private openListener = false
+  private readonly layer = new OverlayLayer()
+  private readonly close = (): void => {
+    this.isOpen.set(false)
+    this.cdr.markForCheck()
+  }
   private lastOpen = false
   private lastRoute: string | null = null
   /** Closes the popover on any route change (React's location effect). */
@@ -204,59 +208,33 @@ export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
     this.cdr.markForCheck()
   }
 
-  /** Closes the popover on the first pass and keeps the outside listeners in sync. */
+  /** Observes the host window's history, including navigation to the same URL. */
   ngAfterViewInit(): void {
-    // React's route effect runs on mount and closes the (closed) popover.
-    this.isOpen.set(false)
-    this.lastOpen = false
+    this.host.nativeElement.ownerDocument.defaultView?.addEventListener('popstate', this.close)
   }
 
-  /** Reconciles the document listeners for the open state. */
+  /** Registers the mounted disclosure with the document stack while open. */
   ngDoCheck(): void {
     const open = this.isOpen()
-    if (open !== this.lastOpen) {
-      this.lastOpen = open
-      if (open) this.addDocumentListeners()
-      else this.removeDocumentListeners()
-    }
+    if (open === this.lastOpen) return
+    this.lastOpen = open
+    const target = { current: this.host.nativeElement }
+    this.layer.sync({
+      open,
+      kind: 'popover',
+      surface: target,
+      anchor: target,
+      dismissKey: true,
+      outside: { inside: [target], phase: 'start' },
+      onDismiss: this.close,
+    })
   }
 
   /** Removes listeners and the context registration (unmount). */
   ngOnDestroy(): void {
-    this.removeDocumentListeners()
+    this.host.nativeElement.ownerDocument.defaultView?.removeEventListener('popstate', this.close)
+    this.layer.release()
     PopoverDomContext.remove(this.host.nativeElement)
-  }
-
-  /** Adds the outside-click and Escape dismiss listeners while open. */
-  private addDocumentListeners(): void {
-    this.removeDocumentListeners()
-    if (this.openListener) return
-    this.openListener = true
-    const onMouseDown = (event: MouseEvent): void => {
-      if (!this.host.nativeElement.contains(event.target as Node)) {
-        this.isOpen.set(false)
-        this.cdr.markForCheck()
-      }
-    }
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        this.isOpen.set(false)
-        this.cdr.markForCheck()
-      }
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    this.listeners.push(
-      () => document.removeEventListener('mousedown', onMouseDown),
-      () => document.removeEventListener('keydown', onKeyDown),
-    )
-  }
-
-  /** Removes the document listeners. */
-  private removeDocumentListeners(): void {
-    for (const off of this.listeners) off()
-    this.listeners = []
-    this.openListener = false
   }
 }
 

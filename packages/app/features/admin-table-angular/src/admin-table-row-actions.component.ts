@@ -40,12 +40,12 @@ import type { AdminTableRowAction } from './types.js'
   selector: 'div[mol-admin-table-row-actions]',
   standalone: true,
   imports: [NgTemplateOutlet],
-  inputs: ['row', 'actions', 'ariaLabel'],
+  inputs: ['row', 'actions', 'ariaLabel', 'stopActionPropagation'],
   host: {
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<button type="button" [class]="triggerClasses()" aria-busy="false" [attr.aria-label]="resolvedAriaLabel()" aria-haspopup="menu" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" data-mol-id="admin-table-row-actions-trigger" (click)="toggle($event)"><span [class]="iconClasses()" aria-hidden="true" data-icon="more_vert">more_vert</span></button>@if (isOpen()) {<div #popover [class]="popoverClasses()" [style]="popoverStyleText()"><div [class]="wrapperClasses()">@for (action of actions; track $index) {@if (hrefFor(action); as href) {<a [attr.href]="href" [class]="itemClasses(action)" [attr.data-mol-id]="dataMolIdFor(action)" (click)="close()">@if (isText(action.label)) { {{ labelText(action) }} } @else {<ng-container [ngTemplateOutlet]="labelTemplate(action)"></ng-container>}</a>} @else {<button [class]="itemClasses(action)" [attr.data-mol-id]="dataMolIdFor(action)" (click)="activate(action)">@if (isText(action.label)) { {{ labelText(action) }} } @else {<ng-container [ngTemplateOutlet]="labelTemplate(action)"></ng-container>}</button>}}</div></div>}`,
+  template: `<button type="button" [class]="triggerClasses()" aria-busy="false" [attr.aria-label]="resolvedAriaLabel()" aria-haspopup="menu" [attr.aria-expanded]="isOpen() ? 'true' : 'false'" data-mol-id="admin-table-row-actions-trigger" (click)="toggle($event)"><span [class]="iconClasses()" aria-hidden="true" data-icon="more_vert">more_vert</span></button>@if (isOpen()) {<div #popover [class]="popoverClasses()" [style]="popoverStyleText()"><div [class]="wrapperClasses()">@for (action of actions; track $index) {@if (hrefFor(action); as href) {<a [attr.href]="href" [class]="itemClasses(action)" [attr.data-mol-id]="dataMolIdFor(action)" (click)="close($event)">@if (isText(action.label)) { {{ labelText(action) }} } @else {<ng-container [ngTemplateOutlet]="labelTemplate(action)"></ng-container>}</a>} @else {<button [class]="itemClasses(action)" [attr.data-mol-id]="dataMolIdFor(action)" (click)="activate(action, $event)">@if (isText(action.label)) { {{ labelText(action) }} } @else {<ng-container [ngTemplateOutlet]="labelTemplate(action)"></ng-container>}</button>}}</div></div>}`,
 })
 export class AdminTableRowActions<T = unknown> implements OnInit, OnDestroy {
   /** The row the menu belongs to. */
@@ -57,6 +57,8 @@ export class AdminTableRowActions<T = unknown> implements OnInit, OnDestroy {
    * (`adminTable.aria.rowActions`, English `'Row actions'`).
    */
   ariaLabel?: string
+  /** Keep selection within a clickable row. */
+  stopActionPropagation = false
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
@@ -204,7 +206,8 @@ export class AdminTableRowActions<T = unknown> implements OnInit, OnDestroy {
   /**
    * Closes the menu (an item's click).
    */
-  close(): void {
+  close(event?: MouseEvent): void {
+    if (this.stopActionPropagation) event?.stopPropagation()
     this.open.set(false)
   }
 
@@ -213,7 +216,8 @@ export class AdminTableRowActions<T = unknown> implements OnInit, OnDestroy {
    * handler).
    * @param action - The action.
    */
-  async activate(action: AdminTableRowAction<T>): Promise<void> {
+  async activate(action: AdminTableRowAction<T>, event?: MouseEvent): Promise<void> {
+    if (this.stopActionPropagation) event?.stopPropagation()
     this.open.set(false)
     await action.onSelect(this.row as T)
   }

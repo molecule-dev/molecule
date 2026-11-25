@@ -137,7 +137,8 @@ export function AdminTableRowActions<T>(props: AdminTableRowActionsProps<T>): JS
                     <button
                       class={itemClass(action)}
                       data-mol-id={action.dataMolIdFor?.(props.row)}
-                      onClick={async () => {
+                      onClick={async (event) => {
+                        if (props.stopActionPropagation) event.stopPropagation()
                         setOpen(false)
                         await action.onSelect(props.row)
                       }}
@@ -150,7 +151,10 @@ export function AdminTableRowActions<T>(props: AdminTableRowActionsProps<T>): JS
                     href={href}
                     class={itemClass(action)}
                     data-mol-id={action.dataMolIdFor?.(props.row)}
-                    onClick={() => setOpen(false)}
+                    onClick={(event) => {
+                      if (props.stopActionPropagation) event.stopPropagation()
+                      setOpen(false)
+                    }}
                   >
                     {action.label}
                   </a>

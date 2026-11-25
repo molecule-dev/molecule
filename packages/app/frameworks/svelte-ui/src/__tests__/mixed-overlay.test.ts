@@ -15,6 +15,7 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => {
   const location = readable({ pathname: '/dashboard', search: '', hash: '', key: 'dashboard' })
   return {
     ...(await importOriginal<typeof Binding>()),
+    useAuth: () => ({ state: readable({ user: null }) }),
     getRouter: () => ({ subscribe: () => () => {} }),
     useLocation: () => location,
   }
@@ -81,6 +82,47 @@ afterEach(async () => {
   document.body.replaceChildren()
   document.body.removeAttribute('style')
   vi.unstubAllGlobals()
+})
+
+it('lets the foreground dialog shield an open account disclosure', async () => {
+  const close = vi.fn()
+  const view = await mount({ inline: true, shell: false, onClose: close })
+  const trigger = body().getByRole('button', { name: 'Open user menu' })
+  fireEvent.click(trigger)
+  await flush()
+  fireEvent.mouseDown(body().getByRole('navigation', { name: 'Account menu' }))
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.update({ modal: true })
+  await flush()
+  const dialog = body().getByRole('dialog')
+  fireEvent.mouseDown(dialog)
+  fireEvent.keyDown(dialog, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledOnce()
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.update({ modal: false })
+  await flush()
+  fireEvent.popState(window)
+  await flush()
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+})
+
+it('lets the foreground dialog shield an armed confirmation button', async () => {
+  const close = vi.fn()
+  const view = await mount({ inline: true, shell: false, onClose: close })
+  fireEvent.click(body().getByRole('button', { name: 'Remove' }))
+  await flush()
+  view.update({ modal: true })
+  await flush()
+  fireEvent.keyDown(body().getByRole('dialog'), { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledOnce()
+  expect(body().getByRole('button', { name: 'Confirm?' })).toBeDefined()
+  view.update({ modal: false })
+  await flush()
+  fireEvent.keyDown(document.body, { key: 'Escape' })
+  await flush()
+  expect(body().getByRole('button', { name: 'Remove' })).toBeDefined()
 })
 
 it('delivers one Escape to the modal above the drawer', async () => {

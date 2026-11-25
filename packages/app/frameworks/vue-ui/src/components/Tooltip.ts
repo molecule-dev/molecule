@@ -18,6 +18,7 @@ import {
   watch,
 } from 'vue'
 
+import { measureTooltipPosition, OverlayLayer } from '@molecule/app-overlay-dom'
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -102,62 +103,6 @@ function getArrowStyle(placement: TooltipPlacement): Record<string, string | num
   }
 }
 
-/**
- * Calculate tooltip position based on trigger element and placement.
- * @param triggerRect - The bounding rectangle of the trigger element.
- * @param tooltipRect - The bounding rectangle of the tooltip element.
- * @param placement - The desired tooltip placement direction.
- * @param offset - The pixel offset from the trigger element.
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  tooltipRect: DOMRect,
-  placement: TooltipPlacement,
-  offset = 8,
-): Position {
-  const { top, left, width, height } = triggerRect
-  const tooltipWidth = tooltipRect.width
-  const tooltipHeight = tooltipRect.height
-
-  const positions: Record<TooltipPlacement, Position> = {
-    top: {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX + width / 2 - tooltipWidth / 2,
-    },
-    bottom: {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX + width / 2 - tooltipWidth / 2,
-    },
-    left: {
-      top: top + window.scrollY + height / 2 - tooltipHeight / 2,
-      left: left + window.scrollX - tooltipWidth - offset,
-    },
-    right: {
-      top: top + window.scrollY + height / 2 - tooltipHeight / 2,
-      left: left + window.scrollX + width + offset,
-    },
-    'top-start': {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX,
-    },
-    'top-end': {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX + width - tooltipWidth,
-    },
-    'bottom-start': {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX,
-    },
-    'bottom-end': {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX + width - tooltipWidth,
-    },
-  }
-
-  return positions[placement]
-}
-
 /** Per-instance counter backing each Tooltip's unique describedby id. */
 let nextTooltipId = 0
 
@@ -209,33 +154,12 @@ export const Tooltip = defineComponent({
     const tooltipRef = useElementRef<HTMLDivElement>(expose)
     let showTimeout: ReturnType<typeof setTimeout> | undefined
     let hideTimeout: ReturnType<typeof setTimeout> | undefined
+    let owner: Document | undefined
+    const layer = new OverlayLayer()
 
     const updatePosition = (): void => {
-      // Guard against measurement without a DOM — SSR, or after the test
-      // environment / portal root has been torn down while a show timer or a
-      // pending effect was still queued.
-      if (typeof window === 'undefined' || typeof document === 'undefined') return
-      if (triggerRef.value && tooltipRef.value) {
-        const triggerRect = triggerRef.value.getBoundingClientRect()
-        const tooltipRect = tooltipRef.value.getBoundingClientRect()
-        const newPosition = calculatePosition(triggerRect, tooltipRect, props.placement)
-        // Clamp into the viewport so a wide/edge tooltip never spills off the page
-        // (which would spawn a horizontal scrollbar). Positions are in document
-        // space (they already include scrollX/scrollY); use clientWidth/clientHeight
-        // — NOT innerWidth/innerHeight — so the page scrollbar is excluded. The
-        // Math.max(min, max) guard keeps it on-screen even when the tooltip is
-        // wider than the viewport.
-        const margin = 8
-        const minLeft = window.scrollX + margin
-        const maxLeft =
-          window.scrollX + document.documentElement.clientWidth - tooltipRect.width - margin
-        const minTop = window.scrollY + margin
-        const maxTop =
-          window.scrollY + document.documentElement.clientHeight - tooltipRect.height - margin
-        newPosition.left = Math.min(Math.max(newPosition.left, minLeft), Math.max(minLeft, maxLeft))
-        newPosition.top = Math.min(Math.max(newPosition.top, minTop), Math.max(minTop, maxTop))
-        position.value = newPosition
-      }
+      if (triggerRef.value && tooltipRef.value)
+        position.value = measureTooltipPosition(triggerRef.value, tooltipRef.value, props.placement)
     }
 
     const hide = (): void => {
@@ -243,18 +167,21 @@ export const Tooltip = defineComponent({
         clearTimeout(showTimeout)
       }
       clearTimeout(hideTimeout)
-      if (typeof document !== 'undefined' && activeTooltips.get(document) === hide) {
-        activeTooltips.delete(document)
-      }
+      if (owner && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
+      owner = undefined
       isVisible.value = false
     }
 
     const show = (): void => {
-      if (typeof document !== 'undefined') {
-        const previous = activeTooltips.get(document)
+      const doc = triggerRef.value?.ownerDocument
+      if (doc) {
+        if (owner && owner !== doc && activeTooltips.get(owner) === hide)
+          activeTooltips.delete(owner)
+        owner = doc
+        const previous = activeTooltips.get(doc)
         if (previous !== hide) previous?.()
         // Claim before scheduling so another trigger also cancels pending shows.
-        activeTooltips.set(document, hide)
+        activeTooltips.set(doc, hide)
       }
       clearTimeout(hideTimeout)
       if (showTimeout) {
@@ -280,11 +207,6 @@ export const Tooltip = defineComponent({
 
     const keepVisible = (): void => {
       clearTimeout(hideTimeout)
-    }
-
-    // Hovered content must dismiss while focus stays in the editor/composer.
-    const onDocumentEscape = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') hide()
     }
 
     // Show on focus ONLY for keyboard focus (:focus-visible). A mouse click or a
@@ -339,11 +261,14 @@ export const Tooltip = defineComponent({
       [isVisible, () => props.content, () => props.placement],
       ([visible]) => {
         if (visible) updatePosition()
-        // While visible, Escape hides the tooltip (guarded — there may be no
-        // document, e.g. SSR or a torn-down test environment).
-        if (typeof document === 'undefined') return
-        if (visible) document.addEventListener('keydown', onDocumentEscape)
-        else document.removeEventListener('keydown', onDocumentEscape)
+        layer.sync({
+          open: visible,
+          kind: 'tooltip',
+          surface: { current: tooltipRef.value },
+          anchor: { current: triggerRef.value },
+          dismissKey: true,
+          onDismiss: hide,
+        })
       },
       { flush: 'post' },
     )
@@ -353,12 +278,8 @@ export const Tooltip = defineComponent({
         clearTimeout(showTimeout)
       }
       clearTimeout(hideTimeout)
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('keydown', onDocumentEscape)
-        if (activeTooltips.get(document) === hide) {
-          activeTooltips.delete(document)
-        }
-      }
+      layer.release()
+      if (owner && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
     })
 
     return () => {
@@ -388,7 +309,12 @@ export const Tooltip = defineComponent({
         // node with the describedby id injected on top of its own props.
         describedChildren = h(
           vnode.type as string | Component,
-          { ...vnode.props, 'aria-describedby': tooltipId },
+          {
+            ...vnode.props,
+            'aria-describedby': [vnode.props?.['aria-describedby'], tooltipId]
+              .filter(Boolean)
+              .join(' '),
+          },
           typeof vnode.children === 'string'
             ? vnode.children
             : ((vnode.children ?? undefined) as VNodeArrayChildren),
@@ -411,7 +337,7 @@ export const Tooltip = defineComponent({
           // WITHOUT moving the pointer or focus — Escape hides the tooltip
           // (the keydown on the focused child bubbles up to this wrapper).
           onKeydown: (e: KeyboardEvent) => {
-            if (e.key === 'Escape') hide()
+            if (!isVisible.value && e.key === 'Escape') hide()
           },
           // Any click on a tooltip-wrapped control hides the tooltip — clicking a
           // button shouldn't leave its hover/focus tooltip lingering.
@@ -428,46 +354,48 @@ export const Tooltip = defineComponent({
       // because `tooltipContent` sets `overflow-hidden` — an arrow meant to
       // poke past the box's own edge would be clipped invisible if it were a
       // descendant of that element instead.
-      const tooltipElement = isVisible.value
-        ? h(
-            Teleport,
-            { to: 'body' },
-            h(
-              'div',
-              {
-                style: {
-                  position: 'absolute',
-                  top: `${position.value.top}px`,
-                  left: `${position.value.left}px`,
-                  zIndex: 9999,
-                },
-                onMouseover: handleTooltipMouseEnter,
-                onMouseout: handleTooltipMouseLeave,
-              },
-              [
-                h(
-                  'div',
-                  {
-                    ref: tooltipRef,
-                    role: 'tooltip',
-                    class: cm.cn(cm.tooltipContent, ...classOf(props.className, attrs)),
-                    style: styleOf(props.style, attrs),
-                    'data-testid': props.testId,
-                    // The box carries every declared prop (title, aria-*, data-*,
-                    // automationId as data-mol-id, handlers); the box's id is the
-                    // caller's or the generated one.
-                    ...restAttrs(attrs),
-                    id: tooltipId,
+      const body = triggerRef.value?.ownerDocument.body
+      const tooltipElement =
+        isVisible.value && body
+          ? h(
+              Teleport,
+              { to: body },
+              h(
+                'div',
+                {
+                  style: {
+                    position: 'absolute',
+                    top: `${position.value.top}px`,
+                    left: `${position.value.left}px`,
+                    zIndex: 9999,
                   },
-                  props.content ?? slots.content?.(),
-                ),
-                props.hasArrow
-                  ? h('span', { 'aria-hidden': 'true', style: getArrowStyle(props.placement) })
-                  : null,
-              ],
-            ),
-          )
-        : null
+                  onMouseover: handleTooltipMouseEnter,
+                  onMouseout: handleTooltipMouseLeave,
+                },
+                [
+                  h(
+                    'div',
+                    {
+                      ref: tooltipRef,
+                      role: 'tooltip',
+                      class: cm.cn(cm.tooltipContent, ...classOf(props.className, attrs)),
+                      style: styleOf(props.style, attrs),
+                      'data-testid': props.testId,
+                      // The box carries every declared prop (title, aria-*, data-*,
+                      // automationId as data-mol-id, handlers); the box's id is the
+                      // caller's or the generated one.
+                      ...restAttrs(attrs),
+                      id: tooltipId,
+                    },
+                    props.content ?? slots.content?.(),
+                  ),
+                  props.hasArrow
+                    ? h('span', { 'aria-hidden': 'true', style: getArrowStyle(props.placement) })
+                    : null,
+                ],
+              ),
+            )
+          : null
 
       return [trigger, tooltipElement]
     }

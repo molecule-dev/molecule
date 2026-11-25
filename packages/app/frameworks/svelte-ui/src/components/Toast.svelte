@@ -4,12 +4,11 @@
   toasts announce assertively (role=alert), the rest politely (role=status).
 -->
 <script lang="ts">
-  import { untrack } from 'svelte'
-
   import type { IconName } from '@molecule/app-icons'
+  import { focusStaysWithin } from '@molecule/app-overlay-dom'
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import type { ColorVariant } from '@molecule/app-ui'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, ToastCountdown } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
@@ -66,51 +65,14 @@
   const variant = $derived(statusVariantMap[status] ?? 'default')
   const iconName = $derived(statusIconMap[variant])
 
-  // The countdown depends ONLY on duration (a parent re-render that changes
-  // nothing else must not restart it); the latest onDismiss is read through
-  // the prop reference at fire time. The initial `remaining` read is
-  // deliberately one-shot — `untrack` says so explicitly.
-  let remaining = untrack(() => duration)
-  let startedAt: number | null = null
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  const clearTimer = (): void => {
-    if (timer) clearTimeout(timer)
-    timer = undefined
-    startedAt = null
-  }
-
-  const startTimer = (ms: number): void => {
-    clearTimer()
-    if (ms <= 0) return
-    startedAt = Date.now()
-    timer = setTimeout(() => {
-      isVisible = false
-      onDismiss?.()
-    }, ms)
-  }
-
-  const pauseTimer = (): void => {
-    if (startedAt === null) return
-    const elapsed = Date.now() - startedAt
-    remaining = Math.max(0, remaining - elapsed)
-    clearTimer()
-  }
-
-  const resumeTimer = (): void => {
-    if (remaining > 0) startTimer(remaining)
-  }
-
-  $effect(() => {
-    remaining = duration
-    startTimer(duration)
-    return clearTimer
-  })
-
-  const handleDismiss = (): void => {
+  const countdown = new ToastCountdown(() => {
     isVisible = false
     onDismiss?.()
-  }
+  })
+  $effect(() => {
+    countdown.start(duration)
+    return countdown.stop
+  })
 
   // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id,
   // the DOM event handlers) reaches the root; a caller's role replaces the
@@ -120,19 +82,19 @@
   // The timer pauses while the pointer or focus is on the toast; the caller's
   // handlers for the same events run after it.
   const handleMouseEnter = (event: MouseEvent): void => {
-    pauseTimer()
+    countdown.setPaused('hover', true)
     onMouseEnter?.(event)
   }
   const handleMouseLeave = (event: MouseEvent): void => {
-    resumeTimer()
+    countdown.setPaused('hover', false)
     onMouseLeave?.(event)
   }
   const handleFocusIn = (event: FocusEvent): void => {
-    pauseTimer()
+    countdown.setPaused('focus', true)
     onFocus?.(event)
   }
   const handleFocusOut = (event: FocusEvent): void => {
-    resumeTimer()
+    if (!focusStaysWithin(event)) countdown.setPaused('focus', false)
     onBlur?.(event)
   }
 </script>
@@ -167,7 +129,7 @@
     {#if dismissible}
       <button
         type="button"
-        onclick={handleDismiss}
+        onclick={countdown.dismiss}
         class={cm.toastClose}
         aria-label={closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}
       >

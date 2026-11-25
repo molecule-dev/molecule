@@ -3,7 +3,6 @@
  *
  * @module
  */
-
 import {
   cloneElement,
   forwardRef,
@@ -20,148 +19,34 @@ import {
 } from 'react'
 
 import type {
-  ElementBox,
   ElementHandle,
   KitFocusEvent,
   KitMouseEvent,
-  TooltipPlacement,
   TooltipProps as WebTooltipProps,
-  WebStyle,
 } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import {
   Box,
   elementWindowScope,
   isElementFocusVisible,
-  measureElement,
-  measurePositionedOrigin,
-  observeElementViewport,
   readElementViewport,
-  useElementLayoutEffect,
 } from '@molecule/app-ui-react/elements'
-import { OverlayPortal, useOverlayLayer } from '@molecule/app-ui-react/platform'
+import {
+  OverlayArrow,
+  OverlayPortal,
+  useAnchoredPosition,
+  useOverlayLayer,
+  useTooltipDescription,
+} from '@molecule/app-ui-react/platform'
 
 import { isReactNode } from '../utilities/isReactNode.js'
 import { mergeRefs } from '../utilities/mergeRefs.js'
 import { rootProps } from '../utilities/rootProps.js'
 
-interface Position {
-  top: number
-  left: number
-}
-
 type TooltipComponent = NamedExoticComponent<WebTooltipProps & RefAttributes<ElementHandle>>
-
-/** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
-const ARROW_SIZE = 8
 
 // One active or pending tooltip per renderer window.
 const activeTooltips = new WeakMap<object, () => void>()
-
-/**
- * Returns the arrow's inline position style for a given placement. The arrow
- * has no dedicated ClassMap resolver (`tooltip()` takes no options), so its
- * shape/position is expressed via a small inline style — the sanctioned
- * exception for values ClassMap cannot express. Its color is NOT hardcoded:
- * `var(--color-surface)` / `var(--color-border)` are the same CSS custom
- * properties the `bg-surface`/`border` Tailwind utilities in `tooltipContent`
- * resolve to (see `@molecule/app-ui-tailwind/base.css`), so the arrow always
- * matches the tooltip body in both themes.
- * @param placement - The tooltip's resolved placement.
- * @returns Inline style positioning the rotated-square arrow for that placement.
- */
-function getArrowStyle(placement: TooltipPlacement): WebStyle {
-  const half = ARROW_SIZE / 2
-  const base: WebStyle = {
-    position: 'absolute',
-    width: ARROW_SIZE,
-    height: ARROW_SIZE,
-    background: 'var(--color-surface)',
-    border: '1px solid var(--color-border)',
-  }
-  switch (placement) {
-    case 'top':
-      return { ...base, bottom: -half, left: '50%', transform: 'translateX(-50%) rotate(45deg)' }
-    case 'top-start':
-      return { ...base, bottom: -half, left: 12, transform: 'rotate(45deg)' }
-    case 'top-end':
-      return { ...base, bottom: -half, right: 12, transform: 'rotate(45deg)' }
-    case 'bottom':
-      return { ...base, top: -half, left: '50%', transform: 'translateX(-50%) rotate(45deg)' }
-    case 'bottom-start':
-      return { ...base, top: -half, left: 12, transform: 'rotate(45deg)' }
-    case 'bottom-end':
-      return { ...base, top: -half, right: 12, transform: 'rotate(45deg)' }
-    case 'left':
-      return { ...base, right: -half, top: '50%', transform: 'translateY(-50%) rotate(45deg)' }
-    case 'right':
-      return { ...base, left: -half, top: '50%', transform: 'translateY(-50%) rotate(45deg)' }
-    default:
-      return base
-  }
-}
-
-/**
- * Calculate tooltip position based on trigger element and placement.
- * @param triggerRect - The bounding rectangle of the trigger element.
- * @param tooltipRect - The bounding rectangle of the tooltip element.
- * @param placement - The desired tooltip placement direction.
- * @param offset - The pixel offset from the trigger element.
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: ElementBox,
-  tooltipRect: ElementBox,
-  placement: TooltipPlacement,
-  offset = 8,
-): Position {
-  const { x: left, y: top, width, height } = triggerRect
-  const tooltipWidth = tooltipRect.width
-  const tooltipHeight = tooltipRect.height
-
-  const positions: Record<TooltipPlacement, Position> = {
-    top: {
-      top: top - tooltipHeight - offset,
-      left: left + width / 2 - tooltipWidth / 2,
-    },
-    bottom: {
-      top: top + height + offset,
-      left: left + width / 2 - tooltipWidth / 2,
-    },
-    left: {
-      top: top + height / 2 - tooltipHeight / 2,
-      left: left - tooltipWidth - offset,
-    },
-    right: {
-      top: top + height / 2 - tooltipHeight / 2,
-      left: left + width + offset,
-    },
-    'top-start': {
-      top: top - tooltipHeight - offset,
-      left,
-    },
-    'top-end': {
-      top: top - tooltipHeight - offset,
-      left: left + width - tooltipWidth,
-    },
-    'bottom-start': {
-      top: top + height + offset,
-      left,
-    },
-    'bottom-end': {
-      top: top + height + offset,
-      left: left + width - tooltipWidth,
-    },
-  }
-
-  return positions[placement]
-}
-
-/** Keeps a positioned edge inside the visible viewport, including an oversized tooltip. */
-function clampEdge(value: number, viewportSize: number, surfaceSize: number): number {
-  const margin = 8
-  return Math.min(Math.max(value, margin), Math.max(margin, viewportSize - surfaceSize - margin))
-}
 
 /**
  * Tooltip component.
@@ -193,11 +78,8 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
   ) => {
     const [isVisible, setIsVisible] = useState(false)
     const [inDeviceWindow, setInDeviceWindow] = useState(false)
-    const [position, setPosition] = useState<Position>({ top: 0, left: 0 })
-    const committedPosition = useRef(position)
     const triggerRef = useRef<ElementHandle>(null)
     const tooltipRef = useRef<ElementHandle>(null)
-    const positionedRef = useRef<ElementHandle>(null)
     const [surface, setSurface] = useState<ElementHandle | null>(null)
     const activeWindow = useRef<object | undefined>(undefined)
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -233,8 +115,25 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
       surface: tooltipRef,
       anchor: triggerRef,
       dismissKey: true,
+      outside: inDeviceWindow ? { inside: [triggerRef, tooltipRef], phase: 'start' } : undefined,
       onDismiss: hide,
     })
+
+    const position = useAnchoredPosition({
+      layer,
+      open: isVisible,
+      anchor: triggerRef,
+      surface,
+      placement,
+      offset: 8,
+      padding: 8,
+      collision: 'shift',
+      timing: 'layout',
+      contentKey: content,
+    })
+
+    const tooltipContent = isReactNode(content) ? content : null
+    const hasPersistentDescription = useTooltipDescription(tooltipId, tooltipContent)
 
     const show = useCallback(() => {
       const trigger = triggerRef.current
@@ -288,40 +187,6 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
       [show],
     )
 
-    useElementLayoutEffect(() => {
-      committedPosition.current = position
-    }, [position])
-
-    useElementLayoutEffect(() => {
-      const anchor = triggerRef.current
-      const positioned = positionedRef.current
-      if (!isVisible || !anchor || !surface || !positioned) return
-      let generation = 0
-      const stop = observeElementViewport(anchor, (viewport) => {
-        const sample = ++generation
-        measureElement(anchor, (anchorBox) => {
-          if (sample !== generation) return
-          measureElement(surface, (tooltipBox) => {
-            if (sample !== generation) return
-            const { left, top } = calculatePosition(anchorBox, tooltipBox, placement)
-            const x = clampEdge(left, viewport.width, tooltipBox.width)
-            const y = clampEdge(top, viewport.contentHeight, tooltipBox.height)
-            measurePositionedOrigin(positioned, committedPosition.current, (origin) => {
-              if (sample !== generation) return
-              const next = { left: x - origin.x, top: y - origin.y }
-              setPosition((previous) =>
-                previous.left === next.left && previous.top === next.top ? previous : next,
-              )
-            })
-          })
-        })
-      })
-      return () => {
-        generation++
-        stop()
-      }
-    }, [content, isVisible, placement, surface])
-
     useEffect(() => () => release(hide), [hide, release])
 
     // Outer positioned wrapper carries the top/left/zIndex placement; the
@@ -333,11 +198,9 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
       <Box
         as="div"
         accessibilityGroup={false}
-        ref={positionedRef}
         style={{ position: 'absolute', top: position.top, left: position.left, zIndex: 9999 }}
         onMouseEnter={keepVisible}
         onMouseLeave={scheduleHide}
-        onPressOutside={inDeviceWindow ? hide : undefined}
       >
         {/* The box carries every declared prop: className, style, testId, the forwarded ref,
             and the rest (title, aria-*, data-*, automationId as data-mol-id, handlers). */}
@@ -351,16 +214,9 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
           {...rootProps(rest)}
           id={tooltipId}
         >
-          {isReactNode(content) ? content : null}
+          {tooltipContent}
         </Box>
-        {hasArrow && (
-          <Box
-            as="span"
-            aria-hidden="true"
-            className={inDeviceWindow ? cm.cn(cm.surface, cm.borderAll) : undefined}
-            webStyle={getArrowStyle(placement)}
-          />
-        )}
+        {hasArrow && <OverlayArrow placement={position.placement} />}
       </Box>
     )
 
@@ -374,7 +230,13 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
       isValidElement<{ 'aria-describedby'?: string }>(triggerContent) &&
       triggerContent.type !== Fragment
         ? cloneElement(triggerContent, {
-            'aria-describedby': isVisible ? tooltipId : undefined,
+            'aria-describedby':
+              [
+                triggerContent.props['aria-describedby'],
+                (isVisible || hasPersistentDescription) && tooltipId,
+              ]
+                .filter(Boolean)
+                .join(' ') || undefined,
           })
         : triggerContent
 
@@ -408,7 +270,7 @@ export const Tooltip: TooltipComponent = forwardRef<ElementHandle, WebTooltipPro
           {describedChildren}
         </Box>
         {tooltipElement && (
-          <OverlayPortal layer={layer} presentation="host" server="omit">
+          <OverlayPortal layer={layer} presentation="host" server="omit" anchorPosition={position}>
             {tooltipElement}
           </OverlayPortal>
         )}

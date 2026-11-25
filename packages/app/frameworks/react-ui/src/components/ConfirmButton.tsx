@@ -4,13 +4,23 @@
  * @module
  */
 
-import React, { forwardRef, useEffect, useRef, useState } from 'react'
+import React, {
+  forwardRef,
+  type NamedExoticComponent,
+  type RefAttributes,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import type { ButtonProps } from '@molecule/app-ui'
+import type { ButtonProps, ElementHandle } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Pressable, registerInline } from '@molecule/app-ui-react/elements'
+import { useOverlayLayer } from '@molecule/app-ui-react/platform'
 
+import { mergeRefs } from '../utilities/mergeRefs.js'
 import { rootProps } from '../utilities/rootProps.js'
 
 /**
@@ -18,7 +28,7 @@ import { rootProps } from '../utilities/rootProps.js'
  */
 export interface ConfirmButtonProps extends Omit<
   ButtonProps,
-  'onClick' | 'children' | 'onConfirm' | keyof React.DOMAttributes<HTMLButtonElement>
+  'onClick' | 'children' | 'onConfirm' | keyof React.DOMAttributes<ElementHandle>
 > {
   /**
    * Fired ONLY on the confirming (second) click — i.e. when the action
@@ -79,7 +89,9 @@ export interface ConfirmButtonProps extends Omit<
  * />
  * ```
  */
-export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
+export const ConfirmButton: NamedExoticComponent<
+  ConfirmButtonProps & RefAttributes<ElementHandle>
+> = forwardRef<ElementHandle, ConfirmButtonProps>(
   (
     {
       onConfirm,
@@ -102,6 +114,8 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
     const { t } = useTranslation()
     const [phase, setPhase] = useState<'idle' | 'armed' | 'pending'>('idle')
     const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const surface = useRef<ElementHandle>(null)
+    const setSurface = useMemo(() => mergeRefs(ref, surface), [ref])
 
     const disarm = (): void => {
       if (disarmTimer.current) clearTimeout(disarmTimer.current)
@@ -124,14 +138,14 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
       }
     }, [phase, disarmSeconds])
 
-    useEffect(() => {
-      if (phase !== 'armed') return
-      const onKey = (e: KeyboardEvent): void => {
-        if (e.key === 'Escape') disarm()
-      }
-      window.addEventListener('keydown', onKey)
-      return () => window.removeEventListener('keydown', onKey)
-    }, [phase])
+    useOverlayLayer({
+      open: phase === 'armed',
+      kind: 'popover',
+      surface,
+      anchor: surface,
+      dismissKey: true,
+      onDismiss: disarm,
+    })
 
     const handleClick = async (): Promise<void> => {
       if (phase === 'idle') {
@@ -162,7 +176,7 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
     return (
       <Pressable
         as="button"
-        ref={ref}
+        ref={setSurface}
         type="button"
         onClick={() => void handleClick()}
         disabled={disabled || phase === 'pending'}

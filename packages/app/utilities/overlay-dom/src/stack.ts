@@ -45,6 +45,14 @@ export function domElement(handle: unknown): FocusElement | null {
   return isFocusElement(handle) ? handle : null
 }
 
+/** Whether blur moved between controls in the same surface. */
+export function focusStaysWithin(
+  event: Pick<FocusEvent, 'currentTarget' | 'relatedTarget'>,
+): boolean {
+  const destination = domElement(event.relatedTarget)
+  return !!destination && !!domElement(event.currentTarget)?.contains(destination)
+}
+
 const locks = new WeakMap<HTMLElement, { count: number; overflow: string; priority: string }>()
 
 /** Keeps a body's first inline overflow value and priority until the last release. */
@@ -83,6 +91,8 @@ function isInteractive(entry: Entry): boolean {
 /** A layer stack shared by all renderers and roots in the same document. */
 class DocumentLayers {
   private readonly entries: Entry[] = []
+  private observingOutside = false
+  private dismissedOnMouseDown = false
 
   constructor(private readonly owner: Document) {}
 
@@ -197,6 +207,52 @@ class DocumentLayers {
     }
   }
 
+  private readonly mousedown = (event: MouseEvent): void => {
+    this.dismissedOnMouseDown = this.dismissOutside('start', event)
+  }
+
+  private readonly click = (event: MouseEvent): void => {
+    // A pointer activation must not dismiss a second layer after its mousedown
+    // closed the first. Keyboard and assistive-technology clicks have detail 0.
+    const alreadyDismissed = event.detail > 0 && this.dismissedOnMouseDown
+    this.dismissedOnMouseDown = false
+    if (!alreadyDismissed) this.dismissOutside('activate', event)
+  }
+
+  /** Delivers an outside press to the foremost eligible layer. */
+  private dismissOutside(phase: 'start' | 'activate', event: MouseEvent): boolean {
+    const entry = this.top(
+      ({ options }) => options.kind === 'modal' || (options.kind !== 'toast' && !!options.outside),
+    )
+    const outside = entry?.options.outside
+    if (!entry || outside?.phase !== phase) return false
+    const inside = outside.inside.map(({ current }) => domElement(current))
+    const path = event.composedPath()
+    if (
+      inside.some((node) => !node?.isConnected || node.ownerDocument !== this.owner) ||
+      [...inside, ...this.roots(entry)].some((node) => node && path.includes(node))
+    ) {
+      return false
+    }
+    entry.options.onDismiss?.('outside')
+    return true
+  }
+
+  /** Listens once per document while at least one layer requests outside presses. */
+  private syncOutside(): void {
+    const outside = this.entries.some(({ options }) => !!options.outside)
+    if (outside === this.observingOutside) return
+    this.observingOutside = outside
+    if (outside) {
+      this.owner.addEventListener('mousedown', this.mousedown)
+      this.owner.addEventListener('click', this.click)
+    } else {
+      this.owner.removeEventListener('mousedown', this.mousedown)
+      this.owner.removeEventListener('click', this.click)
+      this.dismissedOnMouseDown = false
+    }
+  }
+
   /** Registers an open interval and places a late parent below its descendants. */
   open(
     layer: OverlayLayer,
@@ -221,6 +277,7 @@ class DocumentLayers {
       this.entries.splice(oldestChildIndex, 0, entry)
     }
     this.syncLock(entry)
+    this.syncOutside()
     return entry
   }
 
@@ -244,6 +301,7 @@ class DocumentLayers {
     entry.logicalParent = logicalParent
     this.updateOwnership()
     this.syncLock(entry)
+    this.syncOutside()
   }
 
   /** Updates the body's lock without re-registering the layer. */
@@ -278,6 +336,7 @@ class DocumentLayers {
     this.entries.splice(index, 1)
     this.updateOwnership()
     entry.unlock?.()
+    this.syncOutside()
     if (this.entries.length === 0) this.owner.removeEventListener('keydown', this.keydown)
 
     // A surviving upper layer may have opened from a control that is being removed.

@@ -26,9 +26,9 @@ import {
 
 import {
   domElement,
-  isOutsideOverlay,
   measureDropdownPosition,
   OverlayLayer,
+  readOverlayAnchorWidth,
 } from '@molecule/app-overlay-dom'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -329,7 +329,7 @@ export const Dropdown = defineComponent({
       { flush: 'post' },
     )
 
-    watchPostEffect((onCleanup) => {
+    watchPostEffect(() => {
       const trigger = triggerRef.value
       const menu = menuRef.value
       layer.sync({
@@ -338,20 +338,17 @@ export const Dropdown = defineComponent({
         surface: { current: menu },
         anchor: { current: trigger },
         dismissKey: true,
-        onDismiss: closeAndRefocusTrigger,
+        outside: { inside: [{ current: trigger }, { current: menu }], phase: 'start' },
+        onDismiss: (reason) => (reason === 'outside' ? handleClose() : closeAndRefocusTrigger()),
       })
-      if (!isOpen.value || !trigger || !menu) return
-
-      const owner = trigger.ownerDocument
-      const handleClickOutside = (event: MouseEvent): void => {
-        if (isOutsideOverlay(event, trigger, menu)) handleClose()
-      }
-      owner.addEventListener('mousedown', handleClickOutside)
-      onCleanup(() => owner.removeEventListener('mousedown', handleClickOutside))
     })
     watchPostEffect((onCleanup) => {
+      if (!isOpen.value) {
+        position.value = { top: 0, left: 0 }
+        return
+      }
       const view = triggerRef.value?.ownerDocument.defaultView
-      if (!isOpen.value || !menuRef.value || !view) return
+      if (!menuRef.value || !view) return
       // Reposition when an open menu's placement or alignment changes.
       void props.placement
       void props.align
@@ -446,13 +443,7 @@ export const Dropdown = defineComponent({
       // size itself until the position update re-renders with a real width.
       const trigger = triggerRef.value
       const menuWidth =
-        props.width === 'trigger'
-          ? isHtmlElement(trigger)
-            ? trigger.offsetWidth
-            : undefined
-          : typeof props.width === 'number'
-            ? props.width
-            : props.width
+        props.width === 'trigger' ? trigger && readOverlayAnchorWidth(trigger) : props.width
 
       const menuStyle = reactStyleProps([
         props.style,

@@ -22,8 +22,9 @@ import {
 
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { focusStaysWithin } from '@molecule/app-overlay-dom'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, ToastCountdown } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { attrListener, classOf, restAttrs, styleOf } from '../utilities/attrs.js'
@@ -116,62 +117,16 @@ export const Toast = defineComponent({
     const element = useElementRef<HTMLDivElement>(expose)
     const isVisible = ref(true)
 
-    // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
-    // cannot pause loses the message mid-read. `remaining` carries the time
-    // left across pause/resume cycles (hover in/out, focus in/out) instead of
-    // a fixed deadline.
-    let remaining = props.duration
-    let startedAt: number | null = null
-    let timer: ReturnType<typeof setTimeout> | undefined
-
-    const clearTimer = (): void => {
-      if (timer) {
-        clearTimeout(timer)
-        timer = undefined
-      }
-      startedAt = null
-    }
-
-    const startTimer = (ms: number): void => {
-      clearTimer()
-      if (ms <= 0) return
-      startedAt = Date.now()
-      timer = setTimeout(() => {
-        isVisible.value = false
-        emit('dismiss')
-      }, ms)
-    }
-
-    const pauseTimer = (): void => {
-      if (startedAt === null) return
-      const elapsed = Date.now() - startedAt
-      remaining = Math.max(0, remaining - elapsed)
-      clearTimer()
-    }
-
-    const resumeTimer = (): void => {
-      if (remaining > 0) startTimer(remaining)
-    }
-
-    // React's effect (deps: [duration]) — reset the countdown whenever the
-    // duration changes, start it once on mount, clear it on unmount.
-    onMounted(() => {
-      remaining = props.duration
-      startTimer(props.duration)
-    })
-    onUnmounted(clearTimer)
-    watch(
-      () => props.duration,
-      (duration) => {
-        remaining = duration
-        startTimer(duration)
-      },
-    )
-
-    const handleDismiss = (): void => {
+    const countdown = new ToastCountdown(() => {
       isVisible.value = false
       emit('dismiss')
-    }
+    })
+    onMounted(() => countdown.start(props.duration))
+    watch(
+      () => props.duration,
+      (duration) => countdown.start(duration),
+    )
+    onUnmounted(countdown.stop)
 
     return () => {
       if (!isVisible.value) return null
@@ -206,7 +161,7 @@ export const Toast = defineComponent({
             'button',
             {
               type: 'button',
-              onClick: handleDismiss,
+              onClick: countdown.dismiss,
               class: cm.toastClose,
               'aria-label':
                 props.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' }),
@@ -243,19 +198,19 @@ export const Toast = defineComponent({
           // replaces the live-region default.
           ...restAttrs(rest),
           onMouseenter: (event: MouseEvent) => {
-            pauseTimer()
+            countdown.setPaused('hover', true)
             callerMouseEnter?.(event)
           },
           onMouseleave: (event: MouseEvent) => {
-            resumeTimer()
+            countdown.setPaused('hover', false)
             callerMouseLeave?.(event)
           },
           onFocusin: (event: FocusEvent) => {
-            pauseTimer()
+            countdown.setPaused('focus', true)
             callerFocus?.(event)
           },
           onFocusout: (event: FocusEvent) => {
-            resumeTimer()
+            if (!focusStaysWithin(event)) countdown.setPaused('focus', false)
             callerBlur?.(event)
           },
         },

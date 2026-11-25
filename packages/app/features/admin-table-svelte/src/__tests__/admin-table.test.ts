@@ -248,14 +248,15 @@ describe('AdminTable (accessible names and row keys)', () => {
     expect(onRowClick).not.toHaveBeenCalled()
   })
 
-  it('Enter on the row-actions trigger opens the menu without opening the row', () => {
+  it('opens and selects a row action without opening the row', () => {
     const onRowClick = vi.fn()
+    const onSelect = vi.fn()
     const host = render(AdminTable, {
       rows,
       columns,
       rowKey,
       onRowClick,
-      rowActions: editAction,
+      rowActions: editAction.map((action) => ({ ...action, onSelect })),
     })
     const trigger = host.querySelector<HTMLElement>(
       '[data-mol-id="admin-table-row-actions-trigger"]',
@@ -265,7 +266,10 @@ describe('AdminTable (accessible names and row keys)', () => {
     // browser produces the click the trigger handles.
     keydown(trigger, 'Enter')
     click(trigger)
-    expect(host.querySelector('[data-mol-id="row-action-edit"]')).not.toBeNull()
+    const item = host.querySelector('[data-mol-id="row-action-edit"]')
+    if (!item) throw new Error('action not found')
+    click(item)
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(rows[0])
     expect(onRowClick).not.toHaveBeenCalled()
   })
 

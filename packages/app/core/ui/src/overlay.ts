@@ -32,6 +32,8 @@ export interface OverlayLayerOptions {
   anchor?: OverlayTarget
   dismissKey?: boolean
   dismissBackdrop?: boolean
+  /** Dismiss outside the given elements on press start or activation. */
+  outside?: { inside: readonly OverlayTarget[]; phase: 'start' | 'activate' }
   focus?: OverlayFocusOptions
   lockScroll?: boolean
   onDismiss?: (reason: OverlayDismissReason) => void

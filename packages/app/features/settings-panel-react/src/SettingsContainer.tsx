@@ -1,6 +1,7 @@
 import { type ReactElement, type ReactNode, useMemo } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { SettingsPanelContext } from './context.js'
 
@@ -29,7 +30,9 @@ export function SettingsContainer({ onClose, children }: SettingsContainerProps)
   const cm = getClassMap()
   return (
     <SettingsPanelContext.Provider value={value}>
-      <div className={cm.cn(cm.sp('p', 6), cm.stack(6))}>{children}</div>
+      <Box as="div" className={cm.cn(cm.sp('p', 6), cm.stack(6))}>
+        {children}
+      </Box>
     </SettingsPanelContext.Provider>
   )
 }

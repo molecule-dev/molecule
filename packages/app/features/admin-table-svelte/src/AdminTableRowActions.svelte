@@ -12,7 +12,7 @@
   import type { ReactNodeProp } from './node-prop.js'
   import type { AdminTableRowAction, AdminTableRowActionsProps } from './types.js'
 
-  let { row, actions, ariaLabel }: AdminTableRowActionsProps<T> = $props()
+  let { row, actions, ariaLabel, stopActionPropagation }: AdminTableRowActionsProps<T> = $props()
 
   // The translated default when the caller passes no label; `t` reads the
   // locale version inside the template expression, so the name follows a
@@ -136,7 +136,10 @@
               href={hrefOf(action)}
               class={itemClass(action)}
               data-mol-id={action.dataMolIdFor?.(row)}
-              onclick={() => (open = false)}
+              onclick={(event) => {
+                if (stopActionPropagation) event.stopPropagation()
+                open = false
+              }}
             >
               {@render node(action.label)}
             </a>
@@ -144,7 +147,10 @@
             <button
               class={itemClass(action)}
               data-mol-id={action.dataMolIdFor?.(row)}
-              onclick={() => activate(action)}
+              onclick={(event) => {
+                if (stopActionPropagation) event.stopPropagation()
+                void activate(action)
+              }}
             >
               {@render node(action.label)}
             </button>

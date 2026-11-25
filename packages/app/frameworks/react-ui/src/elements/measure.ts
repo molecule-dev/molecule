@@ -4,7 +4,7 @@
  * @module
  */
 
-import { domElement } from '@molecule/app-overlay-dom'
+import { domElement, readOverlayBox } from '@molecule/app-overlay-dom'
 import type { ElementBox, ElementHandle, ElementMeasureTarget } from '@molecule/app-ui'
 
 /**
@@ -43,6 +43,5 @@ function elementBox(handle: ElementHandle, target: ElementMeasureTarget): Elemen
   const element = domElement(handle)
   if (!element) throw new TypeError('measureElement: not a rendered element')
   const measured = target === 'content-start' ? (element.firstElementChild ?? element) : element
-  const { x, y, width, height } = measured.getBoundingClientRect()
-  return { x, y, width, height }
+  return readOverlayBox(measured)
 }

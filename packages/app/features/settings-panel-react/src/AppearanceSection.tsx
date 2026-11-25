@@ -3,6 +3,7 @@ import type { JSX } from 'react'
 import { useTheme, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Switch } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Appearance section — dark-mode toggle wired to the theme bond.
@@ -17,14 +18,14 @@ export function AppearanceSection(): JSX.Element {
   const { mode, toggleTheme } = useTheme()
 
   return (
-    <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+    <Box as="section">
+      <Text as="h3" className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
         {t('settings.appearance', undefined, { defaultValue: 'Appearance' })}
-      </h3>
+      </Text>
       <Flex align="center" justify="between">
-        <span className={cm.textSize('sm')}>
+        <Text as="span" className={cm.textSize('sm')}>
           {t('settings.darkMode', undefined, { defaultValue: 'Dark mode' })}
-        </span>
+        </Text>
         <Switch
           id="settings-theme-toggle"
           aria-label={t('theme.toggle', undefined, { defaultValue: 'Toggle theme' })}
@@ -33,6 +34,6 @@ export function AppearanceSection(): JSX.Element {
           size="sm"
         />
       </Flex>
-    </section>
+    </Box>
   )
 }

@@ -14,7 +14,8 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (actual) => ({
+  ...(await actual<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -36,6 +37,44 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h, nextTick, ref, type RenderFunction } from 'vue'
 
 const { Tooltip } = await import('../components/Tooltip.js')
+
+it('places the tooltip in its scrolled trigger document and ignores Escape elsewhere', async () => {
+  const frame = document.createElement('iframe')
+  document.body.append(frame)
+  const owner = frame.contentDocument
+  const view = frame.contentWindow
+  if (!owner || !view) throw new Error('Expected an iframe document')
+  const host = owner.body.appendChild(owner.createElement('div'))
+  Object.defineProperties(owner.documentElement, {
+    clientWidth: { value: 120 },
+    clientHeight: { value: 100 },
+  })
+  Object.defineProperties(view, { scrollX: { value: 20 }, scrollY: { value: 40 } })
+  const app = createApp({
+    render: () => h(Tooltip, { content: 'Frame tip' }, () => h('button', 'Help')),
+  })
+  app.mount(host)
+  try {
+    const anchor = host.querySelector('[role="presentation"]')
+    if (!anchor) throw new Error('Expected the trigger wrapper')
+    vi.spyOn(anchor, 'getBoundingClientRect').mockReturnValue(new DOMRect(32, 50, 20, 10))
+    mouseEnter(anchor)
+    await nextTick()
+    const tip = owner.body.querySelector('[role="tooltip"]')
+    expect(tip).not.toBeNull()
+    expect(tip?.parentElement?.getAttribute('style')).toMatch(/top: 82px/)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    expect(owner.body.querySelector('[role="tooltip"]')).toBe(tip)
+    owner.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    expect(owner.body.querySelector('[role="tooltip"]')).toBeNull()
+  } finally {
+    app.unmount()
+    frame.remove()
+  }
+})
 
 /** An element outside every trigger, standing in for the page around the tooltip. */
 let outside: HTMLElement

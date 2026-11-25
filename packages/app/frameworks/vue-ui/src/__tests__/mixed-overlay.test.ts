@@ -6,16 +6,24 @@ import { type App, createApp, h, nextTick, shallowReactive, type VNode } from 'v
 
 import type * as Binding from '@molecule/app-vue'
 
+import { ConfirmButton } from '../components/ConfirmButton.js'
 import { ConfirmDialog } from '../components/ConfirmDialog.js'
 import { Dropdown } from '../components/Dropdown.js'
 import { Modal } from '../components/Modal.js'
 import { ResponsiveAppShell } from '../components/ResponsiveAppShell.js'
+import { Toast } from '../components/Toast.js'
+import {
+  UserMenuPopover,
+  UserMenuPopoverPanel,
+  UserMenuPopoverTrigger,
+} from '../components/UserMenuPopover.js'
 
 vi.mock('@molecule/app-vue', async (importOriginal) => {
   const { shallowRef } = await import('vue')
   const location = shallowRef({ pathname: '/dashboard', search: '', hash: '', key: 'dashboard' })
   return {
     ...(await importOriginal<typeof Binding>()),
+    useAuth: () => ({ user: shallowRef(null) }),
     useLocation: () => location,
   }
 })
@@ -36,6 +44,14 @@ async function mount(initial: Partial<Scene> = {}, owner = document): Promise<Vi
   mountApp(
     () =>
       h('div', [
+        state.inline &&
+          h(UserMenuPopover, null, {
+            default: () => [
+              h(UserMenuPopoverTrigger),
+              h(UserMenuPopoverPanel, null, { default: () => 'Account details' }),
+            ],
+          }),
+        state.inline && h(ConfirmButton, { label: 'Remove', onConfirm: vi.fn(), disarmSeconds: 0 }),
         h('div', { onClick: state.onShellClick }, [
           state.shell &&
             h(ResponsiveAppShell, null, {
@@ -103,6 +119,7 @@ async function flush(): Promise<void> {
 }
 
 interface Scene {
+  inline?: boolean
   shell: boolean
   drawer: boolean
   modal: boolean
@@ -165,6 +182,128 @@ afterEach(() => {
   document.body.replaceChildren()
   document.body.removeAttribute('style')
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+
+it('should listen for popstate while mounted and stop on unmount', async () => {
+  const frame = document.createElement('iframe')
+  document.body.append(frame)
+  const owner = frame.contentDocument
+  const ownerWindow = frame.contentWindow
+  if (!owner || !ownerWindow) throw new Error('Expected an iframe document and window')
+  const add = vi.spyOn(ownerWindow, 'addEventListener')
+  const remove = vi.spyOn(ownerWindow, 'removeEventListener')
+  const view = await mount({ inline: true, shell: false }, owner)
+  const listener = add.mock.calls.find(([type]) => type === 'popstate')?.[1]
+  expect(listener).toBeTypeOf('function')
+  const trigger = within(owner.body).getByRole('button', { name: 'Open user menu' })
+  fireEvent.click(trigger)
+  await flush()
+  fireEvent.popState(window)
+  await flush()
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  fireEvent.popState(ownerWindow)
+  await flush()
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  view.update({ inline: false })
+  await flush()
+  expect(remove).toHaveBeenCalledWith('popstate', listener)
+})
+
+it('should add outside-mousedown and Escape listeners while open and remove them when closed', async () => {
+  const add = vi.spyOn(document, 'addEventListener')
+  const remove = vi.spyOn(document, 'removeEventListener')
+  await mount({ inline: true, shell: false })
+  const trigger = body().getByRole('button', { name: 'Open user menu' })
+  fireEvent.click(trigger)
+  await flush()
+  const outside = add.mock.calls.find(([type]) => type === 'mousedown')?.[1]
+  const escape = add.mock.calls.find(([type]) => type === 'keydown')?.[1]
+  expect(outside).toBeTypeOf('function')
+  expect(escape).toBeTypeOf('function')
+
+  fireEvent.mouseDown(document.body)
+  await flush()
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  expect(remove).toHaveBeenCalledWith('mousedown', outside)
+  expect(remove).toHaveBeenCalledWith('keydown', escape)
+})
+
+it('lets the foreground dialog shield an open account disclosure', async () => {
+  const close = vi.fn()
+  const view = await mount({ inline: true, shell: false, onClose: close })
+  const trigger = body().getByRole('button', { name: 'Open user menu' })
+  fireEvent.click(trigger)
+  await flush()
+  fireEvent.mouseDown(body().getByRole('navigation', { name: 'Account menu' }))
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.update({ modal: true })
+  await flush()
+  const dialog = body().getByRole('dialog')
+  fireEvent.mouseDown(dialog)
+  fireEvent.keyDown(dialog, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledOnce()
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.update({ modal: false })
+  await flush()
+  fireEvent.popState(window)
+  await flush()
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+})
+
+it('lets the foreground dialog shield an armed confirmation button', async () => {
+  const close = vi.fn()
+  const view = await mount({ inline: true, shell: false, onClose: close })
+  fireEvent.click(body().getByRole('button', { name: 'Remove' }))
+  await flush()
+  view.update({ modal: true })
+  await flush()
+  fireEvent.keyDown(body().getByRole('dialog'), { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledOnce()
+  expect(body().getByRole('button', { name: 'Confirm?' })).toBeDefined()
+  view.update({ modal: false })
+  await flush()
+  fireEvent.keyDown(document.body, { key: 'Escape' })
+  await flush()
+  expect(body().getByRole('button', { name: 'Remove' })).toBeDefined()
+})
+
+it('keeps an overridden toast paused while focus remains after hover leaves', async () => {
+  vi.useFakeTimers()
+  try {
+    const dismiss = vi.fn()
+    mountApp(() =>
+      h(
+        Toast,
+        {
+          duration: 100,
+          onDismiss: dismiss,
+          role: 'alert',
+          'aria-live': 'off',
+        },
+        { default: () => 'Saved' },
+      ),
+    )
+    await nextTick()
+    const toast = body().getByRole('alert')
+    const close = body().getByRole('button', { name: 'Close' })
+    expect(toast.getAttribute('aria-live')).toBe('off')
+    vi.advanceTimersByTime(20)
+    fireEvent.mouseEnter(toast)
+    fireEvent.focusIn(close)
+    fireEvent.mouseLeave(toast)
+    vi.advanceTimersByTime(100)
+    expect(dismiss).not.toHaveBeenCalled()
+    fireEvent.focusOut(close)
+    vi.advanceTimersByTime(79)
+    expect(dismiss).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1)
+    expect(dismiss).toHaveBeenCalledOnce()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 it('delivers one Escape to the modal above the drawer', async () => {

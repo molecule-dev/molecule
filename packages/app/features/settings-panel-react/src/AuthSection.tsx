@@ -4,14 +4,21 @@ import { useEffect, useState } from 'react'
 import type { UserProfile } from '@molecule/app-auth'
 import { serverErrorMessage } from '@molecule/app-http'
 import { useAuth, useChangePassword, useHttpClient, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitEvent } from '@molecule/app-ui'
 import { Alert, Button, Flex, Input, Modal } from '@molecule/app-ui-react'
+import { Box, FormArea, Image, Text } from '@molecule/app-ui-react/elements'
 
 /** The two-factor enrollment payload `POST /users/:id/verify-two-factor` answers with. */
 export interface TwoFactorSetup {
   QRImageUrl?: string
   keyUrl?: string
   secret?: string
+}
+
+/** Reads the value supplied by the input in either renderer. */
+function inputValue(event: KitEvent): string {
+  const target = event.target
+  return target && 'value' in target && typeof target.value === 'string' ? target.value : ''
 }
 
 /** Options for {@link AuthSection}. */
@@ -134,7 +141,7 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
     }
   }
 
-  const handleChangePassword = async (e: React.FormEvent): Promise<void> => {
+  const handleChangePassword = async (e: KitEvent): Promise<void> => {
     e.preventDefault()
     try {
       await changePassword(currentPassword, newPassword)
@@ -149,24 +156,27 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
 
   return (
     <>
-      <section>
-        <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+      <Box as="section">
+        <Text as="h3" className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
           {t('settings.authentication', undefined, { defaultValue: 'Authentication' })}
-        </h3>
-        <div className={cm.stack(3)}>
+        </Text>
+        <Box as="div" className={cm.stack(3)}>
           <Button variant="outline" size="sm" onClick={() => setShowModal(true)}>
             {t('settings.changePassword', undefined, { defaultValue: 'Change password' })}
           </Button>
           {twoFactor && (
             <Flex align="center" justify="between">
-              <span className={cm.textSize('sm')}>
+              <Text as="span" className={cm.textSize('sm')}>
                 {t('settings.twoFactor', undefined, { defaultValue: 'Two-factor authentication' })}
                 {twoFactorEnabled ? (
-                  <span className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}>
+                  <Text
+                    as="span"
+                    className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}
+                  >
                     {t('settings.twoFactorOn', undefined, { defaultValue: 'On' })}
-                  </span>
+                  </Text>
                 ) : null}
-              </span>
+              </Text>
               {twoFactorEnabled ? (
                 <Button
                   variant="outline"
@@ -192,8 +202,8 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
               )}
             </Flex>
           )}
-        </div>
-      </section>
+        </Box>
+      </Box>
 
       <Modal
         open={showModal}
@@ -213,37 +223,37 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
               })}
           </Alert>
         )}
-        <form onSubmit={handleChangePassword} className={cm.stack(4)}>
-          <div>
-            <label htmlFor="current-pw" className={cm.formLabel}>
+        <FormArea as="form" onSubmit={handleChangePassword} className={cm.stack(4)}>
+          <Box as="div">
+            <Text as="label" htmlFor="current-pw" className={cm.formLabel}>
               {t('settings.changePasswordModal.currentPassword', undefined, {
                 defaultValue: 'Current Password',
               })}
-            </label>
+            </Text>
             <Input
               id="current-pw"
               type="password"
               value={currentPassword}
-              onChange={(e) => setCurrentPassword((e.target as HTMLInputElement).value)}
+              onChange={(e) => setCurrentPassword(inputValue(e))}
               autoComplete="current-password"
               required
             />
-          </div>
-          <div>
-            <label htmlFor="new-pw" className={cm.formLabel}>
+          </Box>
+          <Box as="div">
+            <Text as="label" htmlFor="new-pw" className={cm.formLabel}>
               {t('settings.changePasswordModal.newPassword', undefined, {
                 defaultValue: 'New Password',
               })}
-            </label>
+            </Text>
             <Input
               id="new-pw"
               type="password"
               value={newPassword}
-              onChange={(e) => setNewPassword((e.target as HTMLInputElement).value)}
+              onChange={(e) => setNewPassword(inputValue(e))}
               autoComplete="new-password"
               required
             />
-          </div>
+          </Box>
           <Button type="submit" fullWidth loading={status === 'pending'}>
             {status === 'pending'
               ? t('settings.changePasswordModal.changing', undefined, {
@@ -251,7 +261,7 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
                 })
               : t('settings.changePassword', undefined, { defaultValue: 'Change password' })}
           </Button>
-        </form>
+        </FormArea>
       </Modal>
 
       {twoFactor && (
@@ -274,14 +284,14 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
             </Alert>
           )}
           {tfModal === 'enable' && tfSetup?.QRImageUrl ? (
-            <div className={cm.cn(cm.stack(3), cm.sp('mb', 4))}>
-              <p className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
+            <Box as="div" className={cm.cn(cm.stack(3), cm.sp('mb', 4))}>
+              <Text as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
                 {t('settings.twoFactorScan', undefined, {
                   defaultValue:
                     'Scan this QR code with your authenticator app, then enter the 6-digit code.',
                 })}
-              </p>
-              <img
+              </Text>
+              <Image
                 src={tfSetup.QRImageUrl}
                 alt={t('settings.twoFactorQrAlt', undefined, {
                   defaultValue: 'Two-factor QR code',
@@ -289,7 +299,8 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
                 className={cm.cn(cm.mxAuto, cm.maxW('xs'))}
               />
               {tfSetup.secret ? (
-                <p
+                <Text
+                  as="p"
                   className={cm.cn(
                     cm.textSize('xs'),
                     cm.textSubtle,
@@ -297,31 +308,32 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
                   )}
                 >
                   {tfSetup.secret}
-                </p>
+                </Text>
               ) : null}
-            </div>
+            </Box>
           ) : null}
           {(tfModal === 'disable' || tfSetup) && (
-            <form
+            <FormArea
+              as="form"
               onSubmit={(e) => {
                 e.preventDefault()
                 void submitTf(tfModal === 'disable' ? 'disable' : 'enable')
               }}
               className={cm.stack(4)}
             >
-              <div>
-                <label htmlFor="tf-token" className={cm.formLabel}>
+              <Box as="div">
+                <Text as="label" htmlFor="tf-token" className={cm.formLabel}>
                   {t('settings.twoFactorCode', undefined, { defaultValue: 'Authentication code' })}
-                </label>
+                </Text>
                 <Input
                   id="tf-token"
                   type="text"
                   value={tfToken}
-                  onChange={(e) => setTfToken((e.target as HTMLInputElement).value)}
+                  onChange={(e) => setTfToken(inputValue(e))}
                   autoComplete="one-time-code"
                   required
                 />
-              </div>
+              </Box>
               <Button
                 type="submit"
                 color={tfModal === 'disable' ? 'error' : undefined}
@@ -332,7 +344,7 @@ export function AuthSection({ twoFactor = true }: AuthSectionProps = {}): JSX.El
                   ? t('settings.twoFactorDisable', undefined, { defaultValue: 'Disable' })
                   : t('settings.twoFactorVerify', undefined, { defaultValue: 'Verify & enable' })}
               </Button>
-            </form>
+            </FormArea>
           )}
         </Modal>
       )}

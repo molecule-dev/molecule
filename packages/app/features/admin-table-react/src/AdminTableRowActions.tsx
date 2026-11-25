@@ -5,12 +5,13 @@
  * @module
  */
 
-import { type JSX, useEffect, useRef, useState } from 'react'
+import { type JSX, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 import { Anchor, Box, Pressable, Text } from '@molecule/app-ui-react/elements'
+import { OverlayPortal, useOverlayLayer } from '@molecule/app-ui-react/platform'
 
 import type { AdminTableRowAction } from './types.js'
 
@@ -23,6 +24,8 @@ export interface AdminTableRowActionsProps<T> {
    * (`adminTable.aria.rowActions`, English `'Row actions'`).
    */
   ariaLabel?: string
+  /** Keep selection within a clickable row. */
+  stopActionPropagation?: boolean
 }
 
 /**
@@ -34,6 +37,7 @@ export function AdminTableRowActions<T>({
   row,
   actions,
   ariaLabel,
+  stopActionPropagation,
 }: AdminTableRowActionsProps<T>): JSX.Element {
   const cm = getClassMap()
   // The translated default when the caller passes no label; the hook re-renders
@@ -45,35 +49,19 @@ export function AdminTableRowActions<T>({
       defaultValue: 'Row actions',
     })
   const [open, setOpen] = useState(false)
-  const popoverRef = useRef<HTMLDivElement | null>(null)
-  useEffect(() => {
-    // A device has no document to listen on.
-    if (!open || typeof document === 'undefined') return
-    const onClick = (e: MouseEvent): void => {
-      // Close only for clicks OUTSIDE the popover: clicks on the menu surface
-      // or between items stay put, and each item closes the menu itself. (This
-      // containment check replaces the old stopPropagation onClick on the
-      // popover div, which made that div an unusable keyboard-less control.)
-      const target = e.target
-      if (popoverRef.current && target instanceof Node && popoverRef.current.contains(target)) {
-        return
-      }
-      setOpen(false)
-    }
-    // Keyboard parity for the mouse's click-outside dismissal: Escape closes
-    // from wherever focus sits (the trigger, or a tabbable menu item).
-    const onKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('click', onClick)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('click', onClick)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
+  const root = useRef<ElementHandle>(null)
+  const menu = useRef<ElementHandle>(null)
+  const layer = useOverlayLayer({
+    open,
+    kind: 'popover',
+    surface: menu,
+    anchor: root,
+    dismissKey: true,
+    outside: { inside: [root, menu], phase: 'activate' },
+    onDismiss: () => setOpen(false),
+  })
   return (
-    <Box as="div" className={cm.cn(cm.position('relative'))}>
+    <Box as="div" ref={root} className={cm.cn(cm.position('relative'))}>
       {/* Reuse the shared ghost icon Button (theme-aware transparent + hover surface). */}
       <Button
         variant="ghost"
@@ -98,69 +86,73 @@ export function AdminTableRowActions<T>({
         </Text>
       </Button>
       {open ? (
-        // Surface + border from theme tokens; exact popover geometry (offset,
-        // width, radius, elevation) has no cm resolver, so it stays inline.
-        <Box
-          as="div"
-          ref={popoverRef}
-          className={cm.cn(cm.surface, cm.borderAll)}
-          style={{
-            position: 'absolute',
-            top: '100%',
-            right: 0,
-            marginTop: 4,
-            minWidth: 160,
-            zIndex: 20,
-            borderRadius: 8,
-          }}
-          webStyle={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
-        >
-          <Box as="div" className={cm.cn(cm.sp('py', 1))}>
-            {actions.map((action, i) => {
-              const href = action.hrefFor?.(row)
-              const className = cm.cn(
-                cm.flex({ align: 'center' }),
-                cm.w('full'),
-                cm.sp('px', 4),
-                cm.sp('py', 2),
-                cm.textSize('sm'),
-                cm.cursorPointer,
-                // Theme-aware hover surface (was hover:bg-gray-100).
-                cm.tableRowHoverable,
-                // Destructive → theme error color + weight; default inherits foreground.
-                action.destructive ? cm.textError : '',
-                action.destructive ? cm.fontWeight('semibold') : '',
-              )
-              if (href) {
+        <OverlayPortal layer={layer} presentation="inline" server="inline">
+          <Box
+            as="div"
+            ref={menu}
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              marginTop: 4,
+              minWidth: 160,
+              zIndex: 20,
+              borderRadius: 8,
+            }}
+            webStyle={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+          >
+            <Box as="div" className={cm.cn(cm.sp('py', 1))}>
+              {actions.map((action, i) => {
+                const href = action.hrefFor?.(row)
+                const className = cm.cn(
+                  cm.flex({ align: 'center' }),
+                  cm.w('full'),
+                  cm.sp('px', 4),
+                  cm.sp('py', 2),
+                  cm.textSize('sm'),
+                  cm.cursorPointer,
+                  // Theme-aware hover surface (was hover:bg-gray-100).
+                  cm.tableRowHoverable,
+                  // Destructive → theme error color + weight; default inherits foreground.
+                  action.destructive ? cm.textError : '',
+                  action.destructive ? cm.fontWeight('semibold') : '',
+                )
+                if (href) {
+                  return (
+                    <Anchor
+                      key={i}
+                      href={href}
+                      className={className}
+                      data-mol-id={action.dataMolIdFor?.(row)}
+                      onClick={(event) => {
+                        if (stopActionPropagation) event.stopPropagation()
+                        setOpen(false)
+                      }}
+                    >
+                      {action.label}
+                    </Anchor>
+                  )
+                }
                 return (
-                  <Anchor
+                  <Pressable
+                    as="button"
                     key={i}
-                    href={href}
                     className={className}
                     data-mol-id={action.dataMolIdFor?.(row)}
-                    onClick={() => setOpen(false)}
+                    onClick={async (event) => {
+                      if (stopActionPropagation) event.stopPropagation()
+                      setOpen(false)
+                      await action.onSelect(row)
+                    }}
                   >
                     {action.label}
-                  </Anchor>
+                  </Pressable>
                 )
-              }
-              return (
-                <Pressable
-                  as="button"
-                  key={i}
-                  className={className}
-                  data-mol-id={action.dataMolIdFor?.(row)}
-                  onClick={async () => {
-                    setOpen(false)
-                    await action.onSelect(row)
-                  }}
-                >
-                  {action.label}
-                </Pressable>
-              )
-            })}
+              })}
+            </Box>
           </Box>
-        </Box>
+        </OverlayPortal>
       ) : null}
     </Box>
   )

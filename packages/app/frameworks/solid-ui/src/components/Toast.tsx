@@ -20,9 +20,10 @@ import {
 
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { focusStaysWithin } from '@molecule/app-overlay-dom'
 import { BodyPortal, ResolveNode, useTranslation } from '@molecule/app-solid'
 import type { ColorVariant } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, ToastCountdown } from '@molecule/app-ui'
 
 import type { ToastProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
@@ -99,60 +100,19 @@ export const Toast = withDisplayName<WithRef<ToastProps, HTMLDivElement>>((props
     const name = iconName()
     return name ? renderIcon(name, cm.iconMd) : null
   }
-  // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
-  // cannot pause loses the message mid-read. `remaining` carries the time
-  // left across pause/resume cycles (hover in/out, focus in/out) instead
-  // of a fixed deadline. The dismiss callback is read at fire time so the
-  // countdown depends ONLY on `duration` — a parent re-render that
-  // recreates the callback must not restart it.
-  let remaining: number = local.duration ?? 5000
-  let startedAt: number | null = null
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  const clearTimer = (): void => {
-    if (timer) {
-      clearTimeout(timer)
-      timer = undefined
-    }
-    startedAt = null
-  }
-
-  const startTimer = (ms: number): void => {
-    clearTimer()
-    if (ms <= 0) return
-    startedAt = Date.now()
-    timer = setTimeout(() => {
-      setIsVisible(false)
-      local.onDismiss?.()
-    }, ms)
-  }
-
-  const pauseTimer = (): void => {
-    if (startedAt === null) return
-    const elapsed = Date.now() - startedAt
-    remaining = Math.max(0, remaining - elapsed)
-    clearTimer()
-  }
-
-  const resumeTimer = (): void => {
-    if (remaining > 0) startTimer(remaining)
-  }
-
+  const countdown = new ToastCountdown(() => {
+    setIsVisible(false)
+    local.onDismiss?.()
+  })
   createEffect(
     on(
       () => local.duration,
       (duration) => {
-        remaining = duration ?? 5000
-        startTimer(duration ?? 5000)
-        onCleanup(clearTimer)
+        countdown.start(duration ?? 5000)
+        onCleanup(countdown.stop)
       },
     ),
   )
-
-  const handleDismiss = (): void => {
-    setIsVisible(false)
-    local.onDismiss?.()
-  }
 
   // Assertive announcement is appropriate for warnings/errors — an info or
   // success toast interrupting a screen-reader user mid-sentence for a
@@ -172,19 +132,19 @@ export const Toast = withDisplayName<WithRef<ToastProps, HTMLDivElement>>((props
         data-testid={local.testId}
         {...reactDomProps(rest)}
         onMouseEnter={(event) => {
-          pauseTimer()
+          countdown.setPaused('hover', true)
           local.onMouseEnter?.(event)
         }}
         onMouseLeave={(event) => {
-          resumeTimer()
+          countdown.setPaused('hover', false)
           local.onMouseLeave?.(event)
         }}
         onFocusIn={(event) => {
-          pauseTimer()
+          countdown.setPaused('focus', true)
           local.onFocus?.(event)
         }}
         onFocusOut={(event) => {
-          resumeTimer()
+          if (!focusStaysWithin(event)) countdown.setPaused('focus', false)
           local.onBlur?.(event)
         }}
       >
@@ -208,7 +168,7 @@ export const Toast = withDisplayName<WithRef<ToastProps, HTMLDivElement>>((props
         <Show when={local.dismissible ?? true}>
           <button
             type="button"
-            onClick={handleDismiss}
+            onClick={countdown.dismiss}
             class={cm.toastClose}
             aria-label={
               local.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })

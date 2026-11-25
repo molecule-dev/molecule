@@ -1,11 +1,15 @@
 <script lang="ts">
   import type { Readable } from 'svelte/store'
 
+  import ConfirmButton from '../components/ConfirmButton.svelte'
   import ConfirmDialog from '../components/ConfirmDialog.svelte'
   import Modal from '../components/Modal.svelte'
   import ResponsiveAppShell from '../components/ResponsiveAppShell.svelte'
   import ResponsiveAppShellDrawer from '../components/ResponsiveAppShellDrawer.svelte'
   import ResponsiveAppShellTopBar from '../components/ResponsiveAppShellTopBar.svelte'
+  import UserMenuPopover from '../components/UserMenuPopover.svelte'
+  import UserMenuPopoverPanel from '../components/UserMenuPopoverPanel.svelte'
+  import UserMenuPopoverTrigger from '../components/UserMenuPopoverTrigger.svelte'
   import DropdownTriggerHost from './DropdownTriggerHost.svelte'
   import type { Scene } from './mixed-overlay-scene.js'
 
@@ -14,6 +18,14 @@
     $scene.mode === 'pair' ? 'Upper' : $scene.mode === 'action' ? 'Confirm' : 'Actions',
   )
 </script>
+
+{#if $scene.inline}
+  <UserMenuPopover>
+    <UserMenuPopoverTrigger />
+    <UserMenuPopoverPanel>Account details</UserMenuPopoverPanel>
+  </UserMenuPopover>
+  <ConfirmButton label="Remove" onConfirm={() => {}} disarmSeconds={0} />
+{/if}
 
 {#if $scene.shell}
   <ResponsiveAppShell>

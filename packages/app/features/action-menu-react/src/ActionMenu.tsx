@@ -1,11 +1,12 @@
 import type { ReactElement, ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 import { Anchor, Box, Pressable } from '@molecule/app-ui-react/elements'
+import { OverlayPortal, useOverlayLayer } from '@molecule/app-ui-react/platform'
 
 /**
  * A single item in the ActionMenu list.
@@ -71,23 +72,21 @@ export function ActionMenu({
   const { t } = useTranslation()
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
-  useEffect(() => {
-    if (!open || typeof document === 'undefined') return
-    /**
-     * Close the menu when the Escape key is pressed.
-     * @param e
-     */
-    function onEsc(e: KeyboardEvent): void {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('keydown', onEsc)
-    return () => document.removeEventListener('keydown', onEsc)
-  }, [open])
+  const surface = useRef<ElementHandle>(null)
+  const layer = useOverlayLayer({
+    open,
+    kind: 'popover',
+    surface,
+    anchor: surface,
+    dismissKey: true,
+    outside: { inside: [surface], phase: 'start' },
+    onDismiss: () => setOpen(false),
+  })
 
   return (
     <Box
       as="span"
-      onPressOutside={open ? () => setOpen(false) : undefined}
+      ref={surface}
       className={cm.cn(cm.position('relative'), className)}
       webStyle={{ display: 'inline-block' }}
     >
@@ -105,80 +104,82 @@ export function ActionMenu({
         {trigger ?? '⋮'}
       </Button>
       {open && (
-        <Box
-          as="ul"
-          role="menu"
-          data-mol-id="action-menu-list"
-          className={cm.cn(cm.stack(0), cm.sp('p', 1), cm.surface, cm.borderAll)}
-          style={{
-            position: 'absolute',
-            top: '100%',
-            [align === 'right' ? 'right' : 'left']: 0,
-            minWidth: 160,
-            zIndex: 50,
-            borderRadius: 8,
-          }}
-          webStyle={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
-        >
-          {items.map((it) => (
-            <Box as="li" key={it.id} role="none">
-              {it.href ? (
-                <Anchor
-                  href={it.href}
-                  role="menuitem"
-                  data-mol-id={`action-menu-item-${it.id}`}
-                  onClick={() => setOpen(false)}
-                  className={cm.cn(
-                    cm.flex({ align: 'center', gap: 'sm' }),
-                    cm.sp('px', 2),
-                    cm.sp('py', 2),
-                    cm.textSize('sm'),
-                    it.destructive && cm.textError,
-                    it.destructive ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
-                  )}
-                  style={{ opacity: it.disabled ? 0.5 : 1 }}
-                >
-                  {it.icon}
-                  <Box as="span">{it.label}</Box>
-                </Anchor>
-              ) : (
-                <Pressable
-                  as="button"
-                  type="button"
-                  role="menuitem"
-                  data-mol-id={`action-menu-item-${it.id}`}
-                  onClick={() => {
-                    if (!it.disabled) {
-                      it.onClick?.()
-                      setOpen(false)
-                    }
-                  }}
-                  disabled={it.disabled}
-                  className={cm.cn(
-                    cm.flex({ align: 'center', gap: 'sm' }),
-                    cm.w('full'),
-                    cm.sp('px', 2),
-                    cm.sp('py', 2),
-                    cm.textSize('sm'),
-                    it.destructive && cm.textError,
-                    it.destructive ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
-                  )}
-                >
-                  {it.icon}
-                  <Box as="span">{it.label}</Box>
-                </Pressable>
-              )}
-              {it.divider && (
-                <Box
-                  as="span"
-                  aria-hidden
-                  className={cm.cn(cm.displayBlock, cm.bgBorder)}
-                  webStyle={{ height: 1, margin: '4px 0' }}
-                />
-              )}
-            </Box>
-          ))}
-        </Box>
+        <OverlayPortal layer={layer} presentation="inline" server="inline">
+          <Box
+            as="ul"
+            role="menu"
+            data-mol-id="action-menu-list"
+            className={cm.cn(cm.stack(0), cm.sp('p', 1), cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              top: '100%',
+              [align === 'right' ? 'right' : 'left']: 0,
+              minWidth: 160,
+              zIndex: 50,
+              borderRadius: 8,
+            }}
+            webStyle={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+          >
+            {items.map((it) => (
+              <Box as="li" key={it.id} role="none">
+                {it.href ? (
+                  <Anchor
+                    href={it.href}
+                    role="menuitem"
+                    data-mol-id={`action-menu-item-${it.id}`}
+                    onClick={() => setOpen(false)}
+                    className={cm.cn(
+                      cm.flex({ align: 'center', gap: 'sm' }),
+                      cm.sp('px', 2),
+                      cm.sp('py', 2),
+                      cm.textSize('sm'),
+                      it.destructive && cm.textError,
+                      it.destructive ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
+                    )}
+                    style={{ opacity: it.disabled ? 0.5 : 1 }}
+                  >
+                    {it.icon}
+                    <Box as="span">{it.label}</Box>
+                  </Anchor>
+                ) : (
+                  <Pressable
+                    as="button"
+                    type="button"
+                    role="menuitem"
+                    data-mol-id={`action-menu-item-${it.id}`}
+                    onClick={() => {
+                      if (!it.disabled) {
+                        it.onClick?.()
+                        setOpen(false)
+                      }
+                    }}
+                    disabled={it.disabled}
+                    className={cm.cn(
+                      cm.flex({ align: 'center', gap: 'sm' }),
+                      cm.w('full'),
+                      cm.sp('px', 2),
+                      cm.sp('py', 2),
+                      cm.textSize('sm'),
+                      it.destructive && cm.textError,
+                      it.destructive ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
+                    )}
+                  >
+                    {it.icon}
+                    <Box as="span">{it.label}</Box>
+                  </Pressable>
+                )}
+                {it.divider && (
+                  <Box
+                    as="span"
+                    aria-hidden
+                    className={cm.cn(cm.displayBlock, cm.bgBorder)}
+                    webStyle={{ height: 1, margin: '4px 0' }}
+                  />
+                )}
+              </Box>
+            ))}
+          </Box>
+        </OverlayPortal>
       )}
     </Box>
   )

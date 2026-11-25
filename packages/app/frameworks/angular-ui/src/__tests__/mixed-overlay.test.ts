@@ -16,6 +16,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type * as Binding from '@molecule/app-angular'
 import { provideDomPlacement } from '@molecule/app-angular'
 
+import { ConfirmButton } from '../components/confirm-button.component.js'
 import { ConfirmDialog } from '../components/confirm-dialog.component.js'
 import { Dropdown } from '../components/dropdown.component.js'
 import { Modal } from '../components/modal.component.js'
@@ -24,12 +25,18 @@ import {
   ResponsiveAppShellDrawer,
   ResponsiveAppShellTopBar,
 } from '../components/responsive-app-shell.component.js'
+import {
+  UserMenuPopover,
+  UserMenuPopoverPanel,
+  UserMenuPopoverTrigger,
+} from '../components/user-menu-popover.component.js'
 
 vi.mock('@molecule/app-angular', async (importOriginal) => {
   const { signal } = await import('@angular/core')
   const location = signal({ pathname: '/dashboard', search: '', hash: '', key: 'dashboard' })
   return {
     ...(await importOriginal<typeof Binding>()),
+    useAuth: () => ({ user: () => null }),
     useRouter: () => ({ location }),
   }
 })
@@ -42,14 +49,25 @@ const OverlayScene = Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    ConfirmButton,
     ConfirmDialog,
     Dropdown,
     Modal,
     ResponsiveAppShell,
     ResponsiveAppShellDrawer,
     ResponsiveAppShellTopBar,
+    UserMenuPopover,
+    UserMenuPopoverPanel,
+    UserMenuPopoverTrigger,
   ],
   template: `
+    @if (scene().inline) {
+      <div mol-user-menu-popover>
+        <button mol-user-menu-popover-trigger></button>
+        <div mol-user-menu-popover-panel>Account details</div>
+      </div>
+      <button mol-confirm-button label="Remove" [onConfirm]="noop" [disarmSeconds]="0"></button>
+    }
     <div (click)="scene().onShellClick($event)">
       @if (scene().shell) {
         <div mol-responsive-app-shell>
@@ -97,6 +115,7 @@ const OverlayScene = Component({
 })(
   class SpecOverlayScene {
     readonly scene = state
+    readonly noop = () => {}
     readonly titleFor = titleFor
     readonly items = [{ value: 'edit', label: 'Edit' }]
   },
@@ -132,6 +151,7 @@ async function flush(): Promise<void> {
 }
 
 interface Scene {
+  inline?: boolean
   shell: boolean
   drawer: boolean
   modal: boolean
@@ -194,6 +214,47 @@ afterEach(() => {
   document.body.replaceChildren()
   document.body.removeAttribute('style')
   vi.unstubAllGlobals()
+})
+
+it('lets the foreground dialog shield an open account disclosure', async () => {
+  const close = vi.fn()
+  const view = await mount({ inline: true, shell: false, onClose: close })
+  const trigger = body().getByRole('button', { name: 'Open user menu' })
+  fireEvent.click(trigger)
+  await flush()
+  fireEvent.mouseDown(body().getByRole('navigation', { name: 'Account menu' }))
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.update({ modal: true })
+  await flush()
+  const dialog = body().getByRole('dialog')
+  fireEvent.mouseDown(dialog)
+  fireEvent.keyDown(dialog, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledOnce()
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.update({ modal: false })
+  await flush()
+  fireEvent.popState(window)
+  await flush()
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+})
+
+it('lets the foreground dialog shield an armed confirmation button', async () => {
+  const close = vi.fn()
+  const view = await mount({ inline: true, shell: false, onClose: close })
+  fireEvent.click(body().getByRole('button', { name: 'Remove' }))
+  await flush()
+  view.update({ modal: true })
+  await flush()
+  fireEvent.keyDown(body().getByRole('dialog'), { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledOnce()
+  expect(body().getByRole('button', { name: 'Confirm?' })).toBeDefined()
+  view.update({ modal: false })
+  await flush()
+  fireEvent.keyDown(document.body, { key: 'Escape' })
+  await flush()
+  expect(body().getByRole('button', { name: 'Remove' })).toBeDefined()
 })
 
 it('delivers one Escape to the modal above the drawer', async () => {

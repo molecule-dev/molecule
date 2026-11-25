@@ -241,6 +241,7 @@ export const AdminTable = defineComponent({
                   [
                     h(AdminTableRowActions, {
                       row,
+                      stopActionPropagation: Boolean(props.onRowClick),
                       actions,
                       // No label here: the row-actions component falls back to
                       // the translated default (`adminTable.aria.rowActions`).

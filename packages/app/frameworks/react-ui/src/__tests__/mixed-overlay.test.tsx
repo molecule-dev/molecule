@@ -18,7 +18,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (actual) => ({
+  ...(await actual<Record<string, unknown>>()),
   getClassMap: () => {
     const callable = new Set(['modal', 'flex', 'minH', 'sp', 'h', 'w', 'position', 'stack'])
     return new Proxy(

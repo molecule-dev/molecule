@@ -25,6 +25,7 @@ import {
   useContext,
 } from 'solid-js'
 
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import { useAuth, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -107,6 +108,15 @@ export const UserMenuPopover: Component<UserMenuPopoverProps> = (props) => {
   const [open, setOpen] = createSignal(false)
   const panelId = createUniqueId()
   let containerRef: HTMLDivElement | undefined
+  const layer = new OverlayLayer()
+  const target = {
+    get current() {
+      return containerRef ?? null
+    },
+  }
+  const close = (): void => {
+    setOpen(false)
+  }
 
   // Close on route change so the panel never sticks across navigations.
   createEffect(
@@ -119,34 +129,24 @@ export const UserMenuPopover: Component<UserMenuPopoverProps> = (props) => {
   // Also close on a raw `popstate` — a location subscription only fires when a
   // URL part changes, but a same-route SPA navigation still pops.
   createEffect(() => {
-    const onPopState = (): void => {
-      setOpen(false)
-    }
-    window.addEventListener('popstate', onPopState)
-    onCleanup(() => window.removeEventListener('popstate', onPopState))
+    const view = containerRef?.ownerDocument.defaultView
+    view?.addEventListener('popstate', close)
+    onCleanup(() => view?.removeEventListener('popstate', close))
   })
 
   // Close on outside click and Escape while the panel is open.
-  createEffect(
-    on(open, (isOpen) => {
-      if (!isOpen) return
-      const onMouseDown = (event: MouseEvent): void => {
-        const container = containerRef
-        if (container && !container.contains(event.target as Node)) {
-          setOpen(false)
-        }
-      }
-      const onKeyDown = (event: KeyboardEvent): void => {
-        if (event.key === 'Escape') setOpen(false)
-      }
-      document.addEventListener('mousedown', onMouseDown)
-      document.addEventListener('keydown', onKeyDown)
-      onCleanup(() => {
-        document.removeEventListener('mousedown', onMouseDown)
-        document.removeEventListener('keydown', onKeyDown)
-      })
+  createEffect(() =>
+    layer.sync({
+      open: open(),
+      kind: 'popover',
+      surface: target,
+      anchor: target,
+      dismissKey: true,
+      outside: { inside: [target], phase: 'start' },
+      onDismiss: close,
     }),
   )
+  onCleanup(() => layer.release())
 
   const resolvedGuest = (): string =>
     local.guestName ?? t('userMenuPopover.guest', {}, { defaultValue: 'Account' })

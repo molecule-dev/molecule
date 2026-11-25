@@ -20,9 +20,9 @@
   import { type Attachment, createAttachmentKey } from 'svelte/attachments'
 
   import {
-    isOutsideOverlay,
     measureDropdownPosition,
     OverlayLayer,
+    readOverlayAnchorWidth,
   } from '@molecule/app-overlay-dom'
   import { BodyPortal, useLocation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
@@ -134,8 +134,12 @@
   // Update position when menu opens: the animation frame ensures the menu is
   // rendered before its position is calculated.
   $effect(() => {
+    if (!isOpen) {
+      position = { top: 0, left: 0 }
+      return
+    }
     const view = triggerEl?.ownerDocument.defaultView
-    if (!isOpen || !ref || !view) return
+    if (!ref || !view) return
     void placement
     void align
     const frame = view.requestAnimationFrame(updatePosition)
@@ -196,23 +200,11 @@
       surface: { current: ref },
       anchor: { current: triggerEl },
       dismissKey: true,
-      onDismiss: closeAndRefocusTrigger,
+      outside: { inside: [{ current: triggerEl }, { current: ref }], phase: 'start' },
+      onDismiss: (reason) => (reason === 'outside' ? handleClose() : closeAndRefocusTrigger()),
     })
   })
   onDestroy(() => layer.release())
-
-  // Outside clicks close without moving focus.
-  $effect(() => {
-    const trigger = triggerEl
-    const menu = ref
-    if (!isOpen || !trigger || !menu) return
-    const owner = trigger.ownerDocument
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (isOutsideOverlay(event, trigger, menu)) handleClose()
-    }
-    owner.addEventListener('mousedown', handleClickOutside)
-    return () => owner.removeEventListener('mousedown', handleClickOutside)
-  })
 
   // Close on route change — a dropdown left open over the next page blocks
   // clicks underneath. Mounting is not a route change, so the first run only
@@ -387,7 +379,7 @@
   // before layout); undefined then lets the menu size itself until a later
   // update recomputes with the real pixel width.
   const menuWidth = $derived.by(() => {
-    if (width === 'trigger') return triggerEl?.offsetWidth
+    if (width === 'trigger') return triggerEl ? readOverlayAnchorWidth(triggerEl) : undefined
     if (typeof width === 'number') return width
     return width
   })

@@ -15,6 +15,7 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { measureTooltipPosition, OverlayLayer } from '@molecule/app-overlay-dom'
 import { BodyPortal, ResolveNode } from '@molecule/app-solid'
 import type { TooltipPlacement } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -98,62 +99,6 @@ function getArrowStyle(placement: TooltipPlacement): JSX.CSSProperties {
 }
 
 /**
- * Calculate tooltip position based on trigger element and placement.
- * @param triggerRect - The bounding rectangle of the trigger element.
- * @param tooltipRect - The bounding rectangle of the tooltip element.
- * @param placement - The desired tooltip placement direction.
- * @param offset - The pixel offset from the trigger element.
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  tooltipRect: DOMRect,
-  placement: TooltipPlacement,
-  offset = 8,
-): Position {
-  const { top, left, width, height } = triggerRect
-  const tooltipWidth = tooltipRect.width
-  const tooltipHeight = tooltipRect.height
-
-  const positions: Record<TooltipPlacement, Position> = {
-    top: {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX + width / 2 - tooltipWidth / 2,
-    },
-    bottom: {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX + width / 2 - tooltipWidth / 2,
-    },
-    left: {
-      top: top + window.scrollY + height / 2 - tooltipHeight / 2,
-      left: left + window.scrollX - tooltipWidth - offset,
-    },
-    right: {
-      top: top + window.scrollY + height / 2 - tooltipHeight / 2,
-      left: left + window.scrollX + width + offset,
-    },
-    'top-start': {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX,
-    },
-    'top-end': {
-      top: top + window.scrollY - tooltipHeight - offset,
-      left: left + window.scrollX + width - tooltipWidth,
-    },
-    'bottom-start': {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX,
-    },
-    'bottom-end': {
-      top: top + window.scrollY + height + offset,
-      left: left + window.scrollX + width - tooltipWidth,
-    },
-  }
-
-  return positions[placement]
-}
-
-/**
  * Whether the pointer just crossed INTO (or out of) an element's boundary.
  *
  * React implements `onMouseEnter`/`onMouseLeave` on top of the BUBBLING
@@ -204,31 +149,15 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
   let tooltipRef: HTMLDivElement | undefined
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   let hideTimeoutId: ReturnType<typeof setTimeout> | undefined
+  let owner: Document | undefined
+  const layer = new OverlayLayer()
 
   const placement = (): TooltipPlacement => local.placement || 'top'
   const delay = (): number => local.delay || 0
 
   const updatePosition = (): void => {
-    if (!triggerRef || !tooltipRef) return
-    const triggerRect = triggerRef.getBoundingClientRect()
-    const tooltipRect = tooltipRef.getBoundingClientRect()
-    const newPosition = calculatePosition(triggerRect, tooltipRect, placement())
-    // Clamp into the viewport so a wide/edge tooltip never spills off the page
-    // (which would spawn a horizontal scrollbar). Positions are in document
-    // space (they already include scrollX/scrollY); use clientWidth/clientHeight
-    // — NOT innerWidth/innerHeight — so the page scrollbar is excluded. The
-    // Math.max(min, max) guard keeps it on-screen even when the tooltip is
-    // wider than the viewport.
-    const margin = 8
-    const minLeft = window.scrollX + margin
-    const maxLeft =
-      window.scrollX + document.documentElement.clientWidth - tooltipRect.width - margin
-    const minTop = window.scrollY + margin
-    const maxTop =
-      window.scrollY + document.documentElement.clientHeight - tooltipRect.height - margin
-    newPosition.left = Math.min(Math.max(newPosition.left, minLeft), Math.max(minLeft, maxLeft))
-    newPosition.top = Math.min(Math.max(newPosition.top, minTop), Math.max(minTop, maxTop))
-    setPosition(newPosition)
+    if (triggerRef && tooltipRef?.isConnected)
+      setPosition(measureTooltipPosition(triggerRef, tooltipRef, placement()))
   }
 
   const hide = (): void => {
@@ -236,17 +165,21 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
       clearTimeout(timeoutId)
     }
     clearTimeout(hideTimeoutId)
-    if (activeTooltips.get(document) === hide) {
-      activeTooltips.delete(document)
-    }
+    layer.release()
+    if (owner && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
+    owner = undefined
     setIsVisible(false)
   }
 
   const show = (): void => {
-    const previous = activeTooltips.get(document)
+    const doc = triggerRef?.ownerDocument
+    if (!doc) return
+    if (owner && owner !== doc && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
+    owner = doc
+    const previous = activeTooltips.get(doc)
     if (previous !== hide) previous?.()
     // Claim before scheduling so another trigger also cancels pending shows.
-    activeTooltips.set(document, hide)
+    activeTooltips.set(doc, hide)
     clearTimeout(hideTimeoutId)
     clearTimeout(timeoutId)
     if (delay() > 0) {
@@ -285,17 +218,6 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
     }
   }
 
-  // Hovered content must dismiss while focus stays in the editor/composer:
-  // Escape anywhere in the document hides a visible tooltip.
-  createEffect(() => {
-    if (!isVisible()) return
-    const onEscape = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') hide()
-    }
-    document.addEventListener('keydown', onEscape)
-    onCleanup(() => document.removeEventListener('keydown', onEscape))
-  })
-
   // Programmatically associates the tooltip with its trigger: when `children`
   // is exactly one element, it gets `aria-describedby` while the tooltip is
   // visible (and the attribute is removed again when hidden) — that id is what
@@ -321,9 +243,8 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
       clearTimeout(timeoutId)
     }
     clearTimeout(hideTimeoutId)
-    if (activeTooltips.get(document) === hide) {
-      activeTooltips.delete(document)
-    }
+    layer.release()
+    if (owner && activeTooltips.get(owner) === hide) activeTooltips.delete(owner)
   })
 
   return (
@@ -348,7 +269,7 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
         // WITHOUT moving the pointer or focus — Escape hides the tooltip
         // (the keydown on the focused child bubbles up to this wrapper).
         onKeyDown={(event: KeyboardEvent) => {
-          if (event.key === 'Escape') hide()
+          if (!isVisible() && event.key === 'Escape') hide()
         }}
         // Any click on a tooltip-wrapped control hides the tooltip — clicking a
         // button shouldn't leave its hover/focus tooltip lingering. The wrapper
@@ -360,7 +281,7 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
         {local.children}
       </div>
       <Show when={isVisible()}>
-        <BodyPortal>
+        <BodyPortal mount={triggerRef?.ownerDocument.body}>
           {/*
             Outer positioned wrapper carries the top/left/z-index placement +
             the positioned() visibility gate; the arrow renders as its
@@ -395,6 +316,16 @@ export const Tooltip = withDisplayName<WithRef<TooltipProps, HTMLDivElement>>((p
                 // first measured with. A microtask (not rAF), after the box is in the DOM, so
                 // fake-timer environments place it too.
                 createEffect(on(content, () => queueMicrotask(updatePosition)))
+                createEffect(() =>
+                  layer.sync({
+                    open: isVisible(),
+                    kind: 'tooltip',
+                    surface: { current: tooltipRef ?? null },
+                    anchor: { current: triggerRef ?? null },
+                    dismissKey: true,
+                    onDismiss: hide,
+                  }),
+                )
                 return (
                   <div
                     ref={(el) => {

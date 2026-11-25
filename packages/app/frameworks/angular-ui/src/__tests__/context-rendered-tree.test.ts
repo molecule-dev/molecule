@@ -20,7 +20,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (actual) => {
   // The class map's variant factories (called with options); every other property is a class token.
   const factories = new Set([
     'accordion',
@@ -69,6 +69,7 @@ vi.mock('@molecule/app-ui', () => {
     'w',
   ])
   return {
+    ...(await actual<Record<string, unknown>>()),
     getClassMap: () => {
       const handler: ProxyHandler<Record<string, unknown>> = {
         get(_t, prop) {

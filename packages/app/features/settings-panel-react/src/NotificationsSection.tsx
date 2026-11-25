@@ -10,6 +10,7 @@ import {
 import { useHttpClient, usePush, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Switch } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Push-notification toggle section — the full receive-side enable chain:
@@ -100,14 +101,14 @@ export function NotificationsSection(): JSX.Element {
   }
 
   return (
-    <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+    <Box as="section">
+      <Text as="h3" className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
         {t('settings.notifications', undefined, { defaultValue: 'Notifications' })}
-      </h3>
+      </Text>
       <Flex align="center" justify="between">
-        <span className={cm.textSize('sm')}>
+        <Text as="span" className={cm.textSize('sm')}>
           {t('settings.pushNotifications', undefined, { defaultValue: 'Push notifications' })}
-        </span>
+        </Text>
         <Switch
           checked={enabled}
           disabled={busy}
@@ -116,20 +117,21 @@ export function NotificationsSection(): JSX.Element {
           aria-label={t('settings.pushNotifications', undefined, {
             defaultValue: 'Push notifications',
           })}
-          onChange={(e) => handleToggle((e.target as HTMLInputElement).checked)}
+          onChange={() => handleToggle(!enabled)}
           size="sm"
           data-mol-id="settings-push-toggle"
         />
       </Flex>
       {error ? (
-        <p
+        <Text
+          as="p"
           className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}
           role="alert"
           data-mol-id="settings-push-error"
         >
           {error}
-        </p>
+        </Text>
       ) : null}
-    </section>
+    </Box>
   )
 }

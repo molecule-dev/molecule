@@ -5,6 +5,7 @@
   ignores further clicks. The armed state is announced through aria-live.
 -->
 <script lang="ts">
+  import { OverlayLayer } from '@molecule/app-overlay-dom'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -56,14 +57,19 @@
     }
   })
 
+  const layer = new OverlayLayer()
   $effect(() => {
-    if (phase !== 'armed') return
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') disarm()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    const target = { current: ref }
+    layer.sync({
+      open: phase === 'armed',
+      kind: 'popover',
+      surface: target,
+      anchor: target,
+      dismissKey: true,
+      onDismiss: disarm,
+    })
   })
+  $effect(() => () => layer.release())
 
   const handleClick = (): void => {
     if (phase === 'idle') {

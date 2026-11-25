@@ -42,7 +42,11 @@ import {
   usePlacement,
   useRouter,
 } from '@molecule/app-angular'
-import { isOutsideOverlay, measureDropdownPosition, OverlayLayer } from '@molecule/app-overlay-dom'
+import {
+  measureDropdownPosition,
+  OverlayLayer,
+  readOverlayAnchorWidth,
+} from '@molecule/app-overlay-dom'
 import type { DropdownItem, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -232,7 +236,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   private lastPlacement: DropdownPlacement = 'bottom-start'
   private lastAlign: DropdownAlign = 'start'
   private menuWidth: number | string | undefined
-  private removedListeners: (() => void)[] = []
+  private cancelPosition?: () => void
   /** The route (path and query) the menu last saw; `null` until the first check. */
   private lastRoute: string | null = null
   /** Which end a keyboard open focuses (`first`, or `last` for ArrowUp). */
@@ -513,7 +517,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   /** Removes the document listeners and the menu view (unmount). */
   ngOnDestroy(): void {
     this.release()
-    this.removeListeners()
+    this.cancelPosition?.()
     this.destroyMenu()
   }
 
@@ -686,7 +690,12 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
         surface: { current: this.menuEl },
         anchor: { current: this.triggerEl },
         dismissKey: true,
-        onDismiss: () => this.closeAndRefocusTrigger(),
+        outside: {
+          inside: [{ current: this.triggerEl }, { current: this.menuEl }],
+          phase: 'start',
+        },
+        onDismiss: (reason) =>
+          reason === 'outside' ? this.handleClose() : this.closeAndRefocusTrigger(),
       })
     } else if (this.menuEl) {
       this.destroyMenu()
@@ -728,7 +737,6 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     // reconciled in ngDoCheck), so the focus runs after the check: a `focusin`
     // listener's state change made during it is never rendered.
     afterNextRender(() => this.focusActive(), { injector: this.injector })
-    this.addListeners()
     this.schedulePosition()
     this.syncTrigger()
   }
@@ -736,7 +744,8 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   /** Destroys the menu view (moving its DOM back under the host first). */
   private destroyMenu(): void {
     this.layer.release()
-    this.removeListeners()
+    this.cancelPosition?.()
+    this.position.set({ top: 0, left: 0 })
     this.activeIndex.set(-1)
     if (this.menuEl) placeElement(this.menuEl, null)
     this.menuView?.destroy()
@@ -749,18 +758,22 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   private updateMenuWidth(): void {
     this.menuWidth =
       this.width === 'trigger'
-        ? // An SVG trigger has no offsetWidth: React's `triggerRef.current?.offsetWidth` is undefined.
-          this.triggerEl instanceof HTMLElement
-          ? this.triggerEl.offsetWidth
+        ? this.triggerEl
+          ? readOverlayAnchorWidth(this.triggerEl)
           : undefined
-        : typeof this.width === 'number'
-          ? this.width
-          : (this.width as string | undefined)
+        : this.width
   }
 
   /** Schedules a position measurement on the next animation frame (React's effect). */
   private schedulePosition(): void {
-    this.menuEl?.ownerDocument.defaultView?.requestAnimationFrame(() => this.updatePosition())
+    this.cancelPosition?.()
+    const view = this.menuEl?.ownerDocument.defaultView
+    if (!view) return
+    const frame = view.requestAnimationFrame(() => {
+      this.cancelPosition = undefined
+      this.updatePosition()
+    })
+    this.cancelPosition = () => view.cancelAnimationFrame(frame)
   }
 
   /** Measures the trigger and menu and updates the position (React's `updatePosition`). */
@@ -770,26 +783,6 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
       measureDropdownPosition(this.triggerEl, this.menuEl, this.placement, this.align),
     )
     this.updateMenuWidth()
-  }
-
-  /** Adds the outside-mousedown listener while the menu is open. */
-  private addListeners(): void {
-    this.removeListeners()
-    const owner = this.menuEl?.ownerDocument
-    if (!owner) return
-    this.removedListeners.push(
-      this.renderer.listen(owner, 'mousedown', (event: MouseEvent) => {
-        const trigger = this.triggerEl
-        const menu = this.menuEl
-        if (trigger && menu && isOutsideOverlay(event, trigger, menu)) this.handleClose()
-      }),
-    )
-  }
-
-  /** Removes the document listeners added while open. */
-  private removeListeners(): void {
-    for (const off of this.removedListeners) off()
-    this.removedListeners = []
   }
 
   /** Applies React's cloned-trigger attributes to the adopted trigger. */

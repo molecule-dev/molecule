@@ -38,7 +38,8 @@ import {
   type Router,
 } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (actual) => ({
+  ...(await actual<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the dropdown template CALLS as functions; every other token must
     // be a plain string — Angular's class binding rejects function values.

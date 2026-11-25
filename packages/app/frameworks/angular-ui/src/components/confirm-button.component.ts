@@ -22,6 +22,7 @@ import {
   type SlotReader,
   usePlacement,
 } from '@molecule/app-angular'
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import type { ButtonVariant, ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -109,7 +110,6 @@ export interface ConfirmButtonProps {
   host: {
     '[attr.type]': '"button"',
     '(click)': 'handleClick()',
-    '(document:keydown.escape)': 'handleEscape()',
     '[disabled]': 'disabled || phase() === "pending"',
     '[attr.aria-live]': '"polite"',
     '[attr.data-state]': 'phase()',
@@ -199,6 +199,7 @@ export class ConfirmButton implements OnDestroy, HasElement<HTMLButtonElement> {
   /** The element a caller's ref receives: the host `<button>`. */
   readonly element = hostElement(this.el)
   private disarmTimer: ReturnType<typeof setTimeout> | null = null
+  private readonly layer = new OverlayLayer()
 
   /**
    * Arms the auto-disarm timer for the armed phase (React's `useEffect` on
@@ -212,7 +213,17 @@ export class ConfirmButton implements OnDestroy, HasElement<HTMLButtonElement> {
         this.disarmTimer = null
       }
       const disarmSeconds = this.disarmSeconds ?? 4
-      if (this.phase() === 'armed' && disarmSeconds > 0) {
+      const armed = this.phase() === 'armed'
+      const target = { current: this.el.nativeElement }
+      this.layer.sync({
+        open: armed,
+        kind: 'popover',
+        surface: target,
+        anchor: target,
+        dismissKey: true,
+        onDismiss: () => this.disarm(),
+      })
+      if (armed && disarmSeconds > 0) {
         this.disarmTimer = setTimeout(() => {
           this.disarmTimer = null
           this.phase.set('idle')
@@ -290,14 +301,6 @@ export class ConfirmButton implements OnDestroy, HasElement<HTMLButtonElement> {
   }
 
   /**
-   * Disarms an armed button (React's window Escape listener, bound while
-   * armed; disarming an idle button is a no-op).
-   */
-  private handleEscape(): void {
-    if (this.phase() === 'armed') this.disarm()
-  }
-
-  /**
    * React's `disarm`: cancels the timer and returns to idle.
    */
   private disarm(): void {
@@ -351,6 +354,7 @@ export class ConfirmButton implements OnDestroy, HasElement<HTMLButtonElement> {
 
   /** Clears the auto-disarm timer (React's unmount cleanup). */
   ngOnDestroy(): void {
+    this.layer.release()
     if (this.disarmTimer) clearTimeout(this.disarmTimer)
   }
 }

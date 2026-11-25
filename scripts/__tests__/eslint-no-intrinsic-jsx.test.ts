@@ -156,18 +156,13 @@ ruleTester.run('no-intrinsic-jsx', rule as RuleModule, {
     },
     {
       ...TSX,
-      name: 'a rule, which Rule renders',
+      name: 'a rule',
       code: 'const x = <hr />',
-      errors: [
-        {
-          message:
-            '`<hr>` cannot render on React Native: use `<Rule as="hr">` from \'@molecule/app-ui-react/elements\'.',
-        },
-      ],
+      errors: [{ message: replacedBy('hr', '<Rule as="hr">') }],
     },
     {
       ...TSX,
-      name: 'a dialog, which no element covers yet',
+      name: 'an intrinsic dialog with no matching element',
       code: 'const x = <dialog />',
       errors: [
         {
@@ -180,6 +175,35 @@ ruleTester.run('no-intrinsic-jsx', rule as RuleModule, {
 })
 
 const ROOT = resolve(import.meta.dirname, '..', '..')
+
+it('rejects DOM globals and React DOM imports in renderer-neutral overlays', async () => {
+  const eslint = new ESLint({ cwd: ROOT })
+  const filePath = 'packages/app/frameworks/react-ui/src/components/ConfirmButton.tsx'
+  const [bad] = await eslint.lintText(
+    `
+      import { createPortal } from 'react-dom'
+      export const node = createPortal(null, window.document.body)
+      export const body = globalThis.document.body
+      export const client = () => import('react-dom/client')
+    `,
+    { filePath },
+  )
+  expect(bad.messages.filter(({ ruleId }) => ruleId === 'no-restricted-globals')).toHaveLength(2)
+  expect(bad.messages.filter(({ ruleId }) => ruleId === 'no-restricted-syntax')).toHaveLength(2)
+
+  const [good] = await eslint.lintText(
+    `
+      import { useOverlayLayer } from '@molecule/app-ui-react/platform'
+      export { useOverlayLayer }
+      /** Application data named document. */
+      export const context: { document: string } = { document: 'theme' }
+      /** A property on application data. */
+      export const key = context.document
+    `,
+    { filePath },
+  )
+  expect(good.messages).toEqual([])
+})
 const RULE = 'molecule-intrinsic-jsx/no-intrinsic-jsx'
 
 /** The element types: each element's props are `<Element>Props` there (`Link`'s are `ElementLinkProps`). */

@@ -7,10 +7,18 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ModalProps } from '@molecule/app-ui'
 import { OverlayHost } from '@molecule/app-ui-react/platform'
 
+import { ConfirmButton } from '../components/ConfirmButton.js'
 import { Modal } from '../components/Modal.js'
+import {
+  UserMenuPopover,
+  UserMenuPopoverPanel,
+  UserMenuPopoverTrigger,
+} from '../components/UserMenuPopover.js'
 
 vi.mock('@molecule/app-react', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
+  useAuth: () => ({ user: null }),
+  useLocation: () => ({ pathname: '/', search: '', hash: '' }),
   useTranslation: () => ({
     t: (key: string, _values: unknown, options?: { defaultValue?: string }) =>
       options?.defaultValue ?? key,
@@ -19,7 +27,20 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
-    const callable = new Set(['modal'])
+    const callable = new Set([
+      'button',
+      'display',
+      'flex',
+      'fontWeight',
+      'h',
+      'minW',
+      'modal',
+      'position',
+      'sp',
+      'stack',
+      'textSize',
+      'w',
+    ])
     return new Proxy(
       {},
       {
@@ -146,4 +167,50 @@ it('Strict Mode leaves one bubbling key listener at a time and removes it on cle
   expect(document.body.style.overflow).toBe('scroll')
   fireEvent.keyDown(document, { key: 'Escape' })
   expect(close).toHaveBeenCalledTimes(1)
+})
+
+it('lets the foreground dialog shield an open account disclosure', () => {
+  const close = vi.fn()
+  const tree = (open: boolean) => (
+    <>
+      <UserMenuPopover>
+        <UserMenuPopoverTrigger />
+        <UserMenuPopoverPanel>Account details</UserMenuPopoverPanel>
+      </UserMenuPopover>
+      <Modal open={open} title="Foreground" onClose={close} />
+    </>
+  )
+  const view = render(tree(false))
+  const trigger = screen.getByRole('button', { name: 'Open user menu' })
+  fireEvent.click(trigger)
+  fireEvent.mouseDown(screen.getByRole('navigation', { name: 'Account menu' }))
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.rerender(tree(true))
+  const dialog = screen.getByRole('dialog')
+  fireEvent.mouseDown(dialog)
+  fireEvent.keyDown(dialog, { key: 'Escape' })
+  expect(close).toHaveBeenCalledOnce()
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  view.rerender(tree(false))
+  fireEvent.popState(window)
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+})
+
+it('lets the foreground dialog shield an armed confirmation button', () => {
+  const close = vi.fn()
+  const tree = (open: boolean) => (
+    <>
+      <ConfirmButton label="Remove" onConfirm={vi.fn()} disarmSeconds={0} />
+      <Modal open={open} title="Foreground" onClose={close} />
+    </>
+  )
+  const view = render(tree(false))
+  fireEvent.click(screen.getByRole('button', { name: 'Remove' }))
+  view.rerender(tree(true))
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+  expect(close).toHaveBeenCalledOnce()
+  expect(screen.getByRole('button', { name: 'Confirm?' })).toBeDefined()
+  view.rerender(tree(false))
+  fireEvent.keyDown(document.body, { key: 'Escape' })
+  expect(screen.getByRole('button', { name: 'Remove' })).toBeDefined()
 })

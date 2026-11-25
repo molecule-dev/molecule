@@ -57,6 +57,7 @@ export const AdminTableRowActions = defineComponent({
     row: { type: null, required: true },
     actions: { type: Array as PropType<ActionSet>, required: true },
     ariaLabel: { type: String, default: undefined },
+    stopActionPropagation: Boolean,
   },
   setup(props) {
     const cm = getClassMap()
@@ -131,7 +132,8 @@ export const AdminTableRowActions = defineComponent({
               href,
               class: className,
               'data-mol-id': dataMolId,
-              onClick: () => {
+              onClick: (event: MouseEvent) => {
+                if (props.stopActionPropagation) event.stopPropagation()
                 open.value = false
               },
             },
@@ -144,7 +146,8 @@ export const AdminTableRowActions = defineComponent({
             key: index,
             class: className,
             'data-mol-id': dataMolId,
-            onClick: async () => {
+            onClick: async (event: MouseEvent) => {
+              if (props.stopActionPropagation) event.stopPropagation()
               open.value = false
               await call(action.onSelect, props.row)
             },

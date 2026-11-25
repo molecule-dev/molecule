@@ -9,7 +9,8 @@ import type { ElementHandle } from '@molecule/app-ui'
 import { Toast } from '../../components/Toast.js'
 import { Tooltip } from '../../components/Tooltip.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (actual) => ({
+  ...(await actual<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...classes: (string | undefined)[]) => classes.filter(Boolean).join(' '),
     toast: () => 'toast',

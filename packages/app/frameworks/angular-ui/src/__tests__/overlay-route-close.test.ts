@@ -36,7 +36,8 @@ import {
 } from '@molecule/app-angular'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (actual) => ({
+  ...(await actual<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the overlay templates CALL; every other token is read as a plain
     // string by the `[class]` bindings.

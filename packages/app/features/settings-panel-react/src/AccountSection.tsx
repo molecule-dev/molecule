@@ -4,6 +4,7 @@ import type { UserProfile } from '@molecule/app-auth'
 import { useAuthClient, useProfileForm, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Input, Spinner } from '@molecule/app-ui-react'
+import { Box, FormArea, Text } from '@molecule/app-ui-react/elements'
 
 /** The profile values `AccountSection` edits (its controlled form fields). */
 export type AccountValues = {
@@ -52,18 +53,18 @@ export function AccountSection(): JSX.Element {
     }
 
   return (
-    <section>
+    <Box as="section">
       <Flex align="center" gap="sm" className={cm.sp('mb', 3)}>
-        <h3 className={cm.sectionHeading}>
+        <Text as="h3" className={cm.sectionHeading}>
           {t('settings.account', undefined, { defaultValue: 'Account' })}
-        </h3>
+        </Text>
         {profile.isSubmitting && <Spinner size="xs" />}
       </Flex>
-      <form {...profile.formProps} className={cm.stack(3)}>
-        <div>
-          <label htmlFor="settings-name" className={cm.formLabelSmall}>
+      <FormArea as="form" {...profile.formProps} className={cm.stack(3)}>
+        <Box as="div">
+          <Text as="label" htmlFor="settings-name" className={cm.formLabelSmall}>
             {t('settings.name', undefined, { defaultValue: 'Name' })}
-          </label>
+          </Text>
           <Input
             {...name}
             id="settings-name"
@@ -72,11 +73,11 @@ export function AccountSection(): JSX.Element {
             autoComplete="name"
             size="sm"
           />
-        </div>
-        <div>
-          <label htmlFor="settings-email" className={cm.formLabelSmall}>
+        </Box>
+        <Box as="div">
+          <Text as="label" htmlFor="settings-email" className={cm.formLabelSmall}>
             {t('settings.email', undefined, { defaultValue: 'Email' })}
-          </label>
+          </Text>
           <Input
             {...email}
             id="settings-email"
@@ -88,25 +89,30 @@ export function AccountSection(): JSX.Element {
             aria-describedby={emailError ? 'settings-email-error' : undefined}
           />
           {emailError ? (
-            <p
+            <Text
+              as="p"
               id="settings-email-error"
               role="alert"
               className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}
             >
               {emailError}
-            </p>
+            </Text>
           ) : null}
           {profile.error ? (
-            <p role="alert" className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}>
+            <Text
+              as="p"
+              role="alert"
+              className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}
+            >
               {profile.error instanceof Error
                 ? profile.error.message
                 : t('settings.failedToUpdateProfile', undefined, {
                     defaultValue: 'Failed to update profile',
                   })}
-            </p>
+            </Text>
           ) : null}
-        </div>
-      </form>
-    </section>
+        </Box>
+      </FormArea>
+    </Box>
   )
 }

@@ -14,6 +14,7 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -78,6 +79,7 @@ export const ConfirmButton: Component<WithRef<ConfirmButtonProps, HTMLButtonElem
     'color',
     'size',
     'variant',
+    'ref',
   ])
 
   const cm = getClassMap()
@@ -102,17 +104,20 @@ export const ConfirmButton: Component<WithRef<ConfirmButtonProps, HTMLButtonElem
     }),
   )
 
-  // Escape disarms while armed.
-  createEffect(
-    on(phase, (current) => {
-      if (current !== 'armed') return
-      const onKey = (event: KeyboardEvent): void => {
-        if (event.key === 'Escape') disarm()
-      }
-      window.addEventListener('keydown', onKey)
-      onCleanup(() => window.removeEventListener('keydown', onKey))
-    }),
-  )
+  const layer = new OverlayLayer()
+  let button: HTMLButtonElement | null = null
+  createEffect(() => {
+    const target = { current: button }
+    layer.sync({
+      open: phase() === 'armed',
+      kind: 'popover',
+      surface: target,
+      anchor: target,
+      dismissKey: true,
+      onDismiss: disarm,
+    })
+  })
+  onCleanup(() => layer.release())
 
   /**
    * Arms on the first click, commits on the second.
@@ -147,6 +152,10 @@ export const ConfirmButton: Component<WithRef<ConfirmButtonProps, HTMLButtonElem
 
   return (
     <button
+      ref={(element) => {
+        button = element
+        if (typeof local.ref === 'function') local.ref(element)
+      }}
       type="button"
       onClick={() => void handleClick()}
       disabled={local.disabled || phase() === 'pending'}

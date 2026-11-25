@@ -76,6 +76,8 @@ export interface AdminTableProps<T> {
 
 /** Props for the {@link AdminTableRowActions} component (React's prop names). */
 export interface AdminTableRowActionsProps<T> {
+  /** Keep selection within a clickable row. */
+  stopActionPropagation?: boolean
   /** The row the menu belongs to. */
   row: T
   /** Menu entries. */

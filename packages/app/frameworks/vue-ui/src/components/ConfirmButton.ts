@@ -16,6 +16,7 @@
 
 import { defineComponent, h, onUnmounted, type PropType, ref, type VNodeChild, watch } from 'vue'
 
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
@@ -139,20 +140,26 @@ export const ConfirmButton = defineComponent({
       }
     })
 
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') disarm()
-    }
-
-    // Escape disarms — the listener lives only while armed, like React's
-    // [phase] effect.
-    watch(phase, (p) => {
-      if (p === 'armed') window.addEventListener('keydown', onKey)
-      else window.removeEventListener('keydown', onKey)
-    })
+    const layer = new OverlayLayer()
+    watch(
+      [phase, element],
+      ([current, node]) => {
+        const target = { current: node }
+        layer.sync({
+          open: current === 'armed',
+          kind: 'popover',
+          surface: target,
+          anchor: target,
+          dismissKey: true,
+          onDismiss: disarm,
+        })
+      },
+      { flush: 'post' },
+    )
 
     onUnmounted(() => {
       if (disarmTimer) clearTimeout(disarmTimer)
-      window.removeEventListener('keydown', onKey)
+      layer.release()
     })
 
     const handleClick = async (): Promise<void> => {

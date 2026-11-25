@@ -26,15 +26,18 @@
 import React, {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
-  useEffect,
   useId,
   useRef,
   useState,
 } from 'react'
 
 import { useAuth, useLocation, useTranslation } from '@molecule/app-react'
+import type { ElementHandle } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
+import { OverlayPortal, useHistoryPop, useOverlayLayer } from '@molecule/app-ui-react/platform'
 
 import { getInitials } from '../utilities/initials.js'
 
@@ -112,8 +115,19 @@ export function UserMenuPopover({
   const user = auth.user
   const location = useLocation()
   const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<ElementHandle>(null)
   const panelId = useId()
+  const close = useCallback(() => setOpen(false), [])
+  const layer = useOverlayLayer({
+    open,
+    kind: 'popover',
+    surface: containerRef,
+    anchor: containerRef,
+    dismissKey: true,
+    outside: { inside: [containerRef], phase: 'start' },
+    onDismiss: close,
+  })
+  useHistoryPop(close, containerRef)
 
   // Close on route change so the panel never sticks across navigations.
   // Adjusted during render (React's pattern for state derived from a changed
@@ -132,43 +146,18 @@ export function UserMenuPopover({
     setOpen(false)
   }
 
-  // Also close on a raw `popstate` — `useLocation()` only fires when a
-  // URL part changes, but a same-route SPA navigation still pops.
-  useEffect(() => {
-    const onPopState = (): void => setOpen(false)
-    window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
-  }, [])
-
-  // Close on outside click and Escape while the panel is open.
-  useEffect(() => {
-    if (!open) return
-    const onMouseDown = (event: MouseEvent): void => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
-
   const resolvedGuest = guestName ?? t('userMenuPopover.guest', {}, { defaultValue: 'Account' })
   const displayName = user?.name ?? user?.email ?? resolvedGuest
   const email = user?.email ?? undefined
 
   return (
-    <div ref={containerRef} className={cm.cn(cm.position('relative'), className)}>
-      <UserMenuPopoverContext.Provider value={{ open, setOpen, displayName, email, panelId }}>
-        {children}
-      </UserMenuPopoverContext.Provider>
-    </div>
+    <Box as="div" ref={containerRef} className={cm.cn(cm.position('relative'), className)}>
+      <OverlayPortal layer={layer} presentation="inline" server="inline">
+        <UserMenuPopoverContext.Provider value={{ open, setOpen, displayName, email, panelId }}>
+          {children}
+        </UserMenuPopoverContext.Provider>
+      </OverlayPortal>
+    </Box>
   )
 }
 
@@ -203,7 +192,8 @@ export function UserMenuPopoverTrigger({
   const { t } = useTranslation()
   const { open, setOpen, displayName, email, panelId } = usePopoverContext('UserMenuPopoverTrigger')
   return (
-    <button
+    <Pressable
+      as="button"
       type="button"
       onClick={() => setOpen(!open)}
       // Disclosure pattern, not a menu: the panel renders a header + a
@@ -224,7 +214,8 @@ export function UserMenuPopoverTrigger({
         className,
       )}
     >
-      <span
+      <Text
+        as="span"
         aria-hidden="true"
         className={cm.cn(
           cm.w(10),
@@ -235,15 +226,16 @@ export function UserMenuPopoverTrigger({
           cm.fontWeight('bold'),
           cm.shrink0,
         )}
-        style={{
+        webStyle={{
           backgroundColor: 'var(--color-primary)',
           color: 'var(--color-on-primary, #ffffff)',
         }}
       >
         {getInitials(displayName)}
-      </span>
-      <span className={cm.cn(cm.flex1, cm.minW(0))}>
-        <span
+      </Text>
+      <Box as="span" className={cm.cn(cm.flex1, cm.minW(0))}>
+        <Text
+          as="span"
           className={cm.cn(
             cm.textSize('sm'),
             cm.fontWeight('semibold'),
@@ -252,16 +244,17 @@ export function UserMenuPopoverTrigger({
           )}
         >
           {displayName}
-        </span>
+        </Text>
         {email ? (
-          <span
+          <Text
+            as="span"
             className={cm.cn(cm.textSize('xs'), cm.displayBlock, cm.textTruncate, cm.textMuted)}
           >
             {email}
-          </span>
+          </Text>
         ) : null}
-      </span>
-    </button>
+      </Box>
+    </Pressable>
   )
 }
 
@@ -320,18 +313,30 @@ export function UserMenuPopoverPanel({
     // trigger's `aria-controls`; the accessible name lives on the `<nav>`
     // landmark below (a bare, roleless `<div>` does not expose
     // `aria-label` to the accessibility tree the way a real landmark does).
-    <div id={panelId} data-mol-id={dataMolId} className={cm.cn(cm.userMenuPopoverPanel, className)}>
-      <header className={cm.cn(cm.sp('pb', 4), cm.userMenuPopoverHeader)}>
-        <p className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{displayName}</p>
-        {email ? <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{email}</p> : null}
-      </header>
-      <nav
+    <Box
+      as="div"
+      id={panelId}
+      data-mol-id={dataMolId}
+      className={cm.cn(cm.userMenuPopoverPanel, className)}
+    >
+      <Box as="header" className={cm.cn(cm.sp('pb', 4), cm.userMenuPopoverHeader)}>
+        <Text as="p" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {displayName}
+        </Text>
+        {email ? (
+          <Text as="p" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+            {email}
+          </Text>
+        ) : null}
+      </Box>
+      <Box
+        as="nav"
         className={cm.cn(cm.sp('mt', 4), cm.stack(1))}
         aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
       >
         {children}
-      </nav>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -381,7 +386,8 @@ export function UserMenuPopoverSignOut({
   const auth = useAuth()
   const { setOpen } = usePopoverContext('UserMenuPopoverSignOut')
   return (
-    <button
+    <Pressable
+      as="button"
       type="button"
       data-mol-id={dataMolId}
       onClick={async () => {
@@ -407,6 +413,6 @@ export function UserMenuPopoverSignOut({
       )}
     >
       {t(labelKey, {}, { defaultValue: labelDefault })}
-    </button>
+    </Pressable>
   )
 }

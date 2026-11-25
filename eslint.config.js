@@ -795,4 +795,33 @@ export default tseslint.config(
   // React features and the React UI kit render on React DOM and React Native alike: no
   // intrinsic JSX element outside the packages eslint-rules/intrinsic-jsx-pending.json still lists.
   intrinsicJsxConfig({ rules: { 'no-intrinsic-jsx': noIntrinsicJsx } }),
+  {
+    // These overlay consumers render in both environments. The DOM lives in the
+    // platform and elements adapters selected by their public subpaths.
+    files: [
+      'packages/app/frameworks/react-ui/src/components/{ConfirmButton,Dropdown,Toast,Tooltip,UserMenuPopover}.tsx',
+      'packages/app/features/{action-menu,admin-table,footer,legal-pages,settings-panel}-react/src/**/*.{ts,tsx}',
+    ],
+    ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          globals: [
+            { name: 'document', message: 'Use the renderer-selected overlay or element API.' },
+            { name: 'window', message: 'Use the renderer-selected overlay or element API.' },
+          ],
+          checkGlobalObject: true,
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            ':matches(ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration, ImportExpression)[source.value=/^react-dom($|\\x2f)/]',
+          message: 'Import renderer-selected overlays and elements from @molecule/app-ui-react.',
+        },
+      ],
+    },
+  },
 )

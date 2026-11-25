@@ -19,7 +19,11 @@ import {
   untrack,
 } from 'solid-js'
 
-import { isOutsideOverlay, measureDropdownPosition, OverlayLayer } from '@molecule/app-overlay-dom'
+import {
+  measureDropdownPosition,
+  OverlayLayer,
+  readOverlayAnchorWidth,
+} from '@molecule/app-overlay-dom'
 import { BodyPortal, resolveNode, useLocation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -251,10 +255,14 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
 
   // Wait for the portalled menu to mount before measuring it.
   createEffect(() => {
+    if (!isOpen()) {
+      setPosition({ top: 0, left: 0 })
+      return
+    }
     const anchor = trigger()
     const surface = menu()
     const view = anchor?.ownerDocument.defaultView
-    if (!isOpen() || !anchor || !surface || !view) return
+    if (!anchor || !surface || !view) return
     const placement = props.placement ?? 'bottom-start'
     const align = props.align ?? 'start'
     const frame = view.requestAnimationFrame(() =>
@@ -321,23 +329,11 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
       surface: { current: menu() },
       anchor: { current: trigger() },
       dismissKey: true,
-      onDismiss: closeAndRefocusTrigger,
+      outside: { inside: [{ current: trigger() }, { current: menu() }], phase: 'start' },
+      onDismiss: (reason) => (reason === 'outside' ? handleClose() : closeAndRefocusTrigger()),
     })
   })
   onCleanup(() => layer.release())
-
-  // Outside clicks close without moving focus.
-  createEffect(() => {
-    const anchor = trigger()
-    const surface = menu()
-    if (!isOpen() || !anchor || !surface) return
-    const owner = anchor.ownerDocument
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (isOutsideOverlay(event, anchor, surface)) handleClose()
-    }
-    owner.addEventListener('mousedown', handleClickOutside)
-    onCleanup(() => owner.removeEventListener('mousedown', handleClickOutside))
-  })
 
   // Close on route change — a dropdown left open over the next page blocks
   // clicks underneath. Mounting is not a route change (`defer` skips it).
@@ -392,9 +388,8 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
       // Not measurable until the trigger node exists (the first open
       // frame, before layout); undefined lets the menu size itself, and a
       // later re-render (position update) recomputes the real pixel width.
-      // An SVG trigger has no offsetWidth: React's `triggerRef.current?.offsetWidth` is undefined.
       const anchor = trigger()
-      return anchor && 'offsetWidth' in anchor ? anchor.offsetWidth : undefined
+      return anchor ? readOverlayAnchorWidth(anchor) : undefined
     }
     return props.width
   }

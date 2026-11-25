@@ -101,6 +101,53 @@ it('shields a covered backdrop and honors a key handled by a dialog control', ()
   }
 })
 
+it('dismisses only once when an outside press starts above an activation layer', () => {
+  const lower = panel(document)
+  const upper = panel(document)
+  const trigger = document.createElement('button')
+  document.body.append(trigger)
+  const clickLayer = new OverlayLayer()
+  const startLayer = new OverlayLayer()
+  const onClick = vi.fn()
+  const onStart = vi.fn(() => startLayer.release())
+  const press = (node: Element, event: string, detail = 1): void => {
+    node.dispatchEvent(new MouseEvent(event, { bubbles: true, detail }))
+  }
+  try {
+    clickLayer.sync({
+      open: true,
+      kind: 'popover',
+      surface: { current: lower },
+      outside: { phase: 'activate', inside: [{ current: lower }] },
+      onDismiss: onClick,
+    })
+    startLayer.sync({
+      open: true,
+      kind: 'popover',
+      surface: { current: upper },
+      outside: { phase: 'start', inside: [{ current: trigger }, { current: upper }] },
+      onDismiss: onStart,
+    })
+    press(trigger, 'mousedown')
+    press(upper, 'mousedown')
+    expect(onStart).not.toHaveBeenCalled()
+    press(document.body, 'mousedown')
+    expect(onStart).toHaveBeenCalledExactlyOnceWith('outside')
+    press(document.body, 'click')
+    expect(onClick).not.toHaveBeenCalled()
+    press(document.body, 'mousedown')
+    expect(onClick).not.toHaveBeenCalled()
+    press(document.body, 'click')
+    expect(onClick).toHaveBeenCalledExactlyOnceWith('outside')
+  } finally {
+    startLayer.release()
+    clickLayer.release()
+    lower.remove()
+    upper.remove()
+    trigger.remove()
+  }
+})
+
 it('restores the lower dialog opener after an upper dialog and its menu close together', () => {
   const lowerPanel = panel(document)
   const lowerButton = document.createElement('button')

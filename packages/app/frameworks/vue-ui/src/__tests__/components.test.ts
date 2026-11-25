@@ -4098,12 +4098,23 @@ describe('Tooltip component', () => {
   // The Tooltip render function captured from setup, plus helpers that drive
   // the trigger's own handlers the way the conformance kit's DOM steps do.
   let currentRender: (() => unknown) | null = null
+  let ownerBody: HTMLElement
+  let closeOwner: (() => void) | undefined
+
+  afterEach(() => {
+    closeOwner?.()
+    closeOwner = undefined
+  })
 
   const renderTooltip = async (
     extraProps: Record<string, unknown>,
     triggerChildren?: unknown[],
   ): Promise<void> => {
     const { Tooltip } = await import('../components/Tooltip.js')
+    const { JSDOM } = await import('jsdom')
+    const owner = new JSDOM()
+    closeOwner = () => owner.window.close()
+    ownerBody = owner.window.document.body
     const mockSlots: Record<string, () => unknown> = {
       default: () =>
         triggerChildren
@@ -4127,6 +4138,8 @@ describe('Tooltip component', () => {
     currentRender = renderFn as () => unknown
     mockH.mockClear()
     renderFn()
+    const triggerRef = currentTrigger().ref as { value: HTMLDivElement | null }
+    triggerRef.value = ownerBody.appendChild(ownerBody.ownerDocument.createElement('div'))
   }
 
   const currentTrigger = (): { [key: string]: unknown } => {
@@ -4186,7 +4199,7 @@ describe('Tooltip component', () => {
 
     const teleportCall = mockH.mock.calls.find((call) => call[0] === 'Teleport')
     expect(teleportCall).toBeDefined()
-    expect(teleportCall![1]).toEqual({ to: 'body' })
+    expect(teleportCall![1]).toEqual({ to: ownerBody })
     const tooltipCall = mockH.mock.calls.find((call) => call[1]?.role === 'tooltip')
     expect(tooltipCall).toBeDefined()
     expect(tooltipCall![1].id).toMatch(/^mol-tooltip-/)
@@ -6449,62 +6462,6 @@ describe('UserMenuPopover component', () => {
     const routeWatcher = mockWatch.mock.calls.find((call) => typeof call[0] === 'function')!
     ;(routeWatcher[1] as () => void)()
     expect(provided.open.value).toBe(false)
-  })
-
-  it('should listen for popstate while mounted and stop on unmount', async () => {
-    const { UserMenuPopover } = await import('../components/UserMenuPopover.js')
-    await installPopoverServices(authenticated)
-    // This suite runs in the node environment (no `window`/`document`);
-    // stub the listener hooks the component (and its unmount hooks) touch.
-    const windowAdd = vi.fn()
-    const windowRemove = vi.fn()
-    vi.stubGlobal('window', { addEventListener: windowAdd, removeEventListener: windowRemove })
-    vi.stubGlobal('document', { addEventListener: vi.fn(), removeEventListener: vi.fn() })
-    try {
-      const setup = UserMenuPopover.setup as (...args: unknown[]) => unknown
-      setup({}, { attrs: {}, slots: {} })
-      ;(mockOnMounted.mock.calls.at(-1)![0] as () => void)()
-      expect(windowAdd).toHaveBeenCalledWith('popstate', expect.any(Function))
-      // The component registers several onUnmounted hooks (the i18n/auth
-      // subscriptions and the popstate remover); run them all and require the
-      // popstate listener to be among the removed.
-      for (const [unmount] of mockOnUnmounted.mock.calls) (unmount as () => void)()
-      expect(windowRemove).toHaveBeenCalledWith('popstate', expect.any(Function))
-    } finally {
-      vi.unstubAllGlobals()
-    }
-  })
-
-  it('should add outside-mousedown and Escape listeners while open and remove them when closed', async () => {
-    const { UserMenuPopover } = await import('../components/UserMenuPopover.js')
-    await installPopoverServices(authenticated)
-    // This suite runs in the node environment (no `document`); stub the two
-    // listener hooks the component uses and assert against them directly.
-    const documentAdd = vi.fn()
-    const documentRemove = vi.fn()
-    vi.stubGlobal('document', {
-      addEventListener: documentAdd,
-      removeEventListener: documentRemove,
-      contains: () => true,
-    })
-    try {
-      const setup = UserMenuPopover.setup as (...args: unknown[]) => unknown
-      setup({}, { attrs: {}, slots: {} })
-      // The component's own watcher on its `open` ref (a single ref source); `useAuth`
-      // registers its own watcher over an array of sources.
-      const openWatcher = mockWatch.mock.calls.find(
-        (call) => typeof call[0] === 'object' && !Array.isArray(call[0]),
-      )!
-      ;(openWatcher[1] as (value: boolean) => void)(true)
-      expect(documentAdd).toHaveBeenCalledWith('mousedown', expect.any(Function))
-      expect(documentAdd).toHaveBeenCalledWith('keydown', expect.any(Function))
-
-      ;(openWatcher[1] as (value: boolean) => void)(false)
-      expect(documentRemove).toHaveBeenCalledWith('mousedown', expect.any(Function))
-      expect(documentRemove).toHaveBeenCalledWith('keydown', expect.any(Function))
-    } finally {
-      vi.unstubAllGlobals()
-    }
   })
 })
 

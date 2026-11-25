@@ -1,5 +1,6 @@
 /** The inputs a test changes while the overlay host stays mounted. */
 export interface Scene {
+  inline?: boolean
   shell: boolean
   drawer: boolean
   modal: boolean

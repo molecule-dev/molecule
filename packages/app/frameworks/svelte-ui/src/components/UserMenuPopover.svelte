@@ -7,6 +7,7 @@
 <script lang="ts">
   import { setContext } from 'svelte'
 
+  import { OverlayLayer } from '@molecule/app-overlay-dom'
   import { useAuth, useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -24,6 +25,15 @@
 
   let open = $state(false)
   let containerEl = $state<HTMLDivElement | null>(null)
+  const layer = new OverlayLayer()
+  const target = {
+    get current() {
+      return containerEl
+    },
+  }
+  const close = (): void => {
+    open = false
+  }
 
   // Close on route change so the panel never sticks across navigations.
   $effect(() => {
@@ -36,29 +46,24 @@
   // Also close on a raw popstate — useLocation only fires when a URL part
   // changes, but a same-route SPA navigation still pops.
   $effect(() => {
-    const onPopState = (): void => {
-      open = false
-    }
-    window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
+    const view = containerEl?.ownerDocument.defaultView
+    view?.addEventListener('popstate', close)
+    return () => view?.removeEventListener('popstate', close)
   })
 
   // Close on outside click and Escape while the panel is open.
   $effect(() => {
-    if (!open) return
-    const onMouseDown = (event: MouseEvent): void => {
-      if (containerEl && !containerEl.contains(event.target as Node)) open = false
-    }
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') open = false
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
+    layer.sync({
+      open,
+      kind: 'popover',
+      surface: target,
+      anchor: target,
+      dismissKey: true,
+      outside: { inside: [target], phase: 'start' },
+      onDismiss: close,
+    })
   })
+  $effect(() => () => layer.release())
 
   const user = $derived(
     ($authState.user ?? null) as { name?: string | null; email?: string | null } | null,

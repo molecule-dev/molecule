@@ -3,6 +3,7 @@ import type { JSX } from 'react'
 import { useDevice, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * "This device" detail strip — OS, browser, online/offline.
@@ -16,39 +17,39 @@ export function ThisDeviceSection(): JSX.Element {
   const { t } = useTranslation()
   const { deviceInfo, isOnline } = useDevice()
   return (
-    <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+    <Box as="section">
+      <Text as="h3" className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
         {t('settings.thisDevice', undefined, { defaultValue: 'This Device' })}
-      </h3>
-      <dl className={cm.cn(cm.stack(1), cm.textSize('sm'))}>
+      </Text>
+      <Box as="dl" className={cm.cn(cm.stack(1), cm.textSize('sm'))}>
         <Flex justify="between">
-          <dt className={cm.textMuted}>
+          <Text as="dt" className={cm.textMuted}>
             {t('settings.platform', undefined, { defaultValue: 'Platform' })}
-          </dt>
-          <dd>
+          </Text>
+          <Text as="dd">
             {deviceInfo.os.name || t('settings.unknown', undefined, { defaultValue: 'Unknown' })}
-          </dd>
+          </Text>
         </Flex>
         <Flex justify="between">
-          <dt className={cm.textMuted}>
+          <Text as="dt" className={cm.textMuted}>
             {t('settings.browser', undefined, { defaultValue: 'Browser' })}
-          </dt>
-          <dd>
+          </Text>
+          <Text as="dd">
             {deviceInfo.browser.name ||
               t('settings.unknown', undefined, { defaultValue: 'Unknown' })}
-          </dd>
+          </Text>
         </Flex>
         <Flex justify="between">
-          <dt className={cm.textMuted}>
+          <Text as="dt" className={cm.textMuted}>
             {t('settings.network', undefined, { defaultValue: 'Network' })}
-          </dt>
-          <dd>
+          </Text>
+          <Text as="dd">
             {isOnline()
               ? t('settings.online', undefined, { defaultValue: 'Online' })
               : t('settings.offline', undefined, { defaultValue: 'Offline' })}
-          </dd>
+          </Text>
         </Flex>
-      </dl>
-    </section>
+      </Box>
+    </Box>
   )
 }

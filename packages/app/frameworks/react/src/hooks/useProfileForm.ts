@@ -8,6 +8,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 import type { FieldRegistration, FormValuesConstraint } from '@molecule/app-forms'
 import { formValuesEqual, snapshotFormValue } from '@molecule/app-forms'
+import type { KitEvent } from '@molecule/app-ui'
 
 import { useCommittedRef } from '../render/useCommittedRef.js'
 import { useAuth, useAuthClient } from './useAuth.js'
@@ -82,7 +83,7 @@ export interface UseProfileFormResult<
     options?: Parameters<UseFormResult<TValues>['register']>[1],
   ) => Omit<FieldRegistration, 'value'> & { value: TValues[K] }
   /** Bind to the native form, with a type="submit" button inside it. */
-  formProps: { onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }
+  formProps: { onSubmit: (event: Pick<KitEvent, 'preventDefault'>) => void }
   /**
    * Validates and saves one submit-time snapshot. Concurrent submits share the
    * same promise. Resolves undefined on validation, save or propagation failure.
@@ -339,7 +340,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     setError(undefined)
   }, [resetFormValues])
   const onSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>): void => {
+    (event: Pick<KitEvent, 'preventDefault'>): void => {
       event.preventDefault()
       void submit()
     },

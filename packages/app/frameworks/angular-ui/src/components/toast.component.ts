@@ -32,8 +32,9 @@ import {
 } from '@molecule/app-angular'
 import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { focusStaysWithin } from '@molecule/app-overlay-dom'
 import type { ColorVariant, ToastProps, UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, ToastCountdown } from '@molecule/app-ui'
 
 import { createDomContext } from '../utilities/dom-context.js'
 import { type HasElement, hostElement } from '../utilities/element.js'
@@ -110,6 +111,8 @@ type ToastPosition = ToastProps['position']
     'automationId',
     'dataMolId: data-mol-id',
     'id',
+    'roleOverride: role',
+    'live: aria-live',
   ],
   outputs: ['dismiss'],
   host: {
@@ -122,11 +125,12 @@ type ToastPosition = ToastProps['position']
     '[attr.data-mol-id]': 'molId()',
     '[attr.id]': 'id',
     '[attr.role]': 'role()',
+    '[attr.aria-live]': 'live',
     '[attr.data-state]': 'visible() ? "open" : null',
-    '(mouseenter)': 'pauseTimer()',
-    '(mouseleave)': 'resumeTimer()',
-    '(focusin)': 'pauseTimer()',
-    '(focusout)': 'resumeTimer()',
+    '(mouseenter)': 'setHovered(true)',
+    '(mouseleave)': 'setHovered(false)',
+    '(focusin)': 'setFocused(true)',
+    '(focusout)': 'leaveFocus($event)',
   },
   template: `@if (statusIcon(); as icon) {
       <span [class]="cm().toastIconWrapper"><svg mol-icon [data]="icon" /></span>
@@ -181,6 +185,10 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
   dataMolId?: string
   /** The toast's DOM `id` (React spreads the toast record, id included, onto `<Toast>`). */
   id?: string
+  /** Overrides the status-derived role. */
+  roleOverride?: ToastProps['role']
+  /** Overrides the live-region priority, including `off`. */
+  live?: ToastProps['aria-live']
 
   /** Fires when the toast dismisses itself or its close button is pressed. */
   @Output() readonly dismiss = new EventEmitter<void>()
@@ -206,9 +214,10 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
   private readonly i18n = useTranslation()
 
   private readonly host: HTMLElement = this.el.nativeElement
-  private remaining: number
-  private startedAt: number | null = null
-  private timer: ReturnType<typeof setTimeout> | undefined
+  private readonly countdown = new ToastCountdown(() => {
+    this.visible.set(false)
+    this.dismiss.emit()
+  })
   private lastDuration: number
   private hasChildren = false
 
@@ -217,7 +226,6 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
     usePlacement((hasContent) => this.reconcile(hasContent))
     // Leaves no element in the page while the toast is hidden (React renders null).
     useHostPresence(() => this.visible())
-    this.remaining = this.duration
     this.lastDuration = this.duration
   }
 
@@ -265,8 +273,11 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
    * The announced role: assertive for warnings/errors, polite otherwise.
    * @returns The role attribute value.
    */
-  role(): 'alert' | 'status' {
-    return this.variant() === 'warning' || this.variant() === 'error' ? 'alert' : 'status'
+  role(): string {
+    return (
+      this.roleOverride ??
+      (this.variant() === 'warning' || this.variant() === 'error' ? 'alert' : 'status')
+    )
   }
 
   /**
@@ -312,21 +323,22 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
 
   /** Dismisses the toast and calls the callback (React's `handleDismiss`). */
   handleDismiss(): void {
-    this.visible.set(false)
-    this.dismiss.emit()
+    this.countdown.dismiss()
   }
 
-  /** Pauses the countdown, keeping the time left (React's `pauseTimer`). */
-  pauseTimer(): void {
-    if (this.startedAt === null) return
-    const elapsed = Date.now() - this.startedAt
-    this.remaining = Math.max(0, this.remaining - elapsed)
-    this.clearTimer()
+  /** Tracks the pointer's presence on the notification. */
+  setHovered(hovered: boolean): void {
+    this.countdown.setPaused('hover', hovered)
   }
 
-  /** Resumes the countdown with the remaining time (React's `resumeTimer`). */
-  resumeTimer(): void {
-    if (this.remaining > 0) this.startTimer(this.remaining)
+  /** Tracks focus anywhere inside the notification. */
+  setFocused(focused: boolean): void {
+    this.countdown.setPaused('focus', focused)
+  }
+
+  /** Keeps the countdown paused when focus moves to another toast control. */
+  leaveFocus(event: FocusEvent): void {
+    if (!focusStaysWithin(event)) this.setFocused(false)
   }
 
   /**
@@ -334,7 +346,7 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
    * countdown (React's mount effect, with `[duration]` deps).
    */
   ngAfterViewInit(): void {
-    this.restart()
+    this.countdown.start(this.duration)
   }
 
   /**
@@ -344,42 +356,13 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy, HasElement<HTML
   ngDoCheck(): void {
     if (this.duration !== this.lastDuration) {
       this.lastDuration = this.duration
-      this.restart()
+      this.countdown.start(this.duration)
     }
   }
 
   /** Stops the countdown (React's unmount cleanup). */
   ngOnDestroy(): void {
-    this.clearTimer()
-  }
-
-  /** React's effect body: reset the remaining time and start counting. */
-  private restart(): void {
-    this.remaining = this.duration
-    this.startTimer(this.duration)
-  }
-
-  /** Clears the running timer (React's `clearTimer`). */
-  private clearTimer(): void {
-    if (this.timer) {
-      clearTimeout(this.timer)
-      this.timer = undefined
-    }
-    this.startedAt = null
-  }
-
-  /**
-   * Starts the countdown (React's `startTimer`).
-   * @param ms - Milliseconds until dismissal.
-   */
-  private startTimer(ms: number): void {
-    this.clearTimer()
-    if (ms <= 0) return
-    this.startedAt = Date.now()
-    this.timer = setTimeout(() => {
-      this.visible.set(false)
-      this.dismiss.emit()
-    }, ms)
+    this.countdown.stop()
   }
 
   /**
@@ -513,6 +496,8 @@ export class ToastContainer implements HasElement<HTMLDivElement> {
           [testId]="toast.testId"
           [automationId]="toast.automationId"
           [id]="toast.id"
+          [role]="toast.role"
+          [aria-live]="toast['aria-live']"
           (dismiss)="removeToast(toast.id)"
         ></div>
       }

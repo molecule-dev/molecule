@@ -257,6 +257,7 @@ export function AdminTable<T>(props: AdminTableProps<T>): JSX.Element {
                             <AdminTableRowActions
                               row={row()}
                               actions={props.rowActions as AdminTableRowAction<T>[]}
+                              stopActionPropagation={Boolean(props.onRowClick)}
                               // No label here: the row-actions component falls
                               // back to the translated default
                               // (`adminTable.aria.rowActions`).

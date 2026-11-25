@@ -23,9 +23,14 @@ import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
 import { slot, useCommittedRef } from '@molecule/app-react/render'
 import type { ColorVariant, ElementHandle, ToastProps as WebToastProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, ToastCountdown } from '@molecule/app-ui'
 import { Box, Pressable } from '@molecule/app-ui-react/elements'
-import { OverlayPortal, useOverlayLayer } from '@molecule/app-ui-react/platform'
+import {
+  focusStaysWithin,
+  OverlayPortal,
+  ToastMessage,
+  useOverlayLayer,
+} from '@molecule/app-ui-react/platform'
 
 import type { ToastProps } from '../types.js'
 import { isReactNode } from '../utilities/isReactNode.js'
@@ -108,62 +113,17 @@ export const Toast: NamedExoticComponent<WebToastProps & RefAttributes<ElementHa
     const onDismissRef = useRef(onDismiss)
     useCommittedRef(onDismissRef, onDismiss)
 
-    // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
-    // cannot pause loses the message mid-read. `remainingRef` carries the
-    // time left across pause/resume cycles (hover in/out, focus in/out)
-    // instead of a fixed deadline.
-    const remainingRef = useRef(duration)
-    const startedAtRef = useRef<number | null>(null)
-    const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-    const dismissed = useRef(false)
-    const hovered = useRef(false)
-    const focused = useRef(false)
-
-    const clearTimer = useCallback(() => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current)
-        timerRef.current = undefined
-      }
-      startedAtRef.current = null
-    }, [])
-
-    const handleDismiss = useCallback(() => {
-      if (dismissed.current) return
-      dismissed.current = true
-      clearTimer()
-      setIsVisible(false)
-      onDismissRef.current?.()
-    }, [clearTimer])
-
-    const startTimer = useCallback(
-      (ms: number) => {
-        clearTimer()
-        if (ms <= 0) return
-        startedAtRef.current = Date.now()
-        timerRef.current = setTimeout(handleDismiss, ms)
-      },
-      [clearTimer, handleDismiss],
+    const [countdown] = useState(
+      () =>
+        new ToastCountdown(() => {
+          setIsVisible(false)
+          onDismissRef.current?.()
+        }),
     )
-
-    const pauseTimer = useCallback(() => {
-      if (startedAtRef.current === null) return
-      const elapsed = Date.now() - startedAtRef.current
-      remainingRef.current = Math.max(0, remainingRef.current - elapsed)
-      clearTimer()
-    }, [clearTimer])
-
-    const updatePause = (interaction: { current: boolean }, active: boolean): void => {
-      if (interaction.current === active) return
-      interaction.current = active
-      if (hovered.current || focused.current) pauseTimer()
-      else startTimer(remainingRef.current)
-    }
-
     useEffect(() => {
-      remainingRef.current = duration
-      if (!dismissed.current && !hovered.current && !focused.current) startTimer(duration)
-      return () => clearTimer()
-    }, [duration, startTimer, clearTimer])
+      countdown.start(duration)
+      return countdown.stop
+    }, [countdown, duration])
 
     if (!isVisible) return null
     const message = description || (isReactNode(childrenProp) ? slot(childrenProp) : undefined)
@@ -175,10 +135,15 @@ export const Toast: NamedExoticComponent<WebToastProps & RefAttributes<ElementHa
     const role = variant === 'warning' || variant === 'error' ? 'alert' : 'status'
 
     return (
-      <Box
-        as="div"
+      <ToastMessage
         accessibilityGroup={false}
         ref={ref}
+        spokenContent={
+          <>
+            {title}
+            {message}
+          </>
+        }
         role={role}
         data-state="open"
         className={cm.cn(cm.toast({ variant }), className)}
@@ -190,19 +155,19 @@ export const Toast: NamedExoticComponent<WebToastProps & RefAttributes<ElementHa
         // The timer pauses while the pointer or focus is on the toast; the caller's handlers
         // for the same events run after it.
         onMouseEnter={(event) => {
-          updatePause(hovered, true)
+          countdown.setPaused('hover', true)
           onMouseEnter?.(event)
         }}
         onMouseLeave={(event) => {
-          updatePause(hovered, false)
+          countdown.setPaused('hover', false)
           onMouseLeave?.(event)
         }}
         onFocus={(event) => {
-          updatePause(focused, true)
+          countdown.setPaused('focus', true)
           onFocus?.(event)
         }}
         onBlur={(event) => {
-          updatePause(focused, false)
+          if (!focusStaysWithin(event)) countdown.setPaused('focus', false)
           onBlur?.(event)
         }}
       >
@@ -227,14 +192,14 @@ export const Toast: NamedExoticComponent<WebToastProps & RefAttributes<ElementHa
           <Pressable
             as="button"
             type="button"
-            onClick={handleDismiss}
+            onClick={countdown.dismiss}
             className={cm.toastClose}
             aria-label={closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}
           >
             {renderIcon('x-mark', cm.iconSm)}
           </Pressable>
         )}
-      </Box>
+      </ToastMessage>
     )
   },
 )
