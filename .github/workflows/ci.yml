@@ -172,6 +172,11 @@ jobs:
           key: mol-peer-floors-v1-${{ hashFiles('package-lock.json') }}
           restore-keys: mol-peer-floors-v1-
       - run: npm run check:peer-floors
+      # Names alone do not check the props, signatures or unions they expose.
+      # TypeScript reads the same cached tarballs for the packages this change carries.
+      - run: npm run check:peer-floor-types -- --base=ci
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
       # Pending changesets are refused where a release publishes, not here: main is pushed
       # whenever a batch lands, before a release versions it, and a refusal here stopped
       # this job before the build and tests. release.mjs runs check:changesets-consumed

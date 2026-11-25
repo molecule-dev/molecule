@@ -1,0 +1,9 @@
+Command in a private Molecule tree with the published @molecule/app-ui-react tarballs:
+node scripts/check-peer-floor-types.mjs packages/app/features/bad
+
+@molecule/app-bad packages/app/features/bad/src/Example.tsx:3:30 error TS2322: Type '{ submitError: Error; }' is not assignable to type 'IntrinsicAttributes & FormProps & RefAttributes<HTMLFormElement>'.
+  Property 'submitError' does not exist on type 'IntrinsicAttributes & FormProps & RefAttributes<HTMLFormElement>'.
+  @molecule/app-ui-react@4.0.0: raise this peer floor in packages/app/features/bad/package.json to 4.1.0.
+Peer floor types: 1 package(s) checked, 0 skipped
+
+Exit status 1. The same source under ^4.1.0 passed, and the source without submitError under ^4.0.0 passed.

@@ -51,3 +51,11 @@ if (peerPaths.length)
     ['scripts/check-peer-floors.mjs', '--paths-from-stdin'],
     `${peerPaths.join('\n')}\n`,
   )
+const compilerPaths = changed.filter((file) => /^packages\/.+\/tsconfig[^/]*\.json$/.test(file))
+if (peerPaths.length || compilerPaths.length)
+  check(
+    'check-peer-floor-types',
+    process.execPath,
+    ['scripts/check-peer-floor-types.mjs', '--paths-from-stdin'],
+    `${[...peerPaths, ...compilerPaths].join('\n')}\n`,
+  )

@@ -90,6 +90,7 @@ import {
   existsSync,
   lstatSync,
   mkdirSync,
+  mkdtempSync,
   readdirSync,
   readFileSync,
   readlinkSync,
@@ -316,6 +317,19 @@ export const entryOf = (peer, specifier) =>
   specifier === peer ? '.' : `.${specifier.slice(peer.length)}`
 
 /**
+ * Resolve the lowest published version allowed by a peer range.
+ *
+ * @param versions - Versions listed by npm.
+ * @param range - The consumer's peer range.
+ * @param current - The workspace version, when this workspace has the peer.
+ * @returns The published floor and whether it can be checked against this workspace.
+ */
+export function resolvePeerFloor(versions, range, current) {
+  const version = semver.minSatisfying(versions, range)
+  return { version, published: version !== null && (!current || semver.lte(version, current)) }
+}
+
+/**
  * Find the imported names a package's peer floors do not export.
  *
  * A name imported from a subpath (`@molecule/app-react/render`) is checked against that
@@ -340,17 +354,19 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
   const gaps = []
   for (const { peer, range, current, entries } of checkedPeers(pkg, imports, workspaceVersions)) {
     const published = publishedVersions.get(peer) ?? []
+    const resolved = resolvePeerFloor(published, range, current)
+    if (resolved.version && !resolved.published) continue
     // A workspace version npm does not serve yet is what the range installs first when it
     // allows it: the release in flight publishes it from the commit that versioned it, which
     // lacks the names added since (2026-11-24: 14 Svelte ports imported `ContentOrElse`
     // under `^3.13.0` while app-svelte 3.13.0 was publishing from an earlier commit).
     // `exportsAt` reads that version's names there.
     const floor =
-      semver.minSatisfying(published, range) ??
+      resolved.version ??
       (current !== null && !published.includes(current) && semver.satisfies(current, range)
         ? current
         : null)
-    if (!floor || (current !== null && semver.gt(floor, current))) continue
+    if (!floor) continue
     const lacks = (version) =>
       entries.flatMap(({ entry, names }) => {
         // A version without declarations for the entry cannot be shown to have a name.
@@ -740,6 +756,16 @@ export function versionedExports(root, dir, version, entry = '.') {
 const cacheDir = (key) => join(CACHE, key.replace('/', '+'))
 
 /**
+ * The root of an extracted npm package. Call {@link prefetchTarballs} before reading it.
+ *
+ * @param name - Package name.
+ * @param version - Exact published version.
+ * @returns The directory containing the published package.json and files.
+ */
+export const publishedPackageDir = (name, version) =>
+  join(cacheDir(`${name}@${version}`), 'package')
+
+/**
  * Download and extract a published version into the cache, unless it is there.
  * Extraction goes to a temporary directory renamed into place, so an interrupted
  * run never leaves a half-extracted version that a later run would trust.
@@ -757,26 +783,38 @@ const cacheDir = (key) => join(CACHE, key.replace('/', '+'))
  */
 async function fetchTarball(key) {
   const dir = cacheDir(key)
-  if (existsSync(join(dir, 'package', 'package.json'))) return
+  const manifest = join('package', 'package.json')
+  if (existsSync(join(dir, manifest))) return
   const at = key.lastIndexOf('@')
   const name = key.slice(0, at)
   const version = key.slice(at + 1)
   const url = `${registry()}/${name}/-/${name.split('/').pop()}-${version}.tgz`
   const response = await fetch(url)
   if (!response.ok) throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`)
-  const staging = `${dir}.tmp-${process.pid}`
-  rmSync(staging, { recursive: true, force: true })
-  mkdirSync(staging, { recursive: true })
-  const file = join(staging, 'package.tgz')
-  writeFileSync(file, Buffer.from(await response.arrayBuffer()))
-  await execFileAsync('tar', ['-xzf', file, '-C', staging])
-  rmSync(file)
-  const top = readdirSync(staging)
-  if (!top.includes('package') && top.length === 1)
-    renameSync(join(staging, top[0]), join(staging, 'package'))
-  rmSync(dir, { recursive: true, force: true })
-  renameSync(staging, dir)
-  return true
+  mkdirSync(CACHE, { recursive: true })
+  const staging = mkdtempSync(`${dir}.tmp-`)
+  try {
+    const file = join(staging, 'package.tgz')
+    writeFileSync(file, Buffer.from(await response.arrayBuffer()))
+    await execFileAsync('tar', ['-xzf', file, '-C', staging])
+    rmSync(file)
+    const top = readdirSync(staging)
+    if (!top.includes('package') && top.length === 1)
+      renameSync(join(staging, top[0]), join(staging, 'package'))
+    if (!existsSync(join(staging, manifest)))
+      throw new Error(`${url} did not contain a package.json`)
+    // Older checks left this marker in an otherwise empty cache directory.
+    rmSync(join(dir, 'unpublished'), { force: true })
+    try {
+      renameSync(staging, dir)
+    } catch (error) {
+      if (!['EEXIST', 'ENOTEMPTY'].includes(error.code) || !existsSync(join(dir, manifest)))
+        throw error
+      // A concurrent fetch already published a complete copy of this immutable version.
+    }
+  } finally {
+    rmSync(staging, { recursive: true, force: true })
+  }
 }
 
 /**
@@ -801,12 +839,14 @@ async function pool(items, task, concurrency) {
  *
  * @param keys - `name@version` entries.
  * @param concurrency - Downloads in flight at once.
+ * @param options - Set `reexports` to false when the caller resolves the extracted files itself.
  * @returns Resolves when every tarball is cached.
  */
-export async function prefetchTarballs(keys, concurrency = 16) {
+export async function prefetchTarballs(keys, concurrency = 16, { reexports = true } = {}) {
   const seen = new Set(keys)
   for (let wave = [...seen]; wave.length;) {
     await pool(wave, fetchTarball, concurrency)
+    if (!reexports) return
     const next = []
     for (const key of wave)
       for (const dep of await linkReexports(key))
@@ -1025,7 +1065,7 @@ export function publishedExports(name, version, entry = '.') {
   const cacheKey = `${key}${entry === '.' ? '' : entry.slice(1)}`
   if (exportCache.has(cacheKey)) return exportCache.get(cacheKey)
   const dir = cacheDir(key)
-  const pkgDir = join(dir, 'package')
+  const pkgDir = publishedPackageDir(name, version)
   const stored = join(
     dir,
     entry === '.'
@@ -1082,7 +1122,7 @@ function collectSources(dir, srcRoot, out = []) {
  * @param out - Accumulator.
  * @returns Package directories.
  */
-function findPackages(dir, out = []) {
+export function findPackages(dir, out = []) {
   if (existsSync(join(dir, 'package.json')) && existsSync(join(dir, 'src'))) {
     out.push(dir)
     return out

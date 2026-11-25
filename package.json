@@ -42,6 +42,7 @@
     "check:lockfile": "node scripts/check-lockfile.js",
     "check:package-metadata": "node scripts/check-package-metadata.mjs",
     "check:package-repository": "node scripts/check-package-repository.js",
+    "check:peer-floor-types": "node scripts/check-peer-floor-types.mjs",
     "check:peer-floors": "node scripts/check-peer-floors.mjs",
     "check:peer-deps": "node scripts/check-peer-deps.js",
     "check:publishable": "node scripts/check-publishable.mjs",
