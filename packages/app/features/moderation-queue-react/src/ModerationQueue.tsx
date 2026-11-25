@@ -1,10 +1,11 @@
-import type { ChangeEvent, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, CheckField, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Kind of content awaiting moderation. Drives the leading icon glyph
@@ -154,43 +155,47 @@ export function ModerationQueue({
 
   if (loading) {
     return (
-      <div
+      <Box
+        as="div"
         role="status"
         aria-live="polite"
         data-mol-id="moderation-queue-loading"
         className={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('p', 4), className)}
       >
-        <span>
+        <Text as="span">
           {t('moderationQueue.loading', {}, { defaultValue: 'Loading moderation queue…' })}
-        </span>
-      </div>
+        </Text>
+      </Box>
     )
   }
 
   if (items.length === 0) {
     return (
-      <div
+      <Box
+        as="div"
         role="status"
         data-mol-id="moderation-queue-empty"
         className={cm.cn(cm.flex({ align: 'center', justify: 'center' }), cm.sp('p', 6), className)}
       >
         {emptyState ?? (
-          <span className={cm.cn(cm.textSize('sm'))}>
+          <Text as="span" className={cm.cn(cm.textSize('sm'))}>
             {t('moderationQueue.empty', {}, { defaultValue: 'No items awaiting moderation.' })}
-          </span>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="region"
       aria-label={t('moderationQueue.aria.region', {}, { defaultValue: 'Moderation queue' })}
       data-mol-id="moderation-queue"
       className={cm.cn(cm.stack(2 as const), className)}
     >
-      <div
+      <Box
+        as="div"
         role="toolbar"
         aria-label={t(
           'moderationQueue.aria.bulkToolbar',
@@ -204,21 +209,21 @@ export function ModerationQueue({
           cm.sp('py', 2),
         )}
       >
-        <label
+        <Box
+          as="label"
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('sm'))}
           data-mol-id="moderation-queue-select-all-label"
         >
-          <input
+          <CheckField
+            as="input"
             type="checkbox"
             checked={allSelected}
-            ref={(el) => {
-              if (el) el.indeterminate = someSelected
-            }}
+            indeterminate={someSelected}
             onChange={toggleAll}
             data-mol-id="moderation-queue-select-all"
             aria-label={t('moderationQueue.aria.selectAll', {}, { defaultValue: 'Select all' })}
           />
-          <span>
+          <Text as="span">
             {selectionCount > 0
               ? t(
                   'moderationQueue.selectedCount',
@@ -226,10 +231,11 @@ export function ModerationQueue({
                   { defaultValue: '{{count}} selected' },
                 )
               : t('moderationQueue.selectAll', {}, { defaultValue: 'Select all' })}
-          </span>
-        </label>
+          </Text>
+        </Box>
         {onBulkAction && (
-          <div
+          <Box
+            as="div"
             className={cm.flex({ align: 'center', gap: 'sm' })}
             data-mol-id="moderation-queue-bulk-actions"
           >
@@ -277,14 +283,15 @@ export function ModerationQueue({
                 {t('moderationQueue.bulk.mute', {}, { defaultValue: 'Mute' })}
               </Button>
             )}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      <ul
+      <Box
+        as="ul"
         className={cm.cn(cm.stack(2 as const))}
         data-mol-id="moderation-queue-list"
-        style={{ listStyle: 'none', margin: 0, padding: 0 }}
+        webStyle={{ listStyle: 'none', margin: 0, padding: 0 }}
       >
         {items.map((item) => (
           <ModerationQueueRow
@@ -298,15 +305,16 @@ export function ModerationQueue({
             onMute={onMute}
           />
         ))}
-      </ul>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
 interface ModerationQueueRowProps {
   item: ModerationItem
   checked: boolean
-  onToggle: (event: ChangeEvent<HTMLInputElement>) => void
+  /** Activates the row's checkbox; the change event itself carries nothing the row needs. */
+  onToggle: () => void
   onApprove: (id: string) => void
   onReject: (id: string) => void
   onEscalate?: (id: string) => void
@@ -345,14 +353,16 @@ function ModerationQueueRow({
   }
 
   return (
-    <li
+    <Box
+      as="li"
       data-mol-id="moderation-queue-row"
       data-mol-row-id={item.id}
       data-mol-kind={item.kind}
       data-mol-severity={item.severity ?? 'unspecified'}
       className={cm.cn(cm.flex({ align: 'start', gap: 'md' }), cm.sp('p', 3))}
     >
-      <input
+      <CheckField
+        as="input"
         type="checkbox"
         checked={checked}
         onChange={onToggle}
@@ -360,53 +370,68 @@ function ModerationQueueRow({
         aria-label={t('moderationQueue.aria.selectRow', {}, { defaultValue: 'Select item' })}
       />
 
-      <span
+      <Text
+        as="span"
         aria-hidden="true"
         data-mol-id="moderation-queue-row-kind-icon"
         className={cm.cn(cm.textSize('lg'))}
       >
         {KIND_GLYPH[item.kind]}
-      </span>
+      </Text>
 
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-        <div
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const))}>
+        <Box
+          as="div"
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
           data-mol-id="moderation-queue-row-meta"
         >
-          <span className={cm.fontWeight('semibold')}>{kindLabel(item.kind, t)}</span>
+          <Text as="span" className={cm.fontWeight('semibold')}>
+            {kindLabel(item.kind, t)}
+          </Text>
           {item.severity && (
-            <span
+            <Text
+              as="span"
               data-mol-id="moderation-queue-row-severity"
               className={cm.cn(cm.fontWeight('semibold'), sevToken[sevColor])}
             >
               {severityLabel(item.severity, t)}
-            </span>
+            </Text>
           )}
           {item.reportedBy && (
-            <span data-mol-id="moderation-queue-row-reported-by">
+            <Box as="span" data-mol-id="moderation-queue-row-reported-by">
               {t('moderationQueue.reportedBy', {}, { defaultValue: 'Reported by' })}{' '}
-              <span className={cm.fontWeight('semibold')}>{item.reportedBy}</span>
-            </span>
+              <Box as="span" className={cm.fontWeight('semibold')}>
+                {item.reportedBy}
+              </Box>
+            </Box>
           )}
-          <span data-mol-id="moderation-queue-row-reported-at">{item.reportedAt}</span>
-        </div>
+          <Box as="span" data-mol-id="moderation-queue-row-reported-at">
+            {item.reportedAt}
+          </Box>
+        </Box>
 
-        <div data-mol-id="moderation-queue-row-preview" className={cm.cn(cm.textSize('sm'))}>
+        <Box
+          as="div"
+          data-mol-id="moderation-queue-row-preview"
+          className={cm.cn(cm.textSize('sm'))}
+        >
           {item.preview}
-        </div>
+        </Box>
 
-        <div
+        <Box
+          as="div"
           data-mol-id="moderation-queue-row-reason"
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
         >
-          <span className={cm.fontWeight('semibold')}>
+          <Text as="span" className={cm.fontWeight('semibold')}>
             {t('moderationQueue.reason', {}, { defaultValue: 'Reason' })}:
-          </span>
-          <span>{item.reason}</span>
-        </div>
-      </div>
+          </Text>
+          <Box as="span">{item.reason}</Box>
+        </Box>
+      </Box>
 
-      <div
+      <Box
+        as="div"
         className={cm.flex({ align: 'center', gap: 'sm' })}
         data-mol-id="moderation-queue-row-actions"
       >
@@ -454,8 +479,8 @@ function ModerationQueueRow({
             {t('moderationQueue.action.mute', {}, { defaultValue: 'Mute' })}
           </Button>
         )}
-      </div>
-    </li>
+      </Box>
+    </Box>
   )
 }
 

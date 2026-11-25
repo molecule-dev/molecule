@@ -10,6 +10,7 @@ import { type JSX, useEffect, useRef, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Anchor, Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import type { AdminTableRowAction } from './types.js'
 
@@ -26,8 +27,8 @@ export interface AdminTableRowActionsProps<T> {
 
 /**
  * Three-dots row actions menu. Dismisses on an outside click (mouse) or on
- * Escape (keyboard, from wherever focus sits); every item is a native
- * button/link, so the whole menu is keyboard-operable.
+ * Escape (keyboard, from wherever focus sits); every item is a button or a
+ * link, so the whole menu is keyboard-operable.
  */
 export function AdminTableRowActions<T>({
   row,
@@ -46,7 +47,8 @@ export function AdminTableRowActions<T>({
   const [open, setOpen] = useState(false)
   const popoverRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
-    if (!open) return
+    // A device has no document to listen on.
+    if (!open || typeof document === 'undefined') return
     const onClick = (e: MouseEvent): void => {
       // Close only for clicks OUTSIDE the popover: clicks on the menu surface
       // or between items stay put, and each item closes the menu itself. (This
@@ -71,7 +73,7 @@ export function AdminTableRowActions<T>({
     }
   }, [open])
   return (
-    <div className={cm.cn(cm.position('relative'))}>
+    <Box as="div" className={cm.cn(cm.position('relative'))}>
       {/* Reuse the shared ghost icon Button (theme-aware transparent + hover surface). */}
       <Button
         variant="ghost"
@@ -86,14 +88,20 @@ export function AdminTableRowActions<T>({
         }}
       >
         {/* The ligature name is font data, not text; the button's aria-label names it. */}
-        <span aria-hidden="true" className={cm.cn(cm.iconGlyphFont)} data-icon="more_vert">
+        <Text
+          as="span"
+          aria-hidden="true"
+          className={cm.cn(cm.iconGlyphFont)}
+          data-icon="more_vert"
+        >
           more_vert
-        </span>
+        </Text>
       </Button>
       {open ? (
         // Surface + border from theme tokens; exact popover geometry (offset,
         // width, radius, elevation) has no cm resolver, so it stays inline.
-        <div
+        <Box
+          as="div"
           ref={popoverRef}
           className={cm.cn(cm.surface, cm.borderAll)}
           style={{
@@ -104,10 +112,10 @@ export function AdminTableRowActions<T>({
             minWidth: 160,
             zIndex: 20,
             borderRadius: 8,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
           }}
+          webStyle={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
         >
-          <div className={cm.cn(cm.sp('py', 1))}>
+          <Box as="div" className={cm.cn(cm.sp('py', 1))}>
             {actions.map((action, i) => {
               const href = action.hrefFor?.(row)
               const className = cm.cn(
@@ -125,7 +133,7 @@ export function AdminTableRowActions<T>({
               )
               if (href) {
                 return (
-                  <a
+                  <Anchor
                     key={i}
                     href={href}
                     className={className}
@@ -133,11 +141,12 @@ export function AdminTableRowActions<T>({
                     onClick={() => setOpen(false)}
                   >
                     {action.label}
-                  </a>
+                  </Anchor>
                 )
               }
               return (
-                <button
+                <Pressable
+                  as="button"
                   key={i}
                   className={className}
                   data-mol-id={action.dataMolIdFor?.(row)}
@@ -147,13 +156,13 @@ export function AdminTableRowActions<T>({
                   }}
                 >
                   {action.label}
-                </button>
+                </Pressable>
               )
             })}
-          </div>
-        </div>
+          </Box>
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }
 

@@ -1,7 +1,6 @@
 {
   "features": [
     "address-display-react",
-    "admin-table-react",
     "animation-canvas-react",
     "audio-effects-rack-react",
     "audio-player-react",
@@ -30,7 +29,6 @@
     "map-drawing-react",
     "margin-notes-react",
     "mind-map-canvas-react",
-    "moderation-queue-react",
     "newsletter-signup-react",
     "oauth-logos-react",
     "password-generator-react",

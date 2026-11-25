@@ -10,6 +10,7 @@ import { type JSX, type ReactNode, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, CheckField, TableBox, TableCell, Text } from '@molecule/app-ui-react/elements'
 
 import { AdminTableRowActions } from './AdminTableRowActions.js'
 import type { AdminTableColumn, AdminTableRowAction } from './types.js'
@@ -79,21 +80,26 @@ export function AdminTable<T>({
     // cm.card() = theme surface + border + radius + shadow (light/dark aware),
     // replacing the old bg-white/rounded-xl/shadow-sm literals. `overflow` has
     // no ClassMap resolver, so it stays inline to clip the rounded corners.
-    <div className={cm.cn(cm.card(), className)} style={{ overflow: 'hidden' }}>
+    <Box as="div" className={cm.cn(cm.card(), className)} style={{ overflow: 'hidden' }}>
       {/* border-collapse has no cm token; inline so the row borders render cleanly. */}
-      <table className={cm.cn(cm.w('full'))} style={{ borderCollapse: 'collapse' }}>
-        <thead>
-          <tr className={cm.cn(cm.surfaceSecondary, cm.textMuted, cm.borderB)}>
+      <TableBox
+        as="table"
+        className={cm.cn(cm.w('full'))}
+        webStyle={{ borderCollapse: 'collapse' }}
+      >
+        <TableBox as="thead">
+          <TableBox as="tr" className={cm.cn(cm.surfaceSecondary, cm.textMuted, cm.borderB)}>
             {bulkSelect ? (
-              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(8))}>
+              <TableCell as="th" className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(8))}>
                 {/* The checkbox column has no visible header text; this names it. */}
-                <span className={cm.cn(cm.srOnly)}>
+                <Text as="span" className={cm.cn(cm.srOnly)}>
                   {t('adminTable.aria.selectColumn', undefined, { defaultValue: 'Select' })}
-                </span>
-              </th>
+                </Text>
+              </TableCell>
             ) : null}
             {columns.map((col) => (
-              <th
+              <TableCell
+                as="th"
                 key={col.id}
                 className={cm.cn(
                   cm.sp('py', 3),
@@ -111,35 +117,39 @@ export function AdminTable<T>({
                 )}
               >
                 {col.header}
-              </th>
+              </TableCell>
             ))}
             {rowActions && rowActions.length > 0 ? (
-              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(12), cm.textRight)}>
+              <TableCell
+                as="th"
+                className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(12), cm.textRight)}
+              >
                 {/* The actions column has no visible header text; this names it. */}
-                <span className={cm.cn(cm.srOnly)}>
+                <Text as="span" className={cm.cn(cm.srOnly)}>
                   {t('adminTable.aria.actionsColumn', undefined, { defaultValue: 'Actions' })}
-                </span>
-              </th>
+                </Text>
+              </TableCell>
             ) : null}
-          </tr>
-        </thead>
+          </TableBox>
+        </TableBox>
         {/* Row separators come from cm.tableRow / cm.borderB (theme border), not a light-only divide. */}
-        <tbody data-mol-id={tbodyDataMolId}>
+        <TableBox as="tbody" data-mol-id={tbodyDataMolId}>
           {loading
             ? Array.from({ length: skeletonRowCount }).map((_, i) => (
-                <tr key={i} className={cm.cn(cm.borderB)}>
+                <TableBox as="tr" key={i} className={cm.cn(cm.borderB)}>
                   {Array.from({ length: totalColCount }).map((__, j) => (
-                    <td key={j} className={cm.cn(cm.sp('py', 4), cm.sp('px', 6))}>
-                      <div className={cm.cn(cm.h(4), cm.w(24), cm.skeleton())} />
-                    </td>
+                    <TableCell as="td" key={j} className={cm.cn(cm.sp('py', 4), cm.sp('px', 6))}>
+                      <Box as="div" className={cm.cn(cm.h(4), cm.w(24), cm.skeleton())} />
+                    </TableCell>
                   ))}
-                </tr>
+                </TableBox>
               ))
             : rows.map((row) => {
                 const id = rowKey(row)
                 const isSelected = selected.includes(id)
                 return (
-                  <tr
+                  <TableBox
+                    as="tr"
                     key={id}
                     data-mol-id={`admin-table-row-${id}`}
                     tabIndex={onRowClick ? 0 : undefined}
@@ -162,30 +172,30 @@ export function AdminTable<T>({
                     className={cm.cn(cm.tableRow, onRowClick ? cm.tableRowClickable : '')}
                   >
                     {bulkSelect ? (
-                      <td className={cm.cn(cm.sp('py', 4), cm.sp('px', 6))}>
-                        <input
+                      <TableCell as="td" className={cm.cn(cm.sp('py', 4), cm.sp('px', 6))}>
+                        <CheckField
+                          as="input"
                           type="checkbox"
                           checked={isSelected}
                           aria-label={t('adminTable.aria.selectRow', undefined, {
                             defaultValue: 'Select row',
                           })}
                           data-mol-id={`admin-table-select-${id}`}
-                          onChange={(e) => {
-                            e.stopPropagation()
+                          onChange={(e) => e.stopPropagation()}
+                          onCheckedChange={(checked) =>
                             setSelected(
-                              e.target.checked
-                                ? [...selected, id]
-                                : selected.filter((x) => x !== id),
+                              checked ? [...selected, id] : selected.filter((x) => x !== id),
                             )
-                          }}
+                          }
                           onClick={(e) => e.stopPropagation()}
                           // cm.checkbox() = themed control (border/focus ring), no light-only literals.
                           className={cm.checkbox()}
                         />
-                      </td>
+                      </TableCell>
                     ) : null}
                     {columns.map((col) => (
-                      <td
+                      <TableCell
+                        as="td"
                         key={col.id}
                         className={cm.cn(
                           cm.sp('py', 4),
@@ -199,24 +209,27 @@ export function AdminTable<T>({
                         )}
                       >
                         {col.render(row)}
-                      </td>
+                      </TableCell>
                     ))}
                     {rowActions && rowActions.length > 0 ? (
-                      <td className={cm.cn(cm.sp('py', 4), cm.sp('px', 6), cm.textRight)}>
+                      <TableCell
+                        as="td"
+                        className={cm.cn(cm.sp('py', 4), cm.sp('px', 6), cm.textRight)}
+                      >
                         <AdminTableRowActions
                           row={row}
                           actions={rowActions}
                           ariaLabel={rowActionsAriaLabel?.(row)}
                         />
-                      </td>
+                      </TableCell>
                     ) : null}
-                  </tr>
+                  </TableBox>
                 )
               })}
-        </tbody>
-      </table>
+        </TableBox>
+      </TableBox>
       {footer ?? null}
-    </div>
+    </Box>
   )
 }
 
