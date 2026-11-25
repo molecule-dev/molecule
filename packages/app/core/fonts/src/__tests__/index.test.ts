@@ -125,7 +125,10 @@ describe('packaged local font compatibility', () => {
     const minAdmitted = semver.minVersion(range)
     if (minAdmitted === null) throw new Error(`peer range "${range}" has no minimum version`)
     expect(semver.gte(minAdmitted, '1.2.0')).toBe(true)
-    expect(semver.satisfies('1.2.0', range)).toBe(true)
+    // The range admits the release it starts at. A bond may need a newer core than 1.2.0 (the
+    // Material Symbols bond reads `glyphs` and `nativeFiles`, from 1.4.0), so the floor is not
+    // pinned to 1.2.0 itself.
+    expect(semver.satisfies(minAdmitted, range)).toBe(true)
     expect(semver.satisfies(manifest.devDependencies['@molecule/app-fonts'], range)).toBe(true)
   })
 })
