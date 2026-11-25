@@ -1,5 +1,11 @@
 # @molecule/api-server-default-express
 
+## 1.2.10
+
+### Patch Changes
+
+- An installed `@molecule/api-realtime` that fails to load now stops startup with its error instead of the server booting without realtime.
+
 ## 1.2.9
 
 ### Patch Changes

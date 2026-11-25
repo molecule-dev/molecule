@@ -1,5 +1,11 @@
 # @molecule/app-search-ui-react
 
+## 5.0.1
+
+### Patch Changes
+
+- Focus the search field through the kit modal when quick search opens.
+
 ## 5.0.0
 
 ### Major Changes

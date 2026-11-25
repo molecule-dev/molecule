@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-modal-react",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "In-app login / signup modal + click-interceptor + popup OAuth — authenticate and upgrade without ever navigating away or losing work",
   "homepage": "https://www.molecule.dev/packages/app-auth-modal-react",
   "type": "module",

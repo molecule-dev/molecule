@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- Focus the email field through the kit modal when the authentication dialog opens.
+
 ## 1.1.2
 
 ### Patch Changes

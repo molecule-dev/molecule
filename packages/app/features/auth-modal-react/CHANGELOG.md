@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-react
 
+## 5.0.1
+
+### Patch Changes
+
+- Focus the email field through the kit modal when the authentication dialog opens.
+
 ## 5.0.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-search-ui-vue
 
+## 1.3.1
+
+### Patch Changes
+
+- Focus the search field through the kit modal when quick search opens.
+
 ## 1.3.0
 
 ### Minor Changes
