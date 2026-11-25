@@ -9,7 +9,7 @@
 <script lang="ts" generics="T extends ClientSearchDocument">
   import type { ClientSearchDocument } from '@molecule/app-client-search'
   import { useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
   import { Modal } from '@molecule/app-ui-svelte'
 
   import Kbd from './Kbd.svelte'
@@ -37,11 +37,11 @@
   // The single space React renders between the key hints and their sentence.
   const space = ' '
 
-  // The dialog pattern: focus moves into the field when it opens. The input is
-  // mounted only while open, and effects run after the field exists.
-  $effect(() => {
-    if (open) session.inputRef.current?.focus()
-  })
+  const inputTarget: OverlayTarget = {
+    get current() {
+      return session.inputRef.current
+    },
+  }
 </script>
 
 {#if open}
@@ -49,6 +49,7 @@
     {open}
     {onClose}
     size="lg"
+    initialFocus={inputTarget}
     closeOnEscape={false}
     showCloseButton={false}
     closeLabel={t('searchUi.close', undefined, { defaultValue: 'Close' })}

@@ -53,8 +53,8 @@
     "@molecule/app-auth-shell-angular": "^1.0.0",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-oauth-buttons-angular": "^1.0.0",
-    "@molecule/app-ui": "^1.0.1",
-    "@molecule/app-ui-angular": "^1.1.0"
+    "@molecule/app-ui": "^1.10.0",
+    "@molecule/app-ui-angular": "^1.7.0"
   },
   "devDependencies": {
     "@angular/common": "22.2.3",

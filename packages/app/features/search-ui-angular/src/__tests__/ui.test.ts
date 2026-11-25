@@ -35,6 +35,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { provideDomPlacement } from '@molecule/app-angular'
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-angular'
+import type { OverlayTarget } from '@molecule/app-ui'
 import type * as UI from '@molecule/app-ui-angular'
 
 import type { SearchResultHit, SearchResultLinkProps, SearchResultView } from '../types.js'
@@ -67,7 +68,7 @@ vi.mock('@molecule/app-ui', () => ({
 // (Icon → `data-icon`; Modal → a dialog role only while open; Tooltip → the
 // trigger beside an inline data-tooltip copy of the content).
 vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
-  const { Component } = await import('@angular/core')
+  const { afterEveryRender, Component } = await import('@angular/core')
   return {
     ...(await importOriginal<typeof UI>()),
     Icon: Component({
@@ -91,10 +92,10 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'mol-modal',
       standalone: true,
-      inputs: ['open', 'title', 'size'],
+      inputs: ['open', 'title', 'size', 'initialFocus'],
       outputs: ['close'],
       host: { 'data-parity-unwrap': '', style: 'display: contents' },
-      template: `@if (open) {<div role="dialog"><ng-content></ng-content></div>}`,
+      template: `@if (open) {<div role="dialog" [attr.data-initial-focus]="initialFocus ? 'true' : null"><ng-content></ng-content></div>}`,
     })(
       class MockModal {
         /** Whether the dialog is open. */
@@ -103,6 +104,19 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
         title?: string
         /** Dialog width preset. */
         size?: string
+        /** The control to focus when opening. */
+        initialFocus?: OverlayTarget
+        private wasOpen = false
+
+        constructor() {
+          afterEveryRender({
+            read: () => {
+              if (this.open && !this.wasOpen) this.initialFocus?.current?.focus()
+              this.wasOpen = Boolean(this.open)
+            },
+          })
+        }
+
         /** Fires when the dialog asks to close. */
         readonly close = new EventEmitter<unknown>()
 
@@ -735,6 +749,7 @@ describe('QuickSearchDialog', () => {
     // The dialog is named for screen readers: "Search" by default, the
     // caller's `label` when one is passed.
     expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Search')
+    expect(q('[role="dialog"]')?.getAttribute('data-initial-focus')).toBe('true')
     expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
     expect(document.activeElement).toBe(inputRef.current)
     expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')

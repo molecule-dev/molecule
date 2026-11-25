@@ -1,10 +1,10 @@
-import { act, createElement } from 'react'
+import { act, createElement, useEffect } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-react'
-import { setClassMap } from '@molecule/app-ui'
+import { type OverlayTarget, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 vi.mock('@molecule/app-react', async (importOriginal) => ({
@@ -23,12 +23,29 @@ vi.mock('@molecule/app-ui-react', () => ({
   Modal: ({
     open,
     children,
+    initialFocus,
     'aria-label': ariaLabel,
   }: {
     open: boolean
     children: React.ReactNode
+    initialFocus?: OverlayTarget
     'aria-label'?: string
-  }) => (open ? createElement('div', { role: 'dialog', 'aria-label': ariaLabel }, children) : null),
+  }) => {
+    useEffect(() => {
+      if (open) initialFocus?.current?.focus()
+    }, [open, initialFocus])
+    return open
+      ? createElement(
+          'div',
+          {
+            role: 'dialog',
+            'aria-label': ariaLabel,
+            'data-initial-focus': initialFocus ? 'true' : undefined,
+          },
+          children,
+        )
+      : null
+  },
   Tooltip: ({ content, children }: { content: React.ReactNode; children: React.ReactNode }) =>
     createElement('span', null, children, createElement('span', { 'data-tooltip': '' }, content)),
 }))
@@ -314,6 +331,7 @@ describe('QuickSearchDialog', () => {
     // The dialog is named for screen readers: "Search" by default, the
     // caller's `label` when one is passed.
     expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Search')
+    expect(q('[role="dialog"]')?.getAttribute('data-initial-focus')).toBe('true')
     expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
     expect(document.activeElement).toBe(inputRef.current)
     expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')

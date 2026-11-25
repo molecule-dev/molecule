@@ -10,7 +10,10 @@
  */
 
 import { cleanup, render } from '@testing-library/react'
+import { useEffect } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { OverlayTarget } from '@molecule/app-ui'
 
 import { AuthModal } from '../AuthModal.js'
 
@@ -48,8 +51,22 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Modal: ({ open, children }: { open: boolean; children?: React.ReactNode }) =>
-    open ? <div>{children}</div> : null,
+  Modal: ({
+    open,
+    children,
+    initialFocus,
+  }: {
+    open: boolean
+    children?: React.ReactNode
+    initialFocus?: OverlayTarget
+  }) => {
+    useEffect(() => {
+      if (open) initialFocus?.current?.focus()
+    }, [open, initialFocus])
+    return open ? (
+      <div data-initial-focus={initialFocus ? 'true' : undefined}>{children}</div>
+    ) : null
+  },
   Alert: ({ children }: { children?: React.ReactNode }) => <div role="alert">{children}</div>,
   Icon: () => null,
   Button: ({
@@ -87,6 +104,7 @@ describe('AuthModal focus on open', () => {
     const { container } = render(
       <AuthModal open onClose={vi.fn()} initialMode="signup" oauthConfig={{}} />,
     )
+    expect(emailField(container).closest('[data-initial-focus="true"]')).not.toBeNull()
     expect(container.ownerDocument.activeElement).toBe(emailField(container))
   })
 

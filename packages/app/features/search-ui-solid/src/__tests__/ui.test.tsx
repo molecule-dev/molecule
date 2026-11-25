@@ -8,13 +8,13 @@
  * @module
  */
 
-import { createSignal, type JSX } from 'solid-js'
+import { createEffect, createSignal, type JSX, untrack } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-solid'
-import { setClassMap } from '@molecule/app-ui'
+import { type OverlayTarget, setClassMap } from '@molecule/app-ui'
 import type * as UI from '@molecule/app-ui-solid'
 import { classMap } from '@molecule/app-ui-tailwind'
 
@@ -39,12 +39,25 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
   ...(await importOriginal<typeof UI>()),
   Icon: (props: { name: string }) => <svg data-icon={props.name} />,
-  Modal: (props: { open: boolean; 'aria-label'?: string; children?: JSX.Element }) =>
-    props.open ? (
-      <div role="dialog" aria-label={props['aria-label']}>
+  Modal: (props: {
+    open: boolean
+    'aria-label'?: string
+    children?: JSX.Element
+    initialFocus?: OverlayTarget
+  }) => {
+    createEffect(() => {
+      if (props.open) untrack(() => props.initialFocus?.current?.focus())
+    })
+    return props.open ? (
+      <div
+        role="dialog"
+        aria-label={props['aria-label']}
+        data-initial-focus={props.initialFocus ? 'true' : undefined}
+      >
         {props.children}
       </div>
-    ) : null,
+    ) : null
+  },
   Tooltip: (props: { content?: JSX.Element; children?: JSX.Element }) => (
     <span>
       {props.children}
@@ -448,6 +461,7 @@ describe('QuickSearchDialog', () => {
     // The dialog is named for screen readers: "Search" by default, the
     // caller's `label` when one is passed.
     expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Search')
+    expect(q('[role="dialog"]')?.getAttribute('data-initial-focus')).toBe('true')
     expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
     expect(document.activeElement).toBe(inputRef.current)
     expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')

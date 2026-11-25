@@ -120,6 +120,7 @@ describe('AuthModal focus on open', () => {
 
   it('moves focus to the email field on open, in signup mode', () => {
     const { container, unmountAll } = mountModal({})
+    expect(emailField(container).closest('[data-initial-focus="true"]')).not.toBeNull()
     expect(document.activeElement).toBe(emailField(container))
     unmountAll()
   })

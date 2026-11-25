@@ -479,6 +479,7 @@ describe('QuickSearchDialog', () => {
     // The dialog is named for screen readers: "Search" by default, the
     // caller's `label` when one is passed.
     expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Search')
+    expect(q('[role="dialog"]')?.getAttribute('data-initial-focus')).toBe('true')
     expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
     expect(document.activeElement).toBe(inputRef.current)
     expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')

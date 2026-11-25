@@ -10,9 +10,11 @@
  * @module
  */
 
-import { createSignal, type JSX } from 'solid-js'
+import { createEffect, createSignal, type JSX, untrack } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { OverlayTarget } from '@molecule/app-ui'
 
 import { AuthModal } from '../AuthModal.jsx'
 import type { AuthModalMode } from '../cta-intercept.js'
@@ -59,9 +61,16 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-ui-solid', () => ({
-  Modal: (props: { open: boolean; children?: JSX.Element }) => (
-    <div>{props.open ? props.children : null}</div>
-  ),
+  Modal: (props: { open: boolean; children?: JSX.Element; initialFocus?: OverlayTarget }) => {
+    createEffect(() => {
+      if (props.open) untrack(() => props.initialFocus?.current?.focus())
+    })
+    return (
+      <div data-initial-focus={props.initialFocus ? 'true' : undefined}>
+        {props.open ? props.children : null}
+      </div>
+    )
+  },
   Icon: () => null,
   Button: (props: {
     type?: 'button' | 'submit' | 'reset' | 'menu'
@@ -132,6 +141,7 @@ describe('AuthModal focus on open', () => {
 
   it('moves focus to the email field on open, in signup mode', async () => {
     const { container } = await mountModal('signup')
+    expect(emailField(container).closest('[data-initial-focus="true"]')).not.toBeNull()
     expect(document.activeElement).toBe(emailField(container))
   })
 

@@ -13,7 +13,9 @@
 
 // Register Angular's JIT compiler facade before any @Component class loads.
 import '@angular/compiler'
-import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core'
+import { afterEveryRender, ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core'
+
+import type { OverlayTarget } from '@molecule/app-ui'
 
 /** The stub modal's state, typed for the callers. */
 class ModalStubBase {
@@ -23,6 +25,18 @@ class ModalStubBase {
   title?: string
   /** The dialog size (unused by the stub). */
   size?: string
+  /** The control to focus when opening. */
+  initialFocus?: OverlayTarget
+  private wasOpen = false
+
+  constructor() {
+    afterEveryRender({
+      read: () => {
+        if (this.open && !this.wasOpen) this.initialFocus?.current?.focus()
+        this.wasOpen = this.open
+      },
+    })
+  }
   /** The dialog's close output (the stub never emits it). */
   readonly close = new EventEmitter<unknown>()
 }
@@ -32,9 +46,9 @@ export const ModalStub = Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'mol-modal',
   standalone: true,
-  inputs: ['open', 'title', 'size'],
+  inputs: ['open', 'title', 'size', 'initialFocus'],
   outputs: ['close'],
-  template: `@if (open) {<div><h2 data-mol-title="">{{ title }}</h2><ng-content></ng-content></div>}`,
+  template: `@if (open) {<div [attr.data-initial-focus]="initialFocus ? 'true' : null"><h2 data-mol-title="">{{ title }}</h2><ng-content></ng-content></div>}`,
 })(ModalStubBase)
 
 /** The stub icon's state (nothing renders). */

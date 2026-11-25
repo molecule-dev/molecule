@@ -5,15 +5,7 @@
  */
 
 import type { Signal } from '@angular/core'
-import {
-  afterNextRender,
-  Component,
-  ElementRef,
-  inject,
-  type OnChanges,
-  type SimpleChanges,
-  type TemplateRef,
-} from '@angular/core'
+import { Component, ElementRef, inject, type TemplateRef } from '@angular/core'
 
 import {
   MolPlacement,
@@ -87,6 +79,7 @@ const read = <T>(value: Signal<T> | T): T => (isSignalValue(value) ? value() : v
       [open]="true"
       (close)="emitClose()"
       [size]="'lg'"
+      [initialFocus]="session.inputRef"
       [closeOnEscape]="false"
       [showCloseButton]="false"
       [closeLabel]="closeLabel()"
@@ -128,9 +121,7 @@ const read = <T>(value: Signal<T> | T): T => (isSignalValue(value) ? value() : v
     </mol-modal>
   }`,
 })
-export class QuickSearchDialog<
-  T extends ClientSearchDocument = ClientSearchDocument,
-> implements OnChanges {
+export class QuickSearchDialog<T extends ClientSearchDocument = ClientSearchDocument> {
   /** Whether the dialog is open. Rendered only while open. */
   open = false
   /** Close it (Escape with nothing typed, the overlay, or after opening a hit). */
@@ -266,33 +257,12 @@ export class QuickSearchDialog<
     this.onClose?.()
   }
 
-  /**
-   * Focus moves into the field after the first render, the way React's effect
-   * keyed on `open` and `session.inputRef` does. The move runs after the view
-   * check: focusing during it would fire the field's `focusin` listeners while
-   * Angular is still checking, and a state change they make would never render.
-   */
+  /** Places the projected modal in the component host's position. */
   constructor() {
     usePlacement(() => {
       // React renders the modal's content or nothing; the host is never in the page.
       placeContentBefore(this.host.nativeElement, this.host.nativeElement)
       setElementPresent(this.host.nativeElement, false)
     })
-    afterNextRender(() => this.focusField())
-  }
-
-  /**
-   * Focuses after an open flip too; the field mounts within the same change
-   * detection pass, and the focus waits one microtask for it.
-   *
-   * @param changes - The changed inputs.
-   */
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['open'] && this.open) queueMicrotask(() => this.focusField())
-  }
-
-  /** Focuses the session's input while the dialog is open. */
-  private focusField(): void {
-    if (this.open) this.session.inputRef.current?.focus()
   }
 }

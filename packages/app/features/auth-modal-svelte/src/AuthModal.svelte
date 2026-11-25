@@ -23,7 +23,7 @@
     useSignup,
     useTranslation,
   } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
   import { Button, Icon, Modal } from '@molecule/app-ui-svelte'
 
   import type { AuthModalMode } from './cta-intercept.js'
@@ -157,17 +157,11 @@
     return profile?.name || profile?.email || profile?.username || ''
   }
 
-  // Dialog pattern (WAI-ARIA): when the modal opens, keyboard and
-  // screen-reader users land on the form's primary field instead of on the
-  // page behind the overlay. This replaces the `autofocus` attribute, which
-  // jsx-a11y/no-autofocus bars: the attribute fires on EVERY mount of the
-  // input (e.g. the brief remount after the mode switches), while this effect
-  // runs exactly once per open transition — after the Modal child's own
-  // focus-trap effect (Svelte runs child effects first, like React), so the
-  // email field wins in both signup and login mode.
-  $effect(() => {
-    if (open) emailEl?.focus()
-  })
+  const emailTarget: OverlayTarget = {
+    get current() {
+      return emailEl
+    },
+  }
 
   // Universal post-auth: refresh the session (guards + plan current), show a
   // brief confirmation, run the app's hook, then close — all in place, no
@@ -261,6 +255,7 @@
   {open}
   onClose={() => onClose?.()}
   size="sm"
+  initialFocus={emailTarget}
   title={isSignup ? signupTitle : loginTitle}
   data-mol-id="auth-modal"
 >

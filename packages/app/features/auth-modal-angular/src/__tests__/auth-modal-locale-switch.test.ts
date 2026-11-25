@@ -20,6 +20,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as AppAngular from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type * as AngularUI from '@molecule/app-ui-angular'
 
 import { flush, type RenderedFixture, renderFixture } from './render.js'
 import { ButtonStub, IconStub, ModalStub, OAuthButtonsStub, OAuthDividerStub } from './stubs.js'
@@ -51,9 +52,10 @@ vi.mock('@molecule/app-auth-shell-angular', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
+  const { elementTarget } = await importOriginal<typeof AngularUI>()
   const stubs = await import('./stubs.js')
-  return { Modal: stubs.ModalStub, Icon: stubs.IconStub, Button: stubs.ButtonStub }
+  return { Modal: stubs.ModalStub, Icon: stubs.IconStub, Button: stubs.ButtonStub, elementTarget }
 })
 
 vi.mock('@molecule/app-oauth-buttons-angular', async () => {

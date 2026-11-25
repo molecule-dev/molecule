@@ -1,5 +1,4 @@
 import type { ReactNode, RefObject } from 'react'
-import { useEffect } from 'react'
 
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-react'
@@ -91,18 +90,13 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  // The dialog pattern: focus moves into the field when it opens. The input
-  // is mounted only while open, so its ref is set by the time this effect runs.
-  useEffect(() => {
-    if (open) session.inputRef.current?.focus()
-  }, [open, session.inputRef])
-
   if (!open) return null
   return (
     <Modal
       open={open}
       onClose={onClose}
       size="lg"
+      initialFocus={session.inputRef}
       closeOnEscape={false}
       showCloseButton={false}
       closeLabel={t('searchUi.close', undefined, { defaultValue: 'Close' })}

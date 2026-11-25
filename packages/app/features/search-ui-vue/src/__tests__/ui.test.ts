@@ -17,6 +17,7 @@ import {
   defineComponent,
   h,
   nextTick,
+  type PropType,
   reactive,
   ref,
   type VNodeChild,
@@ -24,7 +25,7 @@ import {
 
 import { parseQuery } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-vue'
-import { setClassMap } from '@molecule/app-ui'
+import { type OverlayTarget, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 import type * as UI from '@molecule/app-ui-vue'
 
@@ -42,7 +43,7 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   }),
 }))
 vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
-  const { defineComponent, h } = await import('vue')
+  const { defineComponent, h, onMounted, watch } = await import('vue')
   return {
     ...(await importOriginal<typeof UI>()),
     Icon: defineComponent({
@@ -50,13 +51,29 @@ vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
       setup: (props) => () => h('svg', { 'data-icon': props.name }),
     }),
     Modal: defineComponent({
-      props: { open: { type: Boolean, required: true } },
-      setup:
-        (props, { slots, attrs }) =>
-        () =>
+      props: {
+        open: { type: Boolean, required: true },
+        initialFocus: Object as PropType<OverlayTarget>,
+      },
+      setup(props, { slots, attrs }) {
+        const focusInitial = (): void => {
+          if (props.open) props.initialFocus?.current?.focus()
+        }
+        onMounted(focusInitial)
+        watch(() => props.open, focusInitial, { flush: 'post' })
+        return () =>
           props.open
-            ? h('div', { role: 'dialog', 'aria-label': attrs['aria-label'] }, slots.default?.())
-            : null,
+            ? h(
+                'div',
+                {
+                  role: 'dialog',
+                  'aria-label': attrs['aria-label'],
+                  'data-initial-focus': props.initialFocus ? 'true' : undefined,
+                },
+                slots.default?.(),
+              )
+            : null
+      },
     }),
     Tooltip: defineComponent({
       props: { content: null },
@@ -451,6 +468,7 @@ describe('QuickSearchDialog', () => {
     // The dialog is named for screen readers: "Search" by default, the
     // caller's `label` when one is passed.
     expect(q('[role="dialog"]')?.getAttribute('aria-label')).toBe('Search')
+    expect(q('[role="dialog"]')?.getAttribute('data-initial-focus')).toBe('true')
     expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
     expect(document.activeElement).toBe(inputRef.current)
     expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')

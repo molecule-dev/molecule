@@ -6,7 +6,6 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  afterNextRender,
   type AfterViewChecked,
   Component,
   computed,
@@ -14,7 +13,6 @@ import {
   type DoCheck,
   ElementRef,
   inject,
-  Injector,
   signal,
   TemplateRef,
   ViewChild,
@@ -39,7 +37,7 @@ import { useAuthFormState } from '@molecule/app-auth-shell-angular'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Button, Icon, Modal } from '@molecule/app-ui-angular'
+import { Button, elementTarget, Icon, Modal } from '@molecule/app-ui-angular'
 
 import type { AuthModalMode } from './cta-intercept.js'
 
@@ -92,7 +90,7 @@ const INPUT_STYLE =
     'captchaSolved',
   ],
   // prettier-ignore
-  template: `<mol-modal [open]="open" [title]="title()" [size]="'sm'" (close)="chromeClose($event)" data-mol-id="auth-modal"><div data-mol-id="auth-modal-body" [style]="bodyStyle">@if (succeeded()) {<div data-mol-id="auth-modal-success" [style]="successStyle"><svg mol-icon-root [name]="'check-circle'" [size]="44" [className]="cm().textSuccess" [ariaHidden]="'true'"></svg><div [style]="headlineStyle">{{ successLabel() }}</div>@if (hasWho()) {<div [class]="cm().textMuted" [style]="whoStyle">{{ loggedInAs() }}</div>}</div>} @else {<div [class]="cm().textMuted" [style]="blurbStyle">{{ isSignup() ? signupBlurb() : loginBlurb() }}</div><form [style]="formStyle" (submit)="handleSubmit($event)">@if (isSignup()) {<input #nameEl type="text" [value]="name()" [attr.value]="name()" (input)="onNameInput($event)" autocomplete="name" data-mol-id="auth-modal-name" [attr.placeholder]="namePlaceholder()" [style]="fieldStyle()" />}<input #emailEl type="email" [value]="emailValue()" [attr.value]="emailValue()" (input)="onEmailInput($event)" autocomplete="email" required data-mol-id="auth-modal-email" [attr.placeholder]="emailPlaceholder()" [style]="fieldStyle()" /><input #passwordEl type="password" [value]="password()" [attr.value]="password()" (input)="onPasswordInput($event)" [attr.autocomplete]="isSignup() ? 'new-password' : 'current-password'" required data-mol-id="auth-modal-password" [attr.placeholder]="passwordPlaceholder()" [style]="fieldStyle()" />@if (!isSignup()) {<input #twoFactorEl type="text" inputmode="numeric" [value]="twoFactorToken()" [attr.value]="twoFactorToken()" (input)="onTwoFactorInput($event)" autocomplete="one-time-code" data-mol-id="auth-modal-2fa" [attr.placeholder]="twoFactorPlaceholder()" [style]="fieldStyle()" />}<div #captchaEl data-mol-id="auth-modal-captcha" [style]="captchaStyle">@if (captchaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}<ng-content select="[slot=captchaSlot]"></ng-content></div><button mol-button [type]="'submit'" [size]="'lg'" [color]="'success'" [disabled]="busy() || (isSignup() && !captchaSolvedRead())" data-mol-id="auth-modal-submit" [style]="submitButtonStyle">{{ submitLabel() }}</button>@if (shownError(); as error) {<div [class]="cm().authFormError">{{ error }}</div>}</form>@if (oauthProviders().length > 0) {<div [style]="oauthSectionStyle"><div mol-oauth-divider></div><div mol-oauth-buttons [providers]="oauthProviders()" [onSelect]="selectProvider"></div></div>}<button type="button" data-mol-id="auth-modal-switch" (click)="switchMode()" [class]="switchClasses()" [style]="switchStyle">{{ switchLabel() }}</button>}</div></mol-modal>`,
+  template: `<mol-modal [open]="open" [initialFocus]="emailTarget" [title]="title()" [size]="'sm'" (close)="chromeClose($event)" data-mol-id="auth-modal"><div data-mol-id="auth-modal-body" [style]="bodyStyle">@if (succeeded()) {<div data-mol-id="auth-modal-success" [style]="successStyle"><svg mol-icon-root [name]="'check-circle'" [size]="44" [className]="cm().textSuccess" [ariaHidden]="'true'"></svg><div [style]="headlineStyle">{{ successLabel() }}</div>@if (hasWho()) {<div [class]="cm().textMuted" [style]="whoStyle">{{ loggedInAs() }}</div>}</div>} @else {<div [class]="cm().textMuted" [style]="blurbStyle">{{ isSignup() ? signupBlurb() : loginBlurb() }}</div><form [style]="formStyle" (submit)="handleSubmit($event)">@if (isSignup()) {<input #nameEl type="text" [value]="name()" [attr.value]="name()" (input)="onNameInput($event)" autocomplete="name" data-mol-id="auth-modal-name" [attr.placeholder]="namePlaceholder()" [style]="fieldStyle()" />}<input #emailEl type="email" [value]="emailValue()" [attr.value]="emailValue()" (input)="onEmailInput($event)" autocomplete="email" required data-mol-id="auth-modal-email" [attr.placeholder]="emailPlaceholder()" [style]="fieldStyle()" /><input #passwordEl type="password" [value]="password()" [attr.value]="password()" (input)="onPasswordInput($event)" [attr.autocomplete]="isSignup() ? 'new-password' : 'current-password'" required data-mol-id="auth-modal-password" [attr.placeholder]="passwordPlaceholder()" [style]="fieldStyle()" />@if (!isSignup()) {<input #twoFactorEl type="text" inputmode="numeric" [value]="twoFactorToken()" [attr.value]="twoFactorToken()" (input)="onTwoFactorInput($event)" autocomplete="one-time-code" data-mol-id="auth-modal-2fa" [attr.placeholder]="twoFactorPlaceholder()" [style]="fieldStyle()" />}<div #captchaEl data-mol-id="auth-modal-captcha" [style]="captchaStyle">@if (captchaTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl"></ng-container>}<ng-content select="[slot=captchaSlot]"></ng-content></div><button mol-button [type]="'submit'" [size]="'lg'" [color]="'success'" [disabled]="busy() || (isSignup() && !captchaSolvedRead())" data-mol-id="auth-modal-submit" [style]="submitButtonStyle">{{ submitLabel() }}</button>@if (shownError(); as error) {<div [class]="cm().authFormError">{{ error }}</div>}</form>@if (oauthProviders().length > 0) {<div [style]="oauthSectionStyle"><div mol-oauth-divider></div><div mol-oauth-buttons [providers]="oauthProviders()" [onSelect]="selectProvider"></div></div>}<button type="button" data-mol-id="auth-modal-switch" (click)="switchMode()" [class]="switchClasses()" [style]="switchStyle">{{ switchLabel() }}</button>}</div></mol-modal>`,
 })
 export class AuthModal implements AfterViewChecked, DoCheck {
   /** Whether the modal is open. */
@@ -117,6 +115,8 @@ export class AuthModal implements AfterViewChecked, DoCheck {
 
   /** The email input element — the dialog pattern's focus target. */
   @ViewChild('emailEl') private emailEl?: ElementRef<HTMLInputElement>
+  /** Email field focused by the Modal on open. */
+  readonly emailTarget = elementTarget(() => this.emailEl?.nativeElement)
   /** The name input (signup only). */
   @ViewChild('nameEl') private nameEl?: ElementRef<HTMLInputElement>
   /** The password input. */
@@ -126,7 +126,6 @@ export class AuthModal implements AfterViewChecked, DoCheck {
   /** The captcha wrapper (detached when React would not render it). */
   @ViewChild('captchaEl') private captchaEl?: ElementRef<HTMLElement>
 
-  private readonly injector = inject(Injector)
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /** i18n state; its `t` reads the provider on every call. */
@@ -150,10 +149,6 @@ export class AuthModal implements AfterViewChecked, DoCheck {
   private readonly oauthError = signal<string | null>(null)
   /** Post-auth confirmation shown briefly before the modal closes. */
   readonly succeeded = signal(false)
-  /** Set when `open` flips true; applied after the Modal's own focus work. */
-  private pendingFocus = false
-  private lastOpen = false
-
   /** Popup OAuth (React's `useOAuth`); a computed over the input signal keeps the closures live. */
   private readonly oauthConfigSignal = signal<UseOAuthConfig | undefined>(undefined)
   private lastOauthConfig: UseOAuthConfig | undefined
@@ -230,38 +225,14 @@ export class AuthModal implements AfterViewChecked, DoCheck {
       this.lastOauthConfig = this.oauthConfig
       this.oauthConfigSignal.set(this.oauthConfig)
     }
-    // The open flip arms the email focus; it is APPLIED after the render
-    // (scheduled from ngAfterViewChecked, so it registers after the Modal
-    // child's own deferred focus move and wins, React's child-effects-first
-    // ordering).
-    const open = !!this.open
-    if (open && !this.lastOpen) this.pendingFocus = true
-    this.lastOpen = open
     // The hook's error is mutated in place (no signal), so it is mirrored for
     // the translated line before the view is checked.
     this.modeError.set(this.isSignup() ? this.signupHook.error : this.loginHook.error)
   }
 
-  /**
-   * Applies the armed focus after every check and copies the controlled
-   * values onto their attributes. The captcha wrapper is reconciled by the
-   * placement function, so a wrapper the mode switch just re-created follows
-   * React's DOM without waiting for a hook.
-   */
+  /** Keeps the form input attributes in sync with their controlled values. */
   ngAfterViewChecked(): void {
     this.syncInputValues()
-    // The focus lands after the render so the Modal child — whose own focus
-    // move is also deferred — has settled first, as React's child-effects-first
-    // ordering leaves the email field focused.
-    if (this.pendingFocus) {
-      this.pendingFocus = false
-      if (this.open) afterNextRender(() => this.focusEmailAfterOpen(), { injector: this.injector })
-    }
-  }
-
-  /** Focuses the email field when the modal opened, once the view has rendered. */
-  private focusEmailAfterOpen(): void {
-    if (this.open) this.emailEl?.nativeElement.focus()
   }
 
   /**

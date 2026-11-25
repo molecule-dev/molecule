@@ -5,21 +5,11 @@
  * @module
  */
 
-import {
-  defineComponent,
-  h,
-  nextTick,
-  onMounted,
-  type PropType,
-  type Ref,
-  toValue,
-  type VNodeChild,
-  watch,
-} from 'vue'
+import { defineComponent, h, type PropType, type Ref, toValue, type VNodeChild } from 'vue'
 
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-vue'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
@@ -87,19 +77,11 @@ export const QuickSearchDialog = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
-    // The dialog pattern: focus moves into the field when it opens. The input
-    // is mounted only while open, so the focus waits one tick for the field
-    // to exist (React's effect runs after the child mounts).
-    const focusField = (): void => {
-      if (props.open) props.session.inputRef.current?.focus()
-    }
-    onMounted(focusField)
-    watch(
-      () => props.open,
-      () => {
-        nextTick(focusField)
+    const inputTarget: OverlayTarget = {
+      get current() {
+        return props.session.inputRef.current
       },
-    )
+    }
 
     return (): VNodeChild => {
       if (!props.open) return null
@@ -111,6 +93,7 @@ export const QuickSearchDialog = defineComponent({
           open: props.open,
           onClose: props.onClose,
           size: 'lg',
+          initialFocus: inputTarget,
           closeOnEscape: false,
           showCloseButton: false,
           closeLabel: t('searchUi.close', undefined, { defaultValue: 'Close' }),

@@ -5,11 +5,11 @@
  * @module
  */
 
-import { type Accessor, createEffect, type JSX, Show } from 'solid-js'
+import { type Accessor, type JSX, Show } from 'solid-js'
 
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import { useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-solid'
 
 import { Kbd } from './Kbd.jsx'
@@ -55,11 +55,11 @@ export const QuickSearchDialog = <T extends ClientSearchDocument>(
   // React's default parameter: the ids carry the `quick-search` prefix unless overridden.
   const molId = (): string => props.molId ?? 'quick-search'
 
-  // The dialog pattern: focus moves into the field when it opens. The input
-  // is mounted only while open, and the effect runs after the field exists.
-  createEffect(() => {
-    if (props.open) props.session.inputRef.current?.focus()
-  })
+  const inputTarget: OverlayTarget = {
+    get current() {
+      return props.session.inputRef.current
+    },
+  }
 
   return (
     <Show when={props.open}>
@@ -67,6 +67,7 @@ export const QuickSearchDialog = <T extends ClientSearchDocument>(
         open={props.open}
         onClose={props.onClose}
         size="lg"
+        initialFocus={inputTarget}
         closeOnEscape={false}
         showCloseButton={false}
         closeLabel={t('searchUi.close', undefined, { defaultValue: 'Close' })}

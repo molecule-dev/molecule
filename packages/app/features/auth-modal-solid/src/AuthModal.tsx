@@ -19,10 +19,8 @@
 import type { JSX } from 'solid-js'
 import {
   type Component,
-  createEffect,
   createRenderEffect,
   createSignal,
-  on,
   onCleanup,
   onMount,
   Show,
@@ -41,7 +39,7 @@ import {
   useSignup,
   useTranslation,
 } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-solid'
 
 import type { AuthModalMode } from './cta-intercept.js'
@@ -174,31 +172,12 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
   const busy = (): boolean => (isSignup() ? signupStatus() : loginStatus()) === 'pending'
   const errorMessage = useI18nError(() => (isSignup() ? signupError() : loginError()))
 
-  // Dialog pattern (WAI-ARIA): when the modal opens, keyboard and
-  // screen-reader users land on the form's primary field instead of on the
-  // page behind the overlay. This replaces the `autoFocus` prop, which
-  // jsx-a11y/no-autofocus bars: the prop fires on EVERY mount of the input
-  // (e.g. the brief remount after the mode switches), while this effect runs
-  // exactly once per open transition. Solid creates the parent's effects
-  // before the Modal child's own focus-trap effect and both defer one
-  // microtask, so this defers two — the email field then wins in both signup
-  // and login mode (React's child-effects-first ordering).
-  let emailRef!: HTMLInputElement
-  const focusEmail = (): void => {
-    if (props.open) emailRef?.focus()
+  let emailRef: HTMLInputElement | undefined
+  const emailTarget: OverlayTarget = {
+    get current() {
+      return emailRef ?? null
+    },
   }
-  createEffect(
-    on(
-      () => props.open,
-      (open) => {
-        if (open) queueMicrotask(() => queueMicrotask(focusEmail))
-      },
-      { defer: true },
-    ),
-  )
-  onMount(() => {
-    if (props.open) queueMicrotask(() => queueMicrotask(focusEmail))
-  })
 
   // Universal post-auth: refresh the session (guards + plan current), show a
   // brief confirmation, run the app's hook, then close — all in place, no
@@ -299,6 +278,7 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
       open={props.open}
       onClose={() => props.onClose?.()}
       size="sm"
+      initialFocus={emailTarget}
       title={
         isSignup()
           ? t('auth.modal.signupTitle', undefined, { defaultValue: 'Create your account' })

@@ -16,6 +16,8 @@ import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type * as AngularUI from '@molecule/app-ui-angular'
+
 import { flush, type RenderedFixture, renderFixture } from './render.js'
 import { ButtonStub, IconStub, ModalStub, OAuthButtonsStub, OAuthDividerStub } from './stubs.js'
 
@@ -39,9 +41,10 @@ vi.mock('@molecule/app-auth-shell-angular', () => ({
   useAuthFormState: () => ({ fields: () => ({}), setField: vi.fn(), clear: vi.fn() }),
 }))
 
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
+  const { elementTarget } = await importOriginal<typeof AngularUI>()
   const stubs = await import('./stubs.js')
-  return { Modal: stubs.ModalStub, Icon: stubs.IconStub, Button: stubs.ButtonStub }
+  return { Modal: stubs.ModalStub, Icon: stubs.IconStub, Button: stubs.ButtonStub, elementTarget }
 })
 
 vi.mock('@molecule/app-oauth-buttons-angular', async () => {
@@ -90,6 +93,7 @@ describe('AuthModal focus on open', () => {
 
   it('moves focus to the email field on open, in signup mode', async () => {
     await mountModal({ open: true, onClose: vi.fn(), initialMode: 'signup', oauthConfig: {} })
+    expect(emailField(document).closest('[data-initial-focus="true"]')).not.toBeNull()
     expect(document.activeElement).toBe(emailField(document))
   })
 
