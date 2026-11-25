@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
@@ -22,5 +22,30 @@ export default defineConfig({
     hookTimeout: 10000,
     fileParallelism: false,
     pool: 'forks',
+    typecheck: {
+      enabled: true,
+      // The source tests use the installed React types. The peer-floor check has its own scope.
+      tsconfig: './tsconfig.vitest.json',
+      include: [
+        ...configDefaults.typecheck.include,
+        'src/__tests__/web-*.types.tsx',
+        'src/elements/__tests__/{DirectAttributes,Svg}.test.tsx',
+      ],
+    },
+    projects: [
+      { extends: true, test: { name: 'react-ui' } },
+      {
+        root: fileURLToPath(new URL('.', import.meta.url)),
+        test: {
+          name: 'react-ui-native-types',
+          typecheck: {
+            enabled: true,
+            only: true,
+            tsconfig: './tsconfig.tests.native.json',
+            include: ['src/__tests__/native-*.types.tsx'],
+          },
+        },
+      },
+    ],
   },
 })

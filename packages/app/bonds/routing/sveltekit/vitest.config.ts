@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { sveltekit } from '@sveltejs/kit/vite'
-import { defineConfig, type TestProjectInlineConfiguration } from 'vitest/config'
+import { configDefaults, defineConfig, type TestProjectInlineConfiguration } from 'vitest/config'
 
 /** The SvelteKit app the tests run in: a kit project of its own (`src/__tests__/kit-app`). */
 const app = fileURLToPath(new URL('./src/__tests__/kit-app', import.meta.url))
@@ -59,6 +59,19 @@ export default defineConfig({
       kitProject('root', {}, ''),
       kitProject('base', { paths: { base: '/app' } }, '/app'),
       kitProject('hash', { router: { type: 'hash' } }, ''),
+      {
+        root: fileURLToPath(new URL('.', import.meta.url)),
+        test: {
+          // All three Kit projects share the same TypeScript tests.
+          name: 'kit-types',
+          typecheck: {
+            enabled: true,
+            only: true,
+            tsconfig: './tsconfig.tests.json',
+            include: [...configDefaults.typecheck.include, 'src/__tests__/lazy-page.test.ts'],
+          },
+        },
+      },
     ],
   },
 })

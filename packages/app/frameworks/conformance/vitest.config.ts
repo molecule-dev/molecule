@@ -9,5 +9,6 @@ export default defineConfig({
     hookTimeout: 30000,
     fileParallelism: false,
     pool: 'forks',
+    typecheck: { enabled: true, tsconfig: './tsconfig.json' },
   },
 })

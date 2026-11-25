@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'happy-dom',
+    typecheck: { enabled: true, tsconfig: './tsconfig.tests.json' },
     // Re-publish the DOM's Web Storage as the global localStorage/sessionStorage
     // — see the setup file for why Node 25+ needs it.
     setupFiles: ['./src/__tests__/setup.ts'],
