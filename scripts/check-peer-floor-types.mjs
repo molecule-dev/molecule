@@ -10,7 +10,7 @@
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { text } from 'node:stream/consumers'
@@ -522,7 +522,88 @@ export function pathsAgainst(root, base, env) {
     '--',
   )
   if (!pinned) paths.push(...git('ls-files', '-z', '--others', '--exclude-standard'))
-  return paths
+  const tip = pinned ? commit(pinned) : null
+  return compilationPaths(
+    paths,
+    (path) => manifestAt(repo, before, path),
+    (path) => (tip ? manifestAt(repo, tip, path) : manifestOnDisk(join(root, path))),
+  )
+}
+
+/**
+ * The manifest fields that decide what a package's source compiles against at its peer floors. A
+ * version, a development pin or a script cannot change that, and a version stage changes those in
+ * every released package: selecting each one made the release's check run past its time limit.
+ */
+const COMPILATION_FIELDS = [
+  'name',
+  'type',
+  'peerDependencies',
+  'peerDependenciesMeta',
+  'dependencies',
+  'optionalDependencies',
+  'exports',
+  'imports',
+  'main',
+  'module',
+  'types',
+  'typings',
+  'typesVersions',
+]
+
+/**
+ * Drop each changed package manifest whose compilation fields are the same on both sides. Every
+ * other path, and a manifest added, removed or unreadable on either side, is kept.
+ *
+ * @param paths - Changed repo-relative paths.
+ * @param before - The manifest before the change.
+ * @param after - The manifest after it.
+ * @returns The paths that can change what a package compiles against.
+ */
+export function compilationPaths(paths, before, after) {
+  return paths.filter((path) => {
+    if (!/^packages\/.+\/package\.json$/.test(path)) return true
+    const old = before(path)
+    const now = after(path)
+    if (!old || !now) return true
+    return COMPILATION_FIELDS.some(
+      (field) => JSON.stringify(old[field]) !== JSON.stringify(now[field]),
+    )
+  })
+}
+
+/**
+ * A package manifest at a commit.
+ *
+ * @param repo - The repository.
+ * @param ref - The commit.
+ * @param path - Repo-relative path of the manifest.
+ * @returns The parsed manifest, or undefined when that commit has none there.
+ */
+function manifestAt(repo, ref, path) {
+  let text
+  try {
+    text = execFileSync('git', ['-C', repo, 'show', `${ref}:${path}`], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+  } catch (_error) {
+    // The commit has no file at that path (an added or a deleted package): the caller keeps it.
+    return undefined
+  }
+  return JSON.parse(text)
+}
+
+/**
+ * A package manifest on disk.
+ *
+ * @param file - Absolute path of the manifest.
+ * @returns The parsed manifest, or undefined when the file is gone.
+ */
+function manifestOnDisk(file) {
+  if (!existsSync(file)) return undefined
+  return JSON.parse(readFileSync(file, 'utf8'))
 }
 
 /** Report the native TypeScript diagnostics and their verified peer floor fixes. */
@@ -567,8 +648,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     },
     allowPositionals: true,
   })
+  // The hook passes the proposed commit's paths, read from the exported tree against HEAD.
   const paths = values['paths-from-stdin']
-    ? (await text(process.stdin)).split('\n').filter(Boolean)
+    ? compilationPaths(
+        (await text(process.stdin)).split('\n').filter(Boolean),
+        (path) => manifestAt(historyRepo(ROOT), 'HEAD', path),
+        (path) => manifestOnDisk(join(ROOT, path)),
+      )
     : values.all || positionals.length
       ? null
       : pathsAgainst(ROOT, values.base ?? 'HEAD', process.env)

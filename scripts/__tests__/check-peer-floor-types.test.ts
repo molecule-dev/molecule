@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 
 import { afterAll, afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { pathsAgainst, scanPeerFloorTypes } from '../check-peer-floor-types.mjs'
+import { compilationPaths, pathsAgainst, scanPeerFloorTypes } from '../check-peer-floor-types.mjs'
 import { prefetchTarballs, publishedPackageDir, scanFleet } from '../check-peer-floors.mjs'
 
 const cache = vi.hoisted(() => {
@@ -459,4 +459,83 @@ it('diffs the pinned release commit, including deletions and excluding later cha
     }),
   ).toEqual([`${feature}/src/Example.tsx`, `${feature}/src/deleted.ts`])
   expect(pathsAgainst(root, 'HEAD', {})).toEqual(['packages/dirty/src/new.ts'])
+})
+
+it('leaves out a manifest whose change cannot alter what the package compiles against (a version stage)', () => {
+  const git = (...args: string[]) =>
+    execFileSync(
+      'git',
+      ['-C', root, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', ...args],
+      {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: { ...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null' },
+      },
+    ).trim()
+  const manifest = (name: string, extra: object) => ({
+    name,
+    version: '1.0.0',
+    type: 'module',
+    peerDependencies: { '@molecule/floor-model': '^1.0.0' },
+    devDependencies: { '@molecule/floor-model': '1.0.0' },
+    ...extra,
+  })
+  git('init', '-q')
+  write('packages/released/package.json', manifest('@molecule/floor-released', {}))
+  write('packages/raised/package.json', manifest('@molecule/floor-raised', {}))
+  git('add', 'packages')
+  git('commit', '-qm', 'base')
+  const base = git('rev-parse', 'HEAD')
+  // The version stage: a new version and a new development pin, nothing that compiles differently.
+  write(
+    'packages/released/package.json',
+    manifest('@molecule/floor-released', {
+      version: '1.1.0',
+      devDependencies: { '@molecule/floor-model': '1.1.0' },
+    }),
+  )
+  write(
+    'packages/raised/package.json',
+    manifest('@molecule/floor-raised', {
+      peerDependencies: { '@molecule/floor-model': '^1.1.0' },
+    }),
+  )
+  write('packages/added/package.json', manifest('@molecule/floor-added', {}))
+  git('add', 'packages')
+  git('commit', '-qm', 'version packages')
+  const tip = git('rev-parse', 'HEAD')
+
+  expect(
+    pathsAgainst(join(root, 'committed-export'), 'ci', {
+      MOL_INDEX_REPO: root,
+      MOL_PEER_FLOOR_TYPES_BASE: base,
+      MOL_PEER_FLOOR_TYPES_TIP: tip,
+    }),
+  ).toEqual(['packages/added/package.json', 'packages/raised/package.json'])
+  // The working tree, as the hook and a local run read it, follows the same rule.
+  write(
+    'packages/released/package.json',
+    manifest('@molecule/floor-released', { version: '1.2.0', scripts: { build: 'tsc' } }),
+  )
+  expect(pathsAgainst(root, 'HEAD', {})).toEqual([])
+})
+
+it('keeps every path that is not a package manifest, and a manifest gone from either side', () => {
+  const before = (path: string) =>
+    path === 'packages/gone/package.json' ? { name: 'a', version: '1.0.0' } : undefined
+  expect(
+    compilationPaths(
+      ['packages/x/src/a.ts', 'packages/gone/package.json', 'packages/x/tsconfig.json'],
+      before,
+      () => undefined,
+    ),
+  ).toEqual(['packages/x/src/a.ts', 'packages/gone/package.json', 'packages/x/tsconfig.json'])
+  const old = { name: 'a', version: '1.0.0', exports: { '.': './dist/index.js' } }
+  expect(
+    compilationPaths(
+      ['packages/a/package.json'],
+      () => old,
+      () => ({ ...old, exports: { '.': './dist/index.js', './elements': './dist/elements.js' } }),
+    ),
+  ).toEqual(['packages/a/package.json'])
 })
