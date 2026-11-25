@@ -7,7 +7,7 @@
 import { defineComponent, h, onMounted, type PropType, watch } from 'vue'
 
 import type { TextareaProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
@@ -68,6 +68,9 @@ export const Textarea = defineComponent({
   emits: ['change', 'focus', 'blur'],
   setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
+    // A column around the label, the control and the message, so the control's margin moves
+    // the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less textareas on the same page). Allocated once per instance, like
@@ -190,7 +193,7 @@ export const Textarea = defineComponent({
         children.push(h('p', { id: `${textareaId}-hint`, class: cm.formHint }, props.hint))
       }
 
-      return h('div', { class: cm.inputWrapper }, children)
+      return h('div', { class: field.root }, children)
     }
   },
 })

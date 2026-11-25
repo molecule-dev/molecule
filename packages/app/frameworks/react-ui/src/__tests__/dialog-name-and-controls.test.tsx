@@ -27,7 +27,10 @@ import { Tabs } from '../components/Tabs.js'
 // closes its drawer on route change.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('@molecule/app-ui', () => ({
+// PromptDialog renders the kit's Input, which also reads `fieldLayout` from this module, so the
+// actual module stays and only the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

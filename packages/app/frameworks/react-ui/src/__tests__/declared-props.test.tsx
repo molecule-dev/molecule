@@ -13,7 +13,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AppReact from '@molecule/app-react'
 
-vi.mock('@molecule/app-ui', () => ({
+// The controls also read `fieldLayout` from this module, so the actual module stays and only
+// the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

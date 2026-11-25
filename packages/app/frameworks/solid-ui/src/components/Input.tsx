@@ -7,7 +7,7 @@
 import { createUniqueId, Show, splitProps } from 'solid-js'
 
 import { ResolveNode, useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import type { InputProps } from '../types.js'
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
@@ -48,6 +48,9 @@ export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((pro
   ])
 
   const cm = getClassMap()
+  // A column around the label, the control's row and the message, so the control's margin
+  // moves the control on every renderer (the same layout in every framework's kit).
+  const field = fieldLayout(cm)
   const { t } = useTranslation()
   // Fall back to a generated id so label htmlFor / aria-describedby never
   // point at `undefined-error` (which also collides across multiple
@@ -79,7 +82,7 @@ export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((pro
   const clearing = (): boolean => !!(local.clearable && local.value)
 
   return (
-    <div class={cm.inputWrapper}>
+    <div class={field.root}>
       <Show when={local.label}>
         <label
           for={inputId()}
@@ -88,7 +91,7 @@ export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((pro
           {local.label}
         </label>
       </Show>
-      <div class={cm.inputInner}>
+      <div class={field.inner}>
         {/* React's `slot(...)`: a side element that renders nothing adds no wrapper and no
             padding. Each is read where it renders, so it is created and disposed as React mounts it. */}
         <ResolveNode node={local.leftElement}>

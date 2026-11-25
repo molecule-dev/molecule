@@ -21,7 +21,7 @@ import {
 
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import type { SuggestionItem } from './types.js'
 
@@ -64,8 +64,9 @@ const LIST_STYLE =
  * Search input with a typeahead suggestions popover. The host IS React's root
  * `<div>` (`div[mol-search-autocomplete]`), carrying React's class list; the
  * input surface reproduces `@molecule/app-ui-angular`'s `Input` DOM (the
- * wrapper, the inner row and the native `input`) so the combobox attributes
- * land on the input itself, exactly where React spreads them.
+ * wrapper, the inner row and the native `input`, both wrappers laid out with
+ * the shared `fieldLayout`) so the combobox attributes land on the input
+ * itself, exactly where React spreads them.
  */
 @Component({
   selector: 'div[mol-search-autocomplete]',
@@ -87,7 +88,7 @@ const LIST_STYLE =
     '[class]': 'classes()',
   },
   // prettier-ignore
-  template: `<div [class]="cm().inputWrapper"><div [class]="cm().inputInner"><input #inputEl type="search" [attr.id]="inputId" [attr.value]="value" [attr.placeholder]="placeholderText()" aria-invalid="false" [class]="inputClasses()" role="combobox" [attr.aria-label]="ariaLabelText()" aria-autocomplete="list" [attr.aria-expanded]="isExpanded() ? 'true' : 'false'" [attr.aria-controls]="listId" [attr.aria-activedescendant]="activeDescendant()" (input)="handleInput($event)" (focusin)="handleFocus()" (keydown)="handleKeydown($event)" /></div></div>@if (isExpanded()) {<ul role="listbox" [attr.id]="listId" [class]="listClasses()" [attr.style]="listStyle">@for (suggestion of list(); track suggestion.id) {<li [attr.id]="optionId($index)" role="option" [attr.aria-selected]="$index === active() ? 'true' : 'false'" tabindex="-1" data-mol-id="search-autocomplete-option" (mouseenter)="onOptionEnter($index)" (mousedown)="onOptionDown($event, suggestion)" [class]="optionClasses($index)"><div [class]="labelClasses()">@if (isTemplate(suggestion.label)) {<ng-container [ngTemplateOutlet]="asTemplate(suggestion.label)"></ng-container>}@else {{{ textOf(suggestion.label) }}}</div>@if (suggestion.meta) {<div [class]="metaClasses()">@if (isTemplate(suggestion.meta)) {<ng-container [ngTemplateOutlet]="asTemplate(suggestion.meta)"></ng-container>}@else {{{ textOf(suggestion.meta) }}}</div>}</li>}</ul>}`,
+  template: `<div [class]="field().root"><div [class]="field().inner"><input #inputEl type="search" [attr.id]="inputId" [attr.value]="value" [attr.placeholder]="placeholderText()" aria-invalid="false" [class]="inputClasses()" role="combobox" [attr.aria-label]="ariaLabelText()" aria-autocomplete="list" [attr.aria-expanded]="isExpanded() ? 'true' : 'false'" [attr.aria-controls]="listId" [attr.aria-activedescendant]="activeDescendant()" (input)="handleInput($event)" (focusin)="handleFocus()" (keydown)="handleKeydown($event)" /></div></div>@if (isExpanded()) {<ul role="listbox" [attr.id]="listId" [class]="listClasses()" [attr.style]="listStyle">@for (suggestion of list(); track suggestion.id) {<li [attr.id]="optionId($index)" role="option" [attr.aria-selected]="$index === active() ? 'true' : 'false'" tabindex="-1" data-mol-id="search-autocomplete-option" (mouseenter)="onOptionEnter($index)" (mousedown)="onOptionDown($event, suggestion)" [class]="optionClasses($index)"><div [class]="labelClasses()">@if (isTemplate(suggestion.label)) {<ng-container [ngTemplateOutlet]="asTemplate(suggestion.label)"></ng-container>}@else {{{ textOf(suggestion.label) }}}</div>@if (suggestion.meta) {<div [class]="metaClasses()">@if (isTemplate(suggestion.meta)) {<ng-container [ngTemplateOutlet]="asTemplate(suggestion.meta)"></ng-container>}@else {{{ textOf(suggestion.meta) }}}</div>}</li>}</ul>}`,
 })
 export class SearchAutocomplete implements OnInit, OnChanges, OnDestroy {
   /** Current input value. */
@@ -183,6 +184,15 @@ export class SearchAutocomplete implements OnInit, OnChanges, OnDestroy {
    */
   cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * The classes of the input surface's two wrappers, the same shared field layout
+   * `@molecule/app-ui-angular`'s `Input` renders with.
+   * @returns `root` for the outer wrapper, `inner` for the control's row.
+   */
+  field(): ReturnType<typeof fieldLayout> {
+    return fieldLayout(this.cm())
   }
 
   /**

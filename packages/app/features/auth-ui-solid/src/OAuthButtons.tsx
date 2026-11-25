@@ -77,13 +77,16 @@ export const OAuthButtons: Component<OAuthButtonsProps> = (props) => {
 
   return (
     <Show when={oauth.providers.length > 0}>
-      <div class={props.className}>
+      {/* One column with no gap of its own: the divider's own margin is the gap between it and
+          the error or the button row, the same distance in a browser and in a native column. The
+          error carries no margin, so it does not double that gap. */}
+      <div class={cm.cn(cm.stack(0), props.className)}>
         <OAuthDivider
           labelKey={props.dividerKey ?? 'oauth.orContinueWith'}
           labelDefault={props.dividerDefault ?? 'or continue with'}
         />
         <Show when={error()}>
-          <div class={cm.authFormError} role="alert" data-mol-id="oauth-error">
+          <div class={cm.textError} role="alert" data-mol-id="oauth-error">
             {error()}
           </div>
         </Show>

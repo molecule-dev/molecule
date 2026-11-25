@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { contentPresence } from '../content-presence.js'
@@ -49,6 +49,9 @@
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  // A column around the label, the control's row and the message, so the control's margin
+  // moves the control on every renderer (the same layout in every framework's kit).
+  const field = $derived(fieldLayout(cm))
   // An adornment that renders nothing (React's `slot(leftElement)`) takes no
   // padding and no wrapper, so the padding follows the rendered wrappers.
   let hasLeft = $state(false)
@@ -90,13 +93,13 @@
   }
 </script>
 
-<div class={cm.inputWrapper}>
+<div class={field.root}>
   {#if label}
     <label for={inputId} class={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
       >{label}</label
     >
   {/if}
-  <div class={cm.inputInner} {@attach leftPresence} {@attach rightPresence}>
+  <div class={field.inner} {@attach leftPresence} {@attach rightPresence}>
     {#if leftElement}<PresentWhileContent class={cm.inputLeftElement}
         >{@render leftElement?.()}</PresentWhileContent
       >{/if}

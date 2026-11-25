@@ -58,11 +58,14 @@ import { getClassMap, type UIClassMap } from '@molecule/app-ui'
     'dividerDefault',
   ],
   host: {
-    '[class]': 'className',
+    // One column with no gap of its own: the divider's own margin is the gap between it and the
+    // error or the button row, the same distance in a browser and in a native column.
+    '[class]': 'cm().cn(cm().stack(0), className)',
   },
   template: `<div mol-oauth-divider [labelKey]="dividerKey" [labelDefault]="dividerDefault"></div>
     @if (errorMessage(); as message) {
-      <div [class]="cm().authFormError" role="alert" data-mol-id="oauth-error">{{ message }}</div>
+      <!-- No margin on the error: in the column the divider's margin below already set the gap. -->
+      <div [class]="cm().textError" role="alert" data-mol-id="oauth-error">{{ message }}</div>
     }
     <div
       mol-oauth-buttons

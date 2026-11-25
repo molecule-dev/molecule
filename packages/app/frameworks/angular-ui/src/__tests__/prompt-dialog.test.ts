@@ -28,7 +28,10 @@ import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vite
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+// The kit's Input, Select and Textarea read `fieldLayout` from this module, so the actual module
+// stays and only the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the templates CALL (`cm().modal({ size })`, `cm().stack(3)`, …);
     // every other token is read as a plain string by the `[class]` bindings.

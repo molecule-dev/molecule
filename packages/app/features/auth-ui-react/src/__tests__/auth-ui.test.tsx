@@ -23,6 +23,9 @@ vi.mock('@molecule/app-ui', () => ({
               .filter((c) => typeof c === 'string' && c.length > 0)
               .join(' ')
         }
+        // `textError` is a plain class string in the ClassMap contract, so the error's class
+        // can be read back from the DOM.
+        if (prop === 'textError') return 'textError'
         const token = String(prop)
         return (..._args: unknown[]) => token
       },
@@ -95,6 +98,13 @@ describe('OAuthButtons', () => {
     const markup = html(createElement(OAuthButtons, { oauthConfig: {} }))
     expect(markup).not.toContain('oauth-error')
   })
+
+  it('lays the group out as one column with no gap of its own, under the caller class', () => {
+    mockUseOAuth.mockReturnValue({ providers: ['github'], redirect: () => {} })
+    const markup = html(createElement(OAuthButtons, { oauthConfig: {}, className: 'oauth-row' }))
+    // The divider's own margin is the gap to what follows it, in a browser and in a native column.
+    expect(markup).toMatch(/^<div class="stack oauth-row">/)
+  })
 })
 
 describe('OAuthButtons — callback outcome UI', () => {
@@ -128,6 +138,8 @@ describe('OAuthButtons — callback outcome UI', () => {
     expect(errorEl).not.toBeNull()
     expect(errorEl!.getAttribute('role')).toBe('alert')
     expect(errorEl!.textContent).toContain('OAuth state mismatch')
+    // The error carries no margin of its own: the divider above it already set the gap.
+    expect(errorEl!.className).toBe('textError')
   })
 
   it('forwards exchange failures to the host onError as well', () => {

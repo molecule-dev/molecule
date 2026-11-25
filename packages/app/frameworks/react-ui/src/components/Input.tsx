@@ -9,7 +9,7 @@ import React, { forwardRef, useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { InputProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 import { Box, Pressable, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -53,6 +53,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const rightElement = slot(rightElementProp as React.ReactNode)
     const { t } = useTranslation()
     const cm = getClassMap()
+    // A column around the label, the control's row and the message, so the control's margin
+    // moves the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less inputs on the same page).
@@ -67,7 +70,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     )
 
     return (
-      <Box as="div" className={cm.inputWrapper}>
+      <Box as="div" className={field.root}>
         {label && (
           <Text
             as="label"
@@ -77,7 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </Text>
         )}
-        <Box as="div" className={cm.inputInner}>
+        <Box as="div" className={field.inner}>
           {!!leftElement && (
             <Box as="div" className={cm.inputLeftElement}>
               {leftElement}

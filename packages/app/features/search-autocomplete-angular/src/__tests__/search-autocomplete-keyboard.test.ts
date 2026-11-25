@@ -24,8 +24,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SuggestionItem } from '../types.js'
 
 // Proxy ClassMap echoing each accessed member back as its token, exactly like
-// the React suite's mock.
-vi.mock('@molecule/app-ui', () => ({
+// the React suite's mock. The rest of the module is the real one: the component reads
+// `fieldLayout` from it.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

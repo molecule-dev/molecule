@@ -18,7 +18,7 @@ import {
 
 import { useTranslation } from '@molecule/app-angular'
 import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
@@ -34,7 +34,8 @@ import { styleText } from '../utilities/style.js'
 /**
  * Textarea component.
  *
- * The host is the `div.inputWrapper` React renders. React's textarea
+ * The host is the field's outer wrapper React renders (the shared field layout's
+ * `root`, a flex column). React's textarea
  * `onChange` fires on `input` events; a controlled `value` is restored after
  * user input exactly like React's controlled-input state restore.
  * `autoResize` recomputes the inline height after every check and on real
@@ -69,7 +70,7 @@ import { styleText } from '../utilities/style.js'
     'onKeyDown',
   ],
   host: {
-    '[class]': 'cm().inputWrapper',
+    '[class]': 'field().root',
   },
   template: `@if (label) {
       <label
@@ -194,6 +195,15 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
    */
   cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * The classes of the field's wrapper, from the shared field layout: the host takes `root`.
+   * A textarea has no adornments, so it has no control row.
+   * @returns The outer wrapper's classes (`root`) and the unused control row's classes.
+   */
+  field(): ReturnType<typeof fieldLayout> {
+    return fieldLayout(this.cm())
   }
 
   /**

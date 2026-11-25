@@ -15,7 +15,7 @@ const { mockUseOAuth } = vi.hoisted(() => ({ mockUseOAuth: vi.fn() }))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => ({
-    authFormError: 'cm-authFormError',
+    textError: 'cm-textError',
     oauthButtonGroup: 'cm-oauthButtonGroup',
     oauthButton: 'cm-oauthButton',
     oauthButtonIcon: 'cm-oauthButtonIcon',
@@ -24,6 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
     flex: () => 'cm-flex',
     flex1: 'cm-flex1',
     separator: () => 'cm-separator',
+    stack: () => 'cm-stack',
     cn: (...cls: unknown[]) => cls.filter((c) => typeof c === 'string' && c.length > 0).join(' '),
   }),
 }))
@@ -128,6 +129,14 @@ describe('OAuthButtons', () => {
     expect(visibleMarkup(host)).not.toContain('oauth-error')
     unmount()
   })
+
+  it('lays the group out as one column with no gap of its own, under the caller class', () => {
+    mockUseOAuth.mockReturnValue({ providers: { value: ['github'] }, redirect: () => {} })
+    const { host, unmount } = render({ oauthConfig: {}, className: 'oauth-row' })
+    // The divider's own margin is the gap to what follows it, in a browser and in a native column.
+    expect(host.firstElementChild?.getAttribute('class')).toBe('cm-stack oauth-row')
+    unmount()
+  })
 })
 
 describe('OAuthButtons — callback outcome UI', () => {
@@ -165,6 +174,8 @@ describe('OAuthButtons — callback outcome UI', () => {
     expect(errorEl).not.toBeNull()
     expect(errorEl!.getAttribute('role')).toBe('alert')
     expect(errorEl!.textContent).toContain('OAuth state mismatch')
+    // The error carries no margin of its own: the divider above it already set the gap.
+    expect(errorEl!.getAttribute('class')).toBe('cm-textError')
     unmount()
   })
 

@@ -22,7 +22,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // simulate SPA navigation, then re-render.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('@molecule/app-ui', () => ({
+// PromptDialog renders the kit's Input, which also reads `fieldLayout` from this module, so the
+// actual module stays and only the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const CALLABLE = new Set([
       'modal',

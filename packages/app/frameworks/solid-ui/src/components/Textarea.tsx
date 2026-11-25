@@ -7,7 +7,7 @@
 import { createEffect, createUniqueId, onCleanup, Show, splitProps } from 'solid-js'
 
 import type { TextareaProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
@@ -45,6 +45,9 @@ export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaEleme
   let textareaRef: HTMLTextAreaElement | undefined
 
   const cm = getClassMap()
+  // A column around the label, the control and the message, so the control's margin moves
+  // the control on every renderer (the same layout in every framework's kit).
+  const field = fieldLayout(cm)
   // Fall back to a generated id so label htmlFor / aria-describedby never
   // point at `undefined-error` (which also collides across multiple
   // id-less textareas on the same page).
@@ -92,7 +95,7 @@ export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaEleme
     cm.cn(cm.textarea({ error: !!local.error, size: local.size }), local.className)
 
   return (
-    <div class={cm.inputWrapper}>
+    <div class={field.root}>
       <Show when={local.label}>
         <label
           for={textareaId()}

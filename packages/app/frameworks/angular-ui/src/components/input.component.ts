@@ -25,7 +25,7 @@ import {
   useTranslation,
 } from '@molecule/app-angular'
 import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
@@ -42,7 +42,8 @@ import { styleText } from '../utilities/style.js'
 /**
  * Input component.
  *
- * The host is the `div.inputWrapper` React renders. React's text-input
+ * The host is the field's outer wrapper React renders (the shared field layout's
+ * `root`, a flex column). React's text-input
  * `onChange` fires on `input` events; a controlled `value` is restored after
  * user input exactly like React's controlled-input state restore.
  *
@@ -84,7 +85,7 @@ import { styleText } from '../utilities/style.js'
     'onKeyDown',
   ],
   host: {
-    '[class]': 'cm().inputWrapper',
+    '[class]': 'field().root',
   },
   template: `@if (label) {
       <label
@@ -93,7 +94,7 @@ import { styleText } from '../utilities/style.js'
         >{{ label }}</label
       >
     }
-    <div [class]="cm().inputInner">
+    <div [class]="field().inner">
       <div [class]="cm().inputLeftElement" #leftSlot>
         <ng-content select="[slot=leftElement]"></ng-content>
         @if (asTemplate(leftElement); as tpl) {
@@ -261,6 +262,15 @@ export class Input implements AfterViewChecked, HasElement<HTMLInputElement> {
    */
   cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * The classes of the field's two wrappers, from the shared field layout: `root` for the
+   * host, `inner` for the row that holds the control and its adornments.
+   * @returns The outer wrapper's classes and the control row's classes.
+   */
+  field(): ReturnType<typeof fieldLayout> {
+    return fieldLayout(this.cm())
   }
 
   /**

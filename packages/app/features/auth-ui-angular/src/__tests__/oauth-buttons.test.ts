@@ -18,6 +18,8 @@ import '@molecule/app-framework-conformance/ui/setup'
 import type { Signal } from '@angular/core'
 import { describe, expect, it, vi } from 'vitest'
 
+import { getClassMap } from '@molecule/app-ui'
+
 import { OAuthButtons } from '../index.js'
 import { type RenderedFixture, renderFixture } from './render.js'
 
@@ -129,6 +131,19 @@ describe('OAuthButtons', () => {
     expect(fixture.host.querySelector('[data-mol-id="oauth-error"]')).toBeNull()
     await fixture.destroy()
   })
+
+  it('lays the group out as one column with no gap of its own, under the caller class', async () => {
+    mockUseOAuth.mockReturnValue({ providers: ['github'], redirect: () => {} })
+    const fixture = await renderRow({ oauthConfig: {}, className: 'oauth-row' })
+    const cm = getClassMap()
+    const group = fixture.host.querySelector('div[mol-auth-oauth-buttons]')!
+    // The divider's own margin is the gap to what follows it, in a browser and in a native column.
+    // Sorted: the DOM lists a host's classes in its own order.
+    expect(group.className.split(/\s+/).sort()).toEqual(
+      cm.cn(cm.stack(0), 'oauth-row').split(/\s+/).sort(),
+    )
+    await fixture.destroy()
+  })
 })
 
 describe('OAuthButtons — callback outcome UI', () => {
@@ -162,6 +177,8 @@ describe('OAuthButtons — callback outcome UI', () => {
     expect(errorEl).not.toBeNull()
     expect(errorEl!.getAttribute('role')).toBe('alert')
     expect(errorEl!.textContent).toContain('OAuth state mismatch')
+    // The error carries no margin of its own: the divider above it already set the gap.
+    expect(errorEl!.className.split(/\s+/)).toEqual(getClassMap().textError.split(/\s+/))
     await fixture.destroy()
   })
 

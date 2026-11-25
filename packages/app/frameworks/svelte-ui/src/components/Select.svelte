@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents, useGeneratedId } from '../dom.js'
@@ -37,6 +37,9 @@
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  // A column around the label, the control's row and the message, so the control's margin
+  // moves the control on every renderer (the same layout in every framework's kit).
+  const field = $derived(fieldLayout(cm))
   const generatedId = useGeneratedId()
   const selectId = $derived(id || name || generatedId)
   const selectClasses = $derived(
@@ -98,13 +101,13 @@
   }
 </script>
 
-<div class={cm.inputWrapper}>
+<div class={field.root}>
   {#if label}
     <label for={selectId} class={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
       >{label}</label
     >
   {/if}
-  <div class={cm.inputInner}>
+  <div class={field.inner}>
     <select
       bind:this={ref}
       id={selectId}

@@ -22,7 +22,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => {
+// The kit's Input, Select and Textarea read `fieldLayout` from this module, so the actual module
+// stays and only the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   // The class map's variant factories (called with options); every other property is a class token
   // (the list declared-props.test.ts keeps).
   const factories = new Set([
@@ -72,6 +74,7 @@ vi.mock('@molecule/app-ui', () => {
     'w',
   ])
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     getClassMap: () => {
       const handler: ProxyHandler<Record<string, unknown>> = {
         get(_t, prop) {

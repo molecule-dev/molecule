@@ -17,7 +17,7 @@ import {
 
 import { useTranslation } from '@molecule/app-solid'
 import type { SelectOption, SelectProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
@@ -95,6 +95,9 @@ export const Select = withDisplayName<WithRef<SolidSelectProps<string>, HTMLSele
     let selectRef: HTMLSelectElement | undefined
 
     const cm = getClassMap()
+    // A column around the label, the control's row and the message, so the control's margin
+    // moves the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     const { t } = useTranslation()
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
@@ -211,7 +214,7 @@ export const Select = withDisplayName<WithRef<SolidSelectProps<string>, HTMLSele
     }
 
     return (
-      <div class={cm.inputWrapper}>
+      <div class={field.root}>
         <Show when={local.label}>
           <label
             for={selectId()}
@@ -220,7 +223,7 @@ export const Select = withDisplayName<WithRef<SolidSelectProps<string>, HTMLSele
             {local.label}
           </label>
         </Show>
-        <div class={cm.inputInner}>
+        <div class={field.inner}>
           <select
             ref={(el) => {
               selectRef = el

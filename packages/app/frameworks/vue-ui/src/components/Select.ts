@@ -15,7 +15,7 @@ import {
 } from 'vue'
 
 import type { SelectOption, SelectProps, Size } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
@@ -29,7 +29,7 @@ let nextGeneratedId = 1
 /**
  * Vue Select UI component with UIClassMap-driven styling.
  *
- * Faithful port of `@molecule/app-ui-react`'s Select: a `cm.inputWrapper` root
+ * Faithful port of `@molecule/app-ui-react`'s Select: a shared field-layout `root`
  * with an optional label, a native `<select>` (placeholder, clearable
  * "no selection" option, flat and `optgroup`-grouped options), a decorative
  * chevron overlay and error/hint lines. The `value` prop behaves like React's
@@ -75,6 +75,9 @@ export const Select = defineComponent({
   emits: ['change', 'valueChange'],
   setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
+    // A column around the label, the control's row and the message, so the control's margin
+    // moves the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     const { t } = useTranslation()
     // The native select is React's `forwardRef` target; it also drives the
     // controlled-selection sync below.
@@ -200,7 +203,7 @@ export const Select = defineComponent({
       }
       selectChildren.push(...renderOptions())
 
-      return h('div', { class: cm.inputWrapper }, [
+      return h('div', { class: field.root }, [
         props.label &&
           h(
             'label',
@@ -210,7 +213,7 @@ export const Select = defineComponent({
             },
             props.label,
           ),
-        h('div', { class: cm.inputInner }, [
+        h('div', { class: field.inner }, [
           h(
             'select',
             {

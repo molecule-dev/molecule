@@ -21,8 +21,10 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token, exactly like
-// the React suite's mock, so tests assert which cm.* token was applied.
-vi.mock('@molecule/app-ui', () => ({
+// the React suite's mock, so tests assert which cm.* token was applied. The rest of the
+// module is the real one: the component reads `fieldLayout` from it.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -197,5 +199,21 @@ describe('SearchAutocomplete (closed state)', () => {
 
   it('forwards className onto the wrapper', async () => {
     expect((await render({ value: '', className: 'sa-cls' })).markup).toContain('sa-cls')
+  })
+
+  it('lays out the input surface with the shared field layout, like the kit Input', async () => {
+    const { host } = await render({ value: '' })
+    const root = host.firstElementChild as HTMLElement
+    const outer = root.firstElementChild as HTMLElement
+    const row = outer.firstElementChild as HTMLElement
+
+    // Both wrappers are flex columns: the outer one, and the row that holds the input.
+    expect(outer.tagName).toBe('DIV')
+    expect(outer.classList.contains('input-wrapper')).toBe(true)
+    expect(outer.classList.contains('formFieldWrapper')).toBe(true)
+    expect(row.tagName).toBe('DIV')
+    expect(row.classList.contains('input-inner')).toBe(true)
+    expect(row.classList.contains('formFieldWrapper')).toBe(true)
+    expect(row.firstElementChild?.tagName).toBe('INPUT')
   })
 })

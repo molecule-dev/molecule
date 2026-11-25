@@ -7,7 +7,7 @@
 import { forwardRef, useId } from 'react'
 
 import type { TextareaProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 import { Box, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
@@ -44,6 +44,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     ref,
   ) => {
     const cm = getClassMap()
+    // A column around the label, the control and the message, so the control's margin moves
+    // the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less textareas on the same page).
@@ -53,7 +56,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const textareaClasses = cm.cn(cm.textarea({ error: !!error, size }), className)
 
     return (
-      <Box as="div" className={cm.inputWrapper}>
+      <Box as="div" className={field.root}>
         {label && (
           <Text
             as="label"

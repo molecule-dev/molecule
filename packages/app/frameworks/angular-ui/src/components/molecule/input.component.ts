@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 
 import { useTranslation } from '@molecule/app-angular'
 import type { InputType, Size, UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import { getIconSvg } from '../../utilities/icon-markup.js'
 
@@ -20,13 +20,13 @@ import { getIconSvg } from '../../utilities/icon-markup.js'
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div [class]="cm.inputWrapper">
+    <div [class]="field.root">
       @if (label) {
         <label [attr.for]="inputId" [class]="labelClasses">
           {{ label }}
         </label>
       }
-      <div [class]="cm.inputInner">
+      <div [class]="field.inner">
         <input
           [type]="type"
           [id]="inputId"
@@ -122,6 +122,15 @@ export class MoleculeInput {
    */
   get cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * The classes of the field's two wrappers, from the shared field layout: `root` for the
+   * outer wrapper, `inner` for the row that holds the control.
+   * @returns The outer wrapper's classes and the control row's classes.
+   */
+  get field(): ReturnType<typeof fieldLayout> {
+    return fieldLayout(this.cm)
   }
 
   /**

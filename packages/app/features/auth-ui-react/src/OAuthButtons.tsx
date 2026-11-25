@@ -84,10 +84,14 @@ export function OAuthButtons({
   if (!providers.length) return null
 
   return (
-    <Box as="div" className={className}>
+    // One column with no gap of its own: the divider's own margin is the gap between it and
+    // the error or the button row, the same distance in a browser and in a native column.
+    <Box as="div" className={cm.cn(cm.stack(0), className)}>
       <OAuthDivider labelKey={dividerKey} labelDefault={dividerDefault} />
       {error && (
-        <Box as="div" className={cm.authFormError} role="alert" data-mol-id="oauth-error">
+        // No margin here: in the column the divider's margin below already set the gap, and a
+        // margin of its own would double it.
+        <Box as="div" className={cm.textError} role="alert" data-mol-id="oauth-error">
           {error}
         </Box>
       )}

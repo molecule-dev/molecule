@@ -13,7 +13,7 @@ import type {
   SelectOption,
   SelectProps,
 } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 import { Box, SelectField, Text } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -70,6 +70,9 @@ export const Select = forwardRef<HTMLSelectElement, ReactSelectProps>(
   ) => {
     const { t } = useTranslation()
     const cm = getClassMap()
+    // A column around the label, the control's row and the message, so the control's margin
+    // moves the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less selects on the same page).
@@ -105,7 +108,7 @@ export const Select = forwardRef<HTMLSelectElement, ReactSelectProps>(
     }
 
     return (
-      <Box as="div" className={cm.inputWrapper}>
+      <Box as="div" className={field.root}>
         {label && (
           <Text
             as="label"
@@ -115,7 +118,7 @@ export const Select = forwardRef<HTMLSelectElement, ReactSelectProps>(
             {label}
           </Text>
         )}
-        <Box as="div" className={cm.inputInner}>
+        <Box as="div" className={field.inner}>
           {multiple ? (
             <SelectField
               as="select"

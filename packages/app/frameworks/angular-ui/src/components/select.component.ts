@@ -18,7 +18,7 @@ import {
 
 import { useTranslation } from '@molecule/app-angular'
 import type { FocusEventHandler, KeyboardEventHandler, Size, UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
@@ -47,7 +47,8 @@ export interface SelectPropsOption {
 /**
  * Select component.
  *
- * The host is the `div.inputWrapper` React renders. React's select value is
+ * The host is the field's outer wrapper React renders (the shared field layout's
+ * `root`, a flex column). React's select value is
  * written through the value PROPERTY (a `select` has no value attribute);
  * a controlled `value` is restored after a change exactly like React's
  * controlled-input state restore.
@@ -80,7 +81,7 @@ export interface SelectPropsOption {
     'onKeyDown',
   ],
   host: {
-    '[class]': 'cm().inputWrapper',
+    '[class]': 'field().root',
   },
   template: `@if (label) {
       <label
@@ -89,7 +90,7 @@ export interface SelectPropsOption {
         >{{ label }}</label
       >
     }
-    <div [class]="cm().inputInner">
+    <div [class]="field().inner">
       <select
         [attr.id]="selectId()"
         [attr.name]="name"
@@ -230,6 +231,15 @@ export class Select implements AfterViewInit, AfterViewChecked, HasElement<HTMLS
    */
   cm(): UIClassMap {
     return getClassMap()
+  }
+
+  /**
+   * The classes of the field's two wrappers, from the shared field layout: `root` for the
+   * host, `inner` for the row that holds the control and its chevron.
+   * @returns The outer wrapper's classes and the control row's classes.
+   */
+  field(): ReturnType<typeof fieldLayout> {
+    return fieldLayout(this.cm())
   }
 
   /**

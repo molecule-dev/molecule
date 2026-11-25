@@ -3,7 +3,7 @@
   autoResize listens to real input events on the element).
 -->
 <script lang="ts">
-  import { getClassMap } from '@molecule/app-ui'
+  import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents, useGeneratedId } from '../dom.js'
@@ -37,6 +37,9 @@
   }: TextareaProps = $props()
 
   const cm = $derived(getClassMap())
+  // A column around the label, the control and the message, so the control's margin moves
+  // the control on every renderer (the same layout in every framework's kit).
+  const field = $derived(fieldLayout(cm))
   const generatedId = useGeneratedId()
   const textareaId = $derived(id || name || generatedId)
   const textareaClasses = $derived(cm.cn(cm.textarea({ error: !!error, size }), className))
@@ -79,7 +82,7 @@
   }
 </script>
 
-<div class={cm.inputWrapper}>
+<div class={field.root}>
   {#if label}
     <label for={textareaId} class={cm.cn(cm.label({ required: !!required }), cm.labelBlock)}
       >{label}</label

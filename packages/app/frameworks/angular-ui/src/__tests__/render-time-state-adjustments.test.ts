@@ -43,7 +43,9 @@ import {
 } from '@molecule/app-angular'
 import type { DropdownItem } from '@molecule/app-ui'
 
-vi.mock('@molecule/app-ui', () => {
+// The kit's Input, Select and Textarea read `fieldLayout` from this module, so the actual module
+// stays and only the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   /**
    * The ClassMap stand-in: tokens the templates CALL resolve to functions,
    * every other token to its own name (Angular's class binding rejects
@@ -79,7 +81,7 @@ vi.mock('@molecule/app-ui', () => {
     }
     return new Proxy({}, handler)
   }
-  return { getClassMap }
+  return { ...(await importOriginal<Record<string, unknown>>()), getClassMap }
 })
 
 vi.mock('@molecule/app-angular', async (importOriginal) => {

@@ -63,10 +63,13 @@
 </script>
 
 {#if hasProviders}
-  <div class={className}>
+  <!-- One column with no gap of its own: the divider's own margin is the gap between it and the
+       error or the button row, the same distance in a browser and in a native column. The error
+       carries no margin, so it does not double that gap. -->
+  <div class={cm.cn(cm.stack(0), className)}>
     <OAuthDivider labelKey={dividerKey} labelDefault={dividerDefault} />
     {#if error}
-      <div class={cm.authFormError} role="alert" data-mol-id="oauth-error">{error}</div>
+      <div class={cm.textError} role="alert" data-mol-id="oauth-error">{error}</div>
     {/if}
     <OAuthButtonRow
       providers={oauth.providers}

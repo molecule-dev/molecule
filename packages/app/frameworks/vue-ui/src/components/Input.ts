@@ -7,7 +7,7 @@
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import type { InputProps } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { fieldLayout, getClassMap } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
@@ -72,6 +72,9 @@ export const Input = defineComponent({
   emits: ['change', 'clear', 'focus', 'blur'],
   setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
+    // A column around the label, the control's row and the message, so the control's margin
+    // moves the control on every renderer (the same layout in every framework's kit).
+    const field = fieldLayout(cm)
     const { t } = useTranslation()
     // The native input is React's `forwardRef` target, not the label wrapper.
     const element = useElementRef<HTMLInputElement>(expose)
@@ -171,7 +174,7 @@ export const Input = defineComponent({
           ),
         )
       }
-      rootChildren.push(h('div', { class: cm.inputInner }, innerChildren))
+      rootChildren.push(h('div', { class: field.inner }, innerChildren))
       if (props.error) {
         rootChildren.push(h('p', { id: `${inputId}-error`, class: cm.formError }, props.error))
       }
@@ -179,7 +182,7 @@ export const Input = defineComponent({
         rootChildren.push(h('p', { id: `${inputId}-hint`, class: cm.formHint }, props.hint))
       }
 
-      return h('div', { class: cm.inputWrapper }, rootChildren)
+      return h('div', { class: field.root }, rootChildren)
     }
   },
 })

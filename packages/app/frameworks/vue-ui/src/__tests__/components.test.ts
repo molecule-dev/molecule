@@ -437,7 +437,10 @@ type SuiteClassMapTokens = Partial<
 /** The ClassMap stand-in: the shared tokens plus the ones suites install themselves. */
 const mockClassMap: typeof classMapTokens & SuiteClassMapTokens = classMapTokens
 
-vi.mock('@molecule/app-ui', () => ({
+// The kit's Input, Select and Textarea read `fieldLayout` from this module, so the actual module
+// stays and only the ClassMap is replaced.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => mockClassMap,
 }))
 
