@@ -342,4 +342,35 @@ export type PluralCategory = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other'
 export type TranslateOptions = {
   defaultValue?: string
   count?: number
+  /** Resolve locale and plurals without substituting values into the catalog template. */
+  skipInterpolation?: boolean
 } & Partial<Record<`defaultValue_${PluralCategory}`, string>>
+
+/** Catalog elements supported in both DOM and native rich translations. */
+export type RichTag = 'p' | 'h2' | 'ul' | 'li' | 'strong'
+
+type PortableRichNode =
+  | { readonly kind: 'text'; readonly text: string }
+  | {
+      readonly kind: 'element'
+      readonly tag: RichTag
+      readonly children: readonly PortableRichNode[]
+    }
+
+/** A portable translation node or a whole message that requires the legacy web renderer. */
+export type RichNode =
+  | PortableRichNode
+  | {
+      readonly kind: 'legacy-html'
+      /** Trusted catalog markup with interpolation confined to escaped text. */
+      readonly html: string
+      /** Migration diagnostic naming the first unsupported construct and its translation key. */
+      readonly diagnostic: string
+    }
+
+/** Reads rich catalog text using the same keys, locale fallback and plurals as `t()`. */
+export type RichTranslateFunction = (
+  key: string,
+  values?: InterpolationValues,
+  options?: Omit<TranslateOptions, 'skipInterpolation'>,
+) => readonly RichNode[]

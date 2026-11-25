@@ -66,25 +66,37 @@ export const deepMerge = (target: Translations, source: Translations): Translati
  *
  * @param text - The template string containing `\{\{key\}\}` placeholders.
  * @param values - A map of placeholder names to their replacement values.
+ * @param formatLiteral - Optional transform for template text outside placeholders.
  * @returns The interpolated string with all matched placeholders replaced.
  */
-export const interpolate = (text: string, values: InterpolationValues): string => {
+export const interpolate = (
+  text: string,
+  values: InterpolationValues,
+  formatLiteral?: (text: string) => string,
+): string => {
   // Tolerate inner whitespace ("{{ name }}") — i18next trims interpolation
   // tokens, and translators routinely add the spaces. Without this, swapping
   // the i18next bond for the simple provider rendered "{{ name }}" literally.
   const render = (value: unknown): string =>
     value instanceof Date ? value.toLocaleDateString() : String(value)
-  const doubled = text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
-    const value = values[key]
-    if (value === undefined) return `{{${key}}}`
-    return render(value)
-  })
   // A single-brace `{key}` is filled too, but ONLY for a key the caller passed:
   // `t('move', { column }, { defaultValue: 'Move to {column}' })` is a mistake
   // with one obvious meaning, and it shipped to a live site as the literal text
   // "Move to {column}" on every card (2026-09-27) despite the docs saying
   // double braces. Braces around anything that is not a passed key stay as written.
-  return doubled.replace(/(?<!\{)\{\s*(\w+)\s*\}(?!\})/g, (whole, key) =>
-    values[key] === undefined ? whole : render(values[key]),
-  )
+  // Match both spellings in one pass so a replacement value is never read as a template.
+  const placeholder = /\{\{\s*(\w+)\s*\}\}|(?<!\{)\{\s*(\w+)\s*\}(?!\})/g
+  const resolve = (whole: string, doubleKey?: string, singleKey?: string): string => {
+    const key = doubleKey ?? singleKey
+    const value = key && Object.hasOwn(values, key) ? values[key] : undefined
+    return value === undefined ? (doubleKey ? `{{${doubleKey}}}` : whole) : render(value)
+  }
+  if (!formatLiteral) return text.replace(placeholder, resolve)
+  let result = ''
+  let offset = 0
+  for (const token of text.matchAll(placeholder)) {
+    result += formatLiteral(text.slice(offset, token.index)) + resolve(token[0], token[1], token[2])
+    offset = token.index + token[0].length
+  }
+  return result + formatLiteral(text.slice(offset))
 }

@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { SpacingScale } from '@molecule/app-ui'
+import { Text } from '@molecule/app-ui-react/elements'
 
 import { LegalPageLayout } from './LegalPageLayout.js'
 
@@ -45,7 +46,7 @@ export function PrivacyPage({
       title={t(titleKey, {}, { defaultValue: titleDefault })}
       stackGap={stackGap}
     >
-      {children ?? <p>{t(introKey, {}, { defaultValue: introDefault })}</p>}
+      {children ?? <Text as="p">{t(introKey, {}, { defaultValue: introDefault })}</Text>}
     </LegalPageLayout>
   )
 }

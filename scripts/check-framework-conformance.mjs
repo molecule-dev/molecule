@@ -813,6 +813,14 @@ export const TITLE_PARITY_EXEMPT = {
     'src/__tests__/diff-viewer-keys.test.tsx':
       "checks React's missing-key warning for list rows; Vue, Svelte, Solid and Angular key their lists in their own templates and log no such warning",
   },
+  '@molecule/app-footer-react': {
+    'src/__tests__/footer-rich-elements.test.tsx':
+      'checks that the React footer uses the portable elements path without assigning innerHTML; the DOM ports use their own HTML rendering',
+  },
+  '@molecule/app-legal-pages-react': {
+    'src/__tests__/legal-rich-elements.test.tsx':
+      'checks that the React page and modal use the portable elements path without assigning innerHTML; the DOM ports use their own HTML rendering',
+  },
   '@molecule/app-photo-lightbox-react': {
     'src/__tests__/photo-lightbox-no-document.test.tsx':
       'opens the lightbox with no global `document`, as on React Native; a Vue, Svelte, Solid or Angular port renders in a browser, which always has one',

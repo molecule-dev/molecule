@@ -1,9 +1,9 @@
 import type { JSX } from 'react'
 
 import { useAuth, useTranslation, useVerifyPaymentReturn } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Spinner } from '@molecule/app-ui-react'
+import { Box, Link, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link PlanUpdatedPage}. */
 export interface PlanUpdatedPageProps {
@@ -74,33 +74,42 @@ export function PlanUpdatedPage({
 
   if (verification.status === 'failed') {
     return (
-      <main data-mol-id="page-plan-updated" className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
-        <h2
+      <Box
+        as="main"
+        data-mol-id="page-plan-updated"
+        className={cm.cn(cm.textCenter, cm.sp('py', 12))}
+      >
+        <Text
+          as="h2"
           className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 8))}
           data-mol-id="plan-updated-error"
         >
           {t('planUpdated.verifyFailed', undefined, {
             defaultValue: 'We could not confirm your payment yet.',
           })}
-        </h2>
+        </Text>
         <Button onClick={verification.retry} data-mol-id="plan-updated-retry">
           {t('planUpdated.retry', undefined, { defaultValue: 'Try again' })}
         </Button>
-      </main>
+      </Box>
     )
   }
 
   return (
-    <main data-mol-id="page-plan-updated" className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
-      <h2 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
+    <Box
+      as="main"
+      data-mol-id="page-plan-updated"
+      className={cm.cn(cm.textCenter, cm.sp('py', 12))}
+    >
+      <Text as="h2" className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
         {t(messageKey, {}, { defaultValue: messageDefault })}
-      </h2>
-      <h2 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 8))}>
+      </Text>
+      <Text as="h2" className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 8))}>
         {t(thankYouKey, {}, { defaultValue: thankYouDefault })}
-      </h2>
+      </Text>
       <Link to={actionHref}>
         <Button>{t(actionKey, {}, { defaultValue: actionDefault })}</Button>
       </Link>
-    </main>
+    </Box>
   )
 }

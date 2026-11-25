@@ -13,12 +13,23 @@ import type {
   I18nProvider,
   InterpolationValues,
   NumberFormatOptions,
+  RichTranslateFunction,
   TranslateOptions,
 } from '@molecule/app-i18n'
-import { getProvider, I18nError } from '@molecule/app-i18n'
+import { createRichTranslator, getProvider, I18nError } from '@molecule/app-i18n'
 
 import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { I18N_PROVIDER } from '../tokens.js'
+
+/**
+ * Reads rich catalog messages from the active provider. Call the returned
+ * translation function in render so it follows locale and catalog changes.
+ *
+ * @returns The locale-reactive rich translation function.
+ */
+export function useRichTranslation(): RichTranslateFunction {
+  return createRichTranslator(useT())
+}
 
 /**
  * The i18n provider registered by `provideMolecule({ i18n })` or

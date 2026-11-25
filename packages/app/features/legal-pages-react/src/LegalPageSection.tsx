@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import type { SpacingScale } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link LegalPageSection}. */
 export interface LegalPageSectionProps {
@@ -25,9 +26,11 @@ export function LegalPageSection({
 }: LegalPageSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <section className={cm.stack(stackGap)}>
-      <h2 className={cm.cn(cm.textSize('xl'), cm.fontWeight('semibold'))}>{title}</h2>
+    <Box as="section" className={cm.stack(stackGap)}>
+      <Text as="h2" className={cm.cn(cm.textSize('xl'), cm.fontWeight('semibold'))}>
+        {title}
+      </Text>
       {children}
-    </section>
+    </Box>
   )
 }

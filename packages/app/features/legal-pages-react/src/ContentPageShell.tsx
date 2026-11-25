@@ -1,7 +1,8 @@
-import type { CSSProperties, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Props for {@link ContentPageShell}.
@@ -64,33 +65,44 @@ export function ContentPageShell({
   const subtitle = slot(subtitleProp)
   const cm = getClassMap()
 
-  const heroStyle: CSSProperties = {
+  const heroStyle = {
     background:
       'linear-gradient(135deg, color-mix(in srgb, var(--mol-color-primary) 14%, var(--mol-color-background)) 0%, var(--mol-color-background) 70%)',
     borderBottom: '1px solid color-mix(in srgb, var(--mol-color-on-surface) 8%, transparent)',
   }
 
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), cm.legalPagesShell)}>
+    <Box
+      as="div"
+      className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), cm.legalPagesShell)}
+    >
       {header}
 
       {title ? (
         // A `<section>`, not `<header>`: the app's own top bar (the `header`
         // slot above) is the page's single banner — a second `<header>` here
         // reads as a duplicated app bar to audits, users, and assistive tech.
-        <section
+        <Box
+          as="section"
           data-mol-id={dataMolId}
           className={cm.cn(cm.legalPagesHero, cm.sp('px', 6), cm.sp('py', 16))}
-          style={heroStyle}
+          webStyle={heroStyle}
         >
-          <div
+          <Box
+            as="div"
             aria-hidden="true"
             className={cm.legalPagesHeroGlow}
-            style={{ background: 'color-mix(in srgb, var(--mol-color-primary) 22%, transparent)' }}
+            webStyle={{
+              background: 'color-mix(in srgb, var(--mol-color-primary) 22%, transparent)',
+            }}
           />
-          <div className={cm.cn(cm.container({ size: containerSize }), cm.legalPagesHeroContent)}>
+          <Box
+            as="div"
+            className={cm.cn(cm.container({ size: containerSize }), cm.legalPagesHeroContent)}
+          >
             {eyebrow ? (
-              <p
+              <Text
+                as="p"
                 className={cm.cn(
                   cm.textSize('xs'),
                   cm.fontWeight('bold'),
@@ -99,9 +111,10 @@ export function ContentPageShell({
                 )}
               >
                 {eyebrow}
-              </p>
+              </Text>
             ) : null}
-            <h1
+            <Text
+              as="h1"
               className={cm.cn(
                 cm.textSize('4xl'),
                 cm.fontWeight('extrabold'),
@@ -109,29 +122,32 @@ export function ContentPageShell({
               )}
             >
               {title}
-            </h1>
+            </Text>
             {subtitle ? (
-              <p className={cm.cn(cm.textSize('base'), cm.sp('mt', 3), cm.legalPagesHeroSubtitle)}>
+              <Text
+                as="p"
+                className={cm.cn(cm.textSize('base'), cm.sp('mt', 3), cm.legalPagesHeroSubtitle)}
+              >
                 {subtitle}
-              </p>
+              </Text>
             ) : null}
-          </div>
-        </section>
+          </Box>
+        </Box>
       ) : null}
 
-      <main className={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 10))}>
-        <div className={cm.cn(cm.container({ size: containerSize }))}>
+      <Box as="main" className={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 10))}>
+        <Box as="div" className={cm.cn(cm.container({ size: containerSize }))}>
           {bare ? (
             children
           ) : (
-            <div className={cm.cn(cm.surface, cm.sp('p', 8), cm.legalPagesContentCard)}>
+            <Box as="div" className={cm.cn(cm.surface, cm.sp('p', 8), cm.legalPagesContentCard)}>
               {children}
-            </div>
+            </Box>
           )}
-        </div>
-      </main>
+        </Box>
+      </Box>
 
       {footer}
-    </div>
+    </Box>
   )
 }

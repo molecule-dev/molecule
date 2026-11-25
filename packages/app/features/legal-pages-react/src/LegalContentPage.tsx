@@ -1,7 +1,8 @@
 import { type JSX, type ReactNode, useEffect, useState } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
+import { useRichTranslation, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { RichText } from '@molecule/app-ui-react/elements'
 
 import { ContentPageShell } from './ContentPageShell.js'
 
@@ -49,21 +50,6 @@ export interface LegalContentPageProps {
 }
 
 /**
- * HTML-escapes an interpolation value before it enters a translation whose
- * result is rendered as HTML (`dangerouslySetInnerHTML`). React escapes
- * text children automatically but NOT values interpolated into HTML
- * strings — an `appName` containing markup would otherwise execute inside
- * the legal content.
- */
-const escapeHtml = (value: string): string =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-
-/**
  * Standalone Privacy / Terms page that renders the **same** bonded legal
  * HTML the footer modal shows (`content.privacyPolicy` /
  * `content.termsOfService` from `@molecule/app-locales-legal-default`),
@@ -88,6 +74,7 @@ export function LegalContentPage({
 }: LegalContentPageProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
+  const tRich = useRichTranslation()
   // Re-render once the bonded content has been registered for the
   // current locale so `t(content.*)` resolves to the real HTML.
   const [, setReady] = useState(false)
@@ -103,7 +90,7 @@ export function LegalContentPage({
     }
   }, [loadContent, kind])
 
-  const html = t(CONTENT_KEY[kind], appName ? { appName: escapeHtml(appName) } : {}, {
+  const nodes = tRich(CONTENT_KEY[kind], appName ? { appName } : undefined, {
     defaultValue: '',
   })
 
@@ -115,7 +102,7 @@ export function LegalContentPage({
       eyebrow={t(eyebrowKey, {}, { defaultValue: eyebrowDefault })}
       title={t(TITLE[kind].key, {}, { defaultValue: TITLE[kind].def })}
     >
-      <div className={cm.prose} dangerouslySetInnerHTML={{ __html: html }} />
+      <RichText className={cm.prose} nodes={nodes} />
     </ContentPageShell>
   )
 }

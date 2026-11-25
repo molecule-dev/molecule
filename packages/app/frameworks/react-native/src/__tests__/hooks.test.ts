@@ -520,6 +520,7 @@ describe('index.ts re-exports', () => {
 
     // These come from the @molecule/app-react re-export
     expect(indexModule).toHaveProperty('useAuth')
+    expect(indexModule).toHaveProperty('useRichTranslation')
     expect(indexModule).toHaveProperty('useTheme')
     expect(indexModule).toHaveProperty('useRouter')
   })

@@ -1,9 +1,10 @@
 import { type JSX, type ReactNode, useState } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
+import { useRichTranslation, useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-react'
+import { Pressable, RichText } from '@molecule/app-ui-react/elements'
 
 /** Shared options for the legal-modal hook + component. */
 export interface UseLegalModalsOptions {
@@ -28,21 +29,6 @@ export interface LegalModalsApi {
 }
 
 /**
- * HTML-escapes an interpolation value before it enters a translation whose
- * result is rendered as HTML (`dangerouslySetInnerHTML`). React escapes
- * text children automatically but NOT values interpolated into HTML
- * strings — an `appName` containing markup would otherwise execute inside
- * the legal content.
- */
-const escapeHtml = (value: string): string =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-
-/**
  * Headless hook powering in-place Privacy/Terms modals. Use it when the
  * triggers live in different parts of a bespoke footer (or a signup
  * page); place `{modals}` once and wire `openPrivacy`/`openTerms` to your
@@ -61,6 +47,7 @@ export function useLegalModals({
 }: UseLegalModalsOptions = {}): LegalModalsApi {
   const cm = getClassMap()
   const { t } = useTranslation()
+  const tRich = useRichTranslation()
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [termsOpen, setTermsOpen] = useState(false)
 
@@ -81,13 +68,11 @@ export function useLegalModals({
         title={t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
         size="lg"
       >
-        <div
+        <RichText
           className={cm.prose}
-          dangerouslySetInnerHTML={{
-            __html: t('content.privacyPolicy', appName ? { appName: escapeHtml(appName) } : {}, {
-              defaultValue: '',
-            }),
-          }}
+          nodes={tRich('content.privacyPolicy', appName ? { appName } : undefined, {
+            defaultValue: '',
+          })}
         />
       </Modal>
       <Modal
@@ -96,13 +81,11 @@ export function useLegalModals({
         title={t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
         size="lg"
       >
-        <div
+        <RichText
           className={cm.prose}
-          dangerouslySetInnerHTML={{
-            __html: t('content.termsOfService', appName ? { appName: escapeHtml(appName) } : {}, {
-              defaultValue: '',
-            }),
-          }}
+          nodes={tRich('content.termsOfService', appName ? { appName } : undefined, {
+            defaultValue: '',
+          })}
         />
       </Modal>
     </>
@@ -150,14 +133,14 @@ export function LegalModalLinks({
   return (
     <>
       {show !== 'terms' && (
-        <button type="button" className={linkClassName} onClick={openPrivacy}>
+        <Pressable as="button" type="button" className={linkClassName} onClick={openPrivacy}>
           {privacyLabel ?? t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
-        </button>
+        </Pressable>
       )}
       {show !== 'privacy' && (
-        <button type="button" className={linkClassName} onClick={openTerms}>
+        <Pressable as="button" type="button" className={linkClassName} onClick={openTerms}>
           {termsLabel ?? t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
-        </button>
+        </Pressable>
       )}
       {modals}
     </>

@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import type { SpacingScale } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link LegalPageLayout}. */
 export interface LegalPageLayoutProps {
@@ -44,12 +45,17 @@ export function LegalPageLayout({
 }: LegalPageLayoutProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <main
+    <Box
+      as="main"
       data-mol-id={dataMolId}
       className={mainClassName ?? cm.cn(cm.container({ size: containerSize }), cm.sp('py', 12))}
     >
-      <h1 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'), cm.sp('mb', 6))}>{title}</h1>
-      <div className={bodyClassName ?? cm.cn(cm.prose, cm.stack(stackGap))}>{children}</div>
-    </main>
+      <Text as="h1" className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'), cm.sp('mb', 6))}>
+        {title}
+      </Text>
+      <Box as="div" className={bodyClassName ?? cm.cn(cm.prose, cm.stack(stackGap))}>
+        {children}
+      </Box>
+    </Box>
   )
 }

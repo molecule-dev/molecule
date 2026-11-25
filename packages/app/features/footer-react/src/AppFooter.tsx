@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-import { useTranslation, useVersion } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
+import { useRichTranslation, useTranslation, useVersion } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Modal } from '@molecule/app-ui-react'
+import { Box, Link, Pressable, RichText, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * The preloader `loadContent` takes: called immediately before the
@@ -48,21 +48,6 @@ export interface AppFooterProps {
   dataMolId?: string
 }
 
-/**
- * HTML-escapes an interpolation value before it enters a translation whose
- * result is rendered as HTML (`dangerouslySetInnerHTML`). React escapes
- * text children automatically but NOT values interpolated into HTML
- * strings — an `appName` containing markup would otherwise execute inside
- * the legal content.
- */
-const escapeHtml = (value: string): string =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-
 const isExternalHref = (href: string): boolean => /^https?:\/\//i.test(href)
 
 /**
@@ -88,6 +73,7 @@ export function AppFooter({
 }: AppFooterProps): React.JSX.Element {
   const cm = getClassMap()
   const { t, locale, setLocale, locales } = useTranslation()
+  const tRich = useRichTranslation()
   const { state: versionState } = useVersion()
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [termsOpen, setTermsOpen] = useState(false)
@@ -109,17 +95,20 @@ export function AppFooter({
     },
   )
 
-  /**
-   * Render legal HTML from the i18n catalog, or — when the app has registered
-   * none (the bond ships `content.*` empty by design) — a clear placeholder.
-   * Never a silently-blank modal, and never fabricated legal text.
-   */
-  const renderLegal = (html: string): React.JSX.Element =>
-    html.trim() ? (
-      <div className={cm.prose} dangerouslySetInnerHTML={{ __html: html }} />
+  const renderLegal = (key: string): React.JSX.Element => {
+    const nodes = tRich(key, { appName }, { defaultValue: '' })
+    // A whitespace entity such as &nbsp; still counts as configured catalog content.
+    const hasContent =
+      nodes.some((node) => node.kind !== 'text' || node.text.trim()) ||
+      (nodes.length > 0 && t(key, { appName }, { defaultValue: '' }).trim())
+    return hasContent ? (
+      <RichText className={cm.prose} nodes={nodes} />
     ) : (
-      <p className={cm.prose}>{legalNotConfigured}</p>
+      <Text as="p" className={cm.prose}>
+        {legalNotConfigured}
+      </Text>
     )
+  }
 
   const openPrivacy = async (): Promise<void> => {
     if (loadContent) await loadContent('privacyPolicy')
@@ -136,24 +125,22 @@ export function AppFooter({
       {/* `<footer>` (contentinfo landmark), not a bare <section> — axe's
           `region` rule requires all page content inside landmarks, and
           screen-reader users jump to the footer by landmark. */}
-      <footer className={cm.cn(cm.footerBar, className)} data-mol-id={dataMolId}>
-        {isExternalHref(aboutHref) ? (
-          <a href={aboutHref} target="_blank" rel="noopener noreferrer" className={cm.footerLink}>
-            {aboutLabel}
-          </a>
-        ) : (
-          <Link to={aboutHref} className={cm.footerLink}>
-            {aboutLabel}
-          </Link>
-        )}
+      <Box as="footer" className={cm.cn(cm.footerBar, className)} data-mol-id={dataMolId}>
+        <Link
+          to={aboutHref}
+          className={cm.footerLink}
+          {...(isExternalHref(aboutHref) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          {aboutLabel}
+        </Link>
         {legalMode === 'modal' ? (
           <>
-            <button type="button" onClick={openPrivacy} className={cm.footerButton}>
+            <Pressable as="button" type="button" onClick={openPrivacy} className={cm.footerButton}>
               {t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
-            </button>
-            <button type="button" onClick={openTerms} className={cm.footerButton}>
+            </Pressable>
+            <Pressable as="button" type="button" onClick={openTerms} className={cm.footerButton}>
               {t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
-            </button>
+            </Pressable>
           </>
         ) : (
           <>
@@ -165,16 +152,19 @@ export function AppFooter({
             </Link>
           </>
         )}
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={() => setLanguageOpen(true)}
           className={cm.footerButton}
           aria-label={t('footer.language', {}, { defaultValue: 'Language' })}
         >
           <Icon name="globe" size={14} /> {locales.find((l) => l.code === locale)?.name}
-        </button>
-        <span className={cm.footerLink}>{version}</span>
-      </footer>
+        </Pressable>
+        <Text as="span" className={cm.footerLink}>
+          {version}
+        </Text>
+      </Box>
       {legalMode === 'modal' && (
         <>
           <Modal
@@ -183,9 +173,7 @@ export function AppFooter({
             title={t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
             size="lg"
           >
-            {renderLegal(
-              t('content.privacyPolicy', { appName: escapeHtml(appName) }, { defaultValue: '' }),
-            )}
+            {renderLegal('content.privacyPolicy')}
           </Modal>
           <Modal
             open={termsOpen}
@@ -193,9 +181,7 @@ export function AppFooter({
             title={t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
             size="lg"
           >
-            {renderLegal(
-              t('content.termsOfService', { appName: escapeHtml(appName) }, { defaultValue: '' }),
-            )}
+            {renderLegal('content.termsOfService')}
           </Modal>
         </>
       )}
@@ -205,11 +191,12 @@ export function AppFooter({
         title={t('footer.language', {}, { defaultValue: 'Language' })}
         size="lg"
       >
-        <div className={cm.languageGrid}>
+        <Box as="div" className={cm.languageGrid}>
           {locales
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((l) => (
-              <button
+              <Pressable
+                as="button"
                 key={l.code}
                 type="button"
                 onClick={async () => {
@@ -219,9 +206,9 @@ export function AppFooter({
                 className={l.code === locale ? cm.languageActive : cm.languageOption}
               >
                 {l.name}
-              </button>
+              </Pressable>
             ))}
-        </div>
+        </Box>
       </Modal>
     </>
   )

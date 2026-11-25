@@ -21,12 +21,23 @@ import type {
   I18nProvider,
   InterpolationValues,
   NumberFormatOptions,
+  RichTranslateFunction,
   TranslateOptions,
 } from '@molecule/app-i18n'
-import { getProvider, I18nError } from '@molecule/app-i18n'
+import { createRichTranslator, getProvider, I18nError } from '@molecule/app-i18n'
 
 import { I18nKey } from '../injection-keys.js'
 import type { UseTranslationResult } from '../types.js'
+
+/**
+ * Reads rich catalog messages from the active provider. Call the returned
+ * translation function in render so it follows locale and catalog changes.
+ *
+ * @returns The locale-reactive rich translation function.
+ */
+export function useRichTranslation(): RichTranslateFunction {
+  return createRichTranslator(useT())
+}
 
 /**
  * Composable to access the i18n provider: the one the nearest provider supplies,

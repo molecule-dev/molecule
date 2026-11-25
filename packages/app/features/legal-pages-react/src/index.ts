@@ -14,16 +14,14 @@
  *   `<LegalPageLayout>`, `<LegalPageSection>`.
  *
  * @remarks
- * - **`appName` is HTML-escaped before interpolation.** The legal bodies are
- *   rendered as HTML (`dangerouslySetInnerHTML`); an `appName` carrying
- *   markup is escaped to inert entities first, so it can never execute
- *   inside the legal content.
+ * - Legal bodies render the portable catalog tags as elements. They interpolate
+ *   `appName` as literal text. Custom HTML uses the web compatibility renderer.
  * - `LegalContentPage` / `useLegalModals` render bonded HTML that defaults to an
  *   EMPTY string until the locale module is registered — pass your app's
  *   `loadContent` (from `src/config.ts`, re-exporting
  *   `@molecule/app-locales-legal-default`) or the page/modal body will be blank.
  * - `PlanUpdatedPage` requires BOTH the app's router (`RouterProvider`, for the
- *   `<Link>` it renders from `@molecule/app-react/link`) and wired auth state
+ *   `<Link>` it renders from `@molecule/app-ui-react/elements`) and wired auth state
  *   from `@molecule/app-react` — without an auth
  *   provider it shows a spinner forever (`state.initialized` never flips). The
  *   rest of the package is router-free.

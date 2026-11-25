@@ -10,6 +10,7 @@
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 
 import { createSimpleI18nProvider } from './provider.js'
+import { createRichTranslator } from './rich.js'
 import type {
   DateFormatOptions,
   I18nProvider,
@@ -120,6 +121,9 @@ export const registerLocaleModule = (moduleExports: Record<string, unknown>): vo
  */
 export const t = (key: string, values?: InterpolationValues, options?: TranslateOptions): string =>
   getProvider().t(key, values, options)
+
+/** Reads a rich translation using the active bonded provider. In components, use `useRichTranslation()`. */
+export const tRich = createRichTranslator(t)
 
 /**
  * Formats a number according to the current locale.

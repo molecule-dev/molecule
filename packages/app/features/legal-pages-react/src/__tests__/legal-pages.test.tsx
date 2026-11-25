@@ -3,6 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createRichTranslator, createSimpleI18nProvider } from '@molecule/app-i18n'
+
 import type { PlanUpdatedPageProps } from '../PlanUpdatedPage.js'
 
 // `useAuth` is hoisted so individual tests can flip `initialized`.
@@ -35,27 +37,17 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// `t(key, values, opts)` resolves bonded `content.*` HTML from a tiny local
-// dictionary (the real copy lives in @molecule/app-locales-legal-default, which
-// isn't loaded here) and echoes the supplied `defaultValue` for every other
-// key. In BOTH cases it performs real `{{token}}` interpolation from `values`,
-// exactly like the i18n bond — so a test can prove a component forwards
-// `appName` through to `t()`.
+// Resolve both kinds of translation through the same small test catalog.
 vi.mock('@molecule/app-react', async (importOriginal) => {
-  const CONTENT: Record<string, string> = {
+  const i18n = createSimpleI18nProvider()
+  i18n.addTranslations('en', {
     'content.privacyPolicy': '<p>Privacy Policy for {{appName}}.</p>',
     'content.termsOfService': '<p>These terms govern your use of {{appName}}.</p>',
-  }
-  const interpolate = (str: string, values?: Record<string, unknown>): string =>
-    str.replace(/\{\{(\w+)\}\}/g, (whole, name: string) =>
-      values && name in values ? String(values[name]) : whole,
-    )
+  })
   return {
     ...(await importOriginal<Record<string, unknown>>()),
-    useTranslation: () => ({
-      t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
-        interpolate(CONTENT[key] ?? opts?.defaultValue ?? key, values),
-    }),
+    useTranslation: () => ({ t: i18n.t }),
+    useRichTranslation: () => createRichTranslator(i18n.t),
     useAuth: mockUseAuth,
     useVerifyPaymentReturn: mockUseVerifyPaymentReturn,
   }

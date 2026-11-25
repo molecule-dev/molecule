@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
@@ -53,8 +53,8 @@ vi.mock('@molecule/app-ui-react', () => ({
 }))
 
 vi.mock('@molecule/app-react/link', () => ({
-  Link: ({ to, children }: { to: string; children?: ReactNode }) =>
-    createElement('a', { href: to, 'data-link': '' }, children),
+  Link: ({ to, children, ...props }: ComponentProps<'a'> & { to: string }) =>
+    createElement('a', { ...props, href: to, 'data-link': '' }, children),
 }))
 
 const { AppFooter } = await import('../AppFooter.js')

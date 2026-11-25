@@ -4,6 +4,8 @@ import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createRichTranslator, type TranslateFunction } from '@molecule/app-i18n'
+
 // A mutable i18n catalog the tests can seed to simulate an app that registered
 // real legal HTML. Hoisted so the `vi.mock` factory below can reference it.
 const { catalog } = vi.hoisted(() => ({ catalog: {} as Record<string, string> }))
@@ -32,24 +34,28 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `t()` consults the seeded catalog first, then the inline defaultValue — the
 // same resolution order the real i18n provider uses (bond value → fallback).
-vi.mock('@molecule/app-react', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
-  useTranslation: () => ({
-    t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
-      let out = key in catalog ? catalog[key] : (opts?.defaultValue ?? key)
-      if (values)
-        for (const [k, v] of Object.entries(values)) out = out.replaceAll(`{{${k}}}`, String(v))
-      return out
-    },
-    locale: 'en',
-    setLocale: () => {},
-    locales: [
-      { code: 'en', name: 'English' },
-      { code: 'es', name: 'Español' },
-    ],
-  }),
-  useVersion: () => ({ state: { version: '2.0.0' } }),
-}))
+vi.mock('@molecule/app-react', async (importOriginal) => {
+  const t: TranslateFunction = (key, values, opts) => {
+    let out = catalog[key] ?? opts?.defaultValue ?? key
+    if (values)
+      for (const [k, v] of Object.entries(values)) out = out.replaceAll(`{{${k}}}`, String(v))
+    return out
+  }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    useTranslation: () => ({
+      t,
+      locale: 'en',
+      setLocale: () => {},
+      locales: [
+        { code: 'en', name: 'English' },
+        { code: 'es', name: 'Español' },
+      ],
+    }),
+    useRichTranslation: () => createRichTranslator(t),
+    useVersion: () => ({ state: { version: '2.0.0' } }),
+  }
+})
 
 vi.mock('@molecule/app-ui-react', () => ({
   Icon: ({ name }: { name?: string }) => createElement('span', { 'data-icon': name }),
@@ -101,7 +107,7 @@ describe('AppFooter legal modals — no silently-blank modal (empty content)', (
   })
 })
 
-describe('AppFooter legal modals — {{appName}} is HTML-escaped before entering legal HTML', () => {
+describe('AppFooter legal modals — {{appName}} renders as text', () => {
   it('a markup-carrying appName renders inert, not as script/img tags', () => {
     catalog['content.privacyPolicy'] = '<p>Privacy Policy for {{appName}}.</p>'
     const { container, getByRole } = render(
@@ -125,7 +131,7 @@ describe('AppFooter legal modals — app-registered content renders as HTML', ()
   it('renders registered privacy HTML instead of the placeholder', () => {
     catalog['content.privacyPolicy'] = '<h2>Acme Privacy</h2><p>We collect nothing.</p>'
     const modal = openLegalModal('Privacy Policy')
-    // Registered content branch renders the raw HTML inside a <div>.
+    // Registered content branch renders the rich text inside a <div>.
     expect(modal.firstElementChild?.tagName).toBe('DIV')
     expect(modal.firstElementChild?.innerHTML).toContain('<h2>Acme Privacy</h2>')
     // The placeholder must NOT appear once real content exists.

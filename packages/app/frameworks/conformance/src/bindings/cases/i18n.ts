@@ -371,6 +371,53 @@ export const useTCases: HookCases = {
   ],
 }
 
+/** `useRichTranslation()`: resolve catalog markup before inserting plain-text values. */
+export const useRichTranslationCases: HookCases = {
+  hook: 'useRichTranslation',
+  cases: [
+    {
+      name: 'reads portable nodes and interpolates markup as literal text',
+      context: {
+        translations: {
+          en: { 'legal.body': '<h2>Privacy</h2>\n<ul><li><strong>{{appName}}</strong></li></ul>' },
+        },
+      },
+      steps: [{ type: 'call', args: ['legal.body', { appName: '<b>A&B</b>' }] }],
+    },
+    {
+      name: 'follows locale changes and falls back to English through the bonded provider',
+      context: {
+        omitServices: ['i18n'],
+        translations: {
+          en: { 'legal.body': '<p>Privacy</p>' },
+          fr: { 'legal.body': '<p>Confidentialité</p>' },
+        },
+      },
+      steps: [
+        { type: 'call', args: ['legal.body'] },
+        { type: 'locale', locale: 'fr' },
+        { type: 'call', args: ['legal.body'] },
+        { type: 'locale', locale: 'de' },
+        { type: 'call', args: ['legal.body'] },
+        { type: 'unmount' },
+      ],
+    },
+    {
+      name: 'preserves web-only markup and includes the tag and key in the migration diagnostic',
+      steps: [
+        {
+          type: 'call',
+          args: [
+            'legal.body',
+            { appName: '<b>A&B</b>' },
+            { defaultValue: '<p><em>{{appName}}</em></p>' },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
 /** `useDirection()`: the active locale's text direction. */
 export const useDirectionCases: HookCases = {
   hook: 'useDirection',

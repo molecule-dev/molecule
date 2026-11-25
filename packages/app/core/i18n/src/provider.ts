@@ -208,7 +208,7 @@ export const createSimpleI18nProvider = (
       if (!config) {
         // An explicit default, even an empty one, wins over the key (as in i18next).
         const fallback = options?.defaultValue ?? key
-        return values ? interpolate(fallback, values) : fallback
+        return values && !options?.skipInterpolation ? interpolate(fallback, values) : fallback
       }
 
       // Fleet plural contract (matches i18next's key resolution order): when
@@ -257,13 +257,15 @@ export const createSimpleI18nProvider = (
         const fallback = pluralDefault ?? options?.defaultValue ?? key
         const allValues =
           options?.count !== undefined ? { count: options.count, ...values } : values
-        return allValues ? interpolate(fallback, allValues) : fallback
+        return allValues && !options?.skipInterpolation
+          ? interpolate(fallback, allValues)
+          : fallback
       }
 
       // Add count to values for interpolation
       const allValues = options?.count !== undefined ? { count: options.count, ...values } : values
 
-      if (allValues) {
+      if (allValues && !options?.skipInterpolation) {
         return interpolate(text, allValues)
       }
 

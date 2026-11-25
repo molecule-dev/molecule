@@ -14,12 +14,23 @@ import type {
   I18nProvider,
   InterpolationValues,
   NumberFormatOptions,
+  RichTranslateFunction,
   TranslateOptions,
 } from '@molecule/app-i18n'
-import { I18nError } from '@molecule/app-i18n'
+import { createRichTranslator, I18nError } from '@molecule/app-i18n'
 
 import { useI18nProvider } from '../context.js'
 import { type MaybeReadable, toReadable } from './maybe-readable.js'
+
+/**
+ * Reads rich catalog messages from the active provider. Call the returned
+ * translation function in render so it follows locale and catalog changes.
+ *
+ * @returns The locale-reactive rich translation function.
+ */
+export function useRichTranslation(): RichTranslateFunction {
+  return createRichTranslator(useT())
+}
 
 /**
  * Options for the shorthand form of {@link UseTFunction}: the fallback text

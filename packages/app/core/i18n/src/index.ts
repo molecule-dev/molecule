@@ -3,6 +3,9 @@
  *
  * Provides a unified API for translations and localization that works
  * with different i18n libraries (react-i18next, FormatJS, etc.).
+ * Catalog messages containing `p`, `h2`, `ul`, `li` and `strong` can use
+ * `tRich()` outside a component or the framework binding's `useRichTranslation()`
+ * in a component. Both return nodes with interpolated values in text.
  *
  * @example
  * A component reads `t` from its framework binding's `useTranslation()` (here
@@ -77,6 +80,7 @@
 export * from './error.js'
 export * from './plural.js'
 export * from './provider.js'
+export * from './rich.js'
 export * from './translator.js'
 export * from './types.js'
 export * from './utilities.js'

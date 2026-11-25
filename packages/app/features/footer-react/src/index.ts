@@ -19,14 +19,11 @@
  * ```
  *
  * @remarks
- * The `appName` interpolated into the Privacy/Terms modal HTML is
- * HTML-escaped first — the modal bodies render via `dangerouslySetInnerHTML`,
- * so a markup-carrying app name must arrive as inert entities.
- * - Must render inside BOTH the app's router (the About link and
- *   `legalMode="route"` links are `<Link>` elements from
- *   `@molecule/app-react/link` — they throw outside `RouterProvider`) and
- *   `@molecule/app-react`'s `I18nProvider` — `useTranslation()`
- *   THROWS without it. `getClassMap()` needs a bonded ClassMap
+ * - The modal bodies read rich catalog text. The five portable tags render as
+ *   elements, with `appName` inserted as literal text. Custom HTML uses the
+ *   web compatibility renderer.
+ * - Internal About and legal links require the app's router. Translations use
+ *   the nearest `I18nProvider` or the bonded i18n provider. `getClassMap()` needs a bonded ClassMap
  *   (e.g. `@molecule/app-ui-tailwind`); version display works unbonded (the
  *   version core falls back to a web provider).
  * - The privacy/terms modals render whatever HTML the i18n catalog holds under

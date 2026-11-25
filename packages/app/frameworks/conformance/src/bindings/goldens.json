@@ -57,6 +57,7 @@
   "usePush",
   "usePut",
   "useQuery",
+  "useRichTranslation",
   "useRootLogger",
   "useRouter",
   "useRouterInstance",
@@ -61873,6 +61874,226 @@
      }
     ],
     "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useRichTranslation": {
+   "reads portable nodes and interpolates markup as literal text": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": [
+         {
+          "children": [
+           {
+            "kind": "text",
+            "text": "Privacy"
+           }
+          ],
+          "kind": "element",
+          "tag": "h2"
+         },
+         {
+          "kind": "text",
+          "text": "\n"
+         },
+         {
+          "children": [
+           {
+            "children": [
+             {
+              "children": [
+               {
+                "kind": "text",
+                "text": "<b>A&B</b>"
+               }
+              ],
+              "kind": "element",
+              "tag": "strong"
+             }
+            ],
+            "kind": "element",
+            "tag": "li"
+           }
+          ],
+          "kind": "element",
+          "tag": "ul"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows locale changes and falls back to English through the bonded provider": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     null
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": [
+         {
+          "children": [
+           {
+            "kind": "text",
+            "text": "Privacy"
+           }
+          ],
+          "kind": "element",
+          "tag": "p"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "fr"
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": [
+         {
+          "children": [
+           {
+            "kind": "text",
+            "text": "Confidentialité"
+           }
+          ],
+          "kind": "element",
+          "tag": "p"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "de"
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": [
+         {
+          "children": [
+           {
+            "kind": "text",
+            "text": "Privacy"
+           }
+          ],
+          "kind": "element",
+          "tag": "p"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "preserves web-only markup and includes the tag and key in the migration diagnostic": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": [
+         {
+          "diagnostic": "Unsupported rich translation markup <em> in \"legal.body\"",
+          "html": "<p><em>&lt;b&gt;A&amp;B&lt;/b&gt;</em></p>",
+          "kind": "legacy-html"
+         }
+        ]
+       }
+      ]
+     }
+    ],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
