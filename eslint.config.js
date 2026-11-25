@@ -10,9 +10,11 @@ import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
 
 import angularTestHostChangeDetection from './eslint-rules/angular-test-host-change-detection.mjs'
+import { intrinsicJsxConfig } from './eslint-rules/intrinsic-jsx-config.mjs'
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
 import noHandPlacedNodes from './eslint-rules/no-hand-placed-nodes.mjs'
+import noIntrinsicJsx from './eslint-rules/no-intrinsic-jsx.mjs'
 import noOnceReadResolvedNode from './eslint-rules/no-once-read-resolved-node.mjs'
 import noRequiredSnippetRender from './eslint-rules/no-required-snippet-render.mjs'
 import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
@@ -790,4 +792,7 @@ export default tseslint.config(
     files: ['packages/app/features/footer-svelte/src/AppFooter.svelte'],
     rules: { 'svelte/no-at-html-tags': 'off' },
   },
+  // React features and the React UI kit render on React DOM and React Native alike: no
+  // intrinsic JSX element outside the packages eslint-rules/intrinsic-jsx-pending.json still lists.
+  intrinsicJsxConfig({ rules: { 'no-intrinsic-jsx': noIntrinsicJsx } }),
 )
