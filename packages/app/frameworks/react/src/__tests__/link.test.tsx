@@ -2,7 +2,8 @@
 /**
  * `Link` against react-router `<Link>`'s behavior: the shared
  * `@molecule/app-framework-conformance/link` cases, rendered as a real React
- * tree inside `MoleculeProvider` carrying the router.
+ * tree inside `MoleculeProvider` carrying the router, or with no router for a
+ * case that mounts none.
  *
  * @module
  */
@@ -39,32 +40,43 @@ const reactAttributes = (
   return attributes
 }
 
-runLinkConformance('@molecule/app-react', async (container, router, props) => {
-  const root = createRoot(container)
-  const attributes = reactAttributes(props.attrs)
-  const render = (to: string): void => {
-    root.render(
-      <MoleculeProvider router={router}>
-        <Link
-          to={to}
-          replace={props.replace}
-          state={props.state}
-          onClick={(event) => props.onClick?.(event.nativeEvent)}
-          ref={props.ref}
-          {...attributes}
-        >
-          {props.text}
-        </Link>
-      </MoleculeProvider>,
-    )
-  }
-  await act(async () => render(props.to))
-  return {
-    setTo: async (next) => {
-      await act(async () => render(next))
-    },
-    unmount: async () => {
+runLinkConformance(
+  '@molecule/app-react',
+  async (container, router, props) => {
+    const root = createRoot(container)
+    const attributes = reactAttributes(props.attrs)
+    const render = (to: string): void => {
+      root.render(
+        // With no router mounted, the provider itself stays: an app with no router mounts it the same way.
+        <MoleculeProvider router={router ?? undefined}>
+          <Link
+            to={to}
+            replace={props.replace}
+            state={props.state}
+            onClick={(event) => props.onClick?.(event.nativeEvent)}
+            ref={props.ref}
+            {...attributes}
+          >
+            {props.text}
+          </Link>
+        </MoleculeProvider>,
+      )
+    }
+    try {
+      await act(async () => render(props.to))
+    } catch (error) {
+      // A render that threw left nothing to unmount, but the root must not outlive the case.
       await act(async () => root.unmount())
-    },
-  }
-})
+      throw error
+    }
+    return {
+      setTo: async (next) => {
+        await act(async () => render(next))
+      },
+      unmount: async () => {
+        await act(async () => root.unmount())
+      },
+    }
+  },
+  'react.error.useRouterOutsideProvider',
+)

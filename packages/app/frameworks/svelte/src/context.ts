@@ -5,7 +5,8 @@
  */
 
 import type { Component } from 'svelte'
-import { getContext, setContext } from 'svelte'
+import { getContext, onDestroy, setContext } from 'svelte'
+import { get, type Readable, writable } from 'svelte/store'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
@@ -16,7 +17,7 @@ import { getProvider as getBondedI18nProvider, I18nError, t } from '@molecule/ap
 import type { WorkspaceProvider } from '@molecule/app-ide'
 import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
-import type { Router } from '@molecule/app-routing'
+import { resolveLinkPath, type Router } from '@molecule/app-routing'
 import {
   getProvider as getBondedStateProvider,
   hasProvider as hasBondedStateProvider,
@@ -25,6 +26,7 @@ import {
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { type MaybeReadable, toReadable } from './hooks/maybe-readable.js'
 import { setRoutedViewContext } from './routed-view-context.js'
 import type { MoleculeConfig } from './types.js'
 
@@ -440,19 +442,108 @@ export function useThemeProvider(): ThemeProvider {
 }
 
 /**
- * Gets the router from Svelte context under the React hook's name.
- * @returns The router instance.
+ * The router the router-reading functions and `Link` navigate through: the one
+ * set in context. Both {@link useRouterInstance} and {@link useLinkRouter} fail
+ * through this one function, so the error and its text live in one place.
+ *
+ * @param router - The router read from context, or `undefined` with none set.
+ * @returns The router.
  * @throws {I18nError} If no router has been set in context: mount the routing bond's
  * `MoleculeRouterProvider` in the root `+layout.svelte`, or call `setMoleculeContext({ router })`.
  */
-export function useRouterInstance(): Router {
-  const router = getContext<Router | undefined>(ROUTER_KEY)
+function requireRouter(router: Router | undefined): Router {
   if (!router)
     throw new I18nError(
       'svelte.error.useRouterOutsideProvider',
       undefined,
       'No router here. Mount `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-sveltekit`) in the root `+layout.svelte`, or call `setMoleculeContext({ router })` there. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-sveltekit@latest`).',
     )
+  return router
+}
+
+/**
+ * Gets the router from Svelte context under the React hook's name.
+ * @returns The router instance.
+ * @throws {I18nError} If no router has been set in context: mount the routing bond's
+ * `MoleculeRouterProvider` in the root `+layout.svelte`, or call `setMoleculeContext({ router })`.
+ */
+export function useRouterInstance(): Router {
+  return requireRouter(getContext<Router | undefined>(ROUTER_KEY))
+}
+
+/**
+ * The router a link to `to` navigates through, among the routers in context.
+ *
+ * @param mounted - The router read from context, or `undefined` with none set.
+ * @param to - The link's destination: an app path or a URL.
+ * @returns The router, or `null` for a URL outside the app with none set.
+ * @throws {I18nError} When `to` is an app path and no router is in context.
+ */
+function linkRouter(mounted: Router | undefined, to: string): Router | null {
+  // A URL outside the app opens through the browser or the device's URL handler: no router navigates it.
+  return resolveLinkPath(to) === null ? (mounted ?? null) : requireRouter(mounted)
+}
+
+/**
+ * The router a link navigates through, under React's hook name: the router set
+ * in context, or `null` for a URL outside the app when none is. The browser, or
+ * on a device the URL handler, opens such a URL, so a link to it renders in an
+ * app with no router (a widget, a static page). A link to an app path still
+ * fails without one: that is how an app that forgot to mount its router finds
+ * out.
+ *
+ * `Link` uses it. With a destination it answers for that one and follows it
+ * while the component lives. Without one (the destination is a `$state` prop of
+ * a runes component, which is no store) it returns a function to call with the
+ * destination wherever it is known; call it during component initialisation,
+ * which reads the context once.
+ *
+ * @param path - The link's destination: an app path or a URL, or a readable store of one.
+ * @returns A readable store of the router the link navigates through, or `null` for a URL
+ * outside the app with no router in context.
+ * @throws {I18nError} When `path` is an app path and no router is in context: the error
+ * {@link useRouterInstance} throws, with the same fix.
+ *
+ * @example
+ * ```svelte
+ * <script lang="ts">
+ *   import { writable } from 'svelte/store'
+ *   const to = writable('/settings')
+ *   const router = useLinkRouter(to)
+ * </script>
+ *
+ * <a href={$router === null ? $to : routerLinkHref($to, $router)}>…
+ * ```
+ */
+export function useLinkRouter(path: MaybeReadable<string>): Readable<Router | null>
+/**
+ * Reads the router without a destination yet.
+ *
+ * @returns A function that takes a link's destination and gives the router it
+ * navigates through, or `null` for a URL outside the app with no router in context.
+ * @throws {I18nError} Never here: the returned function throws for an app path with no router in
+ * context, the error {@link useRouterInstance} throws.
+ *
+ * @example
+ * ```svelte
+ * <script lang="ts">
+ *   const linkRouter = useLinkRouter()
+ *   let { to } = $props()
+ *   const router = $derived(linkRouter(to))
+ * </script>
+ * ```
+ */
+export function useLinkRouter(): (to: string) => Router | null
+export function useLinkRouter(
+  path?: MaybeReadable<string>,
+): Readable<Router | null> | ((to: string) => Router | null) {
+  const mounted = getContext<Router | undefined>(ROUTER_KEY)
+  if (path === undefined) return (to) => linkRouter(mounted, to)
+  const pathStore = toReadable(path)
+  // Read now, so an app path with no router in context fails during initialisation, as a hook that needs a provider does.
+  const router = writable<Router | null>(linkRouter(mounted, get(pathStore)))
+  const stop = pathStore.subscribe((to) => router.set(linkRouter(mounted, to)))
+  onDestroy(stop)
   return router
 }
 

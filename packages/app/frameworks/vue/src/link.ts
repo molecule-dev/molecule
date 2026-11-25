@@ -8,11 +8,15 @@ import { defineComponent, h, mergeProps } from 'vue'
 
 import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
-import { useRouterInstance } from './composables/useRouter.js'
+import { useLinkRouter } from './composables/useRouter.js'
 
 /** Props for {@link Link}. Every other attribute (`class`, `target`, `rel`, `aria-*`, `onClick`) goes on the anchor. */
 export interface LinkProps {
-  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the one the router writes for it (`routerLinkHref`), base path included. */
+  /**
+   * Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the
+   * one the router writes for it (`routerLinkHref`), base path included; a URL's is the URL as
+   * written.
+   */
   to: string
   /**
    * Replace the current history entry instead of pushing one. When omitted, a
@@ -31,6 +35,12 @@ export interface LinkProps {
  * click, a `target` other than `_self`, a click an `onClick` already prevented,
  * and a URL on another origin are left to the browser.
  *
+ * A link to a URL outside the app (another origin, `mailto:`, `//host`) needs
+ * no router: the browser, or on a device the URL handler, opens it. It renders
+ * with no router provided, the URL as its `href`, and a click is left to the
+ * browser (`onClick` still runs). A link to an app path needs a router, and
+ * fails without one with the error `useRouterInstance` throws.
+ *
  * Use it for every internal link instead of an anchor with a click handler that
  * calls `navigate()`. Needs the router from `moleculePlugin`.
  *
@@ -43,6 +53,7 @@ export interface LinkProps {
  *   h('nav', [
  *     h(Link, { to: '/projects', class: 'nav-link' }, () => 'Projects'),
  *     h(Link, { to: '/login', replace: true, state: { from: '/projects' } }, () => 'Log in'),
+ *     h(Link, { to: 'https://molecule.dev' }, () => 'Molecule'),
  *   ]),
  * )
  * ```
@@ -55,24 +66,33 @@ export interface LinkProps {
  */
 export const Link = defineComponent(
   (props: LinkProps, { attrs, slots }) => {
-    const router = useRouterInstance()
+    const router = useLinkRouter(() => props.to)
 
     /**
      * Navigates in-app for a click the router should take; runs after the
-     * caller's own `onClick`, so that one can still prevent it.
+     * caller's own `onClick`, so that one can still prevent it. With no router
+     * (a URL outside the app) the browser follows the anchor instead.
      *
      * @param event - The anchor's click event.
      */
     const onClick = (event: MouseEvent): void => {
-      followRouterLink(event, props.to, router, { replace: props.replace, state: props.state })
+      const current = router.value
+      if (current !== null) {
+        followRouterLink(event, props.to, current, { replace: props.replace, state: props.state })
+      }
     }
 
-    return () =>
-      h(
+    return () => {
+      const current = router.value
+      return h(
         'a',
-        mergeProps(attrs, { href: routerLinkHref(props.to, router), onClick }),
+        mergeProps(attrs, {
+          href: current === null ? props.to : routerLinkHref(props.to, current),
+          onClick,
+        }),
         slots.default?.(),
       )
+    }
   },
   { name: 'Link', props: ['to', 'replace', 'state'], inheritAttrs: false },
 )

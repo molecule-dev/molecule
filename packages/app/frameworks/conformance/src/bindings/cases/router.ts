@@ -131,6 +131,53 @@ export const useRouterInstanceCases: HookCases = {
   ],
 }
 
+/**
+ * `useLinkRouter(to)`: the router a link to `to` navigates through, or `null`
+ * for a URL outside the app when none is mounted. An app path with none fails
+ * with the binding's no-router error, recorded as `{ $threw }`; after a throw
+ * an `args` step mounts a fresh host.
+ */
+export const useLinkRouterCases: HookCases = {
+  hook: 'useLinkRouter',
+  reactiveArgs: true,
+  cases: [
+    {
+      name: 'gives the router for an app path',
+      args: ['/settings?tab=billing#plan'],
+      steps: [{ type: 'call', method: 'getLocation', args: [] }],
+    },
+    {
+      name: 'gives the same router for a URL outside the app',
+      args: ['https://elsewhere.example/page'],
+    },
+    {
+      name: 'follows a destination that changes between an app path and a URL',
+      args: ['/settings'],
+      steps: [
+        { type: 'args', args: ['https://elsewhere.example/page'] },
+        { type: 'args', args: ['mailto:help@example.com'] },
+        { type: 'args', args: ['/login'] },
+      ],
+    },
+    {
+      name: 'without a router, a URL outside the app gives null',
+      context: { omitServices: ['router'] },
+      args: ['https://elsewhere.example/page'],
+    },
+    {
+      name: 'without a router, an app path throws',
+      context: { omitServices: ['router'] },
+      args: ['/settings'],
+    },
+    {
+      name: 'without a router, a fresh mount for a URL gives null after an app path threw',
+      context: { omitServices: ['router'] },
+      args: ['/settings'],
+      steps: [{ type: 'args', args: ['https://elsewhere.example/page'] }],
+    },
+  ],
+}
+
 /** `useRouter()`: location, params, query and the navigation actions. */
 export const useRouterCases: HookCases = {
   hook: 'useRouter',

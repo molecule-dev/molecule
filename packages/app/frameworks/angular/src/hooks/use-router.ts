@@ -1,7 +1,8 @@
 /**
  * Angular functions for routing, mirroring `useRouter`, `useRouterInstance`,
- * `useLocation`, `useParams`, `useQuery`, `useNavigate`, `useIsActive`,
- * `useListRoute` and `useConsumedSearchParam` from `@molecule/app-react`.
+ * `useLinkRouter`, `useLocation`, `useParams`, `useQuery`, `useNavigate`,
+ * `useIsActive`, `useListRoute` and `useConsumedSearchParam` from
+ * `@molecule/app-react`.
  *
  * @module
  */
@@ -31,11 +32,34 @@ import type {
 import {
   createConsumedSearchParam,
   listRouteRedirect,
+  resolveLinkPath,
   resolveListRoute,
 } from '@molecule/app-routing'
 
 import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { ROUTER } from '../tokens.js'
+
+/**
+ * The router the routing functions and the `Link` directive navigate through:
+ * the registered one. Both {@link useRouterInstance} and {@link useLinkRouter}
+ * fail through this one function, so the error and its text live in one place.
+ *
+ * @param router - The router read from the injector, or `null` with none registered.
+ * @returns The router.
+ * @throws {I18nError} When no router is registered: add the routing bond's
+ * `provideMoleculeRouter()` (`@molecule/app-routing-angular-router`) to the app's providers,
+ * after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`.
+ */
+function requireRouter(router: Router | null): Router {
+  if (!router) {
+    throw new I18nError(
+      'angular.error.useRouterOutsideProvider',
+      undefined,
+      "No router here. Add `provideMoleculeRouter()` from the routing bond (`@molecule/app-routing-angular-router`) to the app's providers, after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-angular-router@latest`).",
+    )
+  }
+  return router
+}
 
 /**
  * The router registered by `provideMolecule({ router })` or `provideRouter`.
@@ -47,14 +71,72 @@ import { ROUTER } from '../tokens.js'
  * after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`.
  */
 export function useRouterInstance(): Router {
-  const router = inject(ROUTER, { optional: true })
-  if (!router) {
-    throw new I18nError(
-      'angular.error.useRouterOutsideProvider',
-      undefined,
-      "No router here. Add `provideMoleculeRouter()` from the routing bond (`@molecule/app-routing-angular-router`) to the app's providers, after Angular's `provideRouter(routes)`, or pass `router` to `provideMolecule`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-angular-router@latest`).",
-    )
-  }
+  return requireRouter(inject(ROUTER, { optional: true }))
+}
+
+/**
+ * The router a link to `to` navigates through, among the routers registered.
+ *
+ * @param mounted - The router read from the injector, or `null` with none registered.
+ * @param to - The link's destination: an app path or a URL.
+ * @returns The router, or `null` for a URL outside the app with none registered.
+ * @throws {I18nError} When `to` is an app path and no router is registered.
+ */
+function linkRouter(mounted: Router | null, to: string): Router | null {
+  // A URL outside the app opens through the browser or the device's URL handler: no router navigates it.
+  return resolveLinkPath(to) === null ? mounted : requireRouter(mounted)
+}
+
+/**
+ * The router a link navigates through, React's `useLinkRouter` in Angular's
+ * idiom: the registered router, or `null` for a URL outside the app when none
+ * is. The browser, or on a device the URL handler, opens such a URL, so a link
+ * to it renders in an app with no router (a widget, a static page). A link to
+ * an app path still fails without one: that is how an app that forgot to
+ * register its router finds out.
+ *
+ * The `Link` directive uses it. With a destination it answers for that one and
+ * follows it while the injector's host lives. Without one (a directive's input
+ * is not set when its field initializers run) it returns a function to call
+ * with the destination wherever it is known. Call it in an injection context
+ * (a constructor or a field initializer), which reads the injector once.
+ *
+ * @param to - The link's destination: an app path or a URL, or a signal of one.
+ * @returns A signal of the router the link navigates through, or `null` for a URL
+ * outside the app with no router registered.
+ * @throws {I18nError} When `to` is an app path and no router is registered: the error
+ * {@link useRouterInstance} throws, with the same fix.
+ *
+ * @example
+ * ```ts
+ * const router = useLinkRouter(to)
+ * href = computed(() => router() === null ? to() : routerLinkHref(to(), router()))
+ * ```
+ */
+export function useLinkRouter(to: MaybeSignal<string>): Signal<Router | null>
+/**
+ * Reads the router without a destination yet.
+ *
+ * @returns A function that takes a link's destination and gives the router it
+ * navigates through, or `null` for a URL outside the app with no router registered.
+ * @throws {I18nError} Never here: the returned function throws for an app path with no router
+ * registered, the error {@link useRouterInstance} throws.
+ *
+ * @example
+ * ```ts
+ * const linkRouter = useLinkRouter()
+ * const router = computed(() => linkRouter(to()))
+ * ```
+ */
+export function useLinkRouter(): (to: string) => Router | null
+export function useLinkRouter(
+  to?: MaybeSignal<string>,
+): Signal<Router | null> | ((to: string) => Router | null) {
+  const mounted = inject(ROUTER, { optional: true })
+  if (to === undefined) return (destination) => linkRouter(mounted, destination)
+  const router = computed(() => linkRouter(mounted, readMaybeSignal(to)))
+  // Read now, so an app path with no router registered fails in the injection context, as a hook that needs a provider does.
+  router()
   return router
 }
 

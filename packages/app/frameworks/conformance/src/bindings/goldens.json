@@ -34,6 +34,7 @@
   "useI18nProvider",
   "useIsActive",
   "useIsAuthenticated",
+  "useLinkRouter",
   "useListRoute",
   "useLocale",
   "useLocation",
@@ -44362,6 +44363,386 @@
     "snapshots": [
      {
       "result": false,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useLinkRouter": {
+   "gives the router for an app path": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "addGuard": "method",
+      "back": "method",
+      "createHref": "method",
+      "destroy": "method",
+      "forward": "method",
+      "generatePath": "method",
+      "getHash": "method",
+      "getLocation": "method",
+      "getParams": "method",
+      "getQuery": "method",
+      "getQueryParam": "method",
+      "getRoutes": "method",
+      "go": "method",
+      "isActive": "method",
+      "matchPath": "method",
+      "navigate": "method",
+      "navigateTo": "method",
+      "registerRoutes": "method",
+      "setHash": "method",
+      "setQuery": "method",
+      "setQueryParam": "method",
+      "subscribe": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> getLocation",
+      "args": [
+       {
+        "returned": {
+         "hash": "",
+         "pathname": "/",
+         "search": ""
+        }
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "gives the same router for a URL outside the app": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "addGuard": "method",
+      "back": "method",
+      "createHref": "method",
+      "destroy": "method",
+      "forward": "method",
+      "generatePath": "method",
+      "getHash": "method",
+      "getLocation": "method",
+      "getParams": "method",
+      "getQuery": "method",
+      "getQueryParam": "method",
+      "getRoutes": "method",
+      "go": "method",
+      "isActive": "method",
+      "matchPath": "method",
+      "navigate": "method",
+      "navigateTo": "method",
+      "registerRoutes": "method",
+      "setHash": "method",
+      "setQuery": "method",
+      "setQueryParam": "method",
+      "subscribe": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows a destination that changes between an app path and a URL": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "addGuard": "method",
+      "back": "method",
+      "createHref": "method",
+      "destroy": "method",
+      "forward": "method",
+      "generatePath": "method",
+      "getHash": "method",
+      "getLocation": "method",
+      "getParams": "method",
+      "getQuery": "method",
+      "getQueryParam": "method",
+      "getRoutes": "method",
+      "go": "method",
+      "isActive": "method",
+      "matchPath": "method",
+      "navigate": "method",
+      "navigateTo": "method",
+      "registerRoutes": "method",
+      "setHash": "method",
+      "setQuery": "method",
+      "setQueryParam": "method",
+      "subscribe": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "addGuard": "[method]",
+       "back": "[method]",
+       "createHref": "[method]",
+       "destroy": "[method]",
+       "forward": "[method]",
+       "generatePath": "[method]",
+       "getHash": "[method]",
+       "getLocation": "[method]",
+       "getParams": "[method]",
+       "getQuery": "[method]",
+       "getQueryParam": "[method]",
+       "getRoutes": "[method]",
+       "go": "[method]",
+       "isActive": "[method]",
+       "matchPath": "[method]",
+       "navigate": "[method]",
+       "navigateTo": "[method]",
+       "registerRoutes": "[method]",
+       "setHash": "[method]",
+       "setQuery": "[method]",
+       "setQueryParam": "[method]",
+       "subscribe": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "without a router, a URL outside the app gives null": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "without a router, an app path throws": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": {
+       "$threw": "I18nError"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "without a router, a fresh mount for a URL gives null after an app path threw": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": {
+       "$threw": "I18nError"
+      },
+      "route": "/"
+     },
+     {
+      "result": null,
       "route": "/"
      }
     ],

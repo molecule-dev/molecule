@@ -23,7 +23,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { provideDomPlacement } from '@molecule/app-angular'
+import { provideDomPlacement, provideMolecule } from '@molecule/app-angular'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* class was applied without a real bond.
@@ -94,7 +95,11 @@ async function mount(
     },
   )
   const appRef: ApplicationRef = await createApplication({
-    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideDomPlacement(),
+      provideMolecule({ router: createMemoryRouter() }),
+    ],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,

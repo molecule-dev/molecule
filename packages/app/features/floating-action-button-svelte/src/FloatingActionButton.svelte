@@ -1,12 +1,13 @@
 <!--
   FloatingActionButton: the Svelte counterpart of
   `@molecule/app-floating-action-button-react`'s `FloatingActionButton` —
-  fixed-position circular button (or anchor when `href` is set) with an icon
-  snippet, native-title tooltip, and four corner-anchoring positions. Same
-  props, same DOM for the same input.
+  fixed-position circular button (or link when `href` is set, which navigates
+  in-app through the router for an app path) with an icon snippet, native-title
+  tooltip, and four corner-anchoring positions. Same props, same DOM for the
+  same input.
 -->
 <script lang="ts">
-  import { useTranslation } from '@molecule/app-svelte'
+  import { Link, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { FloatingActionButtonProps } from './types.js'
@@ -60,15 +61,15 @@
 </script>
 
 {#if href}
-  <a
-    {href}
+  <Link
+    to={href}
     aria-label={ariaLabel}
     title={showTooltip ? ariaLabel : undefined}
     class={commonClass}
     style={rootStyleText}
   >
     {#if icon}{@render icon?.()}{/if}
-  </a>
+  </Link>
 {:else}
   <button
     type="button"

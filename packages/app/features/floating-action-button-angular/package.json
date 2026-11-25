@@ -45,7 +45,7 @@
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
-    "@molecule/app-angular": "^3.13.0",
+    "@molecule/app-angular": "^3.15.0",
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-ui-angular": "^1.1.0"
   },
@@ -59,6 +59,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
+    "@molecule/app-routing": "1.5.3",
     "@molecule/app-ui": "1.6.1",
     "@molecule/app-ui-angular": "1.5.4",
     "@types/node": "26.6.5",

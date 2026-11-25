@@ -5,7 +5,7 @@
   renders an `<a>`, otherwise a `<button>` calls `onClick`.
 -->
 <script lang="ts">
-  import { contentNodes, useTranslation } from '@molecule/app-svelte'
+  import { contentNodes, Link, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import type { HelpButtonProps } from './types.js'
@@ -93,8 +93,8 @@
 {/snippet}
 
 {#if href}
-  <a
-    {href}
+  <Link
+    to={href}
     class={className}
     style={rootStyleText}
     aria-label={ariaLabel}
@@ -106,7 +106,7 @@
     }}
   >
     {@render content()}
-  </a>
+  </Link>
 {:else}
   <button
     type="button"

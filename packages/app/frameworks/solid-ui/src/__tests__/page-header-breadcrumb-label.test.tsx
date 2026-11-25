@@ -42,6 +42,9 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 
 import { render } from 'solid-js/web'
 
+import { createMemoryRouter } from '@molecule/app-routing'
+
+const { MoleculeProvider } = await import('@molecule/app-solid')
 const { PageHeader } = await import('../components/PageHeader.jsx')
 
 const disposers: Array<() => void> = []
@@ -55,13 +58,17 @@ describe('PageHeader breadcrumb landmark', () => {
   it('PageHeader names its breadcrumb landmark through t()', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
+    // A breadcrumb with an href is a router link, which an app always mounts inside its router.
+    const router = createMemoryRouter({ initialEntries: ['/reports'] })
     disposers.push(
       render(
         () => (
-          <PageHeader
-            title="Dashboard"
-            breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Reports' }]}
-          />
+          <MoleculeProvider router={router}>
+            <PageHeader
+              title="Dashboard"
+              breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Reports' }]}
+            />
+          </MoleculeProvider>
         ),
         container,
       ),
@@ -69,5 +76,6 @@ describe('PageHeader breadcrumb landmark', () => {
     const nav = container.querySelector('nav')
     expect(nav).not.toBeNull()
     expect(nav?.getAttribute('aria-label')).toBe('⟦ui.pageHeader.breadcrumbs⟧')
+    router.destroy?.()
   })
 })

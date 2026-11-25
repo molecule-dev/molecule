@@ -10,6 +10,8 @@
 import { createRawSnippet, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createMemoryRouter } from '@molecule/app-routing'
+
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* call was applied without a real bond — the same mock the
 // React package's own tests use.
@@ -41,7 +43,10 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
   }),
 }))
 
+import type { MoleculeConfig } from '@molecule/app-svelte'
+
 import type { FloatingActionButtonProps } from '../types.js'
+import FloatingActionButtonHost from './FloatingActionHost.svelte'
 
 const { default: FloatingActionButton } = await import('../FloatingActionButton.svelte')
 
@@ -59,12 +64,18 @@ afterEach(async () => {
  * Mounts a {@link FloatingActionButton} and returns its root element.
  *
  * @param props - The component props.
+ * @param config - The molecule context to install above it (a router, which a link to an app path
+ *   needs); none when omitted.
  * @returns The rendered root element.
  */
-const root = (props: FloatingActionButtonProps): HTMLElement => {
+const root = (props: FloatingActionButtonProps, config?: MoleculeConfig): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  mounted.push(mount(FloatingActionButton, { target, props }))
+  mounted.push(
+    config
+      ? mount(FloatingActionButtonHost, { target, props: { config, props } })
+      : mount(FloatingActionButton, { target, props }),
+  )
   const el = target.firstElementChild
   if (!(el instanceof HTMLElement)) throw new Error('no FloatingActionButton root rendered')
   return el
@@ -89,7 +100,8 @@ describe('FloatingActionButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const anchor = root({ icon, label: 'Add', href: '/new' })
+    // The link navigates in-app through the router, as an app mounts one.
+    const anchor = root({ icon, label: 'Add', href: '/new' }, { router: createMemoryRouter() })
     expect(anchor.tagName).toBe('A')
     expect(anchor.getAttribute('href')).toBe('/new')
   })

@@ -9,7 +9,7 @@ import { DestroyRef, Directive, ElementRef, inject, type OnInit, Renderer2 } fro
 
 import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
-import { useRouterInstance } from './hooks/use-router.js'
+import { useLinkRouter } from './hooks/use-router.js'
 
 /**
  * The inputs {@link Link} takes: `@molecule/app-react`'s `LinkProps` for an
@@ -34,6 +34,13 @@ export interface LinkProps {
  * other than `_self`, a click the template's own `(click)` handler prevented,
  * and a URL on another origin are left to the browser.
  *
+ * A link to a URL outside the app (another origin, `mailto:`, `//host`) needs
+ * no router: the browser, or on a device the URL handler, opens it. It renders
+ * with no router registered, the URL as its `href`, and a click is left to the
+ * browser (the template's own `(click)` handler still runs). A link to an app
+ * path needs a router, and fails without one with the error `useRouterInstance`
+ * throws.
+ *
  * Inputs: `molLink` (the destination: an app path or a URL), `replace` (replace
  * the current history entry; when unset, a link to the location already shown
  * replaces it and any other link pushes, as with react-router's `<Link>`), and
@@ -55,6 +62,7 @@ export interface LinkProps {
  *   template: `
  *     <a molLink="/projects" class="nav-link">Projects</a>
  *     <a molLink="/login" [replace]="true" [state]="{ from: '/projects' }">Log in</a>
+ *     <a molLink="https://molecule.dev">Molecule</a>
  *   `,
  * })
  * export class NavComponent {}
@@ -69,7 +77,8 @@ export interface LinkProps {
 export class Link implements OnInit, LinkProps {
   /**
    * The destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is
-   * the one the router writes for it (`routerLinkHref`), base path included.
+   * the one the router writes for it (`routerLinkHref`), base path included; a URL's is the URL as
+   * written.
    */
   molLink = ''
   /** Replace the current history entry instead of pushing one. */
@@ -77,11 +86,22 @@ export class Link implements OnInit, LinkProps {
   /** State stored with the new history entry. */
   state?: unknown
 
-  private readonly router = useRouterInstance()
+  /**
+   * Reads the registered router once, here in the field initializer's injection context, and
+   * answers for each destination this link shows: an app path fails with the no-router error
+   * when none is registered. It takes the hook's function form because `molLink` is not set
+   * when a field initializer runs.
+   */
+  private readonly linkRouter = useLinkRouter()
 
-  /** The anchor's `href`: the one the router writes for an app path, base path included. */
+  /**
+   * The anchor's `href`: the URL as written for a URL outside the app with no router registered,
+   * else the one the router writes for an app path, base path included. An app path with no
+   * router fails here with the no-router error.
+   */
   get href(): string {
-    return routerLinkHref(this.molLink, this.router)
+    const router = this.linkRouter(this.molLink)
+    return router === null ? this.molLink : routerLinkHref(this.molLink, router)
   }
   private readonly element = inject<ElementRef<HTMLAnchorElement>>(ElementRef)
   private readonly renderer = inject(Renderer2)
@@ -90,14 +110,18 @@ export class Link implements OnInit, LinkProps {
   /**
    * Starts handling clicks. The listener is added here, after the template
    * created this anchor's own `(click)` listeners, so those run first and can
-   * prevent the navigation (react-router calls `onClick` first too).
+   * prevent the navigation (react-router calls `onClick` first too). With no
+   * router (a URL outside the app) the browser follows the anchor instead.
    */
   ngOnInit(): void {
     const stop = this.renderer.listen(this.element.nativeElement, 'click', (event: MouseEvent) => {
-      followRouterLink(event, this.molLink, this.router, {
-        replace: this.replace,
-        state: this.state,
-      })
+      const router = this.linkRouter(this.molLink)
+      if (router !== null) {
+        followRouterLink(event, this.molLink, router, {
+          replace: this.replace,
+          state: this.state,
+        })
+      }
     })
     this.destroyRef.onDestroy(stop)
   }

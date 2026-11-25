@@ -11,7 +11,7 @@
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { useTranslation } from '@molecule/app-vue'
+import { Link, useTranslation } from '@molecule/app-vue'
 
 import type { FloatingActionButtonProps } from './types.js'
 
@@ -59,13 +59,13 @@ const slotOrProp = (
 }
 
 /**
- * Fixed-position circular action button. Renders either an anchor (when
- * `href` is set) or a button (when `onClick` is set). Positioning is
- * inline-style so the component works without extra CSS setup, and it ships
- * with a visible default surface (primary gradient + soft elevation, via the
- * `gradientPrimary`/`shadowLifted` ClassMap tokens). Pass `className` to
- * override the surface — caller classes are resolved last by `cm.cn`
- * (tailwind-merge).
+ * Fixed-position circular action button. Renders either a link (when `href`
+ * is set, which navigates in-app through the router for an app path) or a
+ * button (when `onClick` is set). Positioning is inline-style so the component
+ * works without extra CSS setup, and it ships with a visible default surface
+ * (primary gradient + soft elevation, via the `gradientPrimary`/`shadowLifted`
+ * ClassMap tokens). Pass `className` to override the surface — caller classes
+ * are resolved last by `cm.cn` (tailwind-merge).
  *
  * @param props - Component props (see {@link FloatingActionButtonProps}).
  * @returns The floating action button component.
@@ -111,9 +111,9 @@ export const FloatingActionButton = defineComponent({
       const children = slotOrProp(slots.icon, props.icon)
       if (props.href) {
         return h(
-          'a',
+          Link,
           {
-            href: props.href,
+            to: props.href,
             'aria-label': ariaLabel,
             title: props.showTooltip ? ariaLabel : undefined,
             class: commonClass,

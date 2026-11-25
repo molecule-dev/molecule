@@ -2,24 +2,21 @@ import type { ReactElement, ReactNode } from 'react'
 import { useContext } from 'react'
 
 import { I18nContext, ThemeContext } from '@molecule/app-react'
-import { Link, type LinkProps } from '@molecule/app-react/link'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementLinkProps, getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-react'
+import { Box, Image, Link, Text } from '@molecule/app-ui-react/elements'
 
 /** A primary navigation landmark with one link per declared destination. */
 export interface AppHeaderNavigation {
   /** Accessible name for the navigation landmark. */
   label: string
   /**
-   * Router destinations mapped to anchor props. Put a destination's icon and text in
+   * Router destinations mapped to element link props. Put a destination's icon and text in
    * the same children so they share one native link and one keyboard stop.
    */
   links: Readonly<
-    Record<
-      string,
-      Omit<LinkProps, 'to' | 'children' | 'dangerouslySetInnerHTML'> & { children: ReactNode }
-    >
+    Record<string, Omit<ElementLinkProps, 'to' | 'children'> & { children: ReactNode }>
   >
   /** Additional class on the native nav element. */
   className?: string
@@ -117,13 +114,15 @@ export function AppHeader({
   const themeToggle =
     themeToggleProp === null ? null : (slot(themeToggleProp) ?? DEFAULT_THEME_TOGGLE)
   const cm = getClassMap()
-  const Inner = navigation ? 'nav' : 'div'
+  const inner = navigation ? 'nav' : 'div'
   return (
-    <header
+    <Box
+      as="header"
       className={cm.cn(cm.headerBar, fixed ? cm.headerFixed : '', className)}
       data-mol-id={dataMolId}
     >
-      <Inner
+      <Box
+        as={inner}
         className={
           navigation?.className ? cm.cn(cm.headerInner, navigation.className) : cm.headerInner
         }
@@ -132,26 +131,28 @@ export function AppHeader({
         <Flex align="center" justify="between" className={cm.h('full')}>
           <Link to={brandTo} className={brandClassName}>
             <Flex align="center" gap="xs">
-              <img src={logoSrc} width={logoSize} height={logoSize} alt="" />
-              <span className={cm.logoText}>{appName}</span>
+              <Image src={logoSrc} width={logoSize} height={logoSize} alt="" />
+              <Text as="span" className={cm.logoText}>
+                {appName}
+              </Text>
             </Flex>
           </Link>
           <Flex align="center" gap="sm">
             {navigation && (
-              <ul className={navigation.listClassName}>
+              <Box as="ul" className={navigation.listClassName}>
                 {Object.entries(navigation.links).map(([to, link]) => (
-                  <li key={to} className={navigation.itemClassName}>
+                  <Box as="li" key={to} className={navigation.itemClassName}>
                     <Link {...link} to={to} />
-                  </li>
+                  </Box>
                 ))}
-              </ul>
+              </Box>
             )}
             {themeToggle}
             {extraActions}
             {userMenu}
           </Flex>
         </Flex>
-      </Inner>
-    </header>
+      </Box>
+    </Box>
   )
 }

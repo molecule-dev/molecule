@@ -10,6 +10,8 @@
 import { createRawSnippet, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createMemoryRouter, type Router } from '@molecule/app-routing'
+
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* call was applied without a real bond — the same mock the
 // React package's own tests use.
@@ -42,6 +44,7 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
 }))
 
 import type { HelpButtonProps } from '../types.js'
+import HelpButtonRouterHost from './HelpButtonRouterHost.svelte'
 
 const { default: HelpButton } = await import('../HelpButton.svelte')
 
@@ -67,12 +70,17 @@ const html = (props: HelpButtonProps = {}): string => root(props).parentElement?
  * Mounts a {@link HelpButton} and returns its root element.
  *
  * @param props - The component props.
+ * @param router - The router to install for an app path.
  * @returns The rendered root element.
  */
-const root = (props: HelpButtonProps = {}): HTMLElement => {
+const root = (props: HelpButtonProps = {}, router?: Router): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  mounted.push(mount(HelpButton, { target, props }))
+  mounted.push(
+    router
+      ? mount(HelpButtonRouterHost, { target, props: { router, button: props } })
+      : mount(HelpButton, { target, props }),
+  )
   const el = target.firstElementChild
   if (!(el instanceof HTMLElement)) throw new Error('no HelpButton root rendered')
   return el
@@ -84,7 +92,7 @@ describe('HelpButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const anchor = root({ href: '/support' })
+    const anchor = root({ href: '/support' }, createMemoryRouter())
     expect(anchor.tagName).toBe('A')
     expect(anchor.getAttribute('href')).toBe('/support')
   })

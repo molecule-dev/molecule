@@ -39,9 +39,11 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
   }),
 }))
 
-import { type Component, mount, unmount } from 'svelte'
+import { mount, unmount } from 'svelte'
 
-const { default: PageHeader } = await import('../components/PageHeader.svelte')
+import { createMemoryRouter } from '@molecule/app-routing'
+
+const { default: PageHeaderRouterHost } = await import('./PageHeaderRouterHost.svelte')
 
 const mounted: Array<ReturnType<typeof mount>> = []
 const hosts: HTMLElement[] = []
@@ -56,23 +58,21 @@ describe('PageHeader breadcrumb landmark', () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
     hosts.push(host)
+    // A breadcrumb with an href is a router link, which an app always mounts inside its router.
+    const router = createMemoryRouter({ initialEntries: ['/reports'] })
     mounted.push(
-      mount(
-        PageHeader as Component<{
-          title: string
-          breadcrumbs: { label: string; href?: string }[]
-        }>,
-        {
-          target: host,
-          props: {
-            title: 'Dashboard',
-            breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Reports' }],
-          },
+      mount(PageHeaderRouterHost, {
+        target: host,
+        props: {
+          router,
+          title: 'Dashboard',
+          breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Reports' }],
         },
-      ),
+      }),
     )
     const nav = host.querySelector('nav')
     expect(nav).not.toBeNull()
     expect(nav?.getAttribute('aria-label')).toBe('⟦ui.pageHeader.breadcrumbs⟧')
+    router.destroy?.()
   })
 })

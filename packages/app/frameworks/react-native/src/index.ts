@@ -5,6 +5,7 @@
  * React — no DOM dependency) and adds RN-specific hooks: `useAppState`
  * (foreground/background), `useBackHandler` (Android back button),
  * `useKeyboardHeight`, and `useSafeArea`.
+ * Use `useLinkRouter` for a link that can open an external URL without a router.
  *
  * @example
  * ```tsx

@@ -7,6 +7,7 @@
 import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core'
 
 import {
+  Link,
   MolPlacement,
   placeContent,
   placeContentBefore,
@@ -46,10 +47,11 @@ const DOT_STYLE =
 @Component({
   selector: 'div[mol-help-button]',
   standalone: true,
+  imports: [Link],
   hostDirectives: [MolPlacement],
   inputs: ['icon', 'label', 'onClick', 'href', 'size', 'position', 'hasNotification', 'className'],
   // prettier-ignore
-  template: `@if (isLink()) {<a #linkRoot [attr.href]="href" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></a>} @else {<button #buttonRoot type="button" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (click)="onClick?.($event)" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
+  template: `@if (isLink()) {<a #linkRoot [molLink]="href ?? ''" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></a>} @else {<button #buttonRoot type="button" [attr.aria-label]="ariaLabel()" [class]="rootClass()" [style]="rootStyleText()" (click)="onClick?.($event)" (mouseenter)="enter()" (mouseleave)="leave()"><span [class]="contentClasses()" style="width: 100%; height: 100%"><span data-icon-anchor></span>@if (!hasIcon()) {<span aria-hidden="true" [style]="glyphStyleText()">?</span>}@if (hasNotification) {<span aria-hidden="true" style="${DOT_STYLE}"></span>}</span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
 })
 export class HelpButton {
   /** Optional icon — projected `[slot=icon]` content (an input cannot carry a node). */
@@ -58,7 +60,7 @@ export class HelpButton {
   label?: string
   /** Click handler — React's `onClick`; receives the click event. */
   onClick?: (event: MouseEvent) => void
-  /** Navigation target; when set the root is an `<a>` and `onClick` is not called. */
+  /** Link destination. An app path navigates through the mounted router. */
   href?: string
   /** Visual size (defaults to `'md'` at read time). */
   size?: 'sm' | 'md' | 'lg'

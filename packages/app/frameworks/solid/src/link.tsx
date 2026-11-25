@@ -4,18 +4,22 @@
  * @module
  */
 
-import { type JSX, splitProps } from 'solid-js'
+import { createMemo, type JSX, splitProps } from 'solid-js'
 
 import { followRouterLink, routerLinkHref } from '@molecule/app-routing'
 
-import { useRouterInstance } from './primitives/router.js'
+import { useLinkRouter } from './primitives/router.js'
 
 /**
  * Props for {@link Link}. Every other anchor attribute (`class`, `target`,
  * `rel`, `aria-*`, `data-*`, `onClick`) goes on the anchor.
  */
 export interface LinkProps extends Omit<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
-  /** Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the one the router writes for it (`routerLinkHref`), base path included. */
+  /**
+   * Destination: an app path (`/settings?tab=billing#plan`) or a URL. An app path's `href` is the
+   * one the router writes for it (`routerLinkHref`), base path included; a URL's is the URL as
+   * written.
+   */
   to: string
   /**
    * Replace the current history entry instead of pushing one. When omitted, a
@@ -49,6 +53,12 @@ const callHandler = (
  * click, a `target` other than `_self`, a click an `onClick` already prevented,
  * and a URL on another origin are left to the browser.
  *
+ * A link to a URL outside the app (another origin, `mailto:`, `//host`) needs
+ * no router: the browser, or on a device the URL handler, opens it. It renders
+ * with no router mounted, the URL as its `href`, and a click is left to the
+ * browser (`onClick` still runs). A link to an app path needs a router, and
+ * fails without one with the error `useRouterInstance` throws.
+ *
  * Use it for every internal link instead of an anchor with a click handler that
  * calls `navigate()`. Render it inside a `MoleculeProvider` whose config has a
  * `router`.
@@ -61,6 +71,7 @@ const callHandler = (
  *   <nav>
  *     <Link to="/projects" class="nav-link">Projects</Link>
  *     <Link to="/login" replace state={{ from: '/projects' }}>Log in</Link>
+ *     <Link to="https://molecule.dev">Molecule</Link>
  *   </nav>
  * )
  * ```
@@ -70,11 +81,17 @@ const callHandler = (
  */
 export const Link = (props: LinkProps): JSX.Element => {
   const [local, anchor] = splitProps(props, ['to', 'replace', 'state', 'onClick', 'children'])
-  const router = useRouterInstance()
+  const router = useLinkRouter(() => local.to)
+  /** The anchor's `href`: the URL as written when no router is mounted, else the one the router writes. */
+  const href = createMemo(() => {
+    const current = router()
+    return current === null ? local.to : routerLinkHref(local.to, current)
+  })
 
   /**
    * Runs the caller's `onClick`, then navigates in-app for a click the router
-   * should take.
+   * should take. With no router (a URL outside the app) the browser follows the
+   * anchor instead.
    *
    * @param event - The anchor's click event.
    */
@@ -82,11 +99,14 @@ export const Link = (props: LinkProps): JSX.Element => {
     event: MouseEvent & { currentTarget: HTMLAnchorElement; target: Element },
   ): void => {
     callHandler(local.onClick, event)
-    followRouterLink(event, local.to, router, { replace: local.replace, state: local.state })
+    const current = router()
+    if (current !== null) {
+      followRouterLink(event, local.to, current, { replace: local.replace, state: local.state })
+    }
   }
 
   return (
-    <a {...anchor} href={routerLinkHref(local.to, router)} onClick={onClick}>
+    <a {...anchor} href={href()} onClick={onClick}>
       {local.children}
     </a>
   )

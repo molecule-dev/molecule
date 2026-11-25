@@ -10,7 +10,13 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { followRouterLink, type Router, routerLinkHref } from '@molecule/app-routing'
+import { I18nError } from '@molecule/app-i18n'
+import {
+  followRouterLink,
+  resolveLinkPath,
+  type Router,
+  routerLinkHref,
+} from '@molecule/app-routing'
 
 import {
   linkCases,
@@ -21,20 +27,47 @@ import {
   runLinkConformance,
 } from '../link/index.js'
 
+/** The key of the no-router error the test link throws: each binding's has a key of its own. */
+const NO_ROUTER_ERROR_KEY = 'conformance.error.useRouterOutsideProvider'
+
+/** When a test link insists on a mounted router. */
+type RouterNeed = 'as-needed' | 'always' | 'never'
+
+/**
+ * The router the test link follows a click to `to` through, among what is mounted. A URL outside
+ * the app needs none, so it is left to the browser; an app path with no router mounted fails with
+ * the no-router error, as every binding's `Link` fails.
+ *
+ * @param need - Whether it requires a router for every destination, for an app path only, or never.
+ * @param router - The mounted router, or `null`.
+ * @param to - The link's destination.
+ * @returns The router, or `null` for a destination it leaves to the browser with none mounted.
+ * @throws {I18nError} When it requires a router for `to` and none is mounted.
+ */
+const routerFor = (need: RouterNeed, router: Router | null, to: string): Router | null => {
+  const required = need === 'always' || (need === 'as-needed' && resolveLinkPath(to) !== null)
+  if (router !== null) return router
+  if (required) throw new I18nError(NO_ROUTER_ERROR_KEY, undefined, 'No router here.')
+  return null
+}
+
 /** How a test link handles a click its caller's handler did not prevent. */
 type ClickRule = (event: MouseEvent, to: string, router: Router, props: LinkMountProps) => void
 
-/** How a test link writes its anchor's `href` and hands out the anchor. */
+/** How a test link writes its anchor's `href`, hands out the anchor and requires a router. */
 interface AnchorRule {
   href: (to: string, router: Router) => string
   forwardsRef: boolean
+  /** When it insists on a mounted router; every binding's `Link` requires one as-needed. */
+  needsRouter?: RouterNeed
 }
 
 /**
  * A `Link` made of a plain anchor and a click rule.
  *
  * @param rule - What the anchor does on click.
- * @param anchorRule - How it writes its `href` and whether it hands the anchor to `ref`.
+ * @param anchorRule - How it writes its `href`, whether it hands the anchor to `ref`, and when it
+ * requires a router.
  * @returns The mount function.
  */
 const domLink =
@@ -43,21 +76,28 @@ const domLink =
     anchorRule: AnchorRule = { href: routerLinkHref, forwardsRef: true },
   ): LinkMount =>
   async (container, router, props) => {
+    const need = anchorRule.needsRouter ?? 'as-needed'
+    const linkRouter = (destination: string): Router | null => routerFor(need, router, destination)
+    const href = (destination: string): string => {
+      const current = linkRouter(destination)
+      return current === null ? destination : anchorRule.href(destination, current)
+    }
     const anchor = document.createElement('a')
     let to = props.to
-    anchor.setAttribute('href', anchorRule.href(to, router))
+    anchor.setAttribute('href', href(to))
     anchor.textContent = props.text
     for (const [name, value] of Object.entries(props.attrs ?? {})) anchor.setAttribute(name, value)
     anchor.addEventListener('click', (event) => {
       props.onClick?.(event)
-      rule(event, to, router, props)
+      const current = linkRouter(to)
+      if (current !== null) rule(event, to, current, props)
     })
     container.appendChild(anchor)
     if (anchorRule.forwardsRef) props.ref?.(anchor)
     return {
       setTo: async (next) => {
         to = next
-        anchor.setAttribute('href', anchorRule.href(next, router))
+        anchor.setAttribute('href', href(next))
       },
       unmount: async () => {
         anchor.remove()
@@ -71,7 +111,7 @@ const routerRule: ClickRule = (event, to, router, props) => {
   followRouterLink(event, to, router, { replace: props.replace, state: props.state })
 }
 
-runLinkConformance('followRouterLink', domLink(routerRule))
+runLinkConformance('followRouterLink', domLink(routerRule), NO_ROUTER_ERROR_KEY)
 
 /**
  * The cases a link fails.
@@ -81,11 +121,11 @@ runLinkConformance('followRouterLink', domLink(routerRule))
  * @returns The failed cases' names.
  */
 const failedCases = async (mount: LinkMount, mounted: MountedLink[]): Promise<string[]> => {
-  const render = linkRenderer('probe', mount, mounted)
+  const { render, renderWithoutRouter } = linkRenderer('probe', mount, mounted)
   const failed: string[] = []
   for (const linkCase of linkCases) {
     try {
-      await linkCase.run(render)
+      await linkCase.run(render, renderWithoutRouter, NO_ROUTER_ERROR_KEY)
     } catch (_error) {
       // Intentional noop: the failure is the observation; its name is recorded below.
       failed.push(linkCase.name)
@@ -142,6 +182,40 @@ describe('a hand-written link click handler', () => {
       'replace replaces the current entry',
       'a link to the location already shown replaces it instead of pushing a duplicate',
       'carries state onto the new location',
+    ])
+  })
+})
+
+describe('a link that does not look at its destination to decide it needs a router', () => {
+  const mounted: MountedLink[] = []
+  afterEach(async () => {
+    for (const link of mounted.splice(0)) await link.unmount()
+    document.body.innerHTML = ''
+  })
+
+  it('fails the no-router URL case when it requires a router for every destination', async () => {
+    // Every binding's Link read its router with a throwing hook: a link to another site, or a
+    // `mailto:` address, failed in a tree with no router, where only the browser is needed.
+    const always = domLink(routerRule, {
+      href: routerLinkHref,
+      forwardsRef: true,
+      needsRouter: 'always',
+    })
+    expect(await failedCases(always, mounted)).toEqual([
+      'a link to a URL outside the app renders with no router mounted, and a plain click is left to the browser',
+    ])
+  })
+
+  it('fails the no-router app-path case when it never requires a router', async () => {
+    // Without the guard, an app that forgot to mount its router would render app paths as plain
+    // anchors that reload the page, and never learn why.
+    const never = domLink(routerRule, {
+      href: routerLinkHref,
+      forwardsRef: true,
+      needsRouter: 'never',
+    })
+    expect(await failedCases(never, mounted)).toEqual([
+      'a link to an app path with no router mounted fails with the no-router error',
     ])
   })
 })

@@ -15,7 +15,8 @@ import { createComponent, provideZonelessChangeDetection } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { provideDomPlacement } from '@molecule/app-angular'
+import { provideDomPlacement, provideMolecule } from '@molecule/app-angular'
+import { createMemoryRouter } from '@molecule/app-routing'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -61,8 +62,13 @@ afterEach(() => {
 
 describe('PageHeader breadcrumb landmark', () => {
   it('PageHeader names its breadcrumb landmark through t()', async () => {
+    // A breadcrumb with an href is a router link, which an app always mounts inside its router.
     const appRef = await createApplication({
-      providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideDomPlacement(),
+        provideMolecule({ router: createMemoryRouter({ initialEntries: ['/reports'] }) }),
+      ],
     })
     apps.push(appRef)
     const ref = createComponent(PageHeader, { environmentInjector: appRef.injector })

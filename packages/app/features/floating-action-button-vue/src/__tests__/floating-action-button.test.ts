@@ -11,6 +11,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h } from 'vue'
 
+import { createMemoryRouter, type Router } from '@molecule/app-routing'
+
 // A ClassMap proxy echoing each accessed member back as its token, so tests
 // can assert which cm.* class was applied without a real bond — the same mock
 // the React tests use.
@@ -43,17 +45,20 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 }))
 
 const { FloatingActionButton } = await import('../FloatingActionButton.js')
+const { moleculePlugin } = await import('@molecule/app-vue')
 
 /**
  * Renders a {@link FloatingActionButton} and returns the markup it produced.
  *
  * @param props - The component props.
+ * @param router - A router for the app's plugin, which a link to an app path needs.
  * @returns The rendered markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: Record<string, unknown>, router?: Router): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(FloatingActionButton, props) }))
+  if (router) app.use(moleculePlugin, { router })
   app.mount(host)
   const markup = host.innerHTML
   app.unmount()
@@ -75,7 +80,8 @@ describe('FloatingActionButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const markup = render({ icon, label: 'Add', href: '/new' })
+    // The link navigates in-app through the router, as an app mounts one.
+    const markup = render({ icon, label: 'Add', href: '/new' }, createMemoryRouter())
     expect(markup.startsWith('<a')).toBe(true)
     expect(markup).toContain('href="/new"')
   })

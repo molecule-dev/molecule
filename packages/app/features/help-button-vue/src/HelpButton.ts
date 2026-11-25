@@ -10,7 +10,7 @@
 import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { toChildArray, useTranslation } from '@molecule/app-vue'
+import { Link, toChildArray, useTranslation } from '@molecule/app-vue'
 
 import type { HelpButtonProps } from './types.js'
 
@@ -140,7 +140,7 @@ export const HelpButton = defineComponent({
         style: rootStyle(dim, props.position, hovered.value),
       }
       return props.href
-        ? h('a', { href: props.href, ...common }, [content])
+        ? h(Link, { to: props.href, ...common }, () => [content])
         : h('button', { type: 'button', onClick: props.onClick, ...common }, [content])
     }
   },

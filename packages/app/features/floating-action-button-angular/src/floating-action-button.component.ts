@@ -7,6 +7,7 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
 import {
+  Link,
   MolPlacement,
   placeContent,
   placeContentBefore,
@@ -49,10 +50,11 @@ const CORNER = {
 @Component({
   selector: 'div[mol-floating-action-button]',
   standalone: true,
+  imports: [Link],
   hostDirectives: [MolPlacement],
   inputs: ['icon', 'label', 'onClick', 'href', 'position', 'size', 'showTooltip', 'className'],
   // prettier-ignore
-  template: `@if (isLink()) {<a #linkRoot [attr.href]="href" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()"><span data-icon-anchor></span></a>} @else {<button #buttonRoot type="button" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()" (click)="onClick?.($event)"><span data-icon-anchor></span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
+  template: `@if (isLink()) {<a #linkRoot [molLink]="href ?? ''" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()"><span data-icon-anchor></span></a>} @else {<button #buttonRoot type="button" [attr.aria-label]="ariaLabel()" [attr.title]="titleAttr()" [attr.class]="commonClass()" [style]="rootStyleText()" (click)="onClick?.($event)"><span data-icon-anchor></span></button>}<span #iconCapture style="display: none"><ng-content select="[slot=icon]"></ng-content></span>`,
 })
 export class FloatingActionButton {
   /** Icon — projected `[slot=icon]` content (an input cannot carry a node). */
@@ -61,7 +63,7 @@ export class FloatingActionButton {
   label?: string
   /** Click handler — React's `onClick`; receives the click event. */
   onClick?: (event: MouseEvent) => void
-  /** Navigation target; when set the root is an `<a>` and `onClick` is not called. */
+  /** Link destination. An app path navigates through the mounted router. */
   href?: string
   /** Screen corner (defaults to `'bottom-right'` at read time). */
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'

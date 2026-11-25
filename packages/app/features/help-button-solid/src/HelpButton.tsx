@@ -1,6 +1,6 @@
 import { type Component, createSignal, type JSX, Show } from 'solid-js'
 
-import { ResolveNode, useTranslation } from '@molecule/app-solid'
+import { Link, ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HelpButtonProps } from './types.js'
@@ -102,8 +102,8 @@ export const HelpButton: Component<HelpButtonProps> = (props) => {
       }
     >
       {(href) => (
-        <a
-          href={href()}
+        <Link
+          to={href()}
           class={props.className}
           style={style()}
           aria-label={ariaLabel()}
@@ -111,7 +111,7 @@ export const HelpButton: Component<HelpButtonProps> = (props) => {
           onMouseOut={() => setHovered(false)}
         >
           {content()}
-        </a>
+        </Link>
       )}
     </Show>
   )

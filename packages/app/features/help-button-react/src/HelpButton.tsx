@@ -3,7 +3,8 @@ import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box, Link, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link HelpButton}. */
 export interface HelpButtonProps {
@@ -13,7 +14,11 @@ export interface HelpButtonProps {
   label?: string
   /** Click handler — open a help panel, support chat, docs, etc. */
   onClick?: () => void
-  /** When provided, clicking navigates to this URL. Mutually exclusive with onClick. */
+  /**
+   * When provided, the link goes to this destination. An app path navigates in-app through the
+   * router, which must then be mounted; a URL outside the app opens in the browser. Mutually
+   * exclusive with onClick.
+   */
   href?: string
   /** Visual size. Defaults to `'md'`. */
   size?: 'sm' | 'md' | 'lg'
@@ -51,7 +56,8 @@ export function HelpButton({
   const [hovered, setHovered] = useState(false)
   const dim = SIZE_MAP[size]
   const ariaLabel = label ?? t('helpButton.label', {}, { defaultValue: 'Help' })
-  const style: React.CSSProperties = {
+  // The corner, the hover animation and the transition are the browser's: web-only paint.
+  const style: WebStyle = {
     width: dim,
     height: dim,
     ...(position === 'bottom-right'
@@ -63,23 +69,25 @@ export function HelpButton({
     transition: 'transform 150ms ease',
   }
   const content = (
-    <span
+    <Box
+      as="span"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'center' }),
         cm.roundedFull,
         cm.position('relative'),
       )}
-      style={{ width: '100%', height: '100%' }}
+      webStyle={{ width: '100%', height: '100%' }}
     >
       {icon ?? (
-        <span aria-hidden style={{ fontSize: dim * 0.45, fontWeight: 700 }}>
+        <Text as="span" aria-hidden webStyle={{ fontSize: dim * 0.45, fontWeight: 700 }}>
           ?
-        </span>
+        </Text>
       )}
       {hasNotification && (
-        <span
+        <Box
+          as="span"
           aria-hidden
-          style={{
+          webStyle={{
             position: 'absolute',
             top: 4,
             right: 4,
@@ -90,22 +98,22 @@ export function HelpButton({
           }}
         />
       )}
-    </span>
+    </Box>
   )
   const commonProps = {
     'aria-label': ariaLabel,
     onMouseEnter: () => setHovered(true),
     onMouseLeave: () => setHovered(false),
     className,
-    style,
+    webStyle: style,
   }
   return href ? (
-    <a href={href} {...commonProps}>
+    <Link to={href} {...commonProps}>
       {content}
-    </a>
+    </Link>
   ) : (
-    <button type="button" onClick={onClick} {...commonProps}>
+    <Pressable as="button" type="button" onClick={onClick} {...commonProps}>
       {content}
-    </button>
+    </Pressable>
   )
 }

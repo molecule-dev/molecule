@@ -29,6 +29,7 @@ import type {
 import {
   createConsumedSearchParam,
   listRouteRedirect,
+  resolveLinkPath,
   resolveListRoute,
 } from '@molecule/app-routing'
 
@@ -37,6 +38,29 @@ import type { UseRouterResult } from '../types.js'
 import { useSyncExternalStore } from './external-store.js'
 import { access, type MaybeAccessor } from './maybe-accessor.js'
 import { liveStateTuple } from './reactive-tuple.js'
+
+/**
+ * The router the routing primitives and `Link` navigate through: the one from
+ * the nearest `MoleculeProvider`. Both {@link useRouterInstance} and
+ * {@link useLinkRouter} fail through this one function, so the error and its
+ * text live in one place.
+ *
+ * @param router - The router read from context, or `undefined` with none provided.
+ * @returns The router.
+ * @throws {I18nError} When no router is provided above the caller: use the routing bond's
+ * `MoleculeRouterProvider` (`@molecule/app-routing-solid-router`) as the router's `root`, or pass
+ * `router` to `MoleculeProvider`.
+ */
+function requireRouter(router: Router | undefined): Router {
+  if (!router) {
+    throw new I18nError(
+      'solid.error.useRouterOutsideProvider',
+      undefined,
+      "No router here. Use `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-solid-router`) as the router's `root`, or pass `router` to `MoleculeProvider`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-solid-router@latest`).",
+    )
+  }
+  return router
+}
 
 /**
  * The router from the nearest `MoleculeProvider` (`config.router`), under
@@ -48,14 +72,71 @@ import { liveStateTuple } from './reactive-tuple.js'
  * `router` to `MoleculeProvider`.
  */
 export function useRouterInstance(): Router {
-  const router = useContext(RouterContext)
-  if (!router) {
-    throw new I18nError(
-      'solid.error.useRouterOutsideProvider',
-      undefined,
-      "No router here. Use `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-solid-router`) as the router's `root`, or pass `router` to `MoleculeProvider`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-solid-router@latest`).",
-    )
-  }
+  return requireRouter(useContext(RouterContext))
+}
+
+/**
+ * The router a link to `to` navigates through, among the routers provided.
+ *
+ * @param mounted - The router read from context, or `undefined` with none provided.
+ * @param to - The link's destination: an app path or a URL.
+ * @returns The router, or `null` for a URL outside the app with none provided.
+ * @throws {I18nError} When `to` is an app path and no router is provided above the caller.
+ */
+function linkRouter(mounted: Router | undefined, to: string): Router | null {
+  // A URL outside the app opens through the browser or the device's URL handler: no router navigates it.
+  return resolveLinkPath(to) === null ? (mounted ?? null) : requireRouter(mounted)
+}
+
+/**
+ * The router a link navigates through, under React's hook name: the router
+ * from the nearest `MoleculeProvider`, or `null` for a URL outside the app when
+ * there is none. The browser, or on a device the URL handler, opens such a URL,
+ * so a link to it renders in an app with no router (a widget, a static page). A
+ * link to an app path still fails without one: that is how an app that forgot
+ * to mount its router finds out.
+ *
+ * `Link` uses it. With a destination it answers for that one and follows it
+ * while the component lives. Without one it returns a function to call with the
+ * destination wherever it is known; call it in component setup, which reads the
+ * context once.
+ *
+ * @param to - The link's destination: an app path or a URL, or an accessor of one.
+ * @returns An accessor of the router the link navigates through, or `null` for a
+ * URL outside the app with no router provided.
+ * @throws {I18nError} When `to` is an app path and no router is provided above the caller: the
+ * error {@link useRouterInstance} throws, with the same fix.
+ *
+ * @example
+ * ```tsx
+ * const router = useLinkRouter(() => props.to)
+ * return <a href={router() === null ? props.to : routerLinkHref(props.to, router())}>…
+ * ```
+ */
+export function useLinkRouter(to: MaybeAccessor<string>): Accessor<Router | null>
+/**
+ * Reads the router without a destination yet.
+ *
+ * @returns A function that takes a link's destination and gives the router it
+ * navigates through, or `null` for a URL outside the app with no router provided.
+ * @throws {I18nError} Never here: the returned function throws for an app path with no router
+ * provided, the error {@link useRouterInstance} throws.
+ *
+ * @example
+ * ```tsx
+ * const linkRouter = useLinkRouter()
+ * const router = createMemo(() => linkRouter(props.to))
+ * ```
+ */
+export function useLinkRouter(): (to: string) => Router | null
+export function useLinkRouter(
+  to?: MaybeAccessor<string>,
+): Accessor<Router | null> | ((to: string) => Router | null) {
+  const mounted = useContext(RouterContext)
+  if (to === undefined) return (destination) => linkRouter(mounted, destination)
+  const router = createMemo(() => linkRouter(mounted, access(to)))
+  // Read now, so an app path with no router provided fails in setup, as a primitive that needs a provider does.
+  router()
   return router
 }
 

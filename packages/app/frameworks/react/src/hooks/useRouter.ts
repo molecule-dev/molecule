@@ -19,12 +19,35 @@ import type {
 import {
   createConsumedSearchParam,
   listRouteRedirect,
+  resolveLinkPath,
   resolveListRoute,
 } from '@molecule/app-routing'
 
 import { RouterContext } from '../contexts.js'
 import { RouteParamsHookContext } from '../route-params-hook-context.js'
 import type { UseRouterResult } from '../types.js'
+
+/**
+ * The router the routing hooks and `Link` navigate through: the one mounted
+ * above the caller. Both {@link useRouterInstance} and {@link useLinkRouter}
+ * fail through this one function, so the error and its text live in one place.
+ *
+ * @param router - The router read from context, or `null` with none mounted.
+ * @returns The router.
+ * @throws {I18nError} When no router is mounted above the caller: mount a router component from
+ * the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass
+ * `router` to `MoleculeProvider`.
+ */
+function requireRouter(router: Router | null): Router {
+  if (!router) {
+    throw new I18nError(
+      'react.error.useRouterOutsideProvider',
+      undefined,
+      "No router here. Mount a router component from the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass `router` to `MoleculeProvider`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-react-router@latest`).",
+    )
+  }
+  return router
+}
 
 /**
  * Hook to access the router from context.
@@ -35,15 +58,38 @@ import type { UseRouterResult } from '../types.js'
  * `router` to `MoleculeProvider`.
  */
 export function useRouterInstance(): Router {
+  return requireRouter(useContext(RouterContext))
+}
+
+/**
+ * Hook for the router a link to `to` navigates through: the mounted router,
+ * or `null` when `to` is a URL outside the app and none is mounted. The
+ * browser, or the device's URL handler, opens such a URL, so a link to it
+ * renders in a tree with no router (a widget, a static page). A link to an
+ * app path still fails without one: that is how an app that forgot to mount
+ * its router finds out.
+ *
+ * `Link` uses it. Use it for a component of your own that follows a link's
+ * destination; `Link`'s JSDoc gives the click rule such a component keeps.
+ *
+ * @param to - The link's destination: an app path (`/settings?tab=billing#plan`) or a URL.
+ * @returns The mounted router, or `null` for a URL outside the app with no router mounted.
+ * @throws {I18nError} When `to` is an app path and no router is mounted above the caller: the
+ * error {@link useRouterInstance} throws, with the same fix.
+ *
+ * @example
+ * ```tsx
+ * import { routerLinkHref } from '@molecule/app-routing'
+ *
+ * const router = useLinkRouter(to)
+ * return <a href={router === null ? to : routerLinkHref(to, router)}>{children}</a>
+ * ```
+ */
+export function useLinkRouter(to: string): Router | null {
   const router = useContext(RouterContext)
-  if (!router) {
-    throw new I18nError(
-      'react.error.useRouterOutsideProvider',
-      undefined,
-      "No router here. Mount a router component from the app's routing bond (`BrowserRouter` from `@molecule/app-routing-react-router`), or pass `router` to `MoleculeProvider`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-react-router@latest`).",
-    )
-  }
-  return router
+  // A URL outside the app opens through the browser or the device's URL handler: no router navigates it.
+  if (resolveLinkPath(to) === null) return router
+  return requireRouter(router)
 }
 
 /** What the routing hooks render: the router's location, route params and query. */

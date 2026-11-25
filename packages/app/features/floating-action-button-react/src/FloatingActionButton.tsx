@@ -1,7 +1,8 @@
 import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Link, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link FloatingActionButton}. */
 export interface FloatingActionButtonProps {
@@ -11,7 +12,10 @@ export interface FloatingActionButtonProps {
   label: string
   /** Click handler (mutually exclusive with `href`). */
   onClick?: () => void
-  /** Navigation target (mutually exclusive with `onClick`). */
+  /**
+   * Navigation target (mutually exclusive with `onClick`). An app path navigates in-app through
+   * the router, which must then be mounted; a URL outside the app opens in the browser.
+   */
   href?: string
   /** Screen corner for anchoring. Defaults to `'bottom-right'`. */
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
@@ -23,10 +27,7 @@ export interface FloatingActionButtonProps {
   className?: string
 }
 
-const POSITION_STYLES: Record<
-  NonNullable<FloatingActionButtonProps['position']>,
-  React.CSSProperties
-> = {
+const POSITION_STYLES: Record<NonNullable<FloatingActionButtonProps['position']>, WebStyle> = {
   'bottom-right': { position: 'fixed', right: 24, bottom: 24 },
   'bottom-left': { position: 'fixed', left: 24, bottom: 24 },
   'top-right': { position: 'fixed', right: 24, top: 24 },
@@ -36,10 +37,10 @@ const POSITION_STYLES: Record<
 const SIZE_MAP = { sm: 10, md: 14, lg: 16 } as const
 
 /**
- * Fixed-position circular action button. Renders either an anchor (when
- * `href` is set) or a button (when `onClick` is set). Positioning is
- * inline-style so the component works without extra CSS setup, and it ships
- * with a visible default surface (primary gradient + soft elevation, via the
+ * Fixed-position circular action button. Renders either a link (when `href`
+ * is set) or a button (when `onClick` is set). Positioning is inline-style so
+ * the component works without extra CSS setup, and it ships with a visible
+ * default surface (primary gradient + soft elevation, via the
  * `gradientPrimary`/`shadowLifted` ClassMap tokens) so an out-of-the-box FAB
  * is prominent in both light and dark themes. Pass `className` to override the
  * surface — caller classes are resolved last by `cm.cn` (tailwind-merge).
@@ -70,7 +71,8 @@ export function FloatingActionButton({
     cm.shadowLifted,
     className,
   )
-  const style: React.CSSProperties = {
+  // A corner of the viewport is where the browser puts it: web-only paint.
+  const style: WebStyle = {
     ...POSITION_STYLES[position],
     width: dim,
     height: dim,
@@ -79,27 +81,28 @@ export function FloatingActionButton({
   const ariaLabel = t(label, {}, { defaultValue: label })
   if (href) {
     return (
-      <a
-        href={href}
+      <Link
+        to={href}
         aria-label={ariaLabel}
         title={showTooltip ? ariaLabel : undefined}
         className={commonClass}
-        style={style}
+        webStyle={style}
       >
         {icon}
-      </a>
+      </Link>
     )
   }
   return (
-    <button
+    <Pressable
+      as="button"
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
       title={showTooltip ? ariaLabel : undefined}
       className={commonClass}
-      style={style}
+      webStyle={style}
     >
       {icon}
-    </button>
+    </Pressable>
   )
 }

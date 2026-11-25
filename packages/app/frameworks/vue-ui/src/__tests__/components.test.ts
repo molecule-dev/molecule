@@ -376,6 +376,7 @@ const classMapTokens = {
   textRight: 'mock-text-right',
   dialogWrapper: 'dialog-wrapper-classes',
   dialogBody: 'dialog-body-classes',
+  pageHeaderBreadcrumbItem: 'pageHeaderBreadcrumbItem',
 }
 
 /**
@@ -4859,9 +4860,10 @@ describe('PageHeader component', () => {
   })
 
   it('should render breadcrumbs with separators, links and plain labels', async () => {
+    const { Link } = await import('@molecule/app-vue/link')
     const { PageHeader } = await import('../components/PageHeader.js')
 
-    const renderFn = (PageHeader.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+    const renderFn = PageHeader.setup?.(
       {
         title: 'Q3 revenue',
         description: undefined,
@@ -4876,21 +4878,25 @@ describe('PageHeader component', () => {
         testId: undefined,
         automationId: undefined,
       },
-      { attrs: {}, slots: {}, emit: vi.fn() },
+      { attrs: {}, slots: {}, emit: vi.fn(), expose: vi.fn() },
     )
 
+    if (typeof renderFn !== 'function') {
+      throw new Error('PageHeader did not return a render function')
+    }
     renderFn()
     const navCall = mockH.mock.calls.find((call) => call[0] === 'nav')
     expect(navCall).toBeDefined()
-    expect(navCall![1]['aria-label']).toBe('Breadcrumb')
+    expect(navCall?.[1]?.['aria-label']).toBe('Breadcrumb')
     const separators = mockH.mock.calls.filter(
       (call) => call[0] === 'span' && call[1]?.['aria-hidden'] === 'true' && call[2] === '/',
     )
     expect(separators).toHaveLength(2)
-    const links = mockH.mock.calls.filter((call) => call[0] === 'a')
+    // The mocked h() records the Link vnode. The mounted breadcrumb suite checks the real anchor.
+    const links = mockH.mock.calls.filter((call) => call[0] === Link)
     expect(links).toHaveLength(2)
-    expect(links[0]![1].href).toBe('/')
-    expect(links[1]![1].href).toBe('/reports')
+    expect(links[0]?.[1]).toMatchObject({ to: '/', class: 'pageHeaderBreadcrumbItem' })
+    expect(links[1]?.[1]).toMatchObject({ to: '/reports', class: 'pageHeaderBreadcrumbItem' })
     const plain = mockH.mock.calls.filter((call) => call[0] === 'span' && call[2] === 'Q3 revenue')
     expect(plain).toHaveLength(1)
   })

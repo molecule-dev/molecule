@@ -2,6 +2,9 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
+import { MoleculeProvider } from '@molecule/app-react'
+import { createMemoryRouter } from '@molecule/app-routing'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -41,7 +44,14 @@ describe('HelpButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const markup = html(createElement(HelpButton, { href: '/support' }))
+    // The link navigates in-app through the router, as an app mounts one.
+    const markup = html(
+      createElement(
+        MoleculeProvider,
+        { router: createMemoryRouter() },
+        createElement(HelpButton, { href: '/support' }),
+      ),
+    )
     expect(markup.startsWith('<a')).toBe(true)
     expect(markup).toContain('href="/support"')
   })

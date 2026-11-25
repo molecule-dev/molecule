@@ -30,11 +30,35 @@ import type {
 import {
   createConsumedSearchParam,
   listRouteRedirect,
+  resolveLinkPath,
   resolveListRoute,
 } from '@molecule/app-routing'
 
 import { RouterKey } from '../injection-keys.js'
 import type { UseRouterResult } from '../types.js'
+
+/**
+ * The router the routing composables and `Link` navigate through: the one
+ * provided above the caller. Both {@link useRouterInstance} and
+ * {@link useLinkRouter} fail through this one function, so the error and its
+ * text live in one place.
+ *
+ * @param router - The router read from injection, or `undefined` with none provided.
+ * @returns The router.
+ * @throws {I18nError} When no router is provided above the caller: wrap the app in the routing
+ * bond's `MoleculeRouterProvider` (`@molecule/app-routing-vue-router`), or pass `router` to
+ * `moleculePlugin`.
+ */
+function requireRouter(router: Router | undefined): Router {
+  if (!router) {
+    throw new I18nError(
+      'vue.error.useRouterOutsideProvider',
+      undefined,
+      'No router here. Wrap the app in `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-vue-router`), or pass `router` to `moleculePlugin`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-vue-router@latest`).',
+    )
+  }
+  return router
+}
 
 /**
  * Composable to access the router from injection.
@@ -45,14 +69,74 @@ import type { UseRouterResult } from '../types.js'
  * `moleculePlugin`.
  */
 export function useRouterInstance(): Router {
-  const router = inject(RouterKey)
-  if (!router) {
-    throw new I18nError(
-      'vue.error.useRouterOutsideProvider',
-      undefined,
-      'No router here. Wrap the app in `MoleculeRouterProvider` from the routing bond (`@molecule/app-routing-vue-router`), or pass `router` to `moleculePlugin`. If the app already does this, its routing bond is older than this binding: update it (`npm install @molecule/app-routing-vue-router@latest`).',
-    )
-  }
+  return requireRouter(inject(RouterKey))
+}
+
+/**
+ * The router a link to `to` navigates through, among the routers provided.
+ *
+ * @param mounted - The router read from injection, or `undefined` with none provided.
+ * @param to - The link's destination: an app path or a URL.
+ * @returns The router, or `null` for a URL outside the app with none provided.
+ * @throws {I18nError} When `to` is an app path and no router is provided above the caller.
+ */
+function linkRouter(mounted: Router | undefined, to: string): Router | null {
+  // A URL outside the app opens through the browser or the device's URL handler: no router navigates it.
+  return resolveLinkPath(to) === null ? (mounted ?? null) : requireRouter(mounted)
+}
+
+/**
+ * Composable for the router a link navigates through, React's `useLinkRouter`
+ * in Vue's idiom: the provided router, or `null` for a URL outside the app when
+ * none is provided. The browser, or on a device the URL handler, opens such a
+ * URL, so a link to it renders in an app with no router (a widget, a static
+ * page). A link to an app path still fails without one: that is how an app
+ * that forgot to mount its router finds out.
+ *
+ * `Link` uses it. With a destination it answers for that one and follows it
+ * while the component lives. Without one (the destination is not known in
+ * `setup`, as a directive's input is not) it returns a function to call with
+ * the destination wherever it is known; call it in `setup`, which reads the
+ * injection once.
+ *
+ * @param to - The link's destination: an app path or a URL, or a ref or getter
+ * of one.
+ * @returns A computed ref of the router the link navigates through, or `null`
+ * for a URL outside the app with no router provided.
+ * @throws {I18nError} When `to` is an app path and no router is provided above the caller: the
+ * error {@link useRouterInstance} throws, with the same fix.
+ *
+ * @example
+ * ```ts
+ * const router = useLinkRouter(() => props.to)
+ * return () => h('a', { href: router.value === null ? props.to : routerLinkHref(props.to, router.value) })
+ * ```
+ */
+export function useLinkRouter(to: MaybeRefOrGetter<string>): ComputedRef<Router | null>
+/**
+ * Reads the router without a destination yet.
+ *
+ * @returns A function that takes a link's destination and gives the router it
+ * navigates through, or `null` for a URL outside the app with no router provided.
+ * @throws {I18nError} Never here: the returned function throws for an app path with no router
+ * provided, the error {@link useRouterInstance} throws.
+ *
+ * @example
+ * ```ts
+ * const linkRouter = useLinkRouter()
+ * const router = computed(() => linkRouter(props.to))
+ * ```
+ */
+export function useLinkRouter(): (to: string) => Router | null
+export function useLinkRouter(
+  to?: MaybeRefOrGetter<string>,
+): ComputedRef<Router | null> | ((to: string) => Router | null) {
+  // No router provided is a supported state here, so the read passes a default and Vue stays quiet.
+  const mounted = inject(RouterKey, undefined)
+  if (to === undefined) return (destination) => linkRouter(mounted, destination)
+  const router = computed(() => linkRouter(mounted, toValue(to)))
+  // Read now, so an app path with no router provided fails in setup, as a composable that needs a provider does.
+  void router.value
   return router
 }
 

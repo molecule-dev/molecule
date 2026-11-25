@@ -11,6 +11,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
+import { createMemoryRouter, type Router } from '@molecule/app-routing'
+import { moleculePlugin } from '@molecule/app-vue'
+
 // A ClassMap proxy echoing each accessed member back as its token, so tests
 // can assert which cm.* class was applied without a real bond — the same mock
 // the React tests use.
@@ -53,12 +56,18 @@ afterEach(() => {
  *
  * @param props - The component props.
  * @param slots - Named slots (the default slot is unused).
+ * @param router - The router to install for an app path.
  * @returns The rendered markup.
  */
-const render = (props: Record<string, unknown>, slots?: Record<string, () => VNodeChild[]>) => {
+const render = (
+  props: Record<string, unknown>,
+  slots?: Record<string, () => VNodeChild[]>,
+  router?: Router,
+) => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(HelpButton, props, slots) }))
+  if (router) app.use(moleculePlugin, { router })
   app.mount(host)
   const markup = host.innerHTML
   app.unmount()
@@ -73,7 +82,7 @@ describe('HelpButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const markup = render({ href: '/support' })
+    const markup = render({ href: '/support' }, undefined, createMemoryRouter())
     expect(markup.startsWith('<a')).toBe(true)
     expect(markup).toContain('href="/support"')
   })

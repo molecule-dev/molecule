@@ -43,6 +43,9 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 
 import { createApp, h } from 'vue'
 
+import { createMemoryRouter } from '@molecule/app-routing'
+
+const { moleculePlugin } = await import('@molecule/app-vue')
 const { PageHeader } = await import('../components/PageHeader.js')
 
 afterEach(() => {
@@ -53,6 +56,7 @@ describe('PageHeader breadcrumb landmark', () => {
   it('PageHeader names its breadcrumb landmark through t()', () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
+    const router = createMemoryRouter({ initialEntries: ['/reports'] })
     const app = createApp({
       render: () =>
         h(PageHeader, {
@@ -60,13 +64,23 @@ describe('PageHeader breadcrumb landmark', () => {
           breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Reports' }],
         }),
     })
+    // A breadcrumb with an href is a router link, which an app always mounts inside its router.
+    app.use(moleculePlugin, { router })
     app.mount(host)
     try {
       const nav = host.querySelector('nav')
       expect(nav).not.toBeNull()
       expect(nav?.getAttribute('aria-label')).toBe('⟦ui.pageHeader.breadcrumbs⟧')
+      const link = nav?.querySelector('a')
+      expect(link?.getAttribute('href')).toBe('/')
+      expect(link?.classList.contains('pageHeaderBreadcrumbItem')).toBe(true)
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true })
+      link?.dispatchEvent(click)
+      expect(click.defaultPrevented).toBe(true)
+      expect(router.getLocation().pathname).toBe('/')
     } finally {
       app.unmount()
+      router.destroy?.()
     }
   })
 })

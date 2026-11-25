@@ -12,6 +12,8 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createMemoryRouter } from '@molecule/app-routing'
+
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* call was applied without a real bond — the same mock the
 // React package's own tests use.
@@ -44,6 +46,7 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 }))
 
 const { FloatingActionButton } = await import('../FloatingActionButton.jsx')
+const { MoleculeProvider } = await import('@molecule/app-solid')
 
 const disposers: Array<() => void> = []
 
@@ -75,7 +78,12 @@ describe('FloatingActionButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const markup = html(() => <FloatingActionButton icon={icon} label="Add" href="/new" />)
+    // The link navigates in-app through the router, as an app mounts one.
+    const markup = html(() => (
+      <MoleculeProvider router={createMemoryRouter()}>
+        <FloatingActionButton icon={icon} label="Add" href="/new" />
+      </MoleculeProvider>
+    ))
     expect(markup.startsWith('<a')).toBe(true)
     expect(markup).toContain('href="/new"')
   })

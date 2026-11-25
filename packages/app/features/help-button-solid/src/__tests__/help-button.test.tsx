@@ -12,6 +12,9 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createMemoryRouter } from '@molecule/app-routing'
+import { MoleculeProvider } from '@molecule/app-solid'
+
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* call was applied without a real bond — the same mock the
 // React package's own tests use.
@@ -72,7 +75,11 @@ describe('HelpButton', () => {
   })
 
   it('renders an <a> when href is supplied', () => {
-    const markup = html(() => <HelpButton href="/support" />)
+    const markup = html(() => (
+      <MoleculeProvider router={createMemoryRouter()}>
+        <HelpButton href="/support" />
+      </MoleculeProvider>
+    ))
     expect(markup.startsWith('<a')).toBe(true)
     expect(markup).toContain('href="/support"')
   })

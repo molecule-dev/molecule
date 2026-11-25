@@ -542,8 +542,11 @@ export interface ElementLinkProps<Node = unknown> extends ElementProps, Interact
   replace?: boolean
   /** State stored with the new history entry. */
   state?: unknown
-  /** Where a URL opens on the web. */
-  target?: '_self' | '_blank'
+  /**
+   * Where a URL opens on the web: a browsing-context keyword or name (`_self`, `_blank`, `_parent`,
+   * `_top`, or a frame's name). On a device a URL opens outside the app whatever its target.
+   */
+  target?: string
   /** Relationship of a URL to the page (`'noopener noreferrer'`). */
   rel?: string
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */

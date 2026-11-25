@@ -1,19 +1,27 @@
 /**
- * `runLinkConformance(name, mountLink)`: the cases every framework binding's
- * `Link` component passes, so an in-app link behaves the same in Vue, Solid,
- * Svelte and Angular as react-router's `<Link>` does in React.
+ * `runLinkConformance(name, mountLink, noRouterErrorKey)`: the cases every
+ * framework binding's `Link` component passes, so an in-app link behaves the
+ * same in Vue, Solid, Svelte and Angular as react-router's `<Link>` does in
+ * React.
  *
  * Each binding calls this from its own tests with a mount function that renders
  * its real `Link` inside its real molecule provider, over the memory router
- * this suite creates. Every case clicks the rendered anchor the way a person
- * would and reads where the router went, and whether the browser would still
- * have followed the anchor itself.
+ * this suite creates, or with no router mounted where a case asks for that.
+ * Every case clicks the rendered anchor the way a person would and reads where
+ * the router went, and whether the browser would still have followed the
+ * anchor itself.
+ *
+ * A link to a URL outside the app needs no router: the browser, or the device's
+ * URL handler, opens it. So it renders with no router mounted, while a link to
+ * an app path still fails with the binding's no-router error, which catches an
+ * app that forgot to mount its router.
  *
  * @module
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { I18nError } from '@molecule/app-i18n'
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 
 import { nextMillisecond } from '../ui/user-input-time.js'
@@ -50,11 +58,12 @@ export interface MountedLink {
 
 /**
  * Renders the binding's `Link` with `props` into `container`, inside the
- * binding's molecule provider carrying `router`.
+ * binding's molecule provider carrying `router`, or with no router mounted
+ * (the provider without one, or no provider) for `null`.
  */
 export type LinkMount = (
   container: HTMLElement,
-  router: Router,
+  router: Router | null,
   props: LinkMountProps,
 ) => Promise<MountedLink>
 
@@ -64,10 +73,18 @@ export interface LinkRouterOptions {
   basePath?: string
 }
 
-/** What a case gets: a rendered link over a router whose history is `/home` then `/start`. */
-export interface RenderedLink {
-  router: Router
+/**
+ * What a case gets: a rendered link, and the router it navigates through when
+ * one is mounted.
+ *
+ * @template RouterOrNull - `Router` over a router, `null` with none mounted.
+ */
+export interface RenderedLink<RouterOrNull extends Router | null = Router> {
+  /** The router the link navigates through, or `null` with none mounted. */
+  router: RouterOrNull
+  /** The rendered anchor. */
   anchor: HTMLAnchorElement
+  /** The mounted link, for a case that changes or removes it. */
   link: MountedLink
 }
 
@@ -78,10 +95,15 @@ export interface LinkCase {
   /**
    * Runs the case; throws on a mismatch.
    *
-   * @param render - Renders a link with the given props.
+   * @param render - Renders a link with the given props over a router.
+   * @param renderWithoutRouter - Renders a link with no router mounted; it rejects with the
+   * binding's no-router error for an app path.
+   * @param noRouterErrorKey - The i18n key of that error.
    */
   run(
     render: (props: LinkMountProps, router?: LinkRouterOptions) => Promise<RenderedLink>,
+    renderWithoutRouter: (props: LinkMountProps) => Promise<RenderedLink<null>>,
+    noRouterErrorKey: string,
   ): Promise<void>
 }
 
@@ -269,6 +291,47 @@ export const linkCases: LinkCase[] = [
   external('mailto:help@example.com'),
   external('//cdn.example/file'),
   {
+    name: 'a link to a URL outside the app renders with no router mounted, and a plain click is left to the browser',
+    run: async (_render, renderWithoutRouter) => {
+      // The browser, or the device's URL handler, opens it: the link needs no router to render
+      // or to follow. Each URL leaves the app a different way: another origin, a scheme, no origin.
+      for (const to of [
+        'https://elsewhere.example/page',
+        'mailto:help@example.com',
+        '//cdn.example/file',
+      ]) {
+        const seen: string[] = []
+        const { anchor } = await renderWithoutRouter({
+          to,
+          text: 'Out',
+          onClick: () => {
+            seen.push('clicked')
+          },
+        })
+        expect(anchor.getAttribute('href'), to).toBe(to)
+        expect(anchor.textContent, to).toBe('Out')
+        expect(click(anchor), to).toBe(false)
+        expect(seen, to).toEqual(['clicked'])
+      }
+    },
+  },
+  {
+    name: 'a link to an app path with no router mounted fails with the no-router error',
+    run: async (_render, renderWithoutRouter, noRouterErrorKey) => {
+      // The guard stays: an app path can neither be written as an href nor followed without a
+      // router, so this is how an app that forgot to mount its router finds out.
+      const thrown = await renderWithoutRouter({
+        to: '/settings?tab=billing#plan',
+        text: 'Go',
+      }).then(
+        () => undefined,
+        (error: unknown) => error,
+      )
+      expect(thrown).toBeInstanceOf(I18nError)
+      expect(thrown instanceof I18nError ? thrown.i18nKey : undefined).toBe(noRouterErrorKey)
+    },
+  },
+  {
     name: 'replace replaces the current entry',
     run: async (render) => {
       const { router, anchor } = await render({ to: '/settings', replace: true, text: 'Go' })
@@ -372,22 +435,35 @@ export const linkCases: LinkCase[] = [
   },
 ]
 
+/** The two ways a case renders links with one binding's mount function. */
+export interface LinkRenders {
+  /** Renders a link over a memory router whose history is `/home` then `/start`. */
+  render: (props: LinkMountProps, router?: LinkRouterOptions) => Promise<RenderedLink>
+  /**
+   * Renders a link with no router mounted (`null` is the mount function's router). It rejects
+   * with the binding's no-router error for an app path.
+   */
+  renderWithoutRouter: (props: LinkMountProps) => Promise<RenderedLink<null>>
+}
+
 /**
- * Renders links with one binding's mount function, remembering each one so a
- * case's teardown can remove it.
+ * The render functions the cases call, over one binding's mount function and
+ * remembering each mounted link so a case's teardown can remove it.
  *
  * @param name - The binding, for error messages.
  * @param mountLink - The binding's mount function.
  * @param mounted - Receives every mounted link.
- * @returns The render function the cases call.
+ * @returns The render functions the cases call.
  */
-export const linkRenderer =
-  (name: string, mountLink: LinkMount, mounted: MountedLink[]) =>
-  async (props: LinkMountProps, options: LinkRouterOptions = {}): Promise<RenderedLink> => {
-    const router = createMemoryRouter({
-      initialEntries: ['/home', '/start'],
-      ...(options.basePath === undefined ? {} : { basePath: options.basePath }),
-    })
+export const linkRenderer = (
+  name: string,
+  mountLink: LinkMount,
+  mounted: MountedLink[],
+): LinkRenders => {
+  const mount = async <RouterOrNull extends Router | null>(
+    router: RouterOrNull,
+    props: LinkMountProps,
+  ): Promise<RenderedLink<RouterOrNull>> => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const link = await mountLink(container, router, props)
@@ -397,16 +473,33 @@ export const linkRenderer =
     if (!anchor) throw new Error(`conformance: ${name}'s Link rendered no anchor`)
     return { router, anchor, link }
   }
+  return {
+    render: async (props, options = {}) => {
+      const router = createMemoryRouter({
+        initialEntries: ['/home', '/start'],
+        ...(options.basePath === undefined ? {} : { basePath: options.basePath }),
+      })
+      return mount(router, props)
+    },
+    renderWithoutRouter: (props) => mount(null, props),
+  }
+}
 
 /**
  * Registers the `Link` conformance cases for one framework binding.
  *
  * @param name - The binding (`@molecule/app-vue`, …).
- * @param mountLink - Renders the binding's real `Link`.
+ * @param mountLink - Renders the binding's real `Link`, with no router mounted for a `null` router.
+ * @param noRouterErrorKey - The i18n key of the binding's error when a link to an app path has no
+ * router (`vue.error.useRouterOutsideProvider`).
  */
-export function runLinkConformance(name: string, mountLink: LinkMount): void {
+export function runLinkConformance(
+  name: string,
+  mountLink: LinkMount,
+  noRouterErrorKey: string,
+): void {
   const mounted: MountedLink[] = []
-  const render = linkRenderer(name, mountLink, mounted)
+  const { render, renderWithoutRouter } = linkRenderer(name, mountLink, mounted)
 
   describe(`${name} Link conformance`, () => {
     afterEach(async () => {
@@ -414,6 +507,8 @@ export function runLinkConformance(name: string, mountLink: LinkMount): void {
       document.body.innerHTML = ''
     })
 
-    for (const linkCase of linkCases) it(linkCase.name, () => linkCase.run(render))
+    for (const linkCase of linkCases) {
+      it(linkCase.name, () => linkCase.run(render, renderWithoutRouter, noRouterErrorKey))
+    }
   })
 }

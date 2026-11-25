@@ -1,6 +1,6 @@
 import { type Component, Show } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { Link, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FloatingActionButtonProps } from './types.js'
@@ -33,13 +33,13 @@ const rootStyle = (
 }
 
 /**
- * Fixed-position circular action button. Renders either an anchor (when
- * `href` is set) or a button (when `onClick` is set). Positioning is
- * inline-style so the component works without extra CSS setup, and it ships
- * with a visible default surface (primary gradient + soft elevation, via the
- * `gradientPrimary`/`shadowLifted` ClassMap tokens). Pass `className` to
- * override the surface — caller classes are resolved last by `cm.cn`
- * (tailwind-merge).
+ * Fixed-position circular action button. Renders either a link (when `href`
+ * is set, which navigates in-app through the router for an app path) or a
+ * button (when `onClick` is set). Positioning is inline-style so the component
+ * works without extra CSS setup, and it ships with a visible default surface
+ * (primary gradient + soft elevation, via the `gradientPrimary`/`shadowLifted`
+ * ClassMap tokens). Pass `className` to override the surface — caller classes
+ * are resolved last by `cm.cn` (tailwind-merge).
  *
  * This is the Solid counterpart of `@molecule/app-floating-action-button-react`:
  * the same props (React names), the same ClassMap tokens, and the same DOM for
@@ -85,15 +85,15 @@ export const FloatingActionButton: Component<FloatingActionButtonProps> = (props
       }
     >
       {(href) => (
-        <a
-          href={href()}
+        <Link
+          to={href()}
           aria-label={ariaLabel()}
           title={title()}
           class={commonClass()}
           style={style()}
         >
           {props.icon}
-        </a>
+        </Link>
       )}
     </Show>
   )
