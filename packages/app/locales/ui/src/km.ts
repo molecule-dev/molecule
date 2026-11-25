@@ -64,4 +64,5 @@ export const km: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'ផ្លាស់ទី {{item}} ទៅ {{destination}}',
   'ui.dragDrop.cancelMove': 'បោះបង់ការផ្លាស់ទី',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'ផ្លាស់ទីទៅ ទីតាំង {{position}}',
 }

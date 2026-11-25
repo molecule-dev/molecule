@@ -255,13 +255,49 @@ describe('<LayerPanel> selection', () => {
     // The row element carries only drag machinery; select lives on the
     // name button (and the eye/lock toggles on theirs).
     const onSelect = vi.fn()
+    const onReorder = vi.fn<(next: Layer[]) => void>()
     const { container } = render(
       <Wrap>
-        <Harness onSelectSpy={onSelect} />
+        <Harness onSelectSpy={onSelect} onReorderSpy={onReorder} />
       </Wrap>,
     )
     fireEvent.click(container.querySelector('[data-mol-id="layer-panel-row-mid"]')!)
     fireEvent.click(container.querySelector('[data-mol-id="layer-panel-meta-mid"]')!)
+    expect(onSelect).not.toHaveBeenCalled()
+
+    const rows = container.querySelectorAll<HTMLLIElement>('ul > li')
+    Object.assign(rows[0], { setPointerCapture: vi.fn() })
+    const contact = { pointerId: 7, pointerType: 'mouse', isPrimary: true }
+    fireEvent.pointerDown(rows[2], contact)
+    fireEvent.pointerOver(rows[0], contact)
+    fireEvent.pointerUp(window, contact)
+    expect(onReorder).not.toHaveBeenCalled()
+    // Presses on the row's embedded controls are not pickups either.
+    const visibility = container.querySelector('[data-mol-id="layer-panel-visibility-top"]')
+    if (!visibility) throw new Error('Missing embedded visibility control')
+    fireEvent.pointerDown(visibility, contact)
+    fireEvent.pointerOver(rows[2], contact)
+    fireEvent.pointerUp(window, contact)
+    expect(onReorder).not.toHaveBeenCalled()
+    const originalHitTest = Object.getOwnPropertyDescriptor(document, 'elementFromPoint')
+    const hitTest = vi.fn().mockReturnValueOnce(rows[2]).mockReturnValue(null)
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: hitTest })
+    try {
+      fireEvent.pointerDown(rows[0], contact)
+      // Captured moves keep targeting the source even when the point is over a different row.
+      fireEvent.pointerMove(rows[0], { ...contact, clientY: 80 })
+      fireEvent.pointerMove(rows[0], { ...contact, clientY: 180 })
+      fireEvent.pointerUp(window, contact)
+    } finally {
+      if (originalHitTest) Object.defineProperty(document, 'elementFromPoint', originalHitTest)
+      else Reflect.deleteProperty(document, 'elementFromPoint')
+    }
+    expect(hitTest.mock.calls).toEqual([
+      [0, 80],
+      [0, 180],
+    ])
+    expect(onReorder).toHaveBeenCalledTimes(1)
+    expect(onReorder.mock.calls[0][0].map(({ id }) => id)).toEqual(['mid', 'bot', 'top'])
     expect(onSelect).not.toHaveBeenCalled()
   })
 })

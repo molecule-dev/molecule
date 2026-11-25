@@ -61,4 +61,5 @@ export const ja: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': '{{item}}を{{destination}}に移動',
   'ui.dragDrop.cancelMove': '移動をキャンセル',
   'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}}番目の位置に移動',
 }

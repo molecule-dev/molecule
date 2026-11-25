@@ -61,4 +61,5 @@ export const ko: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': '{{item}}을(를) {{destination}}(으)로 이동',
   'ui.dragDrop.cancelMove': '이동 취소',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}}번째 위치로 이동',
 }

@@ -61,4 +61,5 @@ export const zhTW: UiTranslations = {
   'ui.dragDrop.moveItemTo': '將{{item}}移至{{destination}}',
   'ui.dragDrop.cancelMove': '取消移動',
   'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
+  'ui.dragDrop.moveToPosition': '移至第{{position}}位',
 }

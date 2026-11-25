@@ -61,4 +61,5 @@ export const cs: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Přesunout {{item}} do {{destination}}',
   'ui.dragDrop.cancelMove': 'Zrušit přesun',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Přesunout na pozici {{position}}',
 }

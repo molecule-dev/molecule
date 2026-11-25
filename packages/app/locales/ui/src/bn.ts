@@ -61,4 +61,5 @@ export const bn: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}}-কে {{destination}}-এ সরান',
   'ui.dragDrop.cancelMove': 'সরানো বাতিল করুন',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} নম্বর অবস্থানে সরান',
 }

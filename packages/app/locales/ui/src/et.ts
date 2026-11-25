@@ -61,4 +61,5 @@ export const et: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Teisalda {{item}} sihtkohta {{destination}}',
   'ui.dragDrop.cancelMove': 'Tühista teisaldamine',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Teisalda positsioonile {{position}}',
 }

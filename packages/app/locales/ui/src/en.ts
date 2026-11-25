@@ -61,4 +61,5 @@ export const en: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Move {{item}} to {{destination}}',
   'ui.dragDrop.cancelMove': 'Cancel move',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Move to position {{position}}',
 }

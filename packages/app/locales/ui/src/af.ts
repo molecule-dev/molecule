@@ -61,4 +61,5 @@ export const af: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Skuif {{item}} na {{destination}}',
   'ui.dragDrop.cancelMove': 'Kanselleer skuif',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Skuif na posisie {{position}}',
 }

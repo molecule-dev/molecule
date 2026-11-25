@@ -61,4 +61,5 @@ export const ar: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'نقل {{item}} إلى {{destination}}',
   'ui.dragDrop.cancelMove': 'إلغاء النقل',
   'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
+  'ui.dragDrop.moveToPosition': 'نقل إلى الموضع {{position}}',
 }

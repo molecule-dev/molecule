@@ -68,4 +68,5 @@ export const my: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} ကို {{destination}} သို့ ရွှေ့ပါ',
   'ui.dragDrop.cancelMove': 'ရွှေ့ခြင်းကို ပယ်ဖျက်ပါ',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'နေရာ {{position}} သို့ ရွှေ့ပါ',
 }

@@ -68,4 +68,5 @@ export const kn: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} ಅನ್ನು {{destination}} ಗೆ ಸರಿಸಿ',
   'ui.dragDrop.cancelMove': 'ಸರಿಸುವುದನ್ನು ರದ್ದುಗೊಳಿಸಿ',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} ಸ್ಥಾನಕ್ಕೆ ಸರಿಸಿ',
 }

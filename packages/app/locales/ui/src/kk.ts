@@ -65,4 +65,5 @@ export const kk: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} элементін {{destination}} бөліміне жылжыту',
   'ui.dragDrop.cancelMove': 'Жылжытудан бас тарту',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} орынға жылжыту',
 }

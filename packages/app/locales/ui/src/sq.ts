@@ -61,4 +61,5 @@ export const sq: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Zhvendos {{item}} te {{destination}}',
   'ui.dragDrop.cancelMove': 'Anulo zhvendosjen',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Zhvendos në pozicionin {{position}}',
 }

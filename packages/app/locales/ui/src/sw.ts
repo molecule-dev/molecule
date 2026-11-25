@@ -61,4 +61,5 @@ export const sw: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Hamisha {{item}} hadi {{destination}}',
   'ui.dragDrop.cancelMove': 'Ghairi kuhamisha',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Hamisha hadi nafasi ya {{position}}',
 }

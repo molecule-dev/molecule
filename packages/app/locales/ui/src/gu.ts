@@ -61,4 +61,5 @@ export const gu: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}}ને {{destination}} પર ખસેડો',
   'ui.dragDrop.cancelMove': 'ખસેડવાનું રદ કરો',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'સ્થાન {{position}} પર ખસેડો',
 }

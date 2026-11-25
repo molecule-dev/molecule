@@ -61,4 +61,5 @@ export const ha: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Matsar da {{item}} zuwa {{destination}}',
   'ui.dragDrop.cancelMove': 'Soke matsarwa',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Matsar zuwa matsayi {{position}}',
 }

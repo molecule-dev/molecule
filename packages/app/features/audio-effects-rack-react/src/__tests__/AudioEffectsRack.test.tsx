@@ -306,9 +306,11 @@ describe('<AudioEffectsRack>', () => {
 
   it('reorders panels via pointer drag-and-drop and emits the new order', () => {
     const onReorder = vi.fn<(nextOrder: Effect[]) => void>()
-    const { container } = render(
+    const otherReorder = vi.fn()
+    const { container, unmount } = render(
       <Wrap>
         <AudioEffectsRack effects={baseEffects} onReorder={onReorder} />
+        <AudioEffectsRack effects={baseEffects} onReorder={otherReorder} />
       </Wrap>,
     )
     const root = container.querySelector('[data-mol-id="audio-effects-rack"]') as HTMLElement
@@ -327,6 +329,28 @@ describe('<AudioEffectsRack>', () => {
     expect(onReorder).toHaveBeenCalledTimes(1)
     const next = onReorder.mock.calls[0][0]
     expect(next.map((e) => e.id)).toEqual(['comp-1', 'rev-1', 'eq-1'])
+
+    // An interrupted contact outside the rack commits against its last target in this scope.
+    onReorder.mockClear()
+    const contact = { pointerId: 7, pointerType: 'mouse', isPrimary: true }
+    fireEvent.pointerDown(handles[0], contact)
+    fireEvent.pointerOver(panels[2], contact)
+    fireEvent.pointerOver(panels[4], contact)
+    fireEvent.pointerCancel(window, contact)
+    fireEvent.pointerUp(window, contact)
+    expect(onReorder).toHaveBeenCalledExactlyOnceWith([
+      baseEffects[1],
+      baseEffects[2],
+      baseEffects[0],
+    ])
+    expect(otherReorder).not.toHaveBeenCalled()
+
+    onReorder.mockClear()
+    fireEvent.pointerDown(handles[0], contact)
+    fireEvent.pointerOver(panels[2], contact)
+    unmount()
+    fireEvent.pointerCancel(window, contact)
+    expect(onReorder).not.toHaveBeenCalled()
   })
 
   it('does not call onReorder when a drag drops on its origin panel', () => {

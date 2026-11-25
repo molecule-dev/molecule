@@ -61,4 +61,5 @@ export const bs: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Premjesti {{item}} u {{destination}}',
   'ui.dragDrop.cancelMove': 'Otkaži premještanje',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Premjesti na poziciju {{position}}',
 }

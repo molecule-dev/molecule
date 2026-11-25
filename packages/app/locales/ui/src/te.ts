@@ -67,4 +67,5 @@ export const te: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}}ను {{destination}}కి తరలించండి',
   'ui.dragDrop.cancelMove': 'తరలింపును రద్దు చేయండి',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} స్థానానికి తరలించండి',
 }

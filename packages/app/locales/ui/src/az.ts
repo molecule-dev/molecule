@@ -61,4 +61,5 @@ export const az: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} elementini {{destination}} bölməsinə köçür',
   'ui.dragDrop.cancelMove': 'Köçürməni ləğv et',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} mövqeyinə köçür',
 }

@@ -58,6 +58,7 @@ export type UiTranslationKey =
   | 'ui.dragDrop.moveItemTo'
   | 'ui.dragDrop.cancelMove'
   | 'ui.dragDrop.moveAtPosition'
+  | 'ui.dragDrop.moveToPosition'
 
 /** Translation record mapping ui keys to translated strings. */
 export type UiTranslations = Record<UiTranslationKey, string>

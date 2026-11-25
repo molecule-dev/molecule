@@ -61,4 +61,5 @@ export const mt: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Mexxi {{item}} lejn {{destination}}',
   'ui.dragDrop.cancelMove': 'Ikkanċella ċ-ċaqliq',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Mexxi lejn il-pożizzjon {{position}}',
 }

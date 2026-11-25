@@ -61,4 +61,5 @@ export const zh: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': '将{{item}}移至{{destination}}',
   'ui.dragDrop.cancelMove': '取消移动',
   'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
+  'ui.dragDrop.moveToPosition': '移至第{{position}}位',
 }

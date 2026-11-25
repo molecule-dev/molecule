@@ -61,4 +61,5 @@ export const ig: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Bugharịa {{item}} gaa na {{destination}}',
   'ui.dragDrop.cancelMove': 'Kagbuo mbugharị',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Bugharịa gaa na ọnọdụ {{position}}',
 }

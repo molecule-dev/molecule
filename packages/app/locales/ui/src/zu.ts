@@ -61,4 +61,5 @@ export const zu: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Hambisa {{item}} uye ku-{{destination}}',
   'ui.dragDrop.cancelMove': 'Khansela ukuhambisa',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Hambisa endaweni ye-{{position}}',
 }

@@ -61,4 +61,5 @@ export const am: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}}ን ወደ {{destination}} አንቀሳቅስ',
   'ui.dragDrop.cancelMove': 'ማንቀሳቀሱን ሰርዝ',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'ወደ {{position}}ኛ ቦታ አንቀሳቅስ',
 }

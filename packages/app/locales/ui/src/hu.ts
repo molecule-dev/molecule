@@ -61,4 +61,5 @@ export const hu: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': '{{item}} áthelyezése ide: {{destination}}',
   'ui.dragDrop.cancelMove': 'Áthelyezés megszakítása',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}}. pozícióra áthelyezés',
 }

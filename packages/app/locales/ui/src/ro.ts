@@ -61,4 +61,5 @@ export const ro: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Mută {{item}} în {{destination}}',
   'ui.dragDrop.cancelMove': 'Anulează mutarea',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Mută la poziția {{position}}',
 }

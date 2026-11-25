@@ -1,8 +1,11 @@
-import type { ChangeEvent, CSSProperties, JSX, MouseEvent, PointerEvent, ReactNode } from 'react'
-import { useCallback, useRef, useState } from 'react'
+import type { JSX } from 'react'
+import { useState } from 'react'
 
+import type { DragEndEvent } from '@molecule/app-drag-drop'
+import { type DragMoveControls, useScopedDragDrop } from '@molecule/app-drag-drop/react'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitMouseEvent, type WebStyle } from '@molecule/app-ui'
+import { Box, Pressable, RangeField, SelectField, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Built-in catalog of effect kinds the rack knows how to render. Each
@@ -406,67 +409,49 @@ export function AudioEffectsRack(props: AudioEffectsRackProps): JSX.Element {
     return t('audioEffectsRack.param.fallback', {}, { defaultValue: 'Parameter' })
   }
 
-  // Track which panel (if any) is currently being dragged. We only
-  // store the index — the actual re-order is computed against the
-  // latest `effects` prop on drop.
-  const [dragIndex, setDragIndex] = useState<number | null>(null)
-  const [overIndex, setOverIndex] = useState<number | null>(null)
-  // We cache the latest pointer-event target index in a ref so that
-  // pointermove handlers attached to the document can read it without
-  // triggering re-renders on every move.
-  const dragRef = useRef<{ from: number | null; over: number | null }>({ from: null, over: null })
+  const { Scope } = useScopedDragDrop()
+  const [draggingId, setDraggingId] = useState<string>()
+  const [overId, setOverId] = useState<string>()
 
-  const handlePointerDown = useCallback((index: number, event: PointerEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    setDragIndex(index)
-    setOverIndex(index)
-    dragRef.current = { from: index, over: index }
-  }, [])
+  /** Moves a panel to another position in the current chain. */
+  function move(from: number, to: number): void {
+    if (!effects[from] || !effects[to] || from === to) return
+    onReorder?.(reorderEffects(effects, from, to))
+  }
 
-  const handlePointerEnter = useCallback((index: number) => {
-    if (dragRef.current.from === null) return
-    dragRef.current.over = index
-    setOverIndex(index)
-  }, [])
+  /** Clears drag feedback and applies terminal input against the current effects. */
+  function endDrag({ id, overId, reason }: DragEndEvent): void {
+    setDraggingId(undefined)
+    setOverId(undefined)
+    // An input cancellation completes a move to the last visited panel, just like release.
+    if (reason === 'unmount' || overId === undefined) return
+    move(
+      effects.findIndex((effect) => effect.id === id),
+      effects.findIndex((effect) => effect.id === overId),
+    )
+  }
 
-  const handlePointerUp = useCallback(() => {
-    const { from, over } = dragRef.current
-    dragRef.current = { from: null, over: null }
-    setDragIndex(null)
-    setOverIndex(null)
-    if (from === null || over === null || from === over) return
-    onReorder?.(reorderEffects(effects, from, over))
-  }, [effects, onReorder])
+  /** Emits a catalog choice while the selector rests at its placeholder. */
+  function handleAdd(value: string): void {
+    const kind = EFFECT_KINDS.find((entry) => entry === value)
+    if (kind) onAdd?.(kind)
+  }
 
-  const handleAdd = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      const value = event.target.value
-      if (!value) return
-      // Reset back to the placeholder so the user can pick the same
-      // kind twice in a row without un-selecting first.
-      event.target.value = ''
-      if ((EFFECT_KINDS as readonly string[]).includes(value)) {
-        onAdd?.(value as EffectKind)
-      }
-    },
-    [onAdd],
-  )
-
-  const rootStyle: CSSProperties = {
+  const rootStyle: WebStyle = {
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
     userSelect: 'none',
   }
 
-  const headerStyle: CSSProperties = {
+  const headerStyle: WebStyle = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
   }
 
-  const chainStyle: CSSProperties = {
+  const chainStyle: WebStyle = {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -475,92 +460,118 @@ export function AudioEffectsRack(props: AudioEffectsRackProps): JSX.Element {
   }
 
   return (
-    <div
-      role="group"
-      aria-label={rackLabel}
-      data-mol-id="audio-effects-rack"
-      className={cm.cn(className)}
-      style={rootStyle}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
+    <Scope
+      onDragStart={({ id }) => setDraggingId(id)}
+      onDragMove={({ overId }) => setOverId(overId)}
+      onDragEnd={endDrag}
     >
-      <div data-mol-id="audio-effects-rack-header" style={headerStyle}>
-        <span
-          data-mol-id="audio-effects-rack-title"
-          className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
-        >
-          {rackLabel}
-        </span>
-        <label
-          data-mol-id="audio-effects-rack-add"
-          style={{ display: 'flex', alignItems: 'center', gap: 4 }}
-        >
-          <span className={cm.cn(cm.textSize('xs'))} style={{ opacity: 0.7 }}>
-            {addLabel}
-          </span>
-          <select
-            aria-label={addLabel}
-            data-mol-id="audio-effects-rack-add-select"
-            defaultValue=""
-            onChange={handleAdd}
-            style={{
-              fontSize: 12,
-              padding: '4px 6px',
-              borderRadius: 4,
-              border: '1px solid currentColor',
-              background: 'transparent',
-              color: 'inherit',
-            }}
+      <Box
+        as="div"
+        role="group"
+        aria-label={rackLabel}
+        data-mol-id="audio-effects-rack"
+        className={cm.cn(className)}
+        webStyle={rootStyle}
+      >
+        <Box as="div" data-mol-id="audio-effects-rack-header" webStyle={headerStyle}>
+          <Text
+            as="span"
+            data-mol-id="audio-effects-rack-title"
+            className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
           >
-            <option value="" disabled>
-              {addPlaceholder}
-            </option>
-            {EFFECT_KINDS.map((kind) => (
-              <option key={kind} value={kind}>
-                {kindLabel(kind)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      {effects.length === 0 ? (
-        <div
-          data-mol-id="audio-effects-rack-empty"
-          className={cm.cn(cm.textSize('xs'))}
-          style={{ opacity: 0.6, padding: 8 }}
-        >
-          {emptyLabel}
-        </div>
-      ) : (
-        <div data-mol-id="audio-effects-rack-chain" style={chainStyle}>
-          {effects.map((effect, index) => (
-            <EffectPanel
-              key={effect.id}
-              effect={effect}
-              index={index}
-              isDragging={dragIndex === index}
-              isOverTarget={overIndex === index && dragIndex !== null && dragIndex !== index}
-              kindLabel={kindLabel(effect.kind)}
-              bypassLabel={bypassLabel}
-              removeLabel={removeLabel}
-              dragHandleLabel={dragHandleLabel}
-              paramLabelFor={(paramId) => paramLabel(effect.kind, paramId)}
-              onChange={onChange}
-              onRemove={onRemove}
-              onDragStart={handlePointerDown}
-              onDragOver={handlePointerEnter}
+            {rackLabel}
+          </Text>
+          <Box
+            as="label"
+            data-mol-id="audio-effects-rack-add"
+            webStyle={{ display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            <Text as="span" className={cm.cn(cm.textSize('xs'))} webStyle={{ opacity: 0.7 }}>
+              {addLabel}
+            </Text>
+            <SelectField
+              as="select"
+              aria-label={addLabel}
+              data-mol-id="audio-effects-rack-add-select"
+              value=""
+              onValueChange={handleAdd}
+              options={[
+                { value: '', disabled: true, label: addPlaceholder, webDefaultSelected: true },
+                ...EFFECT_KINDS.map((kind) => ({ value: kind, label: kindLabel(kind) })),
+              ]}
+              webStyle={{
+                fontSize: 12,
+                padding: '4px 6px',
+                borderRadius: 4,
+                border: '1px solid currentColor',
+                background: 'transparent',
+                color: 'inherit',
+              }}
             />
-          ))}
-        </div>
-      )}
-    </div>
+          </Box>
+        </Box>
+
+        {effects.length === 0 ? (
+          <Box
+            as="div"
+            data-mol-id="audio-effects-rack-empty"
+            className={cm.cn(cm.textSize('xs'))}
+            webStyle={{ opacity: 0.6, padding: 8 }}
+          >
+            {emptyLabel}
+          </Box>
+        ) : (
+          <Box as="div" data-mol-id="audio-effects-rack-chain" webStyle={chainStyle}>
+            {effects.map((effect, index) => (
+              <EffectPanel
+                key={effect.id}
+                effect={effect}
+                isDragging={draggingId === effect.id}
+                isOverTarget={
+                  overId === effect.id && draggingId !== undefined && draggingId !== effect.id
+                }
+                kindLabel={kindLabel(effect.kind)}
+                bypassLabel={bypassLabel}
+                removeLabel={removeLabel}
+                dragHandleLabel={dragHandleLabel}
+                paramLabelFor={(paramId) => paramLabel(effect.kind, paramId)}
+                onChange={onChange}
+                onRemove={onRemove}
+                moveBy={(step) => move(index, index + step)}
+                moveControls={{
+                  id: `audio-effects-rack-move-${effect.id}`,
+                  label: t(
+                    'ui.dragDrop.moveItem',
+                    { item: kindLabel(effect.kind) },
+                    { defaultValue: 'Move {{item}}' },
+                  ),
+                  cancelLabel: t('ui.dragDrop.cancelMove', {}, { defaultValue: 'Cancel move' }),
+                  choices: effects.flatMap((target, destination) =>
+                    destination === index
+                      ? []
+                      : [
+                          {
+                            targetId: target.id,
+                            label: t(
+                              'ui.dragDrop.moveToPosition',
+                              { position: destination + 1 },
+                              { defaultValue: 'Move to position {{position}}' },
+                            ),
+                          },
+                        ],
+                  ),
+                }}
+              />
+            ))}
+          </Box>
+        )}
+      </Box>
+    </Scope>
   )
 }
 
 interface EffectPanelProps {
   effect: Effect
-  index: number
   isDragging: boolean
   isOverTarget: boolean
   kindLabel: string
@@ -570,8 +581,8 @@ interface EffectPanelProps {
   paramLabelFor: (paramId: string) => string
   onChange?: (patch: EffectChangePatch) => void
   onRemove?: (id: string) => void
-  onDragStart: (index: number, event: PointerEvent<HTMLButtonElement>) => void
-  onDragOver: (index: number) => void
+  moveBy: (step: number) => void
+  moveControls: DragMoveControls
 }
 
 /**
@@ -585,7 +596,6 @@ interface EffectPanelProps {
 function EffectPanel(props: EffectPanelProps): JSX.Element {
   const {
     effect,
-    index,
     isDragging,
     isOverTarget,
     kindLabel,
@@ -595,15 +605,16 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
     paramLabelFor,
     onChange,
     onRemove,
-    onDragStart,
-    onDragOver,
+    moveBy,
+    moveControls,
   } = props
 
   const cm = getClassMap()
+  const { Source, Target } = useScopedDragDrop()
 
   const schema = EFFECT_PARAM_SCHEMAS[effect.kind] ?? []
 
-  const panelStyle: CSSProperties = {
+  const panelStyle: WebStyle = {
     display: 'flex',
     flexDirection: 'column',
     gap: 6,
@@ -617,7 +628,7 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
     transform: isDragging ? 'scale(0.98)' : undefined,
   }
 
-  const headerStyle: CSSProperties = {
+  const headerStyle: WebStyle = {
     display: 'flex',
     alignItems: 'center',
     gap: 4,
@@ -638,7 +649,7 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
   /**
    * Toggles the bypass state for this effect and emits an `onChange` patch.
    */
-  function handleBypass(event: MouseEvent<HTMLButtonElement>): void {
+  function handleBypass(event: KitMouseEvent): void {
     event.preventDefault()
     onChange?.({ id: effect.id, enabled: !effect.enabled })
   }
@@ -646,7 +657,7 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
   /**
    * Requests removal of this effect via the `onRemove` callback.
    */
-  function handleRemove(event: MouseEvent<HTMLButtonElement>): void {
+  function handleRemove(event: KitMouseEvent): void {
     event.preventDefault()
     onRemove?.(effect.id)
   }
@@ -658,122 +669,142 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
     onChange?.({ id: effect.id, paramId, paramValue: value })
   }
 
-  /**
-   * Forwards a pointer-down on the drag handle up to the rack's drag-start handler.
-   */
-  function handleDragHandlePointerDown(event: PointerEvent<HTMLButtonElement>): void {
-    onDragStart(index, event)
-  }
-
-  /**
-   * Notifies the rack that the pointer is hovering over this panel during a drag.
-   */
-  function handlePanelPointerEnter(): void {
-    onDragOver(index)
-  }
-
   return (
-    <div
-      role="group"
-      aria-label={kindLabel}
-      data-mol-id="audio-effects-rack-panel"
-      data-effect-id={effect.id}
-      data-effect-kind={effect.kind}
-      data-enabled={effect.enabled ? 'true' : 'false'}
-      data-dragging={isDragging ? 'true' : 'false'}
-      data-drop-target={isOverTarget ? 'true' : 'false'}
-      className={cm.cn()}
-      style={panelStyle}
-      onPointerEnter={handlePanelPointerEnter}
-    >
-      <div data-mol-id="audio-effects-rack-panel-header" style={headerStyle}>
-        <button
-          type="button"
-          aria-label={dragHandleLabel}
-          data-mol-id="audio-effects-rack-drag-handle"
-          className={iconButtonClass}
-          // `grab` is the one thing the button CVA cannot express — it hardcodes
-          // `cursor-pointer`, and this control is dragged rather than clicked.
-          style={{ cursor: 'grab' }}
-          onPointerDown={handleDragHandlePointerDown}
+    <Target id={effect.id}>
+      {(host) => (
+        <Box
+          as="div"
+          {...host}
+          role="group"
+          aria-label={kindLabel}
+          data-mol-id="audio-effects-rack-panel"
+          data-effect-id={effect.id}
+          data-effect-kind={effect.kind}
+          data-enabled={effect.enabled ? 'true' : 'false'}
+          data-dragging={isDragging ? 'true' : 'false'}
+          data-drop-target={isOverTarget ? 'true' : 'false'}
+          className={cm.cn()}
+          webStyle={panelStyle}
         >
-          {/* unicode "vertical four dots" — a presentational glyph; not user-locale text */}
-          <span aria-hidden="true">{'⋮⋮'}</span>
-        </button>
-        <span
-          data-mol-id="audio-effects-rack-panel-title"
-          className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-          style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-        >
-          {kindLabel}
-        </span>
-        <button
-          type="button"
-          aria-label={bypassLabel}
-          aria-pressed={!effect.enabled ? 'true' : 'false'}
-          data-mol-id="audio-effects-rack-bypass"
-          className={bypassClass}
-          onClick={handleBypass}
-        >
-          {bypassLabel.charAt(0).toUpperCase()}
-        </button>
-        <button
-          type="button"
-          aria-label={removeLabel}
-          data-mol-id="audio-effects-rack-remove"
-          className={iconButtonClass}
-          onClick={handleRemove}
-        >
-          <span aria-hidden="true">{'×'}</span>
-        </button>
-      </div>
-
-      <div
-        data-mol-id="audio-effects-rack-params"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          gap: 4,
-        }}
-      >
-        {schema.map((param) => {
-          const value = resolveParamValue(effect, param)
-          const ariaLabel = paramLabelFor(param.id)
-          const node: ReactNode = (
-            <label
-              key={param.id}
-              data-mol-id="audio-effects-rack-param"
-              data-param-id={param.id}
-              style={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+          <Box as="div" data-mol-id="audio-effects-rack-panel-header" webStyle={headerStyle}>
+            <Source source={{ id: effect.id }} preventDefault controls={moveControls}>
+              {(handle) => (
+                <Pressable
+                  as="button"
+                  {...handle}
+                  type="button"
+                  aria-label={dragHandleLabel}
+                  data-mol-id="audio-effects-rack-drag-handle"
+                  className={iconButtonClass}
+                  // `grab` is the one thing the button CVA cannot express — it hardcodes
+                  // `cursor-pointer`, and this control is dragged rather than clicked.
+                  webStyle={{ cursor: 'grab' }}
+                  onKeyDown={(event) => {
+                    const step =
+                      event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+                        ? -1
+                        : event.key === 'ArrowRight' || event.key === 'ArrowDown'
+                          ? 1
+                          : 0
+                    if (!step) return
+                    event.preventDefault()
+                    moveBy(step)
+                  }}
+                >
+                  {/* unicode "vertical four dots" — a presentational glyph; not user-locale text */}
+                  <Text as="span" aria-hidden="true">
+                    {'⋮⋮'}
+                  </Text>
+                </Pressable>
+              )}
+            </Source>
+            <Text
+              as="span"
+              data-mol-id="audio-effects-rack-panel-title"
+              className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
+              webStyle={{
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
-              <span className={cm.cn(cm.textSize('xs'))} style={{ opacity: 0.7 }}>
-                {ariaLabel}
-              </span>
-              <input
-                type="range"
-                min={param.min}
-                max={param.max}
-                step={param.step}
-                value={value}
-                aria-label={ariaLabel}
-                aria-valuemin={param.min}
-                aria-valuemax={param.max}
-                aria-valuenow={value}
-                data-mol-id="audio-effects-rack-param-input"
-                data-param-id={param.id}
-                style={{ width: '100%' }}
-                onChange={(event) => {
-                  const next = parseFloat(event.target.value)
-                  if (!Number.isFinite(next)) return
-                  const clamped = next < param.min ? param.min : next > param.max ? param.max : next
-                  handleParam(param.id, clamped)
-                }}
-              />
-            </label>
-          )
-          return node
-        })}
-      </div>
-    </div>
+              {kindLabel}
+            </Text>
+            <Pressable
+              as="button"
+              type="button"
+              aria-label={bypassLabel}
+              aria-pressed={!effect.enabled ? 'true' : 'false'}
+              data-mol-id="audio-effects-rack-bypass"
+              className={bypassClass}
+              onClick={handleBypass}
+            >
+              {bypassLabel.charAt(0).toUpperCase()}
+            </Pressable>
+            <Pressable
+              as="button"
+              type="button"
+              aria-label={removeLabel}
+              data-mol-id="audio-effects-rack-remove"
+              className={iconButtonClass}
+              onClick={handleRemove}
+            >
+              <Text as="span" aria-hidden="true">
+                {'×'}
+              </Text>
+            </Pressable>
+          </Box>
+
+          <Box
+            as="div"
+            data-mol-id="audio-effects-rack-params"
+            webStyle={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: 4,
+            }}
+          >
+            {schema.map((param) => {
+              const value = resolveParamValue(effect, param)
+              const ariaLabel = paramLabelFor(param.id)
+              return (
+                <Box
+                  as="label"
+                  key={param.id}
+                  data-mol-id="audio-effects-rack-param"
+                  data-param-id={param.id}
+                  webStyle={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+                >
+                  <Text as="span" className={cm.cn(cm.textSize('xs'))} webStyle={{ opacity: 0.7 }}>
+                    {ariaLabel}
+                  </Text>
+                  <RangeField
+                    type="range"
+                    min={param.min}
+                    max={param.max}
+                    step={param.step}
+                    value={value}
+                    aria-label={ariaLabel}
+                    aria-valuemin={param.min}
+                    aria-valuemax={param.max}
+                    aria-valuenow={value}
+                    data-mol-id="audio-effects-rack-param-input"
+                    data-param-id={param.id}
+                    webStyle={{ width: '100%' }}
+                    onValueChange={(next) => {
+                      if (!Number.isFinite(next)) return
+                      const clamped =
+                        next < param.min ? param.min : next > param.max ? param.max : next
+                      handleParam(param.id, clamped)
+                    }}
+                  />
+                </Box>
+              )
+            })}
+          </Box>
+        </Box>
+      )}
+    </Target>
   )
 }

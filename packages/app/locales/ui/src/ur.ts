@@ -67,4 +67,5 @@ export const ur: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} کو {{destination}} میں منتقل کریں',
   'ui.dragDrop.cancelMove': 'منتقلی منسوخ کریں',
   'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
+  'ui.dragDrop.moveToPosition': 'پوزیشن {{position}} پر منتقل کریں',
 }

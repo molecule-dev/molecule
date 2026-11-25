@@ -67,4 +67,5 @@ export const ru: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Переместить {{item}} в {{destination}}',
   'ui.dragDrop.cancelMove': 'Отменить перемещение',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Переместить на позицию {{position}}',
 }

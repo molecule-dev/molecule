@@ -1,6 +1,5 @@
 {
   "features": [
-    "audio-effects-rack-react",
     "audio-player-react",
     "audio-recorder-react",
     "avatar-stack-react",
@@ -12,7 +11,6 @@
     "ide-react",
     "image-canvas-react",
     "image-gallery-editor-react",
-    "layer-panel-react",
     "map-drawing-react",
     "margin-notes-react",
     "mind-map-canvas-react",

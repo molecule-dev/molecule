@@ -61,4 +61,5 @@ export const da: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Flyt {{item}} til {{destination}}',
   'ui.dragDrop.cancelMove': 'Annuller flytning',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Flyt til position {{position}}',
 }

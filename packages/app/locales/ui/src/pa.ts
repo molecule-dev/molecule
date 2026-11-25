@@ -66,4 +66,5 @@ export const pa: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} ਨੂੰ {{destination}} ਵਿੱਚ ਹਿਲਾਓ',
   'ui.dragDrop.cancelMove': 'ਹਿਲਾਉਣਾ ਰੱਦ ਕਰੋ',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': "ਸਥਿਤੀ {{position}} 'ਤੇ ਹਿਲਾਓ",
 }

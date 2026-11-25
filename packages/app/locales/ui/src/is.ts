@@ -61,4 +61,5 @@ export const is: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Færa {{item}} í {{destination}}',
   'ui.dragDrop.cancelMove': 'Hætta við færslu',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Færa í {{position}}. sæti',
 }

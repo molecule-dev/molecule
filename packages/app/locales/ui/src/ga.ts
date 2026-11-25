@@ -61,4 +61,5 @@ export const ga: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Bog {{item}} go {{destination}}',
   'ui.dragDrop.cancelMove': 'Cealaigh an t-aistriú',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Bog go suíomh {{position}}',
 }

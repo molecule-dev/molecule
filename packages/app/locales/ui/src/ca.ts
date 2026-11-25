@@ -61,4 +61,5 @@ export const ca: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Mou {{item}} a {{destination}}',
   'ui.dragDrop.cancelMove': 'Cancel·la el moviment',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Mou a la posició {{position}}',
 }

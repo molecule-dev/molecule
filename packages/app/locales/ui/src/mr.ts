@@ -66,4 +66,5 @@ export const mr: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} {{destination}} मध्ये हलवा',
   'ui.dragDrop.cancelMove': 'हलवणे रद्द करा',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'स्थान {{position}} वर हलवा',
 }

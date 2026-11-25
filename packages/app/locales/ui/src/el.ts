@@ -61,4 +61,5 @@ export const el: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Μετακίνηση του στοιχείου {{item}} στο {{destination}}',
   'ui.dragDrop.cancelMove': 'Ακύρωση μετακίνησης',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Μετακίνηση στη θέση {{position}}',
 }

@@ -70,4 +70,5 @@ export const ml: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} {{destination}} എന്നതിലേക്ക് നീക്കുക',
   'ui.dragDrop.cancelMove': 'നീക്കൽ റദ്ദാക്കുക',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} സ്ഥാനത്തേക്ക് നീക്കുക',
 }

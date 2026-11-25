@@ -65,4 +65,5 @@ export const th: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'ย้าย {{item}} ไปยัง {{destination}}',
   'ui.dragDrop.cancelMove': 'ยกเลิกการย้าย',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'ย้ายไปยังตำแหน่ง {{position}}',
 }

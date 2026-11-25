@@ -1,8 +1,11 @@
-import type { JSX, KeyboardEvent, PointerEvent } from 'react'
+import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+import type { DragEndEvent } from '@molecule/app-drag-drop'
+import { useScopedDragDrop } from '@molecule/app-drag-drop/react'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Box, Image, Pressable, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import type { Layer } from './types.js'
 import { formatOpacityPercent, moveLayer } from './utilities.js'
@@ -44,10 +47,8 @@ export interface LayerPanelProps {
  * interactions emit intent callbacks; the host application owns the
  * data and re-renders with the next `layers` array.
  *
- * Drag-to-reorder uses pointer events (no `@dnd-kit` or HTML5 DnD
- * dependency), so it works on touch surfaces and inside transformed
- * canvases without quirks. The visual convention is top-down — index 0
- * is the front-most layer.
+ * Scoped drag-to-reorder follows the row on web and on touch surfaces.
+ * The visual convention is top-down — index 0 is the front-most layer.
  *
  * @param props - {@link LayerPanelProps}.
  * @returns The layer panel element.
@@ -65,64 +66,28 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
   } = props
   const cm = getClassMap()
   const { t } = useTranslation()
+  const { Scope, Target } = useScopedDragDrop()
 
   const [draggingId, setDraggingId] = useState<string | null>(null)
-  const [overIndex, setOverIndex] = useState<number | null>(null)
+  const [overId, setOverId] = useState<string>()
   const [editingId, setEditingId] = useState<string | null>(null)
   const editingValueRef = useRef<string>('')
-  const dragStartIndexRef = useRef<number | null>(null)
 
-  /**
-   * Capture the initial pointer position + index when a drag handle row
-   * begins a pointer-down sequence. We don't actually start the visual
-   * drag until the pointer moves — that lets a plain click still
-   * register as a "select" without flickering into drag mode.
-   *
-   * @param index - Index of the row receiving the pointer-down.
-   * @param id - Id of the layer in that row.
-   * @param event - The originating pointer event.
-   */
-  function onRowPointerDown(index: number, id: string, event: PointerEvent<HTMLLIElement>): void {
-    if (event.button !== 0) return
-    const layer = layers[index]
-    if (!layer || layer.locked) return
-    dragStartIndexRef.current = index
-    setDraggingId(id)
-    setOverIndex(index)
-    ;(event.currentTarget as HTMLLIElement).setPointerCapture(event.pointerId)
+  /** Moves a current, unlocked source to the destination in the current stack. */
+  function move(from: number, to: number): void {
+    if (!layers[from] || layers[from].locked || !layers[to] || from === to) return
+    onReorder(moveLayer(layers, from, to))
   }
 
-  /**
-   * Track which row the pointer is currently over while a drag is in
-   * flight. We compute the target index from the row element under the
-   * pointer (looked up via `data-mol-id`) so this works inside scrollable
-   * containers.
-   *
-   * @param event - The pointer-move event.
-   */
-  function onRowPointerMove(event: PointerEvent<HTMLLIElement>): void {
-    if (draggingId === null) return
-    const target = document.elementFromPoint(event.clientX, event.clientY)
-    if (!target) return
-    const row = target.closest('[data-mol-id^="layer-panel-row-"]') as HTMLElement | null
-    if (!row) return
-    const idx = Number(row.dataset.layerIndex)
-    if (Number.isFinite(idx)) setOverIndex(idx)
-  }
-
-  /**
-   * Commit the drag — call `onReorder` with the new array if the
-   * destination differs from the source — and reset all transient drag
-   * state.
-   */
-  function endDrag(): void {
-    if (draggingId !== null && dragStartIndexRef.current !== null && overIndex !== null) {
-      const next = moveLayer(layers, dragStartIndexRef.current, overIndex)
-      if (next !== layers) onReorder(next)
-    }
-    dragStartIndexRef.current = null
+  /** Clears drag feedback and applies an input completion against the latest layers. */
+  function endDrag({ id, overId, reason }: DragEndEvent): void {
     setDraggingId(null)
-    setOverIndex(null)
+    setOverId(undefined)
+    if (reason === 'unmount' || overId === undefined) return
+    move(
+      layers.findIndex((layer) => layer.id === id),
+      layers.findIndex((layer) => layer.id === overId),
+    )
   }
 
   /**
@@ -163,7 +128,7 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
    * @param event - The keyboard event.
    * @param layer - The layer being renamed.
    */
-  function onRenameKeyDown(event: KeyboardEvent<HTMLInputElement>, layer: Layer): void {
+  function onRenameKeyDown(event: KitKeyboardEvent, layer: Layer): void {
     if (event.key === 'Enter') {
       event.preventDefault()
       commitRename(layer)
@@ -174,158 +139,215 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
   }
 
   // Auto-focus the rename input when editing starts.
-  const renameInputRef = useRef<HTMLInputElement | null>(null)
+  const renameInputRef = useRef<ElementHandle>(null)
   useEffect(() => {
-    if (editingId !== null && renameInputRef.current) {
-      renameInputRef.current.focus()
-      renameInputRef.current.select()
-    }
+    if (editingId !== null) renameInputRef.current?.focus()
   }, [editingId])
 
+  const renameLabel = t('layerPanel.renameInput', {}, { defaultValue: 'Rename layer' })
   return (
-    <ul
-      className={cm.cn(cm.stack(0 as const), className)}
-      aria-label={t('layerPanel.label', {}, { defaultValue: 'Layers' })}
-      data-mol-id="layer-panel"
+    <Scope
+      onDragStart={({ id }) => setDraggingId(id)}
+      onDragMove={({ overId }) => setOverId(overId)}
+      onDragEnd={endDrag}
     >
-      {layers.map((layer, index) => {
-        const isActive = layer.id === activeId
-        const isDragging = layer.id === draggingId
-        const isOver = overIndex === index && draggingId !== null && draggingId !== layer.id
-        const isEditing = editingId === layer.id
-        const opacityLabel = formatOpacityPercent(layer.opacity)
-        const visibilityLabel = layer.visible
-          ? t('layerPanel.hide', {}, { defaultValue: 'Hide layer' })
-          : t('layerPanel.show', {}, { defaultValue: 'Show layer' })
-        const lockLabel = layer.locked
-          ? t('layerPanel.unlock', {}, { defaultValue: 'Unlock layer' })
-          : t('layerPanel.lock', {}, { defaultValue: 'Lock layer' })
+      <Box
+        as="ul"
+        className={cm.cn(cm.stack(0 as const), className)}
+        aria-label={t('layerPanel.label', {}, { defaultValue: 'Layers' })}
+        data-mol-id="layer-panel"
+      >
+        {layers.map((layer, index) => {
+          const isActive = layer.id === activeId
+          const isDragging = layer.id === draggingId
+          const isOver = overId === layer.id && draggingId !== null && draggingId !== layer.id
+          const isEditing = editingId === layer.id
+          const opacityLabel = formatOpacityPercent(layer.opacity)
+          const visibilityLabel = layer.visible
+            ? t('layerPanel.hide', {}, { defaultValue: 'Hide layer' })
+            : t('layerPanel.show', {}, { defaultValue: 'Show layer' })
+          const lockLabel = layer.locked
+            ? t('layerPanel.unlock', {}, { defaultValue: 'Unlock layer' })
+            : t('layerPanel.lock', {}, { defaultValue: 'Lock layer' })
+          const rename = layer.locked
+            ? undefined
+            : { label: renameLabel, run: () => startRename(layer) }
 
-        return (
-          <li
-            key={layer.id}
-            data-mol-id={`layer-panel-row-${layer.id}`}
-            data-layer-index={index}
-            onPointerDown={(e) => onRowPointerDown(index, layer.id, e)}
-            onPointerMove={onRowPointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            /* The row itself carries only the drag machinery (pointer
-               events); select is a native button on the layer name below,
-               so the row needs no click handler and no keyboard shim. */
-            className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.cursorPointer)}
-            style={{
-              opacity: isDragging ? 0.4 : layer.visible ? 1 : 0.55,
-              borderTop: isOver ? '2px solid currentColor' : undefined,
-              padding: '4px 8px',
-              outline: isActive ? '2px solid currentColor' : undefined,
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => onVisibilityToggle(layer.id)}
-              aria-label={visibilityLabel}
-              title={visibilityLabel}
-              aria-pressed={!layer.visible}
-              data-mol-id={`layer-panel-visibility-${layer.id}`}
-              /* mol-bespoke-button: icon-only visibility toggle in a layer
+          return (
+            <Target
+              key={layer.id}
+              id={layer.id}
+              source={{
+                disabled: layer.locked,
+                controls: layer.locked
+                  ? undefined
+                  : {
+                      id: `layer-panel-move-${layer.id}`,
+                      label: t(
+                        'ui.dragDrop.moveItem',
+                        { item: layer.name },
+                        { defaultValue: 'Move {{item}}' },
+                      ),
+                      cancelLabel: t('ui.dragDrop.cancelMove', {}, { defaultValue: 'Cancel move' }),
+                      choices: layers.flatMap((target, destination) =>
+                        target === layer
+                          ? []
+                          : [
+                              {
+                                targetId: target.id,
+                                label: t(
+                                  'ui.dragDrop.moveToPosition',
+                                  { position: destination + 1 },
+                                  { defaultValue: 'Move to position {{position}}' },
+                                ),
+                              },
+                            ],
+                      ),
+                    },
+              }}
+            >
+              {(host) => (
+                <Box
+                  as="li"
+                  {...host}
+                  data-mol-id={`layer-panel-row-${layer.id}`}
+                  data-layer-index={index}
+                  className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.cursorPointer)}
+                  webStyle={{
+                    opacity: isDragging ? 0.4 : layer.visible ? 1 : 0.55,
+                    borderTop: isOver ? '2px solid currentColor' : undefined,
+                    padding: '4px 8px',
+                    outline: isActive ? '2px solid currentColor' : undefined,
+                  }}
+                >
+                  <Pressable
+                    as="button"
+                    type="button"
+                    onClick={() => onVisibilityToggle(layer.id)}
+                    aria-label={visibilityLabel}
+                    title={visibilityLabel}
+                    aria-pressed={!layer.visible}
+                    data-mol-id={`layer-panel-visibility-${layer.id}`}
+                    /* mol-bespoke-button: icon-only visibility toggle in a layer
                  row — a bare glyph with no button surface, so the inline
                  background/border/padding are native resets. 44px touch
                  floor from the ClassMap. */
-              className={cm.cn(cm.cursorPointer, cm.touchTarget)}
-              style={{ background: 'transparent', border: 'none', padding: 0 }}
-            >
-              <span aria-hidden="true">{layer.visible ? '\u{1F441}' : '\u{1F441}\u{0338}'}</span>
-            </button>
+                    className={cm.cn(cm.cursorPointer, cm.touchTarget)}
+                    webStyle={{ background: 'transparent', border: 'none', padding: 0 }}
+                  >
+                    <Text as="span" aria-hidden="true">
+                      {layer.visible ? '\u{1F441}' : '\u{1F441}\u{0338}'}
+                    </Text>
+                  </Pressable>
 
-            <button
-              type="button"
-              onClick={() => onLockToggle(layer.id)}
-              aria-label={lockLabel}
-              title={lockLabel}
-              aria-pressed={layer.locked}
-              data-mol-id={`layer-panel-lock-${layer.id}`}
-              /* mol-bespoke-button: icon-only lock toggle — same bare-glyph
+                  <Pressable
+                    as="button"
+                    type="button"
+                    onClick={() => onLockToggle(layer.id)}
+                    aria-label={lockLabel}
+                    title={lockLabel}
+                    aria-pressed={layer.locked}
+                    data-mol-id={`layer-panel-lock-${layer.id}`}
+                    /* mol-bespoke-button: icon-only lock toggle — same bare-glyph
                  row chrome as the visibility toggle above. */
-              className={cm.cn(cm.cursorPointer, cm.touchTarget)}
-              style={{ background: 'transparent', border: 'none', padding: 0 }}
-            >
-              <span aria-hidden="true">{layer.locked ? '\u{1F512}' : '\u{1F513}'}</span>
-            </button>
+                    className={cm.cn(cm.cursorPointer, cm.touchTarget)}
+                    webStyle={{ background: 'transparent', border: 'none', padding: 0 }}
+                  >
+                    <Text as="span" aria-hidden="true">
+                      {layer.locked ? '\u{1F512}' : '\u{1F513}'}
+                    </Text>
+                  </Pressable>
 
-            {layer.thumbnail && (
-              <img
-                src={layer.thumbnail}
-                alt=""
-                aria-hidden="true"
-                style={{ width: 24, height: 24, objectFit: 'cover', flexShrink: 0 }}
-              />
-            )}
+                  {layer.thumbnail && (
+                    <Image
+                      src={layer.thumbnail}
+                      alt=""
+                      aria-hidden="true"
+                      webStyle={{ width: 24, height: 24, objectFit: 'cover', flexShrink: 0 }}
+                    />
+                  )}
 
-            <div
-              className={cm.flex1}
-              onDoubleClick={(e) => {
-                e.stopPropagation()
-                startRename(layer)
-              }}
-            >
-              {isEditing ? (
-                <input
-                  ref={renameInputRef}
-                  type="text"
-                  defaultValue={layer.name}
-                  onChange={(e) => {
-                    editingValueRef.current = e.currentTarget.value
-                  }}
-                  onBlur={() => commitRename(layer)}
-                  onKeyDown={(e) => onRenameKeyDown(e, layer)}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  aria-label={t('layerPanel.renameInput', {}, { defaultValue: 'Rename layer' })}
-                  data-mol-id={`layer-panel-rename-${layer.id}`}
-                  style={{ width: '100%' }}
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => onSelect(layer.id)}
-                  aria-current={isActive ? 'true' : undefined}
-                  data-mol-id={`layer-panel-name-${layer.id}`}
-                  /* mol-bespoke-button: the layer NAME is the row's select
+                  <Box
+                    as="div"
+                    className={cm.flex1}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation()
+                      startRename(layer)
+                    }}
+                  >
+                    {isEditing ? (
+                      <TextField
+                        as="input"
+                        ref={renameInputRef}
+                        type="text"
+                        defaultValue={layer.name}
+                        onValueChange={(value) => {
+                          editingValueRef.current = value
+                        }}
+                        onBlur={() => commitRename(layer)}
+                        onKeyDown={(e) => onRenameKeyDown(e, layer)}
+                        selectTextOnFocus
+                        aria-label={renameLabel}
+                        data-mol-id={`layer-panel-rename-${layer.id}`}
+                        webStyle={{ width: '100%' }}
+                      />
+                    ) : (
+                      <Pressable
+                        as="button"
+                        type="button"
+                        onClick={() => onSelect(layer.id)}
+                        onDoubleClick={rename ? (event) => event.stopPropagation() : undefined}
+                        secondaryAction={rename}
+                        onKeyDown={(event) => {
+                          if (layer.locked || !event.altKey) return
+                          const step =
+                            event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : 0
+                          if (!step) return
+                          event.preventDefault()
+                          move(index, index + step)
+                        }}
+                        aria-current={isActive ? 'true' : undefined}
+                        data-mol-id={`layer-panel-name-${layer.id}`}
+                        /* mol-bespoke-button: the layer NAME is the row's select
                      control — a native button carrying plain text, so the
                      inline background/border/padding/font/color are native
                      resets, not a missing `cm.button()` surface. Native
                      Enter/Space activation gives keyboard users the same
                      select the row click gave mouse users. */
-                  className={cm.cn(cm.cursorPointer)}
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    padding: 0,
-                    font: 'inherit',
-                    color: 'inherit',
-                    textAlign: 'left',
-                  }}
-                >
-                  {layer.name}
-                </button>
-              )}
-            </div>
+                        className={cm.cn(cm.cursorPointer)}
+                        webStyle={{
+                          width: '100%',
+                          background: 'transparent',
+                          border: 'none',
+                          padding: 0,
+                          font: 'inherit',
+                          color: 'inherit',
+                          textAlign: 'left',
+                        }}
+                      >
+                        {layer.name}
+                      </Pressable>
+                    )}
+                  </Box>
 
-            {(layer.blendMode || opacityLabel) && (
-              <span
-                aria-label={t('layerPanel.metadata', {}, { defaultValue: 'Layer metadata' })}
-                data-mol-id={`layer-panel-meta-${layer.id}`}
-                style={{ fontSize: '0.75em', opacity: 0.7 }}
-              >
-                {layer.blendMode ? layer.blendMode : ''}
-                {layer.blendMode && opacityLabel ? ' · ' : ''}
-                {opacityLabel}
-              </span>
-            )}
-          </li>
-        )
-      })}
-    </ul>
+                  {(layer.blendMode || opacityLabel) && (
+                    <Text
+                      as="span"
+                      aria-label={t('layerPanel.metadata', {}, { defaultValue: 'Layer metadata' })}
+                      data-mol-id={`layer-panel-meta-${layer.id}`}
+                      webStyle={{ fontSize: '0.75em', opacity: 0.7 }}
+                    >
+                      {layer.blendMode ? layer.blendMode : ''}
+                      {layer.blendMode && opacityLabel ? ' · ' : ''}
+                      {opacityLabel}
+                    </Text>
+                  )}
+                </Box>
+              )}
+            </Target>
+          )
+        })}
+      </Box>
+    </Scope>
   )
 }

@@ -62,4 +62,5 @@ export const lo: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'ຍ້າຍ {{item}} ໄປທີ່ {{destination}}',
   'ui.dragDrop.cancelMove': 'ຍົກເລີກການຍ້າຍ',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'ຍ້າຍໄປທີ່ ຕຳແໜ່ງ {{position}}',
 }

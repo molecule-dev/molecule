@@ -68,4 +68,5 @@ export const ka: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}}-ის გადატანა {{destination}}-ში',
   'ui.dragDrop.cancelMove': 'გადატანის გაუქმება',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'გადატანა {{position}} პოზიციაზე',
 }

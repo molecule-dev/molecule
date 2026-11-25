@@ -61,4 +61,5 @@ export const be: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Перамясціць {{item}} у {{destination}}',
   'ui.dragDrop.cancelMove': 'Скасаваць перамяшчэнне',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Перамясціць на пазіцыю {{position}}',
 }

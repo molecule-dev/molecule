@@ -61,4 +61,5 @@ export const fa: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'جابه‌جایی {{item}} به {{destination}}',
   'ui.dragDrop.cancelMove': 'لغو جابه‌جایی',
   'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
+  'ui.dragDrop.moveToPosition': 'جابه‌جایی به موقعیت {{position}}',
 }

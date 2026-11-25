@@ -61,4 +61,5 @@ export const sk: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Presunúť {{item}} do {{destination}}',
   'ui.dragDrop.cancelMove': 'Zrušiť presun',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Presunúť na pozíciu {{position}}',
 }

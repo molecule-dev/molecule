@@ -61,4 +61,5 @@ export const uz: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} elementini {{destination}} bo‘limiga ko‘chirish',
   'ui.dragDrop.cancelMove': 'Ko‘chirishni bekor qilish',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}}-o‘ringa ko‘chirish',
 }

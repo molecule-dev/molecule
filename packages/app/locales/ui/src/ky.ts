@@ -61,4 +61,5 @@ export const ky: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} элементин {{destination}} бөлүмүнө жылдыруу',
   'ui.dragDrop.cancelMove': 'Жылдырууну жокко чыгаруу',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} позицияга жылдыруу',
 }

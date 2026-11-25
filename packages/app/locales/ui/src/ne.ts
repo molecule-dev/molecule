@@ -71,4 +71,5 @@ export const ne: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} लाई {{destination}} मा सार्नुहोस्',
   'ui.dragDrop.cancelMove': 'सार्न रद्द गर्नुहोस्',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'स्थान {{position}} मा सार्नुहोस्',
 }

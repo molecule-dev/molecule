@@ -61,4 +61,5 @@ export const eu: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Mugitu {{item}} {{destination}} helburura',
   'ui.dragDrop.cancelMove': 'Utzi mugimendua bertan behera',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Mugitu {{position}} posiziora',
 }

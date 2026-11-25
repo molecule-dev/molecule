@@ -66,4 +66,5 @@ export const si: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} {{destination}} වෙත ගෙන යන්න',
   'ui.dragDrop.cancelMove': 'ගෙන යාම අවලංගු කරන්න',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'පිහිටීම {{position}} වෙත ගෙන යන්න',
 }

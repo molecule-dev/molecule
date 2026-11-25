@@ -67,4 +67,5 @@ export const mn: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}}-г {{destination}} рүү зөөх',
   'ui.dragDrop.cancelMove': 'Зөөлтийг цуцлах',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}}-р байрлал руу зөөх',
 }

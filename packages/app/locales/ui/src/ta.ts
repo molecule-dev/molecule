@@ -68,4 +68,5 @@ export const ta: UiTranslations = {
   'ui.dragDrop.moveItemTo': '{{item}} என்பதை {{destination}} என்பதற்கு நகர்த்தவும்',
   'ui.dragDrop.cancelMove': 'நகர்த்துவதை ரத்துசெய்',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} ஆம் இடத்திற்கு நகர்த்தவும்',
 }

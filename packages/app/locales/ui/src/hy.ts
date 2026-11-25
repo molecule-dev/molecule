@@ -66,4 +66,5 @@ export const hy: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Տեղափոխել {{item}} դեպի {{destination}}',
   'ui.dragDrop.cancelMove': 'Չեղարկել տեղափոխումը',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Տեղափոխել դեպի {{position}} դիրք',
 }

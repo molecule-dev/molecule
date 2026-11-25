@@ -61,4 +61,5 @@ export const yo: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Gbé {{item}} lọ sí {{destination}}',
   'ui.dragDrop.cancelMove': 'Fagilé gbígbé',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Gbé lọ sí ipo {{position}}',
 }

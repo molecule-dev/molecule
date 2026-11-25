@@ -61,4 +61,5 @@ export const tr: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': '{{item}} öğesini {{destination}} konumuna taşı',
   'ui.dragDrop.cancelMove': 'Taşımayı iptal et',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': '{{position}} konumuna taşı',
 }

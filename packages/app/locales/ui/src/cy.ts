@@ -61,4 +61,5 @@ export const cy: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Symud {{item}} i {{destination}}',
   'ui.dragDrop.cancelMove': 'Canslo symud',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Symud i safle {{position}}',
 }

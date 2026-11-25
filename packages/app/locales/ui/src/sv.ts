@@ -61,4 +61,5 @@ export const sv: Partial<UiTranslations> = {
   'ui.dragDrop.moveItemTo': 'Flytta {{item}} till {{destination}}',
   'ui.dragDrop.cancelMove': 'Avbryt flytt',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Flytta till position {{position}}',
 }

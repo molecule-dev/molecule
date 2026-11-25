@@ -61,4 +61,5 @@ export const gl: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Mover {{item}} a {{destination}}',
   'ui.dragDrop.cancelMove': 'Cancelar o movemento',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Mover á posición {{position}}',
 }

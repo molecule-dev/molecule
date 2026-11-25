@@ -61,4 +61,5 @@ export const lv: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Pārvietot {{item}} uz {{destination}}',
   'ui.dragDrop.cancelMove': 'Atcelt pārvietošanu',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Pārvietot uz {{position}}. pozīciju',
 }

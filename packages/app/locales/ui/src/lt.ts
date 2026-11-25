@@ -61,4 +61,5 @@ export const lt: UiTranslations = {
   'ui.dragDrop.moveItemTo': 'Perkelti {{item}} į {{destination}}',
   'ui.dragDrop.cancelMove': 'Atšaukti perkėlimą',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+  'ui.dragDrop.moveToPosition': 'Perkelti į {{position}} poziciją',
 }
