@@ -29,6 +29,44 @@ afterEach(() => {
 })
 
 describe('TextField element (web)', () => {
+  it('preserves number and date constraints and omits them on unsupported hosts', () => {
+    // A JavaScript consumer can supply extra props outside the TypeScript contract.
+    const unsupported: Record<string, number> = { min: 0, max: 10, step: 1 }
+    act(() =>
+      root.render(
+        <>
+          <TextField as="input" type="number" min={0} max={2} step={0.1} defaultValue="0.3" />
+          <TextField as="input" type="date" min="2024-02-29" step="any" defaultValue="2024-02-29" />
+          <TextField as="input" type="number" />
+          <TextField as="input" type="text" {...unsupported} />
+          <TextField as="textarea" {...unsupported} />
+        </>,
+      ),
+    )
+    const [number, date, omitted, text, area] = container.children
+    expect(number?.getAttribute('min')).toBe('0')
+    expect(number?.getAttribute('max')).toBe('2')
+    expect(number?.getAttribute('step')).toBe('0.1')
+    expect(date?.getAttribute('min')).toBe('2024-02-29')
+    expect(date?.hasAttribute('max')).toBe(false)
+    expect(date?.getAttribute('step')).toBe('any')
+    if (!(number instanceof HTMLInputElement) || !(date instanceof HTMLInputElement))
+      throw new Error('Missing number or date input')
+    expect(number.checkValidity()).toBe(true)
+    number.value = '0.35'
+    expect(number.validity.stepMismatch).toBe(true)
+    expect(date.checkValidity()).toBe(true)
+    date.value = '2024-02-28'
+    expect(date.validity.rangeUnderflow).toBe(true)
+    date.value = '2024-02-30'
+    expect(date.value).toBe('')
+    for (const element of [omitted, text, area]) {
+      expect(element?.getAttribute('min')).toBeNull()
+      expect(element?.getAttribute('max')).toBeNull()
+      expect(element?.getAttribute('step')).toBeNull()
+    }
+  })
+
   it('renders an input with its type and a text area with its rows, cols and wrap', () => {
     act(() =>
       root.render(

@@ -25,6 +25,7 @@ import type {
   FormEventHandler,
   KeyboardEventHandler,
   KitEvent,
+  KitModifierKeys,
   MouseEventHandler,
 } from './types.js'
 
@@ -54,6 +55,42 @@ export interface ElementBox {
   width: number
   /** Height of the box. */
   height: number
+}
+
+/** One sample from the contact that owns a drag, in CSS pixels on web or dp on native. */
+export interface ElementDragPoint extends KitModifierKeys {
+  /** Unclamped horizontal offset from the current HTML box, SVG viewport, or native frame. */
+  readonly x: number
+  /** Unclamped vertical offset from the current HTML box, SVG viewport, or native frame. */
+  readonly y: number
+  /** Horizontal displacement from contact-down in viewport axes on either renderer. */
+  readonly dx: number
+  /** Vertical displacement from contact-down in viewport axes on either renderer. */
+  readonly dy: number
+  /** Current frame in the same window space as the renderer's `measureElement`. */
+  readonly bounds: Readonly<ElementBox>
+}
+
+/** One primary contact, owned until release or interruption on web and native. */
+export interface ElementDrag {
+  /** Axis used to negotiate with an enclosing scroller on either renderer. Defaults to both. */
+  axis?: 'horizontal' | 'vertical' | 'both'
+  /** Whether touch acquires on contact or waits for a long press so an ordinary swipe can scroll. */
+  touchStart?: 'immediate' | 'longPress'
+  /** Acquires once, including a stationary mouse, pen, or touch on either renderer. */
+  onStart(point: ElementDragPoint): void
+  /** Reports motion of the owned pointer or native responder, including outside the surface. */
+  onMove?(point: ElementDragPoint): void
+  /** Reports the final position on web pointer-up or native touch release. */
+  onEnd?(point: ElementDragPoint): void
+  /** Reports the last reliable sample on web capture loss or native responder interruption. */
+  onCancel?(point: ElementDragPoint): void
+}
+
+/** Continuous manipulation of an element, through pointer capture or the native touch responder. */
+export interface ElementDragProps {
+  /** Binds one contact on the current box or the enclosing SVG viewport. */
+  drag?: ElementDrag
 }
 
 // ============================================================================
@@ -412,7 +449,7 @@ export interface MousePressProps {
 // ELEMENTS
 // ============================================================================
 
-/** Web tags a {@link BoxProps} element renders: containers that hold elements, never bare text. */
+/** Web container tags and their native view counterparts, including address blocks. */
 export type BoxTag =
   | 'div'
   | 'span'
@@ -429,6 +466,7 @@ export type BoxTag =
   | 'dl'
   | 'dd'
   | 'figure'
+  | 'address'
 
 /**
  * A container (native `View`; a native `Pressable` when it has a press, hover or focus handler or a
@@ -436,7 +474,8 @@ export type BoxTag =
  * (in a flex container, its own flex item; in any other, a line with its inline siblings). Use
  * {@link PressableProps} for a control: a button, or anything announced as one.
  */
-export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps, MousePressProps {
+export interface BoxProps<Node = unknown>
+  extends ElementProps, InteractionProps, MousePressProps, ElementDragProps {
   /** The web tag. A label activates the first labelable control it wraps. */
   as: BoxTag | 'label'
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
@@ -445,6 +484,15 @@ export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps
   hidden?: boolean
   /** Web outside mouse down. Native observes outside touches in the enclosing box tree. */
   onPressOutside?: () => void
+  /** Observes touch-down, including on a child, without claiming it on web or native. */
+  onTouchStart?: () => void
+  /** A browser double-click, native double tap, or native assistive action. */
+  secondaryAction?: {
+    /** Localized name for the native accessibility action. The browser adds no attribute. */
+    label: string
+    /** Runs the secondary action from the browser event or native gesture or assistive action. */
+    run: () => void
+  }
   /** Consumes plain-text paste on the web or through a native field or focused Paste command. */
   onPasteText?: (text: string) => void
   /** Layout and paint both renderers apply. */
@@ -453,6 +501,42 @@ export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps
   webStyle?: WebStyle
   /** Child elements. */
   children?: Node
+}
+
+/** Attributes of the browser summary or its native pressable control. */
+export interface DisclosureSummaryProps extends ElementProps {
+  /** Layout and paint for the summary on web and device. */
+  style?: BoxStyle
+  /** CSS for the summary. Devices apply the subset they can draw. */
+  webStyle?: WebStyle
+}
+
+/** A disclosure with a first-child summary and a body that stays mounted while closed. */
+export interface DisclosureProps<Node = unknown> extends ElementProps {
+  /** A literal details element on web and a view on device. */
+  as: 'details'
+  /** Initial open state and subsequent parent changes. Both renderers default to closed. */
+  open?: boolean
+  /** Content of the browser summary or native pressable summary. */
+  summary: Node
+  /** Attributes on the summary element or native pressable itself. */
+  summaryProps?: DisclosureSummaryProps
+  /** Reports the resulting state after the browser toggle event or a queued native transition. */
+  onToggle?: (open: boolean) => void
+  /** Layout and paint for the whole disclosure on web and device. */
+  style?: BoxStyle
+  /** CSS for the details element. Devices apply the subset they can draw. */
+  webStyle?: WebStyle
+  /** Body content. Both renderers hide it while closed and preserve its state. */
+  children?: Node
+}
+
+/** A horizontal thematic break. Web renders a void element and native draws a themed line. */
+export interface RuleProps extends ElementProps, Pick<BoxProps, 'style' | 'webStyle'> {
+  /** A literal hr on web and a separator view on device. */
+  as: 'hr'
+  /** A thematic break has no children on either renderer. */
+  children?: never
 }
 
 /**
@@ -568,7 +652,7 @@ export type PressableTag = 'button' | 'div' | 'span' | 'li'
  * text and inside a native `Text`.
  */
 export interface PressableProps<Node = unknown>
-  extends ElementProps, InteractionProps, MousePressProps {
+  extends ElementProps, InteractionProps, MousePressProps, ElementDragProps {
   /** The web tag. */
   as: PressableTag
   /** A button's type: always set it, a button inside a form submits it by default. */
@@ -636,8 +720,8 @@ export type AnchorProps<Node = unknown> = Omit<
   href: string
 }
 
-/** A single-line or multi-line text field (native `TextInput`). */
-export interface TextFieldProps extends ElementProps, InteractionProps {
+/** Props common to a browser text field or text area and the native TextInput. */
+export interface TextFieldBaseProps extends ElementProps, InteractionProps {
   /** `input` for one line, `textarea` for several. */
   as: 'input' | 'textarea'
   /**
@@ -718,6 +802,24 @@ export interface TextFieldProps extends ElementProps, InteractionProps {
   /** Web-only paint (a field's border and outline resets). */
   webStyle?: WebStyle
 }
+
+/** Inclusive bounds and step for a number or calendar-date field. */
+export interface FieldBounds<T> {
+  /** HTML minimum attribute. Native uses it as an inclusive lower bound and step base. */
+  min?: T
+  /** HTML maximum attribute. Native uses it as an inclusive upper bound. */
+  max?: T
+  /** Increment on both renderers, in days for dates. 'any' disables step validation. */
+  step?: number | 'any'
+}
+
+/** Web and native text fields accept bounds only on number and date inputs. */
+export type TextFieldProps = TextFieldBaseProps &
+  (
+    | { min?: never; max?: never; step?: never }
+    | ({ as: 'input'; type: 'number' } & FieldBounds<number>)
+    | ({ as: 'input'; type: 'date' } & FieldBounds<string>)
+  )
 
 /** A numeric range rendered by the browser's range input or the device's adjustable slider. */
 export interface RangeFieldProps extends ElementProps, InteractionProps {
@@ -1037,8 +1139,93 @@ export interface SvgElementProps extends ElementProps, SvgPaintProps {
   webStyle?: WebStyle
 }
 
+/** Definitions in the enclosing SVG's ID namespace on both renderers. */
+export interface SvgDefsProps<Node = unknown> {
+  /** Definition elements drawn through references on web and native. */
+  children: Node
+}
+
+/** Geometry referenced by `url(#id)` as a clipping region. */
+export interface SvgClipPathProps<Node = unknown> extends SvgDefsProps<Node> {
+  /** Local ID used by the browser's and device's SVG clipping engines. */
+  id: string
+}
+
+/** One gradient stop. Equal offsets retain their input order on both renderers. */
+export interface SvgGradientStop {
+  /** A fraction or percentage such as `'50%'`, passed to each renderer's stop. */
+  offset: ElementLength
+  /** CSS colour, including `currentColor`, which native resolves to the inherited ink. */
+  stopColor: string
+  /** Opacity from zero to one for the browser and native stop. */
+  stopOpacity?: number
+}
+
+/** A named linear paint server and its stops. */
+export interface SvgLinearGradientProps {
+  /** Local ID used by paint references on web and native. */
+  id: string
+  /** Horizontal start in the selected coordinate system, on web and native. */
+  x1?: ElementLength
+  /** Vertical start in the selected coordinate system, on web and native. */
+  y1?: ElementLength
+  /** Horizontal end in the selected coordinate system, on web and native. */
+  x2?: ElementLength
+  /** Vertical end in the selected coordinate system, on web and native. */
+  y2?: ElementLength
+  /** Coordinate system for the gradient on both renderers. */
+  gradientUnits?: 'objectBoundingBox' | 'userSpaceOnUse'
+  /** In-order stop elements for the browser's SVG painter and react-native-svg. */
+  stops: readonly SvgGradientStop[]
+}
+
+/** A named, repeating SVG tile. */
+export interface SvgPatternProps<Node = unknown> extends SvgDefsProps<Node> {
+  /** Local ID used by paint references on web and native. */
+  id: string
+  /** Tile's horizontal origin for the browser and native SVG painter. */
+  x?: ElementLength
+  /** Tile's vertical origin for the browser and native SVG painter. */
+  y?: ElementLength
+  /** Tile width for the browser and native SVG painter. */
+  width: ElementLength
+  /** Tile height for the browser and native SVG painter. */
+  height: ElementLength
+  /** Coordinate system for the tile's origin and size, on both renderers. */
+  patternUnits?: 'objectBoundingBox' | 'userSpaceOnUse'
+}
+
+/** An image positioned in SVG user space. */
+export interface SvgImageProps extends SvgElementProps {
+  /** Literal browser URL. Native resolves relative URLs against the public document URL. */
+  href: string
+  /** Horizontal origin on web and native. */
+  x?: ElementLength
+  /** Vertical origin on web and native. */
+  y?: ElementLength
+  /** Image viewport width on web and native. */
+  width: ElementLength
+  /** Image viewport height on web and native. */
+  height: ElementLength
+  /** Alignment and fit of the image in its viewport on both renderers. */
+  preserveAspectRatio?: string
+}
+
+/** Descriptive SVG children. They precede geometry on web and name the native graphic. */
+export interface SvgMetadata {
+  /** Browser `<title>` and the device's fallback accessible name. */
+  title?: string
+  /** Browser `<desc>` and the device's accessible description. */
+  description?: {
+    /** ID that `aria-describedby` can reference on either renderer. */
+    id?: string
+    /** Description drawn as SVG metadata on web and spoken by the device. */
+    text: string
+  }
+}
+
 /** An SVG canvas (native react-native-svg `Svg`). */
-export interface SvgProps<Node = unknown> extends SvgElementProps {
+export interface SvgProps<Node = unknown> extends SvgElementProps, ElementDragProps {
   /** Rendered width. */
   width?: number | `${number}%`
   /** Rendered height. */
@@ -1053,6 +1240,12 @@ export interface SvgProps<Node = unknown> extends SvgElementProps {
   xmlns?: string
   /** CSS for the web, and the style a device can draw of it. */
   webStyle?: WebStyle
+  /** Descriptive SVG children on web, and name and description for native accessibility. */
+  metadata?: SvgMetadata
+  /** The browser's `shape-rendering` presentation hint. The device uses its SVG painter. */
+  webShapeRendering?: 'auto' | 'optimizeSpeed' | 'crispEdges' | 'geometricPrecision'
+  /** Language metadata emitted as `translate` on web and consumed before native drawing. */
+  translate?: 'yes' | 'no'
   /** Shapes. */
   children?: Node
 }
@@ -1061,7 +1254,7 @@ export interface SvgProps<Node = unknown> extends SvgElementProps {
  * An SVG canvas drawn from inner SVG markup (an icon set's prebuilt glyph; native react-native-svg
  * `SvgXml`). The markup is trusted: it comes from a bonded set, never from a user.
  */
-export interface SvgMarkupProps extends Omit<SvgProps, 'children'> {
+export interface SvgMarkupProps extends Omit<SvgProps, 'children' | 'drag' | 'metadata'> {
   /** The markup inside the `<svg>` element. */
   markup: string
 }
@@ -1090,6 +1283,12 @@ export interface SvgRectProps extends SvgElementProps {
   rx?: number
   /** Corner radius on y. */
   ry?: number
+  /** Web `<title>` and `<desc>` inside this rectangle, mapped to its device focus target. */
+  metadata?: SvgMetadata
+  /** Web presentation attribute and native hit testing. Inline `style.pointerEvents` wins. */
+  pointerEvents?: SvgStyle['pointerEvents']
+  /** Web mouse entry or native hover into this rectangle when pointing hardware delivers it. */
+  onMouseEnter?: InteractionProps['onMouseEnter']
 }
 
 /** An SVG circle. */
@@ -1133,7 +1332,9 @@ export interface SvgPolyProps extends SvgElementProps {
 }
 
 /** An SVG group. */
-export interface SvgGroupProps<Node = unknown> extends SvgElementProps {
+export interface SvgGroupProps<Node = unknown> extends SvgElementProps, ElementDragProps {
+  /** Local clipping region reference for the web or native SVG painter. */
+  clipPath?: `url(#${string})`
   /** Shapes. */
   children?: Node
 }
@@ -1152,6 +1353,8 @@ export interface SvgTextProps<Node = unknown> extends SvgElementProps {
   fontSize?: number
   /** Font weight. */
   fontWeight?: 'normal' | 'bold' | number
+  /** CSS font-family on web. The device selects an available family or its system font. */
+  fontFamily?: string
   /** Text. */
   children?: Node
 }
@@ -1286,6 +1489,15 @@ export interface UIClassMapNativeSplit {
    * inherits there: native text starts from them.
    */
   nativeRootText?: string
+  /**
+   * Lets the native styling runtime supply resolved text colour to paint computed in JavaScript.
+   * The browser applies its own CSS cascade.
+   *
+   * @param classes - Text classes after native inheritance and overrides.
+   * @param render - Draws the renderer's element with the resolved colour, if any.
+   * @returns The renderer's element wrapped by the native styling runtime.
+   */
+  renderNativeTextColor?(classes: string, render: (color: string | undefined) => unknown): unknown
   /**
    * The tags the web's stylesheet makes blocks although a browser draws them inline (Tailwind's
    * reset makes `img` and `svg` blocks): a native image or drawing with one of these tags stacks

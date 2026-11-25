@@ -6,8 +6,8 @@
 
 import type { ReactElement, ReactNode } from 'react'
 
-import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Link, Text } from '@molecule/app-ui-react/elements'
 
 import type { FooterColumn } from './types.js'
 
@@ -30,7 +30,8 @@ export function StorefrontFooter({
 }: StorefrontFooterProps): ReactElement {
   const cm = getClassMap()
   return (
-    <footer
+    <Box
+      as="footer"
       className={cm.cn(
         cm.w('full'),
         cm.sp('pt', 16),
@@ -39,7 +40,8 @@ export function StorefrontFooter({
         className,
       )}
     >
-      <div
+      <Box
+        as="div"
         className={cm.cn(
           cm.maxW('[1280px]'),
           cm.mxAuto,
@@ -48,17 +50,23 @@ export function StorefrontFooter({
           cm.storefrontChromeFooterColumns,
         )}
       >
-        <div className={cm.cn(cm.storefrontChromeFooterBrandCol)}>
-          <div className={cm.cn(cm.textSize('xl'), cm.sp('mb', 4), cm.storefrontChromeFooterBrand)}>
+        <Box as="div" className={cm.cn(cm.storefrontChromeFooterBrandCol)}>
+          <Box
+            as="div"
+            className={cm.cn(cm.textSize('xl'), cm.sp('mb', 4), cm.storefrontChromeFooterBrand)}
+          >
             {brand}
-          </div>
+          </Box>
           {tagline ? (
-            <p className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterTagline)}>{tagline}</p>
+            <Text as="p" className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterTagline)}>
+              {tagline}
+            </Text>
           ) : null}
-        </div>
+        </Box>
         {columns.map((col, i) => (
-          <div key={i}>
-            <h4
+          <Box as="div" key={i}>
+            <Text
+              as="h4"
               className={cm.cn(
                 cm.fontWeight('bold'),
                 cm.sp('mb', 4),
@@ -67,23 +75,24 @@ export function StorefrontFooter({
               )}
             >
               {col.heading}
-            </h4>
-            <ul className={cm.stack(2)}>
+            </Text>
+            <Box as="ul" className={cm.stack(2)}>
               {col.links.map((link) => (
-                <li key={link.to}>
+                <Box as="li" key={link.to}>
                   <Link
                     className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterLink)}
                     to={link.to}
                   >
                     {link.label}
                   </Link>
-                </li>
+                </Box>
               ))}
-            </ul>
-          </div>
+            </Box>
+          </Box>
         ))}
-      </div>
-      <div
+      </Box>
+      <Box
+        as="div"
         className={cm.cn(
           cm.maxW('[1280px]'),
           cm.mxAuto,
@@ -93,9 +102,11 @@ export function StorefrontFooter({
           cm.storefrontChromeFooterDivider,
         )}
       >
-        <p className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterCopyright)}>{copyright}</p>
-      </div>
-    </footer>
+        <Text as="p" className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterCopyright)}>
+          {copyright}
+        </Text>
+      </Box>
+    </Box>
   )
 }
 

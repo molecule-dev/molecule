@@ -29,6 +29,7 @@ export function GlyphIcon({
   style,
   webStyle,
   ref,
+  'data-icon': dataIcon,
   ...props
 }: GlyphIconProps & ElementRefProps): ReactElement {
   const cm = getClassMap()
@@ -38,6 +39,7 @@ export function GlyphIcon({
       ...props,
       ref: useElementRef(ref),
       className: cm.cn(cm.iconGlyphFont, className),
+      'data-icon': dataIcon,
       style: webElementStyle(style, filled ? { ...FILLED, ...webStyle } : webStyle),
     },
     name,

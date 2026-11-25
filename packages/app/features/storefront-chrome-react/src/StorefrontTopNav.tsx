@@ -9,12 +9,12 @@
  * @module
  */
 
-import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
+import { type JSX, type ReactNode, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Image, Link, Pressable, Rule, Text } from '@molecule/app-ui-react/elements'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
 
@@ -78,22 +78,15 @@ export function StorefrontTopNav({
   const { t } = useTranslation()
   const cm = getClassMap()
   const [profileOpen, setProfileOpen] = useState(false)
-  const profileRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!profileOpen) return
-    const handler = (e: MouseEvent): void => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
-        setProfileOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [profileOpen])
 
   return (
-    <header className={cm.cn(cm.storefrontChromeTopNav, className)} data-mol-id="nav-shell-01">
-      <nav
+    <Box
+      as="header"
+      className={cm.cn(cm.storefrontChromeTopNav, className)}
+      data-mol-id="nav-shell-01"
+    >
+      <Box
+        as="nav"
         className={cm.cn(
           cm.flex({ justify: 'between', align: 'center' }),
           cm.sp('px', 6),
@@ -104,7 +97,7 @@ export function StorefrontTopNav({
         )}
         data-mol-id="nav-layout-01"
       >
-        <div className={cm.flex({ align: 'center' })} data-mol-id="brand-container-01">
+        <Box as="div" className={cm.flex({ align: 'center' })} data-mol-id="brand-container-01">
           <Link
             className={cm.cn(cm.textSize('2xl'), cm.textPrimary, cm.storefrontChromeTopNavBrand)}
             data-mol-id="brand-logo-01"
@@ -112,15 +105,16 @@ export function StorefrontTopNav({
           >
             {brand}
           </Link>
-        </div>
+        </Box>
 
         {links.length > 0 ? (
-          <ul
+          <Box
+            as="ul"
             className={cm.cn(cm.flex({ align: 'center' }), cm.storefrontChromeTopNavLinks)}
             data-mol-id="nav-links-list-01"
           >
             {links.map((link) => (
-              <li key={link.to}>
+              <Box as="li" key={link.to}>
                 <Link
                   className={cm.cn(
                     cm.textSize('sm'),
@@ -134,12 +128,16 @@ export function StorefrontTopNav({
                 >
                   {link.label}
                 </Link>
-              </li>
+              </Box>
             ))}
-          </ul>
+          </Box>
         ) : null}
 
-        <div className={cm.cn(cm.flex({ align: 'center', gap: 4 }))} data-mol-id="nav-actions-01">
+        <Box
+          as="div"
+          className={cm.cn(cm.flex({ align: 'center', gap: 4 }))}
+          data-mol-id="nav-actions-01"
+        >
           {actions.map((action) => (
             <Link
               key={action.to}
@@ -148,11 +146,10 @@ export function StorefrontTopNav({
               to={action.to}
               aria-label={action.ariaLabel}
             >
-              <span className={cm.iconGlyphFont} data-icon={action.icon}>
-                {action.icon}
-              </span>
+              <GlyphIcon name={action.icon} data-icon={action.icon} />
               {action.badgeCount && action.badgeCount > 0 ? (
-                <span
+                <Text
+                  as="span"
                   className={cm.cn(
                     cm.roundedFull,
                     cm.fontWeight('bold'),
@@ -160,7 +157,7 @@ export function StorefrontTopNav({
                   )}
                 >
                   {action.badgeCount}
-                </span>
+                </Text>
               ) : null}
             </Link>
           ))}
@@ -168,12 +165,14 @@ export function StorefrontTopNav({
           {/* The account/sign-in menu ALWAYS renders so it is reachable for
               every user; the avatar image is an optional enhancement that
               falls back to initials, then a default avatar icon. */}
-          <div
+          <Box
+            as="div"
             className={cm.cn(cm.position('relative'))}
             data-mol-id="profile-wrapper-01"
-            ref={profileRef}
+            onPressOutside={profileOpen ? () => setProfileOpen(false) : undefined}
           >
-            <button
+            <Pressable
+              as="button"
               type="button"
               aria-label={
                 accountMenuLabel ??
@@ -192,12 +191,12 @@ export function StorefrontTopNav({
               )}
               // `overflow: hidden` clips the avatar image to the round button;
               // the ClassMap has no overflow token, so it stays inline.
-              style={{ overflow: 'hidden' }}
+              webStyle={{ overflow: 'hidden' }}
               data-mol-id="profile-trigger-01"
               onClick={() => setProfileOpen((o) => !o)}
             >
               {profileImageUrl ? (
-                <img
+                <Image
                   alt={
                     profileImageAlt ??
                     t('storefrontChrome.nav.userProfile', undefined, {
@@ -208,24 +207,27 @@ export function StorefrontTopNav({
                   src={profileImageUrl}
                 />
               ) : profileInitials ? (
-                <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.textPrimary)}>
+                <Text
+                  as="span"
+                  className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.textPrimary)}
+                >
                   {profileInitials}
-                </span>
+                </Text>
               ) : (
                 // A Material Symbols ligature: the font paints the name as a
                 // glyph, so the word stays out of the accessibility tree and
                 // the button's aria-label names the control.
-                <span
+                <GlyphIcon
+                  name="person"
                   aria-hidden="true"
-                  className={cm.cn(cm.iconGlyphFont, cm.textMuted)}
+                  className={cm.textMuted}
                   data-icon="person"
-                >
-                  person
-                </span>
+                />
               )}
-            </button>
+            </Pressable>
             {profileOpen ? (
-              <div
+              <Box
+                as="div"
                 className={cm.cn(
                   cm.sp('mt', 2),
                   cm.sp('py', 1),
@@ -252,8 +254,12 @@ export function StorefrontTopNav({
                 ))}
                 {isAuthenticated && onSignOut ? (
                   <>
-                    <hr className={cm.cn(cm.sp('my', 1), cm.storefrontChromeTopNavMenuDivider)} />
-                    <button
+                    <Rule
+                      as="hr"
+                      className={cm.cn(cm.sp('my', 1), cm.storefrontChromeTopNavMenuDivider)}
+                    />
+                    <Pressable
+                      as="button"
                       type="button"
                       // A menu row, not a CTA: the design system's dropdown-item
                       // token carries the hover/focus treatment, so it can never
@@ -274,15 +280,15 @@ export function StorefrontTopNav({
                         t('storefrontChrome.nav.signOut', undefined, {
                           defaultValue: 'Sign Out',
                         })}
-                    </button>
+                    </Pressable>
                   </>
                 ) : null}
-              </div>
+              </Box>
             ) : null}
-          </div>
-        </div>
-      </nav>
-    </header>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 

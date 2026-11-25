@@ -4,12 +4,14 @@
  * @module
  */
 
-import { createElement, forwardRef, type ReactElement } from 'react'
+import { createElement, forwardRef, type ReactElement, useCallback } from 'react'
 
 import type { ElementHandle, PressableProps } from '@molecule/app-ui'
 
+import { markPressTarget, useWebDrag } from './drag.js'
+import { useWebHover } from './hover.js'
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode } from './types.js'
 
 /**
@@ -22,12 +24,22 @@ import type { ElementNode } from './types.js'
  * @returns The element.
  */
 export const Pressable = forwardRef<ElementHandle, PressableProps<ElementNode>>(function Pressable(
-  { as, style, webStyle, children, ...props },
+  { as, children, drag, onMouseEnter, onMouseLeave, ...props },
   ref,
 ): ReactElement {
+  const forward = useElementRef<HTMLElement>(ref)
+  const setNode = useCallback(
+    (element: HTMLElement | null): void => {
+      if (element) markPressTarget(element)
+      forward?.(element)
+    },
+    [forward],
+  )
+  const onPointerDown = useWebDrag(props.disabled ? undefined : drag, as)
+  const hover = useWebHover<HTMLElement>({ onMouseEnter, onMouseLeave })
   return createElement(
     as,
-    { ...props, ref: useElementRef(ref), style: webElementStyle(style, webStyle) },
+    { ...webElementAttributes(props), ...hover, ref: setNode, onPointerDown },
     children,
   )
 })

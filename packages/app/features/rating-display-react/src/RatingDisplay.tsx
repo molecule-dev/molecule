@@ -3,6 +3,15 @@ import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import {
+  Box,
+  Path,
+  Pressable,
+  Svg,
+  SvgDefs,
+  SvgLinearGradient,
+  Text,
+} from '@molecule/app-ui-react/elements'
 
 /** Props for {@link RatingDisplay}. */
 export interface RatingDisplayProps {
@@ -36,16 +45,20 @@ function Star({ fill, size }: { fill: number; size: number }): JSX.Element {
   // One random gradient id per star, minted once when the star mounts (as every
   // framework's rating display names it), so no render reads `Math.random()`.
   const [id] = useState(() => `star-grad-${Math.random().toString(36).slice(2, 9)}`)
+  const offset: `${number}%` = `${fill * 100}%`
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
-      <defs>
-        <linearGradient id={id}>
-          <stop offset={`${fill * 100}%`} stopColor="currentColor" />
-          <stop offset={`${fill * 100}%`} stopColor="currentColor" stopOpacity={0.25} />
-        </linearGradient>
-      </defs>
-      <path d={path} fill={`url(#${id})`} />
-    </svg>
+    <Svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
+      <SvgDefs>
+        <SvgLinearGradient
+          id={id}
+          stops={[
+            { offset, stopColor: 'currentColor' },
+            { offset, stopColor: 'currentColor', stopOpacity: 0.25 },
+          ]}
+        />
+      </SvgDefs>
+      <Path d={path} fill={`url(#${id})`} />
+    </Svg>
   )
 }
 
@@ -87,11 +100,12 @@ export function RatingDisplay({
     ariaLabel ??
     t('ratingDisplay.aria.rating', { value, max }, { defaultValue: 'Rating: {{value}} of {{max}}' })
   return (
-    <span className={cm.cn(starsLayout, className)}>
-      <span className={starsLayout} role={onChange ? 'group' : 'img'} aria-label={label}>
+    <Box as="span" className={cm.cn(starsLayout, className)}>
+      <Box as="span" className={starsLayout} role={onChange ? 'group' : 'img'} aria-label={label}>
         {stars.map(({ i, fill }) =>
           onChange ? (
-            <button
+            <Pressable
+              as="button"
               key={i}
               type="button"
               onClick={() => onChange(i + 1)}
@@ -103,24 +117,27 @@ export function RatingDisplay({
               )}
             >
               <Star fill={fill} size={px} />
-            </button>
+            </Pressable>
           ) : (
             <Star key={i} fill={fill} size={px} />
           ),
         )}
-      </span>
+      </Box>
       {reviewCount !== undefined &&
         (onReviewsClick ? (
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={onReviewsClick}
             className={cm.cn(cm.textSize('sm'), cm.link)}
           >
             ({reviewCount})
-          </button>
+          </Pressable>
         ) : (
-          <span className={cm.textSize('sm')}>({reviewCount})</span>
+          <Text as="span" className={cm.textSize('sm')}>
+            ({reviewCount})
+          </Text>
         ))}
-    </span>
+    </Box>
   )
 }

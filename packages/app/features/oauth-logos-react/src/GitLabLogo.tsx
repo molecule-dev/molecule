@@ -1,5 +1,7 @@
 import type { JSX } from 'react'
 
+import { Path, Svg } from '@molecule/app-ui-react/elements'
+
 import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
@@ -17,7 +19,7 @@ export function GitLabLogo({
 }: OAuthLogoProps): JSX.Element {
   const isMono = mode === 'mono'
   return (
-    <svg
+    <Svg
       {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
@@ -27,24 +29,24 @@ export function GitLabLogo({
       aria-label={ariaLabel || undefined}
       aria-hidden={ariaLabel ? undefined : true}
       className={className}
+      metadata={title ? { title } : undefined}
     >
-      {title && <title>{title}</title>}
       {isMono ? (
-        <path
+        <Path
           fill="currentColor"
           d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.866 0L16.419 9.45H7.582L4.916 1.263a.455.455 0 0 0-.866 0L1.386 9.452.045 13.587a.928.928 0 0 0 .336 1.039L12 22.928l11.62-8.302a.928.928 0 0 0 .335-1.039z"
         />
       ) : (
         <>
-          <path fill="#E24329" d="M12 21.42l4.212-12.96H7.788z" />
-          <path fill="#FCA326" d="M12 21.42l-4.212-12.96H1.883z" />
-          <path fill="#E24329" d="M1.883 8.46L.605 12.39a.87.87 0 0 0 .316.972L12 21.42z" />
-          <path fill="#FC6D26" d="M1.883 8.46h5.905L5.25.639a.432.432 0 0 0-.82 0z" />
-          <path fill="#FCA326" d="M12 21.42l4.212-12.96h5.905z" />
-          <path fill="#E24329" d="M22.117 8.46l1.278 3.93a.87.87 0 0 1-.316.972L12 21.42z" />
-          <path fill="#FC6D26" d="M22.117 8.46h-5.905L18.75.639a.432.432 0 0 1 .82 0z" />
+          <Path fill="#E24329" d="M12 21.42l4.212-12.96H7.788z" />
+          <Path fill="#FCA326" d="M12 21.42l-4.212-12.96H1.883z" />
+          <Path fill="#E24329" d="M1.883 8.46L.605 12.39a.87.87 0 0 0 .316.972L12 21.42z" />
+          <Path fill="#FC6D26" d="M1.883 8.46h5.905L5.25.639a.432.432 0 0 0-.82 0z" />
+          <Path fill="#FCA326" d="M12 21.42l4.212-12.96h5.905z" />
+          <Path fill="#E24329" d="M22.117 8.46l1.278 3.93a.87.87 0 0 1-.316.972L12 21.42z" />
+          <Path fill="#FC6D26" d="M22.117 8.46h-5.905L18.75.639a.432.432 0 0 1 .82 0z" />
         </>
       )}
-    </svg>
+    </Svg>
   )
 }

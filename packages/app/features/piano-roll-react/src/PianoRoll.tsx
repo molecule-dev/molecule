@@ -1,14 +1,18 @@
-import type {
-  CSSProperties,
-  KeyboardEvent as ReactKeyboardEvent,
-  MouseEvent as ReactMouseEvent,
-  PointerEvent as ReactPointerEvent,
-  ReactElement,
-} from 'react'
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import type { ReactElement } from 'react'
+import { useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type CSSProperties,
+  type ElementBox,
+  type ElementDrag,
+  type ElementDragPoint,
+  type ElementHandle,
+  getClassMap,
+  type KitKeyboardEvent,
+  type KitMouseEvent,
+} from '@molecule/app-ui'
+import { Box, measureElement, Pressable, ScrollArea, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A single MIDI note rendered on the piano roll. `pitch` is a standard
@@ -241,9 +245,6 @@ export function pitchLabel(pitch: number): string {
 interface DragState {
   noteId: string
   mode: 'move' | 'resize'
-  pointerId: number
-  startX: number
-  startY: number
   originStartBeat: number
   originDurationBeats: number
   originPitch: number
@@ -305,10 +306,9 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
   // instance, never derived from data.
   const gridHelpId = useId()
 
-  const gridRef = useRef<HTMLDivElement | null>(null)
+  const gridRef = useRef<ElementHandle>(null)
+  const gridRelease = useRef<{ x: number; y: number; at: number }>(null)
   const dragRef = useRef<DragState | null>(null)
-  const [, forceRerender] = useState(0)
-  const bumpDragTick = useCallback(() => forceRerender((n) => n + 1), [])
 
   // Keyboard cell cursor (the cell Enter / Space paint into), in raw
   // beats + pitch. Mouse clicks move it too, so the keyboard path
@@ -369,100 +369,54 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
       { defaultValue: 'Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats' },
     )
 
-  // Global pointer listeners during an active drag so the gesture
-  // survives the cursor leaving the note element.
-  useEffect(() => {
-    /**
-     * Native pointermove handler used during an active drag.
-     *
-     * @param event - Native pointer event.
-     */
-    function onMove(event: PointerEvent): void {
+  /** Binds a note movement or edge resize to its original position and pitch. */
+  function noteDrag(note: MidiNote, mode: DragState['mode']): ElementDrag {
+    const current = (): DragState | undefined => {
       const drag = dragRef.current
-      if (!drag || event.pointerId !== drag.pointerId) return
-      const dx = event.clientX - drag.startX
-      const dy = event.clientY - drag.startY
-      if (
-        !drag.moved &&
-        Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX &&
-        Math.abs(dy) < DRAG_DISTANCE_THRESHOLD_PX
-      ) {
-        return
-      }
-      drag.moved = true
-      if (drag.mode === 'move') {
-        const beatDelta = pixelsToBeats(dx, pixelsPerBeat)
-        const nextStart = snapBeatRound(drag.originStartBeat + beatDelta, snap)
-        const rowDelta = Math.round(dy / Math.max(noteHeight, 1))
-        // Higher rows on screen = higher pitch numbers. Dragging down
-        // (positive dy) decreases pitch.
-        const proposedPitch = drag.originPitch - rowDelta
-        const nextPitch = Math.max(safeLowest, Math.min(safeHighest, proposedPitch))
-        onNoteMove?.(drag.noteId, nextStart, nextPitch)
-      } else {
-        const beatDelta = pixelsToBeats(dx, pixelsPerBeat)
-        const nextDuration = Math.max(
-          MIN_NOTE_DURATION_BEATS,
-          snapBeatRound(drag.originDurationBeats + beatDelta, snap) || MIN_NOTE_DURATION_BEATS,
+      return drag?.noteId === note.id && drag.mode === mode ? drag : undefined
+    }
+    const finish = (): void => {
+      if (current()) dragRef.current = null
+    }
+    return {
+      onStart() {
+        if (dragRef.current) return
+        dragRef.current = {
+          noteId: note.id,
+          mode,
+          moved: false,
+          originStartBeat: note.startBeat,
+          originDurationBeats: note.durationBeats,
+          originPitch: note.pitch,
+        }
+      },
+      onMove({ dx, dy }) {
+        const drag = current()
+        if (
+          !drag ||
+          (!drag.moved && Math.max(Math.abs(dx), Math.abs(dy)) < DRAG_DISTANCE_THRESHOLD_PX)
         )
-        onNoteResize?.(drag.noteId, nextDuration)
-      }
-      bumpDragTick()
-    }
-    /**
-     * Native pointerup handler that closes the drag gesture.
-     *
-     * @param event - Native pointer event.
-     */
-    function onUp(event: PointerEvent): void {
-      const drag = dragRef.current
-      if (!drag || event.pointerId !== drag.pointerId) return
-      dragRef.current = null
-      bumpDragTick()
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('pointercancel', onUp)
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('pointercancel', onUp)
-    }
-  }, [
-    pixelsPerBeat,
-    noteHeight,
-    snap,
-    safeHighest,
-    safeLowest,
-    onNoteMove,
-    onNoteResize,
-    bumpDragTick,
-  ])
-
-  /**
-   * Begin a drag gesture on a note body or a resize handle.
-   *
-   * @param event - React pointer event from the note element.
-   * @param note - The note being dragged.
-   * @param mode - `'move'` for body drags, `'resize'` for handle drags.
-   */
-  function beginDrag(
-    event: ReactPointerEvent<HTMLDivElement>,
-    note: MidiNote,
-    mode: DragState['mode'],
-  ): void {
-    if (event.button !== undefined && event.button !== 0) return
-    event.stopPropagation()
-    dragRef.current = {
-      noteId: note.id,
-      mode,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originStartBeat: note.startBeat,
-      originDurationBeats: note.durationBeats,
-      originPitch: note.pitch,
-      moved: false,
+          return
+        drag.moved = true
+        const beatDelta = pixelsToBeats(dx, pixelsPerBeat)
+        if (mode === 'move') {
+          const nextStart = snapBeatRound(drag.originStartBeat + beatDelta, snap)
+          // Higher rows on screen are higher pitches.
+          const nextPitch = Math.max(
+            safeLowest,
+            Math.min(safeHighest, drag.originPitch - Math.round(dy / Math.max(noteHeight, 1))),
+          )
+          onNoteMove?.(note.id, nextStart, nextPitch)
+        } else {
+          const nextDuration = Math.max(
+            MIN_NOTE_DURATION_BEATS,
+            snapBeatRound(drag.originDurationBeats + beatDelta, snap),
+          )
+          onNoteResize?.(note.id, nextDuration)
+        }
+      },
+      onEnd: finish,
+      onCancel: finish,
     }
   }
 
@@ -486,27 +440,32 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
     })
   }
 
-  /**
-   * Click handler on the empty grid: paints a new note at the snapped
-   * cell under the cursor with the configured snap-step duration, and
-   * moves the keyboard cell cursor to that cell.
-   *
-   * @param event - React click event from the grid surface.
-   */
-  function handleGridClick(event: ReactMouseEvent<HTMLDivElement>): void {
-    // Suppress synthetic clicks fired at the end of a drag.
-    if (dragRef.current && dragRef.current.moved) return
-    if (!onNoteAdd) return
-    const node = gridRef.current
-    if (!node) return
-    const rect = node.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return
+  /** Paints the grid cell beneath a point inside the surface. */
+  function paintGridPoint(x: number, y: number, bounds: Readonly<ElementBox>): void {
+    if (x < 0 || y < 0 || x > bounds.width || y > bounds.height) return
     const startBeat = snapBeat(pixelsToBeats(x, pixelsPerBeat), snap)
     const pitch = yToPitch(y, noteHeight, safeHighest, safeLowest)
     setRawCursor({ beat: startBeat, pitch })
     paintNoteAt(startBeat, pitch)
+  }
+
+  /** Paints a stationary tap and records it for the browser's subsequent click. */
+  function finishGridContact({ x, y, dx, dy, bounds }: ElementDragPoint): void {
+    gridRelease.current = { x: x + bounds.x, y: y + bounds.y, at: Date.now() }
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < DRAG_DISTANCE_THRESHOLD_PX)
+      paintGridPoint(x, y, bounds)
+  }
+
+  /** Handles standalone browser clicks without painting twice after a tap. */
+  function handleGridClick(event: KitMouseEvent): void {
+    const host = gridRef.current
+    if (!onNoteAdd || !host || !event.currentTarget || event.target !== event.currentTarget) return
+    const { clientX, clientY } = event
+    const release = gridRelease.current
+    gridRelease.current = null
+    if (release?.x === clientX && release.y === clientY && Date.now() - release.at < 500) return
+    // A standalone browser click has no preceding contact. Keep its original coordinates.
+    measureElement(host, (bounds) => paintGridPoint(clientX - bounds.x, clientY - bounds.y, bounds))
   }
 
   /**
@@ -517,7 +476,7 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
    *
    * @param event - React keydown event from the grid surface.
    */
-  function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>): void {
+  function handleGridKeyDown(event: KitKeyboardEvent): void {
     if (!onNoteAdd) return
     // Only the grid surface itself drives the cell cursor — a keydown
     // bubbling from a focused note child belongs to that note.
@@ -555,7 +514,7 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
    * @param event - React mouse event.
    * @param note - The note to delete.
    */
-  function handleNoteContextMenu(event: ReactMouseEvent<HTMLDivElement>, note: MidiNote): void {
+  function handleNoteContextMenu(event: KitMouseEvent, note: MidiNote): void {
     if (!onNoteDelete) return
     event.preventDefault()
     event.stopPropagation()
@@ -597,15 +556,23 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
   }
 
   return (
-    <div
+    <ScrollArea
+      as="div"
+      direction="horizontal"
       role="region"
       aria-label={rollLabel}
       data-mol-id="piano-roll"
       className={cm.cn(className)}
-      style={rootStyle}
+      webStyle={rootStyle}
     >
       {/* Vertical piano keyboard. */}
-      <div role="list" aria-label={keysLabel} data-mol-id="piano-roll-keys" style={keysColumnStyle}>
+      <Box
+        as="div"
+        role="list"
+        aria-label={keysLabel}
+        data-mol-id="piano-roll-keys"
+        webStyle={keysColumnStyle}
+      >
         {rows.map((pitch) => {
           const black = isBlackKey(pitch)
           const isC = ((pitch % 12) + 12) % 12 === 0
@@ -628,37 +595,54 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
             lineHeight: 1,
           }
           return (
-            <div
+            <Box
+              as="div"
               key={pitch}
               role="listitem"
               data-mol-id="piano-roll-key"
               data-pitch={pitch}
               data-key-color={black ? 'black' : 'white'}
-              style={keyStyle}
+              webStyle={keyStyle}
             >
               {isC && (
-                <span data-mol-id="piano-roll-key-label" className={cm.cn(cm.textSize('xs'))}>
+                <Text
+                  as="span"
+                  data-mol-id="piano-roll-key-label"
+                  className={cm.cn(cm.textSize('xs'))}
+                >
                   {pitchLabel(pitch)}
-                </span>
+                </Text>
               )}
-            </div>
+            </Box>
           )
         })}
-      </div>
+      </Box>
 
       {/* Note grid + drawn notes. A free two-dimensional surface driven by
           the keyboard cell cursor, so it is an `application`, not a `grid`:
           it holds no `row`s of `gridcell`s. */}
-      <div
+      <Box
+        as="div"
         ref={gridRef}
         role="application"
         aria-label={gridLabel}
         aria-describedby={gridHelpId}
         data-mol-id="piano-roll-grid"
         data-snap={snap}
-        style={gridSurfaceStyle}
+        webStyle={gridSurfaceStyle}
         tabIndex={0}
         onClick={handleGridClick}
+        drag={
+          onNoteAdd
+            ? {
+                axis: 'horizontal',
+                onStart: () => {
+                  gridRelease.current = null
+                },
+                onEnd: finishGridContact,
+              }
+            : undefined
+        }
         onKeyDown={handleGridKeyDown}
         onFocus={() => setGridFocused(true)}
         onBlur={() => setGridFocused(false)}
@@ -677,12 +661,13 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
             pointerEvents: 'none',
           }
           return (
-            <div
+            <Box
+              as="div"
               key={`row-${pitch}`}
               data-mol-id="piano-roll-row"
               data-pitch={pitch}
               data-key-color={black ? 'black' : 'white'}
-              style={rowStyle}
+              webStyle={rowStyle}
             />
           )
         })}
@@ -701,22 +686,24 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
             pointerEvents: 'none',
           }
           return (
-            <div
+            <Box
+              as="div"
               key={`beat-${beat}`}
               data-mol-id="piano-roll-beat-line"
               data-beat={beat}
               data-bar={isBar ? 'true' : 'false'}
-              style={lineStyle}
+              webStyle={lineStyle}
             />
           )
         })}
 
         {/* Keyboard cell cursor — visible while the grid has focus. */}
         {onNoteAdd && gridFocused && (
-          <div
+          <Box
+            as="div"
             data-mol-id="piano-roll-cell-cursor"
             aria-hidden="true"
-            style={{
+            webStyle={{
               position: 'absolute',
               left: beatsToPixels(cursor.beat, pixelsPerBeat),
               top: pitchToY(cursor.pitch, noteHeight, safeHighest),
@@ -732,15 +719,15 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
 
         {/* Describes the grid's keyboard interface to assistive technology.
             Rendered unconditionally so `aria-describedby` always resolves. */}
-        <div id={gridHelpId} className={cm.srOnly}>
+        <Box as="div" id={gridHelpId} className={cm.srOnly}>
           {gridHelpLabel}
-        </div>
+        </Box>
 
         {/* Announces keyboard cursor moves to assistive technology. */}
         {onNoteAdd && (
-          <div role="status" className={cm.srOnly}>
+          <Box as="div" role="status" className={cm.srOnly}>
             {cursorLabel}
-          </div>
+          </Box>
         )}
 
         {/* Notes — drawn on top of the grid. */}
@@ -773,7 +760,8 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
             touchAction: 'none',
           }
           return (
-            <div
+            <Pressable
+              as="div"
               key={note.id}
               role="button"
               tabIndex={0}
@@ -784,21 +772,22 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
               data-start-beat={note.startBeat}
               data-duration-beats={note.durationBeats}
               className={cm.cn(cm.cursorPointer)}
-              style={noteStyle}
-              onPointerDown={(e) => beginDrag(e, note, 'move')}
-              onContextMenu={(e) => handleNoteContextMenu(e, note)}
+              webStyle={noteStyle}
+              drag={noteDrag(note, 'move')}
+              onContextMenu={onNoteDelete ? (e) => handleNoteContextMenu(e, note) : undefined}
             >
-              <div
+              <Box
+                as="div"
                 role="separator"
                 aria-label={resizeLabel}
                 data-mol-id="piano-roll-note-handle"
-                style={handleStyle}
-                onPointerDown={(e) => beginDrag(e, note, 'resize')}
+                webStyle={handleStyle}
+                drag={noteDrag(note, 'resize')}
               />
-            </div>
+            </Pressable>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </ScrollArea>
   )
 }

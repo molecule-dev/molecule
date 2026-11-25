@@ -1,5 +1,7 @@
 import type { JSX } from 'react'
 
+import { Path, Svg } from '@molecule/app-ui-react/elements'
+
 import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
@@ -22,7 +24,7 @@ export function LinkedInLogo({
 }: OAuthLogoProps): JSX.Element {
   const isMono = mode === 'mono'
   return (
-    <svg
+    <Svg
       {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
@@ -33,9 +35,9 @@ export function LinkedInLogo({
       aria-hidden={ariaLabel ? undefined : true}
       className={className}
       fill={isMono ? 'currentColor' : undefined}
+      metadata={title ? { title } : undefined}
     >
-      {title && <title>{title}</title>}
-      {isMono ? <path d={IN_PATH} /> : <path d={BG_PATH} fill="#0A66C2" />}
-    </svg>
+      {isMono ? <Path d={IN_PATH} /> : <Path d={BG_PATH} fill="#0A66C2" />}
+    </Svg>
   )
 }

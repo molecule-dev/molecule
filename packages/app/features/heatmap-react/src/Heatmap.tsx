@@ -1,7 +1,8 @@
-import type { JSX, KeyboardEvent as ReactKeyboardEvent } from 'react'
+import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Rect, Svg, SvgText } from '@molecule/app-ui-react/elements'
 
 /** A single data point: a date (`yyyy-mm-dd` ISO string) and a numeric value. */
 export interface HeatmapDay {
@@ -273,17 +274,14 @@ export function Heatmap({
    * @param event - The keydown event on the focused cell.
    * @param cell - The cell descriptor to pass to `onCellClick`.
    */
-  const handleCellKeyDown = (
-    event: ReactKeyboardEvent<SVGRectElement>,
-    cell: HeatmapCell,
-  ): void => {
+  const handleCellKeyDown = (event: KitKeyboardEvent, cell: HeatmapCell): void => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
     onCellClick?.(cell)
   }
 
   return (
-    <svg
+    <Svg
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
@@ -294,7 +292,7 @@ export function Heatmap({
     >
       {showMonthLabels &&
         monthLabels.map(({ x, month }) => (
-          <text
+          <SvgText
             key={`month-${month}-${x}`}
             x={x}
             y={cellSize - 1}
@@ -304,7 +302,7 @@ export function Heatmap({
             data-mol-id={`heatmap-month-${month}`}
           >
             {t(monthKeys[month], {}, { defaultValue: monthDefaults[month] })}
-          </text>
+          </SvgText>
         ))}
       {showWeekdayLabels &&
         Array.from({ length: 7 }, (_, dow) => {
@@ -312,7 +310,7 @@ export function Heatmap({
           // Show every other weekday (mon/wed/fri pattern) like GitHub.
           if (dow % 2 === 0) return null
           return (
-            <text
+            <SvgText
               key={`wd-${dow}`}
               x={0}
               y={monthHeader + dow * cellStep + cellSize - 1}
@@ -322,14 +320,14 @@ export function Heatmap({
               data-mol-id={`heatmap-weekday-${idx}`}
             >
               {t(weekdayKeysSun[idx], {}, { defaultValue: weekdayDefaultsSun[idx] })}
-            </text>
+            </SvgText>
           )
         })}
       {cells.map(({ cell, x, y, inRange }) => {
         if (!inRange) return null
         const label = formatTooltip(cell)
         return (
-          <rect
+          <Rect
             key={cell.date}
             x={x}
             y={y}
@@ -347,12 +345,11 @@ export function Heatmap({
             onClick={onCellClick ? () => onCellClick(cell) : undefined}
             onKeyDown={onCellClick ? (event) => handleCellKeyDown(event, cell) : undefined}
             onMouseEnter={onCellHover ? () => onCellHover(cell) : undefined}
-            style={{ cursor: onCellClick ? 'pointer' : undefined }}
-          >
-            <title>{label}</title>
-          </rect>
+            metadata={{ title: label }}
+            webStyle={{ cursor: onCellClick ? 'pointer' : undefined }}
+          />
         )
       })}
-    </svg>
+    </Svg>
   )
 }

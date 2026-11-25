@@ -19,8 +19,8 @@ export const RangeField = forwardRef<ElementHandle, RangeFieldProps>(function Ra
   ref,
 ) {
   return createElement('input', {
-    ...props,
     type: 'range',
+    ...props,
     ref: useElementRef<HTMLInputElement>(ref),
     style: webElementStyle(style, webStyle),
     onChange:

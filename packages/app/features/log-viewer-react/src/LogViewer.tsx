@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { type ColorVariant, getClassMap } from '@molecule/app-ui'
+import { Box, Disclosure, Text } from '@molecule/app-ui-react/elements'
 
 /** Severity level of a log entry, ordered from lowest to highest. */
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
@@ -63,74 +64,87 @@ export function LogViewer({
   const cm = getClassMap()
   const [openIds, setOpenIds] = useState<Set<string>>(new Set())
 
-  /**
-   * Toggles the expanded state of the entry with the given id.
-   * @param id
-   */
-  function toggle(id: string): void {
+  /** Records the resulting state reported by the disclosure for this row. */
+  function setEntryOpen(id: string, expanded: boolean): void {
+    if (openIds.has(id) === expanded) return
     setOpenIds((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      onToggle?.(id, next.has(id))
+      if (expanded) next.add(id)
+      else next.delete(id)
       return next
     })
+    onToggle?.(id, expanded)
   }
 
   if (entries.length === 0 && emptyState) return <>{emptyState}</>
 
   return (
-    <div className={cm.cn(cm.stack(1 as const), className)} role="log">
+    <Box as="div" className={cm.cn(cm.stack(1 as const), className)} role="log">
       {entries.map((e) => {
         const open = openIds.has(e.id)
         return (
-          <details
+          <Disclosure
+            as="details"
             key={e.id}
             open={open}
-            onToggle={(ev) => {
-              const nowOpen = (ev.target as HTMLDetailsElement).open
-              if (nowOpen !== open) toggle(e.id)
-            }}
-          >
-            <summary
-              className={cm.cn(
+            onToggle={(expanded) => setEntryOpen(e.id, expanded)}
+            summaryProps={{
+              className: cm.cn(
                 cm.flex({ align: 'center', gap: 'sm' }),
                 cm.sp('py', 1),
                 cm.sp('px', 2),
                 cm.textSize('xs'),
                 cm.cursorPointer,
-              )}
-            >
-              <span style={{ width: 48, textAlign: 'right', opacity: 0.7 }}>{e.timestamp}</span>
-              <span
-                className={cm.cn(cm.bgTone(LEVEL_TONE[e.level]), cm.textOnTone)}
-                style={{
-                  display: 'inline-block',
-                  minWidth: 48,
-                  textAlign: 'center',
-                  padding: '0 6px',
-                  borderRadius: 4,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {e.level}
-              </span>
-              {e.service && <span className={cm.fontWeight('semibold')}>{e.service}</span>}
-              <span className={cm.flex1}>{e.message}</span>
-              {e.traceId && <span style={{ opacity: 0.6 }}>{e.traceId}</span>}
-            </summary>
+              ),
+            }}
+            summary={
+              <>
+                <Box as="span" webStyle={{ width: 48, textAlign: 'right', opacity: 0.7 }}>
+                  {e.timestamp}
+                </Box>
+                <Text
+                  as="span"
+                  className={cm.cn(cm.bgTone(LEVEL_TONE[e.level]), cm.textOnTone)}
+                  webStyle={{
+                    display: 'inline-block',
+                    minWidth: 48,
+                    textAlign: 'center',
+                    padding: '0 6px',
+                    borderRadius: 4,
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {e.level}
+                </Text>
+                {e.service && (
+                  <Box as="span" className={cm.fontWeight('semibold')}>
+                    {e.service}
+                  </Box>
+                )}
+                <Box as="span" className={cm.flex1}>
+                  {e.message}
+                </Box>
+                {e.traceId && (
+                  <Box as="span" webStyle={{ opacity: 0.6 }}>
+                    {e.traceId}
+                  </Box>
+                )}
+              </>
+            }
+          >
             {e.data !== undefined && (
-              <pre
+              <Text
+                as="pre"
                 className={cm.cn(cm.sp('p', 3), cm.textSize('xs'))}
-                style={{ overflowX: 'auto' }}
+                webStyle={{ overflowX: 'auto' }}
               >
                 {typeof e.data === 'string' ? e.data : JSON.stringify(e.data, null, 2)}
-              </pre>
+              </Text>
             )}
-          </details>
+          </Disclosure>
         )
       })}
-    </div>
+    </Box>
   )
 }

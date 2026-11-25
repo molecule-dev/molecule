@@ -23,3 +23,22 @@ export function webElementStyle(
   if (!style && !webStyle) return undefined
   return { ...style, ...webStyle }
 }
+
+/**
+ * Merges the two style inputs at their position in the authored attributes. That allows a
+ * converted element to serialize the same markup as its literal HTML tag.
+ *
+ * @param props - The element attributes including either style input.
+ * @returns The HTML attributes with one inline style.
+ */
+export function webElementAttributes<Props extends { style?: BoxStyle; webStyle?: WebStyle }>(
+  props: Props,
+): Props | Record<string, unknown> {
+  if (!('style' in props) && !('webStyle' in props)) return props
+  const style = webElementStyle(props.style, props.webStyle)
+  return Object.fromEntries(
+    Object.entries(props).map(([name, value]) =>
+      name === 'style' || name === 'webStyle' ? ['style', style] : [name, value],
+    ),
+  )
+}

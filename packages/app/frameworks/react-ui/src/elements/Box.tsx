@@ -6,11 +6,13 @@
 
 import { createElement, forwardRef, type ReactElement, useCallback, useEffect, useRef } from 'react'
 
-import type { BoxProps, ElementHandle } from '@molecule/app-ui'
+import type { BoxProps, ElementHandle, KitMouseEvent } from '@molecule/app-ui'
 
+import { useWebDrag } from './drag.js'
+import { useWebHover } from './hover.js'
 import { pasteHandler } from './paste.js'
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode } from './types.js'
 
 /**
@@ -22,7 +24,19 @@ import type { ElementNode } from './types.js'
  * @returns The element.
  */
 export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box(
-  { as, style, webStyle, children, onPasteText, onPressOutside, ...props },
+  {
+    as,
+    children,
+    drag,
+    onDoubleClick,
+    onMouseEnter,
+    onMouseLeave,
+    onPasteText,
+    onPressOutside,
+    onTouchStart,
+    secondaryAction,
+    ...props
+  },
   ref,
 ): ReactElement {
   const node = useRef<HTMLElement>(null)
@@ -35,6 +49,8 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
     [forward],
   )
   const hidden = props.hidden
+  const pointerDown = useWebDrag(hidden ? undefined : drag, as)
+  const hover = useWebHover<HTMLElement>({ onMouseEnter, onMouseLeave })
   useEffect(() => {
     const element = node.current
     const ownerDocument = element?.ownerDocument
@@ -51,10 +67,18 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
   return createElement(
     as,
     {
-      ...props,
+      ...webElementAttributes(props),
+      ...hover,
       ref: onPressOutside ? setNode : forward,
+      onPointerDown: pointerDown,
+      onTouchStart: onTouchStart ? () => onTouchStart() : undefined,
+      onDoubleClick: secondaryAction
+        ? (event: KitMouseEvent): void => {
+            onDoubleClick?.(event)
+            if (!event.defaultPrevented) secondaryAction.run()
+          }
+        : onDoubleClick,
       onPaste: pasteHandler(onPasteText),
-      style: webElementStyle(style, webStyle),
     },
     children,
   )

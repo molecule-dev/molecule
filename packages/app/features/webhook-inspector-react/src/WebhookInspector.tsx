@@ -4,6 +4,7 @@ import { useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Disclosure, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Shape of a single webhook delivery attempt shown in the inspector. */
 export interface WebhookDelivery {
@@ -88,76 +89,89 @@ export function WebhookInspector({
     }
   }
   return (
-    <div className={cm.cn(cm.stack(1 as const), className)}>
+    <Box as="div" className={cm.cn(cm.stack(1 as const), className)}>
       {deliveries.map((d, index) => {
         const selected = d.id === selectedId
         /** Names the event-type span so the retry button can describe itself by it. */
         const eventTypeId = `${idPrefix}-event-${index}`
         const retryable = Boolean(onRetry) && d.status === 'failure'
         return (
-          <div key={d.id} className={cm.flex({ align: 'start', gap: 'sm' })}>
-            <details className={cm.cn(cm.flex1)} open={selected} onToggle={() => onSelect?.(d)}>
-              <summary
-                className={cm.cn(
+          <Box as="div" key={d.id} className={cm.flex({ align: 'start', gap: 'sm' })}>
+            <Disclosure
+              as="details"
+              className={cm.cn(cm.flex1)}
+              open={selected}
+              onToggle={() => onSelect?.(d)}
+              summaryProps={{
+                className: cm.cn(
                   cm.flex({ align: 'center', gap: 'sm' }),
                   cm.sp('py', 1),
                   cm.sp('px', 2),
                   cm.textSize('xs'),
                   cm.cursorPointer,
-                )}
-              >
-                <span style={{ width: 80, opacity: 0.7 }}>{d.timestamp}</span>
-                <span
-                  className={cm.cn(cm.bgTone(statusTone(d.status)), cm.textOnTone)}
-                  style={{
-                    minWidth: 70,
-                    textAlign: 'center',
-                    padding: '0px 6px',
-                    borderRadius: 4,
-                    fontWeight: 700,
-                  }}
-                >
-                  {d.statusCode}
-                </span>
-                <span
-                  id={retryable ? eventTypeId : undefined}
-                  className={cm.cn(cm.fontWeight('semibold'), cm.flex1)}
-                >
-                  {d.eventType}
-                </span>
-                {d.attempt !== undefined && <span>#{d.attempt}</span>}
-                {d.durationMs !== undefined && <span>{d.durationMs}ms</span>}
-              </summary>
-              <div className={cm.cn(cm.sp('p', 3), cm.stack(2))}>
+                ),
+              }}
+              summary={
+                <>
+                  <Box as="span" webStyle={{ width: 80, opacity: 0.7 }}>
+                    {d.timestamp}
+                  </Box>
+                  <Text
+                    as="span"
+                    className={cm.cn(cm.bgTone(statusTone(d.status)), cm.textOnTone)}
+                    webStyle={{
+                      minWidth: 70,
+                      textAlign: 'center',
+                      padding: '0px 6px',
+                      borderRadius: 4,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {d.statusCode}
+                  </Text>
+                  <Text
+                    as="span"
+                    id={retryable ? eventTypeId : undefined}
+                    className={cm.cn(cm.fontWeight('semibold'), cm.flex1)}
+                  >
+                    {d.eventType}
+                  </Text>
+                  {d.attempt !== undefined && <Text as="span">#{d.attempt}</Text>}
+                  {d.durationMs !== undefined && <Text as="span">{d.durationMs}ms</Text>}
+                </>
+              }
+            >
+              <Box as="div" className={cm.cn(cm.sp('p', 3), cm.stack(2))}>
                 {d.requestBody !== undefined && (
-                  <div className={cm.stack(1 as const)}>
-                    <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+                  <Box as="div" className={cm.stack(1 as const)}>
+                    <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                       {t('webhookInspector.request', undefined, { defaultValue: 'Request' })}
-                    </span>
-                    <pre className={cm.textSize('xs')} style={{ overflowX: 'auto' }}>
+                    </Text>
+                    <Text as="pre" className={cm.textSize('xs')} webStyle={{ overflowX: 'auto' }}>
                       {stringify(d.requestBody)}
-                    </pre>
-                  </div>
+                    </Text>
+                  </Box>
                 )}
                 {d.responseBody !== undefined && (
-                  <div className={cm.stack(1 as const)}>
-                    <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+                  <Box as="div" className={cm.stack(1 as const)}>
+                    <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                       {t('webhookInspector.response', undefined, { defaultValue: 'Response' })}
-                    </span>
-                    <pre className={cm.textSize('xs')} style={{ overflowX: 'auto' }}>
+                    </Text>
+                    <Text as="pre" className={cm.textSize('xs')} webStyle={{ overflowX: 'auto' }}>
                       {stringify(d.responseBody)}
-                    </pre>
-                  </div>
+                    </Text>
+                  </Box>
                 )}
-              </div>
-            </details>
+              </Box>
+            </Disclosure>
             {retryable && (
               // The button sits BESIDE the `<details>`: a button inside the
               // `<summary>` is nested-interactive — its own controls are the
               // disclosure toggle's children, so assistive technology cannot
               // reach it (and clicks needed preventDefault/stopPropagation).
-              <span className={cm.sp('py', 1)}>
-                <button
+              <Box as="span" className={cm.sp('py', 1)}>
+                <Pressable
+                  as="button"
                   type="button"
                   data-mol-id="webhook-inspector-retry"
                   // Was an unstyled native button — the one shape guaranteed
@@ -170,12 +184,12 @@ export function WebhookInspector({
                   onClick={() => onRetry?.(d)}
                 >
                   {t('webhookInspector.retry', undefined, { defaultValue: 'Retry' })}
-                </button>
-              </span>
+                </Pressable>
+              </Box>
             )}
-          </div>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }

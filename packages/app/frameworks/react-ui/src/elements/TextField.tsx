@@ -57,6 +57,7 @@ export function TextField({
     [forward],
   )
   const grow = as === 'textarea' ? autoGrow : undefined
+  const bounded = as === 'input' && (type === 'number' || type === 'date')
   useAutoGrow(node, grow?.minRows, grow?.maxRows, props.value)
   const inlineStyle = webElementStyle(style, webStyle)
   const handleChange =
@@ -68,6 +69,7 @@ export function TextField({
       : undefined
   return createElement(as, {
     ...props,
+    ...(bounded ? {} : { min: undefined, max: undefined, step: undefined }),
     ...(as === 'input' ? { type } : { rows, cols, wrap }),
     onChange: handleChange,
     onFocus: selectTextOnFocus

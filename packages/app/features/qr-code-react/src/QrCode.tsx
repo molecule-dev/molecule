@@ -3,6 +3,7 @@ import { type JSX, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Path, Rect, Svg, SvgImage } from '@molecule/app-ui-react/elements'
 
 /** QR error-correction level. `L` ≈ 7%, `M` ≈ 15%, `Q` ≈ 25%, `H` ≈ 30%. */
 export type QrErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
@@ -152,7 +153,7 @@ export function QrCode({
   // light background whatever the theme, because scanners need the contrast.
   // That is why `fgColor`/`bgColor` default to literal black and white.
   return (
-    <svg
+    <Svg
       width={size}
       height={size}
       viewBox={`0 0 ${totalModules} ${totalModules}`}
@@ -161,10 +162,10 @@ export function QrCode({
       aria-describedby={description ? descId : undefined}
       data-mol-id="qr-code"
       className={cm.cn(className)}
-      shapeRendering="crispEdges"
+      webShapeRendering="crispEdges"
+      metadata={description ? { description: { id: descId, text: description } } : undefined}
     >
-      {description ? <desc id={descId}>{description}</desc> : null}
-      <rect
+      <Rect
         x={0}
         y={0}
         width={totalModules}
@@ -172,9 +173,9 @@ export function QrCode({
         fill={bgColor}
         data-mol-id="qr-code-bg"
       />
-      <path d={pathData} fill={fgColor} data-mol-id="qr-code-modules" />
+      <Path d={pathData} fill={fgColor} data-mol-id="qr-code-modules" />
       {logo ? (
-        <image
+        <SvgImage
           href={logo.src}
           x={logoOffset}
           y={logoOffset}
@@ -184,6 +185,6 @@ export function QrCode({
           data-mol-id="qr-code-logo"
         />
       ) : null}
-    </svg>
+    </Svg>
   )
 }

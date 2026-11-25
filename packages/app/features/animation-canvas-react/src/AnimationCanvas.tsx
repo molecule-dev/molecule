@@ -1,8 +1,9 @@
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactElement } from 'react'
-import { useCallback, useMemo, useRef } from 'react'
+import type { ReactElement } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+import { G, Rect, Svg } from '@molecule/app-ui-react/elements'
 
 import { interpolateState } from './interpolation.js'
 import type { AnimationKeyframe, ShapeState } from './types.js'
@@ -67,8 +68,6 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
 
   const { keyframes, currentTime, onSeek, width, height, className } = props
 
-  const rootRef = useRef<SVGSVGElement | null>(null)
-
   const shapes: ShapeState[] = useMemo(
     () => interpolateState(keyframes, currentTime),
     [keyframes, currentTime],
@@ -82,14 +81,12 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
    * Map a click on the canvas surface to a playhead time and surface it
    * via `onSeek`. The mapping is linear across width.
    *
-   * @param e - Pointer-down event on the canvas root.
+   * @param point - The first contact sample in the SVG viewport.
    */
-  const onPointerDown = useCallback(
-    (e: ReactPointerEvent<SVGSVGElement>) => {
-      if (!onSeek) return
-      const rect = rootRef.current?.getBoundingClientRect()
-      if (!rect || rect.width === 0) return
-      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+  const onStart = useCallback(
+    ({ x, bounds }: ElementDragPoint) => {
+      if (!onSeek || bounds.width === 0) return
+      const ratio = Math.max(0, Math.min(1, x / bounds.width))
       const next = span === 0 ? firstTime : firstTime + ratio * span
       onSeek(next)
     },
@@ -106,8 +103,7 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
   }
 
   return (
-    <svg
-      ref={rootRef}
+    <Svg
       role="img"
       aria-label={ariaLabel}
       data-mol-id="animation-canvas"
@@ -115,21 +111,21 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      onPointerDown={onPointerDown}
-      style={wrapperStyle}
+      drag={onSeek ? { onStart } : undefined}
+      webStyle={wrapperStyle}
     >
       {shapes.map((shape) => {
         const size = DEFAULT_SHAPE_SIZE
         const transform = `translate(${shape.x} ${shape.y}) rotate(${shape.rotation}) scale(${shape.scale})`
         return (
-          <g
+          <G
             key={shape.id}
             data-mol-id={`animation-canvas-shape-${shape.id}`}
             data-shape-id={shape.id}
             transform={transform}
             opacity={shape.opacity}
           >
-            <rect
+            <Rect
               x={-size / 2}
               y={-size / 2}
               width={size}
@@ -137,9 +133,9 @@ export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
               fill="currentColor"
               data-mol-id={`animation-canvas-shape-fill-${shape.id}`}
             />
-          </g>
+          </G>
         )
       })}
-    </svg>
+    </Svg>
   )
 }

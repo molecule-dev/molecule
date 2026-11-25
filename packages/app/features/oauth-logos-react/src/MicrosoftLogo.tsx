@@ -1,5 +1,7 @@
 import type { JSX } from 'react'
 
+import { Rect, Svg } from '@molecule/app-ui-react/elements'
+
 import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
@@ -18,7 +20,7 @@ export function MicrosoftLogo({
 }: OAuthLogoProps): JSX.Element {
   const isMono = mode === 'mono'
   return (
-    <svg
+    <Svg
       {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
@@ -28,23 +30,23 @@ export function MicrosoftLogo({
       aria-label={ariaLabel || undefined}
       aria-hidden={ariaLabel ? undefined : true}
       className={className}
+      metadata={title ? { title } : undefined}
     >
-      {title && <title>{title}</title>}
       {isMono ? (
         <>
-          <rect x="2" y="2" width="9" height="9" fill="currentColor" />
-          <rect x="13" y="2" width="9" height="9" fill="currentColor" opacity="0.85" />
-          <rect x="2" y="13" width="9" height="9" fill="currentColor" opacity="0.75" />
-          <rect x="13" y="13" width="9" height="9" fill="currentColor" opacity="0.6" />
+          <Rect x={2} y={2} width={9} height={9} fill="currentColor" />
+          <Rect x={13} y={2} width={9} height={9} fill="currentColor" opacity={0.85} />
+          <Rect x={2} y={13} width={9} height={9} fill="currentColor" opacity={0.75} />
+          <Rect x={13} y={13} width={9} height={9} fill="currentColor" opacity={0.6} />
         </>
       ) : (
         <>
-          <rect x="2" y="2" width="9" height="9" fill="#F25022" />
-          <rect x="13" y="2" width="9" height="9" fill="#7FBA00" />
-          <rect x="2" y="13" width="9" height="9" fill="#00A4EF" />
-          <rect x="13" y="13" width="9" height="9" fill="#FFB900" />
+          <Rect x={2} y={2} width={9} height={9} fill="#F25022" />
+          <Rect x={13} y={2} width={9} height={9} fill="#7FBA00" />
+          <Rect x={2} y={13} width={9} height={9} fill="#00A4EF" />
+          <Rect x={13} y={13} width={9} height={9} fill="#FFB900" />
         </>
       )}
-    </svg>
+    </Svg>
   )
 }

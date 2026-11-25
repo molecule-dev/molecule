@@ -1,8 +1,23 @@
-import type { CSSProperties, MouseEvent, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import { useCallback, useId, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type ElementHandle,
+  getClassMap,
+  type KitMouseEvent,
+  type WebStyle,
+} from '@molecule/app-ui'
+import {
+  Box,
+  G,
+  measureElement,
+  Rect,
+  Svg,
+  SvgClipPath,
+  SvgDefs,
+  Text,
+} from '@molecule/app-ui-react/elements'
 
 /**
  * A timed colored band overlaid on top of the waveform — used to mark
@@ -131,7 +146,7 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
 
   const cm = getClassMap()
   const { t } = useTranslation()
-  const svgRef = useRef<SVGSVGElement | null>(null)
+  const svgRef = useRef<ElementHandle | null>(null)
   const clipId = useId()
   const interactive = typeof onSeek === 'function' && duration > 0
 
@@ -150,13 +165,13 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
   const minBarHeight = 1
 
   const handleClick = useCallback(
-    (event: MouseEvent<SVGSVGElement>) => {
+    ({ clientX }: KitMouseEvent) => {
       if (!interactive) return
       const node = svgRef.current
       if (!node) return
-      const rect = node.getBoundingClientRect()
-      const x = event.clientX - rect.left
-      onSeek?.(seekTimeFromClick(x, rect.width, safeDuration))
+      measureElement(node, ({ x, width }) => {
+        if (svgRef.current === node) onSeek?.(seekTimeFromClick(clientX - x, width, safeDuration))
+      })
     },
     [interactive, onSeek, safeDuration],
   )
@@ -171,17 +186,18 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
 
   if (barCount === 0) {
     return (
-      <div
+      <Box
+        as="div"
         role="region"
         aria-label={ariaLabel}
         data-mol-id="audio-waveform"
         data-state="empty"
         className={cm.cn(cm.sp('p', 2), className)}
       >
-        <p className={cm.textSize('xs')} data-mol-id="audio-waveform-empty">
+        <Text as="p" className={cm.textSize('xs')} data-mol-id="audio-waveform-empty">
           {emptyLabel}
-        </p>
-      </div>
+        </Text>
+      </Box>
     )
   }
 
@@ -190,12 +206,12 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
   const resolvedWaveColor = waveColor ?? 'currentColor'
   const resolvedProgressColor = progressColor ?? 'currentColor'
 
-  const containerStyle: CSSProperties = {
+  const containerStyle: WebStyle = {
     width: '100%',
     color: 'currentColor',
   }
 
-  const svgStyle: CSSProperties = {
+  const svgStyle: WebStyle = {
     display: 'block',
     width: '100%',
     height,
@@ -217,14 +233,15 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
   const progressX = playedRatio * viewWidth
 
   return (
-    <div
+    <Box
+      as="div"
       role="region"
       aria-label={ariaLabel}
       data-mol-id="audio-waveform"
       className={cm.cn(className)}
-      style={containerStyle}
+      webStyle={containerStyle}
     >
-      <svg
+      <Svg
         ref={svgRef}
         viewBox={`0 0 ${viewWidth} ${height}`}
         preserveAspectRatio="none"
@@ -235,18 +252,18 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
         aria-label={interactive ? seekLabel : ariaLabel}
         data-mol-id="audio-waveform-svg"
         data-interactive={interactive ? 'true' : 'false'}
-        style={svgStyle}
+        webStyle={svgStyle}
       >
-        <defs>
-          <clipPath id={`${clipId}-progress`}>
-            <rect x={0} y={0} width={progressX} height={height} />
-          </clipPath>
-        </defs>
+        <SvgDefs>
+          <SvgClipPath id={`${clipId}-progress`}>
+            <Rect x={0} y={0} width={progressX} height={height} />
+          </SvgClipPath>
+        </SvgDefs>
 
         {/* Base (unplayed) waveform — dim. */}
-        <g data-mol-id="audio-waveform-bars-base" fill={resolvedWaveColor} opacity={0.4}>
+        <G data-mol-id="audio-waveform-bars-base" fill={resolvedWaveColor} opacity={0.4}>
           {bars.map((bar) => (
-            <rect
+            <Rect
               key={bar.key}
               x={bar.x}
               y={bar.y}
@@ -255,16 +272,16 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
               data-mol-id="audio-waveform-bar"
             />
           ))}
-        </g>
+        </G>
 
         {/* Progress (played) waveform — full opacity, clipped to playhead. */}
-        <g
+        <G
           data-mol-id="audio-waveform-bars-progress"
           fill={resolvedProgressColor}
           clipPath={`url(#${clipId}-progress)`}
         >
           {bars.map((bar) => (
-            <rect
+            <Rect
               key={bar.key}
               x={bar.x}
               y={bar.y}
@@ -273,11 +290,11 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
               data-mol-id="audio-waveform-bar-progress"
             />
           ))}
-        </g>
+        </G>
 
         {/* Region overlays — drawn on top of the waveform. */}
         {regions && safeDuration > 0 ? (
-          <g data-mol-id="audio-waveform-regions">
+          <G data-mol-id="audio-waveform-regions">
             {regions.map((region) => {
               if (!Number.isFinite(region.duration) || region.duration <= 0) return null
               const startRatio = clamp(region.startTime / safeDuration, 0, 1)
@@ -286,7 +303,7 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
               const x = startRatio * viewWidth
               const w = (endRatio - startRatio) * viewWidth
               return (
-                <rect
+                <Rect
                   key={region.id}
                   x={x}
                   y={0}
@@ -299,9 +316,9 @@ export function AudioWaveform(props: AudioWaveformProps): ReactElement {
                 />
               )
             })}
-          </g>
+          </G>
         ) : null}
-      </svg>
-    </div>
+      </Svg>
+    </Box>
   )
 }

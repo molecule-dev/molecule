@@ -1,8 +1,8 @@
-import type { CSSProperties } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
+import { Box, RangeField, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { hexToRgb, hsvToRgb, isValidHex, rgbToHex, rgbToHsv } from './conversions.js'
 import type { ColorPickerProps } from './types.js'
@@ -80,7 +80,7 @@ export function ColorPicker({
     }
   }
 
-  const swatchStyle: CSSProperties = {
+  const swatchStyle: WebStyle = {
     background: rgbToHex(rgb),
     width: 56,
     height: 56,
@@ -91,7 +91,7 @@ export function ColorPicker({
 
   const hueGradient =
     'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
-  const sliderBase: CSSProperties = {
+  const sliderBase: WebStyle = {
     width: '100%',
     height: 14,
     appearance: 'none',
@@ -110,99 +110,109 @@ export function ColorPicker({
   }
 
   return (
-    <div
+    <Box
+      as="div"
       className={wrapperClass}
       data-mol-id={dataMolId ?? 'color-picker'}
       role="group"
       aria-label={t('colorPicker.group', {}, { defaultValue: 'Color picker' })}
     >
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-        <span aria-hidden style={swatchStyle} data-mol-id="color-picker-swatch" />
-        <input
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Box as="span" aria-hidden webStyle={swatchStyle} data-mol-id="color-picker-swatch" />
+        <TextField
+          as="input"
           type="text"
           value={hexShown}
-          onChange={(e) => setHexDraft(e.target.value)}
-          onBlur={(e) => commitHex(e.target.value)}
+          onValueChange={setHexDraft}
+          onBlur={() => commitHex(hexShown)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              commitHex((e.target as HTMLInputElement).value)
+              commitHex(hexShown)
             }
           }}
           aria-label={t('colorPicker.hex', {}, { defaultValue: 'HEX color' })}
           data-mol-id="color-picker-hex"
           spellCheck={false}
           maxLength={7}
-          style={{ fontFamily: 'monospace', padding: '0.3rem 0.5rem' }}
+          webStyle={{ fontFamily: 'monospace', padding: '0.3rem 0.5rem' }}
         />
-      </div>
+      </Box>
 
-      <label className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}>
-        <span>{t('colorPicker.hue', {}, { defaultValue: 'Hue' })}</span>
-        <input
-          type="range"
+      <Box
+        as="label"
+        className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}
+      >
+        <Text as="span">{t('colorPicker.hue', {}, { defaultValue: 'Hue' })}</Text>
+        <RangeField
           min={0}
           max={360}
           step={1}
           value={Math.round(hsv.h)}
-          onChange={(e) => emitFromHsv({ h: Number(e.target.value) })}
+          onValueChange={(h) => emitFromHsv({ h })}
           aria-label={t('colorPicker.hue', {}, { defaultValue: 'Hue' })}
           data-mol-id="color-picker-hue"
-          style={{ ...sliderBase, background: hueGradient }}
+          webStyle={{ ...sliderBase, background: hueGradient }}
         />
-      </label>
+      </Box>
 
-      <label className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}>
-        <span>{t('colorPicker.saturation', {}, { defaultValue: 'Saturation' })}</span>
-        <input
-          type="range"
+      <Box
+        as="label"
+        className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}
+      >
+        <Text as="span">{t('colorPicker.saturation', {}, { defaultValue: 'Saturation' })}</Text>
+        <RangeField
           min={0}
           max={100}
           step={1}
           value={Math.round(hsv.s * 100)}
-          onChange={(e) => emitFromHsv({ s: Number(e.target.value) / 100 })}
+          onValueChange={(s) => emitFromHsv({ s: s / 100 })}
           aria-label={t('colorPicker.saturation', {}, { defaultValue: 'Saturation' })}
           data-mol-id="color-picker-saturation"
-          style={sliderBase}
+          webStyle={sliderBase}
         />
-      </label>
+      </Box>
 
-      <label className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}>
-        <span>{t('colorPicker.value', {}, { defaultValue: 'Value' })}</span>
-        <input
-          type="range"
+      <Box
+        as="label"
+        className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}
+      >
+        <Text as="span">{t('colorPicker.value', {}, { defaultValue: 'Value' })}</Text>
+        <RangeField
           min={0}
           max={100}
           step={1}
           value={Math.round(hsv.v * 100)}
-          onChange={(e) => emitFromHsv({ v: Number(e.target.value) / 100 })}
+          onValueChange={(v) => emitFromHsv({ v: v / 100 })}
           aria-label={t('colorPicker.value', {}, { defaultValue: 'Value' })}
           data-mol-id="color-picker-value"
-          style={sliderBase}
+          webStyle={sliderBase}
         />
-      </label>
+      </Box>
 
-      <div className={cm.flex({ gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ gap: 'sm' })}>
         {(['r', 'g', 'b'] as const).map((channel) => (
-          <label
+          <Box
+            as="label"
             key={channel}
             className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}
-            style={{ flex: 1 }}
+            webStyle={{ flex: 1 }}
           >
-            <span>{channelLabels[channel]}</span>
-            <input
+            <Text as="span">{channelLabels[channel]}</Text>
+            <TextField
+              as="input"
               type="number"
               min={0}
               max={255}
               step={1}
-              value={rgb[channel]}
-              onChange={(e) => emitFromRgb({ [channel]: Number(e.target.value) })}
+              value={String(rgb[channel])}
+              onValueChange={(text) => emitFromRgb({ [channel]: Number(text) })}
               aria-label={channelLabels[channel]}
               data-mol-id={`color-picker-${channel}`}
-              style={{ padding: '0.3rem 0.5rem' }}
+              webStyle={{ padding: '0.3rem 0.5rem' }}
             />
-          </label>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

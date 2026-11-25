@@ -1,3 +1,5 @@
+import { Path, Svg } from '@molecule/app-ui-react/elements'
+
 import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
@@ -20,7 +22,7 @@ export function FacebookLogo({
 }: OAuthLogoProps): React.JSX.Element {
   const isMono = mode === 'mono'
   return (
-    <svg
+    <Svg
       {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
@@ -31,16 +33,16 @@ export function FacebookLogo({
       aria-hidden={ariaLabel ? undefined : true}
       className={className}
       fill={isMono ? 'currentColor' : undefined}
+      metadata={title ? { title } : undefined}
     >
-      {title && <title>{title}</title>}
       {isMono ? (
-        <path d={F_PATH} />
+        <Path d={F_PATH} />
       ) : (
         <>
-          <path d={BG_PATH} fill="#1877F2" />
-          <path d={F_PATH} fill="#fff" />
+          <Path d={BG_PATH} fill="#1877F2" />
+          <Path d={F_PATH} fill="#fff" />
         </>
       )}
-    </svg>
+    </Svg>
   )
 }

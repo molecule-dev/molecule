@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Anchor, Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Structured postal address with optional individual fields. */
 export interface Address {
@@ -71,29 +72,33 @@ export function AddressDisplay({
   const cm = getClassMap()
   const lines = joinAddress(address)
   const body = inline ? (
-    <span>{lines.join(', ')}</span>
+    <Text as="span">{lines.join(', ')}</Text>
   ) : (
-    <address style={{ fontStyle: 'normal' }}>
+    <Box as="address" webStyle={{ fontStyle: 'normal' }}>
       {lines.map((l, i) => (
-        <span key={i} style={{ display: 'block' }}>
+        <Text as="span" key={i} webStyle={{ display: 'block' }}>
           {l}
-        </span>
+        </Text>
       ))}
-    </address>
+    </Box>
   )
   return (
-    <div className={cm.cn(cm.flex({ align: 'start', gap: 'sm' }), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'start', gap: 'sm' }), className)}>
       {leading}
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const), cm.textSize('sm'))}>
-        {name && <span className={cm.fontWeight('semibold')}>{name}</span>}
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1 as const), cm.textSize('sm'))}>
+        {name && (
+          <Box as="span" className={cm.fontWeight('semibold')}>
+            {name}
+          </Box>
+        )}
         {body}
         {phone && (
-          <a href={`tel:${phone}`} className={cm.link}>
+          <Anchor href={`tel:${phone}`} className={cm.link}>
             {phone}
-          </a>
+          </Anchor>
         )}
-      </div>
+      </Box>
       {actions}
-    </div>
+    </Box>
   )
 }

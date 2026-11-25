@@ -6,8 +6,8 @@
 
 import type { JSX, ReactNode } from 'react'
 
-import { Link } from '@molecule/app-react/link'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Link } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link StorefrontAnnouncementBar} component. */
 export interface StorefrontAnnouncementBarProps {
@@ -24,7 +24,8 @@ export function StorefrontAnnouncementBar({
 }: StorefrontAnnouncementBarProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.textCenter,
         cm.sp('px', 4),
@@ -47,7 +48,7 @@ export function StorefrontAnnouncementBar({
           </Link>
         </>
       ) : null}
-    </div>
+    </Box>
   )
 }
 

@@ -1,5 +1,7 @@
 import type { JSX } from 'react'
 
+import { Path, Svg } from '@molecule/app-ui-react/elements'
+
 import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
@@ -21,7 +23,7 @@ export function GitHubLogo({
   title,
 }: OAuthLogoProps): JSX.Element {
   return (
-    <svg
+    <Svg
       {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
@@ -32,9 +34,9 @@ export function GitHubLogo({
       aria-hidden={ariaLabel ? undefined : true}
       className={className}
       fill="currentColor"
+      metadata={title ? { title } : undefined}
     >
-      {title && <title>{title}</title>}
-      <path d={PATH} />
-    </svg>
+      <Path d={PATH} />
+    </Svg>
   )
 }
