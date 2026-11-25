@@ -240,9 +240,10 @@ Declarative route definitions for the Device resource, used to generate the Expr
 
 ```typescript
 const routes: (
-  | { method: 'get'; path: string; middlewares: string[]; handler: string }
-  | { method: 'patch'; path: string; middlewares: string[]; handler: string }
-  | { method: 'delete'; path: string; middlewares: string[]; handler: string }
+  | { method: 'get'; path: string; middlewares: never[]; handler: string; optional: string }
+  | { method: 'get'; path: string; middlewares: string[]; handler: string; optional?: undefined }
+  | { method: 'patch'; path: string; middlewares: string[]; handler: string; optional?: undefined }
+  | { method: 'delete'; path: string; middlewares: string[]; handler: string; optional?: undefined }
 )[]
 ```
 

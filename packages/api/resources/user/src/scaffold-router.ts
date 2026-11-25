@@ -43,8 +43,9 @@ router.patch(
   createRequestHandler(handlers.updatePassword(resource)),
 )
 
-// Feature routers are mounted by the app when the corresponding provider is installed.
-/** OAuth initiation and credential exchange routes. */
+/**
+ * OAuth initiation and credential exchange routes, mounted when the stack has an OAuth provider.
+ */
 export const oauthRouter = Router()
 oauthRouter.get(
   '/users/oauth/:provider',
@@ -57,7 +58,7 @@ oauthRouter.post(
   createRequestHandler(handlers.logInOAuth(resource)),
 )
 
-/** Password reset by email: the bonded email transport sends the reset link. */
+/** Password reset by email, mounted with an email transport, which sends the reset link. */
 export const emailsRouter = Router()
 emailsRouter.post(
   '/users/forgot-password',
@@ -70,7 +71,10 @@ emailsRouter.post(
   createRequestHandler(handlers.resetPassword(resource)),
 )
 
-/** Two-factor set-up, enabling and disabling, checked by the bonded two-factor provider. */
+/**
+ * Two-factor set-up, enabling and disabling, mounted with a two-factor provider, which checks the
+ * codes.
+ */
 export const twoFactorRouter = Router()
 twoFactorRouter.post(
   '/users/:id/verify-two-factor',
@@ -79,7 +83,10 @@ twoFactorRouter.post(
   createRequestHandler(handlers.verifyTwoFactor(resource)),
 )
 
-/** Plan changes, authenticated billing routes and the provider webhook. */
+/**
+ * Plan changes, authenticated billing routes and the provider webhook, mounted with a payments
+ * provider.
+ */
 export const paymentsRouter = Router()
 paymentsRouter.patch(
   '/users/:id/plan',
