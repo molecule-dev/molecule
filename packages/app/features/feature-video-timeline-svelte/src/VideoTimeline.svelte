@@ -8,10 +8,13 @@
   locale switch re-renders it.
 -->
 <script lang="ts">
+  import { onDestroy } from 'svelte'
+
   import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-svelte'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
   import {
     clampZoom,
     computeRippleUpdates,
@@ -23,7 +26,6 @@
     DEFAULT_ZOOM_MAX,
     DEFAULT_ZOOM_MIN,
     formatTickTime,
-    ZOOM_WHEEL_FACTOR,
     zoomFromWheelDelta,
   } from './timeline.js'
   import type { Track, TrackKind, VideoTimelineMode, VideoTimelineProps } from './types.js'
@@ -51,15 +53,8 @@
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
 
-  /** The ruler scrub in progress, or null. */
-  interface SeekDragState {
-    pointerId: number
-  }
-
-  /** The ruler body element, for the pointer-to-time math. */
-  let rulerBody: HTMLDivElement | undefined = $state()
-  /** The ruler scrub in progress, or null. */
-  let seekDrag: SeekDragState | null = null
+  /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
+  let tracksBody: HTMLDivElement | undefined = $state()
 
   const safeDuration = $derived(duration > 0 ? duration : 0)
   const safeScale = $derived(
@@ -128,81 +123,42 @@
   }
 
   /**
-   * Convert a pointer's clientX (relative to the ruler body) to a time
-   * value, clamped into `[0, duration]`.
+   * Convert a pointer's horizontal offset from the ruler's left edge to a
+   * time value, clamped into `[0, duration]`.
    *
-   * @param clientX - Pointer clientX in viewport coordinates.
-   * @returns The seek time in seconds.
+   * @param x - The pointer's offset into the ruler body, in pixels.
    */
-  function clientXToTime(clientX: number): number {
-    const el = rulerBody
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    const px = clientX - rect.left
-    const time = pixelsToTime(px, safeScale)
-    if (time < 0) return 0
-    if (time > safeDuration) return safeDuration
-    return time
+  function seekAt(x: number): void {
+    onSeek?.(Math.min(pixelsToTime(x, safeScale), safeDuration))
   }
 
-  /**
-   * Begin a ruler scrub. Subsequent pointermove events while the pointer
-   * is captured will continue to fire `onSeek`.
-   *
-   * @param event - The pointer event from the ruler body.
-   */
-  function onRulerPointerDown(event: PointerEvent): void {
-    if (event.button !== undefined && event.button !== 0) return
-    if (!onSeek) return
-    seekDrag = { pointerId: event.pointerId }
-    try {
-      ;(event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId)
-    } catch (_error) {
-      // jsdom doesn't always implement setPointerCapture; ignore.
-    }
-    onSeek(clientXToTime(event.clientX))
-  }
+  /** The ruler scrub (React's `drag` on the ruler `Box`). */
+  const scrub = createRulerScrub(seekAt, () => onSeek !== undefined)
 
   /**
-   * Continue a ruler scrub.
+   * Apply one zoom step of the wheel factor. The zoom buttons use it too;
+   * they also report when the scale is already at the bound.
    *
-   * @param event - The pointer event from the ruler body.
+   * @param direction - Which way to step.
+   * @param notifyAtLimit - Whether to report a step that stays at the bound.
    */
-  function onRulerPointerMove(event: PointerEvent): void {
-    const drag = seekDrag
-    if (!drag || drag.pointerId !== event.pointerId) return
-    onSeek?.(clientXToTime(event.clientX))
+  function stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
+    const next = zoomFromWheelDelta(safeScale, direction === 'in' ? -1 : 1, zoomMinOf, zoomMaxOf)
+    if (notifyAtLimit || next !== safeScale) onZoomChange?.(next)
   }
 
-  /**
-   * Finish a ruler scrub.
-   *
-   * @param event - The pointer event from the ruler body.
-   */
-  function onRulerPointerUp(event: PointerEvent): void {
-    const drag = seekDrag
-    if (!drag || drag.pointerId !== event.pointerId) return
-    seekDrag = null
-    try {
-      ;(event.currentTarget as HTMLDivElement).releasePointerCapture(event.pointerId)
-    } catch (_error) {
-      // releasePointerCapture may throw in jsdom/headless; pointer state already cleared above.
-    }
-  }
+  // Ctrl+wheel over the tracks zooms; plain wheel scrolls the tracks. The shortcut listens
+  // once the tracks area exists and a zoom handler is given, and stops when either goes away.
+  $effect(() => {
+    if (!tracksBody || !onZoomChange) return
+    return listenForWheelZoom(tracksBody, (direction) => stepZoom(direction))
+  })
 
-  /**
-   * Handle Ctrl+wheel zoom. Plain wheel scrolls the body; Ctrl+wheel
-   * (or pinch-zoom on macOS, which surfaces as ctrlKey) zooms.
-   *
-   * @param event - The wheel event from the tracks area.
-   */
-  function onBodyWheel(event: WheelEvent): void {
-    if (!event.ctrlKey) return
-    if (!onZoomChange) return
-    event.preventDefault()
-    const next = zoomFromWheelDelta(safeScale, event.deltaY, zoomMinOf, zoomMaxOf)
-    if (next !== safeScale) onZoomChange(next)
-  }
+  // A scrub in progress ends when the ruler stops seeking, and when the timeline goes away.
+  $effect(() => {
+    if (onSeek === undefined) scrub.end()
+  })
+  onDestroy(() => scrub.end())
 
   /**
    * Forward a track-lane clip move to `onClipMove`, fanning out via
@@ -283,8 +239,7 @@
       data-mol-id="video-timeline-zoom-out"
       aria-label={zoomOutLabel}
       class={cm.cn(cm.cursorPointer)}
-      onclick={() => onZoomChange?.(clampZoom(safeScale / ZOOM_WHEEL_FACTOR, zoomMinOf, zoomMaxOf))}
-      >{zoomOutIcon}</button
+      onclick={() => stepZoom('out', true)}>{zoomOutIcon}</button
     >
     <input
       type="range"
@@ -301,8 +256,7 @@
       data-mol-id="video-timeline-zoom-in"
       aria-label={zoomInLabel}
       class={cm.cn(cm.cursorPointer)}
-      onclick={() => onZoomChange?.(clampZoom(safeScale * ZOOM_WHEEL_FACTOR, zoomMinOf, zoomMaxOf))}
-      >{zoomInIcon}</button
+      onclick={() => stepZoom('in', true)}>{zoomInIcon}</button
     >
   </div>
 
@@ -315,7 +269,6 @@
       style={`width: ${laneHeaderWidthOf}px; min-width: ${laneHeaderWidthOf}px; box-sizing: border-box`}
     ></div>
     <div
-      bind:this={rulerBody}
       role="slider"
       tabindex="0"
       aria-label={rulerLabel}
@@ -325,10 +278,7 @@
       aria-valuetext={playheadLabel}
       data-mol-id="video-timeline-ruler"
       style={`flex: 1 1 auto; position: relative; height: ${rulerHeightOf}px; min-width: ${bodyWidth}px; overflow: hidden; cursor: ${onSeek ? 'pointer' : 'default'}; touch-action: none`}
-      onpointerdown={onRulerPointerDown}
-      onpointermove={onRulerPointerMove}
-      onpointerup={onRulerPointerUp}
-      onpointercancel={onRulerPointerUp}
+      onpointerdown={(event) => scrub.press(event)}
     >
       {#each ticks as tick (tick.time)}
         <div>
@@ -354,9 +304,9 @@
   </div>
 
   <div
+    bind:this={tracksBody}
     data-mol-id="video-timeline-tracks"
     style="position: relative; overflow-x: auto; overflow-y: auto; width: 100%"
-    onwheel={onBodyWheel}
   >
     <div style={`position: relative; min-width: ${bodyWidth + laneHeaderWidthOf}px`}>
       {#each tracks ?? [] as track (track.id)}

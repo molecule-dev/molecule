@@ -10,12 +10,13 @@
  * @module
  */
 
-import { type Component, createEffect, createMemo, For, type JSX, Show } from 'solid-js'
+import { type Component, createEffect, createMemo, For, type JSX, onCleanup, Show } from 'solid-js'
 
 import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-solid'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
+import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
 import {
   clampZoom,
   computeRippleUpdates,
@@ -27,16 +28,9 @@ import {
   DEFAULT_ZOOM_MAX,
   DEFAULT_ZOOM_MIN,
   formatTickTime,
-  ZOOM_WHEEL_FACTOR,
   zoomFromWheelDelta,
 } from './timeline.js'
 import type { Track, TrackKind, VideoTimelineMode, VideoTimelineProps } from './types.js'
-
-/** The ruler scrub in progress, or null. */
-interface SeekDragState {
-  /** The pointer that started the scrub. */
-  pointerId: number
-}
 
 /** A track row identity record: created once per track id and reused while the id is present. */
 interface TrackRow {
@@ -67,12 +61,10 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  /** The ruler body element, for the pointer-to-time math. */
-  let rulerBody: HTMLDivElement | undefined
+  /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
+  let tracksBody: HTMLDivElement | undefined
   /** The zoom slider element, for React's controlled-value restore. */
   let sliderEl: HTMLInputElement | undefined
-  /** The ruler scrub in progress, or null. */
-  let seekDrag: SeekDragState | null = null
 
   /** The duration clamped to >= 0 (React's `safeDuration`). */
   const safeDuration = (): number => (props.duration > 0 ? props.duration : 0)
@@ -195,81 +187,48 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
   const laneName = (track: Track): JSX.Element => track.name ?? trackKindLabel(track.kind)
 
   /**
-   * Convert a pointer's clientX (relative to the ruler body) to a time
-   * value, clamped into `[0, duration]`.
+   * Convert a pointer's horizontal offset from the ruler's left edge to a
+   * time value, clamped into `[0, duration]`.
    *
-   * @param clientX - Pointer clientX in viewport coordinates.
-   * @returns The seek time in seconds.
+   * @param x - The pointer's offset into the ruler body, in pixels.
    */
-  function clientXToTime(clientX: number): number {
-    const el = rulerBody
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    const px = clientX - rect.left
-    const time = pixelsToTime(px, safeScale())
-    if (time < 0) return 0
-    if (time > safeDuration()) return safeDuration()
-    return time
+  function seekAt(x: number): void {
+    props.onSeek?.(Math.min(pixelsToTime(x, safeScale()), safeDuration()))
   }
 
-  /**
-   * Begin a ruler scrub. Subsequent pointermove events while the pointer
-   * is captured will continue to fire `onSeek`.
-   *
-   * @param event - The pointer event from the ruler body.
-   */
-  function onRulerPointerDown(event: PointerEvent): void {
-    if (event.button !== undefined && event.button !== 0) return
-    if (!props.onSeek) return
-    seekDrag = { pointerId: event.pointerId }
-    try {
-      ;(event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId)
-    } catch (_error) {
-      // jsdom doesn't always implement setPointerCapture; ignore.
-    }
-    props.onSeek(clientXToTime(event.clientX))
-  }
+  /** The ruler scrub (React's `drag` on the ruler `Box`). */
+  const scrub = createRulerScrub(seekAt, () => Boolean(props.onSeek))
 
   /**
-   * Continue a ruler scrub.
+   * Apply one zoom step of the wheel factor. The zoom buttons use it too;
+   * they also report when the scale is already at the bound.
    *
-   * @param event - The pointer event from the ruler body.
+   * @param direction - Which way to step.
+   * @param notifyAtLimit - Whether to report a step that stays at the bound.
    */
-  function onRulerPointerMove(event: PointerEvent): void {
-    const drag = seekDrag
-    if (!drag || drag.pointerId !== event.pointerId) return
-    props.onSeek?.(clientXToTime(event.clientX))
+  function stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
+    const next = zoomFromWheelDelta(
+      safeScale(),
+      direction === 'in' ? -1 : 1,
+      zoomMinOf(),
+      zoomMaxOf(),
+    )
+    if (notifyAtLimit || next !== safeScale()) props.onZoomChange?.(next)
   }
 
-  /**
-   * Finish a ruler scrub.
-   *
-   * @param event - The pointer event from the ruler body.
-   */
-  function onRulerPointerUp(event: PointerEvent): void {
-    const drag = seekDrag
-    if (!drag || drag.pointerId !== event.pointerId) return
-    seekDrag = null
-    try {
-      ;(event.currentTarget as HTMLDivElement).releasePointerCapture(event.pointerId)
-    } catch (_error) {
-      // releasePointerCapture may throw in jsdom/headless; pointer state already cleared above.
-    }
-  }
+  // Ctrl+wheel over the tracks zooms; plain wheel scrolls the tracks. The shortcut listens
+  // once the tracks area exists and a zoom handler is given, and stops when either goes away.
+  createEffect(() => {
+    const host = tracksBody
+    if (!host || !props.onZoomChange) return
+    onCleanup(listenForWheelZoom(host, (direction) => stepZoom(direction)))
+  })
 
-  /**
-   * Handle Ctrl+wheel zoom. Plain wheel scrolls the body; Ctrl+wheel
-   * (or pinch-zoom on macOS, which surfaces as ctrlKey) zooms.
-   *
-   * @param event - The wheel event from the tracks area.
-   */
-  function onBodyWheel(event: WheelEvent): void {
-    if (!event.ctrlKey) return
-    if (!props.onZoomChange) return
-    event.preventDefault()
-    const next = zoomFromWheelDelta(safeScale(), event.deltaY, zoomMinOf(), zoomMaxOf())
-    if (next !== safeScale()) props.onZoomChange(next)
-  }
+  // A scrub in progress ends when the ruler stops seeking, and when the timeline goes away.
+  createEffect(() => {
+    if (!props.onSeek) scrub.end()
+  })
+  onCleanup(() => scrub.end())
 
   /**
    * Forward a track-lane clip move to `onClipMove`, fanning out via
@@ -352,11 +311,7 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
           data-mol-id="video-timeline-zoom-out"
           aria-label={zoomOutLabel()}
           class={cm.cn(cm.cursorPointer)}
-          onClick={() =>
-            props.onZoomChange?.(
-              clampZoom(safeScale() / ZOOM_WHEEL_FACTOR, zoomMinOf(), zoomMaxOf()),
-            )
-          }
+          onClick={() => stepZoom('out', true)}
         >
           {zoomOutIcon()}
         </button>
@@ -377,11 +332,7 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
           data-mol-id="video-timeline-zoom-in"
           aria-label={zoomInLabel()}
           class={cm.cn(cm.cursorPointer)}
-          onClick={() =>
-            props.onZoomChange?.(
-              clampZoom(safeScale() * ZOOM_WHEEL_FACTOR, zoomMinOf(), zoomMaxOf()),
-            )
-          }
+          onClick={() => stepZoom('in', true)}
         >
           {zoomInIcon()}
         </button>
@@ -407,9 +358,6 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
           }}
         />
         <div
-          ref={(element) => {
-            rulerBody = element
-          }}
           role="slider"
           tabIndex={0}
           aria-label={rulerLabel()}
@@ -427,10 +375,7 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
             cursor: props.onSeek ? 'pointer' : 'default',
             'touch-action': 'none',
           }}
-          onPointerDown={onRulerPointerDown}
-          onPointerMove={onRulerPointerMove}
-          onPointerUp={onRulerPointerUp}
-          onPointerCancel={onRulerPointerUp}
+          onPointerDown={(event) => scrub.press(event)}
         >
           <For each={ticks()}>
             {(tk) => (
@@ -474,6 +419,9 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
 
       {/* Tracks (scrollable) */}
       <div
+        ref={(element) => {
+          tracksBody = element
+        }}
         data-mol-id="video-timeline-tracks"
         style={{
           position: 'relative',
@@ -481,7 +429,6 @@ export const VideoTimeline: Component<VideoTimelineProps> = (props) => {
           'overflow-y': 'auto',
           width: '100%',
         }}
-        onWheel={onBodyWheel}
       >
         <div
           style={{ position: 'relative', 'min-width': `${bodyWidth() + laneHeaderWidthOf()}px` }}

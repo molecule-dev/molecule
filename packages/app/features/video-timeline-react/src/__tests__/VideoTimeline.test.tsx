@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, render } from '@testing-library/react'
+import { act, fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -396,6 +396,7 @@ describe('<VideoTimeline>', () => {
     // 10 seconds * 20 pps = 200px is the duration boundary; click at 800px.
     dispatchPointer(ruler, 'pointerdown', { clientX: 800, pointerId: 1 })
     expect(onSeek).toHaveBeenLastCalledWith(10)
+    dispatchPointer(ruler, 'pointerup', { clientX: 800, pointerId: 1 })
     // And below zero clamps to 0.
     dispatchPointer(ruler, 'pointerdown', { clientX: -50, pointerId: 2 })
     expect(onSeek).toHaveBeenLastCalledWith(0)
@@ -523,6 +524,26 @@ describe('<VideoTimeline>', () => {
     expect(slider?.getAttribute('min')).toBe('5')
     expect(slider?.getAttribute('max')).toBe('150')
     expect(slider?.value).toBe('50')
+  })
+
+  it('consumes Ctrl-wheel over the tracks and leaves ordinary scrolling alone', () => {
+    const onZoomChange = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <VideoTimeline
+          tracks={baseTracks}
+          currentTime={0}
+          duration={60}
+          onZoomChange={onZoomChange}
+        />
+      </Wrap>,
+    )
+    const tracks = container.querySelector('[data-mol-id="video-timeline-tracks"]')
+    if (!tracks) throw new Error('tracks missing')
+    expect(fireEvent.wheel(tracks, { deltaY: -100 })).toBe(true)
+    expect(onZoomChange).not.toHaveBeenCalled()
+    expect(fireEvent.wheel(tracks, { deltaY: -100, ctrlKey: true })).toBe(false)
+    expect(onZoomChange).toHaveBeenCalledExactlyOnceWith(22)
   })
 
   it('zoom-out button calls onZoomChange with a smaller, clamped value', () => {

@@ -1,15 +1,23 @@
-import type {
-  CSSProperties,
-  JSX,
-  PointerEvent as ReactPointerEvent,
-  WheelEvent as ReactWheelEvent,
-} from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import type { JSX } from 'react'
+import { useMemo, useRef } from 'react'
 
 import type { Clip } from '@molecule/app-feature-track-lane-react'
 import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-react'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type CSSProperties,
+  type ElementDragPoint,
+  type ElementHandle,
+  getClassMap,
+} from '@molecule/app-ui'
+import {
+  Box,
+  Pressable,
+  RangeField,
+  ScrollArea,
+  Text,
+  useWheelZoomShortcut,
+} from '@molecule/app-ui-react/elements'
 
 /**
  * The kind of media a track holds. Drives the lane name fallback,
@@ -216,10 +224,6 @@ export function computeRippleUpdates(
   return updates
 }
 
-interface SeekDragState {
-  pointerId: number
-}
-
 /**
  * Multi-track video timeline. Composes one `<TrackLane>` per track with
  * a shared time ruler at the top, a vertical playhead, and a zoom slider
@@ -258,10 +262,7 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const seekDragRef = useRef<SeekDragState | null>(null)
-  const rulerBodyRef = useRef<HTMLDivElement | null>(null)
-  const [, forceRerender] = useState(0)
-  const bumpTick = useCallback(() => forceRerender((n) => n + 1), [])
+  const tracksRef = useRef<ElementHandle>(null)
 
   const safeDuration = duration > 0 ? duration : 0
   const safeScale = pixelsPerSecond > 0 ? pixelsPerSecond : 1
@@ -292,83 +293,17 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
     }
   }
 
-  /**
-   * Convert a pointer's clientX (relative to the ruler body) to a time
-   * value, clamped into `[0, duration]`.
-   *
-   * @param clientX - Pointer clientX in viewport coordinates.
-   * @returns The seek time in seconds.
-   */
-  function clientXToTime(clientX: number): number {
-    const el = rulerBodyRef.current
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    const px = clientX - rect.left
-    const time = pixelsToTime(px, safeScale)
-    if (time < 0) return 0
-    if (time > safeDuration) return safeDuration
-    return time
+  /** Converts the ruler position to a time in the timeline's duration. */
+  function seekAt({ x }: ElementDragPoint): void {
+    onSeek?.(Math.min(pixelsToTime(x, safeScale), safeDuration))
   }
 
-  /**
-   * Begin a ruler scrub. Subsequent pointermove events while the pointer
-   * is captured will continue to fire `onSeek`.
-   *
-   * @param event - React pointer event from the ruler body.
-   */
-  function onRulerPointerDown(event: ReactPointerEvent<HTMLDivElement>): void {
-    if (event.button !== undefined && event.button !== 0) return
-    if (!onSeek) return
-    seekDragRef.current = { pointerId: event.pointerId }
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId)
-    } catch (_error) {
-      // jsdom doesn't always implement setPointerCapture; ignore.
-    }
-    onSeek(clientXToTime(event.clientX))
-    bumpTick()
+  /** Applies the shared zoom step used by the buttons and the wheel shortcut. */
+  function stepZoom(direction: 'in' | 'out', notifyAtLimit = false): void {
+    const next = zoomFromWheelDelta(safeScale, direction === 'in' ? -1 : 1, zoomMin, zoomMax)
+    if (notifyAtLimit || next !== safeScale) onZoomChange?.(next)
   }
-
-  /**
-   * Continue a ruler scrub.
-   *
-   * @param event - React pointer event from the ruler body.
-   */
-  function onRulerPointerMove(event: ReactPointerEvent<HTMLDivElement>): void {
-    const drag = seekDragRef.current
-    if (!drag || drag.pointerId !== event.pointerId) return
-    onSeek?.(clientXToTime(event.clientX))
-  }
-
-  /**
-   * Finish a ruler scrub.
-   *
-   * @param event - React pointer event from the ruler body.
-   */
-  function onRulerPointerUp(event: ReactPointerEvent<HTMLDivElement>): void {
-    const drag = seekDragRef.current
-    if (!drag || drag.pointerId !== event.pointerId) return
-    seekDragRef.current = null
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    } catch (_error) {
-      // releasePointerCapture may throw in jsdom/headless; pointer state already cleared above.
-    }
-  }
-
-  /**
-   * Handle Ctrl+wheel zoom. Plain wheel scrolls the body; Ctrl+wheel
-   * (or pinch-zoom on macOS, which surfaces as ctrlKey) zooms.
-   *
-   * @param event - React wheel event from the body.
-   */
-  function onBodyWheel(event: ReactWheelEvent<HTMLDivElement>): void {
-    if (!event.ctrlKey) return
-    if (!onZoomChange) return
-    event.preventDefault()
-    const next = zoomFromWheelDelta(safeScale, event.deltaY, zoomMin, zoomMax)
-    if (next !== safeScale) onZoomChange(next)
-  }
+  useWheelZoomShortcut(tracksRef, onZoomChange ? stepZoom : undefined)
 
   /**
    * Forward a track-lane clip move to `onClipMove`, fanning out via
@@ -455,36 +390,41 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="group"
       aria-label={rootLabel}
       data-mol-id="video-timeline"
       data-mode={mode}
       className={cm.cn(className)}
-      style={rootStyle}
+      webStyle={rootStyle}
     >
       {/* Zoom + mode controls row */}
-      <div
+      <Box
+        as="div"
         data-mol-id="video-timeline-controls"
         className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('p', 2))}
       >
-        <span data-mol-id="video-timeline-mode">
+        <Text as="span" data-mol-id="video-timeline-mode">
           {/* A generic span may not carry aria-label; the label is visually hidden text. */}
-          <span className={cm.cn(cm.srOnly)}>{modeLabel}</span>
+          <Text as="span" className={cm.cn(cm.srOnly)}>
+            {modeLabel}
+          </Text>
           {mode === 'ripple'
             ? t('videoTimeline.mode.ripple', {}, { defaultValue: 'Ripple' })
             : t('videoTimeline.mode.insert', {}, { defaultValue: 'Insert' })}
-        </span>
-        <button
+        </Text>
+        <Pressable
+          as="button"
           type="button"
           data-mol-id="video-timeline-zoom-out"
           aria-label={zoomOutLabel}
           className={cm.cn(cm.cursorPointer)}
-          onClick={() => onZoomChange?.(clampZoom(safeScale / ZOOM_WHEEL_FACTOR, zoomMin, zoomMax))}
+          onClick={() => stepZoom('out', true)}
         >
           {t('videoTimeline.zoom.out.icon', {}, { defaultValue: '−' })}
-        </button>
-        <input
+        </Pressable>
+        <RangeField
           type="range"
           data-mol-id="video-timeline-zoom-slider"
           aria-label={zoomLabel}
@@ -492,24 +432,25 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
           max={zoomMax}
           step={1}
           value={Math.round(clampZoom(safeScale, zoomMin, zoomMax))}
-          onChange={(e) => onZoomChange?.(clampZoom(Number(e.target.value), zoomMin, zoomMax))}
+          onValueChange={(value) => onZoomChange?.(clampZoom(value, zoomMin, zoomMax))}
         />
-        <button
+        <Pressable
+          as="button"
           type="button"
           data-mol-id="video-timeline-zoom-in"
           aria-label={zoomInLabel}
           className={cm.cn(cm.cursorPointer)}
-          onClick={() => onZoomChange?.(clampZoom(safeScale * ZOOM_WHEEL_FACTOR, zoomMin, zoomMax))}
+          onClick={() => stepZoom('in', true)}
         >
           {t('videoTimeline.zoom.in.icon', {}, { defaultValue: '+' })}
-        </button>
-      </div>
+        </Pressable>
+      </Box>
 
       {/* Ruler row */}
-      <div data-mol-id="video-timeline-ruler-row" style={rulerRowStyle}>
-        <div data-mol-id="video-timeline-ruler-header" style={rulerHeaderStyle} />
-        <div
-          ref={rulerBodyRef}
+      <Box as="div" data-mol-id="video-timeline-ruler-row" webStyle={rulerRowStyle}>
+        <Box as="div" data-mol-id="video-timeline-ruler-header" webStyle={rulerHeaderStyle} />
+        <Box
+          as="div"
           role="slider"
           tabIndex={0}
           aria-label={rulerLabel}
@@ -518,11 +459,8 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
           aria-valuenow={currentTime}
           aria-valuetext={playheadLabel}
           data-mol-id="video-timeline-ruler"
-          style={rulerBodyStyle}
-          onPointerDown={onRulerPointerDown}
-          onPointerMove={onRulerPointerMove}
-          onPointerUp={onRulerPointerUp}
-          onPointerCancel={onRulerPointerUp}
+          webStyle={rulerBodyStyle}
+          drag={onSeek ? { axis: 'horizontal', onStart: seekAt, onMove: seekAt } : undefined}
         >
           {ticks.map((tk) => {
             const tickStyle: CSSProperties = {
@@ -542,33 +480,47 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
               pointerEvents: 'none',
             }
             return (
-              <div key={`tick-${tk.time}`}>
-                <div data-mol-id="video-timeline-tick" data-time={tk.time} style={tickStyle} />
-                <span
+              <Box as="div" key={`tick-${tk.time}`}>
+                <Box
+                  as="div"
+                  data-mol-id="video-timeline-tick"
+                  data-time={tk.time}
+                  webStyle={tickStyle}
+                />
+                <Text
+                  as="span"
                   data-mol-id="video-timeline-tick-label"
                   data-time={tk.time}
-                  style={labelStyle}
+                  webStyle={labelStyle}
                 >
                   {formatTickTime(tk.time)}
-                </span>
-              </div>
+                </Text>
+              </Box>
             )
           })}
-          <div
+          <Box
+            as="div"
             data-mol-id="video-timeline-playhead-ruler"
             aria-hidden="true"
-            style={playheadInRulerStyle}
+            webStyle={playheadInRulerStyle}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Tracks (scrollable) */}
-      <div data-mol-id="video-timeline-tracks" style={tracksScrollStyle} onWheel={onBodyWheel}>
-        <div style={tracksInnerStyle}>
+      <ScrollArea
+        as="div"
+        direction="horizontal"
+        ref={tracksRef}
+        data-mol-id="video-timeline-tracks"
+        webStyle={tracksScrollStyle}
+      >
+        <Box as="div" webStyle={tracksInnerStyle}>
           {tracks.map((track) => {
             const fallbackName = track.name ?? trackKindLabel(track.kind)
             return (
-              <div
+              <Box
+                as="div"
                 key={track.id}
                 data-mol-id="video-timeline-track"
                 data-track-id={track.id}
@@ -585,13 +537,18 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
                   onClipResize={(clipId, dur) => onClipResize?.(clipId, dur, track.id)}
                   onClipClick={(clipId) => onClipClick?.(clipId, track.id)}
                 />
-              </div>
+              </Box>
             )
           })}
-          <div data-mol-id="video-timeline-playhead" aria-hidden="true" style={playheadStyle} />
-        </div>
-      </div>
-    </div>
+          <Box
+            as="div"
+            data-mol-id="video-timeline-playhead"
+            aria-hidden="true"
+            webStyle={playheadStyle}
+          />
+        </Box>
+      </ScrollArea>
+    </Box>
   )
 }
 

@@ -18,7 +18,6 @@
     "survey-question-react",
     "three-viewer-react",
     "video-player-react",
-    "video-timeline-react",
     "whiteboard-canvas-react"
   ],
   "kitComponents": [

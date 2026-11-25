@@ -72,10 +72,12 @@ import type { Track, VideoTimelineProps } from '../types.js'
 /** The host template every test mounts: one attribute-selector timeline with every input bound. */
 const TEMPLATE = `<div mol-video-timeline [tracks]="p['tracks']" [currentTime]="p['currentTime']" [duration]="p['duration']" [onSeek]="p['onSeek']" [onClipMove]="p['onClipMove']" [onClipResize]="p['onClipResize']" [pixelsPerSecond]="p['pixelsPerSecond']" [zoomMin]="p['zoomMin']" [zoomMax]="p['zoomMax']" [mode]="p['mode']" [onZoomChange]="p['onZoomChange']" [selectedClipId]="p['selectedClipId']" [onClipClick]="p['onClipClick']" [trackHeight]="p['trackHeight']" [laneHeaderWidth]="p['laneHeaderWidth']" [rulerHeight]="p['rulerHeight']" [className]="p['className']"></div>`
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, a props update and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Merges new props in, as a parent re-rendering would, and runs change detection. */
+  setProps(next: Partial<VideoTimelineProps>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -103,7 +105,8 @@ async function mountHost(props: VideoTimelineProps): Promise<Mounted> {
   const appRef: ApplicationRef = await createApplication({
     providers: [provideZonelessChangeDetection()],
   })
-  const ref: ComponentRef<unknown> = createComponent(Host, {
+  // The instance is the host class above, whose `p` the template reads.
+  const ref: ComponentRef<{ p: VideoTimelineProps }> = createComponent(Host, {
     environmentInjector: appRef.injector,
   })
   const host = ref.location.nativeElement as HTMLElement
@@ -112,6 +115,12 @@ async function mountHost(props: VideoTimelineProps): Promise<Mounted> {
   appRef.tick()
   return {
     host,
+    setProps: async (next) => {
+      // Zoneless Angular refreshes only a view marked dirty, and a plain field write marks nothing.
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -134,6 +143,39 @@ const render = async (props: VideoTimelineProps): Promise<HTMLElement> => {
   return m.host
 }
 
+/** A timeline whose props a test changes afterwards, as a parent re-rendering it would. */
+interface Updatable {
+  /** The host element the timeline mounted into. */
+  container: HTMLElement
+  /** Merges new props in and renders them. */
+  setProps(next: Partial<VideoTimelineProps>): Promise<void>
+}
+
+/**
+ * Mounts a `VideoTimeline` whose props the test can change afterwards, the
+ * way a parent re-renders it.
+ *
+ * @param props - Component props.
+ * @returns The host element and the props update.
+ */
+const renderUpdatable = async (props: VideoTimelineProps): Promise<Updatable> => {
+  const m = await mountHost(props)
+  mounted.push(m)
+  return { container: m.host, setProps: (next) => m.setProps(next) }
+}
+
+/** What a dispatched pointer event says about itself. */
+interface PointerInit {
+  clientX?: number
+  clientY?: number
+  pointerId?: number
+  button?: number
+  /** The device the pointer belongs to (`mouse`, `touch`, `pen`). */
+  pointerType?: string
+  /** Whether the pointer is the first one of its type on the surface. */
+  isPrimary?: boolean
+}
+
 /**
  * Dispatch a real `PointerEvent` so element listeners and window-level
  * listeners both pick it up.
@@ -144,20 +186,81 @@ const render = async (props: VideoTimelineProps): Promise<HTMLElement> => {
  */
 function dispatchPointer(
   target: Element | Window,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
-  init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel' | 'lostpointercapture',
+  init: PointerInit,
 ): void {
-  const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
-    clientX: number
-    clientY: number
-    pointerId: number
-    button: number
-  }
+  const event = new Event(type, { bubbles: true, cancelable: true }) as Event & PointerInit
   event.clientX = init.clientX ?? 0
   event.clientY = init.clientY ?? 0
   event.pointerId = init.pointerId ?? 1
   event.button = init.button ?? 0
+  if (init.pointerType !== undefined) event.pointerType = init.pointerType
+  if (init.isPrimary !== undefined) event.isPrimary = init.isPrimary
   target.dispatchEvent(event)
+}
+
+/**
+ * The ruler body of a rendered timeline. jsdom lays nothing out, so the ruler
+ * is given a rect that starts at the viewport's left edge: a pointer's
+ * `clientX` is then its offset into the ruler.
+ *
+ * @param container - The rendered timeline's host.
+ * @returns The ruler body.
+ */
+function rulerOf(container: HTMLElement): HTMLElement {
+  const ruler = container.querySelector<HTMLElement>('[data-mol-id="video-timeline-ruler"]')
+  if (!ruler) throw new Error('ruler missing')
+  ruler.getBoundingClientRect = () =>
+    ({
+      left: 0,
+      top: 0,
+      right: 800,
+      bottom: 28,
+      width: 800,
+      height: 28,
+      x: 0,
+      y: 0,
+      toJSON() {
+        /* jsdom shape */
+      },
+    }) as DOMRect
+  return ruler
+}
+
+/**
+ * Dispatch a cancelable `wheel` event the way testing-library's
+ * `fireEvent.wheel` does, and report whether the event was left to the
+ * browser (`true`) or consumed by the component (`false`).
+ *
+ * @param target - Target element.
+ * @param init - Wheel init properties.
+ * @returns False when a handler called `preventDefault()`.
+ */
+function fireWheel(target: Element, init: WheelEventInit): boolean {
+  const event = new WheelEvent('wheel', {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    ...init,
+  })
+  target.dispatchEvent(event)
+  return !event.defaultPrevented
+}
+
+/**
+ * Dispatch a cancelable `touchmove` carrying one contact, and report whether
+ * the event was left to the browser (`true`, the page scrolls) or consumed by
+ * the component (`false`).
+ *
+ * @param clientX - The contact's viewport x.
+ * @param clientY - The contact's viewport y.
+ * @returns False when a handler called `preventDefault()`.
+ */
+function fireTouchMove(clientX: number, clientY: number): boolean {
+  const event = new Event('touchmove', { bubbles: true, cancelable: true })
+  Object.defineProperty(event, 'touches', { value: [{ clientX, clientY }] })
+  window.dispatchEvent(event)
+  return !event.defaultPrevented
 }
 
 const baseClipsV: Clip[] = [
@@ -397,9 +500,236 @@ describe('<VideoTimeline>', () => {
     // 10 seconds * 20 pps = 200px is the duration boundary; click at 800px.
     dispatchPointer(ruler, 'pointerdown', { clientX: 800, pointerId: 1 })
     expect(onSeek).toHaveBeenLastCalledWith(10)
+    // Released before the next press: the pointer that pressed first owns the scrub.
+    dispatchPointer(ruler, 'pointerup', { clientX: 800, pointerId: 1 })
     // And below zero clamps to 0.
     dispatchPointer(ruler, 'pointerdown', { clientX: -50, pointerId: 2 })
     expect(onSeek).toHaveBeenLastCalledWith(0)
+  })
+
+  it('seeks on every pointer move until the release, wherever the pointer is', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    dispatchPointer(ruler, 'pointerdown', { clientX: 60, pointerId: 1 })
+    // Moves reach the window even once the pointer has left the ruler.
+    dispatchPointer(window, 'pointermove', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 140, pointerId: 1 })
+    // The release seeks nothing, and neither does a move after it.
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[3], [5], [7]])
+  })
+
+  it('ignores a second pointer pressing the ruler during a scrub', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    dispatchPointer(ruler, 'pointerdown', { clientX: 60, pointerId: 1 })
+    // A second finger lands on the ruler while the first pointer is still down.
+    dispatchPointer(ruler, 'pointerdown', { clientX: 200, pointerId: 2 })
+    dispatchPointer(window, 'pointermove', { clientX: 220, pointerId: 2 })
+    // The pointer that started the scrub still owns it.
+    dispatchPointer(window, 'pointermove', { clientX: 80, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 80, pointerId: 1 })
+    // Once that pointer lifts, the second one can press.
+    dispatchPointer(ruler, 'pointerdown', { clientX: 40, pointerId: 2 })
+    expect(onSeek.mock.calls).toEqual([[3], [4], [2]])
+  })
+
+  it('ignores a non-primary pointer pressing the ruler', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    // A second touch: not the primary pointer of its type.
+    dispatchPointer(ruler, 'pointerdown', {
+      clientX: 60,
+      pointerId: 2,
+      pointerType: 'touch',
+      isPrimary: false,
+    })
+    dispatchPointer(window, 'pointermove', {
+      clientX: 100,
+      pointerId: 2,
+      pointerType: 'touch',
+      isPrimary: false,
+    })
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 2 })
+    // The primary pointer seeks as usual.
+    dispatchPointer(ruler, 'pointerdown', {
+      clientX: 20,
+      pointerId: 1,
+      pointerType: 'mouse',
+      isPrimary: true,
+    })
+    expect(onSeek.mock.calls).toEqual([[1]])
+  })
+
+  it('ends the scrub and releases the pointer when the window loses focus', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    const capture = vi.fn()
+    const release = vi.fn()
+    Object.assign(ruler, { setPointerCapture: capture, releasePointerCapture: release })
+    dispatchPointer(ruler, 'pointerdown', { clientX: 60, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 100, pointerId: 1 })
+    // The pointer's release never reaches a page that is out of focus.
+    window.dispatchEvent(new Event('blur'))
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    // Hovering the ruler afterwards seeks nothing either.
+    dispatchPointer(ruler, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[3], [5]])
+    expect(capture).toHaveBeenCalledExactlyOnceWith(1)
+    expect(release).toHaveBeenCalledExactlyOnceWith(1)
+  })
+
+  it('ends the scrub when the pointer is cancelled', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    dispatchPointer(ruler, 'pointerdown', { clientX: 60, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointercancel', { clientX: 100, pointerId: 1 })
+    dispatchPointer(ruler, 'pointermove', { clientX: 140, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[3], [5]])
+  })
+
+  it('ends the scrub when the ruler loses pointer capture', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    dispatchPointer(ruler, 'pointerdown', { clientX: 60, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 100, pointerId: 1 })
+    // The browser takes the capture back, and says so for the pointer that held it.
+    dispatchPointer(ruler, 'lostpointercapture', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[3], [5]])
+  })
+
+  it('keeps seeking through a handler bound again during a scrub', async () => {
+    const first = vi.fn()
+    const second = vi.fn()
+    const { container, setProps } = await renderUpdatable({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek: first,
+    })
+    const ruler = rulerOf(container)
+    dispatchPointer(ruler, 'pointerdown', { clientX: 60, pointerId: 1 })
+    // The parent re-renders while the pointer is down (the seek moved its own
+    // state) and passes a new inline handler.
+    await setProps({ currentTime: 3, onSeek: second })
+    dispatchPointer(window, 'pointermove', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    // The scrub was never interrupted: its next move goes through the new handler.
+    expect(first.mock.calls).toEqual([[3]])
+    expect(second.mock.calls).toEqual([[5]])
+  })
+
+  it('keeps the page from scrolling under a touch that scrubs the ruler', async () => {
+    const onSeek = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 20,
+      onSeek,
+    })
+    const ruler = rulerOf(container)
+    // A finger lands on the ruler, which declares `touch-action: none`.
+    dispatchPointer(ruler, 'pointerdown', {
+      clientX: 60,
+      pointerId: 1,
+      pointerType: 'touch',
+      isPrimary: true,
+    })
+    // Its first real movement runs down the page, where a scroller would take it.
+    expect(fireTouchMove(100, 60)).toBe(false)
+    // The scrub is still owned: the movement seeks as well.
+    dispatchPointer(window, 'pointermove', {
+      clientX: 100,
+      clientY: 60,
+      pointerId: 1,
+      pointerType: 'touch',
+      isPrimary: true,
+    })
+    expect(onSeek.mock.calls).toEqual([[3], [5]])
+  })
+
+  it('hands a vertical touch swipe back when the ruler is made scrollable', async () => {
+    // A stylesheet that takes the ruler's `touch-action: none` away.
+    const sheet = document.createElement('style')
+    sheet.textContent = '[data-mol-id="video-timeline-ruler"] { touch-action: pan-y !important; }'
+    document.head.appendChild(sheet)
+    try {
+      const onSeek = vi.fn()
+      const container = await render({
+        tracks: baseTracks,
+        currentTime: 0,
+        duration: 60,
+        pixelsPerSecond: 20,
+        onSeek,
+      })
+      const ruler = rulerOf(container)
+      dispatchPointer(ruler, 'pointerdown', {
+        clientX: 60,
+        pointerId: 1,
+        pointerType: 'touch',
+        isPrimary: true,
+      })
+      // A movement mostly down the page is a scroll, not a scrub: the page keeps it.
+      expect(fireTouchMove(100, 60)).toBe(true)
+      // And the scrub is over: later movements seek nothing.
+      dispatchPointer(window, 'pointermove', {
+        clientX: 140,
+        clientY: 90,
+        pointerId: 1,
+        pointerType: 'touch',
+        isPrimary: true,
+      })
+      expect(onSeek.mock.calls).toEqual([[3]])
+    } finally {
+      sheet.remove()
+    }
   })
 
   it('insert mode: dragging a clip emits exactly one onClipMove call', async () => {
@@ -504,6 +834,78 @@ describe('<VideoTimeline>', () => {
     expect(slider?.getAttribute('min')).toBe('5')
     expect(slider?.getAttribute('max')).toBe('150')
     expect(slider?.value).toBe('50')
+  })
+
+  it('consumes Ctrl-wheel over the tracks and leaves ordinary scrolling alone', async () => {
+    const onZoomChange = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      onZoomChange,
+    })
+    const tracks = container.querySelector('[data-mol-id="video-timeline-tracks"]')
+    if (!tracks) throw new Error('tracks missing')
+    expect(fireWheel(tracks, { deltaY: -100 })).toBe(true)
+    expect(onZoomChange).not.toHaveBeenCalled()
+    expect(fireWheel(tracks, { deltaY: -100, ctrlKey: true })).toBe(false)
+    expect(onZoomChange).toHaveBeenCalledExactlyOnceWith(22)
+  })
+
+  it('leaves a Ctrl-wheel with no vertical delta alone', async () => {
+    const onZoomChange = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      onZoomChange,
+    })
+    const tracks = container.querySelector('[data-mol-id="video-timeline-tracks"]')
+    if (!tracks) throw new Error('tracks missing')
+    // A trackpad pinch reports no vertical delta where it starts and ends.
+    expect(fireWheel(tracks, { deltaY: 0, deltaX: -3, ctrlKey: true })).toBe(true)
+    expect(onZoomChange).not.toHaveBeenCalled()
+  })
+
+  it('starts and stops consuming Ctrl-wheel as onZoomChange comes and goes', async () => {
+    const onZoomChange = vi.fn()
+    const { container, setProps } = await renderUpdatable({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+    })
+    const tracksOf = (): Element => {
+      const element = container.querySelector('[data-mol-id="video-timeline-tracks"]')
+      if (!element) throw new Error('tracks missing')
+      return element
+    }
+    // No handler yet: the browser keeps the wheel.
+    expect(fireWheel(tracksOf(), { deltaY: -100, ctrlKey: true })).toBe(true)
+    // One arrives later: from now on the timeline consumes the gesture.
+    await setProps({ onZoomChange })
+    expect(fireWheel(tracksOf(), { deltaY: -100, ctrlKey: true })).toBe(false)
+    expect(onZoomChange).toHaveBeenCalledExactlyOnceWith(22)
+    // Taken away again: the listener goes with it.
+    await setProps({ onZoomChange: undefined })
+    expect(fireWheel(tracksOf(), { deltaY: -100, ctrlKey: true })).toBe(true)
+    expect(onZoomChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('zoom-out button steps out by the same factor the wheel uses', async () => {
+    const onZoomChange = vi.fn()
+    const container = await render({
+      tracks: baseTracks,
+      currentTime: 0,
+      duration: 60,
+      pixelsPerSecond: 33,
+      onZoomChange,
+    })
+    const btn = container.querySelector<HTMLButtonElement>(
+      '[data-mol-id="video-timeline-zoom-out"]',
+    )
+    btn?.click()
+    // One step out of 33 is exactly 30 (33 * (1 / 1.1)); dividing by 1.1 rounds just below it.
+    expect(onZoomChange).toHaveBeenCalledExactlyOnceWith(30)
   })
 
   it('zoom-out button calls onZoomChange with a smaller, clamped value', async () => {

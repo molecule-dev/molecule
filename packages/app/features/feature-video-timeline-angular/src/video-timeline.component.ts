@@ -6,13 +6,22 @@
  * @module
  */
 
-import { Component, type ElementRef, type OnDestroy, ViewChild } from '@angular/core'
+import {
+  type AfterViewInit,
+  Component,
+  type ElementRef,
+  type OnChanges,
+  type OnDestroy,
+  type SimpleChanges,
+  ViewChild,
+} from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { createRulerScrub, listenForWheelZoom, type ZoomStep } from './interaction.js'
 import {
   clampZoom,
   computeRippleUpdates,
@@ -24,16 +33,9 @@ import {
   DEFAULT_ZOOM_MAX,
   DEFAULT_ZOOM_MIN,
   formatTickTime,
-  ZOOM_WHEEL_FACTOR,
   zoomFromWheelDelta,
 } from './timeline.js'
 import type { Track, TrackKind, VideoTimelineMode } from './types.js'
-
-/** The ruler scrub in progress, or null. */
-interface SeekDragState {
-  /** The pointer that started the scrub. */
-  pointerId: number
-}
 
 /**
  * VideoTimeline component.
@@ -84,9 +86,9 @@ interface SeekDragState {
     '[style.overflow]': `'hidden'`,
   },
   // prettier-ignore
-  template: `<div data-mol-id="video-timeline-controls" [class]="controlsClasses()"><span data-mol-id="video-timeline-mode"><span [class]="srOnlyClasses()">{{ modeLabel() }}</span>{{ modeText() }}</span><button type="button" data-mol-id="video-timeline-zoom-out" [attr.aria-label]="zoomOutLabel()" [class]="buttonClasses()" (click)="zoomOut()"> {{ zoomOutIcon() }} </button><input type="range" data-mol-id="video-timeline-zoom-slider" [attr.aria-label]="zoomLabel()" [attr.min]="zoomMinOf()" [attr.max]="zoomMaxOf()" step="1" [attr.value]="sliderValue()" (input)="handleZoomInput($event)" /><button type="button" data-mol-id="video-timeline-zoom-in" [attr.aria-label]="zoomInLabel()" [class]="buttonClasses()" (click)="zoomIn()"> {{ zoomInIcon() }} </button></div><div data-mol-id="video-timeline-ruler-row" [style]="rulerRowStyle()"><div data-mol-id="video-timeline-ruler-header" [style]="rulerHeaderStyle()"></div><div #rulerBody role="slider" tabindex="0" [attr.aria-label]="rulerLabel()" aria-valuemin="0" [attr.aria-valuemax]="safeDuration()" [attr.aria-valuenow]="currentTime ?? null" [attr.aria-valuetext]="playheadLabel()" data-mol-id="video-timeline-ruler" [style]="rulerBodyStyle()" (pointerdown)="onRulerPointerDown($event)" (pointermove)="onRulerPointerMove($event)" (pointerup)="onRulerPointerUp($event)" (pointercancel)="onRulerPointerUp($event)">@for (tick of ticks(); track tick.time) {<div><div data-mol-id="video-timeline-tick" [attr.data-time]="tick.time" [style]="tickStyle(tick)"></div><span data-mol-id="video-timeline-tick-label" [attr.data-time]="tick.time" [style]="tickLabelStyle(tick)"> {{ tickText(tick) }} </span></div>}<div data-mol-id="video-timeline-playhead-ruler" aria-hidden="true" [style]="playheadInRulerStyle()"></div></div></div><div data-mol-id="video-timeline-tracks" [style]="tracksScrollStyle()" (wheel)="onBodyWheel($event)"><div [style]="tracksInnerStyle()">@for (track of tracks ?? []; track track.id) {<div data-mol-id="video-timeline-track" [attr.data-track-id]="track.id" [attr.data-track-kind]="track.kind"><div mol-track-lane [name]="laneName(track)" [clips]="track.clips" [pixelsPerSecond]="safeScale()" [height]="trackHeightOf()" [lane]="track.id" [selectedClipId]="selectedClipId" [onClipMove]="moveFor(track)" [onClipResize]="resizeFor(track)" [onClipClick]="clickFor(track)"></div></div>}<div data-mol-id="video-timeline-playhead" aria-hidden="true" [style]="playheadStyle()"></div></div></div>`,
+  template: `<div data-mol-id="video-timeline-controls" [class]="controlsClasses()"><span data-mol-id="video-timeline-mode"><span [class]="srOnlyClasses()">{{ modeLabel() }}</span>{{ modeText() }}</span><button type="button" data-mol-id="video-timeline-zoom-out" [attr.aria-label]="zoomOutLabel()" [class]="buttonClasses()" (click)="stepZoom('out', true)"> {{ zoomOutIcon() }} </button><input type="range" data-mol-id="video-timeline-zoom-slider" [attr.aria-label]="zoomLabel()" [attr.min]="zoomMinOf()" [attr.max]="zoomMaxOf()" step="1" [attr.value]="sliderValue()" (input)="handleZoomInput($event)" /><button type="button" data-mol-id="video-timeline-zoom-in" [attr.aria-label]="zoomInLabel()" [class]="buttonClasses()" (click)="stepZoom('in', true)"> {{ zoomInIcon() }} </button></div><div data-mol-id="video-timeline-ruler-row" [style]="rulerRowStyle()"><div data-mol-id="video-timeline-ruler-header" [style]="rulerHeaderStyle()"></div><div role="slider" tabindex="0" [attr.aria-label]="rulerLabel()" aria-valuemin="0" [attr.aria-valuemax]="safeDuration()" [attr.aria-valuenow]="currentTime ?? null" [attr.aria-valuetext]="playheadLabel()" data-mol-id="video-timeline-ruler" [style]="rulerBodyStyle()" (pointerdown)="onRulerPointerDown($event)">@for (tick of ticks(); track tick.time) {<div><div data-mol-id="video-timeline-tick" [attr.data-time]="tick.time" [style]="tickStyle(tick)"></div><span data-mol-id="video-timeline-tick-label" [attr.data-time]="tick.time" [style]="tickLabelStyle(tick)"> {{ tickText(tick) }} </span></div>}<div data-mol-id="video-timeline-playhead-ruler" aria-hidden="true" [style]="playheadInRulerStyle()"></div></div></div><div #tracksBody data-mol-id="video-timeline-tracks" [style]="tracksScrollStyle()"><div [style]="tracksInnerStyle()">@for (track of tracks ?? []; track track.id) {<div data-mol-id="video-timeline-track" [attr.data-track-id]="track.id" [attr.data-track-kind]="track.kind"><div mol-track-lane [name]="laneName(track)" [clips]="track.clips" [pixelsPerSecond]="safeScale()" [height]="trackHeightOf()" [lane]="track.id" [selectedClipId]="selectedClipId" [onClipMove]="moveFor(track)" [onClipResize]="resizeFor(track)" [onClipClick]="clickFor(track)"></div></div>}<div data-mol-id="video-timeline-playhead" aria-hidden="true" [style]="playheadStyle()"></div></div></div>`,
 })
-export class VideoTimeline implements OnDestroy {
+export class VideoTimeline implements AfterViewInit, OnChanges, OnDestroy {
   /** Tracks to render, in display order. */
   tracks?: Track[]
   /** Current playhead time in seconds. */
@@ -125,11 +127,17 @@ export class VideoTimeline implements OnDestroy {
   /** The i18n state; `t` re-reads the provider on every call and on every locale switch. */
   private readonly i18n = useTranslation()
 
-  /** The ruler scrub in progress, or null. */
-  private seekDrag: SeekDragState | null = null
+  /** The scrollable tracks area, where the Ctrl-wheel shortcut listens. */
+  @ViewChild('tracksBody') tracksBodyRef?: ElementRef<HTMLDivElement>
 
-  /** The ruler body element, for the pointer-to-time math. */
-  @ViewChild('rulerBody') rulerBodyRef?: ElementRef<HTMLDivElement>
+  /** The ruler scrub (React's `drag` on the ruler `Box`). */
+  private readonly scrub = createRulerScrub(
+    (x) => this.seekAt(x),
+    () => Boolean(this.onSeek),
+  )
+
+  /** Removes the Ctrl-wheel shortcut's listener, while it is attached. */
+  private detachWheelZoom?: () => void
 
   /**
    * The current class map.
@@ -449,85 +457,80 @@ export class VideoTimeline implements OnDestroy {
   }
 
   /**
-   * Convert a pointer's clientX (relative to the ruler body) to a time
-   * value, clamped into `[0, duration]`.
+   * Converts the pointer's horizontal offset from the ruler's left edge to a
+   * time value, clamped into `[0, duration]` (React's `seekAt`).
    *
-   * @param clientX - Pointer clientX in viewport coordinates.
-   * @returns The seek time in seconds.
+   * @param x - The pointer's offset into the ruler body, in pixels.
    */
-  clientXToTime(clientX: number): number {
-    const el = this.rulerBodyRef?.nativeElement
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    const px = clientX - rect.left
-    const time = pixelsToTime(px, this.safeScale())
-    if (time < 0) return 0
-    if (time > this.safeDuration()) return this.safeDuration()
-    return time
+  private seekAt(x: number): void {
+    this.onSeek?.(Math.min(pixelsToTime(x, this.safeScale()), this.safeDuration()))
   }
 
   /**
-   * Begin a ruler scrub. Subsequent pointermove events while the pointer
-   * is captured will continue to fire `onSeek`.
+   * The ruler body's `pointerdown` handler: the pointer seeks to where it
+   * landed and owns the scrub until it lifts or is interrupted.
    *
    * @param event - The pointer event from the ruler body.
    */
   onRulerPointerDown(event: PointerEvent): void {
-    if (event.button !== undefined && event.button !== 0) return
-    if (!this.onSeek) return
-    this.seekDrag = { pointerId: event.pointerId }
-    try {
-      ;(event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId)
-    } catch (_error) {
-      // jsdom doesn't always implement setPointerCapture; ignore.
-    }
-    this.onSeek(this.clientXToTime(event.clientX))
+    this.scrub.press(event)
   }
 
   /**
-   * Continue a ruler scrub.
+   * Applies one zoom step of the wheel factor (React's `stepZoom`). The zoom
+   * buttons use it too; they also report when the scale is already at the bound.
    *
-   * @param event - The pointer event from the ruler body.
+   * @param direction - Which way to step.
+   * @param notifyAtLimit - Whether to report a step that stays at the bound.
    */
-  onRulerPointerMove(event: PointerEvent): void {
-    const drag = this.seekDrag
-    if (!drag || drag.pointerId !== event.pointerId) return
-    this.onSeek?.(this.clientXToTime(event.clientX))
-  }
-
-  /**
-   * Finish a ruler scrub.
-   *
-   * @param event - The pointer event from the ruler body.
-   */
-  onRulerPointerUp(event: PointerEvent): void {
-    const drag = this.seekDrag
-    if (!drag || drag.pointerId !== event.pointerId) return
-    this.seekDrag = null
-    try {
-      ;(event.currentTarget as HTMLDivElement).releasePointerCapture(event.pointerId)
-    } catch (_error) {
-      // releasePointerCapture may throw in jsdom/headless; pointer state already cleared above.
-    }
-  }
-
-  /**
-   * Handle Ctrl+wheel zoom. Plain wheel scrolls the body; Ctrl+wheel
-   * (or pinch-zoom on macOS, which surfaces as ctrlKey) zooms.
-   *
-   * @param event - The wheel event from the tracks area.
-   */
-  onBodyWheel(event: WheelEvent): void {
-    if (!event.ctrlKey) return
-    if (!this.onZoomChange) return
-    event.preventDefault()
+  stepZoom(direction: ZoomStep, notifyAtLimit = false): void {
     const next = zoomFromWheelDelta(
       this.safeScale(),
-      event.deltaY,
+      direction === 'in' ? -1 : 1,
       this.zoomMinOf(),
       this.zoomMaxOf(),
     )
-    if (next !== this.safeScale()) this.onZoomChange(next)
+    if (notifyAtLimit || next !== this.safeScale()) this.onZoomChange?.(next)
+  }
+
+  /** Attaches the Ctrl-wheel shortcut: the tracks area exists once the view is up. */
+  ngAfterViewInit(): void {
+    this.syncWheelZoom()
+  }
+
+  /**
+   * Keeps the Ctrl-wheel shortcut and the scrub in step with their handlers:
+   * the shortcut follows `onZoomChange`, and a scrub ends when `onSeek` is taken
+   * away. A handler bound again (a parent that passes a new inline function on
+   * each render, as one does when the seek moves its own state) keeps the scrub
+   * going, as React's does: the next move seeks through the new handler.
+   *
+   * @param changes - The changed inputs.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['onZoomChange']) this.syncWheelZoom()
+    const seek = changes['onSeek']
+    if (seek && !seek.currentValue) this.scrub.end()
+  }
+
+  /** Removes the Ctrl-wheel shortcut, as React's unmount drops its listener, and ends any scrub. */
+  ngOnDestroy(): void {
+    this.detachWheelZoom?.()
+    this.detachWheelZoom = undefined
+    this.scrub.end()
+  }
+
+  /**
+   * Attaches the Ctrl-wheel shortcut while the tracks area and a zoom handler
+   * are both there, and detaches it otherwise.
+   */
+  private syncWheelZoom(): void {
+    this.detachWheelZoom?.()
+    this.detachWheelZoom = undefined
+    const host = this.tracksBodyRef?.nativeElement
+    if (host && this.onZoomChange) {
+      this.detachWheelZoom = listenForWheelZoom(host, (direction) => this.stepZoom(direction))
+    }
   }
 
   /**
@@ -551,26 +554,6 @@ export class VideoTimeline implements OnDestroy {
     }
     const updates = computeRippleUpdates(track.clips, clipId, proposedStartTime)
     for (const u of updates) this.onClipMove(u.id, u.startTime, trackId)
-  }
-
-  /**
-   * The zoom-out button's handler: `onZoomChange` with the scale divided by
-   * the wheel factor, clamped.
-   */
-  zoomOut(): void {
-    this.onZoomChange?.(
-      clampZoom(this.safeScale() / ZOOM_WHEEL_FACTOR, this.zoomMinOf(), this.zoomMaxOf()),
-    )
-  }
-
-  /**
-   * The zoom-in button's handler: `onZoomChange` with the scale times the
-   * wheel factor, clamped.
-   */
-  zoomIn(): void {
-    this.onZoomChange?.(
-      clampZoom(this.safeScale() * ZOOM_WHEEL_FACTOR, this.zoomMinOf(), this.zoomMaxOf()),
-    )
   }
 
   /**
@@ -730,10 +713,5 @@ export class VideoTimeline implements OnDestroy {
       'position: relative',
       `min-width: ${this.bodyWidth() + this.laneHeaderWidthOf()}px`,
     ].join('; ')
-  }
-
-  /** Clears the scrub state, as React's unmount drops the ref. */
-  ngOnDestroy(): void {
-    this.seekDrag = null
   }
 }
