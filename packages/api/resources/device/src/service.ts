@@ -13,6 +13,7 @@ import {
 const logger = getLogger()
 const analytics = getAnalytics()
 import { resource } from './resource.js'
+import { addDeviceRevokedListener, deviceRevoked } from './revocation.js'
 import type { DeviceService } from './types.js'
 
 const { tableName } = resource
@@ -79,6 +80,7 @@ export const deviceService: DeviceService = {
   async delete(deviceId: string): Promise<void> {
     try {
       await deleteById(tableName, deviceId)
+      deviceRevoked(deviceId)
     } catch (error) {
       logger.error(error)
     }
@@ -87,6 +89,7 @@ export const deviceService: DeviceService = {
   async deleteByUserId(userId: string): Promise<void> {
     try {
       await deleteMany(tableName, [{ field: 'userId', operator: '=', value: userId }])
+      deviceRevoked(null)
     } catch (error) {
       logger.error(error)
     }
@@ -98,9 +101,14 @@ export const deviceService: DeviceService = {
         { field: 'userId', operator: '=', value: userId },
         { field: 'id', operator: '!=', value: keepDeviceId },
       ])
+      deviceRevoked(null)
     } catch (error) {
       logger.error(error)
     }
+  },
+
+  onRevoked(listener: (deviceId: string | null) => void): () => void {
+    return addDeviceRevokedListener(listener)
   },
 
   async getWithPushSubscription(

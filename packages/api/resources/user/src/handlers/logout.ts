@@ -1,7 +1,11 @@
 import { get, getLogger } from '@molecule/api-bond'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { getAuthCookieName, getAuthCookieOptions } from '../authorization.js'
+import {
+  getAuthCookieName,
+  getAuthCookieOptions,
+  invalidateDeviceExistsCache,
+} from '../authorization.js'
 
 const logger = getLogger()
 
@@ -24,8 +28,11 @@ export const logout = () => {
     try {
       const session = res.locals.session as { deviceId?: string } | undefined
       if (session?.deviceId) {
-        // Delete the device so verifyMiddleware rejects this JWT server-side.
+        // Delete the device so verifyMiddleware rejects this JWT server-side, and drop its cached
+        // "exists" answer so the very next request is refused (a device service with onRevoked does
+        // this too; one without it would leave the token working for the cache's 10 s).
         await get<{ delete(deviceId: string): Promise<void> }>('device')?.delete(session.deviceId)
+        invalidateDeviceExistsCache(session.deviceId)
       }
     } catch (error) {
       // Best-effort — the device row may already be gone; clear cookies regardless.

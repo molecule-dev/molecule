@@ -286,6 +286,9 @@ const resolveAuthScheme = (res: MoleculeResponse): string => {
 const deviceExistsCacheTtlMs = 10_000
 const deviceExistsCache = new Map<string, number>()
 
+/** The device services whose revocations evict the cache (their `onRevoked`). */
+const revocationSubscribed = new WeakSet<object>()
+
 /**
  * Evict a single device's positive entry from the device-exists cache so the
  * next authorization check for that device re-consults the database.
@@ -335,12 +338,26 @@ export const invalidateAllDeviceExistsCache = (): void => {
  * @returns `true` if the session may proceed, `false` if it was revoked.
  */
 const isDeviceActive = async (deviceId: string): Promise<boolean> => {
-  const deviceService = get<{ exists?(deviceId: string): Promise<boolean> }>('device')
+  // The device service's own type (`DeviceService`, @molecule/api-resource-device) has both; a
+  // structural one keeps this check working with a device package from before `onRevoked`.
+  const deviceService = get<{
+    exists?(deviceId: string): Promise<boolean>
+    onRevoked?(listener: (deviceId: string | null) => void): () => void
+  }>('device')
 
   // No device-tracking bond, or a bond that predates the `exists` capability —
   // cannot enforce revocation here; do not break auth.
   if (typeof deviceService?.exists !== 'function') {
     return true
+  }
+  // Hear every revocation from here on (logout, DELETE /devices/:id, a password reset), so the
+  // cache below never answers for a device that is gone. The first lookup subscribes, before
+  // anything is cached.
+  if (typeof deviceService.onRevoked === 'function' && !revocationSubscribed.has(deviceService)) {
+    revocationSubscribed.add(deviceService)
+    deviceService.onRevoked((revoked) =>
+      revoked === null ? invalidateAllDeviceExistsCache() : invalidateDeviceExistsCache(revoked),
+    )
   }
 
   const cachedAt = deviceExistsCache.get(deviceId)

@@ -5,6 +5,8 @@ const analytics = getAnalytics()
 const logger = getLogger()
 import { t } from '@molecule/api-i18n'
 
+import { deviceRevoked } from '../revocation.js'
+
 /**
  * Deletes a device by ID from the database.
  * @param resource - The device resource configuration (name, tableName).
@@ -25,6 +27,7 @@ export const del = ({ name: _name, tableName }: { name: string; tableName: strin
         }
       }
 
+      deviceRevoked(id)
       analytics.track({ name: 'device.deleted', properties: { deviceId: id } }).catch((error) => {
         logger.debug('device.deleted analytics track failed', { error, deviceId: id })
       })

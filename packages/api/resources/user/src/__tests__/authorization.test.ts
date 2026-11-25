@@ -1335,6 +1335,81 @@ describe('authorization', () => {
         )
         expect(resB.locals.session).toBeUndefined()
       })
+
+      it('a device service that announces revocations evicts the cache itself (OLD MUSTFAIL)', async () => {
+        // Harness eval, 2026-11-25: DELETE /devices/:id and logout left the revoked token working
+        // for the cache's 10 s on this process.
+        const session = { userId: 'u1', deviceId: 'd-announced' }
+        mockVerify.mockReturnValue(session)
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        let announce: ((deviceId: string | null) => void) | undefined
+        const mockExists = vi.fn().mockResolvedValue(true)
+        mockGet.mockReturnValue({
+          exists: mockExists,
+          onRevoked: (listener: (deviceId: string | null) => void) => {
+            announce = listener
+            return () => {}
+          },
+        })
+        const next = vi.fn()
+        const request = async (): Promise<unknown> => {
+          const res = makeRes()
+          await middleware(
+            makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+            res as never,
+            next,
+          )
+          return res.locals.session
+        }
+
+        expect(await request()).toBe(session)
+        expect(announce).toBeTypeOf('function')
+        mockExists.mockResolvedValue(false)
+        announce!('d-announced')
+        expect(await request()).toBeUndefined()
+
+        // Several at once (a password reset): null evicts every entry.
+        mockExists.mockResolvedValue(true)
+        expect(await request()).toBe(session)
+        mockExists.mockResolvedValue(false)
+        announce!(null)
+        expect(await request()).toBeUndefined()
+      })
+
+      it('logout refuses the token on the very next request (OLD MUSTFAIL)', async () => {
+        const { logout } = await import('../handlers/logout.js')
+        const session = { userId: 'u1', deviceId: 'd-logout' }
+        mockVerify.mockReturnValue(session)
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        const mockExists = vi.fn().mockResolvedValue(true)
+        const mockDelete = vi.fn(async () => {
+          mockExists.mockResolvedValue(false)
+        })
+        // A device service without onRevoked: logout itself must evict.
+        mockGet.mockReturnValue({ exists: mockExists, delete: mockDelete })
+        const next = vi.fn()
+
+        const warm = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          warm as never,
+          next,
+        )
+        expect(warm.locals.session).toBe(session)
+
+        const out = makeRes()
+        out.locals.session = session
+        expect(await logout()(makeReq() as never, out as never)).toMatchObject({ statusCode: 200 })
+        expect(mockDelete).toHaveBeenCalledWith('d-logout')
+
+        const after = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          after as never,
+          next,
+        )
+        expect(after.locals.session).toBeUndefined()
+      })
     })
   })
 })

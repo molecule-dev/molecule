@@ -61,6 +61,16 @@ export interface DeviceService {
    * @param deviceId - The device id to delete.
    */
   delete(deviceId: string): Promise<void>
+  /**
+   * Subscribe to revocations: the listener is called after a device is deleted, with its id, or
+   * with `null` when several went at once (a user's devices on a password reset). Session
+   * authorization subscribes to drop its short-lived "device exists" cache, so a logout or a
+   * remote revocation refuses the token on its very next request. Optional so a custom device
+   * service without it keeps compiling; revocation then waits for that cache to expire.
+   * @param listener - Called after each revocation.
+   * @returns A function that removes the subscription.
+   */
+  onRevoked?(listener: (deviceId: string | null) => void): () => void
   getWithPushSubscription(
     userId: string,
   ): Promise<Array<{ id: string; pushPlatform: string; pushSubscription: unknown }>>

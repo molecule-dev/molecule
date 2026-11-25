@@ -263,7 +263,9 @@
  * process, so a hand-written logout that deletes the `devices` row keeps authorizing that
  * token until the cache expires — a check right after logout still answers 200. Call
  * `invalidateDeviceExistsCache(deviceId)` (or `invalidateAllDeviceExistsCache()`) after the
- * delete; the built-in log-out route already does.
+ * delete; the built-in log-out route already does. A delete through the device service
+ * (`get<DeviceService>('device')?.delete(deviceId)`) or its `DELETE /devices/:id` route evicts
+ * the entry for you.
  *
  * On the CLIENT, use the bonded `@molecule/app-auth` client as the session store.
  * `AuthClientConfig.storage` selects persistence. A cookie API can use `storage:
