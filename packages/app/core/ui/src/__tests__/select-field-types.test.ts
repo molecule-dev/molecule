@@ -8,9 +8,10 @@ type Options = { as: 'select'; options: readonly { value: string; label: string 
 
 describe('SelectField types', () => {
   it('pairs each mode with its value, default and callback type', () => {
-    expectTypeOf<SelectFieldOption>().toEqualTypeOf<
+    expectTypeOf<Omit<SelectFieldOption, 'webDefaultSelected'>>().toEqualTypeOf<
       Pick<SelectOption<string>, 'value' | 'label' | 'disabled'>
     >()
+    expectTypeOf<SelectFieldOption['webDefaultSelected']>().toEqualTypeOf<true | undefined>()
     expectTypeOf<Single['value']>().toEqualTypeOf<string | undefined>()
     expectTypeOf<Single['defaultValue']>().toEqualTypeOf<string | undefined>()
     expectTypeOf<Single['onValueChange']>().toEqualTypeOf<((value: string) => void) | undefined>()
