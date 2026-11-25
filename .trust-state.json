@@ -1519,6 +1519,7 @@
   "@molecule/app-order-timeline-solid",
   "@molecule/app-order-timeline-svelte",
   "@molecule/app-order-timeline-vue",
+  "@molecule/app-overlay-dom",
   "@molecule/app-page-chrome-angular",
   "@molecule/app-page-chrome-react",
   "@molecule/app-page-chrome-solid",
