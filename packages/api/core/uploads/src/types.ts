@@ -15,7 +15,7 @@ export interface UploadedFile {
 
   /**
    * The file's fieldname from the form.
-   * Used as the key for the file within `req.files` - e.g., `req.files[fieldname] = file`.
+   * `getUploads(req, fieldname)` returns the files sent in it.
    */
   fieldname: string
 
@@ -83,6 +83,13 @@ export interface FileInfo {
    * The file's MIME type - e.g., `image/jpeg`.
    */
   mimeType: string
+
+  /**
+   * Store the file even when its type is one a browser runs (`BLOCKED_UPLOAD_TYPES`).
+   * {@link receiveUploads} sets it for a route created with `allowActiveTypes: true`; every provider
+   * refuses such a file without it.
+   */
+  allowActiveTypes?: boolean
 }
 
 /**
@@ -128,8 +135,9 @@ export type AbortHandler = (file: UploadedFile) => void | Promise<void>
 export type DeleteHandler = (id: string) => Promise<void>
 
 /**
- * Callback invoked to retrieve a readable stream for an uploaded file,
- * or `null` if the file does not exist.
+ * Callback invoked to retrieve a readable stream for an uploaded file. Resolves `null` when no
+ * stored file has that id, whatever the id (a client's `../x` included), so a route answers 404.
+ * Rejects only when the storage itself fails; an Express 5 route passes that to its error handler.
  */
 export type GetFileHandler = (id: string) => Promise<NodeJS.ReadableStream | null>
 
@@ -155,7 +163,9 @@ export interface UploadProvider {
   deleteFile: DeleteHandler
 
   /**
-   * Gets a file stream for reading.
+   * Gets a file stream for reading: `null` when no stored file has that id (see
+   * {@link GetFileHandler}). It carries the bytes only; keep the name and type from
+   * `getUploads(req)` if the route serves them back.
    */
   getFile?: GetFileHandler
 

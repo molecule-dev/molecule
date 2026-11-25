@@ -20,8 +20,9 @@
  *   `credentials` for a second account). `configFromEnv()` returns the config the default
  *   uses, if you want to derive one from it.
  * - **`keyPrefix` is part of the id.** An instance with `keyPrefix: 'backups/'` returns ids like
- *   `backups/<uuid>`; pass them back to `getFile`/`deleteFile`/`headFile` unchanged — never
- *   strip or re-add the prefix yourself.
+ *   `backups/<uuid>`. Pass the full id to `getFile`/`deleteFile`/`headFile`. These operations
+ *   accept only the configured prefix followed by a lowercase v4 UUID, within S3's 1,024-byte
+ *   key limit. Invalid ids are treated as missing without contacting the bucket.
  * - **`headFile(id)`** (on `createProvider` instances and the default `provider`) returns
  *   `{ bytes, etag?, lastModified? }` without downloading, `null` when the object does not
  *   exist, and throws on any other failure (bad credentials, missing bucket, network). A
@@ -58,11 +59,11 @@
  *   object public just to "make it load".
  * - The AWS credentials are server-only (never in the browser) — the browser uploads to YOUR
  *   API, which streams to S3.
- * - **Blocked MIME types:** `text/html`, `application/xhtml+xml`, JavaScript
- *   types, `image/svg+xml`, and XML are REJECTED at `upload()` (reported via
- *   `onError`; same list as the filesystem bond) — SVG uploads must be
- *   rasterized/re-typed client-side. `Content-Disposition: attachment`
- *   (next bullet) is the second layer for everything that IS accepted.
+ * - **Blocked MIME types.** The core's `isBlockedUploadType()` rule refuses HTML, SVG,
+ *   JavaScript and XML types. `receiveUploads()` answers with 415 and a direct `upload()`
+ *   call gets an `UploadRefusedError` through `onError`. Use
+ *   `receiveUploads({ allowActiveTypes: true })` only for routes that serve their files as
+ *   downloads through `sendUpload()`.
  * - **Every object is uploaded with `Content-Disposition: attachment`** — a deliberate
  *   stored-XSS safety default (S3 has no server-side rendering, so this stops a browser from
  *   ever executing an uploaded HTML/SVG file inline). This means a browser hitting the object
@@ -73,9 +74,11 @@
  *   this bond's default for that. There is no override for this default in the current
  *   revision.
  * - **Aborting an upload rejects `uploadPromise` with `UploadAbortedError`** (from
- *   `@molecule/api-uploads`) — it never resolves as success and never calls the `upload()`
- *   call's `onError`. Identical behavior to the `@molecule/api-uploads-filesystem` bond; see
- *   that core package's `AbortHandler` remarks for the full cross-provider contract.
+ *   `@molecule/api-uploads`) without calling `onError`. Await `abortUpload(file)` before
+ *   deleting the file so the SDK can finish multipart cleanup or settle a write already in
+ *   flight. Configure the `AbortIncompleteMultipartUpload` bucket lifecycle action to remove
+ *   parts left behind after an interruption such as process termination.
+ *   [AWS lifecycle rule documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html)
  * - **Runs behind an outbound proxy when `HTTPS_PROXY` is set.** The AWS SDK v3
  *   builds its own agent and reads no proxy variable, so on a host whose only
  *   egress path is a proxy every upload used to fail with a bare connection

@@ -6,4 +6,7 @@ export const ms: UploadsTranslations = {
     'Pembekal muat naik tidak dikonfigurasi. Panggil setProvider() dahulu.',
   'uploads.error.streamLimitReached': 'Had strim dicapai.',
   'uploads.error.aborted': 'Muat naik telah dibatalkan.',
+  'uploads.error.fileTypeBlocked': 'Fail jenis {{type}} tidak boleh dimuat naik.',
+  'uploads.error.activeTypeListed':
+    'receiveUploads() menyenaraikan {{type}}, jenis yang dijalankan oleh pelayar. Hantar allowActiveTypes: true untuk menyimpannya, dan sajikan fail tersebut dengan sendUpload().',
 }

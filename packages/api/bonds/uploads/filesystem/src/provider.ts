@@ -9,13 +9,14 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import fs from 'fs'
 import path from 'path'
-import { v4 as uuid } from 'uuid'
 
 import { getLogger } from '@molecule/api-bond'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
-import { UploadAbortedError } from '@molecule/api-uploads'
+import { blockedTypeRefusal, UploadAbortedError } from '@molecule/api-uploads'
 const logger = getLogger()
 import { t } from '@molecule/api-i18n'
 
@@ -36,9 +37,11 @@ export const uploadPath = path.resolve(process.env.FILE_UPLOAD_PATH || `uploads`
 // Ensure upload directory exists — fail fast with an actionable message if it
 // cannot be created (read-only filesystem, bad FILE_UPLOAD_PATH) instead of a
 // bare ENOENT/EROFS that never names the env var controlling the location.
+let createdUploadPath = false
 try {
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true })
+    createdUploadPath = true
   }
 } catch (error) {
   throw new Error(
@@ -47,6 +50,96 @@ try {
       `${process.env.FILE_UPLOAD_PATH ? `"${process.env.FILE_UPLOAD_PATH}"` : `unset, defaulting to "uploads"`}).`,
     { cause: error },
   )
+}
+
+// Uploaded files are user data, never project source: a folder this provider creates ignores
+// itself in git, so a project never commits what its users uploaded. A folder that already
+// existed is the project's own and is left as it is.
+if (createdUploadPath) {
+  try {
+    fs.writeFileSync(path.join(uploadPath, '.gitignore'), '*\n')
+  } catch (error) {
+    logger.warn(
+      `Could not write ${path.join(uploadPath, '.gitignore')}: git may track uploaded files`,
+      {
+        error,
+      },
+    )
+  }
+}
+
+/**
+ * The shape of every id `upload()` mints: `randomUUID()`. Nothing else names an upload, so an id
+ * is refused unless it is exactly this: one path segment of hex digits and dashes, which rules out
+ * a path into or out of the folder, a NUL and an over-long string before anything reaches the disk.
+ */
+const ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+
+/** What the disk says when a path names nothing: it is not there (nor is its folder), or the name is too long. */
+const NAMES_NOTHING: ReadonlySet<string> = new Set(['ENOENT', 'ENOTDIR', 'ENAMETOOLONG'])
+
+/**
+ * Whether a failed lookup means that no file is there, rather than that the disk failed.
+ *
+ * @param error - What a filesystem call rejected or threw with.
+ * @returns True for a missing path, a missing folder or a name too long for the disk.
+ */
+const namesNothing = (error: unknown): boolean =>
+  error instanceof Error && NAMES_NOTHING.has((error as NodeJS.ErrnoException).code ?? '')
+
+/**
+ * The path of the stored file `id` names, or `null` when it names none: only an id in the shape
+ * `upload()` mints is one, so a path (`exports/report.txt`, `../x`), a dot-name (the folder's own
+ * `.gitignore`), a NUL, an over-long string or any other spelling names no upload.
+ *
+ * @param id - A file id, as a client may have sent it.
+ * @returns The absolute path inside `uploadPath`, or `null`.
+ */
+const storedPath = (id: string): string | null =>
+  ID_PATTERN.test(id) ? path.join(uploadPath, id) : null
+
+/**
+ * Looks at the entry at a stored file's path, without following a symlink.
+ *
+ * @param resolved - The path {@link storedPath} answered.
+ * @returns Its stats, or `null` when nothing is there.
+ * @throws {NodeJS.ErrnoException} The disk's error for any other failure (a folder that cannot be read).
+ */
+const lstatStored = async (resolved: string): Promise<fs.Stats | null> => {
+  try {
+    return await fs.promises.lstat(resolved)
+  } catch (error) {
+    if (namesNothing(error)) return null
+    throw error
+  }
+}
+
+/**
+ * Whether `resolved` is a regular file: an upload. A symlink, a directory or nothing at all is not.
+ *
+ * @param resolved - The path {@link storedPath} answered.
+ * @returns True only for a regular file.
+ * @throws {NodeJS.ErrnoException} The disk's error for any other failure (a folder that cannot be read).
+ */
+const isStoredFile = (resolved: string): boolean => {
+  try {
+    return fs.lstatSync(resolved).isFile()
+  } catch (error) {
+    if (namesNothing(error)) return false
+    throw error
+  }
+}
+
+/**
+ * Notes at debug that a client sent an id that names no upload: any client can, so it is no warning.
+ * The id is the client's own text, so only its start is logged.
+ *
+ * @param id - The id as it was sent.
+ */
+const noteRefusedId = (id: string): void => {
+  logger.debug('Refused a file id that names no upload in FILE_UPLOAD_PATH', {
+    id: id.slice(0, 100),
+  })
 }
 
 /**
@@ -64,34 +157,22 @@ export const upload = (
   info: FileInfo,
   onError: (error: Error) => void,
 ): File => {
-  const id = uuid()
+  const id = randomUUID()
 
   const filename = (info.filename ?? '').substring(0, 1023)
   const encoding = info.encoding.substring(0, 1023)
   const mimetype = info.mimeType.substring(0, 255)
 
-  // [M4-1] Block dangerous MIME types that could enable stored XSS if served inline — PARITY
-  // with the S3 bond (keep this set in lockstep with bonds/uploads/s3/src/provider.ts), so
-  // swapping S3↔filesystem never silently drops this protection (the decoupling principle:
-  // the security contract must not depend on which provider is wired). Keyed on the
-  // client-declared mimetype, so it is defense-in-depth: any inline-serving route must ALSO
-  // send X-Content-Type-Options: nosniff + a server-derived (not client-declared) Content-Type.
-  const BLOCKED_MIME_TYPES = new Set([
-    'text/html',
-    'application/xhtml+xml',
-    'application/javascript',
-    'text/javascript',
-    'application/x-javascript',
-    'image/svg+xml',
-    'text/xml',
-    'application/xml',
-  ])
-  if (BLOCKED_MIME_TYPES.has(mimetype.toLowerCase())) {
+  // [M4-1] Refuse the types a browser runs (stored XSS) unless the route allows them
+  // (info.allowActiveTypes): the core's rule, the same for every provider, so swapping providers
+  // never changes what a route accepts. A refusal, not a failure: receiveUploads() answers it 415.
+  const refusal = blockedTypeRefusal(info)
+  if (refusal) {
     // Drain the rejected stream: an unconsumed file stream stalls the multipart
     // parser (busboy pauses on backpressure), which hangs the whole request even
     // after the handler has responded with the 4xx.
     stream.resume()
-    onError(new Error(`File type ${mimetype} is not allowed for upload`))
+    onError(refusal)
     return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
   }
 
@@ -158,12 +239,19 @@ export const upload = (
     // remarks for the full cross-provider contract (parity with the S3 bond).
     abort: () => {
       aborted = true
+      // The write stream opens its file asynchronously, and destroy() waits for an open in
+      // flight before it closes: unlinking at once would run before that open creates the file
+      // (an upload refused at its first chunk), leaving it on disk. Remove it once closed.
+      const removePartial = (): void => {
+        fs.unlink(path.join(uploadPath, id), (unlinkError) => {
+          if (unlinkError && unlinkError.code !== 'ENOENT') {
+            logger.warn(`Could not remove partial upload after abort (id: ${id})`, unlinkError)
+          }
+        })
+      }
+      if (uploadStream.closed) removePartial()
+      else uploadStream.once('close', removePartial)
       uploadStream.destroy()
-      fs.unlink(path.join(uploadPath, id), (unlinkError) => {
-        if (unlinkError && unlinkError.code !== 'ENOENT') {
-          logger.warn(`Could not remove partial upload after abort (id: ${id})`, unlinkError)
-        }
-      })
       rejectUploadPromise(new UploadAbortedError())
       delete file.upload
       delete file.uploadPromise
@@ -238,39 +326,42 @@ export const abortUpload = (file: File): void => {
 }
 
 /**
- * Deletes a previously uploaded file from the local file system by its UUID.
+ * Deletes a previously uploaded file from the local file system by its UUID. An id that is not one
+ * `upload()` minted names no upload, and there is nothing to remove: the call resolves and nothing
+ * on disk is touched. So for a directory or a symlink that happens to carry an id's shape: neither
+ * is an upload.
  * @param id - The UUID file identifier (also the filename on disk).
- * @returns A promise that resolves when the file is deleted.
+ * @returns A promise that resolves when the file is deleted, and rejects when no file has that id
+ *   (`ENOENT`) or the disk fails.
  */
-export const deleteFile = (id: string): Promise<void> => {
-  // Validate ID to prevent path traversal
-  const resolved = path.resolve(uploadPath, id)
-  if (!resolved.startsWith(uploadPath + path.sep) && resolved !== uploadPath) {
-    return Promise.reject(new Error('Invalid file ID'))
+export const deleteFile = async (id: string): Promise<void> => {
+  const resolved = storedPath(id)
+  if (resolved === null) return
+  const entry = await lstatStored(resolved)
+  if (entry !== null && !entry.isFile()) return
+  try {
+    await fs.promises.unlink(resolved)
+  } catch (error) {
+    logger.error(`Error deleting file (id: ${id})`, error)
+    throw error
   }
-  return new Promise((resolve, reject) => {
-    fs.unlink(resolved, (error) => {
-      if (error) {
-        logger.error(`Error deleting file (id: ${id})`, error)
-        reject(error)
-      } else {
-        resolve()
-      }
-    })
-  })
 }
 
 /**
- * Opens a read stream for a previously uploaded file.
+ * Opens a read stream for a previously uploaded file. Prefer `provider.getFile(id)`, which answers
+ * `null` for an id with no stored file.
  * @param id - The UUID file identifier.
- * @returns A `ReadStream` for the file at `uploadPath/id`.
+ * @returns A `ReadStream` for the file at `uploadPath/id`. A stream is handed out only for a
+ *   stored file, so none errors later with no listener to hear it.
+ * @throws {Error} `Invalid file ID` for an id `upload()` never mints; an `ENOENT` error when no
+ *   stored file has the id (also a symlink or a directory); the disk's error when its folder cannot
+ *   be read.
  */
 export const getFileStream = (id: string): fs.ReadStream => {
-  // Validate ID to prevent path traversal
-  const resolved = path.resolve(uploadPath, id)
-  if (!resolved.startsWith(uploadPath + path.sep) && resolved !== uploadPath) {
-    throw new Error('Invalid file ID')
-  }
+  const resolved = storedPath(id)
+  if (resolved === null) throw new Error('Invalid file ID')
+  if (!isStoredFile(resolved))
+    throw Object.assign(new Error(`ENOENT: no stored file has the id ${id}`), { code: 'ENOENT' })
   return fs.createReadStream(resolved)
 }
 
@@ -287,25 +378,21 @@ export const provider: UploadProvider = {
     // disk can be full, remounted read-only, or removed after boot.
     await fs.promises.access(uploadPath, fs.constants.W_OK)
   },
-  // Conform to the GetFileHandler contract: resolve `null` when the file does not
-  // exist. `fs.createReadStream` on a missing path returns a stream that emits
-  // ENOENT *asynchronously* — and `pipe()` does NOT forward 'error' events, so a
-  // consumer following the core docs (`if (!stream) return 404; stream.pipe(res)`)
-  // would crash the process on an unhandled 'error' instead of serving a 404.
+  // Conform to the GetFileHandler contract: resolve `null` when no stored file has the id.
+  // `fs.createReadStream` on a missing path returns a stream that emits ENOENT *asynchronously* —
+  // and `pipe()` does NOT forward 'error' events, so a consumer following the core docs
+  // (`if (!stream) return 404; stream.pipe(res)`) would crash the process on an unhandled 'error'
+  // instead of serving a 404. Every id a client can send that is not one `upload()` minted resolves
+  // `null` before anything reaches the disk, so a route's 404 covers them all; a symlink or a
+  // directory that carries an id's shape is not an upload either.
   getFile: async (id: string) => {
-    const resolved = path.resolve(uploadPath, id)
-    if (!resolved.startsWith(uploadPath + path.sep) && resolved !== uploadPath) {
-      throw new Error('Invalid file ID')
+    const resolved = storedPath(id)
+    if (resolved === null) {
+      noteRefusedId(id)
+      return null
     }
-    try {
-      const stats = await fs.promises.stat(resolved)
-      // A directory (e.g. id '' resolving to uploadPath itself) is "no such file".
-      if (!stats.isFile()) return null
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
-      throw error
-    }
-    return fs.createReadStream(resolved)
+    const entry = await lstatStored(resolved)
+    return entry?.isFile() ? fs.createReadStream(resolved) : null
   },
 }
 

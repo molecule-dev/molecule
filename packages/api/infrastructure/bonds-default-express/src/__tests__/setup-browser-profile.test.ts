@@ -56,10 +56,12 @@ vi.mock('@molecule/api-jwt-jsonwebtoken', () => ({ provider: {} }))
 vi.mock('@molecule/api-middleware-body-parser', () => ({
   setBodyParser: vi.fn(),
   setJsonParserFactory: vi.fn(),
+  setUploadParserFactory: vi.fn(),
 }))
 vi.mock('@molecule/api-middleware-body-parser-express', () => ({
   jsonParserFactory: vi.fn(),
   provider: {},
+  uploadParserFactory: vi.fn(),
 }))
 vi.mock('@molecule/api-middleware-cookie-parser', () => ({
   setCookieParser: vi.fn(),

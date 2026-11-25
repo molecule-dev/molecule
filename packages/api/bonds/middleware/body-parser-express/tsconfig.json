@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["busboy", "connect-busboy", "express", "node"],
+    "types": ["busboy", "express", "node"],
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

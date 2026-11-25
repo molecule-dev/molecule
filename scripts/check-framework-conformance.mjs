@@ -1012,8 +1012,12 @@ export const EXPORT_EXEMPT = {
   '@molecule/app-ui-react': {
     './elements':
       'the renderer-neutral elements one React feature renders with on React DOM and React Native; a Vue, Svelte, Solid or Angular port renders its own DOM',
+    './platform':
+      'the overlay host, layer, portal and backdrop one React kit places its dialogs and drawers with on React DOM and React Native; a Vue, Svelte, Solid or Angular kit composes its own overlays',
   },
   '@molecule/app-react': {
+    './overlay':
+      'the types of the React overlay platform, which the React DOM and React Native kits each implement; a Vue, Svelte, Solid or Angular kit composes its own overlays',
     './render':
       "React render-cycle helpers (committed refs, effect events, stable callbacks) for code written to React's render model; the other frameworks' reactivity has no render to stabilize against",
   },

@@ -21,10 +21,15 @@ import { provider as emailsCaptureProvider } from '@molecule/api-emails-capture'
 import { provider as emailsMailgunProvider } from '@molecule/api-emails-mailgun'
 import { setProvider as setJwt } from '@molecule/api-jwt'
 import { provider as jwtProvider } from '@molecule/api-jwt-jsonwebtoken'
-import { setBodyParser, setJsonParserFactory } from '@molecule/api-middleware-body-parser'
+import {
+  setBodyParser,
+  setJsonParserFactory,
+  setUploadParserFactory,
+} from '@molecule/api-middleware-body-parser'
 import {
   jsonParserFactory as bodyJsonParserFactory,
   provider as bodyParserProvider,
+  uploadParserFactory,
 } from '@molecule/api-middleware-body-parser-express'
 import { setCookieParser, setCookieParserFactory } from '@molecule/api-middleware-cookie-parser'
 import {
@@ -119,6 +124,7 @@ export function setupJwtJsonwebtoken(): void {
 export function setupMiddlewareBodyParserExpress(): void {
   setBodyParser(bodyParserProvider)
   setJsonParserFactory(bodyJsonParserFactory)
+  setUploadParserFactory(uploadParserFactory)
 }
 
 /** Wires `@molecule/api-middleware-cookie-parser-express` to `@molecule/api-middleware-cookie-parser`. */

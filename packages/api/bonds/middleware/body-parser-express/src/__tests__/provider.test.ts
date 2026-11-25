@@ -1,9 +1,10 @@
 /**
  * Tests for the Express body parser provider, focusing on the audit-hardened
- * request size limits added to `express.json()` and `connect-busboy`.
+ * request size limits added to `express.json()` and `busboy`.
  */
 
-const { mockJsonFactory, mockConnectBusboy, captured } = vi.hoisted(() => {
+const { mockJsonFactory, mockBusboy, captured } = await vi.hoisted(async () => {
+  const { EventEmitter } = await import('node:events')
   /**
    * Mutable container so factory-captured options survive across the module
    * boundary (vi.hoisted returns by value for primitives).
@@ -24,40 +25,17 @@ const { mockJsonFactory, mockConnectBusboy, captured } = vi.hoisted(() => {
   })
 
   /**
-   * connect-busboy returns middleware. The real middleware attaches `req.busboy`
-   * (a Busboy instance) and calls `next()`. Our mock simulates this by
-   * attaching a minimal EventEmitter as `req.busboy` that emits `finish`
-   * when piped to, so the full multipartParser flow completes.
+   * busboy(config) returns a parser stream. The stand-in is an EventEmitter that also accepts the
+   * write/end calls `req.pipe()` makes on its destination and emits `finish`, so the full
+   * urlEncodedParser flow completes.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mockBusboyMiddleware = vi.fn(async (req: any, _res: any, next: (err?: unknown) => void) => {
-    // Simulate what connect-busboy does: attach req.busboy then call next
-    const { EventEmitter: EE } = await import('node:events')
-    // The busboy stand-in is an EventEmitter that also accepts the write/end
-    // calls `req.pipe()` makes on its destination stream, so it carries the
-    // pipe-destination shape as well as the emitter's.
-    const fakeBusboy = Object.assign(new EE(), {
-      write: () => true,
-      end: () => {
-        process.nextTick(() => fakeBusboy.emit('finish'))
-      },
-    })
-    // Support req.pipe(busboy) — pipe calls write/end on the destination
-    req.busboy = fakeBusboy
-    req.pipe = (dest: typeof fakeBusboy) => {
-      process.nextTick(() => dest.emit('finish'))
-      return dest
-    }
-    req.on = () => req
-    next()
-  })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mockConnectBusboy = vi.fn((options: any) => {
-    captured.busboyOptions = options
-    return mockBusboyMiddleware
+  const mockBusboy = vi.fn((config: any) => {
+    captured.busboyOptions = config
+    return Object.assign(new EventEmitter(), { write: () => true, end: () => undefined })
   })
 
-  return { mockJsonFactory, mockConnectBusboy, captured }
+  return { mockJsonFactory, mockBusboy, captured }
 })
 
 vi.mock('express', () => ({
@@ -66,8 +44,8 @@ vi.mock('express', () => ({
   },
 }))
 
-vi.mock('connect-busboy', () => ({
-  default: mockConnectBusboy,
+vi.mock('busboy', () => ({
+  default: mockBusboy,
 }))
 
 vi.mock('@molecule/api-bond', () => ({
@@ -86,6 +64,23 @@ vi.mock('@molecule/api-i18n', () => ({
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { jsonParserFactory, provider } from '../provider.js'
+
+/**
+ * A URL-encoded request whose pipe ends at once, as an empty body does.
+ *
+ * @param contentType - Its Content-Type.
+ * @returns The request stand-in.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const formRequest = (contentType: string): any => ({
+  headers: { 'content-type': contentType },
+  on: () => undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pipe: (dest: any) => {
+    process.nextTick(() => dest.emit('finish'))
+    return dest
+  },
+})
 
 describe('@molecule/api-middleware-body-parser-express', () => {
   beforeEach(() => {
@@ -119,30 +114,37 @@ describe('@molecule/api-middleware-body-parser-express', () => {
       expect(next).toHaveBeenCalled()
     })
 
-    it('should route multipart/form-data to busboy parser', async () => {
+    it("leaves a multipart body unread for the route's upload parser", () => {
       const next = vi.fn()
-      provider(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        { headers: { 'content-type': 'multipart/form-data' } } as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {} as any,
-        next,
-      )
-      // The busboy mock sets up req.busboy as an EventEmitter that emits
-      // 'finish' on next tick, so we need to wait for the async flow.
-      await vi.waitFor(() => expect(next).toHaveBeenCalled())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const req = { headers: { 'content-type': 'multipart/form-data; boundary=x' } } as any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      provider(req, {} as any, next)
+      expect(next).toHaveBeenCalledWith()
+      expect(req.body).toEqual({})
+      expect(mockBusboy).not.toHaveBeenCalled()
     })
 
-    it('should route application/x-www-form-urlencoded to busboy parser', async () => {
+    it.each([
+      'application/x-www-form-urlencoded',
+      'application/x-www-form-urlencoded;charset=UTF-8',
+    ])('should route %s to busboy parser', async (contentType) => {
       const next = vi.fn()
-      provider(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        { headers: { 'content-type': 'application/x-www-form-urlencoded' } } as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {} as any,
-        next,
-      )
+      const req = formRequest(contentType)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      provider(req, {} as any, next)
       await vi.waitFor(() => expect(next).toHaveBeenCalled())
+      expect(mockBusboy).toHaveBeenCalledWith(expect.objectContaining({ headers: req.headers }))
+    })
+
+    it('sets req.body to {} when the JSON parser read nothing', () => {
+      const next = vi.fn()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const req = { headers: { 'content-type': 'text/plain' } } as any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      provider(req, {} as any, next)
+      expect(req.body).toEqual({})
+      expect(next).toHaveBeenCalledWith(undefined)
     })
   })
 
@@ -159,9 +161,18 @@ describe('@molecule/api-middleware-body-parser-express', () => {
   })
 
   describe('Busboy audit limits', () => {
-    it('should set a field limit of 100', () => {
+    beforeEach(async () => {
+      const next = vi.fn()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      provider(formRequest('application/x-www-form-urlencoded'), {} as any, next)
+      await vi.waitFor(() => expect(next).toHaveBeenCalled())
+    })
+
+    it('should pass busboy one field past the limit of 100, where the parser counts it', () => {
+      // busboy drops every field past its limit without a word, so 101 is passed: the parser sees
+      // the 101st field and refuses the body (413) instead of passing on the first 100.
       expect(captured.busboyOptions).toBeDefined()
-      expect(captured.busboyOptions.limits.fields).toBe(100)
+      expect(captured.busboyOptions.limits.fields).toBe(101)
     })
 
     it('should set a files limit of 0 (no file uploads through body parser)', () => {

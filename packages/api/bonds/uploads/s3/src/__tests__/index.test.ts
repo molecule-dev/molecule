@@ -5,7 +5,7 @@
  */
 
 import { PassThrough } from 'stream'
-import type { Version4Options } from 'uuid'
+import type * as Uuid from 'uuid'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Create mock functions
@@ -41,13 +41,15 @@ vi.mock('@aws-sdk/lib-storage', () => ({
 
 // Mock uuid. The mock is typed against v4's string-returning overload (no
 // buffer argument), which is the shape the provider actually calls.
-const { mockV4 } = vi.hoisted(() => {
-  const mockV4 = vi.fn<(options?: Version4Options) => string>()
-  mockV4.mockReturnValue('test-uuid-1234')
-  return { mockV4 }
+const { mockV4, storedFileId } = vi.hoisted(() => {
+  const storedFileId = 'abcdef01-2345-4567-89ab-cdef01234567'
+  const mockV4 = vi.fn<(options?: Uuid.Version4Options) => string>()
+  mockV4.mockReturnValue(storedFileId)
+  return { mockV4, storedFileId }
 })
 
-vi.mock('uuid', () => ({
+vi.mock('uuid', async (importOriginal) => ({
+  ...(await importOriginal<typeof Uuid>()),
   v4: mockV4,
 }))
 
@@ -168,7 +170,7 @@ describe('S3 Provider Edge Cases', () => {
 
       const { getFile } = await import('../provider.js')
 
-      await expect(getFile('some-file')).rejects.toThrow('ServiceUnavailable')
+      await expect(getFile(storedFileId)).rejects.toThrow('ServiceUnavailable')
     })
 
     it('should resolve null when the key does not exist (NoSuchKey)', async () => {
@@ -181,7 +183,8 @@ describe('S3 Provider Edge Cases', () => {
 
       const { getFile } = await import('../provider.js')
 
-      await expect(getFile('non-existent-file')).resolves.toBeNull()
+      await expect(getFile(storedFileId)).resolves.toBeNull()
+      expect(mockSend).toHaveBeenCalledTimes(1)
     })
 
     it('should still throw for NoSuchBucket (misconfiguration, not "file not found")', async () => {
@@ -191,7 +194,7 @@ describe('S3 Provider Edge Cases', () => {
 
       const { getFile } = await import('../provider.js')
 
-      await expect(getFile('any-file')).rejects.toThrow('bucket')
+      await expect(getFile(storedFileId)).rejects.toThrow('bucket')
     })
 
     it('should throw on access denied', async () => {
@@ -199,7 +202,7 @@ describe('S3 Provider Edge Cases', () => {
 
       const { getFile } = await import('../provider.js')
 
-      await expect(getFile('restricted-file')).rejects.toThrow('Access Denied')
+      await expect(getFile(storedFileId)).rejects.toThrow('Access Denied')
     })
 
     it('should return undefined body when file is empty', async () => {
@@ -207,7 +210,7 @@ describe('S3 Provider Edge Cases', () => {
 
       const { getFile } = await import('../provider.js')
 
-      const result = await getFile('empty-file')
+      const result = await getFile(storedFileId)
       expect(result).toBeNull()
     })
   })
@@ -370,7 +373,7 @@ describe('S3 Provider Edge Cases', () => {
   describe('concurrent operations', () => {
     it('should handle multiple simultaneous uploads', async () => {
       let callCount = 0
-      mockV4.mockImplementation(() => `test-uuid-${++callCount}`)
+      mockV4.mockImplementation(() => `abcdef01-2345-4567-89ab-cdef0123456${++callCount}`)
 
       mockUploadDone.mockResolvedValue({
         Location: 'https://test-bucket.s3.amazonaws.com/test-uuid',
@@ -435,7 +438,11 @@ describe('S3 Provider Edge Cases', () => {
 
       const { deleteFile } = await import('../provider.js')
 
-      await Promise.all([deleteFile('file-1'), deleteFile('file-2'), deleteFile('file-3')])
+      await Promise.all([
+        deleteFile(storedFileId),
+        deleteFile('abcdef01-2345-4567-89ab-cdef01234568'),
+        deleteFile('abcdef01-2345-4567-89ab-cdef01234569'),
+      ])
 
       expect(mockSend).toHaveBeenCalledTimes(3)
     })
@@ -554,55 +561,17 @@ describe('Delete File Edge Cases', () => {
     vi.unstubAllEnvs()
   })
 
-  it('should handle empty file ID', async () => {
-    mockSend.mockResolvedValue({})
+  it.each([
+    { name: 'an empty id', id: '' },
+    { name: 'an id with special characters', id: 'file-with-special!@#$%^&*()chars' },
+    { name: 'an overlong id', id: 'a'.repeat(1025) },
+  ])('does not contact the default store to delete $name', async ({ id }) => {
+    const { S3Client } = await import('@aws-sdk/client-s3')
+    const { deleteFile, getFile } = await import('../provider.js')
 
-    const { deleteFile } = await import('../provider.js')
-
-    await deleteFile('')
-
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        params: {
-          Bucket: 'test-bucket',
-          Key: '',
-        },
-      }),
-    )
-  })
-
-  it('should handle file ID with special characters', async () => {
-    mockSend.mockResolvedValue({})
-
-    const { deleteFile } = await import('../provider.js')
-
-    await deleteFile('file-with-special!@#$%^&*()chars')
-
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        params: {
-          Bucket: 'test-bucket',
-          Key: 'file-with-special!@#$%^&*()chars',
-        },
-      }),
-    )
-  })
-
-  it('should handle very long file ID', async () => {
-    mockSend.mockResolvedValue({})
-
-    const { deleteFile } = await import('../provider.js')
-    const longId = 'a'.repeat(1024)
-
-    await deleteFile(longId)
-
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        params: {
-          Bucket: 'test-bucket',
-          Key: longId,
-        },
-      }),
-    )
+    await expect(getFile(id)).resolves.toBeNull()
+    await expect(deleteFile(id)).resolves.toBeUndefined()
+    expect(S3Client).not.toHaveBeenCalled()
+    expect(mockSend).not.toHaveBeenCalled()
   })
 })

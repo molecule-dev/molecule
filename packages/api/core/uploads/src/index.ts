@@ -1,25 +1,38 @@
 /**
  * Uploads core interface for molecule.dev.
  *
- * Defines the standard interface for upload providers.
+ * Defines the standard interface for upload providers, {@link receiveUploads}: the route
+ * middleware that receives a request's files into the bonded provider, and {@link sendUpload}, which
+ * serves a stored file back as a download the browser does not open (never `stream.pipe(res)`).
  *
  * @remarks
- * A weak upload integration leaks files or trusts the client. Enforce these in your
- * handler around {@link UploadProvider.upload} / {@link UploadProvider.getFile} /
- * `deleteFile`:
+ * A weak upload integration leaks files or trusts the client. {@link receiveUploads} does the
+ * request side: it refuses wrong types, oversized files, extra files and non-multipart bodies
+ * before the handler runs, removes partial files when a request fails or the client disconnects,
+ * and removes the stored files when the route then fails. The handler still owns the rest:
  *
  * - **Own every file.** Persist the returned {@link UploadedFile} id with the uploader's
  *   `user_id`, and on read/delete load the row and 404 if it isn't the caller's — an
  *   unscoped `getFile(id)` is an IDOR (anyone enumerates everyone's files).
- * - **Validate server-side; never trust the client's declared type/size.** Check
- *   {@link FileInfo} (mimeType, filename) AND enforce a max-byte cap while streaming, and
- *   reject disallowed types — a client can lie about `Content-Type`.
- * - **The max-size cap comes from the multipart parser's limits, not from this package.**
- *   `UploadHandler` takes a plain `NodeJS.ReadableStream` — the bundled bonds enforce a size
- *   cap ONLY by listening for the multipart parser's `'limit'` event on that stream (busboy's
- *   `fileSize` option triggers it) and reporting it to `onError` as `'Stream limit reached.'`.
- *   Configure the cap on your multipart parser (e.g. busboy's `limits.fileSize`) — a plain
- *   stream that never emits `'limit'` is NEVER size-limited by these bonds.
+ * - **Put the auth check before `receiveUploads`**, so an anonymous request is refused before
+ *   anything is stored.
+ * - **Serve a stored file with {@link sendUpload}**, not `stream.pipe(res)`, which sends no type
+ *   and lets the browser guess one: a file whose declared type lied would run on the app's
+ *   origin. `sendUpload` sends `application/octet-stream` as an attachment with `nosniff`;
+ *   `{ inline: true, type: file.mimetype }` shows an image, audio, video or plain text file.
+ * - **The declared type is the client's claim.** `types` refuses what the client declares, and
+ *   every provider refuses the types a browser runs (HTML, SVG, JavaScript, every XML type) with
+ *   415. A route that stores any file, served back only through `sendUpload`, passes
+ *   `allowActiveTypes: true`; a route that shows its files to users (an avatar) never does. When
+ *   the content matters (an image you render), check the stored bytes too.
+ * - **A failed route keeps nothing.** When the handler throws, or answers with a status of 400 or
+ *   more, `receiveUploads` removes the files it stored. A client that goes away before the answer
+ *   removes nothing: the handler may already have saved what points at the file. Call
+ *   `discardUploads(req)` only when the handler fails yet answers 2xx (the failure in the body), so
+ *   the stored files do not stay with nothing pointing at them.
+ * - **Use `receiveUploads` rather than a multipart parser of your own.** The bundled provider
+ *   bonds cap a file's size only through the parser's `'limit'` event on the stream
+ *   (`'Stream limit reached.'` on `onError`); a plain stream is never size-limited.
  * - **Private by default.** Do NOT put user uploads on a public, guessable path; serve them
  *   through an authenticated route (or a short-lived signed URL). Public buckets leak files.
  * - **Persist the id, never the provider URL.** Store `file.id` (or a serve URL you build from
@@ -38,50 +51,37 @@
  *   in memory.
  * - **Aborting an upload is neither a success nor a failure.** `abortUpload()` rejects the
  *   file's `uploadPromise` with {@link UploadAbortedError} — it never resolves `uploadPromise`
- *   and never invokes the `upload()` call's `onError` for the abort itself. This holds across
+ *   and never invokes the `upload()` call's `onError` for the abort itself — and what was written
+ *   of the file is removed. This holds across
  *   every bundled provider, so swapping providers never changes what a consumer observes on
  *   abort. See {@link UploadAbortedError} for the full contract.
  *
  * @example
  * ```ts
- * import busboy from 'busboy' // the multipart parser: npm install busboy @types/busboy
- * import { getProvider, type UploadedFile } from '@molecule/api-uploads'
+ * import { getProvider, getUploads, receiveUploads, sendUpload } from '@molecule/api-uploads'
  * // a bond (e.g. `@molecule/api-uploads-filesystem`) called setProvider() at startup
  *
- * const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'application/pdf', 'text/plain'])
- *
- * router.post('/files', (req, res) => {
- *   const userId = getUserId(res)
- *   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
- *   // The size cap is the multipart parser's: the bonds report busboy's `limit` to onError.
- *   const parser = busboy({ headers: req.headers, limits: { files: 1, fileSize: 10 * 1024 * 1024 } })
- *   let file: UploadedFile | undefined
- *   let failure: Error | undefined
- *   parser.on('file', (fieldname, stream, info) => {
- *     // The client declares the type: check it before anything is stored.
- *     if (fieldname !== 'file' || !ALLOWED_TYPES.has(info.mimeType)) return stream.resume()
- *     file = getProvider().upload(fieldname, stream, info, (error) => (failure ??= error))
- *   })
- *   parser.on('close', async () => {
- *     // Wait for the write: answering earlier reports a file that may still fail.
- *     await file?.uploadPromise?.catch((error: Error) => (failure ??= error))
- *     if (!file || failure) {
- *       // An over-cap file reaches onError but is still written (truncated): delete it.
- *       if (file?.uploaded) await getProvider().deleteFile(file.id)
- *       return res.status(400).json({ error: failure?.message ?? 'Send one allowed file as "file".' })
- *     }
- *     await saveFileRow({ id: file.id, userId, name: file.filename }) // own it
- *     res.status(201).json({ id: file.id })
- *   })
- *   req.pipe(parser)
- * })
+ * router.post(
+ *   '/files',
+ *   requireAuth, // refuse anonymous requests before anything is stored
+ *   receiveUploads({
+ *     field: 'file',
+ *     maxFileBytes: 5 * 1024 * 1024, // optional; 10 MiB when left out
+ *     types: ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'],
+ *   }), // refuses: 415 not multipart or another type, 413 too large or too many, 400 no file or another field
+ *   async (req, res) => {
+ *     const [file] = getUploads(req, 'file') // fully stored; refusals never reach here
+ *     await saveFileRow({ id: file.id, userId: getUserId(res), name: file.filename }) // own it
+ *     res.status(201).json({ id: file.id }) // a throw or a 4xx/5xx answer removes the stored file
+ *   },
+ * )
  *
  * router.get('/files/:id', async (req, res) => {
  *   const row = await getFileRow(req.params.id)
  *   if (!row || row.userId !== getUserId(res)) return res.status(404).end() // ownership → no IDOR
- *   const stream = await getProvider().getFile?.(row.id)
+ *   const stream = await getProvider().getFile?.(row.id) // null for any id no stored file has, `../x` too
  *   if (!stream) return res.status(404).end()
- *   stream.pipe(res)
+ *   await sendUpload(res, stream, { filename: row.name }) // a download; { inline: true, type } shows an image
  * })
  * ```
  *
@@ -108,4 +108,6 @@
 export * from './browser-guard.js'
 export * from './errors.js'
 export * from './provider.js'
+export * from './receive.js'
+export * from './send.js'
 export * from './types.js'

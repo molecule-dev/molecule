@@ -5,12 +5,14 @@
  */
 
 import { PassThrough } from 'stream'
+import type * as Uuid from 'uuid'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Create mock functions
 const mockSend = vi.fn()
 const mockUploadDone = vi.fn()
 const mockUploadAbort = vi.fn()
+const storedFileId = 'abcdef01-2345-4567-89ab-cdef01234567'
 
 // Mock @aws-sdk/client-s3
 vi.mock('@aws-sdk/client-s3', () => ({
@@ -45,8 +47,9 @@ vi.mock('@aws-sdk/lib-storage', () => ({
 }))
 
 // Mock uuid
-vi.mock('uuid', () => ({
-  v4: vi.fn().mockReturnValue('test-uuid-1234'),
+vi.mock('uuid', async (importOriginal) => ({
+  ...(await importOriginal<typeof Uuid>()),
+  v4: vi.fn().mockReturnValue(storedFileId),
 }))
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
@@ -91,7 +94,7 @@ describe('S3 Provider', () => {
         onError,
       )
 
-      expect(file.id).toBe('test-uuid-1234')
+      expect(file.id).toBe(storedFileId)
       expect(file.fieldname).toBe('file')
       expect(file.filename).toBe('test.txt')
       expect(file.encoding).toBe('7bit')
@@ -294,12 +297,12 @@ describe('S3 Provider', () => {
   })
 
   describe('abortUpload', () => {
-    it('should abort an in-progress upload', async () => {
+    it('destroys the SDK body when aborting an in-progress upload', async () => {
       mockUploadDone.mockResolvedValue({
         Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
       })
-      mockUploadAbort.mockResolvedValue(undefined)
 
+      const { Upload } = await import('@aws-sdk/lib-storage')
       const { upload, abortUpload } = await import('../provider.js')
 
       const stream = new PassThrough()
@@ -317,23 +320,17 @@ describe('S3 Provider', () => {
 
       await abortUpload(file)
 
-      expect(mockUploadAbort).toHaveBeenCalled()
+      const body = vi.mocked(Upload).mock.calls.at(-1)?.[0].params.Body
+      expect(body).toBeInstanceOf(PassThrough)
+      expect(body).toHaveProperty('destroyed', true)
+      expect(mockUploadAbort).not.toHaveBeenCalled()
       expect(file.abort).toBeUndefined()
       expect(file.uploadPromise).toBeUndefined()
       expect(file.stream).toBeUndefined()
     })
 
-    it('[ambiguous-failure fix] onError is never called and uploadPromise rejects with the shared UploadAbortedError — not the raw AWS AbortError, and never a false success — when the upload is aborted', async () => {
-      // Real @aws-sdk/lib-storage semantics: calling Upload#abort() makes the
-      // in-flight done() promise REJECT with an AbortError. The other abortUpload
-      // tests in this file mock done() as resolving, which can't exercise (and
-      // used to hide) this path — before the fix, that raw AbortError flowed
-      // straight into onError, so an intentional cancel masqueraded as a
-      // transport failure (and disagreed with the filesystem bond, whose old
-      // `.end()`-based abort instead resolved uploadPromise as a false success).
-      const awsAbortError = Object.assign(new Error('Upload aborted.'), { name: 'AbortError' })
-      mockUploadDone.mockRejectedValue(awsAbortError)
-      mockUploadAbort.mockResolvedValue(undefined)
+    it('rejects with UploadAbortedError without calling onError even if the SDK succeeds', async () => {
+      mockUploadDone.mockResolvedValue({ Location: 'https://test-bucket.s3.amazonaws.com/file' })
 
       const { upload, abortUpload } = await import('../provider.js')
       const { UploadAbortedError } = await import('@molecule/api-uploads')
@@ -355,7 +352,6 @@ describe('S3 Provider', () => {
 
       await abortUpload(file)
 
-      expect(mockUploadAbort).toHaveBeenCalled()
       await expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
       expect(onError).not.toHaveBeenCalled()
       expect(file.uploaded).toBe(false)
@@ -365,7 +361,6 @@ describe('S3 Provider', () => {
       mockUploadDone.mockResolvedValue({
         Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
       })
-      mockUploadAbort.mockResolvedValue(undefined)
 
       const { upload, abortUpload } = await import('../provider.js')
 
@@ -390,15 +385,15 @@ describe('S3 Provider', () => {
       expect(removeAllListenersSpy).toHaveBeenCalledWith('end')
     })
 
-    it('should handle abort errors gracefully', async () => {
-      mockUploadDone.mockResolvedValue({
-        Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
-      })
-      mockUploadAbort.mockRejectedValue(new Error('Abort failed'))
+    it('logs an SDK cleanup failure and still rejects with UploadAbortedError', async () => {
+      const cleanupError = new Error('Abort failed')
+      mockUploadDone.mockRejectedValue(cleanupError)
 
       const { upload, abortUpload } = await import('../provider.js')
+      const { UploadAbortedError } = await import('@molecule/api-uploads')
 
       const stream = new PassThrough()
+      const onError = vi.fn()
 
       const file = upload(
         'file',
@@ -408,12 +403,15 @@ describe('S3 Provider', () => {
           encoding: '7bit',
           mimeType: 'text/plain',
         },
-        vi.fn(),
+        onError,
       )
+      const uploadPromise = file.uploadPromise
 
       await abortUpload(file)
 
-      expect(mockLogger.error).toHaveBeenCalled()
+      expect(mockLogger.error).toHaveBeenCalledWith(expect.stringContaining(file.id), cleanupError)
+      await expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
+      expect(onError).not.toHaveBeenCalled()
     })
   })
 
@@ -423,13 +421,13 @@ describe('S3 Provider', () => {
 
       const { deleteFile } = await import('../provider.js')
 
-      await deleteFile('test-file-id')
+      await deleteFile(storedFileId)
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           params: {
             Bucket: 'test-bucket',
-            Key: 'test-file-id',
+            Key: storedFileId,
           },
         }),
       )
@@ -440,7 +438,7 @@ describe('S3 Provider', () => {
 
       const { deleteFile } = await import('../provider.js')
 
-      await expect(deleteFile('test-file-id')).rejects.toThrow('Delete failed')
+      await expect(deleteFile(storedFileId)).rejects.toThrow('Delete failed')
     })
 
     it('should log errors on delete failure', async () => {
@@ -449,7 +447,7 @@ describe('S3 Provider', () => {
       const { deleteFile } = await import('../provider.js')
 
       try {
-        await deleteFile('test-file-id')
+        await deleteFile(storedFileId)
       } catch (_error) {
         // Expected rejection — this test only verifies that logger.error was called, not the thrown value.
       }
@@ -465,14 +463,14 @@ describe('S3 Provider', () => {
 
       const { getFile } = await import('../provider.js')
 
-      const result = await getFile('test-file-id')
+      const result = await getFile(storedFileId)
 
       expect(result).toBe(mockBody)
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           params: {
             Bucket: 'test-bucket',
-            Key: 'test-file-id',
+            Key: storedFileId,
           },
         }),
       )
@@ -593,23 +591,70 @@ describe('S3 Security Tests', () => {
   })
 
   describe('file validation', () => {
-    it('should not allow path traversal in file ID for delete', async () => {
-      mockSend.mockResolvedValue({})
+    // This prefix occupies 988 bytes, leaving exactly 36 for the UUID.
+    const maxLengthPrefix = `${'é'.repeat(493)}x/`
+    const overlongPrefix = `${maxLengthPrefix}x`
 
-      const { deleteFile } = await import('../provider.js')
+    it.each([
+      { reason: 'a different prefix', prefix: 'uploads/', id: `backups/${storedFileId}` },
+      { reason: 'an omitted prefix', prefix: 'uploads/', id: storedFileId },
+      { reason: 'a nested key', prefix: 'uploads/', id: `uploads/folder/${storedFileId}` },
+      { reason: 'a custom name', prefix: 'uploads/', id: 'uploads/document.bin' },
+      { reason: 'a custom name without a prefix', prefix: '', id: 'folder/document.bin' },
+      { reason: 'an uppercase UUID', prefix: '', id: storedFileId.toUpperCase() },
+      {
+        reason: 'a UUID of another version',
+        prefix: '',
+        id: 'abcdef01-2345-7567-89ab-cdef01234567',
+      },
+      {
+        reason: 'a key over 1,024 UTF-8 bytes',
+        prefix: overlongPrefix,
+        id: `${overlongPrefix}${storedFileId}`,
+      },
+    ])('refuses $reason without contacting S3', async ({ prefix, id }) => {
+      mockSend.mockResolvedValue({ Body: new PassThrough(), ContentLength: 5 })
+      const { createProvider } = await import('../provider.js')
+      const store = createProvider({ bucket: 'shared', keyPrefix: prefix })
 
-      // The S3 provider uses UUID for file IDs, so path traversal
-      // in user-provided IDs would be caught by S3 key validation
-      await deleteFile('../../../etc/passwd')
+      const results = await Promise.all([
+        store.getFile(id),
+        store.deleteFile(id),
+        store.headFile(id),
+      ])
 
-      // S3 keys with path traversal should be sent as-is
-      // S3 handles these safely (they become literal key names)
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          params: expect.objectContaining({
-            Key: '../../../etc/passwd',
-          }),
-        }),
+      expect(mockSend.mock.calls.map(([command]) => command.type)).toEqual([])
+      expect(results).toEqual([null, undefined, null])
+    })
+
+    it.each([
+      { name: 'no prefix', prefix: '' },
+      { name: 'a directory prefix', prefix: 'uploads/' },
+      { name: 'a prefix without a slash', prefix: 'uploads-' },
+      { name: 'a key of exactly 1,024 UTF-8 bytes', prefix: maxLengthPrefix },
+    ])('reads, checks and deletes a minted id with $name', async ({ prefix }) => {
+      const body = new PassThrough()
+      mockSend.mockResolvedValue({ Body: body, ContentLength: 5 })
+      mockUploadDone.mockResolvedValue({})
+      const { createProvider } = await import('../provider.js')
+      const store = createProvider({ bucket: 'shared', keyPrefix: prefix })
+      const file = store.upload(
+        'file',
+        new PassThrough(),
+        { filename: 'document.bin', encoding: 'binary', mimeType: 'application/octet-stream' },
+        vi.fn(),
+      )
+      await file.uploadPromise
+
+      expect(file.id).toBe(`${prefix}${storedFileId}`)
+      expect(await store.getFile(file.id)).toBe(body)
+      expect(await store.headFile(file.id)).toEqual({ bytes: 5 })
+      await store.deleteFile(file.id)
+
+      expect(mockSend.mock.calls).toEqual(
+        ['GetObjectCommand', 'HeadObjectCommand', 'DeleteObjectCommand'].map((type) => [
+          { type, params: { Bucket: 'shared', Key: file.id } },
+        ]),
       )
     })
 
@@ -634,7 +679,7 @@ describe('S3 Security Tests', () => {
         vi.fn(),
       )
 
-      expect(file.id).toBe('test-uuid-1234')
+      expect(file.id).toBe(storedFileId)
       expect(file.id).not.toContain('..')
       expect(file.id).not.toContain('/')
     })
@@ -660,11 +705,44 @@ describe('S3 Security Tests', () => {
 
       expect(file.uploaded).toBe(false)
       expect(file.uploadPromise).toBeUndefined()
+      // A refusal (receiveUploads() answers 415), not a storage failure (a 500).
       expect(onError).toHaveBeenCalledWith(
         expect.objectContaining({
+          name: 'UploadRefusedError',
+          status: 415,
+          errorKey: 'uploads.error.fileTypeBlocked',
           message: expect.stringContaining('text/html'),
         }),
       )
+    })
+
+    it('rejects a blocked type declared with a charset', async () => {
+      const { upload } = await import('../provider.js')
+      const onError = vi.fn()
+      const file = upload(
+        'file',
+        new PassThrough(),
+        { filename: 'page.html', encoding: '7bit', mimeType: 'text/html; charset=utf-8' },
+        onError,
+      )
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(expect.objectContaining({ status: 415 }))
+    })
+
+    it('stores a blocked type, with its declared type, for a route that allows it', async () => {
+      mockUploadDone.mockResolvedValue({ Location: 'https://test-bucket.s3.amazonaws.com/x' })
+      const { upload } = await import('../provider.js')
+      const onError = vi.fn()
+      const file = upload(
+        'file',
+        new PassThrough(),
+        { filename: 'page.html', encoding: '7bit', mimeType: 'text/html', allowActiveTypes: true },
+        onError,
+      )
+      await file.uploadPromise
+      expect(onError).not.toHaveBeenCalled()
+      expect(file.mimetype).toBe('text/html')
+      expect(file.uploaded).toBe(true)
     })
 
     it('should reject application/javascript uploads', async () => {
@@ -1023,7 +1101,7 @@ describe('S3 env resolution — accepts the names provisioning tools export', ()
     mockSend.mockResolvedValue({})
 
     const { deleteFile } = await import('../provider.js')
-    await deleteFile('some-key')
+    await deleteFile(storedFileId)
 
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1038,7 +1116,7 @@ describe('S3 env resolution — accepts the names provisioning tools export', ()
     mockSend.mockResolvedValue({})
 
     const { deleteFile } = await import('../provider.js')
-    await deleteFile('some-key')
+    await deleteFile(storedFileId)
 
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1107,15 +1185,15 @@ describe('createProvider — independent S3 stores', () => {
       forcePathStyle: true,
     })
 
-    await backups.deleteFile('k1')
-    await uploads.deleteFile('k2')
+    await backups.deleteFile(storedFileId)
+    await uploads.deleteFile(storedFileId)
     expect(mockSend).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ params: { Bucket: 'backups', Key: 'k1' } }),
+      expect.objectContaining({ params: { Bucket: 'backups', Key: storedFileId } }),
     )
     expect(mockSend).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ params: { Bucket: 'user-uploads', Key: 'k2' } }),
+      expect.objectContaining({ params: { Bucket: 'user-uploads', Key: storedFileId } }),
     )
   })
 
@@ -1124,11 +1202,11 @@ describe('createProvider — independent S3 stores', () => {
     const { createProvider, deleteFile, provider } = await import('../provider.js')
     const backups = createProvider({ bucket: 'backups' })
     void backups.client
-    await deleteFile('k')
+    await deleteFile(storedFileId)
     expect(provider.bucket).toBe('env-bucket')
     expect(provider.client).not.toBe(backups.client)
     expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { Bucket: 'env-bucket', Key: 'k' } }),
+      expect.objectContaining({ params: { Bucket: 'env-bucket', Key: storedFileId } }),
     )
   })
 
@@ -1170,10 +1248,10 @@ describe('createProvider — independent S3 stores', () => {
       vi.fn(),
     )
 
-    expect(file.id).toBe('nightly/test-uuid-1234')
+    expect(file.id).toBe(`nightly/${storedFileId}`)
     expect(Upload).toHaveBeenCalledWith(
       expect.objectContaining({
-        params: expect.objectContaining({ Bucket: 'backups', Key: 'nightly/test-uuid-1234' }),
+        params: expect.objectContaining({ Bucket: 'backups', Key: `nightly/${storedFileId}` }),
       }),
     )
   })
@@ -1219,7 +1297,8 @@ describe('createProvider — independent S3 stores', () => {
   it('getFile returns null for NoSuchKey on an instance', async () => {
     mockSend.mockRejectedValue(Object.assign(new Error('nope'), { name: 'NoSuchKey' }))
     const { createProvider } = await import('../provider.js')
-    expect(await createProvider({ bucket: 'b' }).getFile('missing')).toBeNull()
+    expect(await createProvider({ bucket: 'b' }).getFile(storedFileId)).toBeNull()
+    expect(mockSend).toHaveBeenCalledTimes(1)
   })
 
   describe('headFile', () => {
@@ -1227,10 +1306,13 @@ describe('createProvider — independent S3 stores', () => {
       const lastModified = new Date('2026-10-01T00:00:00Z')
       mockSend.mockResolvedValue({ ContentLength: 42, ETag: '"abc"', LastModified: lastModified })
       const { createProvider } = await import('../provider.js')
-      const head = await createProvider({ bucket: 'b' }).headFile('k')
+      const head = await createProvider({ bucket: 'b' }).headFile(storedFileId)
       expect(head).toEqual({ bytes: 42, etag: '"abc"', lastModified })
       expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'HeadObjectCommand', params: { Bucket: 'b', Key: 'k' } }),
+        expect.objectContaining({
+          type: 'HeadObjectCommand',
+          params: { Bucket: 'b', Key: storedFileId },
+        }),
       )
     })
 
@@ -1238,9 +1320,9 @@ describe('createProvider — independent S3 stores', () => {
       const { createProvider } = await import('../provider.js')
       const store = createProvider({ bucket: 'b' })
       mockSend.mockRejectedValueOnce(Object.assign(new Error('x'), { name: 'NotFound' }))
-      expect(await store.headFile('k')).toBeNull()
+      expect(await store.headFile(storedFileId)).toBeNull()
       mockSend.mockRejectedValueOnce(Object.assign(new Error('x'), { name: 'NoSuchKey' }))
-      expect(await store.headFile('k')).toBeNull()
+      expect(await store.headFile(storedFileId)).toBeNull()
     })
 
     it('throws for any other failure', async () => {
@@ -1248,15 +1330,17 @@ describe('createProvider — independent S3 stores', () => {
         Object.assign(new Error('Access Denied'), { name: 'AccessDenied' }),
       )
       const { createProvider } = await import('../provider.js')
-      await expect(createProvider({ bucket: 'b' }).headFile('k')).rejects.toThrow('Access Denied')
+      await expect(createProvider({ bucket: 'b' }).headFile(storedFileId)).rejects.toThrow(
+        'Access Denied',
+      )
     })
 
     it('is available on the default provider, against the env bucket', async () => {
       mockSend.mockResolvedValue({ ContentLength: 1 })
       const { provider } = await import('../provider.js')
-      expect(await provider.headFile('k')).toEqual({ bytes: 1 })
+      expect(await provider.headFile(storedFileId)).toEqual({ bytes: 1 })
       expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({ params: { Bucket: 'env-bucket', Key: 'k' } }),
+        expect.objectContaining({ params: { Bucket: 'env-bucket', Key: storedFileId } }),
       )
     })
   })
@@ -1286,12 +1370,12 @@ describe('createProvider — independent S3 stores', () => {
     it('still reads the bucket from the env on every call of the default provider', async () => {
       mockSend.mockResolvedValue({})
       const { deleteFile } = await import('../provider.js')
-      await deleteFile('a')
+      await deleteFile(storedFileId)
       vi.stubEnv('AWS_S3_BUCKET', 'changed-bucket')
-      await deleteFile('b')
+      await deleteFile(storedFileId)
       expect(mockSend).toHaveBeenNthCalledWith(
         2,
-        expect.objectContaining({ params: { Bucket: 'changed-bucket', Key: 'b' } }),
+        expect.objectContaining({ params: { Bucket: 'changed-bucket', Key: storedFileId } }),
       )
     })
   })
@@ -1308,13 +1392,13 @@ describe('R93: headFile and a missing bucket, the part size, a source that error
         throw Object.assign(new Error('x'), { name: 'NotFound' })
       return {}
     })
-    await expect(store.headFile('k')).rejects.toMatchObject({ name: 'NoSuchBucket' })
+    await expect(store.headFile(storedFileId)).rejects.toMatchObject({ name: 'NoSuchBucket' })
     mockSend.mockImplementation(async (cmd: { type: string }) => {
       if (cmd.type === 'HeadObjectCommand')
         throw Object.assign(new Error('x'), { name: 'NotFound' })
       return {}
     })
-    expect(await store.headFile('k')).toBeNull()
+    expect(await store.headFile(storedFileId)).toBeNull()
     mockSend.mockReset()
   })
 
@@ -1357,7 +1441,7 @@ describe('R94: the bucket HEAD behind a missing object', () => {
         throw Object.assign(new Error('x'), { name: 'NoSuchBucket' })
       return {}
     })
-    await expect(store.headFile('k')).rejects.toMatchObject({ name: 'NoSuchBucket' })
+    await expect(store.headFile(storedFileId)).rejects.toMatchObject({ name: 'NoSuchBucket' })
     mockSend.mockImplementation(async (cmd: { type: string }) => {
       if (cmd.type === 'HeadObjectCommand')
         throw Object.assign(new Error('x'), { name: 'NotFound' })
@@ -1368,7 +1452,7 @@ describe('R94: the bucket HEAD behind a missing object', () => {
         })
       return {}
     })
-    expect(await store.headFile('k')).toBeNull()
+    expect(await store.headFile(storedFileId)).toBeNull()
     mockSend.mockReset()
   })
 })

@@ -132,9 +132,19 @@ describe('@molecule/api-uploads-filesystem × REAL fs', () => {
     await mod.provider.deleteFile(file.id)
   })
 
-  it('FAILURE DISAMBIGUATION: traversal throws "Invalid file ID", a well-formed missing id resolves null — a caller can tell attack from absence', async () => {
-    await expect(mod.provider.getFile!('../../../etc/passwd')).rejects.toThrow('Invalid file ID')
-    await expect(mod.provider.deleteFile('../../../etc/passwd')).rejects.toThrow('Invalid file ID')
+  it('getFile resolves null for an id outside the folder, as for a missing one, so a route answers 404 (OLD MUSTFAIL)', async () => {
+    // It used to reject with "Invalid file ID": a route that followed the core docs answered 500,
+    // and agents wrapped it in a catch-all that also hid storage failures (harness eval add).
+    await expect(mod.provider.getFile!('../../../etc/passwd')).resolves.toBeNull()
+    await expect(mod.provider.getFile!('../' + path.basename(mod.uploadPath))).resolves.toBeNull()
+    // Deleting such an id is nothing to do: its id comes from the app's own row, and one a client
+    // made up names no upload (upload security review, finding 4).
+    const entries = fs.readdirSync(mod.uploadPath)
+    await expect(mod.provider.deleteFile('../../../etc/passwd')).resolves.toBeUndefined()
+    await expect(
+      mod.provider.deleteFile('../' + path.basename(mod.uploadPath)),
+    ).resolves.toBeUndefined()
+    expect(fs.readdirSync(mod.uploadPath)).toEqual(entries)
 
     // A legitimate-looking id that simply doesn't exist is NOT an error — it's null.
     await expect(mod.provider.getFile!('550e8400-e29b-41d4-a716-446655440000')).resolves.toBeNull()
@@ -170,6 +180,22 @@ describe('@molecule/api-uploads-filesystem × REAL fs', () => {
     expect(fs.readdirSync(mod.uploadPath).length).toBe(entriesBefore)
   })
 
+  it('stores a blocked type, with its declared type, for a route that allows it', async () => {
+    const source = new PassThrough()
+    const onError = vi.fn()
+    const file = mod.upload(
+      'doc',
+      source,
+      { filename: 'page.html', encoding: '7bit', mimeType: 'text/html', allowActiveTypes: true },
+      onError,
+    )
+    source.end('<p>hi</p>')
+    await file.uploadPromise
+    expect(onError).not.toHaveBeenCalled()
+    expect(file.mimetype).toBe('text/html')
+    expect(fs.readFileSync(path.join(mod.uploadPath, file.id), 'utf8')).toBe('<p>hi</p>')
+  })
+
   it('abortUpload mid-stream removes the partially written file from disk', async () => {
     const source = new PassThrough()
     const onError = vi.fn()
@@ -198,6 +224,27 @@ describe('@molecule/api-uploads-filesystem × REAL fs', () => {
     await vi.waitFor(() => {
       expect(fs.existsSync(onDisk)).toBe(false)
     })
+  })
+
+  // The write stream opens its file asynchronously. An abort that comes first (an oversized file
+  // refused at its first chunk) used to unlink before the file existed, and the open then created
+  // it: an empty file left on disk for every refused upload.
+  it('abortUpload before the write stream has opened leaves no file on disk', async () => {
+    const source = new PassThrough()
+    const file = mod.upload(
+      'doc',
+      source,
+      { filename: 'refused.bin', encoding: 'binary', mimeType: 'application/octet-stream' },
+      vi.fn(),
+    )
+    const onDisk = path.join(mod.uploadPath, file.id)
+    const uploadPromise = file.uploadPromise
+    mod.provider.abortUpload(file)
+    await uploadPromise!.catch((_error) => {})
+
+    // Long enough for the open (and any unlink after it) to land.
+    await delay(100)
+    expect(fs.existsSync(onDisk)).toBe(false)
   })
 
   it('[ambiguous-failure fix] abortUpload rejects uploadPromise with a real UploadAbortedError instead of resolving it as success — a consumer awaiting uploadPromise can no longer mistake an aborted upload for a completed one', async () => {

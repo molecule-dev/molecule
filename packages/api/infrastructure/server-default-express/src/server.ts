@@ -156,9 +156,11 @@ export interface CreateServerOptions {
   getRouter: () => Promise<{ router: express.Router }>
   /**
    * Optional hook to mount middleware AFTER cors+cookieParser but
-   * BEFORE the body parser. Use this for routes that need their own
-   * multipart streaming (file uploads via busboy) — the body parser's
-   * `files: 0` config would silently consume the multipart stream.
+   * BEFORE the body parser, for a route that must read the raw body
+   * of a JSON or URL-encoded request itself. Upload routes do not need
+   * it: the body parser leaves multipart bodies unread, so a route
+   * using `receiveUploads()` from `@molecule/api-uploads` works in the
+   * resource router like any other route.
    */
   preBodyParser?: (app: express.Express) => Promise<void> | void
   /**
@@ -396,8 +398,8 @@ export function createServerFactory(
 
     if (opts.preBodyParser) {
       // Custom-ordering path: mount cors+cookie before custom hooks
-      // (e.g. multipart uploads) which run BEFORE the body parser
-      // would otherwise swallow their streams.
+      // that must see a JSON or URL-encoded body before the body parser
+      // reads it.
       app.use(corsMiddleware)
       app.use(cookieParserMiddleware)
       await opts.preBodyParser(app)

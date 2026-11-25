@@ -3,7 +3,12 @@
  *
  * Core interface — the actual implementation is provided via bonds.
  * Install a body parser bond (e.g., `@molecule/api-middleware-body-parser-express`)
- * to provide JSON and multipart form data parsing.
+ * to provide JSON and URL-encoded parsing app-wide, and multipart file uploads per route.
+ *
+ * A `multipart/form-data` body is read only by the route's upload parser
+ * ({@link createUploadParser}; apps call it through `receiveUploads()` from
+ * `@molecule/api-uploads`). The app-wide parser leaves it unread, so an upload route works
+ * wherever it is mounted.
  *
  * @remarks
  * - **Always set a `limit`** ({@link JsonParserOptions}`.limit`, e.g. `'1mb'`). An unbounded
@@ -29,3 +34,4 @@
 
 export * from './browser-guard.js'
 export * from './parser.js'
+export * from './upload-parser.js'

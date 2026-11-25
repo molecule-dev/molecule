@@ -21,13 +21,13 @@ import {
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import { PassThrough } from 'stream'
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid, validate as validateUuid, version as uuidVersion } from 'uuid'
 
 import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import { getProxyAgents } from '@molecule/api-proxy-agent'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
-import { UploadAbortedError } from '@molecule/api-uploads'
+import { blockedTypeRefusal, UploadAbortedError } from '@molecule/api-uploads'
 const logger = getLogger()
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
@@ -38,6 +38,8 @@ import { t } from '@molecule/api-i18n'
 
 import { registerLifecycleIntegration } from './lifecycle.js'
 import type { File, ObjectLockRetentionMode, S3UploadsConfig } from './types.js'
+
+const MAX_KEY_BYTES = 1024
 
 /**
  * Metadata of a stored object, as returned by `headFile()`.
@@ -133,20 +135,21 @@ export interface S3UploadProvider extends UploadProvider {
     onError: (error: Error) => void,
   ): File
   /**
-   * Aborts an in-progress upload; its `uploadPromise` rejects with `UploadAbortedError`.
+   * Aborts an in-progress upload and waits for the SDK to settle. The file's `uploadPromise`
+   * rejects with `UploadAbortedError`.
    * @param file - The file record returned by `upload()`.
    */
   abortUpload(file: File): Promise<void>
   /**
    * Downloads a file.
    * @param id - The file id returned by `upload()`.
-   * @returns A readable stream, or `null` if the file does not exist.
+   * @returns A readable stream, or `null` if the id is invalid or the file does not exist.
    */
   getFile(id: string): Promise<NodeJS.ReadableStream | null>
   /**
    * Looks up an object's size, ETag and modification time without downloading it.
    * @param id - The file id returned by `upload()` (includes any `keyPrefix`).
-   * @returns The object's metadata, or `null` if it does not exist.
+   * @returns The object's metadata, or `null` if the id is invalid or the file does not exist.
    */
   headFile(id: string): Promise<S3FileHead | null>
   /**
@@ -288,6 +291,23 @@ function missingBucketMessage(envDriven: boolean): string {
  */
 function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadProvider {
   let client: S3Client | null = null
+  const keyPrefix = config.keyPrefix ?? ''
+
+  /**
+   * Checks that an object key has this store's prefix and the suffix minted by `upload()`.
+   * @param id - The object key supplied by the caller.
+   * @returns Whether the key can address a file stored by this provider.
+   */
+  const isFileId = (id: string): boolean => {
+    if (!id.startsWith(keyPrefix)) return false
+    const suffix = id.slice(keyPrefix.length)
+    return (
+      validateUuid(suffix) &&
+      uuidVersion(suffix) === 4 &&
+      suffix === suffix.toLowerCase() &&
+      Buffer.byteLength(id, 'utf8') <= MAX_KEY_BYTES
+    )
+  }
 
   /**
    * Returns this store's lazily-created client.
@@ -304,32 +324,22 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     info: FileInfo,
     onError: (error: Error) => void,
   ): File => {
-    const id = `${config.keyPrefix ?? ''}${uuid()}`
+    const id = `${keyPrefix}${uuid()}`
 
     const filename = (info.filename ?? '').substring(0, 1023)
     const encoding = info.encoding.substring(0, 1023)
     const mimetype = info.mimeType.substring(0, 255)
 
-    // Block dangerous MIME types that could enable XSS if served directly.
-    // [M4-1] Keep this set in lockstep with bonds/uploads/filesystem/src/provider.ts so the
-    // two swappable providers enforce an identical contract.
-    const BLOCKED_MIME_TYPES = new Set([
-      'text/html',
-      'application/xhtml+xml',
-      'application/javascript',
-      'text/javascript',
-      'application/x-javascript',
-      'image/svg+xml',
-      'text/xml',
-      'application/xml',
-    ])
-    if (BLOCKED_MIME_TYPES.has(mimetype.toLowerCase())) {
+    // [M4-1] Refuse the types a browser runs (stored XSS) unless the route allows them
+    // (info.allowActiveTypes): the core's rule, the same for every provider. A refusal, not a
+    // failure: receiveUploads() answers it 415.
+    const refusal = blockedTypeRefusal(info)
+    if (refusal) {
       // Drain the rejected stream: an unconsumed file stream stalls the multipart
       // parser (busboy pauses on backpressure), which hangs the whole request even
       // after the handler has responded with the 4xx.
       stream.resume()
-      const error = new Error(`File type ${mimetype} is not allowed for upload`)
-      onError(error)
+      onError(refusal)
       return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
     }
 
@@ -349,6 +359,10 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     // flowing mode — its `data` listeners (size accounting below) now fire —
     // while the SDK reads from the PassThrough.
     const body = new PassThrough()
+    body.on('error', (_error) => {
+      // The SDK observes the stream failure through its reader. Also handle the event if
+      // that reader has already finished or has yet to attach its own listener.
+    })
     stream.pipe(body)
 
     // Object Lock retention is computed per upload, from the moment it starts.
@@ -388,40 +402,28 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
       },
     })
 
-    // [ambiguous-failure fix] Set by `file.abort` below BEFORE calling
-    // `s3Upload.abort()`. `@aws-sdk/lib-storage` makes an aborted upload's `done()`
-    // REJECT with an AbortError — without this flag that rejection fell into the
-    // generic .catch() and was reported via onError, so an intentional cancel
-    // masqueraded as a transport failure (and disagreed with the filesystem bond,
-    // whose old `.end()`-based abort instead resolved as a false success — the two
-    // swappable providers gave opposite answers for the same operation). Normalized:
-    // neither bond ever calls onError NOR resolves uploadPromise for an abort; both
-    // reject it with the same UploadAbortedError. See @molecule/api-uploads'
-    // AbortHandler remarks for the full contract.
-    let aborted = false
-
-    const uploadPromise = new Promise<void>((resolve, reject) => {
-      s3Upload
-        .done()
-        .then((result) => {
-          delete file.abort
-          delete file.uploadPromise
-          file.uploaded = true
-          file.location = result.Location
-          resolve()
-        })
-        .catch((error) => {
-          delete file.abort
-          delete file.uploadPromise
-          if (aborted) {
-            reject(new UploadAbortedError())
-            return
-          }
-          trackBondFailure({ bond: 'uploads-s3', operation: 'upload', error })
-          onError(error)
-          reject(error)
-        })
-    })
+    let abortError: UploadAbortedError | undefined
+    const uploadPromise = s3Upload.done().then(
+      (result) => {
+        delete file.abort
+        delete file.uploadPromise
+        if (abortError) throw abortError
+        file.uploaded = true
+        file.location = result.Location
+      },
+      (error: unknown) => {
+        delete file.abort
+        delete file.uploadPromise
+        if (abortError) {
+          // The body error is either the cancellation or a source error already passed to onError.
+          if (error !== body.errored) logger.error(`Error aborting S3 upload (id: ${id})`, error)
+          throw abortError
+        }
+        trackBondFailure({ bond: 'uploads-s3', operation: 'upload', error })
+        onError(error instanceof Error ? error : new Error(String(error)))
+        throw error
+      },
+    )
 
     const file: File = {
       id,
@@ -432,8 +434,19 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
       size: 0,
       stream,
       abort: async () => {
-        aborted = true
-        await s3Upload.abort()
+        if (!abortError) {
+          abortError = new UploadAbortedError()
+          // Failing the SDK's input lets its multipart readers exit and run their cleanup.
+          // If it has already started a PUT or completion request, wait for it so deletion
+          // can run after the object has finished writing.
+          stream.unpipe(body)
+          body.destroy(abortError)
+        }
+        try {
+          await uploadPromise
+        } catch (error) {
+          if (error !== abortError) throw error
+        }
       },
       uploadPromise,
       uploaded: false,
@@ -450,15 +463,9 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     stream.on(`error`, (err) => {
       const error = err instanceof Error ? err : new Error(String(err))
       // Tear down the piped body too, or the SDK upload would wait forever on a
-      // stream that will never end. `destroy(error)` re-emits the error on
-      // `body`; if the SDK hasn't attached its own error listener yet, an
-      // unlistened `error` event would crash the process — so handle it here.
-      body.once(`error`, (_error) => {
-        // Intentionally ignored: this is the same error we just passed to
-        // destroy() and already surface via onError(error) below.
-      })
+      // stream that will never end.
       body.destroy(error)
-      onError(error)
+      if (!abortError) onError(error)
     })
 
     stream.on(`limit`, () => {
@@ -495,6 +502,7 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
   }
 
   const deleteFile = async (id: string): Promise<void> => {
+    if (!isFileId(id)) return
     try {
       await getClient().send(
         new DeleteObjectCommand({
@@ -510,6 +518,7 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
   }
 
   const getFile = async (id: string): Promise<NodeJS.ReadableStream | null> => {
+    if (!isFileId(id)) return null
     try {
       const response = await getClient().send(
         new GetObjectCommand({
@@ -534,6 +543,7 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
   }
 
   const headFile = async (id: string): Promise<S3FileHead | null> => {
+    if (!isFileId(id)) return null
     try {
       const response = await getClient().send(
         new HeadObjectCommand({
@@ -775,15 +785,16 @@ export const upload = (
 ): File => getDefault().upload(fieldname, stream, info, onError)
 
 /**
- * Aborts an in-progress S3 upload (default provider). Removes stream listeners and calls the S3 multipart abort.
- * Rejects the file's `uploadPromise` with `UploadAbortedError` — never as a success, and
- * never routed through the `upload()` call's `onError` (parity with the filesystem bond).
+ * Aborts an in-progress S3 upload (default provider). Ends the input with an error and waits for
+ * the SDK to finish cleanup or settle a write already in flight. The file's `uploadPromise`
+ * rejects with `UploadAbortedError` without invoking the upload's `onError`.
  * @param file - The `File` object returned by `upload()`.
  */
 export const abortUpload = (file: File): Promise<void> => getDefault().abortUpload(file)
 
 /**
  * Deletes a file from S3 (default provider) by its key using `DeleteObjectCommand`.
+ * Invalid ids are ignored.
  * @param id - The UUID file identifier (S3 object key).
  */
 export const deleteFile = (id: string): Promise<void> => getDefault().deleteFile(id)
@@ -791,7 +802,7 @@ export const deleteFile = (id: string): Promise<void> => getDefault().deleteFile
 /**
  * Downloads a file from S3 (default provider) by its key using `GetObjectCommand`.
  * @param id - The UUID file identifier (S3 object key).
- * @returns A readable stream of the file contents, or `null` if the file does not exist.
+ * @returns A readable stream, or `null` if the id is invalid or the file does not exist.
  */
 export const getFile = (id: string): Promise<NodeJS.ReadableStream | null> =>
   getDefault().getFile(id)

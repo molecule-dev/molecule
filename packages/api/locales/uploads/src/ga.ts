@@ -6,4 +6,7 @@ export const ga: UploadsTranslations = {
     'Níl soláthraí uaslódála cumraithe. Glaoigh ar setProvider() ar dtús.',
   'uploads.error.streamLimitReached': 'Baineadh teorainn an tsrutha amach.',
   'uploads.error.aborted': 'Cuireadh stop leis an uaslódáil.',
+  'uploads.error.fileTypeBlocked': 'Ní féidir comhaid den chineál {{type}} a uaslódáil.',
+  'uploads.error.activeTypeListed':
+    'Liostaíonn receiveUploads() {{type}}, cineál a ritheann brabhsálaí. Tabhair allowActiveTypes: true chun é a stóráil, agus freastail na comhaid sin le sendUpload().',
 }

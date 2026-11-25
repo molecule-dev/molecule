@@ -457,6 +457,94 @@ describe('upload types', () => {
     })
   })
 
+  describe('blockedTypeRefusal', () => {
+    it('refuses the types a browser runs inline, whatever their case or parameters', async () => {
+      const { BLOCKED_UPLOAD_TYPES, blockedTypeRefusal, UploadRefusedError } =
+        await import('../errors.js')
+      for (const type of BLOCKED_UPLOAD_TYPES)
+        for (const declared of [type, type.toUpperCase(), `${type}; charset=utf-8`]) {
+          const refusal = blockedTypeRefusal({ mimeType: declared })
+          expect(refusal, declared).toBeInstanceOf(UploadRefusedError)
+          expect(refusal).toMatchObject({
+            name: 'UploadRefusedError',
+            status: 415,
+            errorKey: 'uploads.error.fileTypeBlocked',
+            values: { type },
+            message: `Files of type ${type} cannot be uploaded.`,
+          })
+        }
+    })
+
+    // Upload security review (2026-11-25), finding 3: the list named four XML types and three
+    // script types outright, and every other `+xml` type and script type a browser runs was stored.
+    it('refuses every XML and script type a browser runs, not only the ones named outright (OLD MUSTFAIL)', async () => {
+      const { blockedTypeRefusal, UploadRefusedError } = await import('../errors.js')
+      for (const type of [
+        'application/atom+xml',
+        'application/rss+xml',
+        'application/mathml+xml',
+        'application/xslt+xml',
+        'application/vnd.mozilla.xul+xml',
+        'text/ecmascript',
+        'application/ecmascript',
+        'text/x-javascript',
+        'text/jscript',
+        'text/livescript',
+        'Application/X-JavaScript; charset=utf-8',
+        '  TEXT/JSCRIPT ',
+      ]) {
+        const refusal = blockedTypeRefusal({ mimeType: type })
+        expect(refusal, type).toBeInstanceOf(UploadRefusedError)
+        expect(refusal, type).toMatchObject({
+          status: 415,
+          errorKey: 'uploads.error.fileTypeBlocked',
+          values: { type: type.split(';')[0].trim().toLowerCase() },
+        })
+      }
+    })
+
+    it('answers whether a type is one a browser runs', async () => {
+      const { isBlockedUploadType } = await import('../errors.js')
+      for (const type of ['image/svg+xml', 'application/rss+xml', 'text/jscript', 'Text/XML'])
+        expect(isBlockedUploadType(type), type).toBe(true)
+      for (const type of ['image/png', 'text/plain', 'application/xml-dtd', 'text/html-sandboxed'])
+        expect(isBlockedUploadType(type), type).toBe(false)
+    })
+
+    // Counterexample: an ordinary type, and one that only contains a blocked one, may be stored.
+    it('lets every other type through', async () => {
+      const { blockedTypeRefusal } = await import('../errors.js')
+      for (const type of [
+        'image/png',
+        'image/jpeg',
+        'text/plain',
+        'application/pdf',
+        'application/json',
+        'application/octet-stream',
+        'application/zip',
+        'video/mp4',
+        'font/woff2',
+        'application/xml-dtd',
+        'text/html-sandboxed',
+      ])
+        expect(blockedTypeRefusal({ mimeType: type }), type).toBeNull()
+    })
+
+    it('stores the rule-matched types too for a route that allows them', async () => {
+      const { blockedTypeRefusal } = await import('../errors.js')
+      expect(
+        blockedTypeRefusal({ mimeType: 'application/atom+xml', allowActiveTypes: true }),
+      ).toBeNull()
+      expect(blockedTypeRefusal({ mimeType: 'text/jscript', allowActiveTypes: true })).toBeNull()
+    })
+
+    it('stores a blocked type for a route that allows it', async () => {
+      const { blockedTypeRefusal } = await import('../errors.js')
+      expect(blockedTypeRefusal({ mimeType: 'text/html', allowActiveTypes: true })).toBeNull()
+      expect(blockedTypeRefusal({ mimeType: 'text/html', allowActiveTypes: false })).not.toBeNull()
+    })
+  })
+
   describe('UploadAbortedError', () => {
     it('CONTRACT: is a real Error subclass named "UploadAbortedError" so instanceof + error.name both distinguish it from a generic failure', async () => {
       const { UploadAbortedError } = await import('../errors.js')

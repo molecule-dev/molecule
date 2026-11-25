@@ -6,4 +6,7 @@ export const lv: UploadsTranslations = {
     'Augšupielādes nodrošinātājs nav konfigurēts. Vispirms izsauciet setProvider().',
   'uploads.error.streamLimitReached': 'Sasniegts straumes limits.',
   'uploads.error.aborted': 'Augšupielāde tika pārtraukta.',
+  'uploads.error.fileTypeBlocked': '{{type}} tipa failus nevar augšupielādēt.',
+  'uploads.error.activeTypeListed':
+    'receiveUploads() norāda {{type}} — tipu, ko pārlūks izpilda. Nododiet allowActiveTypes: true, lai to saglabātu, un pasniedziet šos failus ar sendUpload().',
 }

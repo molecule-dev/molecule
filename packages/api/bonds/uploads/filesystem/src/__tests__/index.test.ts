@@ -4,6 +4,8 @@
  * @module
  */
 
+import type * as NodeCrypto from 'node:crypto'
+
 import { PassThrough } from 'stream'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -13,30 +15,55 @@ const mockMkdirSync = vi.fn()
 const mockUnlink = vi.fn()
 const mockCreateWriteStream = vi.fn()
 const mockCreateReadStream = vi.fn()
+// What a stored file's lookup answers: `fs.promises.lstat` (async) and `fs.lstatSync` (sync).
+const mockLstat = vi.fn()
+const mockLstatSync = vi.fn()
+// `fs.promises.unlink`, which `deleteFile()` awaits.
+const mockUnlinkAsync = vi.fn()
 
-vi.mock('fs', () => ({
-  default: {
+vi.mock('fs', () => {
+  const mocked = {
     existsSync: (...args: unknown[]) => mockExistsSync(...args),
     mkdirSync: (...args: unknown[]) => mockMkdirSync(...args),
     unlink: (...args: unknown[]) => mockUnlink(...args),
     createWriteStream: (...args: unknown[]) => mockCreateWriteStream(...args),
     createReadStream: (...args: unknown[]) => mockCreateReadStream(...args),
-  },
-  existsSync: (...args: unknown[]) => mockExistsSync(...args),
-  mkdirSync: (...args: unknown[]) => mockMkdirSync(...args),
-  unlink: (...args: unknown[]) => mockUnlink(...args),
-  createWriteStream: (...args: unknown[]) => mockCreateWriteStream(...args),
-  createReadStream: (...args: unknown[]) => mockCreateReadStream(...args),
-}))
+    lstatSync: (...args: unknown[]) => mockLstatSync(...args),
+    promises: {
+      lstat: (...args: unknown[]) => mockLstat(...args),
+      unlink: (...args: unknown[]) => mockUnlinkAsync(...args),
+    },
+  }
+  return { default: mocked, ...mocked }
+})
 
-// Mock uuid. Typed with the no-argument overload the provider calls
-// (`provider.ts` uses `uuid()`), so per-test implementations stay `() => string`.
+/** An id in the shape `upload()` mints; `n` tells test ids apart. */
+const mintedId = (n = 0): string => `0000000${n}-0000-4000-8000-000000000000`
+
+/** Makes the mocked disk answer that a looked-up path is a regular file. */
+const aRegularFile = (): void => {
+  mockLstat.mockReset().mockResolvedValue({ isFile: () => true })
+  mockLstatSync.mockReset().mockReturnValue({ isFile: () => true })
+}
+
+/** Makes the mocked disk hold a regular file that can be removed. */
+const aRemovableFile = (): void => {
+  aRegularFile()
+  mockUnlinkAsync.mockReset().mockResolvedValue(undefined)
+}
+
+/** An error as the disk reports a path that is not there. */
+const enoent = (): NodeJS.ErrnoException =>
+  Object.assign(new Error(`ENOENT: no such file or directory`), { code: 'ENOENT' })
+
+// Mock the id source (`provider.ts` names each file with `randomUUID()`).
 const uuidMock = vi.hoisted(() => ({
   v4: vi.fn<() => string>().mockReturnValue('test-uuid-1234'),
 }))
 
-vi.mock('uuid', () => ({
-  v4: uuidMock.v4,
+vi.mock('node:crypto', async (importOriginal) => ({
+  ...(await importOriginal<typeof NodeCrypto>()),
+  randomUUID: uuidMock.v4,
 }))
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
@@ -147,7 +174,14 @@ describe('Filesystem Provider', () => {
     it('[M4-1] rejects dangerous MIME types (stored-XSS parity with the S3 bond)', async () => {
       mockExistsSync.mockReturnValue(true)
       const { upload } = await import('../provider.js')
-      for (const mimeType of ['text/html', 'image/svg+xml', 'application/javascript']) {
+      // A declared charset or a capital letter does not get a type past the list.
+      for (const mimeType of [
+        'text/html',
+        'image/svg+xml',
+        'application/javascript',
+        'text/html; charset=utf-8',
+        'Text/HTML',
+      ]) {
         const onError = vi.fn()
         const file = upload(
           'file',
@@ -157,8 +191,14 @@ describe('Filesystem Provider', () => {
         )
         expect(file.uploaded).toBe(false)
         expect(file.uploadPromise).toBeUndefined()
+        // A refusal (receiveUploads() answers 415), not a storage failure (a 500).
         expect(onError).toHaveBeenCalledWith(
-          expect.objectContaining({ message: expect.stringContaining(mimeType) }),
+          expect.objectContaining({
+            name: 'UploadRefusedError',
+            status: 415,
+            errorKey: 'uploads.error.fileTypeBlocked',
+            message: expect.stringContaining(mimeType.split(';')[0].toLowerCase()),
+          }),
         )
       }
     })
@@ -406,17 +446,22 @@ describe('Filesystem Provider', () => {
       const uploadPromise = file.uploadPromise
 
       abortUpload(file)
+      // Handled at once, as a caller does: the rejection is settled before the unlink below.
+      const rejected = expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
 
       // destroy(), not end() — end() fires 'finish', which used to resolve
       // uploadPromise as a success for a file that was deliberately aborted (and
       // already unlinked from disk).
       expect(mockWriteStream.destroy).toHaveBeenCalled()
       expect(mockWriteStream.end).not.toHaveBeenCalled()
-      expect(mockUnlink).toHaveBeenCalledWith(
-        expect.stringContaining('test-uuid-1234'),
-        expect.any(Function),
+      // The partial file is removed once the destroyed stream has closed.
+      await vi.waitFor(() =>
+        expect(mockUnlink).toHaveBeenCalledWith(
+          expect.stringContaining('test-uuid-1234'),
+          expect.any(Function),
+        ),
       )
-      await expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
+      await rejected
       // An intentional abort must never be routed through onError — that's reserved
       // for real transport/storage failures.
       expect(onError).not.toHaveBeenCalled()
@@ -476,9 +521,11 @@ describe('Filesystem Provider', () => {
       abortUpload(file)
       await expect(uploadPromise).rejects.toThrow('Upload was aborted.')
 
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('test-uuid-1234'),
-        expect.any(Error),
+      await vi.waitFor(() =>
+        expect(mockLogger.warn).toHaveBeenCalledWith(
+          expect.stringContaining('test-uuid-1234'),
+          expect.any(Error),
+        ),
       )
     })
 
@@ -526,88 +573,97 @@ describe('Filesystem Provider', () => {
   describe('deleteFile', () => {
     it('should delete a file from the filesystem', async () => {
       mockExistsSync.mockReturnValue(true)
-      mockUnlink.mockImplementation((path, callback) => callback(null))
+      aRemovableFile()
       const { deleteFile } = await import('../provider.js')
 
-      await deleteFile('test-file-id')
+      await deleteFile(mintedId())
 
-      expect(mockUnlink).toHaveBeenCalledWith(
-        expect.stringContaining('test-file-id'),
-        expect.any(Function),
-      )
+      expect(mockLstat).toHaveBeenCalledWith(expect.stringContaining(mintedId()))
+      expect(mockUnlinkAsync).toHaveBeenCalledWith(expect.stringContaining(mintedId()))
     })
 
     it('should throw on delete error', async () => {
       mockExistsSync.mockReturnValue(true)
-      mockUnlink.mockImplementation((path, callback) => callback(new Error('Delete failed')))
+      aRegularFile()
+      mockUnlinkAsync.mockRejectedValue(new Error('Delete failed'))
       const { deleteFile } = await import('../provider.js')
 
-      await expect(deleteFile('test-file-id')).rejects.toThrow('Delete failed')
+      await expect(deleteFile(mintedId())).rejects.toThrow('Delete failed')
     })
 
     it('should log errors on delete failure', async () => {
       mockExistsSync.mockReturnValue(true)
-      mockUnlink.mockImplementation((path, callback) => callback(new Error('Delete failed')))
+      aRegularFile()
+      mockUnlinkAsync.mockRejectedValue(new Error('Delete failed'))
       const { deleteFile } = await import('../provider.js')
 
-      try {
-        await deleteFile('test-file-id')
-      } catch (_error) {
-        // Expected rejection — test only cares that the logger was called, not the thrown value
-      }
+      await expect(deleteFile(mintedId())).rejects.toThrow('Delete failed')
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('test-file-id'),
+        expect.stringContaining(mintedId()),
         expect.any(Error),
       )
     })
 
-    it('should handle empty file ID', async () => {
+    // Upload security review (2026-11-25), finding 4: an id that is not one `upload()` minted names
+    // no upload, so there is nothing to remove: not the upload folder itself (an empty id), and not
+    // a name with other characters in it. Nothing reaches the disk.
+    it('does nothing for an empty id, and for one with other characters', async () => {
       mockExistsSync.mockReturnValue(true)
-      mockUnlink.mockImplementation((path, callback) => callback(null))
-      const { deleteFile, uploadPath } = await import('../provider.js')
-
-      await deleteFile('')
-
-      expect(mockUnlink).toHaveBeenCalledWith(uploadPath, expect.any(Function))
-    })
-
-    it('should handle file ID with special characters', async () => {
-      mockExistsSync.mockReturnValue(true)
-      mockUnlink.mockImplementation((path, callback) => callback(null))
       const { deleteFile } = await import('../provider.js')
 
-      await deleteFile('file-with-special!@#$%^&*()chars')
+      await expect(deleteFile('')).resolves.toBeUndefined()
+      await expect(deleteFile('file-with-special!@#$%^&*()chars')).resolves.toBeUndefined()
 
-      expect(mockUnlink).toHaveBeenCalledWith(
-        expect.stringContaining('file-with-special!@#$%^&*()chars'),
-        expect.any(Function),
-      )
+      expect(mockLstat).not.toHaveBeenCalled()
+      expect(mockUnlinkAsync).not.toHaveBeenCalled()
     })
   })
 
   describe('getFileStream', () => {
     it('should get a read stream for a file', async () => {
       mockExistsSync.mockReturnValue(true)
+      aRegularFile()
       const mockReadStream = new PassThrough()
       mockCreateReadStream.mockReturnValue(mockReadStream)
       const { getFileStream } = await import('../provider.js')
 
-      const result = getFileStream('test-file-id')
+      const result = getFileStream(mintedId())
 
       expect(result).toBe(mockReadStream)
-      expect(mockCreateReadStream).toHaveBeenCalledWith(expect.stringContaining('test-file-id'))
+      expect(mockCreateReadStream).toHaveBeenCalledWith(expect.stringContaining(mintedId()))
     })
 
     it('should use correct path for file', async () => {
       mockExistsSync.mockReturnValue(true)
+      aRegularFile()
       const mockReadStream = new PassThrough()
       mockCreateReadStream.mockReturnValue(mockReadStream)
       const { getFileStream, uploadPath } = await import('../provider.js')
 
-      getFileStream('my-file')
+      getFileStream(mintedId())
 
       expect(mockCreateReadStream).toHaveBeenCalledWith(expect.stringContaining(uploadPath))
+    })
+
+    it('hands out no stream when the path is no regular file', async () => {
+      mockExistsSync.mockReturnValue(true)
+      const mockReadStream = new PassThrough()
+      mockCreateReadStream.mockReturnValue(mockReadStream)
+      const { getFileStream } = await import('../provider.js')
+
+      mockLstatSync.mockReturnValue({ isFile: () => false }) // a directory or a symlink
+      expect(() => getFileStream(mintedId())).toThrow(expect.objectContaining({ code: 'ENOENT' }))
+      mockLstatSync.mockImplementation(() => {
+        throw enoent()
+      })
+      expect(() => getFileStream(mintedId())).toThrow(expect.objectContaining({ code: 'ENOENT' }))
+      // Another failure of the disk is thrown to the caller.
+      mockLstatSync.mockImplementation(() => {
+        throw new Error('EIO')
+      })
+      expect(() => getFileStream(mintedId())).toThrow('EIO')
+      expect(mockCreateReadStream).not.toHaveBeenCalled()
     })
   })
 })
@@ -749,115 +805,87 @@ describe('Filesystem Security Tests', () => {
       expect(mockCreateWriteStream).not.toHaveBeenCalledWith(expect.stringContaining('malicious'))
     })
 
-    it('should handle path traversal attempts in delete', async () => {
+    // Upload security review (2026-11-25), finding 4: an id that is not one `upload()` minted names
+    // no upload. It is not an error to be handed one, since any client can send one: there is
+    // nothing to remove or to serve, and nothing reaches the disk.
+    it('does nothing for a path traversal id in delete', async () => {
       const { deleteFile } = await import('../provider.js')
 
-      // Path traversal should be rejected before touching the filesystem
-      await expect(deleteFile('../../../etc/passwd')).rejects.toThrow('Invalid file ID')
+      await expect(deleteFile('../../../etc/passwd')).resolves.toBeUndefined()
+      expect(mockLstat).not.toHaveBeenCalled()
       expect(mockUnlink).not.toHaveBeenCalled()
+      expect(mockUnlinkAsync).not.toHaveBeenCalled()
     })
 
-    it('should handle path traversal attempts in getFileStream', async () => {
+    it('hands out no stream for a path traversal id in getFileStream', async () => {
       const { getFileStream } = await import('../provider.js')
 
-      // Path traversal should be rejected before opening a stream
       expect(() => getFileStream('../../../etc/passwd')).toThrow('Invalid file ID')
+      expect(mockLstatSync).not.toHaveBeenCalled()
       expect(mockCreateReadStream).not.toHaveBeenCalled()
     })
   })
 
+  // Finding 4: every spelling of a path, encoded or not, names no upload.
   describe('deleteFile path traversal', () => {
-    it('should reject path traversal with ../ sequences', async () => {
-      const { deleteFile } = await import('../provider.js')
-
-      await expect(deleteFile('../../../etc/passwd')).rejects.toThrow('Invalid file ID')
-      expect(mockUnlink).not.toHaveBeenCalled()
-    })
-
-    it('should reject path traversal with deeper traversal', async () => {
-      const { deleteFile } = await import('../provider.js')
-
-      await expect(deleteFile('../../../../../../../../etc/shadow')).rejects.toThrow(
-        'Invalid file ID',
-      )
-      expect(mockUnlink).not.toHaveBeenCalled()
-    })
-
-    it('should reject path traversal with encoded characters like ..%2f..%2f', async () => {
-      const { deleteFile } = await import('../provider.js')
-
+    const escaped = [
+      '../../../etc/passwd',
+      '../../../../../../../../etc/shadow',
       // URL-decoded by the time it reaches the provider: ..%2f becomes ../
-      const decoded = decodeURIComponent('..%2f..%2f..%2fetc%2fpasswd')
-      await expect(deleteFile(decoded)).rejects.toThrow('Invalid file ID')
-      expect(mockUnlink).not.toHaveBeenCalled()
-    })
+      decodeURIComponent('..%2f..%2f..%2fetc%2fpasswd'),
+      '../sibling-dir/file',
+      'exports/report.txt',
+    ]
 
-    it('should succeed with a normal file ID', async () => {
+    it.each(escaped.map((id) => [id.slice(0, 40), id]))(
+      'does nothing for %s',
+      async (_label, id) => {
+        const { deleteFile } = await import('../provider.js')
+
+        await expect(deleteFile(id)).resolves.toBeUndefined()
+        expect(mockLstat).not.toHaveBeenCalled()
+        expect(mockUnlink).not.toHaveBeenCalled()
+        expect(mockUnlinkAsync).not.toHaveBeenCalled()
+      },
+    )
+
+    it('does nothing for an id that only looks like one', async () => {
       const { deleteFile } = await import('../provider.js')
 
-      await deleteFile('abc123-def456')
-
-      expect(mockUnlink).toHaveBeenCalledWith(
-        expect.stringContaining('abc123-def456'),
-        expect.any(Function),
-      )
+      await expect(deleteFile('abc123-def456')).resolves.toBeUndefined()
+      await expect(deleteFile('550E8400-E29B-41D4-A716-446655440000')).resolves.toBeUndefined()
+      expect(mockUnlinkAsync).not.toHaveBeenCalled()
     })
 
-    it('should succeed with a UUID file ID', async () => {
+    it('removes a file by the UUID file ID upload() minted', async () => {
+      aRemovableFile()
       const { deleteFile } = await import('../provider.js')
 
       await deleteFile('550e8400-e29b-41d4-a716-446655440000')
 
-      expect(mockUnlink).toHaveBeenCalledWith(
+      expect(mockUnlinkAsync).toHaveBeenCalledWith(
         expect.stringContaining('550e8400-e29b-41d4-a716-446655440000'),
-        expect.any(Function),
       )
-    })
-
-    it('should reject relative path that escapes upload directory', async () => {
-      const { deleteFile } = await import('../provider.js')
-
-      await expect(deleteFile('../sibling-dir/file')).rejects.toThrow('Invalid file ID')
-      expect(mockUnlink).not.toHaveBeenCalled()
     })
   })
 
   describe('getFileStream path traversal', () => {
-    it('should reject path traversal with ../ sequences', async () => {
+    it.each([
+      '../../../etc/passwd',
+      '../../../../../../../../etc/shadow',
+      decodeURIComponent('..%2f..%2f..%2fetc%2fpasswd'),
+      '../sibling-dir/file',
+      'abc123-def456',
+    ])('hands out no stream for %s', async (id) => {
       const { getFileStream } = await import('../provider.js')
 
-      expect(() => getFileStream('../../../etc/passwd')).toThrow('Invalid file ID')
+      expect(() => getFileStream(id)).toThrow('Invalid file ID')
+      expect(mockLstatSync).not.toHaveBeenCalled()
       expect(mockCreateReadStream).not.toHaveBeenCalled()
     })
 
-    it('should reject path traversal with deeper traversal', async () => {
-      const { getFileStream } = await import('../provider.js')
-
-      expect(() => getFileStream('../../../../../../../../etc/shadow')).toThrow('Invalid file ID')
-      expect(mockCreateReadStream).not.toHaveBeenCalled()
-    })
-
-    it('should reject path traversal with encoded characters like ..%2f..%2f', async () => {
-      const { getFileStream } = await import('../provider.js')
-
-      // URL-decoded by the time it reaches the provider: ..%2f becomes ../
-      const decoded = decodeURIComponent('..%2f..%2f..%2fetc%2fpasswd')
-      expect(() => getFileStream(decoded)).toThrow('Invalid file ID')
-      expect(mockCreateReadStream).not.toHaveBeenCalled()
-    })
-
-    it('should succeed with a normal file ID', async () => {
-      const mockReadStream = new PassThrough()
-      mockCreateReadStream.mockReturnValue(mockReadStream)
-      const { getFileStream } = await import('../provider.js')
-
-      const result = getFileStream('abc123-def456')
-
-      expect(result).toBe(mockReadStream)
-      expect(mockCreateReadStream).toHaveBeenCalledWith(expect.stringContaining('abc123-def456'))
-    })
-
-    it('should succeed with a UUID file ID', async () => {
+    it('hands out the stream of a file by the UUID file ID upload() minted', async () => {
+      aRegularFile()
       const mockReadStream = new PassThrough()
       mockCreateReadStream.mockReturnValue(mockReadStream)
       const { getFileStream } = await import('../provider.js')
@@ -868,13 +896,6 @@ describe('Filesystem Security Tests', () => {
       expect(mockCreateReadStream).toHaveBeenCalledWith(
         expect.stringContaining('550e8400-e29b-41d4-a716-446655440000'),
       )
-    })
-
-    it('should reject relative path that escapes upload directory', async () => {
-      const { getFileStream } = await import('../provider.js')
-
-      expect(() => getFileStream('../sibling-dir/file')).toThrow('Invalid file ID')
-      expect(mockCreateReadStream).not.toHaveBeenCalled()
     })
   })
 })
@@ -1053,11 +1074,12 @@ describe('Filesystem Edge Cases', () => {
     })
 
     it('should handle multiple simultaneous deletes', async () => {
+      aRemovableFile()
       const { deleteFile } = await import('../provider.js')
 
-      await Promise.all([deleteFile('file-1'), deleteFile('file-2'), deleteFile('file-3')])
+      await Promise.all([deleteFile(mintedId(1)), deleteFile(mintedId(2)), deleteFile(mintedId(3))])
 
-      expect(mockUnlink).toHaveBeenCalledTimes(3)
+      expect(mockUnlinkAsync).toHaveBeenCalledTimes(3)
     })
   })
 
@@ -1153,40 +1175,64 @@ describe('Delete File Edge Cases', () => {
     vi.unstubAllEnvs()
   })
 
-  it('should handle very long file ID', async () => {
-    mockUnlink.mockImplementation((path, callback) => callback(null))
+  // Upload security review (2026-11-25), finding 4: an over-long id and one with a NUL used to reach
+  // the disk (the second as a thrown `TypeError`). Neither is an id `upload()` minted, so there is
+  // nothing to remove.
+  it('does nothing for a very long file ID', async () => {
     const { deleteFile } = await import('../provider.js')
     const longId = 'a'.repeat(1024)
 
-    await deleteFile(longId)
+    await expect(deleteFile(longId)).resolves.toBeUndefined()
 
-    expect(mockUnlink).toHaveBeenCalledWith(expect.stringContaining(longId), expect.any(Function))
+    expect(mockLstat).not.toHaveBeenCalled()
+    expect(mockUnlink).not.toHaveBeenCalled()
+    expect(mockUnlinkAsync).not.toHaveBeenCalled()
   })
 
-  it('should handle file ID with null bytes', async () => {
-    mockUnlink.mockImplementation((path, callback) => callback(null))
+  it('does nothing for a file ID with a NUL byte', async () => {
     const { deleteFile } = await import('../provider.js')
 
-    await deleteFile('file-with\x00null')
+    await expect(deleteFile(`${mintedId()}\u0000`)).resolves.toBeUndefined()
+    await expect(deleteFile('file-with\u0000null')).resolves.toBeUndefined()
 
-    expect(mockUnlink).toHaveBeenCalled()
+    expect(mockLstat).not.toHaveBeenCalled()
+    expect(mockUnlink).not.toHaveBeenCalled()
+    expect(mockUnlinkAsync).not.toHaveBeenCalled()
+  })
+
+  it('leaves a directory or a symlink that carries an id alone', async () => {
+    const { deleteFile } = await import('../provider.js')
+
+    mockLstat.mockResolvedValue({ isFile: () => false })
+    await expect(deleteFile(mintedId())).resolves.toBeUndefined()
+
+    expect(mockUnlinkAsync).not.toHaveBeenCalled()
   })
 
   it('should handle ENOENT error (file not found)', async () => {
-    const enoentError = new Error('ENOENT: no such file or directory') as NodeJS.ErrnoException
-    enoentError.code = 'ENOENT'
-    mockUnlink.mockImplementation((path, callback) => callback(enoentError))
+    // A well-shaped id that no file has: nothing to look up, and the removal reports it as before.
+    mockLstat.mockRejectedValue(enoent())
+    mockUnlinkAsync.mockRejectedValue(enoent())
     const { deleteFile } = await import('../provider.js')
 
-    await expect(deleteFile('non-existent-file')).rejects.toThrow('ENOENT')
+    await expect(deleteFile(mintedId())).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('passes on a failure of the disk that is not a missing file', async () => {
+    const { deleteFile } = await import('../provider.js')
+
+    mockLstat.mockRejectedValue(new Error('EIO'))
+    await expect(deleteFile(mintedId())).rejects.toThrow('EIO')
+    expect(mockUnlinkAsync).not.toHaveBeenCalled()
   })
 
   it('should handle EACCES error (permission denied)', async () => {
-    const eaccesError = new Error('EACCES: permission denied') as NodeJS.ErrnoException
-    eaccesError.code = 'EACCES'
-    mockUnlink.mockImplementation((path, callback) => callback(eaccesError))
+    aRegularFile()
+    mockUnlinkAsync.mockRejectedValue(
+      Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' }),
+    )
     const { deleteFile } = await import('../provider.js')
 
-    await expect(deleteFile('protected-file')).rejects.toThrow('EACCES')
+    await expect(deleteFile(mintedId())).rejects.toMatchObject({ code: 'EACCES' })
   })
 })

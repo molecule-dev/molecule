@@ -6,4 +6,7 @@ export const mn: UploadsTranslations = {
     'Байршуулалтын нийлүүлэгч тохируулагдаагүй байна. Эхлээд setProvider() дуудна уу.',
   'uploads.error.streamLimitReached': 'Урсгалын хязгаарт хүрсэн.',
   'uploads.error.aborted': 'Байршуулалт цуцлагдлаа.',
+  'uploads.error.fileTypeBlocked': '{{type}} төрлийн файлыг байршуулах боломжгүй.',
+  'uploads.error.activeTypeListed':
+    'receiveUploads() нь {{type}} төрлийг жагсаадаг бөгөөд үүнийг хөтөч ажиллуулдаг. Хадгалахын тулд allowActiveTypes: true дамжуулж, тэдгээр файлыг sendUpload()-ээр үйлчилнэ үү.',
 }
