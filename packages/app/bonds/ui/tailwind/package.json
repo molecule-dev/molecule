@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "@molecule/app-styling": "^1.0.1",
-    "@molecule/app-ui": "^1.2.0"
+    "@molecule/app-ui": "^1.8.0"
   },
   "repository": {
     "type": "git",
