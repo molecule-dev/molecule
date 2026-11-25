@@ -16,6 +16,7 @@ const NO_PLACEHOLDER: CaseA11y = {
 export const floatingInputCases: UIComponentCases = {
   component: 'FloatingInput',
   ref: {},
+  declaredProps: { props: 'element' },
   cases: [
     { name: 'defaults', props: { placeholder: 'Email address' } },
     { name: 'no placeholder', a11y: NO_PLACEHOLDER, props: { name: 'anon' } },

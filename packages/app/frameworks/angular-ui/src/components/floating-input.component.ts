@@ -5,6 +5,7 @@
  */
 
 import {
+  type AfterViewChecked,
   type AfterViewInit,
   Component,
   ElementRef,
@@ -21,7 +22,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
 import { nextInstanceId } from '../utilities/ids.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { adoptHostDataMolId, moveRestAttributes } from '../utilities/rest-attrs.js'
 
 /**
  * FloatingInput component.
@@ -40,6 +41,8 @@ import { moveRestAttributes } from '../utilities/rest-attrs.js'
     'value',
     'defaultValue',
     'id',
+    'automationId',
+    'dataMolId: data-mol-id',
     'onFocus',
     'onBlur',
     'onKeyDown',
@@ -52,6 +55,7 @@ import { moveRestAttributes } from '../utilities/rest-attrs.js'
       [attr.placeholder]="placeholder"
       [class]="classes()"
       [attr.value]="currentValue()"
+      [attr.data-mol-id]="molId()"
       (input)="handleInput($event)"
       (change)="stopPropagation($event)"
       (focusin)="onFocus?.($event)"
@@ -63,7 +67,9 @@ import { moveRestAttributes } from '../utilities/rest-attrs.js'
       <label [attr.for]="inputId()" [class]="cm().floatingLabel">{{ placeholder }}</label>
     }`,
 })
-export class FloatingInput implements OnInit, AfterViewInit, HasElement<HTMLInputElement> {
+export class FloatingInput
+  implements OnInit, AfterViewInit, AfterViewChecked, HasElement<HTMLInputElement>
+{
   /** Placeholder text, also rendered as the floating label. */
   placeholder?: string
   /** Extra classes joined onto the input classes. */
@@ -74,6 +80,10 @@ export class FloatingInput implements OnInit, AfterViewInit, HasElement<HTMLInpu
   defaultValue?: string
   /** Explicit input id. */
   id?: string
+  /** `data-mol-id` automation id (React's `automationId`). */
+  automationId?: string
+  /** A `data-mol-id` given as a plain rest attribute (React's `rootProps` precedence). */
+  dataMolId?: string
 
   /** React's `onFocus`, which React spreads onto the <input>: its `currentTarget` is that element. */
   onFocus?: FocusEventHandler
@@ -102,6 +112,8 @@ export class FloatingInput implements OnInit, AfterViewInit, HasElement<HTMLInpu
   /** The per-instance id used when the caller gives none (React's `useId`). */
   private readonly generatedId = nextInstanceId()
   private internalValue = ''
+  /** The `data-mol-id` a caller bound on the host (React spreads it onto the input). */
+  private externalMolId: string | undefined
 
   /**
    * The current class map.
@@ -118,6 +130,14 @@ export class FloatingInput implements OnInit, AfterViewInit, HasElement<HTMLInpu
    */
   inputId(): string {
     return this.id || this.generatedId
+  }
+
+  /**
+   * The `data-mol-id` value (`automationId` wins over a rest `data-mol-id`).
+   * @returns The attribute value.
+   */
+  molId(): string | undefined {
+    return this.automationId ?? this.dataMolId ?? this.externalMolId
   }
 
   /**
@@ -178,6 +198,27 @@ export class FloatingInput implements OnInit, AfterViewInit, HasElement<HTMLInpu
    * spread puts them.
    */
   ngAfterViewInit(): void {
+    this.adoptHostMolId()
     moveRestAttributes(this.host.nativeElement, this.inputEl?.nativeElement)
+  }
+
+  /**
+   * Puts a `data-mol-id` bound on the host onto the input in the pass that bound it (the host
+   * attribute is written after this component's view is checked).
+   */
+  ngAfterViewChecked(): void {
+    this.adoptHostMolId()
+  }
+
+  /** Takes a `data-mol-id` off the host and keeps it for the input's binding. */
+  private adoptHostMolId(): void {
+    adoptHostDataMolId(
+      this.host.nativeElement,
+      this.inputEl?.nativeElement,
+      (id) => {
+        this.externalMolId = id
+      },
+      () => this.molId(),
+    )
   }
 }
