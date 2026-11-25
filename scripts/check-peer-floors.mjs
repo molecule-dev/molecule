@@ -1201,10 +1201,12 @@ export function findPackages(dir, out = []) {
     out.push(dir)
     return out
   }
-  for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry === 'dist' || entry.startsWith('.')) continue
-    const full = join(dir, entry)
-    if (statSync(full).isDirectory()) findPackages(full, out)
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.'))
+      continue
+    const full = join(dir, entry.name)
+    if (entry.isDirectory() || (entry.isSymbolicLink() && statSync(full).isDirectory()))
+      findPackages(full, out)
   }
   return out
 }
@@ -1215,10 +1217,11 @@ export function findPackages(dir, out = []) {
  *
  * @param root - The monorepo root (its `packages/` is scanned).
  * @param paths - Paths relative to `root`, as `git diff --name-only` prints them.
+ * @param packages - Package directories already discovered by the caller, if available.
  * @returns Package directories relative to `root`.
  */
-export function packagesForPaths(root, paths) {
-  const dirs = findPackages(join(root, 'packages')).map((dir) => relative(root, dir))
+export function packagesForPaths(root, paths, packages = findPackages(join(root, 'packages'))) {
+  const dirs = packages.map((dir) => relative(root, dir))
   const out = new Set()
   for (const path of paths) {
     const dir = dirs.find((d) => path === `${d}/package.json` || path.startsWith(`${d}/src/`))

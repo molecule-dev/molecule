@@ -599,3 +599,210 @@ it('keeps every path that is not a package manifest, and a manifest gone from ei
     ),
   ).toEqual(['packages/a/package.json'])
 })
+
+const componentForms = [
+  {
+    framework: 'react',
+    extension: 'tsx',
+    source: `import { Modal as Dialog } from 'KIT'\n\nexport const render = <Dialog open initialFocus />\n`,
+    contract: (extra: string) =>
+      `export declare function Modal(props: { open?: boolean; ${extra} }): null`,
+  },
+  {
+    framework: 'solid',
+    extension: 'tsx',
+    source: `import * as Kit from 'KIT'\n\nexport const render = <Kit.Modal open initialFocus ref={() => {}} />\n`,
+    contract: (extra: string) =>
+      `export declare function Modal(props: { open?: boolean; ${extra} ${extra ? '; ref?: () => void' : ''} }): null`,
+  },
+  {
+    framework: 'vue',
+    extension: 'ts',
+    source: `import { h as render } from 'vue'\nimport { Modal } from 'KIT'\nexport const feature = render(Modal, { open: true, ['initialFocus']: true, 'data-test': 'dialog' })\n`,
+    contract: (extra: string) =>
+      `export declare const Modal: new () => { $props: { open?: boolean; ${extra} } }`,
+  },
+  {
+    framework: 'angular',
+    extension: 'ts',
+    source: `import { Component } from '@angular/core'\nimport { Modal as Dialog } from 'KIT'\n@Component({ imports: [Dialog], template: \`@if (true) { <button kit-modal [open]="true" [initialFocus]="true" [attr.other]="true" data-test="dialog"></button> }\` })\nexport class Feature {}\n`,
+    contract: (extra: string) =>
+      `type Declaration<A, B, C, D> = [A, B, C, D]; export declare class Modal { static ɵcmp: Declaration<Modal, 'button[kit-modal]', never, { open: 'open'; ${extra ? "control: { alias: 'initialFocus' }; automationId: { alias: 'data-test' }" : ''} }> }`,
+  },
+  {
+    framework: 'svelte',
+    extension: 'svelte',
+    source: `<script lang="ts">import { Modal } from 'KIT'</script>\n{#if true}\n  <Modal open bind:initialFocus={value} />\n{/if}\n`,
+    contract: (extra: string) =>
+      `export declare function Modal(internal: unknown, props: { open?: boolean; ${extra} }): void`,
+  },
+]
+
+function componentFixture(form: (typeof componentForms)[number], range = '^1.1.0') {
+  const peer = `@molecule/app-ui-${form.framework}`
+  const exports = { './modal': { types: './dist/modal.d.ts', import: './dist/modal.js' } }
+  publishes(peer, ['1.3.0', '1.2.0', '1.1.0'])
+  for (const version of ['1.1.0', '1.2.0', '1.3.0'])
+    publishedFile(
+      peer,
+      version,
+      { exports },
+      {
+        'dist/modal.d.ts': form.contract(version === '1.3.0' ? 'initialFocus?: boolean' : ''),
+      },
+    )
+  write('packages/kit/package.json', { name: peer, version: '1.4.0', type: 'module', exports })
+  write('packages/kit/src/modal.ts', form.contract('initialFocus?: boolean'))
+  write(`${feature}/package.json`, {
+    name: '@molecule/floor-feature',
+    type: 'module',
+    peerDependencies: { [peer]: range },
+  })
+  write(`${feature}/tsconfig.json`, {
+    compilerOptions: {
+      strict: true,
+      target: 'ES2022',
+      module: 'NodeNext',
+      jsx: 'preserve',
+      types: [],
+    },
+    include: ['src/**/*'],
+  })
+  if (form.framework === 'vue') {
+    write(`${feature}/node_modules/vue/package.json`, { types: 'index.d.ts' })
+    write(
+      `${feature}/node_modules/vue/index.d.ts`,
+      'export declare function h(component: object, props: Record<string, unknown>): number',
+    )
+  }
+  if (form.framework === 'angular') {
+    write(`${feature}/node_modules/@angular/core/package.json`, { types: 'index.d.ts' })
+    write(
+      `${feature}/node_modules/@angular/core/index.d.ts`,
+      'export declare function Component(options: object): ClassDecorator',
+    )
+  }
+  if (form.framework === 'svelte') write(`${feature}/src/index.ts`, 'export {}')
+  const file = `${feature}/src/Feature.${form.extension}`
+  const source = form.source.replace('KIT', `${peer}/modal`)
+  write(file, source)
+  return { peer, file, source }
+}
+
+it.each(componentForms)(
+  'checks $framework bindings against the first published peer that declares the prop',
+  async (form) => {
+    const { peer, file } = componentFixture(form)
+    const only = new Set([feature])
+    const [row] = await scanPeerFloorTypes(root, only, { propsOnly: true })
+    expect(row.diagnostics).toEqual([
+      expect.objectContaining({
+        file,
+        line: 3,
+        prop: 'initialFocus',
+        component: 'Modal',
+        message: `Modal does not declare prop "initialFocus" at the ${peer}@1.1.0 floor (peer range "^1.1.0").`,
+        fixes: [{ peer, floor: '1.1.0', version: '1.3.0' }],
+      }),
+    ])
+
+    componentFixture(form, '^1.3.0')
+    const [raised] = await scanPeerFloorTypes(root, only, { propsOnly: true })
+    expect(raised.diagnostics).toEqual([])
+  },
+)
+
+it('compares new bindings within selected packages and skips unchanged binding names', async () => {
+  const form = componentForms[2]
+  const { peer, file, source } = componentFixture(form)
+  const other = 'packages/unstaged'
+  write(`${other}/package.json`, {
+    name: '@molecule/unstaged',
+    peerDependencies: { [peer]: '^1.1.0' },
+  })
+  write(`${other}/src/Feature.ts`, source)
+  const testFile = `${feature}/src/Feature.test.js`
+  write(testFile, source)
+  const only = new Set([feature])
+  const [unchanged] = await scanPeerFloorTypes(root, only, {
+    propsOnly: true,
+    propPaths: [file],
+    propBefore: () => source.replace('open: true', 'open: false'),
+  })
+  expect(unchanged.diagnostics).toEqual([])
+  expect(fetches).toEqual([])
+
+  const changed = await scanPeerFloorTypes(root, only, {
+    propsOnly: true,
+    propPaths: [file, testFile],
+    propBefore: () => source.replace("['initialFocus']: true, ", ''),
+  })
+  expect(
+    changed.flatMap((row: { diagnostics: { file: string }[] }) =>
+      row.diagnostics.map((diag) => diag.file),
+    ),
+  ).toEqual([file])
+})
+
+it('rejects a new Vue prop through the normal type gate when h accepts the call', async () => {
+  const { file, source } = componentFixture(componentForms[2])
+  const before = source.replace("['initialFocus']: true, ", '')
+  write(
+    file,
+    source
+      .replace("['initialFocus']: true", '...focusProps')
+      .replace(
+        'export const feature',
+        "const focusProps = { 'initial-focus': true }\nexport const feature",
+      ),
+  )
+  const [row] = await scanPeerFloorTypes(root, null, {
+    paths: [file],
+    propPaths: [file],
+    propBefore: () => before,
+  })
+  expect(row.diagnostics).toEqual([
+    expect.objectContaining({ file, line: 3, component: 'Modal', prop: 'initial-focus' }),
+  ])
+})
+
+it.each(['angular', 'svelte'])(
+  'finds an unpublished %s prop in the authored kit',
+  async (framework) => {
+    const form = componentForms.find((entry) => entry.framework === framework)
+    if (!form) throw new Error(`No ${framework} fixture`)
+    const { peer, file, source } = componentFixture(form)
+    publishes(peer, ['1.1.0'])
+    if (framework === 'angular') {
+      write(
+        'packages/kit/src/modal.ts',
+        `import { Component, input } from '@angular/core'
+type Declaration<A, B, C, D> = [A, B, C, D]
+declare class Base {
+  static ɵdir: Declaration<Base, '[base]', never, { open: 'open' }>
+}
+@Component({ selector: 'button[kit-modal]', template: '' })
+export class Modal extends Base {
+  control = input(false, { alias: 'initialFocus' })
+}`,
+      )
+    } else {
+      write(file, source.replace('<script lang=', '<script module lang='))
+      write('packages/kit/src/modal.ts', "export { default as Modal } from './Modal.svelte'\n")
+      write(
+        'packages/kit/src/Modal.svelte',
+        `<script lang="ts">
+  let { open, initialFocus }: { open?: boolean; initialFocus?: boolean } = $props()
+</script>`,
+      )
+    }
+    const [row] = await scanPeerFloorTypes(root, new Set([feature]), { propsOnly: true })
+    expect(row.diagnostics).toEqual([
+      expect.objectContaining({
+        file,
+        prop: 'initialFocus',
+        fixes: [{ peer, floor: '1.1.0', version: '1.4.0' }],
+      }),
+    ])
+  },
+)
