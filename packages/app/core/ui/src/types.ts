@@ -2672,6 +2672,11 @@ export interface UIClassMap extends UIClassMapNativeSplit {
    */
   sp(property: SpacingProperty, scale: SpacingScale): string
   /**
+   * Returns a spacing class for a margin. In addition to the spacing scale, margins accept
+   * `'auto'` to take up available space.
+   */
+  sp(property: 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr', scale: SpacingScale | 'auto'): string
+  /**
    * Returns a style object resolved from a compound spacing spec.
    * Use on the `style` prop — avoids CSS class ordering conflicts entirely.
    * More specific properties override less specific ones (e.g. `pr` overrides `px` overrides `p`).

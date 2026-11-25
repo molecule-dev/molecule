@@ -7,6 +7,7 @@
 import {
   type ChangeEvent,
   createElement,
+  type FocusEvent,
   type ReactElement,
   type RefObject,
   useCallback,
@@ -16,6 +17,7 @@ import {
 
 import type { TextFieldProps } from '@molecule/app-ui'
 
+import { pasteHandler } from './paste.js'
 import { useElementRef } from './ref.js'
 import { webElementStyle } from './style.js'
 import type { ElementRefProps } from './types.js'
@@ -39,6 +41,9 @@ export function TextField({
   webStyle,
   onChange,
   onValueChange,
+  onFocus,
+  onPasteText,
+  selectTextOnFocus,
   ref,
   ...props
 }: TextFieldProps & ElementRefProps): ReactElement {
@@ -65,6 +70,13 @@ export function TextField({
     ...props,
     ...(as === 'input' ? { type } : { rows, cols, wrap }),
     onChange: handleChange,
+    onFocus: selectTextOnFocus
+      ? (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+          event.currentTarget.select()
+          onFocus?.(event)
+        }
+      : onFocus,
+    onPaste: pasteHandler(onPasteText),
     ref: setNode,
     style: grow
       ? {

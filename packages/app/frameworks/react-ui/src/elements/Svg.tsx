@@ -8,6 +8,7 @@ import { createElement, type ReactElement } from 'react'
 
 import type {
   SvgCircleProps,
+  SvgElementProps,
   SvgEllipseProps,
   SvgGroupProps,
   SvgLineProps,
@@ -20,7 +21,6 @@ import type {
 } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
 import type { ElementNode, ElementRefProps, ShapeNode } from './types.js'
 
 /**
@@ -31,13 +31,14 @@ import type { ElementNode, ElementRefProps, ShapeNode } from './types.js'
  */
 export function Svg({
   ref,
+  style,
   webStyle,
   ...props
 }: SvgProps<ShapeNode> & ElementRefProps): ReactElement {
   return createElement('svg', {
     ...props,
     ref: useElementRef(ref),
-    style: webElementStyle(undefined, webStyle),
+    style: style || webStyle ? { ...style, ...webStyle } : undefined,
   })
 }
 
@@ -50,6 +51,7 @@ export function Svg({
  */
 export function SvgMarkup({
   ref,
+  style,
   webStyle,
   markup,
   ...props
@@ -57,8 +59,19 @@ export function SvgMarkup({
   return createElement('svg', {
     ...props,
     ref: useElementRef(ref),
-    style: webElementStyle(undefined, webStyle),
+    style: style || webStyle ? { ...style, ...webStyle } : undefined,
     dangerouslySetInnerHTML: { __html: markup },
+  })
+}
+
+/** Applies the CSS escape hatch without introducing an extra node or attribute. */
+function shape<P extends SvgElementProps>(
+  tag: string,
+  { style, webStyle, ...props }: P,
+): ReactElement {
+  return createElement(tag, {
+    ...props,
+    style: style || webStyle ? { ...style, ...webStyle } : undefined,
   })
 }
 
@@ -69,7 +82,7 @@ export function SvgMarkup({
  * @returns The element.
  */
 export function Path(props: SvgPathProps): ReactElement {
-  return createElement('path', props)
+  return shape('path', props)
 }
 
 /**
@@ -79,7 +92,7 @@ export function Path(props: SvgPathProps): ReactElement {
  * @returns The element.
  */
 export function Rect(props: SvgRectProps): ReactElement {
-  return createElement('rect', props)
+  return shape('rect', props)
 }
 
 /**
@@ -89,7 +102,7 @@ export function Rect(props: SvgRectProps): ReactElement {
  * @returns The element.
  */
 export function Circle(props: SvgCircleProps): ReactElement {
-  return createElement('circle', props)
+  return shape('circle', props)
 }
 
 /**
@@ -99,7 +112,7 @@ export function Circle(props: SvgCircleProps): ReactElement {
  * @returns The element.
  */
 export function Ellipse(props: SvgEllipseProps): ReactElement {
-  return createElement('ellipse', props)
+  return shape('ellipse', props)
 }
 
 /**
@@ -109,7 +122,7 @@ export function Ellipse(props: SvgEllipseProps): ReactElement {
  * @returns The element.
  */
 export function Line(props: SvgLineProps): ReactElement {
-  return createElement('line', props)
+  return shape('line', props)
 }
 
 /**
@@ -119,7 +132,7 @@ export function Line(props: SvgLineProps): ReactElement {
  * @returns The element.
  */
 export function Polyline(props: SvgPolyProps): ReactElement {
-  return createElement('polyline', props)
+  return shape('polyline', props)
 }
 
 /**
@@ -129,7 +142,7 @@ export function Polyline(props: SvgPolyProps): ReactElement {
  * @returns The element.
  */
 export function Polygon(props: SvgPolyProps): ReactElement {
-  return createElement('polygon', props)
+  return shape('polygon', props)
 }
 
 /**
@@ -139,7 +152,7 @@ export function Polygon(props: SvgPolyProps): ReactElement {
  * @returns The element.
  */
 export function G(props: SvgGroupProps<ShapeNode>): ReactElement {
-  return createElement('g', props)
+  return shape('g', props)
 }
 
 /**
@@ -149,5 +162,5 @@ export function G(props: SvgGroupProps<ShapeNode>): ReactElement {
  * @returns The element.
  */
 export function SvgText(props: SvgTextProps<ElementNode>): ReactElement {
-  return createElement('text', props)
+  return shape('text', props)
 }

@@ -354,6 +354,16 @@ export interface AriaAttributes {
   'aria-readonly'?: AriaBoolean
   'aria-orientation'?: 'horizontal' | 'vertical'
   'aria-sort'?: 'none' | 'ascending' | 'descending' | 'other'
+  /** Web heading or tree depth. Native announces the depth and keeps the element's role. */
+  'aria-level'?: number
+  /** Web row total. Native exposes collection metadata or announces the localized total. */
+  'aria-rowcount'?: number
+  /** Web column total. Native exposes collection metadata or announces the localized total. */
+  'aria-colcount'?: number
+  /** One-based web row position. Native converts to collection metadata or announces the position. */
+  'aria-rowindex'?: number
+  /** One-based web column position. Native converts to collection metadata or announces the position. */
+  'aria-colindex'?: number
 }
 
 /** Props every element takes. */
@@ -390,6 +400,14 @@ export interface InteractionProps {
   tabIndex?: number
 }
 
+/** Mouse handlers for containers and controls with corresponding device gestures. */
+export interface MousePressProps {
+  /** DOM context menu. Native calls this for a stationary long press or secondary activation. */
+  onContextMenu?: MouseEventHandler
+  /** DOM mouse down. Native calls this on press-in and observes canceled activation. */
+  onMouseDown?: MouseEventHandler
+}
+
 // ============================================================================
 // ELEMENTS
 // ============================================================================
@@ -418,11 +436,17 @@ export type BoxTag =
  * (in a flex container, its own flex item; in any other, a line with its inline siblings). Use
  * {@link PressableProps} for a control: a button, or anything announced as one.
  */
-export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps {
+export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps, MousePressProps {
   /** The web tag. A label activates the first labelable control it wraps. */
   as: BoxTag | 'label'
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
   title?: string
+  /** HTML hidden state. Native excludes the box from layout, hits and accessibility while mounted. */
+  hidden?: boolean
+  /** Web outside mouse down. Native observes outside touches in the enclosing box tree. */
+  onPressOutside?: () => void
+  /** Consumes plain-text paste on the web or through a native field or focused Paste command. */
+  onPasteText?: (text: string) => void
   /** Layout and paint both renderers apply. */
   style?: BoxStyle
   /** Web-only paint. */
@@ -485,6 +509,8 @@ interface TextCommonProps<Node> extends ElementProps {
   webStyle?: WebStyle
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
   title?: string
+  /** Web translation metadata. A device displays the supplied text. */
+  translate?: 'yes' | 'no'
   /** Text: strings, numbers and nested text elements. */
   children?: Node
 }
@@ -510,7 +536,8 @@ export type PressableTag = 'button' | 'div' | 'span' | 'li'
  * Something the user activates (native `Pressable`). A string child renders as the web tag's own
  * text and inside a native `Text`.
  */
-export interface PressableProps<Node = unknown> extends ElementProps, InteractionProps {
+export interface PressableProps<Node = unknown>
+  extends ElementProps, InteractionProps, MousePressProps {
   /** The web tag. */
   as: PressableTag
   /** A button's type: always set it, a button inside a form submits it by default. */
@@ -559,6 +586,23 @@ export interface ElementLinkProps<Node = unknown> extends ElementProps, Interact
   webStyle?: WebStyle
   /** Content: elements, or a string or number. */
   children?: Node
+}
+
+/**
+ * A literal anchor with no router. Web keeps the browsing context (`target`) and link
+ * relationship (`rel`), which have no device equivalent. Both renderers call `onClick` before
+ * the default action and honor `preventDefault()`.
+ */
+export type AnchorProps<Node = unknown> = Omit<
+  ElementLinkProps<Node>,
+  'to' | 'replace' | 'state'
+> & {
+  /**
+   * The literal `href` on the web. A device passes absolute URLs to the OS, resolves relative
+   * URLs against the app's configured public document URL, and stays on the current screen for
+   * `'#'`. A relative URL with no configured base reports a diagnostic on press.
+   */
+  href: string
 }
 
 /** A single-line or multi-line text field (native `TextInput`). */
@@ -615,8 +659,18 @@ export interface TextFieldProps extends ElementProps, InteractionProps {
   title?: string
   /** The autofill hint. */
   autoComplete?: string
+  /** Web spell checking. Native passes the boolean on devices with a spell-check control. */
+  spellCheck?: boolean
+  /** Web autocorrection hint. Native maps `'on'` and `'off'` to a boolean. */
+  autoCorrect?: 'on' | 'off'
+  /** Web return-key label. Native uses the hint when the platform supports it. */
+  enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
   /** Moves focus to the field when it mounts. */
   autoFocus?: boolean
+  /** Selects the field's text on focus in the browser and on a device. */
+  selectTextOnFocus?: boolean
+  /** Consumes nonempty plain-text paste before insertion and length limits on web and native. */
+  onPasteText?: (text: string) => void
   /** Field name. */
   name?: string
   /**
@@ -631,6 +685,30 @@ export interface TextFieldProps extends ElementProps, InteractionProps {
   /** Layout, paint and text styles both renderers apply. */
   style?: TextStyle
   /** Web-only paint (a field's border and outline resets). */
+  webStyle?: WebStyle
+}
+
+/** A numeric range rendered by the browser's range input or the device's adjustable slider. */
+export interface RangeFieldProps extends ElementProps, InteractionProps {
+  /** Lower bound. The browser and device use 0 when it is omitted. */
+  min?: number
+  /** Upper bound. The browser and device use 100 when it is omitted. */
+  max?: number
+  /** Controlled value. The browser and device clamp and align it to their range. */
+  value?: number
+  /** Initial and reset value when uncontrolled. The browser and device otherwise use the midpoint. */
+  defaultValue?: number
+  /** Allowed value spacing. Both renderers default to 1. Use `'any'` for continuous values. */
+  step?: number | 'any'
+  /** Disables pointer and keyboard edits and excludes the field from forms on both renderers. */
+  disabled?: boolean
+  /** Field name used for form submission on the browser and device. */
+  name?: string
+  /** Called with the numeric value of each user edit on the browser and device. */
+  onValueChange?: (value: number) => void
+  /** Layout and paint applied by both the browser and device. */
+  style?: BoxStyle
+  /** CSS layered over `style` in the browser. The device applies the subset it can draw. */
   webStyle?: WebStyle
 }
 
@@ -832,8 +910,28 @@ export interface SvgPaintProps {
   className?: string
 }
 
+/** SVG inline paint and hit-testing supported by both renderers. */
+export interface SvgStyle extends Omit<SvgPaintProps, 'className' | 'transform'> {
+  /** The CSS hit-testing mode on web and the shape's native hit-testing mode. */
+  pointerEvents?: 'auto' | 'none'
+}
+
+/** Identity, interaction and paint shared by an SVG canvas and its shapes. */
+export interface SvgElementProps extends ElementProps, SvgPaintProps {
+  /** DOM tab order. On a device, a nonnegative value supplies a focusable target. */
+  tabIndex?: number
+  /** DOM click. On a device, draws a shape that can be pressed. */
+  onClick?: MouseEventHandler
+  /** DOM key down. Native routes focused activation through the supplied key handler. */
+  onKeyDown?: KeyboardEventHandler
+  /** Inline SVG paint and hit-testing, applied by the browser and on a device. */
+  style?: SvgStyle
+  /** Additional CSS, applied after `style` by the browser. Shape CSS is omitted on a device. */
+  webStyle?: WebStyle
+}
+
 /** An SVG canvas (native react-native-svg `Svg`). */
-export interface SvgProps<Node = unknown> extends ElementProps, SvgPaintProps {
+export interface SvgProps<Node = unknown> extends SvgElementProps {
   /** Rendered width. */
   width?: number | `${number}%`
   /** Rendered height. */
@@ -862,7 +960,7 @@ export interface SvgMarkupProps extends Omit<SvgProps, 'children'> {
 }
 
 /** An SVG path. */
-export interface SvgPathProps extends SvgPaintProps {
+export interface SvgPathProps extends SvgElementProps {
   /** Path data. */
   d: string
   /** Which areas the path fills. */
@@ -872,7 +970,7 @@ export interface SvgPathProps extends SvgPaintProps {
 }
 
 /** An SVG rectangle. */
-export interface SvgRectProps extends SvgPaintProps {
+export interface SvgRectProps extends SvgElementProps {
   /** Left edge. */
   x?: number
   /** Top edge. */
@@ -888,17 +986,17 @@ export interface SvgRectProps extends SvgPaintProps {
 }
 
 /** An SVG circle. */
-export interface SvgCircleProps extends SvgPaintProps {
-  /** Centre x. */
-  cx: number
-  /** Centre y. */
-  cy: number
+export interface SvgCircleProps extends SvgElementProps {
+  /** Centre x. The web and native SVG defaults are zero. */
+  cx?: number
+  /** Centre y. The web and native SVG defaults are zero. */
+  cy?: number
   /** Radius. */
   r: number
 }
 
 /** An SVG ellipse. */
-export interface SvgEllipseProps extends SvgPaintProps {
+export interface SvgEllipseProps extends SvgElementProps {
   /** Centre x. */
   cx: number
   /** Centre y. */
@@ -910,7 +1008,7 @@ export interface SvgEllipseProps extends SvgPaintProps {
 }
 
 /** An SVG line. */
-export interface SvgLineProps extends SvgPaintProps {
+export interface SvgLineProps extends SvgElementProps {
   /** Start x. */
   x1: number
   /** Start y. */
@@ -922,25 +1020,27 @@ export interface SvgLineProps extends SvgPaintProps {
 }
 
 /** An SVG polyline or polygon. */
-export interface SvgPolyProps extends SvgPaintProps {
+export interface SvgPolyProps extends SvgElementProps {
   /** Points (`'0,0 10,10'`). */
   points: string
 }
 
 /** An SVG group. */
-export interface SvgGroupProps<Node = unknown> extends SvgPaintProps {
+export interface SvgGroupProps<Node = unknown> extends SvgElementProps {
   /** Shapes. */
   children?: Node
 }
 
 /** SVG text. */
-export interface SvgTextProps<Node = unknown> extends SvgPaintProps {
+export interface SvgTextProps<Node = unknown> extends SvgElementProps {
   /** Anchor x. */
   x?: number
   /** Anchor y. */
   y?: number
   /** Horizontal anchor. */
   textAnchor?: 'start' | 'middle' | 'end'
+  /** SVG baseline on the web. Native maps explicit baselines to `alignmentBaseline`. */
+  dominantBaseline?: 'auto' | 'alphabetic' | 'middle' | 'central'
   /** Font size. */
   fontSize?: number
   /** Font weight. */

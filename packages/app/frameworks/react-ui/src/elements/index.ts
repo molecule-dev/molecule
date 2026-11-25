@@ -15,6 +15,7 @@
  * @module
  */
 
+export * from './Anchor.js'
 export * from './Box.js'
 export * from './CheckField.js'
 export * from './Fieldset.js'
@@ -25,6 +26,7 @@ export * from './Image.js'
 export * from './Link.js'
 export * from './measure.js'
 export * from './Pressable.js'
+export * from './RangeField.js'
 export * from './ScrollArea.js'
 export * from './Svg.js'
 export * from './TableBox.js'
