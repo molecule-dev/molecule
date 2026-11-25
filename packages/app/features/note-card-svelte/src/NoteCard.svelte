@@ -12,8 +12,8 @@
 <script lang="ts">
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { type ColorVariant, getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { NoteCardProps } from './types.js'
 
   /**

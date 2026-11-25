@@ -92,3 +92,5 @@ export function generatePaginationRange(
 
   return range
 }
+
+export * from './style.js'

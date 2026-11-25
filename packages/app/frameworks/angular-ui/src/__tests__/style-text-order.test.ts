@@ -86,9 +86,17 @@ describe('styleText through the [style] binding', () => {
       expect(angular.getPropertyValue(longhand), longhand).toBe(expected.getPropertyValue(longhand))
   })
 
+  it('passes custom numbers, zero lengths and priority through Angular', () => {
+    const style = bound({ '--unitScale': 2, marginTop: 0, color: ' red !important ' })
+    expect(style.getPropertyValue('--unitScale')).toBe('2')
+    expect(style.marginTop).toBe('0px')
+    expect(style.color).toBe('red')
+    expect(style.getPropertyPriority('color')).toBe('important')
+  })
+
   it('leaves text whose overlaps already sort in object order as written', () => {
     expect(styleText({ margin: 0, marginTop: 4, color: 'red' })).toBe(
-      'margin: 0px; margin-top: 4px; color: red',
+      'margin: 0; margin-top: 4px; color: red',
     )
     expect(styleText({ gap: 8, padding: '4px 6px' })).toBe('gap: 8px; padding: 4px 6px')
     expect(styleText({ background: 'transparent', backgroundColor: 'red' })).toBe(

@@ -8,10 +8,9 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Button, Input, Select } from '@molecule/app-ui-svelte'
+  import { Button, Input, reactStyle, Select } from '@molecule/app-ui-svelte'
 
   import { operatorById, operatorsFor } from './operators.js'
-  import { reactStyle } from './style.js'
   import type {
     Rule,
     RuleBuilderProps,

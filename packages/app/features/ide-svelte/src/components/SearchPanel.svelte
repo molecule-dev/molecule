@@ -29,33 +29,12 @@
   import { getLogger } from '@molecule/app-logger'
   import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
   import Markup from '../parts/Markup.svelte'
 
   const logger = getLogger('search')
-
-  /**
-   * Applies a style map one property at a time through the CSSOM. Svelte's
-   * first render merges a static `style` text and its directives into one
-   * string and parses it as `cssText`, which drops `background: transparent`
-   * and `border-image: none` beside the border longhands; `setProperty` keeps
-   * every value, exactly as React's per-property writes do.
-   *
-   * @param node - The element the action is attached to.
-   * @param styles - The property/value pairs to apply.
-   * @returns The action's update function.
-   */
-  function styleProperties(
-    node: HTMLElement,
-    styles: Record<string, string>,
-  ): { update: (next: Record<string, string>) => void } {
-    const apply = (next: Record<string, string>): void => {
-      for (const [property, value] of Object.entries(next)) node.style.setProperty(property, value)
-    }
-    apply(styles)
-    return { update: apply }
-  }
 </script>
 
 <script lang="ts">
@@ -396,7 +375,7 @@
           }}
           title={t('ide.search.toggleReplace', undefined, { defaultValue: 'Toggle Replace' })}
           class={cm.cn(cm.touchTargetCompact, cm.shrink0)}
-          use:styleProperties={replaceToggleStyle()}
+          use:reactStyle={replaceToggleStyle()}
         >
           {showReplace ? '▼' : '▶'}
         </button>
@@ -534,7 +513,7 @@
             }
           }}
           class={cm.touchTargetCompact}
-          use:styleProperties={toggleStyle(toggle.active)}
+          use:reactStyle={toggleStyle(toggle.active)}
         >
           <span aria-hidden="true">{toggle.glyph}</span>
         </button>

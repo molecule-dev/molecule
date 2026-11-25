@@ -12,9 +12,8 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Button, Textarea } from '@molecule/app-ui-svelte'
+  import { Button, reactStyle, Textarea } from '@molecule/app-ui-svelte'
 
-  import { starStyle } from './star-style.js'
   import type { RatingFormProps } from './types.js'
 
   let {
@@ -178,7 +177,15 @@
         onmouseenter={() => (hover = n)}
         class={cm.cn(cm.cursorPointer, cm.touchTarget)}
         use:captureStar={n}
-        use:starStyle={n <= display}
+        use:reactStyle={{
+          background: 'none',
+          border: 'none',
+          fontSize: 28,
+          color:
+            n <= display
+              ? 'var(--mol-color-warning, #facc15)'
+              : 'var(--mol-color-border, rgba(128,128,128,0.4))',
+        }}
       >
         ★
       </button>

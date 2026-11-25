@@ -9,8 +9,8 @@
 <script lang="ts">
   import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { TrendChipProps } from './types.js'
 
   let {

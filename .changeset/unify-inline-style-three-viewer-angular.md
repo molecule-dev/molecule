@@ -1,0 +1,5 @@
+---
+'@molecule/app-three-viewer-angular': patch
+---
+
+Use the shared React-compatible inline style helper.

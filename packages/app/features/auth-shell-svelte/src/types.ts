@@ -11,7 +11,10 @@ import type { Writable } from 'svelte/store'
 
 import type { StorageProvider } from '@molecule/app-storage'
 
-import type { AuthShellStyle } from './styles.js'
+/**
+ * The AuthShell components’ inline style object.
+ */
+type AuthShellStyle = Record<string, string | number | undefined | null | false>
 
 /**
  * Shared auth form field values. `email` is the canonical cross-view field;

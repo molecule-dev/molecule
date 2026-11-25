@@ -194,6 +194,14 @@ describe('<AnnotationLayer>', () => {
     expect(pinNodes.length).toBe(3)
   })
 
+  it('applies React-shaped lengths and case-sensitive custom properties to the surface', () => {
+    const container = renderLayer({ pins: [], style: { width: 320, '--pinScale': 2 } })
+    const surface = container.querySelector<HTMLElement>('[data-mol-id="annotation-layer"]')
+
+    expect(surface?.style.width).toBe('320px')
+    expect(surface?.style.getPropertyValue('--pinScale')).toBe('2')
+  })
+
   it('renders the popup only for the active pin', () => {
     const container = renderLayer({ pins: samplePins, activePinId: 'b' })
     const popups = container.querySelectorAll('[data-mol-id="annotation-pin-popup"]')

@@ -11,8 +11,8 @@
 
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyleText } from '@molecule/app-ui-svelte'
 
-  import { styleString } from './css.js'
   import type { AnnotationPinProps } from './types.js'
 
   let {
@@ -44,7 +44,7 @@
 
   /** The wrapper's position (React's `wrapperStyle`). */
   const wrapperStyle = $derived(
-    styleString({
+    reactStyleText({
       position: 'absolute',
       left: normalised ? `${position.x * 100}%` : `${position.x}px`,
       top: normalised ? `${position.y * 100}%` : `${position.y}px`,
@@ -55,7 +55,7 @@
 
   /** The marker button's reset style (React's `markerStyle`). */
   const markerStyle = $derived(
-    styleString({
+    reactStyleText({
       width: 24,
       height: 24,
       border: 'none',
@@ -69,7 +69,7 @@
   )
 
   /** The marker label's style (React's inline `lineHeight` / `pointerEvents`). */
-  const labelStyle = $derived(styleString({ lineHeight: 1, pointerEvents: 'none' }))
+  const labelStyle = $derived(reactStyleText({ lineHeight: 1, pointerEvents: 'none' }))
 
   /** The popup's side-specific style (React's `popupStyle`). */
   const popupStyle = $derived.by(() => {
@@ -105,7 +105,7 @@
         base.transform = 'translate(8px, -50%)'
         break
     }
-    return styleString(base)
+    return reactStyleText(base)
   })
 
   // A snippet cannot tell from its value whether it renders anything, so the fallback note is in

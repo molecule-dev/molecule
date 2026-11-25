@@ -9,7 +9,7 @@
   rules (plain, ctrl/meta, shift) and the same long-press menu on touch.
 
   Styling uses `getClassMap()` (`cm.*`); the inline styles are the row layout the
-  ClassMap can't express, written through the CSSOM as style directives, the way
+  ClassMap can't express, written through the CSSOM with the shared style action, the way
   React writes them (the DOM's `style` attribute is the CSSOM's serialization,
   not a written string).
 -->
@@ -71,11 +71,11 @@
   import { getIcon } from 'material-file-icons'
 
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import Markup from '../parts/Markup.svelte'
   import {
     createLongPress,
-    createStyleWriter,
     getDirColor,
     isExpandedFromState,
     MAX_RENDERED_NODES,
@@ -191,47 +191,33 @@
     node.symlinkTarget ? ' → ' + (node.symlinkTarget.split('/').pop() ?? '') : '',
   )
 
-  let rowEl = $state<HTMLElement | null>(null)
-  let labelEl = $state<HTMLElement | null>(null)
-  const writeRowStyle = createStyleWriter()
-  const writeLabelStyle = createStyleWriter()
-
-  // The row's inline style, written property by property the way React writes it
-  // (the drag tints and tints that revert are per-property writes, and the
-  // touch-device text-selection guard is part of the same style).
-  $effect(() => {
-    writeRowStyle(rowEl, {
-      display: 'flex',
-      'align-items': 'center',
-      gap: '4px',
-      'padding-left': `${depth * 12}px`,
-      'padding-top': '1px',
-      'padding-bottom': '1px',
-      'padding-right': '6px',
-      border: 'none',
-      background: background,
-      outline: outline,
-      'outline-offset': '-1px',
-      color: 'inherit',
-      cursor: 'pointer',
-      'text-align': 'left',
-      opacity: opacity,
-      'font-size': '13px',
-      'line-height': '22px',
-      ...(isCoarse ? { '-webkit-user-select': 'none', 'user-select': 'none' } : {}),
-    })
+  const rowStyle = $derived({
+    display: 'flex',
+    'align-items': 'center',
+    gap: '4px',
+    'padding-left': `${depth * 12}px`,
+    'padding-top': '1px',
+    'padding-bottom': '1px',
+    'padding-right': '6px',
+    border: 'none',
+    background: background,
+    outline: outline,
+    'outline-offset': '-1px',
+    color: 'inherit',
+    cursor: 'pointer',
+    'text-align': 'left',
+    opacity: opacity,
+    'font-size': '13px',
+    'line-height': '22px',
+    ...(isCoarse ? { '-webkit-user-select': 'none', 'user-select': 'none' } : {}),
   })
 
-  // The label's color (a file's status, or the directory's rolled-up one) and the
-  // dimmed symlink.
-  $effect(() => {
-    writeLabelStyle(labelEl, {
-      overflow: 'hidden',
-      'text-overflow': 'ellipsis',
-      'white-space': 'nowrap',
-      color: labelColor,
-      opacity: node.symlinkTarget ? 0.55 : undefined,
-    })
+  const labelStyle = $derived({
+    overflow: 'hidden',
+    'text-overflow': 'ellipsis',
+    'white-space': 'nowrap',
+    color: labelColor,
+    opacity: node.symlinkTarget ? 0.55 : undefined,
   })
 
   /** Opens this row's menu at the pointer, or swallows the browser's. */
@@ -271,7 +257,7 @@
     ondrop={(e) => onDrop(node.path, e)}
     data-explorer-path={node.path}
     class={cm.cn(cm.w('full'), cm.touchTargetCompact)}
-    bind:this={rowEl}
+    use:reactStyle={rowStyle}
   >
     <!-- Icon column — chevron for dirs, file-type icon for files; always 16px so names align -->
     <span style="align-items: center; display: flex; flex-shrink: 0; width: 16px">
@@ -302,7 +288,7 @@
 
     <!-- Label -->
     <span
-      bind:this={labelEl}
+      use:reactStyle={labelStyle}
       style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
     >
       {node.name}{symlinkLabel}

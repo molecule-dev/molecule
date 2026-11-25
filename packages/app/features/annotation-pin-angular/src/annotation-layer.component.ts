@@ -10,9 +10,9 @@ import { Component } from '@angular/core'
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { reactStyleText, toStyleProps } from '@molecule/app-ui-angular'
 
 import { AnnotationPin } from './annotation-pin.component.js'
-import { styleObject, styleString } from './css.js'
 import type { Pin } from './types.js'
 
 /**
@@ -114,12 +114,14 @@ export class AnnotationLayer {
    * @returns The serialised style attribute.
    */
   rootStyle(): string {
-    return styleString({
-      position: 'relative',
-      width: '100%',
-      height: '100%',
-      ...(this.style ?? {}),
-    })
+    return (
+      reactStyleText({
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        ...(this.style ?? {}),
+      }) ?? ''
+    )
   }
 
   /**
@@ -138,7 +140,7 @@ export class AnnotationLayer {
    * @returns The style map.
    */
   addPinStyles(): Record<string, string> {
-    return styleObject({ border: 'none', padding: 0, background: 'transparent' })
+    return toStyleProps({ border: 'none', padding: 0, background: 'transparent' }) ?? {}
   }
 
   /**

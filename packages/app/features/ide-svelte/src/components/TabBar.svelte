@@ -33,6 +33,7 @@
   import type { TabBarProps } from '@molecule/app-ide-panel-logic'
   import { useThemeMode, useTranslation } from '@molecule/app-svelte'
   import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import { useCoarsePointer } from '../hooks/useViewport.js'
   import Markup from '../parts/Markup.svelte'
@@ -153,43 +154,6 @@
       tab.isDiff ? undefined : tab.diagnostics,
       gitStatus,
     )
-  }
-
-  /**
-   * Applies inline styles one property at a time (the way React writes each
-   * one), keeping them current when the record changes. The close control's
-   * style takes this path because its `transition` value names `background`
-   * and `color` — jsdom's cssText parser drops a sibling `background`
-   * declaration that shares an attribute text with such a `transition`
-   * shorthand, while React's per-property writes are immune.
-   * @param node - The host element.
-   * @param styles - The declarations to keep applied.
-   * @returns The action's update hook.
-   */
-  const inlineStyles = (
-    node: HTMLElement,
-    styles: Record<string, string | undefined>,
-  ): { update: (next: Record<string, string | undefined>) => void } => {
-    /**
-     * Applies one record of declarations.
-     * @param next - The declarations.
-     */
-    const apply = (next: Record<string, string | undefined>): void => {
-      for (const [key, value] of Object.entries(next)) {
-        if (value === undefined) node.style.removeProperty(key)
-        else node.style.setProperty(key, value)
-      }
-    }
-    apply(styles)
-    return {
-      /**
-       * Applies the next record of declarations.
-       * @param next - The declarations.
-       */
-      update(next: Record<string, string | undefined>): void {
-        apply(next)
-      },
-    }
   }
 </script>
 
@@ -435,7 +399,7 @@
             onfocusin={() => closeFocusIn(tab)}
             onfocusout={() => closeFocusOut(tab)}
             class={cm.cn(cm.textMuted, cm.textSize('xs'), cm.cursorPointer, cm.touchTargetCompact)}
-            use:inlineStyles={{
+            use:reactStyle={{
               // Square button (equal width/height) with the glyph centered on both
               // axes — no asymmetric padding, so the ✕ sits dead-center in the tab.
               // On touch-first devices neither hover nor the focus reveal applies,

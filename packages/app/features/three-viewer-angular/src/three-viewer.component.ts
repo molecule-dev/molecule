@@ -37,9 +37,8 @@ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Spinner } from '@molecule/app-ui-angular'
+import { reactStyleText, Spinner } from '@molecule/app-ui-angular'
 
-import { styleString } from './css.js'
 import type { ThreeViewerFormat, ThreeViewerLighting } from './types.js'
 
 /**
@@ -233,7 +232,7 @@ function loadModel(src: string, format: ThreeViewerFormat): Promise<Object3D> {
 }
 
 /** The template's overlay placement (React's `overlayStyle`). */
-const OVERLAY_STYLE = styleString({
+const OVERLAY_STYLE = reactStyleText({
   position: 'absolute',
   inset: 0,
   display: 'grid',
@@ -242,7 +241,7 @@ const OVERLAY_STYLE = styleString({
 })
 
 /** The canvas region's own style (React's inline object). */
-const CANVAS_STYLE = styleString({ width: '100%', height: '100%' })
+const CANVAS_STYLE = reactStyleText({ width: '100%', height: '100%' })
 
 /**
  * 3D model viewer wrapping three.js.
@@ -343,7 +342,7 @@ export class ThreeViewer implements AfterViewInit, OnChanges, OnDestroy {
   private readonly i18n = useTranslation()
 
   /** The root element's inline style. */
-  readonly rootStyle = styleString({
+  readonly rootStyle = reactStyleText({
     position: 'relative',
     width: '100%',
     height: '100%',

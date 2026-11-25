@@ -8,9 +8,9 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyleText } from '@molecule/app-ui-svelte'
 
   import AnnotationPin from './AnnotationPin.svelte'
-  import { styleString } from './css.js'
   import type { AnnotationLayerProps } from './types.js'
 
   let {
@@ -37,13 +37,13 @@
 
   /** The layer root's style (React's `rootStyle`: the caller's style wins). */
   const rootStyle = $derived(
-    styleString({ position: 'relative', width: '100%', height: '100%', ...(style ?? {}) }),
+    reactStyleText({ position: 'relative', width: '100%', height: '100%', ...(style ?? {}) }),
   )
 
   // Reset the browser's default button chrome — the add-pin button is an
   // invisible full-surface target, not a visible control.
   const addPinStyle = $derived(
-    styleString({ border: 'none', padding: 0, background: 'transparent' }),
+    reactStyleText({ border: 'none', padding: 0, background: 'transparent' }),
   )
 
   /**

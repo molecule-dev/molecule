@@ -15,9 +15,8 @@
 <script lang="ts">
   import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Avatar } from '@molecule/app-ui-svelte'
+  import { Avatar, type CSSStyle, reactStyle } from '@molecule/app-ui-svelte'
 
-  import { type CSSStyle, reactStyle } from './style.js'
   import type { InboxRowProps } from './types.js'
 
   let {

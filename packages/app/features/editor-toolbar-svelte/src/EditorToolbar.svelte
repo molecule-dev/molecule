@@ -9,9 +9,8 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
-  import { Button } from '@molecule/app-ui-svelte'
+  import { Button, reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { EditorToolbarProps, ToolbarAction } from './types.js'
 
   let {

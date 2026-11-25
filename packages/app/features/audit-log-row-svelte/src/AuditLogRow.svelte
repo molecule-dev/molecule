@@ -22,8 +22,8 @@
   import type { Snippet } from 'svelte'
 
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { AuditLogRowProps } from './types.js'
 
   let { entry, onClick, className }: AuditLogRowProps = $props()

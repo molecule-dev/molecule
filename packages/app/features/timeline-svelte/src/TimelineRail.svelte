@@ -6,8 +6,8 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { type CSSStyle, reactStyle } from '@molecule/app-ui-svelte'
 
-  import { type CSSStyle, reactStyle } from './style.js'
   import type { TimelineRailProps } from './types.js'
 
   let { marker, connector = true, className }: TimelineRailProps = $props()

@@ -11,6 +11,7 @@
   import { CanvasEdge, CanvasNode, CanvasSurface } from '@molecule/app-feature-canvas-svelte'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import {
     computeHorizontalTreePositions,
@@ -18,7 +19,6 @@
     DEFAULT_NODE_HEIGHT,
     DEFAULT_NODE_WIDTH,
   } from './layout.js'
-  import { reactInlineStyle } from './style.js'
   import { addChild, setNodeText, toggleCollapsed } from './tree.js'
   import type { MindMapCanvasProps, MindMapLayoutResult, MindMapNode } from './types.js'
   import { reactInputValue } from './value.js'
@@ -216,7 +216,7 @@
                 onblur={commitEdit}
                 onkeydown={onEditKeyDown}
                 onpointerdown={(event) => event.stopPropagation()}
-                use:reactInlineStyle={{
+                use:reactStyle={{
                   width: '100%',
                   background: 'transparent',
                   border: 'none',

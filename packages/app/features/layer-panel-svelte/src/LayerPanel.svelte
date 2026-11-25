@@ -9,9 +9,9 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { type CSSStyle as InlineStyle, reactStyle } from '@molecule/app-ui-svelte'
 
-  import type { InlineStyle } from './dom.js'
-  import { defaultInputValue, inlineStyle } from './dom.js'
+  import { defaultInputValue } from './dom.js'
   import type { Layer, LayerPanelProps } from './types.js'
   import { formatOpacityPercent, moveLayer } from './utilities.js'
 
@@ -229,7 +229,7 @@
       onpointerup={endDrag}
       onpointercancel={endDrag}
       class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.cursorPointer)}
-      use:inlineStyle={rowStyle(layer, index)}
+      use:reactStyle={rowStyle(layer, index)}
     >
       <button
         type="button"
@@ -239,7 +239,7 @@
         aria-pressed={!layer.visible}
         data-mol-id={`layer-panel-visibility-${layer.id}`}
         class={cm.cn(cm.cursorPointer, cm.touchTarget)}
-        use:inlineStyle={TOGGLE_STYLE}
+        use:reactStyle={TOGGLE_STYLE}
       >
         <span aria-hidden="true">{layer.visible ? '\u{1F441}' : '\u{1F441}\u{0338}'}</span>
       </button>
@@ -252,13 +252,13 @@
         aria-pressed={layer.locked}
         data-mol-id={`layer-panel-lock-${layer.id}`}
         class={cm.cn(cm.cursorPointer, cm.touchTarget)}
-        use:inlineStyle={TOGGLE_STYLE}
+        use:reactStyle={TOGGLE_STYLE}
       >
         <span aria-hidden="true">{layer.locked ? '\u{1F512}' : '\u{1F513}'}</span>
       </button>
 
       {#if layer.thumbnail}
-        <img src={layer.thumbnail} alt="" aria-hidden="true" use:inlineStyle={THUMB_STYLE} />
+        <img src={layer.thumbnail} alt="" aria-hidden="true" use:reactStyle={THUMB_STYLE} />
       {/if}
 
       <!-- No ARIA role: the wrapper is React's plain `<div>`, and adding a role
@@ -285,7 +285,7 @@
             onpointerdown={(event: PointerEvent) => event.stopPropagation()}
             aria-label={t('layerPanel.renameInput', {}, { defaultValue: 'Rename layer' })}
             data-mol-id={`layer-panel-rename-${layer.id}`}
-            use:inlineStyle={INPUT_STYLE}
+            use:reactStyle={INPUT_STYLE}
           />
         {:else}
           <button
@@ -294,7 +294,7 @@
             aria-current={isActive ? 'true' : undefined}
             data-mol-id={`layer-panel-name-${layer.id}`}
             class={cm.cn(cm.cursorPointer)}
-            use:inlineStyle={NAME_STYLE}
+            use:reactStyle={NAME_STYLE}
           >
             {layer.name}
           </button>
@@ -305,7 +305,7 @@
         <span
           aria-label={t('layerPanel.metadata', {}, { defaultValue: 'Layer metadata' })}
           data-mol-id={`layer-panel-meta-${layer.id}`}
-          use:inlineStyle={META_STYLE}
+          use:reactStyle={META_STYLE}
         >
           {metaText(layer, opacityLabel)}
         </span>

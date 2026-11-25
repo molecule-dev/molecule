@@ -15,7 +15,7 @@ import { type Component, For, Show } from 'solid-js'
 import { useTranslation } from '@molecule/app-solid'
 import type { KitEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Button, Input, Select } from '@molecule/app-ui-solid'
+import { Button, Input, Select, toStyleProps } from '@molecule/app-ui-solid'
 
 import { operatorById, operatorsFor } from './operators.js'
 import type {
@@ -35,22 +35,6 @@ import {
   replaceById,
   toggleGroupOp,
 } from './utilities.js'
-
-/**
- * Converts a React-style style object (camelCase keys) into the kebab-case
- * object Solid's style runtime applies through `setProperty`, so the rendered
- * inline style matches React's byte for byte.
- *
- * @param style - The ClassMap spacing record (`cm.sp(...)`).
- * @returns The kebab-case style record.
- */
-const styleProps = (style: Record<string, string>): Record<string, string> =>
-  Object.fromEntries(
-    Object.entries(style).map(([key, value]) => [
-      key.startsWith('--') ? key : key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`),
-      value,
-    ]),
-  )
 
 /**
  * Reads the string a native input event carries.
@@ -108,7 +92,7 @@ const Group: Component<GroupProps> = (props) => {
   return (
     <div
       class={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }), cm.borderAll, cm.surface)}
-      style={styleProps(cm.sp({ p: 3 }))}
+      style={toStyleProps(cm.sp({ p: 3 }))}
       data-mol-id={`rule-builder-group-${props.group.id}`}
       data-group-op={props.group.op}
     >
@@ -140,7 +124,7 @@ const Group: Component<GroupProps> = (props) => {
         </Show>
       </div>
 
-      <div class={cm.flex({ direction: 'col', gap: 'xs' })} style={styleProps(cm.sp({ p: 2 }))}>
+      <div class={cm.flex({ direction: 'col', gap: 'xs' })} style={toStyleProps(cm.sp({ p: 2 }))}>
         <For each={props.group.children}>
           {(child) => (
             <Show

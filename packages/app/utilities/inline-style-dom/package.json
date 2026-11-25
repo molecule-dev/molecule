@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/app-inline-style-dom",
+  "version": "1.0.0",
+  "description": "React-compatible inline style serialization and DOM updates",
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "inline-style",
+    "css",
+    "dom"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "jsdom": "31.0.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/utilities/inline-style-dom"
+  },
+  "homepage": "https://www.molecule.dev/packages/app-inline-style-dom",
+  "bugs": {
+    "url": "https://github.com/molecule-dev/molecule/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

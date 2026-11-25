@@ -5,8 +5,8 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyleText } from '@molecule/app-ui-svelte'
 
-  import { toStyleText } from './styles.js'
   import type { AuthShellHeadingProps } from './types.js'
 
   let { heading, subheading, eyebrow, headingClassName, headingStyle }: AuthShellHeadingProps =
@@ -28,7 +28,7 @@
       cm.authShellHeadingTitle,
       headingClassName,
     )}
-    style={toStyleText(headingStyle)}
+    style={reactStyleText(headingStyle)}
   >
     {heading}
   </h1>

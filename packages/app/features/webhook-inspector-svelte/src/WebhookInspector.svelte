@@ -10,8 +10,8 @@
   import { useTranslation } from '@molecule/app-svelte'
   import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { WebhookDelivery, WebhookInspectorProps } from './types.js'
 
   let { deliveries, onRetry, onSelect, selectedId, className }: WebhookInspectorProps = $props()

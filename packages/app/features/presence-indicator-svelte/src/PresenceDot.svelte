@@ -7,8 +7,8 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { type CSSStyle, reactStyle } from '@molecule/app-ui-svelte'
 
-  import { type CSSStyle, reactStyle } from './style.js'
   import type { PresenceDotProps, PresenceStatus } from './types.js'
 
   let {

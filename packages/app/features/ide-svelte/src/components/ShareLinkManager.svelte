@@ -25,6 +25,7 @@
 <script module lang="ts">
   import { copyTextWithFallback } from '@molecule/app-clipboard'
   import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   /** Props for {@link ShareLinkManager} — the React prop names, React's own contract. */
   export interface ShareLinkManagerProps {
@@ -227,31 +228,6 @@
     }
   }
 
-  /**
-   * Applies React's inline style record one property at a time, so the DOM's
-   * `style` attribute is the CSSOM's own serialization (a `cssText` write
-   * would drop the `background` shorthand jsdom cannot expand).
-   * @param node - The element to style.
-   * @param styles - The declarations (CSS property names).
-   * @returns The action's update hook.
-   */
-  function fieldStyles(
-    node: HTMLElement,
-    styles: Record<string, string>,
-  ): { update: (next: Record<string, string>) => void } {
-    /** Applies one record of declarations. */
-    const apply = (next: Record<string, string>): void => {
-      for (const [key, value] of Object.entries(next)) node.style.setProperty(key, value)
-    }
-    apply(styles)
-    return {
-      /** Applies the next record of declarations. */
-      update(next: Record<string, string>): void {
-        apply(next)
-      },
-    }
-  }
-
   /** The copy field's inline style — React's `fieldStyle`, per property. */
   const fieldStyle = $derived.by((): Record<string, string> => ({
     width: '100%',
@@ -296,7 +272,7 @@
               handleCopy(key, url)
             }}
             class={cm.textSize('sm')}
-            use:fieldStyles={{ ...fieldStyle, flex: '1 1 0%', cursor: 'pointer' }}
+            use:reactStyle={{ ...fieldStyle, flex: '1 1 0%', cursor: 'pointer' }}
           />
           <button
             type="button"
@@ -361,7 +337,7 @@
               role = event.currentTarget.value as ShareRole
             }}
             class={cm.textSize('sm')}
-            use:fieldStyles={fieldStyle}
+            use:reactStyle={fieldStyle}
           >
             {#each offeredRoles as r (r)}
               <option value={r}>{shareRoleLabel(t, r)}</option>

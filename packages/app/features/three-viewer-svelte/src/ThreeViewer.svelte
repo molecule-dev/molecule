@@ -11,9 +11,8 @@
 
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Spinner } from '@molecule/app-ui-svelte'
+  import { reactStyleText, Spinner } from '@molecule/app-ui-svelte'
 
-  import { styleString } from './css.js'
   import { disposeObject3D, resolveFormat } from './helpers.js'
   import { applyLighting, fitCameraToObject, loadModel } from './scene.js'
   import type { ThreeViewerFormat, ThreeViewerLighting, ThreeViewerProps } from './types.js'
@@ -227,14 +226,14 @@
     teardown = undefined
   })
 
-  const rootStyle = styleString({
+  const rootStyle = reactStyleText({
     position: 'relative',
     width: '100%',
     height: '100%',
     minHeight: 240,
   })
-  const canvasStyle = styleString({ width: '100%', height: '100%' })
-  const overlayStyle = styleString({
+  const canvasStyle = reactStyleText({ width: '100%', height: '100%' })
+  const overlayStyle = reactStyleText({
     position: 'absolute',
     inset: 0,
     display: 'grid',

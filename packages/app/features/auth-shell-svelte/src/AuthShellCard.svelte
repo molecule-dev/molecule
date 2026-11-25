@@ -5,8 +5,8 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyleText } from '@molecule/app-ui-svelte'
 
-  import { toStyleText } from './styles.js'
   import type { AuthShellCardProps } from './types.js'
 
   let {
@@ -30,7 +30,7 @@
       surfaceClassName ?? cm.authShellCardSurface,
       className,
     )}
-    style={toStyleText(style)}
+    style={reactStyleText(style)}
     data-mol-id={dataMolId}
   >
     {@render children?.()}

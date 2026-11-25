@@ -12,8 +12,8 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { TabFilterProps, TabFilterTab } from './types.js'
 
   let {

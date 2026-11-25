@@ -8,10 +8,9 @@
   import { FileDropzone } from '@molecule/app-file-dropzone-svelte'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Button } from '@molecule/app-ui-svelte'
+  import { Button, reactStyleText } from '@molecule/app-ui-svelte'
 
   import { reflectChecked } from './checked.js'
-  import { styleText } from './style.js'
   import type {
     MatrixQuestion,
     MultiChoiceMultiQuestion,
@@ -124,8 +123,8 @@
   })
 
   /** One single-pick option's inline style. */
-  const optionStyle = (selected: boolean): string =>
-    styleText({
+  const optionStyle = (selected: boolean): string | undefined =>
+    reactStyleText({
       'border-radius': '8px',
       border: `1px solid ${selected ? 'currentColor' : BORDER}`,
       opacity: readOnly ? '0.6' : '1',
@@ -133,8 +132,8 @@
     })
 
   /** One rating-scale point's inline style. */
-  const ratingStyle = (selected: boolean): string =>
-    styleText({
+  const ratingStyle = (selected: boolean): string | undefined =>
+    reactStyleText({
       border: `1px solid ${selected ? 'currentColor' : BORDER}`,
       width: '36px',
       height: '36px',
@@ -143,8 +142,8 @@
     })
 
   /** One NPS point's inline style. */
-  const npsStyle = (selected: boolean): string =>
-    styleText({
+  const npsStyle = (selected: boolean): string | undefined =>
+    reactStyleText({
       border: `1px solid ${selected ? 'currentColor' : BORDER}`,
       'border-radius': '6px',
       width: '32px',

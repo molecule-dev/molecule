@@ -52,7 +52,7 @@
     "@molecule/app-file-dropzone-svelte": "^1.0.0",
     "@molecule/app-svelte": "^3.5.0",
     "@molecule/app-ui": "^1.1.0",
-    "@molecule/app-ui-svelte": "^1.1.0",
+    "@molecule/app-ui-svelte": "^1.6.0",
     "svelte": "^5.0.0"
   },
   "devDependencies": {

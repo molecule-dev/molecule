@@ -7,8 +7,8 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { inlineStyle } from './inline-style.js'
   import type { VoteClusterProps, VoteValue } from './types.js'
 
   let {
@@ -128,7 +128,7 @@
     data-vote="up"
     data-mol-id="vote-cluster-up"
     class={cm.touchTarget}
-    use:inlineStyle={upStyle}
+    use:reactStyle={upStyle}
   >
     <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
       ><path d="M12 5l7 9H5l7-9z" fill="currentColor"></path></svg
@@ -139,7 +139,7 @@
     aria-label={scoreLabel}
     aria-live="polite"
     data-vote="score"
-    use:inlineStyle={scoreStyle}>{score}</span
+    use:reactStyle={scoreStyle}>{score}</span
   >
   <button
     type="button"
@@ -150,7 +150,7 @@
     data-vote="down"
     data-mol-id="vote-cluster-down"
     class={cm.touchTarget}
-    use:inlineStyle={downStyle}
+    use:reactStyle={downStyle}
   >
     <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
       ><path d="M12 19l-7-9h14l-7 9z" fill="currentColor"></path></svg

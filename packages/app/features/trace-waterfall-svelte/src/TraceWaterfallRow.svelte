@@ -6,6 +6,7 @@
 <script lang="ts">
   import { useLocale, useT } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import {
     BAR_HEIGHT_PX,
@@ -16,7 +17,6 @@
   } from './constants.js'
   import { translateDuration } from './format.js'
   import { serviceColor } from './layout.js'
-  import { reactStyle } from './style.js'
   import type { Span, SpanRow } from './types.js'
 
   let {

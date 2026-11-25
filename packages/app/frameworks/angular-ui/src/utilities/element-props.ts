@@ -12,7 +12,7 @@
 
 import type { Renderer2 } from '@angular/core'
 
-import { styleText } from './style.js'
+import { reactStyleText } from './style.js'
 import { cn } from './utilities.js'
 
 /**
@@ -31,18 +31,6 @@ const TEXT_BOOLEAN = /^(aria-|data-)|^(contentEditable|draggable|spellCheck)$/
 const isListener = (key: string): boolean => /^on[A-Z]/.test(key)
 
 /**
- * Serializes a React style object for the `style` attribute, ignoring a value
- * that is not an object (React only accepts an object there).
- *
- * @param style - The prop value.
- * @returns The attribute text, or undefined when there is nothing to write.
- */
-const styleAttribute = (style: unknown): string | undefined =>
-  typeof style === 'object' && style !== null
-    ? (styleText(style as Record<string, unknown>) ?? undefined)
-    : undefined
-
-/**
  * Writes a React element-prop record onto one Angular element, re-applying
  * only what changed since the previous {@link ElementPropsWriter.write}.
  *
@@ -52,7 +40,7 @@ const styleAttribute = (style: unknown): string | undefined =>
  *   suffix → capture phase, `onDoubleClick` → `dblclick`); a non-function
  *   value removes the listener, and so does dropping the key.
  * - `className` and `class` compose into one `class` attribute with `cn`.
- * - An object `style` is serialized with `styleText`.
+ * - An object `style` is serialized with `reactStyleText`.
  * - Every other key becomes an attribute: `null`/`undefined` removes it,
  *   `false` removes it (except text booleans, which write `"false"`), and
  *   `true` writes `""` (text booleans write `"true"`). Any other value is
@@ -104,7 +92,7 @@ export class ElementPropsWriter {
       if (skip?.has(key)) continue
       if (key === 'className' || key === 'class') continue
       if (key === 'style') {
-        next.set('style', styleAttribute(value))
+        next.set('style', reactStyleText(value, ' '))
         continue
       }
       next.set(key, value)

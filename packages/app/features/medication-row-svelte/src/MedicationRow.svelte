@@ -10,9 +10,8 @@
 <script lang="ts">
   import { ContentOrElse, PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Card } from '@molecule/app-ui-svelte'
+  import { Card, reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { MedicationRowProps } from './types.js'
 
   let {

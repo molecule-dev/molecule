@@ -34,6 +34,7 @@ import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useLocation } from '@molecule/app-vue'
 
+import { reactStyleProps } from '../style.js'
 import { classOf, type RenderableChildren } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
 import { setDisplayName } from './displayName.js'
@@ -71,70 +72,6 @@ interface Position {
 
 /** Counter backing the generated menu id that stands in for React's `useId()`. */
 let nextGeneratedMenuId = 0
-
-/** CSS properties that take unitless numbers; every other numeric value gets `px`. */
-const UNITLESS_STYLE_PROPERTIES = new Set([
-  'animationIterationCount',
-  'aspectRatio',
-  'borderImageOutset',
-  'borderImageSlice',
-  'borderImageWidth',
-  'columnCount',
-  'columns',
-  'flex',
-  'flexGrow',
-  'flexNegative',
-  'flexOrder',
-  'flexPositive',
-  'flexShrink',
-  'fontSynthesisWeight',
-  'fontWeight',
-  'gridArea',
-  'gridColumn',
-  'gridColumnEnd',
-  'gridColumnStart',
-  'gridRow',
-  'gridRowEnd',
-  'gridRowStart',
-  'lineClamp',
-  'lineHeight',
-  'opacity',
-  'order',
-  'orphans',
-  'scale',
-  'strokeDasharray',
-  'strokeDashoffset',
-  'strokeMiterlimit',
-  'strokeOpacity',
-  'strokeWidth',
-  'tabSize',
-  'widows',
-  'zIndex',
-  'zoom',
-  'fillOpacity',
-  'floodOpacity',
-  'stopOpacity',
-])
-
-/**
- * Applies React's inline-style number rule to a style object: numbers of
- * unit-bearing properties become `"<n>px"` strings. Vue's style patcher sets
- * raw numbers, which the CSSOM silently drops for unit-bearing properties,
- * while React (and therefore the conformance goldens) appends `px`.
- *
- * @param style - A camelCase style object.
- * @returns The same declarations with React's unit spelling.
- */
-function withReactStyleUnits(
-  style: Record<string, string | number | undefined>,
-): Record<string, string | number | undefined> {
-  const out: Record<string, string | number | undefined> = {}
-  for (const [key, value] of Object.entries(style)) {
-    out[key] =
-      typeof value === 'number' && !UNITLESS_STYLE_PROPERTIES.has(key) ? `${value}px` : value
-  }
-  return out
-}
 
 /** Indices of the non-separator, non-disabled items — the set Arrow/Home/End navigate. */
 function focusableItemIndexes(items: DropdownItem<string>[]): number[] {
@@ -517,15 +454,16 @@ export const Dropdown = defineComponent({
             ? props.width
             : props.width
 
-      const styleProp = props.style as Record<string, string | number> | undefined
-      const menuStyle: Record<string, string | number | undefined> = withReactStyleUnits({
-        ...(styleProp ?? {}),
-        position: 'absolute',
-        top: position.value.top,
-        left: position.value.left,
-        zIndex: 50,
-        ...(menuWidth !== undefined ? { width: menuWidth } : {}),
-      })
+      const menuStyle = reactStyleProps([
+        props.style,
+        {
+          position: 'absolute',
+          top: position.value.top,
+          left: position.value.left,
+          zIndex: 50,
+          ...(menuWidth !== undefined ? { width: menuWidth } : {}),
+        },
+      ])
 
       const target = trigger?.ownerDocument.body
       const menu =

@@ -7,9 +7,9 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { type CSSStyle, reactStyle } from '@molecule/app-ui-svelte'
 
   import NotificationBadge from './NotificationBadge.svelte'
-  import { type CSSStyle, reactStyle } from './style.js'
   import type { NotificationWrapperProps } from './types.js'
 
   let {

@@ -2,8 +2,8 @@ import { type Component, Show } from 'solid-js'
 
 import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
+import { reactStyleText } from '@molecule/app-ui-solid'
 
-import { styleString } from './css.js'
 import type { AnnotationPinProps } from './types.js'
 
 /**
@@ -90,7 +90,7 @@ export const AnnotationPin: Component<AnnotationPinProps> = (props) => {
       class={cm.cn(props.className)}
       data-mol-id="annotation-pin"
       data-pin-selected={selected() ? 'true' : 'false'}
-      style={styleString({
+      style={reactStyleText({
         position: 'absolute',
         left: normalised() ? `${props.position.x * 100}%` : `${props.position.x}px`,
         top: normalised() ? `${props.position.y * 100}%` : `${props.position.y}px`,
@@ -109,7 +109,7 @@ export const AnnotationPin: Component<AnnotationPinProps> = (props) => {
            padding, its own shadow), and the ClassMap supplies the radius and
            cursor as it does for React. */
         class={cm.cn(cm.roundedFull, cm.cursorPointer)}
-        style={styleString({
+        style={reactStyleText({
           width: '24px',
           height: '24px',
           border: 'none',
@@ -124,7 +124,7 @@ export const AnnotationPin: Component<AnnotationPinProps> = (props) => {
         <span
           class={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
           data-mol-id="annotation-pin-label"
-          style={styleString({ lineHeight: '1', pointerEvents: 'none' })}
+          style={reactStyleText({ lineHeight: '1', pointerEvents: 'none' })}
         >
           {props.label}
         </span>
@@ -136,7 +136,7 @@ export const AnnotationPin: Component<AnnotationPinProps> = (props) => {
           data-mol-id="annotation-pin-popup"
           data-popup-side={popupSide()}
           class={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
-          style={styleString(popupStyle(popupSide()))}
+          style={reactStyleText(popupStyle(popupSide()))}
         >
           <div data-mol-id="annotation-pin-popup-body">
             <ResolveNode node={props.note}>

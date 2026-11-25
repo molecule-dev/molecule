@@ -6,8 +6,8 @@
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyleText } from '@molecule/app-ui-svelte'
 
-  import { toStyleText } from './styles.js'
   import type { AuthShellContainerProps } from './types.js'
 
   let { children, style, className, layout = 'centered' }: AuthShellContainerProps = $props()
@@ -26,6 +26,6 @@
   )
 </script>
 
-<div class={cm.cn(base, className)} style={toStyleText(style)}>
+<div class={cm.cn(base, className)} style={reactStyleText(style)}>
   {@render children?.()}
 </div>

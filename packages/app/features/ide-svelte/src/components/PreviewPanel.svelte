@@ -129,94 +129,6 @@
 
   /** The retry button offset. */
   const RETRY_MARGIN_STYLE = 'margin-top: 8px'
-
-  /** One parsed inline-style declaration. */
-  interface StyleDeclaration {
-    name: string
-    value: string
-  }
-
-  /**
-   * Splits an inline style string into declarations, respecting quoted
-   * strings and parentheses (so a `font-family` list or a `var(--x, y)` value
-   * is never split).
-   *
-   * @param text - The CSS text.
-   * @returns The declarations, in source order.
-   */
-  function parseDeclarations(text: string): StyleDeclaration[] {
-    const out: StyleDeclaration[] = []
-    let current = ''
-    let quote: '"' | "'" | null = null
-    let depth = 0
-
-    /** Flushes the pending declaration. */
-    const push = (): void => {
-      const trimmed = current.trim()
-      current = ''
-      if (!trimmed) return
-      const colon = trimmed.indexOf(':')
-      if (colon < 0) return
-      out.push({ name: trimmed.slice(0, colon).trim(), value: trimmed.slice(colon + 1).trim() })
-    }
-
-    for (const char of text) {
-      if (quote) {
-        if (char === quote) quote = null
-        current += char
-        continue
-      }
-      if (char === '"' || char === "'") {
-        quote = char
-        current += char
-        continue
-      }
-      if (char === '(') depth += 1
-      else if (char === ')') depth = Math.max(0, depth - 1)
-      if (char === ';' && depth === 0) {
-        push()
-        continue
-      }
-      current += char
-    }
-    push()
-    return out
-  }
-
-  /**
-   * Applies an inline-style string one property at a time, the way React's
-   * style objects reach the DOM (`style.setProperty` per declaration).
-   * Declarations that disappear from the string are removed again.
-   *
-   * @param node - The element to style.
-   * @param text - The CSS text.
-   * @returns The action's update hook for later values.
-   */
-  function styleText(
-    node: Element & { style: CSSStyleDeclaration },
-    text: string,
-  ): { update(next: string): void } {
-    let names: string[] = []
-
-    /**
-     * Writes one style string onto the element.
-     * @param css - The CSS text.
-     */
-    const apply = (css: string): void => {
-      const declarations = parseDeclarations(css)
-      const nextNames = declarations.map((declaration) => declaration.name)
-      for (const name of names) {
-        if (!nextNames.includes(name)) node.style.removeProperty(name)
-      }
-      for (const declaration of declarations) {
-        node.style.setProperty(declaration.name, declaration.value)
-      }
-      names = nextNames
-    }
-
-    apply(text)
-    return { update: apply }
-  }
 </script>
 
 <script lang="ts">
@@ -234,6 +146,7 @@
   import { Tooltip } from '@molecule/app-ui-svelte'
 
   import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
+  import { styleText } from '../parts/inline-style.js'
   import DeviceFrameSelector from './DeviceFrameSelector.svelte'
   import Icon from './Icon.svelte'
 

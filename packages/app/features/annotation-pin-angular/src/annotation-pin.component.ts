@@ -18,8 +18,7 @@ import {
 } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
-import { styleObject, styleString } from './css.js'
+import { reactStyleText, toStyleProps } from '@molecule/app-ui-angular'
 
 /**
  * Whether a node-valued prop is an Angular template (a rendered node) rather
@@ -169,13 +168,15 @@ export class AnnotationPin {
    */
   wrapperStyle(): string {
     const normalised = this.normalised ?? true
-    return styleString({
-      position: 'absolute',
-      left: normalised ? `${this.position.x * 100}%` : `${this.position.x}px`,
-      top: normalised ? `${this.position.y * 100}%` : `${this.position.y}px`,
-      transform: 'translate(-50%, -50%)',
-      zIndex: this.selected ? 2 : 1,
-    })
+    return (
+      reactStyleText({
+        position: 'absolute',
+        left: normalised ? `${this.position.x * 100}%` : `${this.position.x}px`,
+        top: normalised ? `${this.position.y * 100}%` : `${this.position.y}px`,
+        transform: 'translate(-50%, -50%)',
+        zIndex: this.selected ? 2 : 1,
+      }) ?? ''
+    )
   }
 
   /**
@@ -184,17 +185,19 @@ export class AnnotationPin {
    * @returns The style map.
    */
   markerStyles(): Record<string, string> {
-    return styleObject({
-      width: 24,
-      height: 24,
-      border: 'none',
-      padding: 0,
-      cursor: 'pointer',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-    })
+    return (
+      toStyleProps({
+        width: 24,
+        height: 24,
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+      }) ?? {}
+    )
   }
 
   /**
@@ -202,7 +205,7 @@ export class AnnotationPin {
    * @returns The serialised style attribute.
    */
   labelStyle(): string {
-    return styleString({ lineHeight: 1, pointerEvents: 'none' })
+    return reactStyleText({ lineHeight: 1, pointerEvents: 'none' }) ?? ''
   }
 
   /**
@@ -242,7 +245,7 @@ export class AnnotationPin {
         base.transform = 'translate(8px, -50%)'
         break
     }
-    return styleString(base)
+    return reactStyleText(base) ?? ''
   }
 
   /**

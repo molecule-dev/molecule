@@ -10,89 +10,11 @@ import type { PaginationProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
+import { reactStyleProps } from '../style.js'
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 import { setDisplayName } from './displayName.js'
-
-/** CSS properties that take unitless numbers; every other numeric value gets `px`. */
-const UNITLESS_STYLE_PROPERTIES = new Set([
-  'animationIterationCount',
-  'aspectRatio',
-  'borderImageOutset',
-  'borderImageSlice',
-  'borderImageWidth',
-  'columnCount',
-  'columns',
-  'flex',
-  'flexGrow',
-  'flexNegative',
-  'flexOrder',
-  'flexPositive',
-  'flexShrink',
-  'fontSynthesisWeight',
-  'fontWeight',
-  'gridArea',
-  'gridColumn',
-  'gridColumnEnd',
-  'gridColumnStart',
-  'gridRow',
-  'gridRowEnd',
-  'gridRowStart',
-  'lineClamp',
-  'lineHeight',
-  'opacity',
-  'order',
-  'orphans',
-  'scale',
-  'strokeDasharray',
-  'strokeDashoffset',
-  'strokeMiterlimit',
-  'strokeOpacity',
-  'strokeWidth',
-  'tabSize',
-  'widows',
-  'zIndex',
-  'zoom',
-  'fillOpacity',
-  'floodOpacity',
-  'stopOpacity',
-])
-
-/**
- * Applies React's inline-style number rule to a style object: numbers of
- * unit-bearing properties become `"<n>px"` strings. Vue's style patcher sets
- * raw numbers, which the CSSOM silently drops for unit-bearing properties,
- * while React (and therefore the conformance goldens) appends `px`.
- *
- * @param style - A camelCase style object.
- * @returns The same declarations with React's unit spelling.
- */
-function withReactStyleUnits(
-  style: Record<string, string | number | undefined>,
-): Record<string, string | number | undefined> {
-  const out: Record<string, string | number | undefined> = {}
-  for (const [key, value] of Object.entries(style)) {
-    out[key] =
-      typeof value === 'number' && !UNITLESS_STYLE_PROPERTIES.has(key) ? `${value}px` : value
-  }
-  return out
-}
-
-/**
- * Normalizes any `h()`-acceptable style value's objects with React's number
- * rule, leaving declaration strings (and arrays of them) untouched.
- *
- * @param value - A style value from {@link styleOf}.
- * @returns The style value with object members unit-normalized.
- */
-function normalizeStyleObjects(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(normalizeStyleObjects)
-  if (value && typeof value === 'object') {
-    return withReactStyleUnits(value as Record<string, string | number | undefined>)
-  }
-  return value
-}
 
 /** The pagination `labels` prop shape (React's `PaginationProps['labels']`). */
 type PaginationLabels = PaginationProps['labels']
@@ -233,7 +155,7 @@ export const Pagination = defineComponent({
           'aria-label':
             props.labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' }),
           class: cm.cn(cm.paginationRoot, ...classOf(props.className, attrs)),
-          style: normalizeStyleObjects(styleOf(props.style, attrs)),
+          style: reactStyleProps(styleOf(props.style, attrs)),
           'data-testid': props.testId,
           ...restAttrs(attrs),
         },

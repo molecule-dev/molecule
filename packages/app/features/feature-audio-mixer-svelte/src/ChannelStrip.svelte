@@ -6,9 +6,9 @@
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import { rangeValue } from './range-value.js'
-  import { borderTop } from './styles.js'
   import type { Channel, ChannelChangePatch, Send } from './types.js'
   import { clampLevel, clampPan, MAX_LEVEL, MAX_PAN, MIN_LEVEL, MIN_PAN } from './utilities.js'
 
@@ -162,7 +162,7 @@
   <div
     data-mol-id="audio-mixer-channel-name"
     style="width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
-    use:borderTop={channel.color}
+    use:reactStyle={{ borderTop: channel.color ? `3px solid ${channel.color}` : undefined }}
     style:padding-top={channel.color ? '4px' : '0px'}
   >
     <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{channel.name}</span>

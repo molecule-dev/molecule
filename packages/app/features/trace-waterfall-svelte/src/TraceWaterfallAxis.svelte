@@ -6,10 +6,10 @@
 <script lang="ts">
   import { useLocale, useT } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import { AXIS_TICK_COUNT } from './constants.js'
   import { translateDuration } from './format.js'
-  import { reactStyle } from './style.js'
 
   let {
     traceDuration,

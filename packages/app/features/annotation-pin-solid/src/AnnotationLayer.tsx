@@ -2,9 +2,9 @@ import { type Component, For, Show } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
+import { reactStyleText } from '@molecule/app-ui-solid'
 
 import { AnnotationPin } from './AnnotationPin.jsx'
-import { styleString } from './css.js'
 import type { AnnotationLayerProps } from './types.js'
 
 /**
@@ -74,7 +74,7 @@ export const AnnotationLayer: Component<AnnotationLayerProps> = (props) => {
       aria-label={t('annotationPin.aria.layer', {}, { defaultValue: 'Annotation layer' })}
       data-mol-id="annotation-layer"
       class={cm.cn(props.className)}
-      style={styleString({
+      style={reactStyleText({
         position: 'relative',
         width: '100%',
         height: '100%',
@@ -94,7 +94,7 @@ export const AnnotationLayer: Component<AnnotationLayerProps> = (props) => {
           class={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
           // Reset the browser's default button chrome — the add-pin button is
           // an invisible full-surface target, not a visible control.
-          style={styleString({ border: 'none', padding: '0px', background: 'transparent' })}
+          style={reactStyleText({ border: 'none', padding: '0px', background: 'transparent' })}
         />
       </Show>
       <For each={props.pins}>

@@ -12,6 +12,7 @@
 <script lang="ts">
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import type { TransportBarProps } from './types.js'
 
@@ -52,21 +53,7 @@
       slotValue !== false,
   )
 
-  /**
-   * React's inline button style — only what ClassMap does not expose
-   * (`background: transparent`, `border: none`). Applied through the CSSOM, the
-   * same path React's style object takes: Svelte folds a static `style:` value
-   * into one `cssText` write, which serializes the `background` shorthand
-   * differently.
-   *
-   * @param node - The button element.
-   */
-  function buttonStyle(node: HTMLButtonElement): void {
-    node.style.setProperty('background', 'transparent')
-    node.style.setProperty('border', 'none')
-    node.style.setProperty('cursor', 'pointer')
-    node.style.setProperty('padding', '0')
-  }
+  const buttonStyle = { background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }
 </script>
 
 {#snippet content(
@@ -86,7 +73,7 @@
       aria-label={t('transportBar.aria.skipBack', {}, { defaultValue: 'Skip backward' })}
       data-mol-id="transport-bar-skip-back"
       class={controlClass}
-      use:buttonStyle><span aria-hidden="true">⏮</span></button
+      use:reactStyle={buttonStyle}><span aria-hidden="true">⏮</span></button
     >{/if}<button
     type="button"
     onclick={(event) => onPlayToggle(event)}
@@ -97,7 +84,7 @@
     data-mol-id="transport-bar-play-toggle"
     data-state={isPlaying ? 'playing' : 'paused'}
     class={controlClass}
-    use:buttonStyle><span aria-hidden="true">{isPlaying ? '⏸' : '▶'}</span></button
+    use:reactStyle={buttonStyle}><span aria-hidden="true">{isPlaying ? '⏸' : '▶'}</span></button
   ><button
     type="button"
     onclick={(event) => onStop(event)}
@@ -105,7 +92,7 @@
     aria-label={t('transportBar.aria.stop', {}, { defaultValue: 'Stop' })}
     data-mol-id="transport-bar-stop"
     class={controlClass}
-    use:buttonStyle><span aria-hidden="true">⏹</span></button
+    use:reactStyle={buttonStyle}><span aria-hidden="true">⏹</span></button
   >{#if onSkipForward}<button
       type="button"
       onclick={(event) => onSkipForward?.(event)}
@@ -113,7 +100,7 @@
       aria-label={t('transportBar.aria.skipForward', {}, { defaultValue: 'Skip forward' })}
       data-mol-id="transport-bar-skip-forward"
       class={controlClass}
-      use:buttonStyle><span aria-hidden="true">⏭</span></button
+      use:reactStyle={buttonStyle}><span aria-hidden="true">⏭</span></button
     >{/if}{#if onRecordToggle}<button
       type="button"
       onclick={(event) => onRecordToggle?.(event)}
@@ -124,7 +111,7 @@
       data-mol-id="transport-bar-record-toggle"
       data-state={isRecording ? 'recording' : 'idle'}
       class={controlClass}
-      use:buttonStyle><span aria-hidden="true">●</span></button
+      use:reactStyle={buttonStyle}><span aria-hidden="true">●</span></button
     >{/if}{#if onLoopToggle}<button
       type="button"
       onclick={(event) => onLoopToggle?.(event)}
@@ -135,7 +122,7 @@
       data-mol-id="transport-bar-loop-toggle"
       data-state={loop ? 'on' : 'off'}
       class={controlClass}
-      use:buttonStyle><span aria-hidden="true">↻</span></button
+      use:reactStyle={buttonStyle}><span aria-hidden="true">↻</span></button
     >{/if}{#if rendersSlot}<PresentWhileContent
       tag="div"
       data-mol-id="transport-bar-time-display"

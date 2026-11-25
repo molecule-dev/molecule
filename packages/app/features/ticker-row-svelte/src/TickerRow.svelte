@@ -16,8 +16,8 @@
 <script lang="ts">
   import { PresentWhileContent, useLocale, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { type CSSStyle, reactStyle } from '@molecule/app-ui-svelte'
 
-  import { type CSSStyle, reactStyle } from './style.js'
   import type { TickerRowProps } from './types.js'
 
   let {

@@ -12,10 +12,10 @@
 <script lang="ts">
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
   import FileIcon from './FileIcon.svelte'
   import { relativeBucket, type SizeParts, sizeParts } from './format.js'
-  import { reactStyle } from './style.js'
   import type { FileCardProps, FileKind } from './types.js'
 
   /** The translation function shape we use here — matches `useTranslation().t`. */

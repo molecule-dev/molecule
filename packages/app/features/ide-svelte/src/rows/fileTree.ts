@@ -315,37 +315,3 @@ export function createLongPress(
     consumeFired,
   }
 }
-
-/** One element's inline style, as the row writes it. */
-export type StyleValues = Record<string, string | number | undefined>
-
-/**
- * Writes an element's inline style property by property, the way React does:
- * only the values that changed are written, and a property that disappears is
- * removed. Writing through the CSSOM (and never through a `style` attribute
- * string) keeps the DOM's serialization identical to React's — jsdom parses
- * explicit longhands in a cssText in the wrong order, so a component that hands
- * the browser one style string ends up with a rotated `padding`.
- * @returns The writer, remembering what it wrote per element.
- */
-export function createStyleWriter(): (
-  el: HTMLElement | null | undefined,
-  next: StyleValues,
-) => void {
-  let last: StyleValues = {}
-  return (el, next) => {
-    if (!el) {
-      last = {}
-      return
-    }
-    for (const [key, value] of Object.entries(next)) {
-      if (value === undefined) continue
-      if (last[key] === value) continue
-      el.style.setProperty(key, String(value))
-    }
-    for (const key of Object.keys(last)) {
-      if (next[key] === undefined) el.style.removeProperty(key)
-    }
-    last = { ...next }
-  }
-}

@@ -9,8 +9,8 @@
 <script lang="ts">
   import { PresentWhileContent } from '@molecule/app-svelte'
   import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { OrderMilestone, OrderTimelineProps } from './types.js'
 
   let { milestones, eta, orientation = 'horizontal', className }: OrderTimelineProps = $props()

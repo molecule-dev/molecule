@@ -12,8 +12,8 @@
 
   import { ContentOrElse } from '@molecule/app-svelte'
   import { type ColorVariant, getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { LogLevel, LogViewerProps } from './types.js'
 
   let { entries, onToggle, className, emptyState }: LogViewerProps = $props()

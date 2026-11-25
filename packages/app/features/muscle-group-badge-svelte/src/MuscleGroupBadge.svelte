@@ -10,8 +10,8 @@
   import type { TranslateFunction } from '@molecule/app-i18n'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
+  import { reactStyle } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { MuscleGroup, MuscleGroupBadgeProps } from './types.js'
 
   let {
