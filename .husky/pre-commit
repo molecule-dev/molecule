@@ -19,6 +19,10 @@ set -e
 # newer peer content in the shared worktree. Diff the attempt's parent instead.
 # Unset for an ordinary commit, where the parent IS HEAD.
 DIFF_BASE=${MOL_PRECOMMIT_BASE:-}
+# The HEAD an ordinary commit's checks judge the index against. `git commit` takes the HEAD of
+# the moment it writes the commit, after this hook, so the end of the hook compares the two
+# (scripts/precommit-head-moved.mjs) and publishes generated docs only over this HEAD's blobs.
+HOOK_START_HEAD=$(git rev-parse -q --verify HEAD 2>/dev/null || true)
 staged_diff() {
   if [ -n "$DIFF_BASE" ]; then git diff --cached "$DIFF_BASE" "$@"; else git diff --cached "$@"; fi
 }
@@ -475,8 +479,17 @@ fi
 # before or during the hook) wins and is never replaced by the generated doc.
 # A speculative private-index attempt publishes through commit-staged-paths.mjs
 # instead, after its compare-and-swap lands (see PATHSPEC/DIFF_BASE above).
+# A commit that landed while this hook ran: an ordinary commit is built on it from an index judged
+# against the HEAD before it, so a path it changed whose entry still holds the older blob would be
+# reverted. Refuse before anything is published (2026-11-25: a direct commit's hook generated READMEs
+# from the tree before ebdd62942b and wrote them over the ones that commit had just landed).
+if [ -z "$DIFF_BASE" ] && [ -n "$HOOK_START_HEAD" ]; then
+  node scripts/precommit-head-moved.mjs "$HOOK_START_HEAD"
+fi
 if [ -n "${DEFERRED_DOCS:-}" ]; then
-  PUBLISH_BASE=${DIFF_BASE:-HEAD}
+  # The docs were generated from the index as it stood on HOOK_START_HEAD; a destination is theirs
+  # only while it still holds that HEAD's blob.
+  PUBLISH_BASE=${DIFF_BASE:-${HOOK_START_HEAD:-HEAD}}
   # A pipe (not a here-string): husky runs this hook with `sh -e`. The loop's
   # writes are git commands (side effects), so running it in a subshell is fine.
   printf '%s\n' "$DEFERRED_DOCS" | while read -r sha md; do
