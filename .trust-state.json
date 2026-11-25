@@ -1116,6 +1116,7 @@
   "@molecule/app-inline-edit-solid",
   "@molecule/app-inline-edit-svelte",
   "@molecule/app-inline-edit-vue",
+  "@molecule/app-inline-style-dom",
   "@molecule/app-integration-card-angular",
   "@molecule/app-integration-card-react",
   "@molecule/app-integration-card-solid",
