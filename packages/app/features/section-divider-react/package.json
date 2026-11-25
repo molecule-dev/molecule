@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-section-divider-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Centered-label section divider (\"OR\", \"Today\") with flanking lines",
   "homepage": "https://www.molecule.dev/packages/app-section-divider-react",
   "type": "module",

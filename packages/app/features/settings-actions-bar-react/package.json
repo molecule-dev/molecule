@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-settings-actions-bar-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Sticky Save/Cancel bar with \"Saved\" timestamp + loading state for settings and form pages",
   "homepage": "https://www.molecule.dev/packages/app-settings-actions-bar-react",
   "type": "module",

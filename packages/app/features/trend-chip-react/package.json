@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-trend-chip-react",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "Standalone trend delta chip (▲ 12%) for inline placement in tables, headers, cards",
   "homepage": "https://www.molecule.dev/packages/app-trend-chip-react",
   "type": "module",

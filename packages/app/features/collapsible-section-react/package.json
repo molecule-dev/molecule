@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-collapsible-section-react",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "Expandable section with optional \"show more / show less\" and count",
   "homepage": "https://www.molecule.dev/packages/app-collapsible-section-react",
   "type": "module",

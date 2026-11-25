@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-rule-builder-react",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Visual condition / rule builder — nested AND / OR groups of field-operator-value leaves, used for feature-flag targeting, automation triggers, segmentation, and IoT scenarios",
   "homepage": "https://www.molecule.dev/packages/app-rule-builder-react",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-detail-page-layout-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Two/three-column detail-page layout: breadcrumb + topbar + sidebar + main content",
   "homepage": "https://www.molecule.dev/packages/app-detail-page-layout-react",
   "type": "module",

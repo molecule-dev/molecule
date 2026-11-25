@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-top-nav-layout-react",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "Sticky top-nav app shell: brand link + horizontal NavLinks + user-menu slot, with a router outlet for nested routes",
   "homepage": "https://www.molecule.dev/packages/app-top-nav-layout-react",
   "type": "module",

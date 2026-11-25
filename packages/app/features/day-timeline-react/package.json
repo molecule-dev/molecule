@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-day-timeline-react",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "description": "Vertical 24h day-of-events timeline — itinerary planner, daily agenda, schedule view",
   "homepage": "https://www.molecule.dev/packages/app-day-timeline-react",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-countdown-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "useCountdown hook + Countdown component for time-to-event displays",
   "homepage": "https://www.molecule.dev/packages/app-countdown-react",
   "type": "module",

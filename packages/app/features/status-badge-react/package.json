@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-status-badge-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "React status badge / pill with semantic kinds",
   "homepage": "https://www.molecule.dev/packages/app-status-badge-react",
   "type": "module",

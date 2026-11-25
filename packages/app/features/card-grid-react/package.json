@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-card-grid-react",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Responsive React card grid and bento-grid layouts",
   "homepage": "https://www.molecule.dev/packages/app-card-grid-react",
   "type": "module",
