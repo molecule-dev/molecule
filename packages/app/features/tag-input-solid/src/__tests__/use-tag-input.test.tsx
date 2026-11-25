@@ -203,6 +203,21 @@ const click = (el: Element): void => {
 }
 
 describe('useTagInput with app-owned markup', () => {
+  it('makes fieldProps directly available and keeps the legacy hook record enumerable', () => {
+    const { api } = mountHook()
+    const { fieldProps } = api
+    expect(Object.keys(fieldProps()).sort()).toEqual([
+      'onBlur',
+      'onKeyDown',
+      'onValueChange',
+      'value',
+    ])
+    expect(Object.keys(api).sort()).toEqual(['add', 'draft', 'inputProps', 'remove', 'setDraft'])
+    fieldProps().onValueChange('portable')
+    expect(api.fieldProps().value).toBe('portable')
+    expect(api.inputProps().value).toBe('portable')
+  })
+
   it('keeps every accepted addition in a single React batch', () => {
     const { api, tags } = mountHook()
     expect(api.add('one')).toBe(true)

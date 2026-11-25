@@ -1,7 +1,8 @@
-import type { JSX, KeyboardEvent, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Props for the {@link TagChip} component. */
 export interface TagChipProps {
@@ -50,9 +51,9 @@ export function TagChip({ children, onRemove, onClick, className }: TagChipProps
    * Keyboard activation for the chip body — the same handler the mouse
    * click runs. `preventDefault()` suppresses Space's page scroll and
    * Enter's form submission when a chip sits inside a form.
-   * @param e - DOM keyboard event.
+   * @param e - The kit keyboard event.
    */
-  const handleBodyKeyDown = (e: KeyboardEvent<HTMLElement>): void => {
+  const handleBodyKeyDown = (e: KitKeyboardEvent): void => {
     if (e.key !== 'Enter' && e.key !== ' ') return
     e.preventDefault()
     onClick?.()
@@ -62,15 +63,16 @@ export function TagChip({ children, onRemove, onClick, className }: TagChipProps
   // the button role, a tab stop, and the keyboard path for its click.
   if (onClick && !onRemove) {
     return (
-      <span
+      <Pressable
+        as="span"
         className={cm.cn(chipClass, cm.cursorPointer)}
         role="button"
         tabIndex={0}
         onClick={onClick}
         onKeyDown={handleBodyKeyDown}
       >
-        <span>{children}</span>
-      </span>
+        <Box as="span">{children}</Box>
+      </Pressable>
     )
   }
 
@@ -79,16 +81,17 @@ export function TagChip({ children, onRemove, onClick, className }: TagChipProps
   // (native button chrome reset inline, so it looks as the text did)
   // and the remove button stands beside it as a sibling.
   return (
-    <span className={chipClass}>
+    <Box as="span" className={chipClass}>
       {onClick ? (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onClick}
           /* mol-bespoke-button: the chip's label is its body control, not a CTA —
              the inline background/border/padding/font/color are native resets so
              it reads as the label text under any ClassMap bond. */
           className={cm.cursorPointer}
-          style={{
+          webStyle={{
             background: 'transparent',
             border: 'none',
             padding: 0,
@@ -96,21 +99,22 @@ export function TagChip({ children, onRemove, onClick, className }: TagChipProps
             color: 'inherit',
           }}
         >
-          <span>{children}</span>
-        </button>
+          <Box as="span">{children}</Box>
+        </Pressable>
       ) : (
-        <span>{children}</span>
+        <Box as="span">{children}</Box>
       )}
       {onRemove && (
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={onRemove}
           aria-label={t('tagChip.remove', {}, { defaultValue: 'Remove' })}
           className={cm.cn(cm.w(4), cm.h(4), cm.flex({ align: 'center', justify: 'center' }))}
         >
-          ×
-        </button>
+          {t('tagChip.removeGlyph', undefined, { defaultValue: '×' })}
+        </Pressable>
       )}
-    </span>
+    </Box>
   )
 }

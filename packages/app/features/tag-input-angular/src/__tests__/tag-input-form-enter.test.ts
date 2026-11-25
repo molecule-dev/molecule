@@ -153,6 +153,7 @@ const type = (item: Pick<Mounted, 'tick'>, input: HTMLInputElement, value: strin
  * @param el - The element.
  * @param key - The key name.
  * @param isComposing - Whether the input method owns the keystroke.
+ * @param keyCode - The legacy key code, for the ones a browser reports instead of the key's own.
  * @returns Whether the event's default was left unprevented.
  */
 const press = (
@@ -160,9 +161,16 @@ const press = (
   el: Element,
   key: string,
   isComposing = false,
+  keyCode?: number,
 ): boolean => {
   const notCanceled = el.dispatchEvent(
-    new KeyboardEvent('keydown', { key, isComposing, bubbles: true, cancelable: true }),
+    new KeyboardEvent('keydown', {
+      key,
+      isComposing,
+      ...(keyCode === undefined ? {} : { keyCode }),
+      bubbles: true,
+      cancelable: true,
+    }),
   )
   item.tick()
   return notCanceled
@@ -200,6 +208,20 @@ const click = (item: Pick<Mounted, 'tick'>, el: Element): void => {
 const tags = (): string => document.querySelector('[data-testid="tags"]')?.textContent ?? ''
 
 describe('TagInput inside a form', () => {
+  it('keeps the draft while the IME confirms Enter with legacy key code 229', async () => {
+    const item = await render()
+    const { input, onSubmit } = item
+    type(item, input, '日本')
+    expect(press(item, input, 'Enter', false, 229)).toBe(false)
+    expect(tags()).toBe('')
+    expect(input.value).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    expect(press(item, input, 'Enter', false)).toBe(false)
+    expect(tags()).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it('leaves composing Enter to the input method before committing the finished tag', async () => {
     const item = await render()
     const { input, onSubmit } = item

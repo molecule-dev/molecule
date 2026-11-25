@@ -36,6 +36,7 @@
     cm.cn(cm.w(4), cm.h(4), cm.flex({ align: 'center', justify: 'center' })),
   )
   const removeLabel = $derived(t('tagChip.remove', {}, { defaultValue: 'Remove' }))
+  const removeGlyph = $derived(t('tagChip.removeGlyph', undefined, { defaultValue: '×' }))
 
   // React puts the chip's label control on a native button whose background,
   // border, padding, font and colour are reset inline. The CSSOM property
@@ -93,7 +94,7 @@
     {/if}
     {#if onRemove}
       <button type="button" onclick={onRemove} aria-label={removeLabel} class={removeClass}>
-        ×
+        {removeGlyph}
       </button>
     {/if}
   </span>

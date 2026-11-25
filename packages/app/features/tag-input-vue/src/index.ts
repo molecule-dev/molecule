@@ -10,8 +10,9 @@
  *   removes the last token. Enter never submits an enclosing form.
  * - `useTagInput()` — the same tag-entry behavior without markup, for an
  *   app whose markup is already decided (a design system, a spec's selectors):
- *   bind `inputProps` onto your own `<input>`, render the tags yourself, and
- *   call `remove(i)` from your own remove control.
+ *   spread `fieldProps` on a renderer-neutral `TextField` or `inputProps` on
+ *   your own `<input>`, render the tags yourself, and call `remove(i)` from
+ *   your own remove control.
  *
  * This is the Vue counterpart of `@molecule/app-tag-input-react`: the same
  * exports, the same props (React names) and the same DOM for the same input.

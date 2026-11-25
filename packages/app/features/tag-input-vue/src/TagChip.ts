@@ -129,7 +129,7 @@ export const TagChip = defineComponent({
                 'aria-label': t('tagChip.remove', {}, { defaultValue: 'Remove' }),
                 class: cm.cn(cm.w(4), cm.h(4), cm.flex({ align: 'center', justify: 'center' })),
               },
-              '×',
+              t('tagChip.removeGlyph', undefined, { defaultValue: '×' }),
             )
           : null,
       ])

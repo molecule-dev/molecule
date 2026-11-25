@@ -3,7 +3,7 @@
  *
  * Exports:
  * - `<TagList>` — read-only saved tags on detail/preview screens. Renders every
- *   value in order. Pass native list attributes, `itemClassName`, and `renderTag` to
+ *   value in order. Pass Box props, `itemClassName`, and `renderTag` to
  *   use the same component in the preview and the destination page's markup.
  * - `<TagChip>` — standalone labeled chip with optional remove button.
  * - `<TagInput>` — controlled tokenizer: Enter, comma, or Tab adds the
@@ -11,7 +11,7 @@
  *   removes the last token. Enter never submits an enclosing form.
  * - `useTagInput()` — the same tag-entry behavior without markup, for an
  *   app whose markup is already decided (a design system, a spec's selectors):
- *   spread `inputProps` on your own `<input>`, render the tags yourself, and
+ *   spread `fieldProps` on a `TextField` or `inputProps` on your own `<input>`, render the tags yourself, and
  *   call `remove(i)` from your own remove control.
  *
  * @example

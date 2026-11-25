@@ -2,6 +2,7 @@ import type { ChangeEvent, KeyboardEvent } from 'react'
 import { useRef, useState } from 'react'
 
 import { useCommittedRef } from '@molecule/app-react/render'
+import type { TextFieldKeyEvent, TextFieldProps } from '@molecule/app-ui'
 
 /** Options for {@link useTagInput}. */
 export interface UseTagInputOptions {
@@ -30,6 +31,11 @@ export interface TagInputFieldProps {
   onBlur: () => void
 }
 
+/** The props to spread onto a renderer-neutral TextField. */
+export type TagInputTextFieldProps = Required<
+  Pick<TextFieldProps, 'value' | 'onValueChange' | 'onKeyDown' | 'onBlur'>
+>
+
 /** What {@link useTagInput} returns. */
 export interface UseTagInputResult {
   /** The current draft text. */
@@ -38,6 +44,8 @@ export interface UseTagInputResult {
   setDraft: (next: string) => void
   /** Spread onto your own `<input>`: `<input {...inputProps} placeholder={placeholder} />`. */
   inputProps: TagInputFieldProps
+  /** Read directly or destructure for a `<TextField as="input">` on web or device. */
+  readonly fieldProps: TagInputTextFieldProps
   /** Normalizes and adds a tag without clearing the draft; returns whether it was added. */
   add: (raw: string) => boolean
   /** Removes the tag at `index`. */
@@ -150,11 +158,11 @@ export function useTagInput({
 
   /**
    * Enter/comma/Tab commit; Backspace on an empty draft removes the last tag.
-   * @param e - The key event from the text input.
+   * @param e - The normalized keystroke from the field.
    */
-  function onKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
+  function onKeyDown(e: TextFieldKeyEvent): void {
     // Enter can confirm an input-method composition before it is a tag delimiter.
-    if (e.nativeEvent.isComposing) return
+    if (e.isComposing) return
     const draft = draftRef.current
     const tags = current.current.value
     if (e.key === 'Enter') {
@@ -173,18 +181,30 @@ export function useTagInput({
     }
   }
 
-  return {
+  const onBlur = (): void => {
+    if (draftRef.current.trim()) commit()
+  }
+
+  const result: UseTagInputResult = {
     draft,
     setDraft,
     inputProps: {
       value: draft,
       onChange: (e) => setDraft(e.target.value),
-      onKeyDown,
-      onBlur: () => {
-        if (draftRef.current.trim()) commit()
+      onKeyDown: (event) => {
+        if (event.nativeEvent.isComposing) return
+        if (event.keyCode === 229) {
+          if (event.key === 'Enter') event.preventDefault()
+          return
+        }
+        onKeyDown(event)
       },
+      onBlur,
     },
+    fieldProps: { value: draft, onValueChange: setDraft, onKeyDown, onBlur },
     add,
     remove: (index) => change(current.current.value.filter((_, j) => j !== index)),
   }
+  // Keep the existing enumerable record for callers that copy or serialize the hook result.
+  return Object.defineProperty(result, 'fieldProps', { enumerable: false })
 }

@@ -1,16 +1,19 @@
-import type { ComponentPropsWithoutRef, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { type BoxProps, type ForwardedElementProps, getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 import { TagChip } from './TagChip.js'
 
 /** Read-only tags from the saved record, with optional app-owned tag markup. */
-export interface TagListProps extends Omit<
-  ComponentPropsWithoutRef<'ul'>,
-  'children' | 'dangerouslySetInnerHTML'
+export interface TagListProps extends ForwardedElementProps<
+  BoxProps<ReactNode>,
+  'children' | 'className'
 > {
   /** Every saved tag, in display order. Empty arrays render an empty list. */
   value: readonly string[]
+  /** Additional classes on the list. */
+  className?: string
   /** Additional classes for each list item. */
   itemClassName?: string
   /** Optional tag content; the component still renders every value. */
@@ -32,15 +35,16 @@ export function TagList({
 }: TagListProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <ul
+    <Box
       {...listProps}
+      as="ul"
       className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}
     >
       {value.map((tag, index) => (
-        <li key={`${tag}-${index}`} className={itemClassName}>
+        <Box as="li" key={`${tag}-${index}`} className={itemClassName}>
           {renderTag ? renderTag(tag, index) : <TagChip>{tag}</TagChip>}
-        </li>
+        </Box>
       ))}
-    </ul>
+    </Box>
   )
 }

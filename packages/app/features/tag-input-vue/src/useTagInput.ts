@@ -1,14 +1,19 @@
 /**
  * Tag-entry behavior without markup (Vue composable) — the Vue counterpart of
  * `@molecule/app-tag-input-react`'s `useTagInput`, with the same options and
- * the same draft, `inputProps`, `add` and `remove` contract.
+ * the same draft, `inputProps`, `fieldProps`, `add` and `remove` contract.
  *
  * @module
  */
 
 import { computed, type ComputedRef, type Ref, shallowRef, toValue } from 'vue'
 
-import type { TagInputFieldProps, UseTagInputOptions, UseTagInputResult } from './types.js'
+import type {
+  TagInputFieldProps,
+  TagInputTextFieldProps,
+  UseTagInputOptions,
+  UseTagInputResult,
+} from './types.js'
 
 /**
  * Default normalization: trims whitespace, rejects empty strings and duplicates.
@@ -49,14 +54,16 @@ function inputValue(e: Event): string {
 /**
  * Tag-entry behavior without markup, for an app whose markup is already
  * decided (a design system, a spec's selectors). Bind `inputProps` onto your
- * own `<input>` and render the tags however you need, calling `remove(i)` from
- * your own remove control. `<TagInput>` is this composable plus default markup.
+ * own `<input>` — or `fieldProps` onto a renderer-neutral `TextField` — and
+ * render the tags however you need, calling `remove(i)` from your own remove
+ * control. `<TagInput>` is this composable plus default markup.
  *
  * Enter commits the draft and never submits an enclosing form: its default is
  * canceled even when the draft is blank, rejected, or past `maxTags`. Comma and
  * Tab commit a non-empty draft (an empty Tab keeps normal focus traversal);
  * blur commits a non-empty draft; Backspace on an empty draft removes the last
- * tag.
+ * tag. A keystroke the input method owns is left to it, including the Enter
+ * that confirms a composition and arrives with the legacy key code 229.
  *
  * @param options - The controlled tag list and its rules, or a ref/getter of them so a component's changed props reach the same composable instance.
  * @returns The draft, input props and add/remove actions (see {@link UseTagInputResult}).
@@ -130,11 +137,25 @@ export function useTagInput(
 
   /**
    * Enter/comma/Tab commit; Backspace on an empty draft removes the last tag.
-   * @param e - The key event from the text input.
+   *
+   * Both bindings hand their keydown here. React splits this in two: its kit's
+   * `TextField` element folds the legacy key code into `isComposing` before the
+   * handler runs, and its raw-input handler checks the code itself. No element
+   * does that here, so one handler reads both, whichever binding receives it.
+   *
+   * @param e - The key event from the text input or the text field.
    */
   function onKeyDown(e: KeyboardEvent): void {
     // Enter can confirm an input-method composition before it is a tag delimiter.
     if (isComposing(e)) return
+    // Some browsers report that confirmation with the flag already cleared and
+    // the legacy key code 229 instead. It is the input method's keystroke too:
+    // the draft stays, and Enter is canceled as every Enter is so an enclosing
+    // form is not submitted.
+    if (e.keyCode === 229) {
+      if (e.key === 'Enter') e.preventDefault()
+      return
+    }
     const text = currentDraft.text
     const current = tags()
     if (e.key === 'Enter') {
@@ -153,20 +174,34 @@ export function useTagInput(
     }
   }
 
+  /** Commits a non-empty draft when the field loses focus. */
+  const onBlur = (): void => {
+    if (currentDraft.text.trim()) commit()
+  }
+
   const inputProps: ComputedRef<TagInputFieldProps> = computed(() => ({
     value: draft.value,
     onChange: (e: Event) => setDraft(inputValue(e)),
     onKeyDown,
-    onBlur: () => {
-      if (currentDraft.text.trim()) commit()
-    },
+    onBlur,
   }))
 
-  return {
+  /** The same draft for a renderer-neutral `TextField`, which reports its text through `onValueChange`. */
+  const fieldProps: ComputedRef<TagInputTextFieldProps> = computed(() => ({
+    value: draft.value,
+    onValueChange: setDraft,
+    onKeyDown,
+    onBlur,
+  }))
+
+  const result: UseTagInputResult = {
     draft,
     setDraft,
     inputProps,
+    fieldProps,
     add,
     remove: (index) => change(tags().filter((_, j) => j !== index)),
   }
+  // Keep the existing enumerable record for callers that copy or serialize the hook result.
+  return Object.defineProperty(result, 'fieldProps', { enumerable: false })
 }

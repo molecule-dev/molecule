@@ -104,6 +104,19 @@ const tags = (): string => screen.getByTestId('tags').textContent ?? ''
 afterEach(cleanup)
 
 describe('TagInput inside a form', () => {
+  it('keeps the draft while the IME confirms Enter with legacy key code 229', () => {
+    const { input, onSubmit } = mount()
+    fireEvent.change(input, { target: { value: '日本' } })
+    expect(fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, isComposing: false })).toBe(false)
+    expect(tags()).toBe('')
+    expect(input.value).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    expect(fireEvent.keyDown(input, { key: 'Enter' })).toBe(false)
+    expect(tags()).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it('leaves composing Enter to the input method before committing the finished tag', () => {
     const { input, onSubmit } = mount()
     fireEvent.change(input, { target: { value: '日本' } })

@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, TextField } from '@molecule/app-ui-react/elements'
 
 import { TagChip } from './TagChip.js'
 import { useTagInput } from './useTagInput.js'
@@ -49,10 +50,11 @@ export function TagInput({
 }: TagInputProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { inputProps, remove } = useTagInput({ value, onChange, normalize, maxTags })
+  const { fieldProps, remove } = useTagInput({ value, onChange, normalize, maxTags })
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
         cm.sp('p', 2),
@@ -64,12 +66,13 @@ export function TagInput({
           {tag}
         </TagChip>
       ))}
-      <input
+      <TextField
+        as="input"
         type="text"
-        {...inputProps}
+        {...fieldProps}
         placeholder={placeholder ?? t('tagInput.placeholder', {}, { defaultValue: 'Add a tag…' })}
         className={cm.cn(cm.flex1, cm.input())}
       />
-    </div>
+    </Box>
   )
 }

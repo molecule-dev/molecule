@@ -8,6 +8,23 @@ import type { TagInputFieldProps } from '../useTagInput.js'
 
 const { useTagInput } = await import('../useTagInput.js')
 
+it('makes fieldProps directly available and keeps the legacy hook record enumerable', () => {
+  const onChange = vi.fn()
+  const { result } = renderHook(() => useTagInput({ value: [], onChange }))
+  const { fieldProps } = result.current
+  expect(Object.keys(fieldProps).sort()).toEqual(['onBlur', 'onKeyDown', 'onValueChange', 'value'])
+  expect(Object.keys(result.current).sort()).toEqual([
+    'add',
+    'draft',
+    'inputProps',
+    'remove',
+    'setDraft',
+  ])
+  act(() => fieldProps.onValueChange('portable'))
+  expect(result.current.fieldProps.value).toBe('portable')
+  expect(result.current.inputProps.value).toBe('portable')
+})
+
 /**
  * jsdom does not perform a browser's implicit form submission on Enter, so a
  * submit-count assertion would be vacuous without this: submit the enclosing

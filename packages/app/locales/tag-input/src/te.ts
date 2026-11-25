@@ -3,5 +3,6 @@ import type { TagInputTranslations } from './types.js'
 /** TagInput translations for te. */
 export const te: Partial<TagInputTranslations> = {
   'tagChip.remove': 'తొలగించండి',
+  'tagChip.removeGlyph': '×',
   'tagInput.placeholder': 'ట్యాగ్‌ను జోడించండి…',
 }

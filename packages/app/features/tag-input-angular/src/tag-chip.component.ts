@@ -67,7 +67,7 @@ import { getClassMap } from '@molecule/app-ui'
       [attr.aria-label]="removeLabel()"
       [class]="removeClasses()"
     >
-      ×
+      {{ removeGlyph() }}
     </button>`,
 })
 export class TagChip {
@@ -155,6 +155,14 @@ export class TagChip {
    */
   removeLabel(): string {
     return this.i18n.t('tagChip.remove', {}, { defaultValue: 'Remove' })
+  }
+
+  /**
+   * The remove button's glyph.
+   * @returns The translated glyph.
+   */
+  removeGlyph(): string {
+    return this.i18n.t('tagChip.removeGlyph', undefined, { defaultValue: '×' })
   }
 
   /**

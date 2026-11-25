@@ -7,6 +7,8 @@
 
 import type { Signal, TemplateRef } from '@angular/core'
 
+import type { TextFieldProps } from '@molecule/app-ui'
+
 /** Props for the {@link TagChip} component (React names). */
 export interface TagChipProps {
   /** Visible tag text — projected content (an input cannot carry a node). */
@@ -91,6 +93,11 @@ export interface TagInputFieldProps {
   onBlur: () => void
 }
 
+/** The props to spread onto a renderer-neutral TextField. */
+export type TagInputTextFieldProps = Required<
+  Pick<TextFieldProps, 'value' | 'onValueChange' | 'onKeyDown' | 'onBlur'>
+>
+
 /** What {@link useTagInput} returns. */
 export interface UseTagInputResult {
   /** The current draft text. */
@@ -99,6 +106,11 @@ export interface UseTagInputResult {
   setDraft: (next: string) => void
   /** Bind onto your own `<input>`: `[value]="inputProps().value" (input)="inputProps().onChange($event)" …`. */
   inputProps: Signal<TagInputFieldProps>
+  /**
+   * Bind onto a renderer-neutral `TextField`, which reports its text through
+   * `onValueChange`: `[value]="fieldProps().value" (valueChange)="fieldProps().onValueChange($event)" …`.
+   */
+  readonly fieldProps: Signal<TagInputTextFieldProps>
   /** Normalizes and adds a tag without clearing the draft; returns whether it was added. */
   add: (raw: string) => boolean
   /** Removes the tag at `index`. */

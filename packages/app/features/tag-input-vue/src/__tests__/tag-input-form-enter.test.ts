@@ -169,11 +169,23 @@ const type = async (input: HTMLInputElement, value: string): Promise<void> => {
  * @param el - The element.
  * @param key - The key name.
  * @param isComposing - Whether the input method owns the keystroke.
+ * @param keyCode - The legacy key code, for the ones a browser reports instead of the key's own.
  * @returns Whether the event's default was left unprevented.
  */
-const press = async (el: Element, key: string, isComposing = false): Promise<boolean> => {
+const press = async (
+  el: Element,
+  key: string,
+  isComposing = false,
+  keyCode?: number,
+): Promise<boolean> => {
   const notCanceled = el.dispatchEvent(
-    new KeyboardEvent('keydown', { key, isComposing, bubbles: true, cancelable: true }),
+    new KeyboardEvent('keydown', {
+      key,
+      isComposing,
+      ...(keyCode === undefined ? {} : { keyCode }),
+      bubbles: true,
+      cancelable: true,
+    }),
   )
   await flush()
   return notCanceled
@@ -209,6 +221,19 @@ const blur = async (input: HTMLInputElement): Promise<void> => {
 const tags = (): string => document.querySelector('[data-testid="tags"]')?.textContent ?? ''
 
 describe('TagInput inside a form', () => {
+  it('keeps the draft while the IME confirms Enter with legacy key code 229', async () => {
+    const { input, onSubmit } = mount()
+    await type(input, '日本')
+    expect(await press(input, 'Enter', false, 229)).toBe(false)
+    expect(tags()).toBe('')
+    expect(input.value).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    expect(await press(input, 'Enter')).toBe(false)
+    expect(tags()).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it('leaves composing Enter to the input method before committing the finished tag', async () => {
     const { input, onSubmit } = mount()
     await type(input, '日本')

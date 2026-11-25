@@ -8,6 +8,8 @@
 
 import type { Accessor, JSX } from 'solid-js'
 
+import type { TextFieldProps } from '@molecule/app-ui'
+
 /** Props for the {@link TagChip} component. */
 export interface TagChipProps {
   /** Visible tag text. */
@@ -90,6 +92,11 @@ export interface TagInputFieldProps {
   onBlur: () => void
 }
 
+/** The props to spread onto a renderer-neutral TextField. */
+export type TagInputTextFieldProps = Required<
+  Pick<TextFieldProps, 'value' | 'onValueChange' | 'onKeyDown' | 'onBlur'>
+>
+
 /** What {@link useTagInput} returns. */
 export interface UseTagInputResult {
   /** The current draft text. */
@@ -98,6 +105,11 @@ export interface UseTagInputResult {
   setDraft: (next: string) => void
   /** Spread onto your own `<input>`: `<input {...inputProps()} placeholder="…" />`. */
   inputProps: Accessor<TagInputFieldProps>
+  /**
+   * Spread onto a renderer-neutral `TextField`, which reports its text through
+   * `onValueChange`: `<TextField {...fieldProps()} placeholder="…" />`.
+   */
+  readonly fieldProps: Accessor<TagInputTextFieldProps>
   /** Normalizes and adds a tag without clearing the draft; returns whether it was added. */
   add: (raw: string) => boolean
   /** Removes the tag at `index`. */

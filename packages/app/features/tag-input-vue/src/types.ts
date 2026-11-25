@@ -8,6 +8,8 @@
 
 import type { ComputedRef, HTMLAttributes, Ref, VNodeChild } from 'vue'
 
+import type { TextFieldProps } from '@molecule/app-ui'
+
 /** Props for the {@link TagChip} component. */
 export interface TagChipProps {
   /** Visible tag text — the default slot (a `children` prop works too). */
@@ -89,6 +91,11 @@ export interface TagInputFieldProps {
   onBlur: () => void
 }
 
+/** The props to spread onto a renderer-neutral TextField. */
+export type TagInputTextFieldProps = Required<
+  Pick<TextFieldProps, 'value' | 'onValueChange' | 'onKeyDown' | 'onBlur'>
+>
+
 /** What {@link useTagInput} returns. */
 export interface UseTagInputResult {
   /** The current draft text. */
@@ -97,6 +104,11 @@ export interface UseTagInputResult {
   setDraft: (next: string) => void
   /** Spread onto your own `<input>`: `<input v-bind="inputProps" placeholder="…" />`. */
   inputProps: ComputedRef<TagInputFieldProps>
+  /**
+   * Spread onto a renderer-neutral `TextField`, which reports its text through
+   * `onValueChange`: `<TextField v-bind="fieldProps" placeholder="…" />`.
+   */
+  readonly fieldProps: ComputedRef<TagInputTextFieldProps>
   /** Normalizes and adds a tag without clearing the draft; returns whether it was added. */
   add: (raw: string) => boolean
   /** Removes the tag at `index`. */
