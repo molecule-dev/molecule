@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-vue",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Vue UI components for molecule.dev",
   "type": "module",
   "sideEffects": false,
@@ -38,8 +38,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@molecule/app-inline-style-dom": "1.1.0",
-    "@molecule/app-overlay-dom": "1.0.0",
+    "@molecule/app-inline-style-dom": "1.2.0",
+    "@molecule/app-overlay-dom": "1.1.0",
     "@molecule/app-pointer-events-dom": "1.1.0"
   },
   "peerDependencies": {

@@ -44,10 +44,10 @@
   },
   "devDependencies": {
     "@molecule/app-logger": "1.1.0",
-    "@molecule/app-react": "4.16.1",
+    "@molecule/app-react": "4.17.0",
     "@molecule/app-storage": "1.1.1",
-    "@molecule/app-ui": "1.10.0",
-    "@molecule/app-ui-react": "4.8.1",
+    "@molecule/app-ui": "1.11.0",
+    "@molecule/app-ui-react": "4.9.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

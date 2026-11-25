@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-vue
 
+## 1.1.2
+
+### Patch Changes
+
+- Opening the dialog focuses the email field instead of the close button, through Modal `initialFocus` (requires the `@molecule/app-ui-vue` release that adds it).
+
 ## 1.1.1
 
 ### Patch Changes

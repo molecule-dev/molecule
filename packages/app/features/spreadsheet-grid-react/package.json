@@ -45,9 +45,9 @@
   "devDependencies": {
     "@molecule/app-clipboard": "1.0.5",
     "@molecule/app-i18n": "1.3.0",
-    "@molecule/app-react": "4.16.1",
-    "@molecule/app-ui": "1.10.0",
-    "@molecule/app-ui-react": "4.8.1",
+    "@molecule/app-react": "4.17.0",
+    "@molecule/app-ui": "1.11.0",
+    "@molecule/app-ui-react": "4.9.0",
     "@molecule/app-ui-tailwind": "1.5.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

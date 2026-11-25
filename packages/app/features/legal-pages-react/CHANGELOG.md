@@ -1,5 +1,11 @@
 # @molecule/app-legal-pages-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Uses the renderer-neutral UI kit for legal content and dialogs. Requires `@molecule/app-ui-react` 4.7.0.
+
 ## 4.1.2
 
 ### Patch Changes

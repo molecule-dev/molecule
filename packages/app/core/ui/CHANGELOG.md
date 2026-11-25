@@ -1,5 +1,12 @@
 # @molecule/app-ui
 
+## 1.11.0
+
+### Minor Changes
+
+- Modal takes `initialFocus`, the control that receives focus when it opens, and PromptDialog uses it to focus its input.
+- Adds renderer-neutral overlay geometry, outside press options and toast countdowns.
+
 ## 1.10.0
 
 ### Minor Changes

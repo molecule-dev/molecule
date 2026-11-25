@@ -1,5 +1,11 @@
 # @molecule/app-admin-table-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- Keeps a row action from also navigating the row.
+
 ## 1.1.1
 
 ### Patch Changes

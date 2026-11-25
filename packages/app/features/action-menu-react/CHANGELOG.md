@@ -1,5 +1,11 @@
 # @molecule/app-action-menu-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Uses the shared overlay platform for menu dismissal on web and React Native. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 4.1.0
 
 ### Minor Changes

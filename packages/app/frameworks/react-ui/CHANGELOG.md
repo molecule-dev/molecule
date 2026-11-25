@@ -1,5 +1,20 @@
 # @molecule/app-ui-react
 
+## 4.9.0
+
+### Minor Changes
+
+- Modal takes `initialFocus`, the control that receives focus when it opens, and PromptDialog uses it to focus its input.
+- Shares account, confirmation and menu dismissal across renderers and positions anchored overlays consistently.
+
+### Patch Changes
+
+- Serialize inline styles through `@molecule/app-inline-style-dom`.
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-inline-style-dom@1.2.0
+  - @molecule/app-overlay-dom@1.1.0
+
 ## 4.8.1
 
 ### Patch Changes

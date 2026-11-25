@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.17.0
+
+### Minor Changes
+
+- Adds the anchored overlay and toast platform types and shares profile form submission across renderers.
+
 ## 4.16.1
 
 ### Patch Changes

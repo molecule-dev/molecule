@@ -1,5 +1,11 @@
 # @molecule/app-admin-table-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Supports row-action dismissal on web and React Native and keeps item activation from navigating the row. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 4.1.0
 
 ### Minor Changes

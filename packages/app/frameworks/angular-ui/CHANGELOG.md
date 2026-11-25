@@ -1,5 +1,19 @@
 # @molecule/app-ui-angular
 
+## 1.8.0
+
+### Minor Changes
+
+- Modal takes `initialFocus`, the control that receives focus when it opens, and PromptDialog uses it to focus its input.
+- Coordinates inline overlay dismissal, document-local positions and toast pauses with the shared platform.
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-inline-style-dom@1.2.0
+  - @molecule/app-overlay-dom@1.1.0
+
 ## 1.7.0
 
 ### Minor Changes

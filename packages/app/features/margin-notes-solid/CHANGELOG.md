@@ -1,5 +1,13 @@
 # @molecule/app-margin-notes-solid
 
+## 1.3.1
+
+### Patch Changes
+
+- Serialize inline styles through `@molecule/app-inline-style-dom`.
+- Updated dependencies
+  - @molecule/app-inline-style-dom@1.2.0
+
 ## 1.3.0
 
 ### Minor Changes

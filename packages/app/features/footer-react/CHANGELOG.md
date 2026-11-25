@@ -1,5 +1,11 @@
 # @molecule/app-footer-react
 
+## 4.3.0
+
+### Minor Changes
+
+- Uses the renderer-neutral UI kit for the footer’s legal and language dialogs. Requires `@molecule/app-ui-react` 4.7.0.
+
 ## 4.2.2
 
 ### Patch Changes
