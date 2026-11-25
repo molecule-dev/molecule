@@ -3007,10 +3007,11 @@ describe('Form components', () => {
   })
 
   it('should call both handlers on submit: onFormSubmit with collected data, onSubmit with the event', async () => {
+    // The browser's FormData is iterable as [name, value] pairs, which is how Form reads it.
     class FakeFormData {
-      forEach(cb: (value: string, key: string) => void): void {
-        cb('ada@example.com', 'email')
-        cb('2', 'count')
+      *[Symbol.iterator](): IterableIterator<[string, string]> {
+        yield ['email', 'ada@example.com']
+        yield ['count', '2']
       }
     }
     vi.stubGlobal('FormData', FakeFormData)
