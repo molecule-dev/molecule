@@ -1,5 +1,11 @@
 # @molecule/app-avatar-stack-vue
 
+## 1.2.2
+
+### Patch Changes
+
+- Translate the avatar stack's overflow label.
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-uploads-s3
 
+## 1.3.1
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-locales-common
 
+## 1.0.11
+
+### Patch Changes
+
+- The missing service worker message names `@molecule/app-pwa-default`, matching `@molecule/app-locales-push`.
+
 ## 1.0.10
 
 ### Patch Changes

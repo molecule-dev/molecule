@@ -1,5 +1,11 @@
 # @molecule/app-contact-form-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders with the renderer-neutral elements, on the web and React Native; the web output is unchanged. Requires `@molecule/app-ui` 1.5.0.
+
 ## 4.0.2
 
 ### Patch Changes

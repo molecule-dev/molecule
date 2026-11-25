@@ -1,5 +1,11 @@
 # @molecule/api-bonds-default-express
 
+## 1.2.1
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 1.2.0
 
 ### Minor Changes

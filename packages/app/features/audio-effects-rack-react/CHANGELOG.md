@@ -1,5 +1,11 @@
 # @molecule/app-feature-audio-effects-rack-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the effects rack on web and React Native with shared panel reordering.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- Keeps the draft when the input method confirms Enter with legacy key code 229, adds a `fieldProps` text-field binding to `useTagInput`, and takes the chip's remove glyph from the `tagChip.removeGlyph` translation.
+
 ## 1.1.2
 
 ### Patch Changes

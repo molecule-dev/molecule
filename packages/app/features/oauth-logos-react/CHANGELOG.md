@@ -1,5 +1,11 @@
 # @molecule/app-oauth-logos-react
 
+## 1.2.0
+
+### Minor Changes
+
+- Renders all OAuth logos through shared web and React Native SVG elements. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 1.1.0
 
 ### Minor Changes

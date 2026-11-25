@@ -1,5 +1,11 @@
 # @molecule/app-feature-audio-mixer-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Keeps the original range input attribute order for mixer controls on the web.
+
 ## 4.1.0
 
 ### Minor Changes

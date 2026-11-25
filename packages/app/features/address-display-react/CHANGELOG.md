@@ -1,5 +1,11 @@
 # @molecule/app-address-display-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders addresses and phone links on web and React Native with identical web markup. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 4.0.1
 
 ### Patch Changes

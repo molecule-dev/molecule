@@ -1,5 +1,11 @@
 # @molecule/api-database-remote
 
+## 1.0.6
+
+### Patch Changes
+
+- The examples read the database password from the environment instead of writing it into the URL.
+
 ## 1.0.5
 
 ### Patch Changes

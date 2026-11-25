@@ -1,5 +1,11 @@
 # @molecule/app-typing-indicator-svelte
 
+## 1.2.0
+
+### Minor Changes
+
+- Applies the ClassMap `typingPulse` motion recipe like the React typing indicator. Requires `@molecule/app-ui` 1.9.0.
+
 ## 1.1.2
 
 ### Patch Changes

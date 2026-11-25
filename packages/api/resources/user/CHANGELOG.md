@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.11.4
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 1.11.3
 
 ### Patch Changes

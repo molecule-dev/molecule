@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.9.1
+
+### Patch Changes
+
+- Resolve dependencies of source packages linked from a separate npm workspace through that workspace's own install. Keep the configured framework and Molecule deduplication for those links.
+
 ## 1.9.0
 
 ### Minor Changes

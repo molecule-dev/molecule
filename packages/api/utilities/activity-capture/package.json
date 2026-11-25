@@ -53,7 +53,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-bond": "1.0.5",
     "@molecule/api-emails": "1.0.4",
     "@molecule/api-logger": "1.0.3",
     "@types/node": "26.6.5",

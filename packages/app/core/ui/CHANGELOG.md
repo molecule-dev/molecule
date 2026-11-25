@@ -1,5 +1,18 @@
 # @molecule/app-ui
 
+## 1.10.0
+
+### Minor Changes
+
+- Adds disclosure and thematic break contracts, address containers, and typed number and date field bounds.
+- Adds element drag, touch observation, and secondary activation contracts.
+- Add two-axis scroll offsets, secondary press actions, and authored select defaults.
+- Adds `fieldLayout`, the shared flex-column layout for form field wrappers.
+- Add typed element prop forwarding, viewport measurement, native accessibility grouping and composition-aware text field keys.
+- Adds the shared `PulseDots` props and the `typingPulse` ClassMap motion recipe.
+- Adds renderer-neutral SVG definitions, image, metadata, and paint contracts.
+- Adds centered cover images for boxes, text selection for field handles, and control over the range input's attribute position.
+
 ## 1.9.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-adjustment-slider-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Keeps the original range input attribute order when rendering the slider on the web.
+
 ## 4.1.0
 
 ### Minor Changes

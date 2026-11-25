@@ -1,5 +1,11 @@
 # @molecule/app-footer-react
 
+## 4.2.2
+
+### Patch Changes
+
+- Restores the original web markup order of internal and external footer links.
+
 ## 4.2.1
 
 ### Patch Changes

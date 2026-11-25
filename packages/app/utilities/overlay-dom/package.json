@@ -15,15 +15,22 @@
     "build": "tsc",
     "test": "vitest run"
   },
-  "files": ["dist", "README.md"],
-  "keywords": ["molecule", "overlays", "dom"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "overlays",
+    "dom"
+  ],
   "license": "Apache-2.0",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "peerDependencies": {
     "@molecule/app-ui": "^1.9.0"
   },
   "devDependencies": {
-    "@molecule/app-ui": "1.9.0",
+    "@molecule/app-ui": "1.10.0",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
     "typescript": "6.0.3",

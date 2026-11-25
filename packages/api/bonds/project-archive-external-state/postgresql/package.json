@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-project-archive-external-state-postgresql",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Back up and restore a project's PostgreSQL database as part of a project archive — captures it with pg_dump --format=custom into an archive part and puts it back with pg_restore, proving the dump decodes in full before the caller is allowed to destroy the original.",
   "homepage": "https://www.molecule.dev/packages/api-project-archive-external-state-postgresql",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/app-auth-ui-angular
 
+## 1.2.2
+
+### Patch Changes
+
+- Lays out the OAuth button group as one column so the gap below its divider is the same on every renderer.
+
 ## 1.2.1
 
 ### Patch Changes

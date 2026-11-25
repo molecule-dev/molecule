@@ -1,5 +1,11 @@
 # @molecule/app-message-preview-react
 
+## 4.2.1
+
+### Patch Changes
+
+- Keeps the original web attribute order on routed message previews.
+
 ## 4.2.0
 
 ### Minor Changes

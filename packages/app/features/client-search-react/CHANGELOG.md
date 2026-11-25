@@ -1,5 +1,11 @@
 # @molecule/app-client-search-react
 
+## 1.2.0
+
+### Minor Changes
+
+- Search sessions support portable field refs and select the current query when focused on web and React Native.
+
 ## 1.1.0
 
 ### Minor Changes

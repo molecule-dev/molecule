@@ -1,5 +1,11 @@
 # @molecule/app-drag-drop
 
+## 1.2.0
+
+### Minor Changes
+
+- Add scoped drag bindings for existing React hosts and report how each drag ended.
+
 ## 1.1.0
 
 ### Minor Changes

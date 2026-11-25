@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.16.1
+
+### Patch Changes
+
+- Support Angular's server DOM when restoring the placement of detached hosts.
+
 ## 3.16.0
 
 ### Minor Changes

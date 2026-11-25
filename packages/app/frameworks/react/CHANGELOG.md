@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.16.1
+
+### Patch Changes
+
+- Renders a link's resolved href in the position of its destination prop.
+
 ## 4.16.0
 
 ### Minor Changes

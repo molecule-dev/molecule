@@ -1,5 +1,11 @@
 # @molecule/app-map-drawing-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- Keeps drawing when the pointer leaves the surface, finishes a circle or selection at the release position and discards a drag the browser interrupts. Requires `@molecule/app-ui-vue` 1.4 or later.
+
 ## 1.1.1
 
 ### Patch Changes

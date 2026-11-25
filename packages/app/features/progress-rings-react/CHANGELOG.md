@@ -1,5 +1,11 @@
 # @molecule/app-progress-rings-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders with the renderer-neutral elements, on the web and React Native; the web output is unchanged.
+
 ## 4.0.1
 
 ### Patch Changes

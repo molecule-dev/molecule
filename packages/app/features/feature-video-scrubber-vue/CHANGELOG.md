@@ -1,5 +1,12 @@
 # @molecule/app-feature-video-scrubber-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- Keeps scrubbing when the pointer leaves the filmstrip, until the pointer that started the scrub is released.
+- Share pointer ownership with surrounding drag hosts, preserve presses on nested controls, and require `@molecule/app-ui` 1.9 or later.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-search-ui-svelte
 
+## 1.2.0
+
+### Minor Changes
+
+- Keeps the active result in view when a new result list replaces it, makes a row active only when a mouse or pen hovers it, and cancels the Enter that confirms a legacy input method's composition.
+
 ## 1.1.3
 
 ### Patch Changes

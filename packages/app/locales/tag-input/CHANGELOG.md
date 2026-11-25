@@ -1,5 +1,11 @@
 # @molecule/app-locales-tag-input
 
+## 1.1.0
+
+### Minor Changes
+
+- Add a translatable remove glyph for tag chips.
+
 ## 1.0.4
 
 ### Patch Changes

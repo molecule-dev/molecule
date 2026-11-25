@@ -1,5 +1,11 @@
 # @molecule/app-weather-card-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Keeps the original attribute order of the weather icons.
+
 ## 4.1.0
 
 ### Minor Changes

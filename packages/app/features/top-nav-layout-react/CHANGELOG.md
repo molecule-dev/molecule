@@ -1,5 +1,11 @@
 # @molecule/app-top-nav-layout-react
 
+## 4.2.1
+
+### Patch Changes
+
+- Keeps the original web attribute order on top navigation links.
+
 ## 4.2.0
 
 ### Minor Changes

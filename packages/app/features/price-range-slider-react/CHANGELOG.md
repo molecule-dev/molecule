@@ -1,5 +1,11 @@
 # @molecule/app-price-range-slider-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Keeps the original web attribute order on both price range controls.
+
 ## 4.1.0
 
 ### Minor Changes

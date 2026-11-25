@@ -1,5 +1,15 @@
 # @molecule/app-storefront-chrome-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Renders storefront navigation, announcements, and footers on web and React Native. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
+### Patch Changes
+
+- Keeps the original web attribute order on storefront action links and icons.
+
 ## 4.1.1
 
 ### Patch Changes

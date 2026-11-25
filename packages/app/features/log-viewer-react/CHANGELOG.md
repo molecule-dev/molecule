@@ -1,5 +1,11 @@
 # @molecule/app-log-viewer-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Supports expanding log entries on web and React Native. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-sidebar-layout-react
 
+## 4.2.1
+
+### Patch Changes
+
+- Keeps the original web attribute order on sidebar links.
+
 ## 4.2.0
 
 ### Minor Changes

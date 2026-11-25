@@ -1,5 +1,11 @@
 # @molecule/app-search-autocomplete-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- Lays out the search field's wrappers as flex columns, the same way the kit's Input does.
+
 ## 1.1.0
 
 ### Minor Changes

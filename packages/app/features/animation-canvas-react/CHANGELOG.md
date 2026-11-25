@@ -1,5 +1,11 @@
 # @molecule/app-feature-animation-canvas-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders AnimationCanvas on web and React Native with contact-to-seek support. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 4.0.1
 
 ### Patch Changes

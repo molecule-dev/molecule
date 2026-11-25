@@ -1,5 +1,11 @@
 # @molecule/app-layer-panel-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the layer panel on web and React Native with shared reordering and inline rename.
+
 ## 4.0.2
 
 ### Patch Changes

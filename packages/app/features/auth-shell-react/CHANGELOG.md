@@ -1,5 +1,15 @@
 # @molecule/app-auth-shell-react
 
+## 5.0.0
+
+### Major Changes
+
+- Use Box props for auth layout wrappers and render the auth shell on web and React Native.
+
+### Patch Changes
+
+- Keeps the original web attribute order on the back link.
+
 ## 4.1.1
 
 ### Patch Changes

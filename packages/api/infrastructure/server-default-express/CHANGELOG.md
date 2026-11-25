@@ -1,5 +1,11 @@
 # @molecule/api-server-default-express
 
+## 1.2.8
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 1.2.7
 
 ### Patch Changes

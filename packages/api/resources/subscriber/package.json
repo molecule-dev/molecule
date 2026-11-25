@@ -36,7 +36,7 @@
     "directory": "packages/api/resources/subscriber"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-bond": "1.0.5",
     "@molecule/api-database": "1.2.2",
     "@molecule/api-i18n": "1.0.6",
     "@molecule/api-logger": "1.0.3",

@@ -1,5 +1,11 @@
 # @molecule/app-feature-audio-waveform-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders waveform clipping and seeking through the shared web and React Native elements. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
 ## 4.0.0
 
 ### Patch Changes

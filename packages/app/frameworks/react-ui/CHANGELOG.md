@@ -1,5 +1,23 @@
 # @molecule/app-ui-react
 
+## 4.8.0
+
+### Minor Changes
+
+- Adds disclosure and thematic break elements, address containers, and number and date field bounds.
+- Adds element drag, hover and touch observation, double activation, nearest-edge reveal, and a Ctrl-wheel zoom shortcut.
+- Report scroll offsets on existing elements, support secondary presses, and retain authored select defaults.
+- Render Toast and Tooltip with shared elements, preserve their React DOM types, and support callback ref cleanup.
+- Adds the `PulseDots` element for reduced-motion-aware typing animation. Requires `@molecule/app-ui` 1.9.0.
+- Add the `./platform` overlay host, layer, portal and backdrop that Modal, ConfirmDialog and the app shell's drawer render with, coordinate Escape, focus and body scroll with the other web UI kits, and keep Dropdowns in the trigger's document.
+- Adds SVG definitions, gradients, clipping, patterns, images, and descriptive metadata to the React elements.
+- Preserves authored web attribute order and supports centered cover images on boxes.
+- Share pointer drag ownership across the web UI kits.
+
+### Patch Changes
+
+- Lays out Input, Select and Textarea wrappers as flex columns so a control's margin is the same on every renderer.
+
 ## 4.7.0
 
 ### Minor Changes

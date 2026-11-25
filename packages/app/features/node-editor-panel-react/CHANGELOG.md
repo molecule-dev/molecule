@@ -1,5 +1,11 @@
 # @molecule/app-node-editor-panel-react
 
+## 4.2.1
+
+### Patch Changes
+
+- Restores the original web attribute order on node-editor sliders.
+
 ## 4.2.0
 
 ### Minor Changes

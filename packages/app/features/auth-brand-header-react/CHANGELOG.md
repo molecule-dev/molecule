@@ -1,5 +1,11 @@
 # @molecule/app-auth-brand-header-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Keeps the original attribute order of the filled brand icon.
+
 ## 4.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-uploads
 
+## 1.4.0
+
+### Minor Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 1.3.0
 
 ### Minor Changes

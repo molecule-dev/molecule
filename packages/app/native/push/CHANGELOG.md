@@ -1,5 +1,11 @@
 # @molecule/app-push
 
+## 1.2.2
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm, and the missing-worker message now names `@molecule/app-pwa-default` in every language.
+
 ## 1.2.1
 
 ### Patch Changes

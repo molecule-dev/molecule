@@ -1,5 +1,11 @@
 # @molecule/app-spreadsheet-grid-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the spreadsheet on web and React Native with two-axis scrolling, range selection, and TSV paste.
+
 ## 4.0.4
 
 ### Patch Changes

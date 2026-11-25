@@ -1,5 +1,15 @@
 # @molecule/app-color-picker-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders the color picker with shared web and React Native fields and sliders. Requires `@molecule/app-ui-react` 4.7.0 and `@molecule/app-ui` 1.9.0.
+
+### Patch Changes
+
+- Keeps the original range input attribute order on the color sliders.
+
 ## 4.0.1
 
 ### Patch Changes

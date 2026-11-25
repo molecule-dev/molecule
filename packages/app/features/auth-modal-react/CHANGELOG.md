@@ -1,5 +1,17 @@
 # @molecule/app-auth-modal-react
 
+## 5.0.0
+
+### Minor Changes
+
+- Renders with the renderer-neutral elements, on the web and React Native; the web output is unchanged. Requires `@molecule/app-ui` 1.9.0.
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-auth-shell-react@5.0.0
+
 ## 4.0.5
 
 ### Patch Changes

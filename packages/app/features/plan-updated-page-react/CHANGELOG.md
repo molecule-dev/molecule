@@ -1,5 +1,11 @@
 # @molecule/app-plan-updated-page-react
 
+## 4.3.1
+
+### Patch Changes
+
+- Keeps the original web attribute order on the receipt link.
+
 ## 4.3.0
 
 ### Minor Changes

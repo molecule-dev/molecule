@@ -1,5 +1,11 @@
 # @molecule/app-avatar-stack-react
 
+## 5.0.0
+
+### Major Changes
+
+- Use Box and Anchor props for UserChip and render avatar stacks on web and React Native.
+
 ## 4.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.3.0
+
+### Minor Changes
+
+- Add a translated label for moving an item to a numbered position.
+
 ## 1.2.0
 
 ### Minor Changes

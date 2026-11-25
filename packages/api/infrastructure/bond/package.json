@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-bond",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Provider wiring mechanism",
   "type": "module",
   "main": "dist/index.js",

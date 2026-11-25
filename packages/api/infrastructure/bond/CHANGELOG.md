@@ -1,5 +1,11 @@
 # @molecule/api-bond
 
+## 1.0.5
+
+### Patch Changes
+
+- With no logger bonded, `getLogger()` prints messages at `LOG_LEVEL` or above (`info` by default), as `@molecule/api-logger` does.
+
 ## 1.0.4
 
 ### Patch Changes

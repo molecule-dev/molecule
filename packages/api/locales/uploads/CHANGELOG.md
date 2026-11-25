@@ -1,5 +1,11 @@
 # @molecule/api-locales-uploads
 
+## 1.1.1
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 1.1.0
 
 ### Minor Changes

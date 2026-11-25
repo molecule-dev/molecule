@@ -1,5 +1,15 @@
 # @molecule/app-password-generator-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Renders with the renderer-neutral elements, on the web and React Native; the web output is unchanged. Requires `@molecule/app-ui` 1.9.0.
+
+### Patch Changes
+
+- Restores the original web attribute order on the password length slider.
+
 ## 4.1.0
 
 ### Minor Changes

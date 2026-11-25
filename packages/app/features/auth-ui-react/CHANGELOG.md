@@ -1,5 +1,11 @@
 # @molecule/app-auth-ui-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Lays out the OAuth button group as one column so the gap below its divider is the same on every renderer.
+
 ## 4.1.0
 
 ### Minor Changes

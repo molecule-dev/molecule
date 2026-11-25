@@ -1,5 +1,11 @@
 # @molecule/api-middleware-body-parser-express
 
+## 2.1.0
+
+### Minor Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm.
+
 ## 2.0.0
 
 ### Major Changes

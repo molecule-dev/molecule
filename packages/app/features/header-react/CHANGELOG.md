@@ -1,5 +1,11 @@
 # @molecule/app-header-react
 
+## 4.3.1
+
+### Patch Changes
+
+- Keeps the original web attribute order on the brand link.
+
 ## 4.3.0
 
 ### Minor Changes

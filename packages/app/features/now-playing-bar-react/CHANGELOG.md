@@ -1,5 +1,11 @@
 # @molecule/app-now-playing-bar-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Keeps the original range input attribute order for seek and volume controls on the web.
+
 ## 4.1.0
 
 ### Minor Changes

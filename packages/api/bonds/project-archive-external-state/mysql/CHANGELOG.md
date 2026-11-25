@@ -1,5 +1,11 @@
 # @molecule/api-project-archive-external-state-mysql
 
+## 1.0.5
+
+### Patch Changes
+
+- The examples read the database password from the environment instead of writing it into the URL.
+
 ## 1.0.3
 
 ### Patch Changes

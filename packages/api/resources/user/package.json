@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-user",
-  "version": "1.11.3",
+  "version": "1.11.4",
   "description": "User registration, login, JWT sessions",
   "type": "module",
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-bond": "1.0.5",
     "@molecule/api-config": "1.0.4",
     "@molecule/api-locales-user": "1.2.1",
     "@molecule/api-locales-user-payments": "1.0.5",

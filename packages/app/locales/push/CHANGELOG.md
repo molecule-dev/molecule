@@ -1,5 +1,11 @@
 # @molecule/app-locales-push
 
+## 1.0.7
+
+### Patch Changes
+
+- Publishes the changes listed under the previous version, which was not released to npm, and the missing-worker message now names `@molecule/app-pwa-default` in every language.
+
 ## 1.0.6
 
 ### Patch Changes

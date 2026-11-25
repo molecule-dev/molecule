@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-react
 
+## 5.0.0
+
+### Major Changes
+
+- Use Box props for TagList and bind tag entry to TextField on web and React Native.
+
 ## 4.1.2
 
 ### Patch Changes

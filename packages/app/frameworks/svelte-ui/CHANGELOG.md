@@ -1,5 +1,16 @@
 # @molecule/app-ui-svelte
 
+## 1.5.0
+
+### Minor Changes
+
+- Share pointer drag ownership across the web UI kits.
+
+### Patch Changes
+
+- Lays out Input, Select and Textarea wrappers as flex columns so a control's margin is the same on every renderer.
+- Coordinate Escape, focus and body scroll with the other web UI kits' dialogs, drawers and menus, keep Dropdowns in the trigger's document, and render open dialogs inline during server rendering. Requires `@molecule/app-ui` 1.9.0.
+
 ## 1.4.4
 
 ### Patch Changes
