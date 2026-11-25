@@ -194,8 +194,8 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): 
   return (
     <p className={cm.cn(cm.textCenter, cm.textSize('xs'), cm.sp('mt', 6), cm.authShellBackLink)}>
       <Link
-        to={to}
         className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.authShellBackLinkAnchor)}
+        to={to}
       >
         {/* The Material Symbols ligature name paints a glyph, not text — hidden
             from the accessibility tree so the link's accessible name is its

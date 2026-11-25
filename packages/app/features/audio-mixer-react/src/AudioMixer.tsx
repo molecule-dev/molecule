@@ -419,6 +419,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
 
       <Box as="div" webStyle={faderWrapStyle}>
         <RangeField
+          type="range"
           min={MIN_LEVEL}
           max={MAX_LEVEL}
           step={0.01}
@@ -435,6 +436,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
       </Box>
 
       <RangeField
+        type="range"
         min={MIN_PAN}
         max={MAX_PAN}
         step={0.01}
@@ -530,6 +532,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
                   {sendName}
                 </Text>
                 <RangeField
+                  type="range"
                   min={MIN_LEVEL}
                   max={MAX_LEVEL}
                   step={0.01}

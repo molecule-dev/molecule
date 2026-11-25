@@ -182,13 +182,13 @@ export function SidebarLayout({
         webStyle={asideStyle}
       >
         <Link
-          to={safeTarget(logoTo)}
           className={cm.cn(
             cm.textSize('xl'),
             cm.fontWeight('bold'),
             cm.sp('mb', 6),
             cm.displayBlock,
           )}
+          to={safeTarget(logoTo)}
         >
           {appName}
         </Link>
@@ -199,7 +199,6 @@ export function SidebarLayout({
             return (
               <Link
                 key={item.key}
-                to={safeTarget(item.to)}
                 data-mol-id={`nav-${item.key}`}
                 aria-current={isActive ? 'page' : undefined}
                 className={cm.cn(
@@ -220,6 +219,7 @@ export function SidebarLayout({
                       cm.cn(cm.bgPrimaryContainer, cm.textOnPrimaryContainer)
                     : cm.cn(cm.textMuted, cm.link),
                 )}
+                to={safeTarget(item.to)}
               >
                 {item.icon ? <GlyphIcon name={item.icon} aria-hidden /> : null}
                 <Text as="span">{item.label}</Text>

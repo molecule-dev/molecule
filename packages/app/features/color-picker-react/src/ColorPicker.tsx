@@ -144,6 +144,7 @@ export function ColorPicker({
       >
         <Text as="span">{t('colorPicker.hue', {}, { defaultValue: 'Hue' })}</Text>
         <RangeField
+          type="range"
           min={0}
           max={360}
           step={1}
@@ -161,6 +162,7 @@ export function ColorPicker({
       >
         <Text as="span">{t('colorPicker.saturation', {}, { defaultValue: 'Saturation' })}</Text>
         <RangeField
+          type="range"
           min={0}
           max={100}
           step={1}
@@ -178,6 +180,7 @@ export function ColorPicker({
       >
         <Text as="span">{t('colorPicker.value', {}, { defaultValue: 'Value' })}</Text>
         <RangeField
+          type="range"
           min={0}
           max={100}
           step={1}

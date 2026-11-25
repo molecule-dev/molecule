@@ -245,6 +245,7 @@ export function PasswordGenerator({
         </Text>
         <RangeField
           id="password-generator-length"
+          type="range"
           min={MIN_LENGTH}
           max={MAX_LENGTH}
           step={1}

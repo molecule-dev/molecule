@@ -9,7 +9,7 @@ import { createElement, type ReactElement } from 'react'
 import type { FieldsetProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode, ElementRefProps } from './types.js'
 
 /**
@@ -21,18 +21,12 @@ import type { ElementNode, ElementRefProps } from './types.js'
 export function Fieldset({
   as,
   children,
-  style,
-  webStyle,
   ref,
   ...props
 }: FieldsetProps<ElementNode> & ElementRefProps): ReactElement {
   return createElement(
     as,
-    {
-      ...props,
-      ref: useElementRef<HTMLFieldSetElement>(ref),
-      style: webElementStyle(style, webStyle),
-    },
+    { ...webElementAttributes(props), ref: useElementRef<HTMLFieldSetElement>(ref) },
     children,
   )
 }

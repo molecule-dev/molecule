@@ -157,7 +157,7 @@ export function MessagePreview({
 
   if (to) {
     return (
-      <Link to={to} onClick={onClick} className={wrapperClass}>
+      <Link onClick={onClick} className={wrapperClass} to={to}>
         {body}
       </Link>
     )

@@ -4,9 +4,11 @@
  * area with its text between `autoGrow`'s line counts, whether the caller holds the text (`value`)
  * or the user types into a field it does not hold (`input` events).
  */
-import React, { act } from 'react'
+import React, { act, createRef } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { ElementHandle } from '@molecule/app-ui'
 
 import { TextField } from '../TextField.js'
 
@@ -29,6 +31,19 @@ afterEach(() => {
 })
 
 describe('TextField element (web)', () => {
+  it.each(['input', 'textarea'] as const)('selects the complete value of a focused %s', (as) => {
+    const ref = createRef<ElementHandle>()
+    act(() => root.render(<TextField as={as} defaultValue="find 🔍" ref={ref} />))
+    const field = container.querySelector(as)
+    expect(ref.current).toBe(field)
+    act(() => {
+      ref.current?.focus()
+      ref.current?.select?.()
+    })
+    expect(document.activeElement).toBe(field)
+    expect([field?.selectionStart, field?.selectionEnd]).toEqual([0, 'find 🔍'.length])
+  })
+
   it('preserves number and date constraints and omits them on unsupported hosts', () => {
     // A JavaScript consumer can supply extra props outside the TypeScript contract.
     const unsupported: Record<string, number> = { min: 0, max: 10, step: 1 }

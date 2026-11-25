@@ -9,7 +9,7 @@ import { createElement, type FormEvent, type ReactElement, type Ref } from 'reac
 import type { FormAreaHandle, FormAreaProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode } from './types.js'
 
 /**
@@ -20,25 +20,21 @@ import type { ElementNode } from './types.js'
  */
 export function FormArea({
   as,
-  onSubmit,
   children,
-  style,
-  webStyle,
   ref,
   ...props
 }: FormAreaProps<ElementNode> & { ref?: Ref<FormAreaHandle> }): ReactElement {
+  const { onSubmit } = props
   return createElement(
     as,
-    {
-      ...props,
+    webElementAttributes(props, {
       ref: useElementRef<HTMLFormElement>(ref),
-      style: webElementStyle(style, webStyle),
       onSubmit: onSubmit
         ? (event: FormEvent<HTMLFormElement>): void => {
             onSubmit(event, Array.from(new FormData(event.currentTarget)))
           }
         : undefined,
-    },
+    }),
     children,
   )
 }

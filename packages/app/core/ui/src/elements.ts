@@ -43,6 +43,8 @@ export interface ElementHandle {
   focus(): void
   /** Removes focus from the element. */
   blur(): void
+  /** Selects the entire current text field value, via DOM selection or native TextInput selection. */
+  select?(): void
 }
 
 /** An element's box in the window, in CSS pixels on the web and density-independent pixels on native. */
@@ -496,7 +498,14 @@ export interface BoxProps<Node = unknown>
   /** Consumes plain-text paste on the web or through a native field or focused Paste command. */
   onPasteText?: (text: string) => void
   /** Layout and paint both renderers apply. */
-  style?: BoxStyle
+  style?: BoxStyle & {
+    /**
+     * URI painted behind the contents, centered and sized to cover the box. Web emits
+     * CSS background declarations here. Native draws a decorative image within the box.
+     * An empty URI leaves the box's background color visible.
+     */
+    coverImage?: string
+  }
   /** Web-only paint. */
   webStyle?: WebStyle
   /** Child elements. */
@@ -823,6 +832,8 @@ export type TextFieldProps = TextFieldBaseProps &
 
 /** A numeric range rendered by the browser's range input or the device's adjustable slider. */
 export interface RangeFieldProps extends ElementProps, InteractionProps {
+  /** Optional position of the fixed web type attribute. Native always uses a slider. */
+  type?: 'range'
   /** Lower bound. The browser and device use 0 when it is omitted. */
   min?: number
   /** Upper bound. The browser and device use 100 when it is omitted. */

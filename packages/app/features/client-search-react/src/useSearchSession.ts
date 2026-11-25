@@ -21,6 +21,7 @@ import {
   hasProvider as hasStorage,
   set as storageSet,
 } from '@molecule/app-storage'
+import type { ElementHandle } from '@molecule/app-ui'
 
 import { readHashQuery, writeHashQuery } from './hashQuery.js'
 import { useClientSearch } from './useClientSearch.js'
@@ -87,9 +88,12 @@ export interface SearchSessionConfig<T extends ClientSearchDocument> {
 }
 
 /** Everything a search box and a results list share. */
-export interface SearchSession<T extends ClientSearchDocument> {
-  /** Attach to the input. */
-  inputRef: RefObject<HTMLInputElement | null>
+export interface SearchSession<
+  T extends ClientSearchDocument,
+  Field extends ElementHandle = HTMLInputElement,
+> {
+  /** Attach to the search field. Use ElementHandle for a field shared by the two renderers. */
+  inputRef: RefObject<Field | null>
   query: string
   setQuery: (query: string) => void
   clear: () => void
@@ -141,9 +145,10 @@ const wordsOf = (parsed: ParsedQuery): string[] => [
  * @param config - The documents, index options, and callbacks.
  * @returns The session.
  */
-export function useSearchSession<T extends ClientSearchDocument>(
-  config: SearchSessionConfig<T>,
-): SearchSession<T> {
+export function useSearchSession<
+  T extends ClientSearchDocument,
+  Field extends ElementHandle = HTMLInputElement,
+>(config: SearchSessionConfig<T>): SearchSession<T, Field> {
   const {
     docs,
     options,
@@ -156,7 +161,7 @@ export function useSearchSession<T extends ClientSearchDocument>(
     augmentDelayMs = 250,
     augmentWhen = defaultAugmentWhen,
   } = config
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const inputRef = useRef<Field | null>(null)
   const index = useClientSearchIndex(docs, options)
   const [initial] = useState(() =>
     syncUrl
@@ -189,7 +194,7 @@ export function useSearchSession<T extends ClientSearchDocument>(
     const el = inputRef.current
     if (!el) return
     el.focus()
-    el.select()
+    el.select?.()
   }, [])
 
   // Nothing in the URL: offer back what was typed elsewhere, once, on mount.

@@ -86,7 +86,7 @@ export function TopNavLayout({
             cm.flex({ align: 'center', justify: 'between', gap: 'lg' }),
           )}
         >
-          <Link to={logoTo} className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
+          <Link className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))} to={logoTo}>
             {appName}
           </Link>
           <Box as="nav" className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navLabel}>
@@ -95,7 +95,6 @@ export function TopNavLayout({
               return (
                 <Link
                   key={item.key}
-                  to={item.to}
                   // Below `md` the label span hides and the link becomes
                   // icon-only; the icon span is aria-hidden, so the link's
                   // accessible name must come from here.
@@ -112,6 +111,7 @@ export function TopNavLayout({
                       ? cm.cn(cm.bgPrimaryContainer, cm.textPrimary)
                       : cm.cn(cm.textMuted, cm.topNavLayoutNavItemIdle),
                   )}
+                  to={item.to}
                 >
                   {item.icon ? <GlyphIcon name={item.icon} aria-hidden /> : null}
                   <Text as="span" className={cm.topNavLayoutNavItemLabel}>

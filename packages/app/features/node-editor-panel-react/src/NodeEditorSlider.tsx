@@ -59,6 +59,7 @@ export function NodeEditorSlider({
         min={min}
         max={max}
         step={step}
+        type="range"
         value={value}
         onValueChange={onChange}
       />

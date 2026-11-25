@@ -29,6 +29,7 @@ import type {
 
 import { useWebDrag } from './drag.js'
 import { useElementRef } from './ref.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode, ShapeNode } from './types.js'
 
 /**
@@ -39,18 +40,19 @@ import type { ElementNode, ShapeNode } from './types.js'
  * @returns The element.
  */
 export const Svg = forwardRef<ElementHandle, SvgProps<ShapeNode>>(function Svg(
-  { style, webStyle, drag, metadata, webShapeRendering, children, ...props },
+  { drag, metadata, children, ...props },
   ref,
 ): ReactElement {
   return createElement(
     'svg',
-    {
-      ...props,
-      shapeRendering: webShapeRendering,
-      ref: useElementRef(ref),
-      onPointerDown: useWebDrag<SVGSVGElement>(drag),
-      style: style || webStyle ? { ...style, ...webStyle } : undefined,
-    },
+    webElementAttributes(
+      props,
+      {
+        ref: useElementRef(ref),
+        onPointerDown: useWebDrag<SVGSVGElement>(drag),
+      },
+      { webShapeRendering: 'shapeRendering' },
+    ),
     ...metadataChildren(metadata),
     children,
   )
@@ -65,29 +67,29 @@ export const Svg = forwardRef<ElementHandle, SvgProps<ShapeNode>>(function Svg(
  * @returns The element.
  */
 export const SvgMarkup = forwardRef<ElementHandle, SvgMarkupProps>(function SvgMarkup(
-  { style, webStyle, webShapeRendering, markup, ...props },
+  { markup, ...props },
   ref,
 ): ReactElement {
-  return createElement('svg', {
-    ...props,
-    shapeRendering: webShapeRendering,
-    ref: useElementRef(ref),
-    style: style || webStyle ? { ...style, ...webStyle } : undefined,
-    dangerouslySetInnerHTML: { __html: markup },
-  })
+  return createElement(
+    'svg',
+    webElementAttributes(
+      props,
+      {
+        ref: useElementRef(ref),
+        dangerouslySetInnerHTML: { __html: markup },
+      },
+      { webShapeRendering: 'shapeRendering' },
+    ),
+  )
 })
 
 /** Applies the CSS escape hatch without introducing an extra node or attribute. */
 function shape<P extends SvgElementProps>(
   tag: string,
-  { style, webStyle, ...props }: P,
+  props: P,
   ...children: ReactNode[]
 ): ReactElement {
-  return createElement(
-    tag,
-    { ...props, style: style || webStyle ? { ...style, ...webStyle } : undefined },
-    ...children,
-  )
+  return createElement(tag, webElementAttributes(props), ...children)
 }
 
 /** Emits descriptive children first, only when supplied by the owner. */

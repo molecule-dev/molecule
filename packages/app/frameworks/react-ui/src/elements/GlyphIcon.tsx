@@ -9,7 +9,7 @@ import { createElement, type ReactElement } from 'react'
 import { getClassMap, type GlyphIconProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes, webElementStyle } from './style.js'
 import type { ElementRefProps } from './types.js'
 
 /** The icon font's filled form, by its `FILL` axis. */
@@ -24,24 +24,23 @@ const FILLED = { fontVariationSettings: "'FILL' 1" } as const
  */
 export function GlyphIcon({
   name,
-  filled,
-  className,
-  style,
-  webStyle,
   ref,
-  'data-icon': dataIcon,
-  ...props
+  ...authored
 }: GlyphIconProps & ElementRefProps): ReactElement {
   const cm = getClassMap()
+  const { filled, ...props } = authored
+  const { className, style, webStyle } = props
   return createElement(
     'span',
-    {
-      ...props,
-      ref: useElementRef(ref),
-      className: cm.cn(cm.iconGlyphFont, className),
-      'data-icon': dataIcon,
-      style: webElementStyle(style, filled ? { ...FILLED, ...webStyle } : webStyle),
-    },
+    webElementAttributes(
+      filled ? authored : props,
+      {
+        ref: useElementRef(ref),
+        className: cm.cn(cm.iconGlyphFont, className),
+        ...(filled && { style: webElementStyle(style, { ...FILLED, ...webStyle }) }),
+      },
+      { filled: 'style' },
+    ),
     name,
   )
 }

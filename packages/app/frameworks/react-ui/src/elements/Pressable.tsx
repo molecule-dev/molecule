@@ -24,7 +24,7 @@ import type { ElementNode } from './types.js'
  * @returns The element.
  */
 export const Pressable = forwardRef<ElementHandle, PressableProps<ElementNode>>(function Pressable(
-  { as, children, drag, onMouseEnter, onMouseLeave, ...props },
+  { as, children, drag, ...props },
   ref,
 ): ReactElement {
   const forward = useElementRef<HTMLElement>(ref)
@@ -36,10 +36,10 @@ export const Pressable = forwardRef<ElementHandle, PressableProps<ElementNode>>(
     [forward],
   )
   const onPointerDown = useWebDrag(props.disabled ? undefined : drag, as)
-  const hover = useWebHover<HTMLElement>({ onMouseEnter, onMouseLeave })
+  const hover = useWebHover<HTMLElement>(props)
   return createElement(
     as,
-    { ...webElementAttributes(props), ...hover, ref: setNode, onPointerDown },
+    webElementAttributes(props, { ...hover, ref: setNode, onPointerDown }),
     children,
   )
 })

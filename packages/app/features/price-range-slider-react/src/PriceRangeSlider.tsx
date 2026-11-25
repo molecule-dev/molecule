@@ -58,6 +58,7 @@ export function PriceRangeSlider({
           {fmt(low)}
         </Text>
         <RangeField
+          type="range"
           min={min}
           max={max}
           step={step}
@@ -67,6 +68,7 @@ export function PriceRangeSlider({
           aria-label={t('priceRangeSlider.aria.minimum', undefined, { defaultValue: 'Minimum' })}
         />
         <RangeField
+          type="range"
           min={min}
           max={max}
           step={step}

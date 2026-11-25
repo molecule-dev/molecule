@@ -9,34 +9,37 @@ import { type ChangeEvent, createElement, forwardRef, type ReactElement } from '
 import type { ElementHandle, SelectFieldProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 
 /**
  * Renders one browser select and forwards the actual select and change event.
  */
 export const SelectField = forwardRef<ElementHandle, SelectFieldProps>(
   function SelectField(field, ref) {
-    const { as, options, style, webStyle, onChange, onValueChange, ...attributes } = field
+    const { as, options, ...attributes } = field
+    const { onChange, onValueChange } = attributes
     return createElement(
       as,
-      {
-        ...attributes,
-        ref: useElementRef<HTMLSelectElement>(ref),
-        style: webElementStyle(style, webStyle),
-        onChange:
-          onChange || onValueChange || field.value !== undefined
-            ? (event: ChangeEvent<HTMLSelectElement>): void => {
-                onChange?.(event)
-                if (field.multiple) {
-                  field.onValueChange?.(
-                    Array.from(event.currentTarget.selectedOptions, (option) => option.value),
-                  )
-                } else {
-                  field.onValueChange?.(event.currentTarget.value)
+      webElementAttributes(
+        attributes,
+        {
+          ref: useElementRef<HTMLSelectElement>(ref),
+          onChange:
+            onChange || onValueChange || field.value !== undefined
+              ? (event: ChangeEvent<HTMLSelectElement>): void => {
+                  onChange?.(event)
+                  if (field.multiple) {
+                    field.onValueChange?.(
+                      Array.from(event.currentTarget.selectedOptions, (option) => option.value),
+                    )
+                  } else {
+                    field.onValueChange?.(event.currentTarget.value)
+                  }
                 }
-              }
-            : undefined,
-      },
+              : undefined,
+        },
+        { onValueChange: 'onChange' },
+      ),
       renderOptions(options),
     )
   },

@@ -148,6 +148,7 @@ export function AdjustmentSlider({
         )}
         <RangeField
           ref={inputRef}
+          type="range"
           min={min}
           max={max}
           step={step}

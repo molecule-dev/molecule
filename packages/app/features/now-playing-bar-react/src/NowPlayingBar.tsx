@@ -281,6 +281,7 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
           {formatTime(currentTime)}
         </Text>
         <RangeField
+          type="range"
           min={0}
           max={duration > 0 ? duration : 0}
           step={0.1}
@@ -308,6 +309,7 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
             {volume === 0 ? '🔇' : '🔊'}
           </Text>
           <RangeField
+            type="range"
             min={0}
             max={1}
             step={0.01}

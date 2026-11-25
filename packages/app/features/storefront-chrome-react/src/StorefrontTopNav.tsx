@@ -143,10 +143,10 @@ export function StorefrontTopNav({
               key={action.to}
               className={cm.cn(cm.storefrontChromeTopNavAction)}
               data-mol-id={action.dataMolId}
-              to={action.to}
               aria-label={action.ariaLabel}
+              to={action.to}
             >
-              <GlyphIcon name={action.icon} data-icon={action.icon} />
+              <GlyphIcon name={action.icon} className={undefined} data-icon={action.icon} />
               {action.badgeCount && action.badgeCount > 0 ? (
                 <Text
                   as="span"

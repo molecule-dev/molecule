@@ -204,8 +204,8 @@ export function WeatherCard({
           >
             <GlyphIcon
               name={conditionIcon}
-              filled
               className={cm.textSize('2xl')}
+              filled
               aria-hidden="true"
             />
             {condition ? (

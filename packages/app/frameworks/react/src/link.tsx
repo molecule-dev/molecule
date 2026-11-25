@@ -94,9 +94,10 @@ const routerEvent = (event: ReactMouseEvent<HTMLAnchorElement>): MouseEvent =>
  * binding supports both).
  */
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
-  { to, replace, state, onClick, children, ...anchor },
+  { replace, state, children, ...anchor },
   ref,
 ) {
+  const { to, onClick } = anchor
   const router = useLinkRouter(to)
 
   /**
@@ -112,13 +113,14 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
     followRouterLink(routerEvent(event), to, router, { replace, state })
   }
 
+  const href = router === null ? to : routerLinkHref(to, router)
+  const attributes = Object.fromEntries(
+    Object.entries(anchor).map(([name, value]) =>
+      name === 'to' || name === 'href' ? ['href', href] : [name, value],
+    ),
+  )
   return (
-    <a
-      {...anchor}
-      ref={ref}
-      href={router === null ? to : routerLinkHref(to, router)}
-      onClick={handleClick}
-    >
+    <a {...attributes} ref={ref} onClick={handleClick}>
       {children}
     </a>
   )

@@ -5,6 +5,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import { setProvider } from '@molecule/app-client-search'
 import { provider } from '@molecule/app-client-search-minisearch'
+import type { ElementHandle } from '@molecule/app-ui'
 
 import { hashForQuery, readHashQuery, writeHashQuery } from '../hashQuery.js'
 import { useSearchSession } from '../useSearchSession.js'
@@ -108,7 +109,7 @@ describe('useSearchSession', () => {
   it('reads a plain anchor as a filter and rewrites the hash', () => {
     window.history.replaceState(null, '', '/list#auth')
     const h = renderHook(() =>
-      useSearchSession<Doc>({
+      useSearchSession<Doc, ElementHandle>({
         docs: DOCS,
         options: OPTIONS,
         onOpen: () => {},
@@ -118,8 +119,24 @@ describe('useSearchSession', () => {
     expect(h.value().query).toBe('category:auth')
     expect(h.value().hits.map((x) => x.id)).toEqual(['a', 'b'])
     expect(window.location.hash).toBe('#q=category%3Aauth')
-    act(() => h.value().removeFilter(0))
-    expect(h.value().query).toBe('')
+    const input = document.createElement('input')
+    input.value = h.value().query
+    document.body.append(input)
+    try {
+      h.value().inputRef.current = input
+      act(() => h.value().removeFilter(0))
+      expect(h.value().query).toBe('')
+      expect(document.activeElement).toBe(input)
+      expect([input.selectionStart, input.selectionEnd]).toEqual([0, 'category:auth'.length])
+
+      const focus = vi.fn()
+      // A focusable element may support focus and blur without text selection.
+      h.value().inputRef.current = { focus, blur: vi.fn() }
+      h.value().focus()
+      expect(focus).toHaveBeenCalledOnce()
+    } finally {
+      input.remove()
+    }
   })
 
   it('appends augmented hits after typing pauses, marked related, skipping duplicates', async () => {

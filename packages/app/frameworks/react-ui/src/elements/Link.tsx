@@ -10,7 +10,7 @@ import { Link as RouterLink } from '@molecule/app-react/link'
 import type { ElementLinkProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode, ElementRefProps } from './types.js'
 
 /**
@@ -21,18 +21,12 @@ import type { ElementNode, ElementRefProps } from './types.js'
  * @returns The element.
  */
 export function Link({
-  style,
-  webStyle,
   children,
   ref,
   ...props
 }: ElementLinkProps<ElementNode> & ElementRefProps): ReactElement {
   return (
-    <RouterLink
-      {...props}
-      ref={useElementRef<HTMLAnchorElement>(ref)}
-      style={webElementStyle(style, webStyle)}
-    >
+    <RouterLink {...webElementAttributes(props)} ref={useElementRef<HTMLAnchorElement>(ref)}>
       {children}
     </RouterLink>
   )

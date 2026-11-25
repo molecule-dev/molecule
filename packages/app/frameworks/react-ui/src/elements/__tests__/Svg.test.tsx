@@ -40,7 +40,7 @@ it('serializes definitions, ordered stops, clips, tiles, images and text as lite
     </Svg>,
   )
   expect(actual).toBe(
-    '<svg viewBox="0 0 50 40" translate="no" shape-rendering="crispEdges">' +
+    '<svg viewBox="0 0 50 40" shape-rendering="crispEdges" translate="no">' +
       '<defs><linearGradient id="ink" x1="0" y1="15%" x2="40" y2="85%" gradientUnits="userSpaceOnUse">' +
       '<stop offset="50%" stop-color="currentColor"></stop>' +
       '<stop offset="50%" stop-color="currentColor" stop-opacity="0.25"></stop></linearGradient>' +

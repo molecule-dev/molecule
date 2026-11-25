@@ -24,21 +24,10 @@ import type { ElementNode } from './types.js'
  * @returns The element.
  */
 export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box(
-  {
-    as,
-    children,
-    drag,
-    onDoubleClick,
-    onMouseEnter,
-    onMouseLeave,
-    onPasteText,
-    onPressOutside,
-    onTouchStart,
-    secondaryAction,
-    ...props
-  },
+  { as, children, drag, onPressOutside, secondaryAction, ...props },
   ref,
 ): ReactElement {
+  const { hidden, onDoubleClick, onMouseEnter, onMouseLeave, onPasteText, onTouchStart } = props
   const node = useRef<HTMLElement>(null)
   const forward = useElementRef<HTMLElement>(ref)
   const setNode = useCallback(
@@ -48,7 +37,6 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
     },
     [forward],
   )
-  const hidden = props.hidden
   const pointerDown = useWebDrag(hidden ? undefined : drag, as)
   const hover = useWebHover<HTMLElement>({ onMouseEnter, onMouseLeave })
   useEffect(() => {
@@ -66,20 +54,23 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
   }, [as, hidden, onPressOutside])
   return createElement(
     as,
-    {
-      ...webElementAttributes(props),
-      ...hover,
-      ref: onPressOutside ? setNode : forward,
-      onPointerDown: pointerDown,
-      onTouchStart: onTouchStart ? () => onTouchStart() : undefined,
-      onDoubleClick: secondaryAction
-        ? (event: KitMouseEvent): void => {
-            onDoubleClick?.(event)
-            if (!event.defaultPrevented) secondaryAction.run()
-          }
-        : onDoubleClick,
-      onPaste: pasteHandler(onPasteText),
-    },
+    webElementAttributes(
+      props,
+      {
+        ...hover,
+        ref: onPressOutside ? setNode : forward,
+        onPointerDown: pointerDown,
+        onTouchStart: onTouchStart ? () => onTouchStart() : undefined,
+        onDoubleClick: secondaryAction
+          ? (event: KitMouseEvent): void => {
+              onDoubleClick?.(event)
+              if (!event.defaultPrevented) secondaryAction.run()
+            }
+          : onDoubleClick,
+        onPaste: pasteHandler(onPasteText),
+      },
+      { onPasteText: 'onPaste' },
+    ),
     children,
   )
 })

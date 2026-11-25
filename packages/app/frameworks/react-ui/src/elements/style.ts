@@ -6,7 +6,12 @@
 
 import type { CSSProperties } from 'react'
 
-import type { BoxStyle, WebStyle } from '@molecule/app-ui'
+import type { BoxProps, SvgStyle, WebStyle } from '@molecule/app-ui'
+
+interface StyleProps {
+  style?: BoxProps['style'] | SvgStyle
+  webStyle?: WebStyle
+}
 
 /**
  * Merges an element's `style` and `webStyle` into the one inline style the DOM element gets, or
@@ -17,28 +22,59 @@ import type { BoxStyle, WebStyle } from '@molecule/app-ui'
  * @returns The inline style, or `undefined`.
  */
 export function webElementStyle(
-  style: BoxStyle | undefined,
+  style: StyleProps['style'],
   webStyle: WebStyle | undefined,
 ): CSSProperties | undefined {
   if (!style && !webStyle) return undefined
+  if (style && 'coverImage' in style) {
+    const url = style.coverImage
+    const cover = {
+      backgroundImage: url ? 'url("' + escapeCssString(url) + '")' : undefined,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }
+    const authored = Object.entries(style).flatMap(([name, value]) =>
+      name === 'coverImage' ? Object.entries(cover) : [[name, value]],
+    )
+    return { ...Object.fromEntries(authored), ...webStyle }
+  }
   return { ...style, ...webStyle }
 }
 
+/** Escapes special characters for a double-quoted CSS string. */
+function escapeCssString(value: string): string {
+  return value.replace(
+    /["\\\n\r\f]/g,
+    (character) => '\\' + character.charCodeAt(0).toString(16) + ' ',
+  )
+}
+
 /**
- * Merges the two style inputs at their position in the authored attributes. That allows a
- * converted element to serialize the same markup as its literal HTML tag.
+ * Projects attributes onto the literal tag. An alias shares the first position with its target.
+ * Overrides change the value at that position or append an attribute the element generates.
  *
  * @param props - The element attributes including either style input.
- * @returns The HTML attributes with one inline style.
+ * @param overrides - Replacement values and generated attributes by their DOM name.
+ * @param aliases - Additional element names that map to DOM names.
+ * @returns The DOM attributes with one inline style.
  */
-export function webElementAttributes<Props extends { style?: BoxStyle; webStyle?: WebStyle }>(
+export function webElementAttributes<Props extends StyleProps>(
   props: Props,
-): Props | Record<string, unknown> {
-  if (!('style' in props) && !('webStyle' in props)) return props
+): Omit<Props, 'style' | 'webStyle'> & { style?: CSSProperties }
+export function webElementAttributes(
+  props: StyleProps,
+  overrides: Readonly<Record<string, unknown>>,
+  aliases?: Readonly<Record<string, string>>,
+): Record<string, unknown>
+export function webElementAttributes(
+  props: StyleProps,
+  overrides: Readonly<Record<string, unknown>> = {},
+  aliases: Readonly<Record<string, string>> = {},
+): Record<string, unknown> {
   const style = webElementStyle(props.style, props.webStyle)
-  return Object.fromEntries(
-    Object.entries(props).map(([name, value]) =>
-      name === 'style' || name === 'webStyle' ? ['style', style] : [name, value],
-    ),
-  )
+  const authored = Object.entries(props).map(([name, value]) => {
+    if (name === 'style' || name === 'webStyle') return ['style', style]
+    return [Object.hasOwn(aliases, name) ? aliases[name] : name, value]
+  })
+  return { ...Object.fromEntries(authored), ...overrides }
 }

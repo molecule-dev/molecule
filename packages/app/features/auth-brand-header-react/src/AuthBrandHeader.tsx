@@ -65,8 +65,8 @@ export function AuthBrandHeaderChip({
     >
       <GlyphIcon
         name={icon}
-        filled
         className={cm.cn(cm.textSize('3xl'), cm.authBrandHeaderChipIcon)}
+        filled
         aria-hidden
       />
     </Box>

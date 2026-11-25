@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRichTranslation, useTranslation, useVersion } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Modal } from '@molecule/app-ui-react'
-import { Box, Link, Pressable, RichText, Text } from '@molecule/app-ui-react/elements'
+import { Anchor, Box, Link, Pressable, RichText, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * The preloader `loadContent` takes: called immediately before the
@@ -126,13 +126,20 @@ export function AppFooter({
           `region` rule requires all page content inside landmarks, and
           screen-reader users jump to the footer by landmark. */}
       <Box as="footer" className={cm.cn(cm.footerBar, className)} data-mol-id={dataMolId}>
-        <Link
-          to={aboutHref}
-          className={cm.footerLink}
-          {...(isExternalHref(aboutHref) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        >
-          {aboutLabel}
-        </Link>
+        {isExternalHref(aboutHref) ? (
+          <Anchor
+            href={aboutHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cm.footerLink}
+          >
+            {aboutLabel}
+          </Anchor>
+        ) : (
+          <Link className={cm.footerLink} to={aboutHref}>
+            {aboutLabel}
+          </Link>
+        )}
         {legalMode === 'modal' ? (
           <>
             <Pressable as="button" type="button" onClick={openPrivacy} className={cm.footerButton}>
@@ -144,10 +151,10 @@ export function AppFooter({
           </>
         ) : (
           <>
-            <Link to={privacyTo} className={cm.footerButton}>
+            <Link className={cm.footerButton} to={privacyTo}>
               {t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
             </Link>
-            <Link to={termsTo} className={cm.footerButton}>
+            <Link className={cm.footerButton} to={termsTo}>
               {t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
             </Link>
           </>

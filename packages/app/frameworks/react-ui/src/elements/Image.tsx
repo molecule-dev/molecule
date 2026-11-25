@@ -9,6 +9,7 @@ import { createElement, type ReactElement } from 'react'
 import type { ImageProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
+import { webElementAttributes } from './style.js'
 import type { ElementRefProps } from './types.js'
 
 /**
@@ -18,15 +19,9 @@ import type { ElementRefProps } from './types.js'
  * @param props - See {@link ImageProps}.
  * @returns The element.
  */
-export function Image({
-  style,
-  webStyle,
-  ref,
-  ...props
-}: ImageProps & ElementRefProps): ReactElement {
+export function Image({ ref, ...props }: ImageProps & ElementRefProps): ReactElement {
   return createElement('img', {
-    ...props,
+    ...webElementAttributes(props),
     ref: useElementRef(ref),
-    style: style || webStyle ? { ...style, ...webStyle } : undefined,
   })
 }

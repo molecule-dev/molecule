@@ -17,7 +17,7 @@ import {
 import type { CheckFieldHandle, CheckFieldProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 
 /**
  * Renders the original input tag and forwards the browser's check state and events.
@@ -27,16 +27,12 @@ import { webElementStyle } from './style.js'
  */
 export function CheckField({
   as,
-  checked,
   indeterminate,
   nativeChangeEvent,
-  onChange,
-  onCheckedChange,
-  style,
-  webStyle,
   ref,
   ...props
 }: CheckFieldProps & { ref?: Ref<CheckFieldHandle> }): ReactElement {
+  const { checked, onChange, onCheckedChange } = props
   const node = useRef<HTMLInputElement | null>(null)
   const forward = useElementRef<HTMLInputElement>(ref)
   const handleNativeChange = useCallback(
@@ -73,11 +69,14 @@ export function CheckField({
           onCheckedChange?.(next)
         }
       : undefined
-  return createElement(as, {
-    ...props,
-    checked,
-    onChange: handleChange,
-    ref: setNode,
-    style: webElementStyle(style, webStyle),
-  })
+  return createElement(
+    as,
+    webElementAttributes(
+      props,
+      { onChange: handleChange, ref: setNode },
+      {
+        onCheckedChange: 'onChange',
+      },
+    ),
+  )
 }

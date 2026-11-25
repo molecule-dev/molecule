@@ -19,7 +19,7 @@ import type { TextFieldProps } from '@molecule/app-ui'
 
 import { pasteHandler } from './paste.js'
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes, webElementStyle } from './style.js'
 import type { ElementRefProps } from './types.js'
 
 /**
@@ -32,21 +32,13 @@ import type { ElementRefProps } from './types.js'
  */
 export function TextField({
   as,
-  type,
-  rows,
-  cols,
-  wrap,
   autoGrow,
-  style,
-  webStyle,
-  onChange,
-  onValueChange,
-  onFocus,
-  onPasteText,
   selectTextOnFocus,
   ref,
   ...props
 }: TextFieldProps & ElementRefProps): ReactElement {
+  const { type, style, webStyle, onChange, onValueChange, onFocus, onPasteText } = props
+  // The raw DOM handle provides select() and preserves the field's identity for measurement.
   const forward = useElementRef<HTMLInputElement | HTMLTextAreaElement>(ref)
   const node = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
   const setNode = useCallback(
@@ -59,7 +51,6 @@ export function TextField({
   const grow = as === 'textarea' ? autoGrow : undefined
   const bounded = as === 'input' && (type === 'number' || type === 'date')
   useAutoGrow(node, grow?.minRows, grow?.maxRows, props.value)
-  const inlineStyle = webElementStyle(style, webStyle)
   const handleChange =
     onChange || onValueChange
       ? (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
@@ -67,27 +58,35 @@ export function TextField({
           onValueChange?.(event.target.value)
         }
       : undefined
-  return createElement(as, {
-    ...props,
-    ...(bounded ? {} : { min: undefined, max: undefined, step: undefined }),
-    ...(as === 'input' ? { type } : { rows, cols, wrap }),
-    onChange: handleChange,
-    onFocus: selectTextOnFocus
-      ? (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-          event.currentTarget.select()
-          onFocus?.(event)
-        }
-      : onFocus,
-    onPaste: pasteHandler(onPasteText),
-    ref: setNode,
-    style: grow
-      ? {
-          ...inlineStyle,
-          minHeight: `${Math.min(grow.minRows, grow.maxRows ?? Infinity)}lh`,
-          ...(grow.maxRows === undefined ? {} : { maxHeight: `${grow.maxRows}lh` }),
-        }
-      : inlineStyle,
-  })
+  return createElement(
+    as,
+    webElementAttributes(
+      props,
+      {
+        ...(bounded ? {} : { min: undefined, max: undefined, step: undefined }),
+        ...(as === 'input'
+          ? { rows: undefined, cols: undefined, wrap: undefined }
+          : { type: undefined }),
+        onChange: handleChange,
+        onFocus: selectTextOnFocus
+          ? (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+              event.currentTarget.select()
+              onFocus?.(event)
+            }
+          : onFocus,
+        onPaste: pasteHandler(onPasteText),
+        ref: setNode,
+        ...(grow && {
+          style: {
+            ...webElementStyle(style, webStyle),
+            minHeight: `${Math.min(grow.minRows, grow.maxRows ?? Infinity)}lh`,
+            ...(grow.maxRows === undefined ? {} : { maxHeight: `${grow.maxRows}lh` }),
+          },
+        }),
+      },
+      { onPasteText: 'onPaste', onValueChange: 'onChange' },
+    ),
+  )
 }
 
 /**

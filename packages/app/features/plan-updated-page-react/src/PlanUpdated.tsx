@@ -174,7 +174,6 @@ export function PlanUpdated({
       {receiptHref !== null && (
         <Box as="div" className={cm.sp('mt', 6)}>
           <Link
-            to={receiptHref}
             className={cm.cn(
               cm.textSize('xs'),
               cm.textSubtle,
@@ -184,6 +183,7 @@ export function PlanUpdated({
               cm.link,
             )}
             data-mol-id="plan-updated-view-receipt"
+            to={receiptHref}
           >
             {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
           </Link>

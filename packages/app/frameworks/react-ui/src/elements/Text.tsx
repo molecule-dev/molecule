@@ -9,7 +9,7 @@ import { createElement, type ReactElement } from 'react'
 import type { TextProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode, ElementRefProps } from './types.js'
 
 /**
@@ -22,15 +22,9 @@ import type { ElementNode, ElementRefProps } from './types.js'
  */
 export function Text({
   as,
-  style,
-  webStyle,
   children,
   ref,
   ...props
 }: TextProps<ElementNode> & ElementRefProps): ReactElement {
-  return createElement(
-    as,
-    { ...props, ref: useElementRef(ref), style: webElementStyle(style, webStyle) },
-    children,
-  )
+  return createElement(as, { ...webElementAttributes(props), ref: useElementRef(ref) }, children)
 }

@@ -9,7 +9,7 @@ import { createElement, type ReactElement } from 'react'
 import type { TableBoxProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
-import { webElementStyle } from './style.js'
+import { webElementAttributes } from './style.js'
 import type { ElementNode, ElementRefProps } from './types.js'
 
 /**
@@ -21,18 +21,8 @@ import type { ElementNode, ElementRefProps } from './types.js'
 export function TableBox({
   as,
   children,
-  style,
-  webStyle,
   ref,
   ...props
 }: TableBoxProps<ElementNode> & ElementRefProps): ReactElement {
-  return createElement(
-    as,
-    {
-      ...props,
-      ref: useElementRef(ref),
-      style: webElementStyle(style, webStyle),
-    },
-    children,
-  )
+  return createElement(as, { ...webElementAttributes(props), ref: useElementRef(ref) }, children)
 }

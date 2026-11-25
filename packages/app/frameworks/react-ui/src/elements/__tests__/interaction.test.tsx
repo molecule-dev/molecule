@@ -29,9 +29,11 @@ describe('element interaction', () => {
   it('serializes the timeline range control with its original literal attributes', () => {
     const attributes = { 'data-mol-id': 'zoom', min: 2, max: 200, step: 1, value: 20 }
     const onValueChange = vi.fn()
-    expect(renderToStaticMarkup(<RangeField {...attributes} onValueChange={onValueChange} />)).toBe(
-      renderToStaticMarkup(<input type="range" {...attributes} onChange={onValueChange} />),
-    )
+    expect(
+      renderToStaticMarkup(
+        <RangeField type="range" {...attributes} onValueChange={onValueChange} />,
+      ),
+    ).toBe(renderToStaticMarkup(<input type="range" {...attributes} onChange={onValueChange} />))
   })
 
   it('starts on down and ends a stationary contact once with the original DOM tag', () => {

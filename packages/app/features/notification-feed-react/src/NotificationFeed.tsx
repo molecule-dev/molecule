@@ -107,7 +107,7 @@ export function NotificationFeed({
         return (
           <Box as="li" key={item.id}>
             {item.href ? (
-              <Link to={item.href} className={cm.displayBlock}>
+              <Link className={cm.displayBlock} to={item.href}>
                 {content}
               </Link>
             ) : (

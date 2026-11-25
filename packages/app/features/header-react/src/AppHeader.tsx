@@ -129,7 +129,7 @@ export function AppHeader({
         aria-label={navigation?.label}
       >
         <Flex align="center" justify="between" className={cm.h('full')}>
-          <Link to={brandTo} className={brandClassName}>
+          <Link className={brandClassName} to={brandTo}>
             <Flex align="center" gap="xs">
               <Image src={logoSrc} width={logoSize} height={logoSize} alt="" />
               <Text as="span" className={cm.logoText}>
