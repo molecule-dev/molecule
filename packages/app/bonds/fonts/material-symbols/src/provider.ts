@@ -6,9 +6,11 @@
 
 import type { FontDefinition } from '@molecule/app-fonts'
 
-import { glyphs } from './glyphs.js'
-
-/** Material Symbols Outlined font definition — local, self-hosted (no external CDN). */
+/**
+ * Material Symbols Outlined font definition — local, self-hosted (no external CDN). A browser draws
+ * each glyph from its ligature name, so this definition carries no glyph table; React Native takes
+ * `nativeFont` from `./native`, which does.
+ */
 export const font: FontDefinition = {
   family: 'Material Symbols Outlined',
   role: 'icon',
@@ -25,5 +27,4 @@ export const font: FontDefinition = {
   },
   utilityCss:
     ".material-symbols-outlined {\n  font-family: 'Material Symbols Outlined';\n  font-weight: normal;\n  font-style: normal;\n  font-size: 24px;\n  line-height: 1;\n  letter-spacing: normal;\n  text-transform: none;\n  display: inline-block;\n  white-space: nowrap;\n  word-wrap: normal;\n  direction: ltr;\n  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;\n  -webkit-font-feature-settings: 'liga';\n  -webkit-font-smoothing: antialiased;\n}",
-  glyphs,
 }

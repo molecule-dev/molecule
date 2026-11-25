@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- Add the glyph table and a `./native` entry with static font files for React Native.
+- Add a `./native` entry for React Native: static font files and the glyph table a device draws by codepoint. The web `font` draws by ligature and carries no glyph table.
 
 ## 1.0.5
 

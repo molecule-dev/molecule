@@ -1,11 +1,16 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
+import { build } from 'esbuild'
 import { describe, expect, it } from 'vitest'
 
 import { GLYPH_ENTRIES, GLYPHS_SOURCE_SHA256 } from '../glyphs.data.js'
 import { FILLED_FAMILY, glyphCodepoint } from '../glyphs.js'
+import { nativeFont } from '../native.js'
 import { font } from '../provider.js'
+
+const SRC = fileURLToPath(new URL('..', import.meta.url))
 
 describe('Material Symbols glyphs', () => {
   it('were read from the woff2 this package ships (run scripts/build-native-fonts.py when it changes)', () => {
@@ -27,9 +32,39 @@ describe('Material Symbols glyphs', () => {
     expect(glyphCodepoint('')).toBeUndefined()
   })
 
-  it('are on the font definition, with the filled family', () => {
-    expect(font.glyphs?.codepoint('chat')).toBe(0xe0b7)
-    expect(font.glyphs?.filledFamily).toBe(FILLED_FAMILY)
+  it('are on the React Native definition, with the filled family, and not on the web one', () => {
+    expect(nativeFont.glyphs?.codepoint('chat')).toBe(0xe0b7)
+    expect(nativeFont.glyphs?.filledFamily).toBe(FILLED_FAMILY)
+    // A browser draws by ligature name.
+    expect(font.glyphs).toBeUndefined()
+  })
+
+  // 2026-11-25: the web definition referenced the glyph table, so every browser bundle that set
+  // the icon font carried its 79 KB of codepoints.
+  it('stay out of a browser bundle that sets the icon font, and are in a device bundle', async () => {
+    const bundle = async (contents: string): Promise<string> => {
+      const result = await build({
+        stdin: { contents, resolveDir: SRC, loader: 'ts' },
+        bundle: true,
+        write: false,
+        format: 'esm',
+        outdir: 'out',
+        loader: { '.ttf': 'file', '.woff2': 'file' },
+        external: ['@molecule/app-fonts'],
+        logLevel: 'silent',
+      })
+      return result.outputFiles.map((file) => file.text).join('\n')
+    }
+    const firstEntry = GLYPH_ENTRIES.slice(0, GLYPH_ENTRIES.indexOf(';'))
+    const web = await bundle(
+      "import { font } from './index.js'\nimport { setFont } from '@molecule/app-fonts'\nsetFont(font)\n",
+    )
+    expect(web).toContain('Material Symbols Outlined')
+    expect(web).not.toContain(firstEntry)
+    const device = await bundle(
+      "import { nativeFont } from './native.js'\nimport { setFont } from '@molecule/app-fonts'\nsetFont(nativeFont)\n",
+    )
+    expect(device).toContain(firstEntry)
   })
 
   it('ship the static instances a device loads', () => {
