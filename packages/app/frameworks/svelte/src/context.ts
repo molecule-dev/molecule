@@ -507,12 +507,18 @@ function linkRouter(mounted: Router | undefined, to: string): Router | null {
  * @example
  * ```svelte
  * <script lang="ts">
+ *   import type { Snippet } from 'svelte'
  *   import { writable } from 'svelte/store'
+ *
+ *   import { routerLinkHref } from '@molecule/app-routing'
+ *   import { useLinkRouter } from '@molecule/app-svelte'
+ *
+ *   let { children }: { children?: Snippet } = $props()
  *   const to = writable('/settings')
  *   const router = useLinkRouter(to)
  * </script>
  *
- * <a href={$router === null ? $to : routerLinkHref($to, $router)}>…
+ * <a href={$router === null ? $to : routerLinkHref($to, $router)}>{@render children?.()}</a>
  * ```
  */
 export function useLinkRouter(path: MaybeReadable<string>): Readable<Router | null>
