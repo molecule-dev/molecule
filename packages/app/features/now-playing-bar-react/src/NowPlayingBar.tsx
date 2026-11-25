@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Image, Pressable, RangeField, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A track currently loaded in the now-playing bar. Only `id`, `title`, and
@@ -113,20 +114,22 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
   if (track == null) {
     const emptyLabel = t('nowPlaying.empty', {}, { defaultValue: 'Nothing playing' })
     return (
-      <div
+      <Box
+        as="div"
         role="region"
         aria-label={emptyLabel}
         data-mol-id="now-playing-bar"
         data-mol-empty="true"
         className={cm.cn(cm.flex({ align: 'center', gap: 'md' }), cm.sp('p', 3), className)}
       >
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('sm'), cm.textMuted)}
           data-mol-id="now-playing-bar-empty"
         >
           {emptyLabel}
-        </span>
-      </div>
+        </Text>
+      </Box>
     )
   }
 
@@ -157,43 +160,49 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="region"
       aria-label={regionLabel}
       data-mol-id="now-playing-bar"
       className={cm.cn(cm.flex({ align: 'center', gap: 'md' }), cm.sp('p', 3), className)}
     >
       {/* Left: artwork */}
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.shrink0)}
         data-mol-id="now-playing-bar-artwork"
-        style={{ width: 56, height: 56 }}
+        webStyle={{ width: 56, height: 56 }}
       >
         {track.artwork ? (
-          <img
+          <Image
             src={track.artwork}
             alt={artworkAlt}
             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 6 }}
           />
         ) : (
-          <div
+          <Box
+            as="div"
             aria-hidden="true"
             className={cm.cn(cm.flex({ align: 'center', justify: 'center' }))}
-            style={{ width: '100%', height: '100%', borderRadius: 6 }}
+            webStyle={{ width: '100%', height: '100%', borderRadius: 6 }}
           />
         )}
-      </div>
+      </Box>
 
       {/* Center-left: title / artist (truncate-overflow) */}
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.stack(0))}
         data-mol-id="now-playing-bar-meta"
-        style={{ minWidth: 0, flex: '1 1 0%' }}
+        style={{ minWidth: 0, flex: 1 }}
+        webStyle={{ minWidth: 0, flex: '1 1 0%' }}
       >
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
           data-mol-id="now-playing-bar-title"
-          style={{
+          webStyle={{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -201,11 +210,12 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
           }}
         >
           {track.title}
-        </span>
-        <span
+        </Text>
+        <Text
+          as="span"
           className={cm.textSize('xs')}
           data-mol-id="now-playing-bar-artist"
-          style={{
+          webStyle={{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -213,16 +223,18 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
           }}
         >
           {track.artist}
-        </span>
-      </div>
+        </Text>
+      </Box>
 
       {/* Center: transport controls */}
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0)}
         data-mol-id="now-playing-bar-transport"
       >
         {onPrev && (
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={onPrev}
             aria-label={prevLabel}
@@ -230,9 +242,10 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
             className={cm.cn(cm.cursorPointer)}
           >
             {'⏮'}
-          </button>
+          </Pressable>
         )}
-        <button
+        <Pressable
+          as="button"
           type="button"
           onClick={handleToggle}
           aria-label={playLabel}
@@ -241,9 +254,10 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
           className={cm.cn(cm.cursorPointer)}
         >
           {isPlaying ? '⏸' : '▶'}
-        </button>
+        </Pressable>
         {onNext && (
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={onNext}
             aria-label={nextLabel}
@@ -251,62 +265,67 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
             className={cm.cn(cm.cursorPointer)}
           >
             {'⏭'}
-          </button>
+          </Pressable>
         )}
-      </div>
+      </Box>
 
       {/* Scrubber + time */}
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}
         data-mol-id="now-playing-bar-scrubber"
-        style={{ flex: '2 1 0%', minWidth: 0 }}
+        style={{ flex: 2, minWidth: 0 }}
+        webStyle={{ flex: '2 1 0%', minWidth: 0 }}
       >
-        <span className={cm.textSize('xs')} data-mol-id="now-playing-bar-current-time">
+        <Text as="span" className={cm.textSize('xs')} data-mol-id="now-playing-bar-current-time">
           {formatTime(currentTime)}
-        </span>
-        <input
-          type="range"
+        </Text>
+        <RangeField
           min={0}
           max={duration > 0 ? duration : 0}
           step={0.1}
           value={Math.min(currentTime, duration > 0 ? duration : 0)}
-          onChange={(e) => onSeek(Number(e.target.value))}
+          onValueChange={onSeek}
           aria-label={seekLabel}
           data-mol-id="now-playing-bar-seek"
-          style={{ flex: '1 1 0%', minWidth: 0 }}
+          style={{ flex: 1, minWidth: 0 }}
+          webStyle={{ flex: '1 1 0%', minWidth: 0 }}
         />
-        <span className={cm.textSize('xs')} data-mol-id="now-playing-bar-duration">
+        <Text as="span" className={cm.textSize('xs')} data-mol-id="now-playing-bar-duration">
           {formatTime(duration)}
-        </span>
-      </div>
+        </Text>
+      </Box>
 
       {/* Volume */}
       {onVolumeChange && typeof volume === 'number' && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0)}
           data-mol-id="now-playing-bar-volume"
-          style={{ width: 120 }}
+          webStyle={{ width: 120 }}
         >
-          <span aria-hidden="true">{volume === 0 ? '🔇' : '🔊'}</span>
-          <input
-            type="range"
+          <Text as="span" aria-hidden="true">
+            {volume === 0 ? '🔇' : '🔊'}
+          </Text>
+          <RangeField
             min={0}
             max={1}
             step={0.01}
             value={volume}
-            onChange={(e) => onVolumeChange(Number(e.target.value))}
+            onValueChange={onVolumeChange}
             aria-label={volumeLabel}
             data-mol-id="now-playing-bar-volume-slider"
-            style={{ flex: '1 1 0%', minWidth: 0 }}
+            style={{ flex: 1, minWidth: 0 }}
+            webStyle={{ flex: '1 1 0%', minWidth: 0 }}
           />
-        </div>
+        </Box>
       )}
 
       {trailing && (
-        <div className={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
+        <Box as="div" className={cm.cn(cm.shrink0)} data-mol-id="now-playing-bar-trailing">
           {trailing}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

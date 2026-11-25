@@ -10,6 +10,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-react'
+import { Box, GlyphIcon, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NodeEditorToggle}. */
 export interface NodeEditorToggleProps {
@@ -41,21 +42,23 @@ export function NodeEditorToggle({
   const subtitleId = useId()
   const hasSubtitle = !!subtitle
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.sp('p', 4),
         cm.flex({ align: 'center', justify: 'between' }),
         cm.nodeEditorPanelToggleRow,
       )}
     >
-      <div className={cm.cn(cm.flex({ align: 'center' }), cm.nodeEditorPanelToggleGroup)}>
+      <Box as="div" className={cm.cn(cm.flex({ align: 'center' }), cm.nodeEditorPanelToggleGroup)}>
         {icon ? (
-          <div className={cm.cn(cm.sp('p', 2), cm.nodeEditorPanelToggleIconTile)}>
-            <span className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>{icon}</span>
-          </div>
+          <Box as="div" className={cm.cn(cm.sp('p', 2), cm.nodeEditorPanelToggleIconTile)}>
+            <GlyphIcon name={icon} className={cm.textSize('sm')} />
+          </Box>
         ) : null}
-        <div>
-          <p
+        <Box as="div">
+          <Text
+            as="p"
             id={titleId}
             className={cm.cn(
               cm.textSize('xs'),
@@ -64,14 +67,14 @@ export function NodeEditorToggle({
             )}
           >
             {title}
-          </p>
+          </Text>
           {hasSubtitle ? (
-            <p id={subtitleId} className={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>
+            <Text as="p" id={subtitleId} className={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>
               {subtitle}
-            </p>
+            </Text>
           ) : null}
-        </div>
-      </div>
+        </Box>
+      </Box>
       {/* Shared accessible switch (role="switch", aria-checked, 40x40 touch
           hit-area, real change event). The ClassMap still keys the
           track/thumb styling off data-state — the shared component applies
@@ -86,9 +89,13 @@ export function NodeEditorToggle({
           : { 'aria-labelledby': titleId })}
         aria-describedby={hasSubtitle ? subtitleId : undefined}
         data-mol-id="node-editor-toggle"
-        onChange={(e) => onChange((e.target as HTMLInputElement).checked)}
+        onChange={({ target }) => {
+          if (target && 'checked' in target && typeof target.checked === 'boolean') {
+            onChange(target.checked)
+          }
+        }}
       />
-    </div>
+    </Box>
   )
 }
 

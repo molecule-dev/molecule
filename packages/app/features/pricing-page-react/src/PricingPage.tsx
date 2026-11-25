@@ -9,6 +9,7 @@ import {
 } from '@molecule/app-billing-react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Billing period selector — currently `'month'` or `'year'`. Mirrors the
@@ -92,21 +93,23 @@ export function PricingPage<TLimits = unknown>(
 
   if (usingFetched && fetched.loading && !tiers) {
     return (
-      <section className={className} data-mol-id="pricing-page-loading">
-        <p>{t('pricingPage.loading', undefined, { defaultValue: 'Loading plans…' })}</p>
-      </section>
+      <Box as="section" className={className} data-mol-id="pricing-page-loading">
+        <Text as="p">
+          {t('pricingPage.loading', undefined, { defaultValue: 'Loading plans…' })}
+        </Text>
+      </Box>
     )
   }
 
   if (usingFetched && (fetched.error || !tiers)) {
     return (
-      <section className={className} data-mol-id="pricing-page-error">
-        <p className={cm.formError} role="alert">
+      <Box as="section" className={className} data-mol-id="pricing-page-error">
+        <Text as="p" className={cm.formError} role="alert">
           {t('pricingPage.error', undefined, {
             defaultValue: 'Could not load pricing. Try again later.',
           })}
-        </p>
-      </section>
+        </Text>
+      </Box>
     )
   }
 
@@ -139,15 +142,16 @@ export function PricingPage<TLimits = unknown>(
   const hasYearly = renderedTiers.some((tier) => tier.prices.some((p) => p.period === 'year'))
 
   return (
-    <section className={className} data-mol-id="pricing-page">
-      <header className={cm.cardHeader}>
-        <h1 className={cm.cardTitle}>
+    <Box as="section" className={className} data-mol-id="pricing-page">
+      <Box as="header" className={cm.cardHeader}>
+        <Text as="h1" className={cm.cardTitle}>
           {t(headingKey, undefined, { defaultValue: headingDefault })}
-        </h1>
-      </header>
+        </Text>
+      </Box>
 
       {showPeriodToggle && hasYearly && (
-        <div
+        <Box
+          as="div"
           className={cm.flex({ direction: 'row', gap: 'sm', justify: 'center' })}
           data-mol-id="pricing-page-period-toggle"
           role="tablist"
@@ -155,7 +159,8 @@ export function PricingPage<TLimits = unknown>(
             defaultValue: 'Billing period',
           })}
         >
-          <button
+          <Pressable
+            as="button"
             type="button"
             role="tab"
             aria-selected={period === 'month'}
@@ -167,8 +172,9 @@ export function PricingPage<TLimits = unknown>(
             data-mol-id="pricing-page-period-month"
           >
             {t('pricingPage.periodToggle.monthly', undefined, { defaultValue: 'Monthly' })}
-          </button>
-          <button
+          </Pressable>
+          <Pressable
+            as="button"
             type="button"
             role="tab"
             aria-selected={period === 'year'}
@@ -180,11 +186,12 @@ export function PricingPage<TLimits = unknown>(
             data-mol-id="pricing-page-period-year"
           >
             {t('pricingPage.periodToggle.yearly', undefined, { defaultValue: 'Yearly' })}
-          </button>
-        </div>
+          </Pressable>
+        </Box>
       )}
 
-      <div
+      <Box
+        as="div"
         className={cm.flex({ direction: 'row', wrap: 'wrap', gap: 'md', justify: 'center' })}
         data-mol-id="pricing-page-grid"
       >
@@ -200,16 +207,21 @@ export function PricingPage<TLimits = unknown>(
             starting={starting}
           />
         ))}
-      </div>
+      </Box>
 
       {startError && (
-        <p className={cm.formError} role="alert" data-mol-id="pricing-page-checkout-error">
+        <Text
+          as="p"
+          className={cm.formError}
+          role="alert"
+          data-mol-id="pricing-page-checkout-error"
+        >
           {t('pricingPage.checkoutError', undefined, {
             defaultValue: 'Could not start checkout. Please try again.',
           })}
-        </p>
+        </Text>
       )}
-    </section>
+    </Box>
   )
 }
 
@@ -235,25 +247,36 @@ function PricingPageTierCard<TLimits>(
   const { tier, period, cm, t, renderLimits, onCheckout, starting } = props
   const price = tier.prices.find((p) => p.period === period) ?? tier.prices[0]
   return (
-    <article
+    <Box
+      as="article"
       className={cm.card({ variant: 'default' })}
       data-mol-id={`pricing-page-tier-${tier.key}`}
     >
-      <header className={cm.cardHeader}>
-        <h2 className={cm.cardTitle}>{tier.name}</h2>
-        <p className={cm.cardDescription}>
+      <Box as="header" className={cm.cardHeader}>
+        <Text as="h2" className={cm.cardTitle}>
+          {tier.name}
+        </Text>
+        <Text as="p" className={cm.cardDescription}>
           {price?.price ?? '—'}
           {tier.perSeat && (
-            <span> {t('pricingPage.perSeat', undefined, { defaultValue: 'per seat' })}</span>
+            <Text as="span">
+              {' '}
+              {t('pricingPage.perSeat', undefined, { defaultValue: 'per seat' })}
+            </Text>
           )}
-        </p>
-        {price?.savings && <p className={cm.cardDescription}>{price.savings}</p>}
-      </header>
-      <div className={cm.cardContent}>
+        </Text>
+        {price?.savings && (
+          <Text as="p" className={cm.cardDescription}>
+            {price.savings}
+          </Text>
+        )}
+      </Box>
+      <Box as="div" className={cm.cardContent}>
         {renderLimits ? renderLimits(tier.limits) : <PricingPageLimitsList limits={tier.limits} />}
-      </div>
-      <footer className={cm.cardFooter}>
-        <button
+      </Box>
+      <Box as="footer" className={cm.cardFooter}>
+        <Pressable
+          as="button"
           type="button"
           // Upgrade is a page-level CTA: same tier, colour and full width as
           // the identical action in `@molecule/app-billing-react`, so the two
@@ -263,7 +286,9 @@ function PricingPageTierCard<TLimits>(
             cm.touchTargetCompact,
           )}
           disabled={!price?.stripePriceId || starting}
-          onClick={() => price && onCheckout(tier, price)}
+          onClick={() => {
+            if (price) return onCheckout(tier, price)
+          }}
           data-mol-id={`pricing-page-cta-${tier.key}`}
         >
           {price?.stripePriceId
@@ -273,9 +298,9 @@ function PricingPageTierCard<TLimits>(
                 { defaultValue: 'Upgrade to {{tierName}}' },
               )
             : t('pricingPage.currentCta', undefined, { defaultValue: 'Current plan' })}
-        </button>
-      </footer>
-    </article>
+        </Pressable>
+      </Box>
+    </Box>
   )
 }
 
@@ -300,16 +325,16 @@ function PricingPageLimitsList<TLimits>(
   if (limits == null || typeof limits !== 'object') {
     return <></>
   }
-  const entries = Object.entries(limits as Record<string, unknown>)
+  const entries: [string, unknown][] = Object.entries(limits)
   return (
-    <dl>
+    <Box as="dl">
       {entries.map(([key, value]) => (
-        <div key={key}>
-          <dt>{key}</dt>
-          <dd>{formatLimitValue(value)}</dd>
-        </div>
+        <Box as="div" key={key}>
+          <Text as="dt">{key}</Text>
+          <Text as="dd">{formatLimitValue(value)}</Text>
+        </Box>
       ))}
-    </dl>
+    </Box>
   )
 }
 

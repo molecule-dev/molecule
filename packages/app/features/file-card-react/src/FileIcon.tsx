@@ -1,4 +1,6 @@
-import type { JSX, ReactNode } from 'react'
+import type { JSX } from 'react'
+
+import { Circle, Path, Rect, type ShapeNode, Svg } from '@molecule/app-ui-react/elements'
 
 /**
  * Supported file kinds. Drives icon selection and the "<kind>" portion of
@@ -23,58 +25,58 @@ export interface FileIconProps {
  * conventions (image = mountain, video = play, audio = note, document =
  * page, archive = box, code = brackets, folder = tab, other = sheet).
  */
-const PATHS: Record<FileKind, ReactNode> = {
+const PATHS: Record<FileKind, ShapeNode> = {
   image: (
     <>
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <circle cx="8.5" cy="10.5" r="1.5" />
-      <path d="m21 15-5-5L5 21" />
+      <Rect x={3} y={5} width={18} height={14} rx={2} />
+      <Circle cx={8.5} cy={10.5} r={1.5} />
+      <Path d="m21 15-5-5L5 21" />
     </>
   ),
   video: (
     <>
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m10 9 5 3-5 3z" fill="currentColor" />
+      <Rect x={3} y={5} width={18} height={14} rx={2} />
+      <Path d="m10 9 5 3-5 3z" fill="currentColor" />
     </>
   ),
   audio: (
     <>
-      <path d="M9 18V5l12-2v13" />
-      <circle cx="6" cy="18" r="3" />
-      <circle cx="18" cy="16" r="3" />
+      <Path d="M9 18V5l12-2v13" />
+      <Circle cx={6} cy={18} r={3} />
+      <Circle cx={18} cy={16} r={3} />
     </>
   ),
   document: (
     <>
-      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-      <path d="M14 3v6h6" />
+      <Path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+      <Path d="M14 3v6h6" />
     </>
   ),
   archive: (
     <>
-      <rect x="3" y="3" width="18" height="6" rx="1" />
-      <path d="M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9" />
-      <path d="M10 13h4" />
+      <Rect x={3} y={3} width={18} height={6} rx={1} />
+      <Path d="M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9" />
+      <Path d="M10 13h4" />
     </>
   ),
   code: (
     <>
-      <path d="m9 8-5 4 5 4" />
-      <path d="m15 8 5 4-5 4" />
-      <path d="m13 5-2 14" />
+      <Path d="m9 8-5 4 5 4" />
+      <Path d="m15 8 5 4-5 4" />
+      <Path d="m13 5-2 14" />
     </>
   ),
   folder: (
     <>
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <Path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     </>
   ),
   other: (
     <>
-      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-      <path d="M14 3v6h6" />
-      <path d="M9 14h6" />
-      <path d="M9 17h4" />
+      <Path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+      <Path d="M14 3v6h6" />
+      <Path d="M9 14h6" />
+      <Path d="M9 17h4" />
     </>
   ),
 }
@@ -91,7 +93,7 @@ const PATHS: Record<FileKind, ReactNode> = {
  */
 export function FileIcon({ kind, size = 24, ariaLabel }: FileIconProps): JSX.Element {
   return (
-    <svg
+    <Svg
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
@@ -107,6 +109,6 @@ export function FileIcon({ kind, size = 24, ariaLabel }: FileIconProps): JSX.Ele
       data-mol-id={`file-icon-${kind}`}
     >
       {PATHS[kind]}
-    </svg>
+    </Svg>
   )
 }

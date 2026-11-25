@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Anchor, Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Semantic kind, exposed as a `data-kind` attribute for per-kind styling (no built-in style change). */
 export type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
@@ -61,25 +62,27 @@ export function AnnouncementBar({
 
   const actionNode = action ? (
     action.href ? (
-      <a
+      <Anchor
         href={action.href}
         className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), cm.link)}
       >
         {action.label}
-      </a>
+      </Anchor>
     ) : (
-      <button
+      <Pressable
+        as="button"
         type="button"
         onClick={action.onClick}
         className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), cm.link)}
       >
         {action.label}
-      </button>
+      </Pressable>
     )
   ) : null
 
   return (
-    <div
+    <Box
+      as="div"
       role="status"
       data-mol-id={dataMolId}
       data-kind={kind}
@@ -90,23 +93,26 @@ export function AnnouncementBar({
         className,
       )}
     >
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {icon}
-        <span className={cm.textSize('sm')}>{children}</span>
-      </div>
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Box as="span" className={cm.textSize('sm')}>
+          {children}
+        </Box>
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {actionNode}
         {dismissible && (
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={dismiss}
             aria-label={t('announcement.dismiss', {}, { defaultValue: 'Dismiss' })}
             className={cm.cn(cm.w(6), cm.h(6), cm.flex({ align: 'center', justify: 'center' }))}
           >
             ×
-          </button>
+          </Pressable>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

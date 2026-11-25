@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Svg, SvgText } from '@molecule/app-ui-react/elements'
 
 /** A single word datum: text + numeric weight + optional explicit color. */
 export interface Word {
@@ -277,7 +278,7 @@ export function WordCloud({
   const emptyLabel = t('word-cloud.aria.empty', {}, { defaultValue: 'No words to display' })
 
   return (
-    <svg
+    <Svg
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
@@ -290,7 +291,7 @@ export function WordCloud({
         const fill = p.word.color ?? colorScale[i % colorScale.length]
         const transform = p.rotation === 0 ? undefined : `rotate(${p.rotation} ${p.x} ${p.y})`
         return (
-          <text
+          <SvgText
             key={`${p.word.text}-${i}`}
             x={p.x}
             y={p.y}
@@ -304,12 +305,12 @@ export function WordCloud({
             data-rotation={p.rotation}
             tabIndex={onWordClick ? 0 : -1}
             onClick={onWordClick ? () => onWordClick(p.word) : undefined}
-            style={{ cursor: onWordClick ? 'pointer' : undefined }}
+            webStyle={{ cursor: onWordClick ? 'pointer' : undefined }}
           >
             {p.word.text}
-          </text>
+          </SvgText>
         )
       })}
-    </svg>
+    </Svg>
   )
 }

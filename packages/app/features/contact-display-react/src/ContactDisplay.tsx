@@ -2,6 +2,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
+import { Anchor, Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Fields describing a contact rendered by ContactDisplay. */
 export interface ContactFields {
@@ -58,7 +59,8 @@ export function ContactDisplay({
   // inner controls, so those stay reachable controls (a button's children
   // are presentational).
   const openButton = onClick ? (
-    <button
+    <Pressable
+      as="button"
       type="button"
       aria-labelledby={nameId}
       data-mol-id="contact-display-open"
@@ -67,7 +69,7 @@ export function ContactDisplay({
          transparent button over the row; the inline background/border/padding are
          native resets. */
       className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-      style={{ background: 'transparent', border: 'none', padding: '0' }}
+      webStyle={{ background: 'transparent', border: 'none', padding: '0' }}
     />
   ) : null
   // The mail/tel links are controls: when the open button covers the row,
@@ -76,7 +78,8 @@ export function ContactDisplay({
     ? cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'), cm.position('relative'))
     : cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'))
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({
           align: layout === 'card' ? 'start' : 'center',
@@ -88,45 +91,64 @@ export function ContactDisplay({
       )}
     >
       {openButton}
-      <div className={cm.shrink0}>
+      <Box as="div" className={cm.shrink0}>
         <Avatar src={avatarSrc} alt={name} name={name} size={isCompact ? 'sm' : 'md'} />
-      </div>
-      <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-        <div className={cm.flex({ align: 'baseline', gap: 'sm' })}>
-          <span id={onClick ? nameId : undefined} className={nameClass}>
+      </Box>
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(1))}>
+        <Box as="div" className={cm.flex({ align: 'baseline', gap: 'sm' })}>
+          <Text as="span" id={onClick ? nameId : undefined} className={nameClass}>
             {name}
-          </span>
-          {role && <span className={cm.textSize('xs')}>{role}</span>}
-        </div>
-        {company && <div className={cm.textSize('sm')}>{company}</div>}
+          </Text>
+          {role && (
+            <Box as="span" className={cm.textSize('xs')}>
+              {role}
+            </Box>
+          )}
+        </Box>
+        {company && (
+          <Box as="div" className={cm.textSize('sm')}>
+            {company}
+          </Box>
+        )}
         {!isCompact && email && (
-          <div className={raisedControlLineClass}>
-            <span aria-hidden>✉</span>
-            <a href={`mailto:${email}`} className={cm.link}>
+          <Box as="div" className={raisedControlLineClass}>
+            <Text as="span" aria-hidden>
+              ✉
+            </Text>
+            <Anchor href={`mailto:${email}`} className={cm.link}>
               {email}
-            </a>
-          </div>
+            </Anchor>
+          </Box>
         )}
         {!isCompact && phone && (
-          <div className={raisedControlLineClass}>
-            <span aria-hidden>☎</span>
-            <a href={`tel:${phone}`} className={cm.link}>
+          <Box as="div" className={raisedControlLineClass}>
+            <Text as="span" aria-hidden>
+              ☎
+            </Text>
+            <Anchor href={`tel:${phone}`} className={cm.link}>
               {phone}
-            </a>
-          </div>
+            </Anchor>
+          </Box>
         )}
         {!isCompact && address && (
-          <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'))}>
-            <span aria-hidden>⌂</span>
-            <span>{address}</span>
-          </div>
+          <Box
+            as="div"
+            className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm'))}
+          >
+            <Text as="span" aria-hidden>
+              ⌂
+            </Text>
+            <Box as="span">{address}</Box>
+          </Box>
         )}
-      </div>
+      </Box>
       {onClick && actions ? (
-        <div className={cm.position('relative')}>{actions}</div>
+        <Box as="div" className={cm.position('relative')}>
+          {actions}
+        </Box>
       ) : (
         (actions ?? null)
       )}
-    </div>
+    </Box>
   )
 }

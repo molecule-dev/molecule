@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ShapeNode } from '@molecule/app-ui-react/elements'
 
 /**
  * Graph-view types: nodes, edges, layout choice and renderer hooks for
@@ -59,11 +59,11 @@ export interface PositionedNode extends GraphNode {
 }
 
 /** Renderer for an individual node. Receives the positioned node. */
-export type GraphNodeRenderer = (node: PositionedNode) => ReactNode
+export type GraphNodeRenderer = (node: PositionedNode) => ShapeNode
 
 /** Renderer for an individual edge. Receives the edge plus both endpoints. */
 export type GraphEdgeRenderer = (
   edge: GraphEdge,
   source: PositionedNode,
   target: PositionedNode,
-) => ReactNode
+) => ShapeNode

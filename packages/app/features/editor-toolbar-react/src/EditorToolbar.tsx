@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Anchor, Box, Text } from '@molecule/app-ui-react/elements'
 
 /** A single action item rendered as a button (or linked button) in the toolbar. */
 export interface ToolbarAction {
@@ -52,13 +53,13 @@ function renderAction(a: ToolbarAction, key: string): JSX.Element {
       disabled={a.disabled}
     >
       {a.icon}
-      {a.label && <span>{a.label}</span>}
+      {a.label && <Box as="span">{a.label}</Box>}
     </Button>
   )
   return a.href ? (
-    <a key={key} href={a.href}>
+    <Anchor key={key} href={a.href}>
       {btn}
-    </a>
+    </Anchor>
   ) : (
     btn
   )
@@ -84,7 +85,8 @@ export function EditorToolbar({
 }: EditorToolbarProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       data-mol-id={dataMolId}
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'md', wrap: 'wrap' }),
@@ -92,23 +94,26 @@ export function EditorToolbar({
         cm.sp('py', 2),
         className,
       )}
-      style={sticky ? { position: 'sticky', top: 0, zIndex: 10 } : undefined}
+      webStyle={sticky ? { position: 'sticky', top: 0, zIndex: 10 } : undefined}
     >
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {leading}
-        <h1 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h1>
+        <Text as="h1" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+          {title}
+        </Text>
         {badge}
-      </div>
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {primaryActions.map((a) => renderAction(a, `p-${a.id}`))}
         {secondaryActions.length > 0 && primaryActions.length > 0 && (
-          <span
+          <Box
+            as="span"
             aria-hidden
-            style={{ width: 1, height: 24, opacity: 0.2, background: 'currentColor' }}
+            webStyle={{ width: 1, height: 24, opacity: 0.2, background: 'currentColor' }}
           />
         )}
         {secondaryActions.map((a) => renderAction(a, `s-${a.id}`))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

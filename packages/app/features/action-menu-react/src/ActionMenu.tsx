@@ -1,10 +1,11 @@
 import type { ReactElement, ReactNode } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Anchor, Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /**
  * A single item in the ActionMenu list.
@@ -70,16 +71,8 @@ export function ActionMenu({
   const { t } = useTranslation()
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
-  const wrapRef = useRef<HTMLSpanElement>(null)
   useEffect(() => {
-    if (!open) return
-    /**
-     * Close the menu when a mousedown occurs outside the wrapper element.
-     * @param e
-     */
-    function onDoc(e: MouseEvent): void {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
-    }
+    if (!open || typeof document === 'undefined') return
     /**
      * Close the menu when the Escape key is pressed.
      * @param e
@@ -87,19 +80,16 @@ export function ActionMenu({
     function onEsc(e: KeyboardEvent): void {
       if (e.key === 'Escape') setOpen(false)
     }
-    document.addEventListener('mousedown', onDoc)
     document.addEventListener('keydown', onEsc)
-    return () => {
-      document.removeEventListener('mousedown', onDoc)
-      document.removeEventListener('keydown', onEsc)
-    }
+    return () => document.removeEventListener('keydown', onEsc)
   }, [open])
 
   return (
-    <span
-      ref={wrapRef}
+    <Box
+      as="span"
+      onPressOutside={open ? () => setOpen(false) : undefined}
       className={cm.cn(cm.position('relative'), className)}
-      style={{ display: 'inline-block' }}
+      webStyle={{ display: 'inline-block' }}
     >
       <Button
         variant="ghost"
@@ -115,10 +105,11 @@ export function ActionMenu({
         {trigger ?? '⋮'}
       </Button>
       {open && (
-        <ul
+        <Box
+          as="ul"
           role="menu"
           data-mol-id="action-menu-list"
-          className={cm.cn(cm.stack(0 as const), cm.sp('p', 1), cm.surface, cm.borderAll)}
+          className={cm.cn(cm.stack(0), cm.sp('p', 1), cm.surface, cm.borderAll)}
           style={{
             position: 'absolute',
             top: '100%',
@@ -126,13 +117,13 @@ export function ActionMenu({
             minWidth: 160,
             zIndex: 50,
             borderRadius: 8,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
           }}
+          webStyle={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
         >
           {items.map((it) => (
-            <li key={it.id} role="none">
+            <Box as="li" key={it.id} role="none">
               {it.href ? (
-                <a
+                <Anchor
                   href={it.href}
                   role="menuitem"
                   data-mol-id={`action-menu-item-${it.id}`}
@@ -148,10 +139,11 @@ export function ActionMenu({
                   style={{ opacity: it.disabled ? 0.5 : 1 }}
                 >
                   {it.icon}
-                  <span>{it.label}</span>
-                </a>
+                  <Box as="span">{it.label}</Box>
+                </Anchor>
               ) : (
-                <button
+                <Pressable
+                  as="button"
                   type="button"
                   role="menuitem"
                   data-mol-id={`action-menu-item-${it.id}`}
@@ -173,20 +165,21 @@ export function ActionMenu({
                   )}
                 >
                   {it.icon}
-                  <span>{it.label}</span>
-                </button>
+                  <Box as="span">{it.label}</Box>
+                </Pressable>
               )}
               {it.divider && (
-                <span
+                <Box
+                  as="span"
                   aria-hidden
                   className={cm.cn(cm.displayBlock, cm.bgBorder)}
-                  style={{ height: 1, margin: '4px 0' }}
+                  webStyle={{ height: 1, margin: '4px 0' }}
                 />
               )}
-            </li>
+            </Box>
           ))}
-        </ul>
+        </Box>
       )}
-    </span>
+    </Box>
   )
 }

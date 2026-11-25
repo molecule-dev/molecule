@@ -1,8 +1,9 @@
-import type { ChangeEvent, KeyboardEvent, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Box, Pressable, RangeField, Text } from '@molecule/app-ui-react/elements'
 
 import type { AdjustmentSliderProps } from './types.js'
 import { clampStep, defaultFormatter, defaultResetValue, keyboardNudge } from './utilities.js'
@@ -55,7 +56,7 @@ export function AdjustmentSlider({
 }: AdjustmentSliderProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const inputRef = useRef<ElementHandle | null>(null)
 
   const formatter = useMemo(() => format ?? defaultFormatter(unit), [format, unit])
   const resetTarget = useMemo(() => defaultResetValue(min, bipolar), [min, bipolar])
@@ -76,17 +77,9 @@ export function AdjustmentSlider({
     emit(resetTarget)
   }, [emit, onReset, resetTarget])
 
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      emit(Number(e.target.value))
-    },
-    [emit],
-  )
-
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      // Native <input type="range"> handles arrows already, but it ignores
-      // the Shift modifier — intercept and apply our 10x nudge.
+    (e: KitKeyboardEvent) => {
+      // Consume Shift+Arrow before the slider applies its single-step adjustment.
       if (!e.shiftKey) return
       const delta = keyboardNudge(step, true)
       let next: number | undefined
@@ -112,10 +105,17 @@ export function AdjustmentSlider({
   const sliderAria = t('adjustmentSlider.aria', { label }, { defaultValue: '{{label}}' })
 
   return (
-    <div className={cm.cn(cm.stack(1), className)} data-mol-id={dataMolId ?? 'adjustment-slider'}>
-      <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{label}</span>
-        <button
+    <Box
+      as="div"
+      className={cm.cn(cm.stack(1), className)}
+      data-mol-id={dataMolId ?? 'adjustment-slider'}
+    >
+      <Box as="div" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+        <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+          {label}
+        </Text>
+        <Pressable
+          as="button"
           type="button"
           onClick={performReset}
           aria-label={resetAria}
@@ -123,14 +123,16 @@ export function AdjustmentSlider({
           data-mol-id="adjustment-slider-reset"
         >
           {display}
-        </button>
-      </div>
-      <div style={{ position: 'relative' }}>
+        </Pressable>
+      </Box>
+      <Box as="div" webStyle={{ position: 'relative' }}>
         {showCenterMark && (
-          <span
+          <Box
+            as="span"
             aria-hidden="true"
             data-mol-id="adjustment-slider-center-mark"
-            style={{
+            style={{ backgroundColor: 'gray' }}
+            webStyle={{
               position: 'absolute',
               left: `${centerPct}%`,
               top: '50%',
@@ -138,26 +140,26 @@ export function AdjustmentSlider({
               height: 8,
               transform: 'translate(-50%, -50%)',
               background: 'currentColor',
+              backgroundColor: undefined,
               opacity: 0.5,
               pointerEvents: 'none',
             }}
           />
         )}
-        <input
+        <RangeField
           ref={inputRef}
-          type="range"
           min={min}
           max={max}
           step={step}
           value={value}
-          onChange={handleChange}
+          onValueChange={emit}
           onKeyDown={handleKeyDown}
           onDoubleClick={handleDoubleClick}
           aria-label={sliderAria}
           data-mol-id="adjustment-slider-input"
-          style={{ width: '100%' }}
+          webStyle={{ width: '100%' }}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -10,6 +10,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, GlyphIcon, Pressable, ScrollArea, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NodeEditorPanel}. */
 export interface NodeEditorPanelProps {
@@ -38,23 +39,28 @@ export function NodeEditorPanel({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <aside
+    <Box
+      as="aside"
       className={cm.cn(
         cm.flex({ direction: 'col' }),
         widthClass ? widthClass : cm.w(80),
         cm.nodeEditorPanelAside,
       )}
     >
-      <div
+      <Box
+        as="div"
         className={cm.cn(
           cm.sp('p', 6),
           cm.flex({ align: 'center', justify: 'between' }),
           cm.nodeEditorPanelHeader,
         )}
       >
-        <h2 className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelTitle)}>{title}</h2>
+        <Text as="h2" className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelTitle)}>
+          {title}
+        </Text>
         {onClose ? (
-          <button
+          <Pressable
+            as="button"
             type="button"
             data-mol-id="node-editor-panel-close"
             // Icon-only chrome: the design system's dialog-close token carries
@@ -66,17 +72,23 @@ export function NodeEditorPanel({
             }
             onClick={onClose}
           >
-            <span className={cm.iconGlyphFont}>close</span>
-          </button>
+            <GlyphIcon name="close" />
+          </Pressable>
         ) : null}
-      </div>
-      <div className={cm.cn(cm.flex1, cm.sp('p', 6), cm.stack(8), cm.nodeEditorPanelBody)}>
+      </Box>
+      <ScrollArea
+        as="div"
+        direction="vertical"
+        className={cm.cn(cm.flex1, cm.sp('p', 6), cm.stack(8), cm.nodeEditorPanelBody)}
+      >
         {children}
-      </div>
+      </ScrollArea>
       {footer ? (
-        <div className={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>{footer}</div>
+        <Box as="div" className={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>
+          {footer}
+        </Box>
       ) : null}
-    </aside>
+    </Box>
   )
 }
 

@@ -4,6 +4,7 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Anchor, Box } from '@molecule/app-ui-react/elements'
 
 /**
  * Supported social/sharing platforms for the share-buttons widget.
@@ -126,7 +127,7 @@ export function SocialShareButtons({
     })
   }, [url])
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}>
       {platforms.map((p) => {
         const label = platformLabel(p, t)
         if (p === 'copy') {
@@ -137,7 +138,7 @@ export function SocialShareButtons({
           )
         }
         return (
-          <a
+          <Anchor
             key={p}
             href={shareUrl(p, url, title)}
             target="_blank"
@@ -147,9 +148,9 @@ export function SocialShareButtons({
             <Button variant="outline" size={size}>
               {ICON[p]}
             </Button>
-          </a>
+          </Anchor>
         )
       })}
-    </div>
+    </Box>
   )
 }

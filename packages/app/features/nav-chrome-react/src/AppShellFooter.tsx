@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Anchor, Box } from '@molecule/app-ui-react/elements'
 
 /** A single navigable link rendered in the footer link row. */
 export interface FooterLink {
@@ -40,7 +41,8 @@ export function AppShellFooter({
   const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <footer
+    <Box
+      as="footer"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'md', wrap: 'wrap' }),
         cm.sp('px', 4),
@@ -48,23 +50,28 @@ export function AppShellFooter({
         className,
       )}
     >
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
         {logo}
-        {copyright && <span className={cm.textSize('xs')}>{copyright}</span>}
-      </div>
+        {copyright && (
+          <Box as="span" className={cm.textSize('xs')}>
+            {copyright}
+          </Box>
+        )}
+      </Box>
       {links && links.length > 0 && (
-        <nav
+        <Box
+          as="nav"
           aria-label={t('navChrome.aria.footer', undefined, { defaultValue: 'Footer' })}
           className={cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' })}
         >
           {links.map((l, i) => (
-            <a key={i} href={l.to ?? '#'} className={cm.cn(cm.textSize('sm'), cm.link)}>
+            <Anchor key={i} href={l.to ?? '#'} className={cm.cn(cm.textSize('sm'), cm.link)}>
               {l.label}
-            </a>
+            </Anchor>
           ))}
-        </nav>
+        </Box>
       )}
       {right}
-    </footer>
+    </Box>
   )
 }

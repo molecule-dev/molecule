@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import type { NavItem } from './types.js'
 
@@ -29,12 +30,14 @@ export function AppShellBottomNav({
   const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <nav
+    <Box
+      as="nav"
       aria-label={t('navChrome.aria.bottom', undefined, { defaultValue: 'Bottom' })}
       className={cm.cn(cm.flex({ align: 'stretch' }), className)}
     >
       {items.map((it) => (
-        <button
+        <Pressable
+          as="button"
           key={it.id}
           type="button"
           onClick={() => onItemClick?.(it)}
@@ -49,9 +52,9 @@ export function AppShellBottomNav({
           )}
         >
           {it.icon}
-          <span>{it.label}</span>
-        </button>
+          <Box as="span">{it.label}</Box>
+        </Pressable>
       ))}
-    </nav>
+    </Box>
   )
 }

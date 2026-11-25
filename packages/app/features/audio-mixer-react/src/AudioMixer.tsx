@@ -1,7 +1,8 @@
-import type { ChangeEvent, CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitMouseEvent, type WebStyle } from '@molecule/app-ui'
+import { Box, Pressable, RangeField, ScrollArea, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * A single send target on a channel — points at another channel/bus by
@@ -179,7 +180,7 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
     )
   const sendsLabel = t('audioMixer.sends', {}, { defaultValue: 'Sends' })
 
-  const rootStyle: CSSProperties = {
+  const rootStyle: WebStyle = {
     display: 'flex',
     alignItems: 'stretch',
     gap: 8,
@@ -188,12 +189,14 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
   }
 
   return (
-    <div
+    <ScrollArea
+      as="div"
+      direction="horizontal"
       role="group"
       aria-label={consoleLabel}
       data-mol-id="audio-mixer"
       className={cm.cn(className)}
-      style={rootStyle}
+      webStyle={rootStyle}
     >
       {channels.map((channel) => (
         <ChannelStrip
@@ -214,13 +217,16 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
       ))}
       {master !== undefined && (
         <>
-          <div
+          <Box
+            as="div"
             data-mol-id="audio-mixer-divider"
             aria-hidden="true"
-            style={{
+            style={{ backgroundColor: 'gray' }}
+            webStyle={{
               width: 1,
               alignSelf: 'stretch',
               background: 'currentColor',
+              backgroundColor: undefined,
               opacity: 0.2,
               margin: '0 4px',
             }}
@@ -241,7 +247,7 @@ export function AudioMixer(props: AudioMixerProps): JSX.Element {
           />
         </>
       )}
-    </div>
+    </ScrollArea>
   )
 }
 
@@ -288,7 +294,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
 
   const cm = getClassMap()
 
-  const stripStyle: CSSProperties = {
+  const stripStyle: WebStyle = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -298,7 +304,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
     boxSizing: 'border-box',
   }
 
-  const headerStyle: CSSProperties = {
+  const headerStyle: WebStyle = {
     width: '100%',
     textAlign: 'center',
     overflow: 'hidden',
@@ -308,17 +314,14 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
     paddingTop: channel.color ? 4 : 0,
   }
 
-  // Vertical fader is implemented as a horizontal range input rotated
-  // -90deg via CSS; this preserves native keyboard accessibility,
-  // aria-valuenow/min/max, and pointer events while presenting as a
-  // vertical column.
-  const faderTrackStyle: CSSProperties = {
+  // Keep the browser's existing fader geometry. The device uses aria-orientation.
+  const faderTrackStyle: WebStyle = {
     width: faderHeight,
     height: 24,
     transform: 'rotate(-90deg)',
     transformOrigin: 'center',
   }
-  const faderWrapStyle: CSSProperties = {
+  const faderWrapStyle: WebStyle = {
     height: faderHeight,
     width: 32,
     display: 'flex',
@@ -329,20 +332,20 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
   /**
    * Handle the fader's onChange — emit a patch with the new clamped level.
    *
-   * @param event - The range input change event.
+   * @param value - The slider's level.
    */
-  function handleFader(event: ChangeEvent<HTMLInputElement>): void {
-    const next = clampLevel(parseFloat(event.target.value))
+  function handleFader(value: number): void {
+    const next = clampLevel(value)
     onChange?.({ id: channel.id, level: next })
   }
 
   /**
    * Handle the pan knob's onChange — emit a patch with the new clamped pan.
    *
-   * @param event - The range input change event.
+   * @param value - The slider's pan.
    */
-  function handlePan(event: ChangeEvent<HTMLInputElement>): void {
-    const next = clampPan(parseFloat(event.target.value))
+  function handlePan(value: number): void {
+    const next = clampPan(value)
     onChange?.({ id: channel.id, pan: next })
   }
 
@@ -351,7 +354,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
    *
    * @param event - The button click event.
    */
-  function handleMute(event: MouseEvent<HTMLButtonElement>): void {
+  function handleMute(event: KitMouseEvent): void {
     event.preventDefault()
     onChange?.({ id: channel.id, muted: !channel.muted })
   }
@@ -361,7 +364,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
    *
    * @param event - The button click event.
    */
-  function handleSolo(event: MouseEvent<HTMLButtonElement>): void {
+  function handleSolo(event: KitMouseEvent): void {
     event.preventDefault()
     onChange?.({ id: channel.id, solo: !channel.solo })
   }
@@ -370,10 +373,10 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
    * Handle a send-level change.
    *
    * @param sendId - Id of the send that moved.
-   * @param event - The range input change event.
+   * @param value - The slider's send level.
    */
-  function handleSend(sendId: string, event: ChangeEvent<HTMLInputElement>): void {
-    const next = clampLevel(parseFloat(event.target.value))
+  function handleSend(sendId: string, value: number): void {
+    const next = clampLevel(value)
     onChange?.({ id: channel.id, sendId, sendLevel: next })
   }
 
@@ -397,7 +400,8 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
   const channelPan = clampPan(channel.pan)
 
   return (
-    <div
+    <Box
+      as="div"
       role="group"
       aria-label={channel.name}
       data-mol-id={isMaster ? 'audio-mixer-master-strip' : 'audio-mixer-channel-strip'}
@@ -405,15 +409,16 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
       data-muted={channel.muted ? 'true' : 'false'}
       data-solo={channel.solo ? 'true' : 'false'}
       className={cm.cn()}
-      style={stripStyle}
+      webStyle={stripStyle}
     >
-      <div data-mol-id="audio-mixer-channel-name" style={headerStyle}>
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{channel.name}</span>
-      </div>
+      <Box as="div" data-mol-id="audio-mixer-channel-name" webStyle={headerStyle}>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {channel.name}
+        </Text>
+      </Box>
 
-      <div style={faderWrapStyle}>
-        <input
-          type="range"
+      <Box as="div" webStyle={faderWrapStyle}>
+        <RangeField
           min={MIN_LEVEL}
           max={MAX_LEVEL}
           step={0.01}
@@ -424,13 +429,12 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           aria-valuenow={channelLevel}
           aria-orientation="vertical"
           data-mol-id={isMaster ? 'audio-mixer-master-fader' : 'audio-mixer-fader'}
-          style={faderTrackStyle}
-          onChange={handleFader}
+          webStyle={faderTrackStyle}
+          onValueChange={handleFader}
         />
-      </div>
+      </Box>
 
-      <input
-        type="range"
+      <RangeField
         min={MIN_PAN}
         max={MAX_PAN}
         step={0.01}
@@ -440,12 +444,18 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
         aria-valuemax={MAX_PAN}
         aria-valuenow={channelPan}
         data-mol-id="audio-mixer-pan"
-        style={{ width: 64 }}
-        onChange={handlePan}
+        webStyle={{ width: 64 }}
+        onValueChange={handlePan}
       />
 
-      <div data-mol-id="audio-mixer-buttons" style={{ display: 'flex', gap: 4 }}>
-        <button
+      <Box
+        as="div"
+        data-mol-id="audio-mixer-buttons"
+        style={{ flexDirection: 'row' }}
+        webStyle={{ display: 'flex', gap: 4, flexDirection: undefined }}
+      >
+        <Pressable
+          as="button"
           type="button"
           aria-label={muteLabel}
           aria-pressed={channel.muted ? 'true' : 'false'}
@@ -454,8 +464,9 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           onClick={handleMute}
         >
           {muteInitial}
-        </button>
-        <button
+        </Pressable>
+        <Pressable
+          as="button"
           type="button"
           aria-label={soloLabel}
           aria-pressed={channel.solo ? 'true' : 'false'}
@@ -464,13 +475,14 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           onClick={handleSolo}
         >
           {soloInitial}
-        </button>
-      </div>
+        </Pressable>
+      </Box>
 
       {!isMaster && channel.sends !== undefined && channel.sends.length > 0 && (
-        <div
+        <Box
+          as="div"
           data-mol-id="audio-mixer-sends"
-          style={{
+          webStyle={{
             display: 'flex',
             flexDirection: 'column',
             gap: 4,
@@ -479,32 +491,45 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
             borderTop: '1px solid currentColor',
           }}
         >
-          <span className={cm.cn(cm.textSize('xs'))} style={{ opacity: 0.7, textAlign: 'center' }}>
+          <Text
+            as="span"
+            className={cm.cn(cm.textSize('xs'))}
+            webStyle={{ opacity: 0.7, textAlign: 'center' }}
+          >
             {sendsLabel}
-          </span>
+          </Text>
           {channel.sends.map((send) => {
             const sendLevel = clampLevel(send.level)
             const sendName = send.label ?? send.id
             const sendNode: ReactNode = (
-              <div
+              <Box
+                as="div"
                 key={send.id}
                 data-mol-id="audio-mixer-send"
                 data-send-id={send.id}
-                style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+                style={{ flexDirection: 'row' }}
+                webStyle={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  flexDirection: undefined,
+                }}
               >
-                <span
+                <Text
+                  as="span"
                   className={cm.cn(cm.textSize('xs'))}
-                  style={{
+                  style={{ width: 32 }}
+                  webStyle={{
                     flex: '0 0 32px',
+                    width: undefined,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                   }}
                 >
                   {sendName}
-                </span>
-                <input
-                  type="range"
+                </Text>
+                <RangeField
                   min={MIN_LEVEL}
                   max={MAX_LEVEL}
                   step={0.01}
@@ -514,15 +539,15 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
                   aria-valuemax={MAX_LEVEL}
                   aria-valuenow={sendLevel}
                   data-mol-id="audio-mixer-send-fader"
-                  style={{ flex: 1 }}
-                  onChange={(event) => handleSend(send.id, event)}
+                  webStyle={{ flex: 1 }}
+                  onValueChange={(value) => handleSend(send.id, value)}
                 />
-              </div>
+              </Box>
             )
             return sendNode
           })}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

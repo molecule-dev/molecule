@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import type { NavGroup, NavItem } from './types.js'
 
@@ -47,7 +48,8 @@ export function AppShellSideNav({
    */
   function renderItem(it: NavItem): JSX.Element {
     return (
-      <button
+      <Pressable
+        as="button"
         key={it.id}
         type="button"
         onClick={() => onItemClick?.(it)}
@@ -61,35 +63,43 @@ export function AppShellSideNav({
           it.id === activeId ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
         )}
       >
-        <span className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Box as="span" className={cm.flex({ align: 'center', gap: 'sm' })}>
           {it.icon}
-          <span>{it.label}</span>
-        </span>
+          <Box as="span">{it.label}</Box>
+        </Box>
         {it.badge}
-      </button>
+      </Pressable>
     )
   }
   return (
-    <aside className={cm.cn(cm.stack(4), className)}>
+    <Box as="aside" className={cm.cn(cm.stack(4), className)}>
       {header}
-      <nav
+      <Box
+        as="nav"
         aria-label={t('navChrome.aria.sidebar', undefined, { defaultValue: 'Sidebar' })}
         className={cm.stack(4)}
       >
         {items && items.map(renderItem)}
         {groups &&
           groups.map((g) => (
-            <section key={g.id} className={cm.stack(1 as const)}>
+            <Box as="section" key={g.id} className={cm.stack(1)}>
               {g.heading && (
-                <h3 className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.sp('px', 3))}>
+                <Text
+                  as="h3"
+                  className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.sp('px', 3))}
+                >
                   {g.heading}
-                </h3>
+                </Text>
               )}
               {g.items.map(renderItem)}
-            </section>
+            </Box>
           ))}
-      </nav>
-      {footer && <div className={cm.cn(cm.sp('mt', 'auto' as unknown as 0))}>{footer}</div>}
-    </aside>
+      </Box>
+      {footer && (
+        <Box as="div" className={cm.cn(cm.sp('mt', 'auto'))}>
+          {footer}
+        </Box>
+      )}
+    </Box>
   )
 }

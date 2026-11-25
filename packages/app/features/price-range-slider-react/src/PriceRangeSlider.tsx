@@ -3,6 +3,7 @@ import type React from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, RangeField, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link PriceRangeSlider}. */
 export interface PriceRangeSliderProps {
@@ -46,34 +47,38 @@ export function PriceRangeSlider({
   const [low, high] = value
   const fmt = formatValue ?? ((n: number) => `$${n.toLocaleString()}`)
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
       {label && (
-        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{label}</span>
+        <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {label}
+        </Text>
       )}
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-        <span className={cm.textSize('sm')}>{fmt(low)}</span>
-        <input
-          type="range"
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <Text as="span" className={cm.textSize('sm')}>
+          {fmt(low)}
+        </Text>
+        <RangeField
           min={min}
           max={max}
           step={step}
           value={low}
-          onChange={(e) => onChange([Math.min(Number(e.target.value), high), high])}
+          onValueChange={(next) => onChange([Math.min(next, high), high])}
           className={cm.flex1}
           aria-label={t('priceRangeSlider.aria.minimum', undefined, { defaultValue: 'Minimum' })}
         />
-        <input
-          type="range"
+        <RangeField
           min={min}
           max={max}
           step={step}
           value={high}
-          onChange={(e) => onChange([low, Math.max(Number(e.target.value), low)])}
+          onValueChange={(next) => onChange([low, Math.max(next, low)])}
           className={cm.flex1}
           aria-label={t('priceRangeSlider.aria.maximum', undefined, { defaultValue: 'Maximum' })}
         />
-        <span className={cm.textSize('sm')}>{fmt(high)}</span>
-      </div>
-    </div>
+        <Text as="span" className={cm.textSize('sm')}>
+          {fmt(high)}
+        </Text>
+      </Box>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar, Button, Card } from '@molecule/app-ui-react'
+import { Anchor, Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Social handles / profile links for an author. All keys are optional —
@@ -124,9 +125,9 @@ export function AuthorBioCard({
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const socialEntries: Array<[SocialKey, string]> = SOCIAL_KEYS.flatMap((key) => {
+  const socialEntries = SOCIAL_KEYS.flatMap<[SocialKey, string]>((key) => {
     const value = author.socials?.[key]
-    return value ? [[key, value] as [SocialKey, string]] : []
+    return value ? [[key, value]] : []
   })
 
   /**
@@ -187,30 +188,32 @@ export function AuthorBioCard({
     : t('authorBioCard.follow', {}, { defaultValue: 'Follow' })
 
   const nameElement = author.href ? (
-    <a
+    <Anchor
       href={author.href}
       data-mol-id={`${dataMolId}-name`}
       className={cm.cn(cm.fontWeight('semibold'), cm.textSize('base'))}
     >
       {author.name}
-    </a>
+    </Anchor>
   ) : (
-    <span
+    <Text
+      as="span"
       data-mol-id={`${dataMolId}-name`}
       className={cm.cn(cm.fontWeight('semibold'), cm.textSize('base'))}
     >
       {author.name}
-    </span>
+    </Text>
   )
 
   const socialRow: ReactNode =
     socialEntries.length > 0 ? (
-      <div
+      <Box
+        as="div"
         data-mol-id={`${dataMolId}-socials`}
         className={cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' })}
       >
         {socialEntries.map(([key, value]) => (
-          <a
+          <Anchor
             key={key}
             href={resolveSocialHref(key, value)}
             data-mol-id={`${dataMolId}-social-${key}`}
@@ -220,9 +223,9 @@ export function AuthorBioCard({
             className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
           >
             {socialLabel(key)}
-          </a>
+          </Anchor>
         ))}
-      </div>
+      </Box>
     ) : null
 
   const followButton: ReactNode = onFollow ? (
@@ -241,50 +244,55 @@ export function AuthorBioCard({
   if (layout === 'full') {
     return (
       <Card data-mol-id={dataMolId} className={className}>
-        <div className={cm.flex({ align: 'start', gap: 'md' })}>
-          <div className={cm.shrink0}>
+        <Box as="div" className={cm.flex({ align: 'start', gap: 'md' })}>
+          <Box as="div" className={cm.shrink0}>
             <Avatar src={author.avatar} alt={author.name} name={author.name} size="lg" />
-          </div>
-          <div className={cm.cn(cm.flex1, cm.stack(2 as const))}>
-            <header className={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
+          </Box>
+          <Box as="div" className={cm.cn(cm.flex1, cm.stack(2))}>
+            <Box as="header" className={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
               {nameElement}
-            </header>
+            </Box>
             {author.bio && (
-              <p data-mol-id={`${dataMolId}-bio`} className={cm.textSize('sm')}>
+              <Text as="p" data-mol-id={`${dataMolId}-bio`} className={cm.textSize('sm')}>
                 {author.bio}
-              </p>
+              </Text>
             )}
-            <div
+            <Box
+              as="div"
               className={cm.flex({ align: 'center', justify: 'between', gap: 'sm', wrap: 'wrap' })}
             >
-              {socialRow ?? <span />}
+              {socialRow ?? <Box as="span" />}
               {followButton}
-            </div>
-          </div>
-        </div>
+            </Box>
+          </Box>
+        </Box>
       </Card>
     )
   }
 
   return (
     <Card data-mol-id={dataMolId} className={className}>
-      <div className={cm.flex({ align: 'center', gap: 'md' })}>
-        <div className={cm.shrink0}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'md' })}>
+        <Box as="div" className={cm.shrink0}>
           <Avatar src={author.avatar} alt={author.name} name={author.name} size="md" />
-        </div>
-        <div className={cm.cn(cm.flex1, cm.stack(1 as const))}>
-          <div className={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
+        </Box>
+        <Box as="div" className={cm.cn(cm.flex1, cm.stack(1))}>
+          <Box as="div" className={cm.flex({ align: 'baseline', gap: 'sm', wrap: 'wrap' })}>
             {nameElement}
-          </div>
+          </Box>
           {author.bio && (
-            <p data-mol-id={`${dataMolId}-bio`} className={cm.textSize('sm')}>
+            <Text as="p" data-mol-id={`${dataMolId}-bio`} className={cm.textSize('sm')}>
               {author.bio}
-            </p>
+            </Text>
           )}
           {socialRow}
-        </div>
-        {followButton && <div className={cm.shrink0}>{followButton}</div>}
-      </div>
+        </Box>
+        {followButton && (
+          <Box as="div" className={cm.shrink0}>
+            {followButton}
+          </Box>
+        )}
+      </Box>
     </Card>
   )
 }

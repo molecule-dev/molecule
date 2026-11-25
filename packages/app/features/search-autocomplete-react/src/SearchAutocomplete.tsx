@@ -1,10 +1,11 @@
 import type { JSX, ReactNode } from 'react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import type { KitKeyboardEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Input } from '@molecule/app-ui-react'
+import { Box, Pressable, ScrollArea } from '@molecule/app-ui-react/elements'
 
 /**
  * A single suggestion entry returned by `onSearch` or passed via `suggestions`.
@@ -70,7 +71,6 @@ export function SearchAutocomplete<T = unknown>({
   const [open, setOpen] = useState(false)
   // Index of the keyboard-highlighted option (-1 = none highlighted).
   const [activeIndex, setActiveIndex] = useState(-1)
-  const wrapRef = useRef<HTMLDivElement>(null)
   // Monotonic id of the latest in-flight `onSearch`. A response only applies if
   // its token still equals the latest — the stale-response race guard.
   const requestRef = useRef(0)
@@ -123,21 +123,10 @@ export function SearchAutocomplete<T = unknown>({
     return () => clearTimeout(id)
   }, [value, onSearch, debounceMs, minChars])
 
-  useEffect(() => {
-    if (!open) return
-    /**
-     * Closes the dropdown when a click occurs outside the wrapper element.
-     * @param e
-     */
-    function onDoc(e: MouseEvent): void {
-      if (!wrapRef.current?.contains(e.target as Node)) {
-        setOpen(false)
-        setActiveIndex(-1)
-      }
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [open])
+  const dismiss = useCallback(() => {
+    setOpen(false)
+    setActiveIndex(-1)
+  }, [])
 
   /**
    * Commits a suggestion selection and closes the popover.
@@ -145,8 +134,7 @@ export function SearchAutocomplete<T = unknown>({
    */
   function select(item: SuggestionItem<T>): void {
     onSelect(item)
-    setOpen(false)
-    setActiveIndex(-1)
+    dismiss()
   }
 
   /**
@@ -180,19 +168,24 @@ export function SearchAutocomplete<T = unknown>({
     } else if (e.key === 'Escape') {
       if (open) {
         e.preventDefault()
-        setOpen(false)
-        setActiveIndex(-1)
+        dismiss()
       }
     }
   }
 
   return (
-    <div ref={wrapRef} className={cm.cn(cm.position('relative'), className)}>
+    <Box
+      as="div"
+      onPressOutside={open ? dismiss : undefined}
+      className={cm.cn(cm.position('relative'), className)}
+    >
       <Input
         type="search"
         value={value}
         onChange={(e) => {
-          onChange((e.target as HTMLInputElement).value)
+          const target = e.target
+          if (!target || !('value' in target) || typeof target.value !== 'string') return
+          onChange(target.value)
           setOpen(true)
         }}
         onFocus={() => value.length >= minChars && setOpen(true)}
@@ -206,11 +199,12 @@ export function SearchAutocomplete<T = unknown>({
         aria-activedescendant={isExpanded && active >= 0 ? optionId(active) : undefined}
       />
       {isExpanded && (
-        <ul
+        <ScrollArea
+          as="ul"
           role="listbox"
           id={listId}
           className={cm.cn(cm.stack(0 as const), cm.sp('p', 1))}
-          style={{
+          webStyle={{
             position: 'absolute',
             top: '100%',
             left: 0,
@@ -225,7 +219,8 @@ export function SearchAutocomplete<T = unknown>({
           }}
         >
           {list.map((s, index) => (
-            <li
+            <Pressable
+              as="li"
               key={s.id}
               id={optionId(index)}
               role="option"
@@ -248,12 +243,18 @@ export function SearchAutocomplete<T = unknown>({
                 index === activeIndex && cm.surfaceSecondary,
               )}
             >
-              <div className={cm.fontWeight('medium')}>{s.label}</div>
-              {s.meta && <div className={cm.textSize('xs')}>{s.meta}</div>}
-            </li>
+              <Box as="div" className={cm.fontWeight('medium')}>
+                {s.label}
+              </Box>
+              {s.meta && (
+                <Box as="div" className={cm.textSize('xs')}>
+                  {s.meta}
+                </Box>
+              )}
+            </Pressable>
           ))}
-        </ul>
+        </ScrollArea>
       )}
-    </div>
+    </Box>
   )
 }

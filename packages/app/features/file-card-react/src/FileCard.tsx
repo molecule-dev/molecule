@@ -1,8 +1,9 @@
-import type { JSX, MouseEvent, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitMouseEvent } from '@molecule/app-ui'
+import { Box, Image, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { FileIcon, type FileKind } from './FileIcon.js'
 import { relativeBucket, type SizeParts, sizeParts } from './format.js'
@@ -39,9 +40,9 @@ export interface FileCardProps {
    * with `aria-pressed` for `selected`). Not fired for the actions slot, which
    * sits above that button.
    */
-  onClick?: (file: FileSummary, event: MouseEvent<HTMLElement>) => void
+  onClick?: (file: FileSummary, event: KitMouseEvent) => void
   /** Context-menu (right-click) handler. */
-  onContextMenu?: (file: FileSummary, event: MouseEvent<HTMLElement>) => void
+  onContextMenu?: (file: FileSummary, event: KitMouseEvent) => void
   /** Layout — `'grid'` (default) is a square tile, `'row'` is a horizontal list line. */
   layout?: 'grid' | 'row'
   /** Optional trailing action slot (button row, kebab menu). Clicks here do not fire `onClick`. */
@@ -234,18 +235,18 @@ export function FileCard({
    * Forward a body activation (a click on the select button, or Enter / Space
    * on it) to the consumer.
    *
-   * @param event - DOM mouse event.
+   * @param event - Activation event.
    */
-  const handleClick = (event: MouseEvent<HTMLElement>): void => {
+  const handleClick = (event: KitMouseEvent): void => {
     onClick?.(file, event)
   }
 
   /**
-   * Forward right-click to the consumer.
+   * Forward a context request to the consumer.
    *
-   * @param event - DOM mouse event.
+   * @param event - Activation event.
    */
-  const handleContextMenu = (event: MouseEvent<HTMLElement>): void => {
+  const handleContextMenu = (event: KitMouseEvent): void => {
     if (onContextMenu) onContextMenu(file, event)
   }
 
@@ -254,7 +255,8 @@ export function FileCard({
   // actions slot. A sibling of the actions, not their wrapper, so the action
   // buttons stay reachable controls (a button's children are presentational).
   const selectButton = onClick ? (
-    <button
+    <Pressable
+      as="button"
       type="button"
       aria-label={ariaLabel}
       aria-pressed={Boolean(selected)}
@@ -264,13 +266,14 @@ export function FileCard({
          empty, transparent button over the card; the inline background/
          border/padding are native resets. */
       className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
-      style={{ background: 'transparent', border: 'none', padding: 0 }}
+      webStyle={{ background: 'transparent', border: 'none', padding: 0 }}
     />
   ) : null
 
   if (layout === 'row') {
     return (
-      <div
+      <Box
+        as="div"
         role="group"
         aria-label={ariaLabel}
         data-mol-id={rootMolId}
@@ -281,66 +284,74 @@ export function FileCard({
           onClick ? cm.position('relative') : undefined,
           className,
         )}
-        onContextMenu={handleContextMenu}
+        onContextMenu={onContextMenu ? handleContextMenu : undefined}
       >
-        <div className={cm.cn(cm.shrink0)} data-mol-id="file-card-icon">
+        <Box as="div" className={cm.cn(cm.shrink0)} data-mol-id="file-card-icon">
           {file.thumbnail ? (
-            <img
+            <Image
               src={file.thumbnail}
               alt=""
-              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+              webStyle={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
             />
           ) : (
             <FileIcon kind={file.kind} size={28} />
           )}
-        </div>
-        <div className={cm.cn(cm.stack(0 as const))} style={{ flex: 1, minWidth: 0 }}>
-          <div
+        </Box>
+        <Box as="div" className={cm.cn(cm.stack(0 as const))} webStyle={{ flex: 1, minWidth: 0 }}>
+          <Box
+            as="div"
             className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
             data-mol-id="file-card-name"
-            style={{
+            webStyle={{
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
             }}
           >
             {file.name}
-          </div>
+          </Box>
           {(sizeText || modifiedText) && (
-            <div
+            <Box
+              as="div"
               className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
               data-mol-id="file-card-meta"
             >
               {sizeText && (
-                <span aria-label={sizeLabel} data-mol-id="file-card-size">
+                <Text as="span" aria-label={sizeLabel} data-mol-id="file-card-size">
                   {sizeText}
-                </span>
+                </Text>
               )}
-              {sizeText && modifiedText && <span aria-hidden="true">·</span>}
+              {sizeText && modifiedText && (
+                <Text as="span" aria-hidden="true">
+                  ·
+                </Text>
+              )}
               {modifiedText && (
-                <span aria-label={modifiedLabel} data-mol-id="file-card-modified">
+                <Text as="span" aria-label={modifiedLabel} data-mol-id="file-card-modified">
                   {modifiedText}
-                </span>
+                </Text>
               )}
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
         {selectButton}
         {actions && (
-          <div
+          <Box
+            as="div"
             className={cm.cn(cm.shrink0, cm.position('relative'))}
             data-mol-id="file-card-actions"
           >
             {actions}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     )
   }
 
   // Grid layout (default).
   return (
-    <div
+    <Box
+      as="div"
       role="group"
       aria-label={ariaLabel}
       data-mol-id={rootMolId}
@@ -351,18 +362,19 @@ export function FileCard({
         onClick ? cm.position('relative') : undefined,
         className,
       )}
-      onContextMenu={handleContextMenu}
+      onContextMenu={onContextMenu ? handleContextMenu : undefined}
     >
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.flex({ align: 'center', justify: 'center' }))}
         data-mol-id="file-card-icon"
-        style={{ aspectRatio: '1 / 1', width: '100%' }}
+        webStyle={{ aspectRatio: '1 / 1', width: '100%' }}
       >
         {file.thumbnail ? (
-          <img
+          <Image
             src={file.thumbnail}
             alt=""
-            style={{
+            webStyle={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
@@ -372,39 +384,46 @@ export function FileCard({
         ) : (
           <FileIcon kind={file.kind} size={48} />
         )}
-      </div>
-      <div
+      </Box>
+      <Box
+        as="div"
         className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
         data-mol-id="file-card-name"
-        style={{
+        webStyle={{
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
         }}
       >
         {file.name}
-      </div>
+      </Box>
       {(sizeText || modifiedText) && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
           data-mol-id="file-card-meta"
         >
           {sizeText && (
-            <span aria-label={sizeLabel} data-mol-id="file-card-size">
+            <Text as="span" aria-label={sizeLabel} data-mol-id="file-card-size">
               {sizeText}
-            </span>
+            </Text>
           )}
-          {sizeText && modifiedText && <span aria-hidden="true">·</span>}
+          {sizeText && modifiedText && (
+            <Text as="span" aria-hidden="true">
+              ·
+            </Text>
+          )}
           {modifiedText && (
-            <span aria-label={modifiedLabel} data-mol-id="file-card-modified">
+            <Text as="span" aria-label={modifiedLabel} data-mol-id="file-card-modified">
               {modifiedText}
-            </span>
+            </Text>
           )}
-        </div>
+        </Box>
       )}
       {selectButton}
       {actions && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'end', gap: 'sm' }),
             cm.position('relative'),
@@ -412,8 +431,8 @@ export function FileCard({
           data-mol-id="file-card-actions"
         >
           {actions}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

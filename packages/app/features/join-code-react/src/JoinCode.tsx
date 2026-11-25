@@ -1,13 +1,9 @@
-import type {
-  ChangeEvent,
-  ClipboardEvent as ReactClipboardEvent,
-  KeyboardEvent as ReactKeyboardEvent,
-  ReactElement,
-} from 'react'
+import type { ReactElement } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Box, TextField } from '@molecule/app-ui-react/elements'
 
 import type { JoinCodeProps } from './types.js'
 import { isValidChar, sanitizeInput } from './utils.js'
@@ -62,7 +58,7 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
     [rawValue, alphabet, length],
   )
 
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([])
+  const inputRefs = useRef<Array<ElementHandle | null>>([])
   const completedForRef = useRef<string | null>(null)
 
   // Fire onComplete once per full-and-valid value.
@@ -99,24 +95,20 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
    * @param index - Slot index.
    */
   const focusSlot = useCallback((index: number) => {
-    const target = inputRefs.current[index]
-    if (target) {
-      target.focus()
-      target.select?.()
-    }
+    inputRefs.current[index]?.focus()
   }, [])
 
   /**
    * Handle a single-slot change event. The browser may pass us 0, 1, or
-   * (under some IMEs / autofill paths) multiple characters; we treat any
-   * multi-character value as a paste-style fill starting at this slot.
+   * (under some IMEs / autofill paths) multiple characters. An edit preserves
+   * the remaining slots after the one being edited.
    *
    * @param index - The slot that fired the change.
-   * @param e - The React change event.
+   * @param text - The edited value.
    */
   const handleChange = useCallback(
-    (index: number, e: ChangeEvent<HTMLInputElement>) => {
-      const incoming = sanitizeInput(e.target.value, alphabet)
+    (index: number, text: string) => {
+      const incoming = sanitizeInput(text, alphabet)
       const before = value.slice(0, index)
       const after = value.slice(index + 1)
       const next = (before + incoming + after).slice(0, length)
@@ -133,10 +125,10 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
    * previous one; arrow-left / arrow-right move focus.
    *
    * @param index - Slot index.
-   * @param e - The React keyboard event.
+   * @param e - The key event.
    */
   const handleKeyDown = useCallback(
-    (index: number, e: ReactKeyboardEvent<HTMLInputElement>) => {
+    (index: number, e: KitKeyboardEvent) => {
       if (e.key === 'Backspace') {
         if ((value[index] ?? '') === '' && index > 0) {
           // Empty slot — clear previous and move back.
@@ -163,13 +155,10 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
    * forward.
    *
    * @param index - The slot that received the paste.
-   * @param e - The React clipboard event.
+   * @param text - The complete plain text from the paste command.
    */
   const handlePaste = useCallback(
-    (index: number, e: ReactClipboardEvent<HTMLInputElement>) => {
-      const text = e.clipboardData.getData('text')
-      if (!text) return
-      e.preventDefault()
+    (index: number, text: string) => {
       const incoming = sanitizeInput(text, alphabet)
       const before = value.slice(0, index)
       const next = (before + incoming).slice(0, length)
@@ -184,7 +173,8 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
   const inputMode = alphabet === 'numeric' ? 'numeric' : 'text'
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}
       role="group"
       aria-label={t('joinCode.label', undefined, { defaultValue: 'Join code' })}
@@ -197,7 +187,8 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
           { defaultValue: 'Join code character {{position}}' },
         )
         return (
-          <input
+          <TextField
+            as="input"
             key={index}
             ref={(el) => {
               inputRefs.current[index] = el
@@ -210,20 +201,20 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
             disabled={disabled}
             aria-label={slotLabel}
             data-mol-id={`join-code-slot-${index}`}
-            onChange={(e) => handleChange(index, e)}
+            onValueChange={(text) => handleChange(index, text)}
             onKeyDown={(e) => handleKeyDown(index, e)}
-            onPaste={(e) => handlePaste(index, e)}
-            onFocus={(e) => e.currentTarget.select?.()}
+            onPasteText={(text) => handlePaste(index, text)}
+            selectTextOnFocus
             className={cm.cn(
               cm.input({ size: 'lg' }),
               cm.textCenter,
               cm.fontWeight('bold'),
               cm.textSize('2xl'),
             )}
-            style={{ width: '3rem' }}
+            webStyle={{ width: '3rem' }}
           />
         )
       })}
-    </div>
+    </Box>
   )
 }

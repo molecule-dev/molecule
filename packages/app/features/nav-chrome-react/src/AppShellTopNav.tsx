@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import type { NavItem } from './types.js'
 
@@ -38,7 +39,8 @@ export function AppShellTopNav({
   const { t } = useTranslation()
   const cm = getClassMap()
   return (
-    <header
+    <Box
+      as="header"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
         cm.sp('px', 4),
@@ -46,15 +48,17 @@ export function AppShellTopNav({
         className,
       )}
     >
-      <div className={cm.flex({ align: 'center', gap: 'lg' })}>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'lg' })}>
         {logo}
         {items && items.length > 0 && (
-          <nav
+          <Box
+            as="nav"
             className={cm.flex({ align: 'center', gap: 'sm' })}
             aria-label={t('navChrome.aria.main', undefined, { defaultValue: 'Main' })}
           >
             {items.map((it) => (
-              <button
+              <Pressable
+                as="button"
                 key={it.id}
                 type="button"
                 onClick={() => onItemClick?.(it)}
@@ -69,14 +73,16 @@ export function AppShellTopNav({
                 )}
               >
                 {it.icon}
-                <span>{it.label}</span>
+                <Box as="span">{it.label}</Box>
                 {it.badge}
-              </button>
+              </Pressable>
             ))}
-          </nav>
+          </Box>
         )}
-      </div>
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>{right}</div>
-    </header>
+      </Box>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+        {right}
+      </Box>
+    </Box>
   )
 }

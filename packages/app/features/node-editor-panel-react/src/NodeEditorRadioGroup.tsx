@@ -15,6 +15,7 @@ import type { JSX, ReactNode } from 'react'
 import { useId } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, CheckField, Text } from '@molecule/app-ui-react/elements'
 
 /** One selectable option in a {@link NodeEditorRadioGroup}. */
 export interface NodeEditorRadioOption<T extends string> {
@@ -47,11 +48,12 @@ export function NodeEditorRadioGroup<T extends string>({
   const cm = getClassMap()
   const name = useId()
   return (
-    <div role="radiogroup" className={cm.cn(cm.grid({ cols: 1, gap: 2 }))}>
+    <Box as="div" role="radiogroup" className={cm.cn(cm.grid({ cols: 1, gap: 2 }))}>
       {options.map((opt) => {
         const selected = opt.value === value
         return (
-          <label
+          <Box
+            as="label"
             key={opt.value}
             data-mol-id={`node-editor-radio-${opt.value}`}
             className={cm.cn(
@@ -61,23 +63,26 @@ export function NodeEditorRadioGroup<T extends string>({
               selected ? cm.nodeEditorPanelOptionSelected : cm.nodeEditorPanelOption,
             )}
           >
-            <input
+            <CheckField
+              as="input"
               type="radio"
               name={name}
               value={opt.value}
               checked={selected}
-              onChange={() => onChange(opt.value)}
+              onCheckedChange={() => onChange(opt.value)}
               className={cm.srOnly}
             />
-            <span
+            <Text
+              as="span"
               className={cm.cn(
                 cm.textSize('xs'),
                 selected ? cm.nodeEditorPanelOptionLabelSelected : cm.nodeEditorPanelOptionLabel,
               )}
             >
               {opt.label}
-            </span>
-            <div
+            </Text>
+            <Box
+              as="div"
               aria-hidden="true"
               className={cm.cn(
                 cm.nodeEditorPanelRadioRing,
@@ -85,13 +90,13 @@ export function NodeEditorRadioGroup<T extends string>({
               )}
             >
               {selected ? (
-                <div className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, cm.bgPrimary)} />
+                <Box as="div" className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, cm.bgPrimary)} />
               ) : null}
-            </div>
-          </label>
+            </Box>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }
 

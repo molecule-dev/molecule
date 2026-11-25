@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Switch } from '@molecule/app-ui-react'
+import { Anchor, Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Describes a single cookie category offered in the granular consent UI. */
 export interface CookieCategory {
@@ -92,30 +93,33 @@ export function CookieBanner({
   const detailsToggleAria: { 'aria-controls'?: string } =
     showDetails && categories ? { 'aria-controls': detailsId } : {}
   return (
-    <div
+    <Box
+      as="div"
       role="dialog"
       aria-label={t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' })}
       className={cm.cn(cm.stack(3), cm.sp('p', 4), className)}
       style={{
-        position: 'fixed',
         left: 16,
         right: 16,
         bottom: 16,
         zIndex: 60,
-        background: 'var(--color-surface, #fff)',
-        border: '1px solid rgba(0,0,0,0.1)',
         borderRadius: 12,
-        boxShadow: '0 12px 36px rgba(0,0,0,0.18)',
         maxWidth: 720,
         marginLeft: 'auto',
         marginRight: 'auto',
       }}
+      webStyle={{
+        position: 'fixed',
+        background: 'var(--color-surface, #fff)',
+        border: '1px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 12px 36px rgba(0,0,0,0.18)',
+      }}
     >
-      <header className={cm.stack(1 as const)}>
-        <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+      <Box as="header" className={cm.stack(1)}>
+        <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
           {title ?? t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' })}
-        </h3>
-        <p className={cm.textSize('sm')}>
+        </Text>
+        <Text as="p" className={cm.textSize('sm')}>
           {description ??
             t(
               'cookieBanner.description',
@@ -125,45 +129,60 @@ export function CookieBanner({
           {policyHref && (
             <>
               {' '}
-              <a href={policyHref} className={cm.link}>
+              <Anchor href={policyHref} className={cm.link}>
                 {t('cookieBanner.learnMore', {}, { defaultValue: 'Learn more' })}
-              </a>
+              </Anchor>
               .
             </>
           )}
-        </p>
-      </header>
+        </Text>
+      </Box>
       {showDetails && categories && (
-        <div id={detailsId} className={cm.stack(2)}>
+        <Box as="div" id={detailsId} className={cm.stack(2)}>
           {categories.map((c, index) => (
-            <div key={c.id} className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-              <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-                <span
+            <Box
+              as="div"
+              key={c.id}
+              className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}
+            >
+              <Box as="div" className={cm.cn(cm.flex1, cm.stack(0))}>
+                <Box
+                  as="span"
                   id={`${nameId}-${index}`}
                   className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
                 >
                   {c.label}
-                </span>
+                </Box>
                 {c.description && (
-                  <span id={`${nameId}-${index}-description`} className={cm.textSize('xs')}>
+                  <Box
+                    as="span"
+                    id={`${nameId}-${index}-description`}
+                    className={cm.textSize('xs')}
+                  >
                     {c.description}
-                  </span>
+                  </Box>
                 )}
-              </div>
+              </Box>
               <Switch
                 checked={!!enabled[c.id] || !!c.required}
                 disabled={c.required}
                 aria-labelledby={`${nameId}-${index}`}
                 aria-describedby={c.description ? `${nameId}-${index}-description` : undefined}
-                onChange={(e) =>
-                  setEnabled((p) => ({ ...p, [c.id]: (e.target as HTMLInputElement).checked }))
-                }
+                onChange={({ target }) => {
+                  if (target && 'checked' in target && typeof target.checked === 'boolean') {
+                    const { checked } = target
+                    setEnabled((p) => ({ ...p, [c.id]: checked }))
+                  }
+                }}
               />
-            </div>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
-      <footer className={cm.flex({ align: 'center', justify: 'end', gap: 'sm', wrap: 'wrap' })}>
+      <Box
+        as="footer"
+        className={cm.flex({ align: 'center', justify: 'end', gap: 'sm', wrap: 'wrap' })}
+      >
         {categories && (
           <Button
             variant="ghost"
@@ -188,7 +207,7 @@ export function CookieBanner({
         <Button variant="solid" color="primary" onClick={() => dismissAfter(onAcceptAll)}>
           {t('cookieBanner.accept', {}, { defaultValue: 'Accept all' })}
         </Button>
-      </footer>
-    </div>
+      </Box>
+    </Box>
   )
 }

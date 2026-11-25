@@ -9,6 +9,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NodeEditorSection}. */
 export interface NodeEditorSectionProps {
@@ -35,18 +36,19 @@ export function NodeEditorSection({
 }: NodeEditorSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.stack(gap)}>
-      <div className={cm.flex({ justify: 'between', align: 'center' })}>
-        <label
+    <Box as="div" className={cm.stack(gap)}>
+      <Box as="div" className={cm.flex({ justify: 'between', align: 'center' })}>
+        <Text
+          as="label"
           htmlFor={htmlFor}
           className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelSectionLabel)}
         >
           {label}
-        </label>
+        </Text>
         {trailing ?? null}
-      </div>
+      </Box>
       {children}
-    </div>
+    </Box>
   )
 }
 

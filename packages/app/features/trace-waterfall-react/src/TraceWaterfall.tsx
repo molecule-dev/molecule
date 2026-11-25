@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 
 import { useLocale, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { layoutSpans, serviceColor } from './layout.js'
 import type { Span, SpanRow, SpanStatus } from './types.js'
@@ -194,13 +195,14 @@ export function TraceWaterfall({
   if (layout.rows.length === 0) {
     if (emptyState) return <>{emptyState}</>
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.sp('p', 3), cm.textSize('sm'), className)}
         data-mol-id="trace-waterfall-empty"
         role="status"
       >
         {t('traceWaterfall.empty', undefined, { defaultValue: 'No spans to display.' })}
-      </div>
+      </Box>
     )
   }
 
@@ -215,7 +217,8 @@ export function TraceWaterfall({
   })
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.stack(1 as const), className)}
       role="region"
       aria-label={ariaLabel}
@@ -226,7 +229,7 @@ export function TraceWaterfall({
         labelColumnWidth={LABEL_COLUMN_PX}
         totalLabel={totalLabel}
       />
-      <div role="tree" data-mol-id="trace-waterfall-rows">
+      <Box as="div" role="tree" data-mol-id="trace-waterfall-rows">
         {layout.rows.map((row) => (
           <SpanRowView
             key={row.span.id}
@@ -238,8 +241,8 @@ export function TraceWaterfall({
             t={t}
           />
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -265,16 +268,20 @@ function TimeAxis({
     })
   }
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.flex({ align: 'center' }), cm.textSize('xs'))}
       data-mol-id="trace-waterfall-axis"
     >
-      <div style={{ width: labelColumnWidth, flexShrink: 0, opacity: 0.7 }}>{totalLabel}</div>
-      <div style={{ position: 'relative', flex: 1, height: 18 }}>
+      <Box as="div" webStyle={{ width: labelColumnWidth, flexShrink: 0, opacity: 0.7 }}>
+        {totalLabel}
+      </Box>
+      <Box as="div" webStyle={{ position: 'relative', flex: 1, height: 18 }}>
         {ticks.map((tick, i) => (
-          <div
+          <Box
+            as="div"
             key={i}
-            style={{
+            webStyle={{
               position: 'absolute',
               left: tick.left,
               top: 0,
@@ -285,10 +292,10 @@ function TimeAxis({
             data-mol-id="trace-waterfall-axis-tick"
           >
             {tick.label}
-          </div>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -315,7 +322,7 @@ function SpanRowView({
 
   const handleClick = onSpanClick ? () => onSpanClick(span) : undefined
   const handleKey = onSpanClick
-    ? (ev: React.KeyboardEvent<HTMLDivElement>) => {
+    ? (ev: KitKeyboardEvent) => {
         if (ev.key === 'Enter' || ev.key === ' ') {
           ev.preventDefault()
           onSpanClick(span)
@@ -341,9 +348,10 @@ function SpanRowView({
   )
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.flex({ align: 'center' }))}
-      style={{ height: ROW_HEIGHT_PX }}
+      webStyle={{ height: ROW_HEIGHT_PX }}
       role="treeitem"
       aria-level={depth + 1}
       aria-selected={selected}
@@ -354,9 +362,10 @@ function SpanRowView({
       data-mol-id="trace-waterfall-row"
       data-span-id={span.id}
     >
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.textSize('xs'))}
-        style={{
+        webStyle={{
           width: labelColumnWidth,
           flexShrink: 0,
           paddingLeft: depth * DEPTH_INDENT_PX,
@@ -367,9 +376,10 @@ function SpanRowView({
         }}
       >
         {span.service ? (
-          <span
+          <Text
+            as="span"
             data-mol-id="trace-waterfall-service-tag"
-            style={{
+            webStyle={{
               display: 'inline-block',
               padding: '0 6px',
               borderRadius: 4,
@@ -382,26 +392,29 @@ function SpanRowView({
             }}
           >
             {span.service}
-          </span>
+          </Text>
         ) : null}
-        <span
-          style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+        <Text
+          as="span"
+          webStyle={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
           data-mol-id="trace-waterfall-name"
         >
           {span.name}
-        </span>
-      </div>
-      <div
-        style={{
+        </Text>
+      </Box>
+      <Box
+        as="div"
+        webStyle={{
           position: 'relative',
           flex: 1,
           height: ROW_HEIGHT_PX,
           cursor: interactive ? 'pointer' : 'default',
         }}
       >
-        <div
+        <Box
+          as="div"
           data-mol-id="trace-waterfall-bar"
-          style={{
+          webStyle={{
             position: 'absolute',
             top: (ROW_HEIGHT_PX - BAR_HEIGHT_PX) / 2,
             left: `${startFraction * 100}%`,
@@ -411,9 +424,10 @@ function SpanRowView({
             borderRadius: 2,
           }}
         />
-        <div
+        <Box
+          as="div"
           data-mol-id="trace-waterfall-duration"
-          style={{
+          webStyle={{
             position: 'absolute',
             top: 0,
             left: `calc(${startFraction * 100}% + ${Math.max(widthFraction * 100, 0.5)}% + 6px)`,
@@ -427,8 +441,8 @@ function SpanRowView({
           }}
         >
           {durationText}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Anchor, Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Describes a single crumb entry in a breadcrumb trail. */
 export interface BreadcrumbItem {
@@ -56,9 +57,14 @@ export function Breadcrumb({
   const separator = slot(separatorProp)
   const cm = getClassMap()
   const { t } = useTranslation()
-  const sep = separator ?? <span aria-hidden>/</span>
+  const sep = separator ?? (
+    <Text as="span" aria-hidden>
+      /
+    </Text>
+  )
   return (
-    <nav
+    <Box
+      as="nav"
       aria-label={t('breadcrumb.aria.breadcrumb', undefined, { defaultValue: 'Breadcrumb' })}
       data-mol-id={dataMolId}
       className={cm.cn(
@@ -69,29 +75,37 @@ export function Breadcrumb({
     >
       {items.map((item, i) => {
         const isLast = i === items.length - 1
+        const { to } = item
         const content = (
-          <span className={cm.flex({ align: 'center', gap: 'xs' })}>
+          <Box as="span" className={cm.flex({ align: 'center', gap: 'xs' })}>
             {item.icon}
             {item.label}
-          </span>
+          </Box>
         )
         return (
-          <span key={i} className={cm.flex({ align: 'center', gap: 'xs' })}>
-            {isLast || !item.to ? (
-              <span aria-current={isLast ? 'page' : undefined}>{content}</span>
+          <Box as="span" key={i} className={cm.flex({ align: 'center', gap: 'xs' })}>
+            {isLast || !to ? (
+              <Box as="span" aria-current={isLast ? 'page' : undefined}>
+                {content}
+              </Box>
             ) : onNavigate ? (
-              <button type="button" onClick={() => onNavigate(item.to!)} className={cm.link}>
+              <Pressable
+                as="button"
+                type="button"
+                onClick={() => onNavigate(to)}
+                className={cm.link}
+              >
                 {content}
-              </button>
+              </Pressable>
             ) : (
-              <a href={item.to} className={cm.link}>
+              <Anchor href={to} className={cm.link}>
                 {content}
-              </a>
+              </Anchor>
             )}
-            {!isLast && <span>{sep}</span>}
-          </span>
+            {!isLast && <Box as="span">{sep}</Box>}
+          </Box>
         )
       })}
-    </nav>
+    </Box>
   )
 }

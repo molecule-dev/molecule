@@ -9,6 +9,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { RangeField, Text } from '@molecule/app-ui-react/elements'
 
 import { NodeEditorSection } from './NodeEditorSection.js'
 
@@ -43,21 +44,23 @@ export function NodeEditorSlider({
       label={label}
       htmlFor={inputId}
       trailing={
-        <span className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
+        <Text
+          as="span"
+          className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}
+        >
           {valueDisplay ?? value}
-        </span>
+        </Text>
       }
     >
-      <input
+      <RangeField
         id={inputId}
         aria-valuetext={typeof valueDisplay === 'string' ? valueDisplay : undefined}
         className={cm.cn(cm.w('full'), cm.h(1.5), cm.cursorPointer, cm.nodeEditorPanelSliderTrack)}
         min={min}
         max={max}
         step={step}
-        type="range"
         value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
+        onValueChange={onChange}
       />
     </NodeEditorSection>
   )

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Anchor, Box, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for `<PlanUpdatedPage />`. */
 export interface PlanUpdatedPageProps {
@@ -56,37 +57,44 @@ export function PlanUpdatedPage(props: PlanUpdatedPageProps): React.ReactElement
 
   const cta = ctaLabel ? (
     ctaHref ? (
-      <a
+      <Anchor
         href={ctaHref}
         className={cm.button({ variant: 'solid', size: 'md' })}
         data-mol-id="plan-updated-cta"
       >
         {ctaLabel}
-      </a>
+      </Anchor>
     ) : (
-      <button
+      <Pressable
+        as="button"
         type="button"
         className={cm.button({ variant: 'solid', size: 'md' })}
         onClick={onCta}
         data-mol-id="plan-updated-cta"
       >
         {ctaLabel}
-      </button>
+      </Pressable>
     )
   ) : null
 
   return (
-    <section className={className} data-mol-id="plan-updated-page">
-      <header className={cm.cardHeader}>
-        <h1 className={cm.cardTitle}>{heading}</h1>
-        <p className={cm.cardDescription}>
+    <Box as="section" className={className} data-mol-id="plan-updated-page">
+      <Box as="header" className={cm.cardHeader}>
+        <Text as="h1" className={cm.cardTitle}>
+          {heading}
+        </Text>
+        <Text as="p" className={cm.cardDescription}>
           {t('pricingPage.planUpdated.body', undefined, {
             defaultValue:
               'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
           })}
-        </p>
-      </header>
-      {cta && <footer className={cm.cardFooter}>{cta}</footer>}
-    </section>
+        </Text>
+      </Box>
+      {cta && (
+        <Box as="footer" className={cm.cardFooter}>
+          {cta}
+        </Box>
+      )}
+    </Box>
   )
 }

@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
+import { Anchor, Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Connection status for an integration. */
 export type IntegrationStatus = 'connected' | 'disconnected' | 'pending' | 'error'
@@ -55,9 +56,9 @@ export function IntegrationCard({
   const cm = getClassMap()
   const actionNode = action ? (
     action.href ? (
-      <a href={action.href}>
+      <Anchor href={action.href}>
         <Button disabled={action.disabled}>{action.label}</Button>
-      </a>
+      </Anchor>
     ) : (
       <Button onClick={action.onClick} disabled={action.disabled || action.loading}>
         {action.loading ? '…' : action.label}
@@ -77,17 +78,27 @@ export function IntegrationCard({
           : undefined
       }
     >
-      <div className={cm.flex({ align: 'start', gap: 'md' })}>
-        {icon && <div className={cm.shrink0}>{icon}</div>}
-        <div className={cm.cn(cm.flex1, cm.stack(2))}>
-          <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{title}</h3>
-          {description && <p className={cm.textSize('sm')}>{description}</p>}
-          <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+      <Box as="div" className={cm.flex({ align: 'start', gap: 'md' })}>
+        {icon && (
+          <Box as="div" className={cm.shrink0}>
+            {icon}
+          </Box>
+        )}
+        <Box as="div" className={cm.cn(cm.flex1, cm.stack(2))}>
+          <Text as="h3" className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+            {title}
+          </Text>
+          {description && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {description}
+            </Text>
+          )}
+          <Box as="div" className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
             <StatusLabel status={status} />
             {actionNode}
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
     </Card>
   )
 }
@@ -107,5 +118,9 @@ function StatusLabel({ status }: { status: IntegrationStatus }): JSX.Element {
         : status === 'error'
           ? t('integrationCard.status.error', {}, { defaultValue: 'Error' })
           : t('integrationCard.status.disconnected', {}, { defaultValue: 'Not connected' })
-  return <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{label}</span>
+  return (
+    <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+      {label}
+    </Text>
+  )
 }

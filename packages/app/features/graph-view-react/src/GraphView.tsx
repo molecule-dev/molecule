@@ -1,8 +1,9 @@
-import type { CSSProperties, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Circle, G, Line, Svg, SvgText } from '@molecule/app-ui-react/elements'
 
 import { boundingBox, type ForceLayoutOptions, layoutNodes } from './layout.js'
 import type {
@@ -50,29 +51,30 @@ const NODE_RADIUS = 8
 function defaultNodeRenderer(node: PositionedNode, isSelected: boolean): ReactElement {
   const r = NODE_RADIUS * Math.sqrt(Math.max(0.25, node.weight ?? 1))
   return (
-    <g
+    <G
       data-mol-id={`graph-view-node-${node.id}`}
       data-selected={isSelected ? 'true' : 'false'}
       transform={`translate(${node.x}, ${node.y})`}
     >
-      <circle
+      <Circle
         r={r}
         fill="currentColor"
         opacity={isSelected ? 1 : 0.85}
         stroke="currentColor"
         strokeWidth={isSelected ? 2 : 0}
       />
-      <text
+      <SvgText
         x={r + 4}
         y={4}
         fontSize={11}
         fill="currentColor"
         opacity={isSelected ? 1 : 0.75}
-        style={{ pointerEvents: 'none', userSelect: 'none' }}
+        style={{ pointerEvents: 'none' }}
+        webStyle={{ userSelect: 'none' }}
       >
         {node.label}
-      </text>
-    </g>
+      </SvgText>
+    </G>
   )
 }
 
@@ -142,52 +144,54 @@ export function GraphView(props: GraphViewProps): ReactElement {
   const ariaLabel = t('graphView.aria.canvas', {}, { defaultValue: 'Graph view' })
   const emptyLabel = t('graphView.empty', {}, { defaultValue: 'No nodes to display' })
 
-  const wrapperStyle: CSSProperties = {
+  const wrapperStyle = {
     width: '100%',
     height: '100%',
     overflow: 'hidden',
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="application"
       aria-label={ariaLabel}
       data-mol-id="graph-view"
       className={cm.cn(cm.position('relative'), cm.surfaceSecondary, className)}
-      style={wrapperStyle}
+      webStyle={wrapperStyle}
     >
       {positioned.length === 0 ? (
-        <div
+        <Box
+          as="div"
           data-mol-id="graph-view-empty"
           role="status"
           className={cm.cn(cm.position('absolute'), cm.sp('p', 6))}
-          style={{ inset: 0, display: 'grid', placeItems: 'center' }}
+          webStyle={{ inset: 0, display: 'grid', placeItems: 'center' }}
         >
           {emptyLabel}
-        </div>
+        </Box>
       ) : (
-        <svg
+        <Svg
           data-mol-id="graph-view-svg"
           width="100%"
           height="100%"
           viewBox={viewBox}
           preserveAspectRatio="xMidYMid meet"
-          style={{ display: 'block' }}
+          webStyle={{ display: 'block' }}
         >
-          <g data-mol-id="graph-view-edges">
+          <G data-mol-id="graph-view-edges">
             {edges.map((edge) => {
               const src = nodeById.get(edge.source)
               const tgt = nodeById.get(edge.target)
               if (!src || !tgt) return null
               if (edgeRenderer) {
                 return (
-                  <g key={edge.id} data-mol-id={`graph-view-edge-${edge.id}`}>
+                  <G key={edge.id} data-mol-id={`graph-view-edge-${edge.id}`}>
                     {edgeRenderer(edge, src, tgt)}
-                  </g>
+                  </G>
                 )
               }
               return (
-                <line
+                <Line
                   key={edge.id}
                   data-mol-id={`graph-view-edge-${edge.id}`}
                   x1={src.x}
@@ -200,9 +204,9 @@ export function GraphView(props: GraphViewProps): ReactElement {
                 />
               )
             })}
-          </g>
+          </G>
 
-          <g data-mol-id="graph-view-nodes">
+          <G data-mol-id="graph-view-nodes">
             {positioned.map((node) => {
               const isSelected = node.id === selectedNodeId
               const aria = t(
@@ -211,7 +215,7 @@ export function GraphView(props: GraphViewProps): ReactElement {
                 { defaultValue: 'Node {{label}}' },
               )
               return (
-                <g
+                <G
                   key={node.id}
                   data-mol-id={`graph-view-node-hit-${node.id}`}
                   role="button"
@@ -224,15 +228,15 @@ export function GraphView(props: GraphViewProps): ReactElement {
                       onNodeClick?.(node)
                     }
                   }}
-                  style={{ cursor: onNodeClick ? 'pointer' : 'default', outline: 'none' }}
+                  webStyle={{ cursor: onNodeClick ? 'pointer' : 'default', outline: 'none' }}
                 >
                   {nodeRenderer ? nodeRenderer(node) : defaultNodeRenderer(node, isSelected)}
-                </g>
+                </G>
               )
             })}
-          </g>
-        </svg>
+          </G>
+        </Svg>
       )}
-    </div>
+    </Box>
   )
 }
