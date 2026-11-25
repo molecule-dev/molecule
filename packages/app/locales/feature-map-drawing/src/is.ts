@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const is: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Verkfæri til að teikna kort',
   'mapDrawing.surface.aria': 'Yfirborð kortateikninga',
+  'mapDrawing.surface.finishPath': 'Ljúka teikningu',
   'mapDrawing.tool.polygon': 'Marghyrningur',
   'mapDrawing.tool.circle': 'Hringur',
   'mapDrawing.tool.pin': 'Pinna',

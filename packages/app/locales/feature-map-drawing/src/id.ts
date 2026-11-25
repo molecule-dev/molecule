@@ -8,6 +8,7 @@ export const id: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Hapus',
   'mapDrawing.toolbar.aria': 'Alat menggambar peta',
   'mapDrawing.surface.aria': 'Permukaan gambar peta',
+  'mapDrawing.surface.finishPath': 'Selesaikan gambar',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Lingkaran',
   'mapDrawing.tool.cancelDraft': 'Batalkan draf',

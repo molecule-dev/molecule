@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const az: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Xəritə çəkmə alətləri',
   'mapDrawing.surface.aria': 'Xəritə çəkmə səthi',
+  'mapDrawing.surface.finishPath': 'Çəkməni tamamla',
   'mapDrawing.tool.polygon': 'Çoxbucaqlı',
   'mapDrawing.tool.circle': 'Dairə',
   'mapDrawing.tool.pin': 'Sancaq',

@@ -5,6 +5,7 @@ export const fil: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Burahin',
   'mapDrawing.toolbar.aria': 'Mga kagamitan sa pagguhit ng mapa',
   'mapDrawing.surface.aria': 'Ibabaw ng pagguhit ng mapa',
+  'mapDrawing.surface.finishPath': 'Tapusin ang pagguhit',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Bilog',
   'mapDrawing.tool.pin': 'I-pin',

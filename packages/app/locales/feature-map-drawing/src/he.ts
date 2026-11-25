@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const he: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'כלי ציור מפות',
   'mapDrawing.surface.aria': 'משטח ציור המפה',
+  'mapDrawing.surface.finishPath': 'לְסַיֵּם צִיּוּר',
   'mapDrawing.tool.polygon': 'מְצוּלָע',
   'mapDrawing.tool.circle': 'מַעְגָל',
   'mapDrawing.tool.pin': 'פִּין',

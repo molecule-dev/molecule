@@ -5,6 +5,7 @@ export const cs: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Smazat',
   'mapDrawing.toolbar.aria': 'Nástroje pro kreslení map',
   'mapDrawing.surface.aria': 'Plocha pro kreslení mapy',
+  'mapDrawing.surface.finishPath': 'Dokončit kreslení',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Kruh',
   'mapDrawing.tool.pin': 'Kolík',

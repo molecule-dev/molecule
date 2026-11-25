@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const my: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'မြေပုံဆွဲကိရိယာများ',
   'mapDrawing.surface.aria': 'မြေပုံဆွဲမျက်နှာပြင်',
+  'mapDrawing.surface.finishPath': 'ဆွဲခြင်း ပြီးမြောက်စေရန်',
   'mapDrawing.tool.polygon': 'ပိုလီဂွန်',
   'mapDrawing.tool.circle': 'စက်ဝိုင်း',
   'mapDrawing.tool.pin': 'ပင်နံပါတ်',

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const et: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kaardi joonistamise tööriistad',
   'mapDrawing.surface.aria': 'Kaardi joonistamise pind',
+  'mapDrawing.surface.finishPath': 'Lõpeta joonistus',
   'mapDrawing.tool.polygon': 'Polügoon',
   'mapDrawing.tool.circle': 'Ring',
   'mapDrawing.tool.pin': 'Pin',

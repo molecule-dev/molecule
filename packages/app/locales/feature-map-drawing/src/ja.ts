@@ -8,6 +8,7 @@ export const ja: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': '削除',
   'mapDrawing.toolbar.aria': '地図描画ツール',
   'mapDrawing.surface.aria': '地図描画面',
+  'mapDrawing.surface.finishPath': '描画を完了',
   'mapDrawing.tool.polygon': 'ポリゴン',
   'mapDrawing.tool.circle': '丸',
   'mapDrawing.tool.cancelDraft': '下書きをキャンセル',

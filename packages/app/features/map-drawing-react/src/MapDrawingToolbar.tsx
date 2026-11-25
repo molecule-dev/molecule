@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 import type { ActiveTool, DrawingTool } from './types.js'
 
@@ -57,7 +58,8 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
   const ariaLabel = t('mapDrawing.toolbar.aria', {}, { defaultValue: 'Map drawing tools' })
 
   return (
-    <div
+    <Box
+      as="div"
       role="toolbar"
       aria-label={ariaLabel}
       data-mol-id="map-drawing-toolbar"
@@ -66,7 +68,8 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
       {tools.map((tool) => {
         const active = activeTool === tool
         return (
-          <button
+          <Pressable
+            as="button"
             key={tool}
             type="button"
             aria-pressed={active}
@@ -76,10 +79,11 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
             className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
           >
             {labels[tool]}
-          </button>
+          </Pressable>
         )
       })}
-      <button
+      <Pressable
+        as="button"
         type="button"
         aria-pressed={activeTool === 'select'}
         data-mol-id="map-drawing-tool-select"
@@ -88,8 +92,9 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
         className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
       >
         {labels.select}
-      </button>
-      <button
+      </Pressable>
+      <Pressable
+        as="button"
         type="button"
         data-mol-id="map-drawing-tool-cancel-draft"
         disabled={!hasDraft}
@@ -98,8 +103,9 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
         className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
       >
         {labels.cancelDraft}
-      </button>
-      <button
+      </Pressable>
+      <Pressable
+        as="button"
         type="button"
         data-mol-id="map-drawing-tool-delete"
         disabled={!hasSelection}
@@ -108,7 +114,7 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
         className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
       >
         {labels.delete}
-      </button>
-    </div>
+      </Pressable>
+    </Box>
   )
 }

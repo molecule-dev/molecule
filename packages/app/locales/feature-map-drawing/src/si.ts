@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const si: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'සිතියම් ඇඳීමේ මෙවලම්',
   'mapDrawing.surface.aria': 'සිතියම් ඇඳීමේ මතුපිට',
+  'mapDrawing.surface.finishPath': 'ඇඳීම අවසන් කරන්න',
   'mapDrawing.tool.polygon': 'බහුඅස්‍රය',
   'mapDrawing.tool.circle': 'කවය',
   'mapDrawing.tool.pin': 'පින් කරන්න',

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ig: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Ngwaọrụ ise maapụ',
   'mapDrawing.surface.aria': 'Ihu eserese maapụ',
+  'mapDrawing.surface.finishPath': 'Rụchaa eserese',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Okirikiri',
   'mapDrawing.tool.pin': 'Ntụtụ',

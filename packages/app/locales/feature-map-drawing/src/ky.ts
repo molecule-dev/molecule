@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ky: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Карта чийүү куралдары',
   'mapDrawing.surface.aria': 'Карта чийүү бети',
+  'mapDrawing.surface.finishPath': 'Чийүүнү аяктоо',
   'mapDrawing.tool.polygon': 'Көп бурчтук',
   'mapDrawing.tool.circle': 'Тегерек',
   'mapDrawing.tool.pin': 'Төөнөгүч',

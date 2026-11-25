@@ -8,6 +8,7 @@ export const nl: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Verwijderen',
   'mapDrawing.toolbar.aria': 'Kaarttekentools',
   'mapDrawing.surface.aria': 'Kaarttekenoppervlak',
+  'mapDrawing.surface.finishPath': 'Tekening voltooien',
   'mapDrawing.tool.polygon': 'Veelhoek',
   'mapDrawing.tool.circle': 'Cirkel',
   'mapDrawing.tool.cancelDraft': 'Concept annuleren',

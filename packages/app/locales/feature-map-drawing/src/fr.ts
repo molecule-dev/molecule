@@ -8,6 +8,7 @@ export const fr: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Supprimer',
   'mapDrawing.toolbar.aria': 'outils de dessin de cartes',
   'mapDrawing.surface.aria': 'surface de dessin de carte',
+  'mapDrawing.surface.finishPath': 'Terminer le dessin',
   'mapDrawing.tool.polygon': 'Polygone',
   'mapDrawing.tool.circle': 'Cercle',
   'mapDrawing.tool.cancelDraft': 'Annuler le brouillon',

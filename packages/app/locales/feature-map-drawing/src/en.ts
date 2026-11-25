@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const en: MapDrawingTranslations = {
   'mapDrawing.toolbar.aria': 'Map drawing tools',
   'mapDrawing.surface.aria': 'Map drawing surface',
+  'mapDrawing.surface.finishPath': 'Finish drawing',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Circle',
   'mapDrawing.tool.pin': 'Pin',

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const te: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'పటం గీసే సాధనాలు',
   'mapDrawing.surface.aria': 'పటం గీసే ఉపరితలం',
+  'mapDrawing.surface.finishPath': 'గీయడాన్ని పూర్తి చేయండి',
   'mapDrawing.tool.polygon': 'బహుభుజి',
   'mapDrawing.tool.circle': 'వృత్తం',
   'mapDrawing.tool.pin': 'పిన్',

@@ -8,6 +8,7 @@ export const sv: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Ta bort',
   'mapDrawing.toolbar.aria': 'Verktyg för kartritning',
   'mapDrawing.surface.aria': 'Kartritningsyta',
+  'mapDrawing.surface.finishPath': 'Slutför ritning',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Cirkel',
   'mapDrawing.tool.cancelDraft': 'Avbryt utkast',

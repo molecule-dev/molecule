@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ha: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kayan aikin zana taswira',
   'mapDrawing.surface.aria': 'Taswirar saman zane',
+  'mapDrawing.surface.finishPath': 'Kammala zane',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': "Da'ira",
   'mapDrawing.tool.pin': 'fil',

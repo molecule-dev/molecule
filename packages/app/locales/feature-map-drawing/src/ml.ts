@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ml: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'മാപ്പ് വരയ്ക്കൽ ഉപകരണങ്ങൾ',
   'mapDrawing.surface.aria': 'മാപ്പ് ഡ്രോയിംഗ് ഉപരിതലം',
+  'mapDrawing.surface.finishPath': 'വരയ്ക്കൽ പൂർത്തിയാക്കുക',
   'mapDrawing.tool.polygon': 'പോളിഗോൺ',
   'mapDrawing.tool.circle': 'വൃത്തം',
   'mapDrawing.tool.pin': 'പിൻ ചെയ്യുക',

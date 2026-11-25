@@ -8,6 +8,7 @@ export const it: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Elimina',
   'mapDrawing.toolbar.aria': 'Strumenti per disegnare mappe',
   'mapDrawing.surface.aria': 'superficie di disegno cartografico',
+  'mapDrawing.surface.finishPath': 'Termina disegno',
   'mapDrawing.tool.polygon': 'Poligono',
   'mapDrawing.tool.circle': 'Cerchio',
   'mapDrawing.tool.cancelDraft': 'Annulla bozza',

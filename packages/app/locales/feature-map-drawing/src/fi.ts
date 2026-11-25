@@ -5,6 +5,7 @@ export const fi: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Poista',
   'mapDrawing.toolbar.aria': 'Kartan piirtotyökalut',
   'mapDrawing.surface.aria': 'Kartan piirustuspinta',
+  'mapDrawing.surface.finishPath': 'Viimeistele piirustus',
   'mapDrawing.tool.polygon': 'Monikulmio',
   'mapDrawing.tool.circle': 'Ympyrä',
   'mapDrawing.tool.pin': 'Kiinnitä',

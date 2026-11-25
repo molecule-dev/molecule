@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const mt: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Għodda għat-tpinġija tal-mapep',
   'mapDrawing.surface.aria': 'Wiċċ tat-tpinġija tal-mappa',
+  'mapDrawing.surface.finishPath': 'Ittemma t-tpinġija',
   'mapDrawing.tool.polygon': 'Poligonu',
   'mapDrawing.tool.circle': 'Ċirku',
   'mapDrawing.tool.pin': 'Pin',

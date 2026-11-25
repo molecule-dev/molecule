@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const bs: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Alati za crtanje mapa',
   'mapDrawing.surface.aria': 'Površina za crtanje karte',
+  'mapDrawing.surface.finishPath': 'Završi crtanje',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Krug',
   'mapDrawing.tool.pin': 'Prikvači',

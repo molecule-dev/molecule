@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const sw: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Zana za kuchora ramani',
   'mapDrawing.surface.aria': 'Uso wa kuchora ramani',
+  'mapDrawing.surface.finishPath': 'Kamilisha mchoro',
   'mapDrawing.tool.polygon': 'Poligoni',
   'mapDrawing.tool.circle': 'Mduara',
   'mapDrawing.tool.pin': 'Pini',

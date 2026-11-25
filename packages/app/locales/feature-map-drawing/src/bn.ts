@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const bn: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'মানচিত্র আঁকার সরঞ্জাম',
   'mapDrawing.surface.aria': 'মানচিত্র আঁকার পৃষ্ঠতল',
+  'mapDrawing.surface.finishPath': 'আঁকা শেষ করুন',
   'mapDrawing.tool.polygon': 'বহুভুজ',
   'mapDrawing.tool.circle': 'বৃত্ত',
   'mapDrawing.tool.pin': 'পিন',

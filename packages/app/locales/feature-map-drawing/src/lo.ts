@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const lo: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ເຄື່ອງມືແຕ້ມແຜນທີ່',
   'mapDrawing.surface.aria': 'ພື້ນຜິວແຕ້ມແຜນທີ່',
+  'mapDrawing.surface.finishPath': 'ສຳເລັດການແຕ້ມ',
   'mapDrawing.tool.polygon': 'ຮູບຫຼາຍຫຼ່ຽມ',
   'mapDrawing.tool.circle': 'ວົງມົນ',
   'mapDrawing.tool.pin': 'ປັກໝຸດ',

@@ -2,6 +2,7 @@
 export type MapDrawingTranslationKey =
   | 'mapDrawing.toolbar.aria'
   | 'mapDrawing.surface.aria'
+  | 'mapDrawing.surface.finishPath'
   | 'mapDrawing.tool.polygon'
   | 'mapDrawing.tool.circle'
   | 'mapDrawing.tool.pin'

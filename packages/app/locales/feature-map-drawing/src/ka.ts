@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ka: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'რუკის ხატვის ინსტრუმენტები',
   'mapDrawing.surface.aria': 'რუკის ხატვის ზედაპირი',
+  'mapDrawing.surface.finishPath': 'ნახატის დასრულება',
   'mapDrawing.tool.polygon': 'პოლიგონი',
   'mapDrawing.tool.circle': 'წრე',
   'mapDrawing.tool.pin': 'პინი',

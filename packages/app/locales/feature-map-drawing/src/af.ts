@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const af: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kaarttekengereedskap',
   'mapDrawing.surface.aria': 'Kaarttekeningoppervlak',
+  'mapDrawing.surface.finishPath': 'Voltooi tekening',
   'mapDrawing.tool.polygon': 'Veelhoek',
   'mapDrawing.tool.circle': 'Sirkel',
   'mapDrawing.tool.pin': 'Speld vas',

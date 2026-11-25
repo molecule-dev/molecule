@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const yo: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Àwọn irinṣẹ́ ìyàwòrán máàpù',
   'mapDrawing.surface.aria': 'Ojú àwòrán máàpù',
+  'mapDrawing.surface.finishPath': 'Parí ìyàwòrán',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Àyíká',
   'mapDrawing.tool.pin': 'Pínì',

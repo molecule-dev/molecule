@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const gl: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Ferramentas de debuxo de mapas',
   'mapDrawing.surface.aria': 'Superficie de debuxo de mapas',
+  'mapDrawing.surface.finishPath': 'Finalizar o debuxo',
   'mapDrawing.tool.polygon': 'Polígono',
   'mapDrawing.tool.circle': 'Círculo',
   'mapDrawing.tool.pin': 'Fixar',

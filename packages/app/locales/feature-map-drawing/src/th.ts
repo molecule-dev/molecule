@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const th: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'เครื่องมือวาดแผนที่',
   'mapDrawing.surface.aria': 'พื้นผิวสำหรับวาดแผนที่',
+  'mapDrawing.surface.finishPath': 'เสร็จสิ้นการวาด',
   'mapDrawing.tool.polygon': 'รูปหลายเหลี่ยม',
   'mapDrawing.tool.circle': 'วงกลม',
   'mapDrawing.tool.pin': 'เข็มหมุด',

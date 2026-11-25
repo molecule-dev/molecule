@@ -8,6 +8,7 @@ export const tr: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Sil',
   'mapDrawing.toolbar.aria': 'Harita çizim araçları',
   'mapDrawing.surface.aria': 'Harita çizim yüzeyi',
+  'mapDrawing.surface.finishPath': 'Çizimi tamamla',
   'mapDrawing.tool.polygon': 'Çokgen',
   'mapDrawing.tool.circle': 'Daire',
   'mapDrawing.tool.cancelDraft': 'Taslağı iptal et',

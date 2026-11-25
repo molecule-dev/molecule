@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const zu: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Amathuluzi okudweba amamephu',
   'mapDrawing.surface.aria': 'Indawo yokudweba imephu',
+  'mapDrawing.surface.finishPath': 'Qedela ukudweba',
   'mapDrawing.tool.polygon': 'I-Polygon',
   'mapDrawing.tool.circle': 'Umbuthano',
   'mapDrawing.tool.pin': 'Iphinikhodi',

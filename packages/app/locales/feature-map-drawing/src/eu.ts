@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const eu: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Mapa marrazteko tresnak',
   'mapDrawing.surface.aria': 'Mapa marrazteko gainazala',
+  'mapDrawing.surface.finishPath': 'Amaitu marrazketa',
   'mapDrawing.tool.polygon': 'Poligonoa',
   'mapDrawing.tool.circle': 'Zirkulua',
   'mapDrawing.tool.pin': 'Txinga',

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const fa: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ابزارهای ترسیم نقشه',
   'mapDrawing.surface.aria': 'سطح ترسیم نقشه',
+  'mapDrawing.surface.finishPath': 'پایان ترسیم',
   'mapDrawing.tool.polygon': 'چندضلعی',
   'mapDrawing.tool.circle': 'دایره',
   'mapDrawing.tool.pin': 'پین',

@@ -292,6 +292,30 @@ describe('<MapDrawing> circle radius', () => {
     fireEvent.pointerUp(surface, { clientX: 50, clientY: 50 })
     expect(onChange).not.toHaveBeenCalled()
   })
+
+  it('uses the release position outside the surface and discards an interrupted circle', () => {
+    const onChange = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <MapDrawing onChange={onChange} activeTool="circle" />
+      </Wrap>,
+    )
+    stubSurfaceRect(container)
+    const surface = container.querySelector('[data-mol-id="map-drawing-surface"]')
+    if (!surface) throw new Error('surface missing')
+
+    fireEvent.pointerDown(surface, { clientX: 50, clientY: 50, pointerId: 1 })
+    fireEvent.pointerMove(surface, { clientX: 80, clientY: 90, pointerId: 1 })
+    fireEvent.pointerCancel(window, { pointerId: 1 })
+    expect(container.querySelector('[data-mol-id="map-drawing-draft-circle"]')).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerDown(surface, { clientX: 50, clientY: 50, pointerId: 1 })
+    fireEvent.pointerUp(window, { clientX: 250, clientY: 50, pointerId: 1 })
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ kind: 'circle', properties: { radiusMeters: 200 } }),
+    ])
+  })
 })
 
 describe('<MapDrawing> pin placement', () => {

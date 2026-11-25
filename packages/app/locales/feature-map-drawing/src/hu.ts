@@ -5,6 +5,7 @@ export const hu: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Törlés',
   'mapDrawing.toolbar.aria': 'Térképrajzoló eszközök',
   'mapDrawing.surface.aria': 'Térképrajzolási felület',
+  'mapDrawing.surface.finishPath': 'Rajz befejezése',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Kör',
   'mapDrawing.tool.pin': 'Pin',

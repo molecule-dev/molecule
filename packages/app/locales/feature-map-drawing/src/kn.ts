@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const kn: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ನಕ್ಷೆ ಚಿತ್ರಿಸುವ ಪರಿಕರಗಳು',
   'mapDrawing.surface.aria': 'ನಕ್ಷೆ ರೇಖಾಚಿತ್ರ ಮೇಲ್ಮೈ',
+  'mapDrawing.surface.finishPath': 'ಚಿತ್ರಿಸುವಿಕೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ',
   'mapDrawing.tool.polygon': 'ಬಹುಭುಜಾಕೃತಿ',
   'mapDrawing.tool.circle': 'ವೃತ್ತ',
   'mapDrawing.tool.pin': 'ಪಿನ್',

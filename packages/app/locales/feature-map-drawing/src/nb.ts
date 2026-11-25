@@ -5,6 +5,7 @@ export const nb: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Slett',
   'mapDrawing.toolbar.aria': 'Verktøy for karttegning',
   'mapDrawing.surface.aria': 'Karttegningsflate',
+  'mapDrawing.surface.finishPath': 'Fullfør tegning',
   'mapDrawing.tool.polygon': 'Mangekant',
   'mapDrawing.tool.circle': 'Sirkel',
   'mapDrawing.tool.pin': 'Fest',

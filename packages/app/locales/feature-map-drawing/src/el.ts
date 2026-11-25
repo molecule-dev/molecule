@@ -5,6 +5,7 @@ export const el: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Διαγραφή',
   'mapDrawing.toolbar.aria': 'Εργαλεία σχεδίασης χαρτών',
   'mapDrawing.surface.aria': 'Επιφάνεια σχεδίασης χάρτη',
+  'mapDrawing.surface.finishPath': 'Ολοκλήρωση σχεδίασης',
   'mapDrawing.tool.polygon': 'Πολύγωνο',
   'mapDrawing.tool.circle': 'Κύκλος',
   'mapDrawing.tool.pin': 'Καρφίτσα',

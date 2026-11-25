@@ -5,6 +5,7 @@ export const ms: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Padam',
   'mapDrawing.toolbar.aria': 'Alatan lukisan peta',
   'mapDrawing.surface.aria': 'Permukaan lukisan peta',
+  'mapDrawing.surface.finishPath': 'Selesaikan lukisan',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Bulatan',
   'mapDrawing.tool.pin': 'Pin',

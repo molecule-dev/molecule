@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const km: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ឧបករណ៍គូរផែនទី',
   'mapDrawing.surface.aria': 'ផ្ទៃគំនូរផែនទី',
+  'mapDrawing.surface.finishPath': 'បញ្ចប់ការគូរ',
   'mapDrawing.tool.polygon': 'ពហុកោណ',
   'mapDrawing.tool.circle': 'រង្វង់',
   'mapDrawing.tool.pin': 'ម្ជុល',

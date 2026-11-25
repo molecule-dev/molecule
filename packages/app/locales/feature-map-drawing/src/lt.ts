@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const lt: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Žemėlapio piešimo įrankiai',
   'mapDrawing.surface.aria': 'Žemėlapio piešimo paviršius',
+  'mapDrawing.surface.finishPath': 'Baigti piešimą',
   'mapDrawing.tool.polygon': 'Daugiakampis',
   'mapDrawing.tool.circle': 'Apskritimas',
   'mapDrawing.tool.pin': 'Prisegti',

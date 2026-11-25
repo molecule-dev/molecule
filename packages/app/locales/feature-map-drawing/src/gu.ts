@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const gu: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'નકશા દોરવાના સાધનો',
   'mapDrawing.surface.aria': 'નકશા દોરવાની સપાટી',
+  'mapDrawing.surface.finishPath': 'દોરવાનું પૂર્ણ કરો',
   'mapDrawing.tool.polygon': 'બહુકોણ',
   'mapDrawing.tool.circle': 'વર્તુળ',
   'mapDrawing.tool.pin': 'પિન',

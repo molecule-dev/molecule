@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const pa: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ਨਕਸ਼ਾ ਡਰਾਇੰਗ ਟੂਲ',
   'mapDrawing.surface.aria': 'ਨਕਸ਼ਾ ਡਰਾਇੰਗ ਸਤ੍ਹਾ',
+  'mapDrawing.surface.finishPath': 'ਡਰਾਇੰਗ ਪੂਰੀ ਕਰੋ',
   'mapDrawing.tool.polygon': 'ਬਹੁਭੁਜ',
   'mapDrawing.tool.circle': 'ਚੱਕਰ',
   'mapDrawing.tool.pin': 'ਪਿੰਨ',

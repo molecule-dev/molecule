@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ta: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'வரைபட வரைதல் கருவிகள்',
   'mapDrawing.surface.aria': 'வரைபட மேற்பரப்பு',
+  'mapDrawing.surface.finishPath': 'வரைதலை முடிக்கவும்',
   'mapDrawing.tool.polygon': 'பலகோணம்',
   'mapDrawing.tool.circle': 'வட்டம்',
   'mapDrawing.tool.pin': 'பின்',

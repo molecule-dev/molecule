@@ -5,6 +5,7 @@ export const ro: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Ștergeți',
   'mapDrawing.toolbar.aria': 'Instrumente de desenare a hărților',
   'mapDrawing.surface.aria': 'Suprafață de desenare a hărții',
+  'mapDrawing.surface.finishPath': 'Finalizează desenul',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Cerc',
   'mapDrawing.tool.pin': 'Fixează',

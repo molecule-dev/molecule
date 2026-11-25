@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ga: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Uirlisí líníochta léarscáile',
   'mapDrawing.surface.aria': 'Dromchla líníochta léarscáile',
+  'mapDrawing.surface.finishPath': 'Críochnaigh an líníocht',
   'mapDrawing.tool.polygon': 'Polagán',
   'mapDrawing.tool.circle': 'Ciorcal',
   'mapDrawing.tool.pin': 'bioráin',

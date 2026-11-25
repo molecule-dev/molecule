@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const uz: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Xarita chizish vositalari',
   'mapDrawing.surface.aria': 'Xarita chizish yuzasi',
+  'mapDrawing.surface.finishPath': 'Chizishni yakunlash',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Doira',
   'mapDrawing.tool.pin': 'Pin',

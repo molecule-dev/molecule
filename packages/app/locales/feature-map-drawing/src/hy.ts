@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const hy: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Քարտեզի նկարչության գործիքներ',
   'mapDrawing.surface.aria': 'Քարտեզի գծագրման մակերես',
+  'mapDrawing.surface.finishPath': 'Ավարտել գծագրումը',
   'mapDrawing.tool.polygon': 'Պոլիգոն',
   'mapDrawing.tool.circle': 'Շրջան',
   'mapDrawing.tool.pin': 'Պին',

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const mn: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Газрын зураг зурах хэрэгслүүд',
   'mapDrawing.surface.aria': 'Газрын зураг зурах гадаргуу',
+  'mapDrawing.surface.finishPath': 'Зургийг дуусгах',
   'mapDrawing.tool.polygon': 'Олон өнцөгт',
   'mapDrawing.tool.circle': 'Тойрог',
   'mapDrawing.tool.pin': 'Зүү',

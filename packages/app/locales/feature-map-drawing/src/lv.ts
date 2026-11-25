@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const lv: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kartes zīmēšanas rīki',
   'mapDrawing.surface.aria': 'Kartes zīmēšanas virsma',
+  'mapDrawing.surface.finishPath': 'Pabeigt zīmējumu',
   'mapDrawing.tool.polygon': 'Daudzstūris',
   'mapDrawing.tool.circle': 'Aplis',
   'mapDrawing.tool.pin': 'Piespraust',

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ur: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'نقشہ ڈرائنگ ٹولز',
   'mapDrawing.surface.aria': 'نقشہ ڈرائنگ کی سطح',
+  'mapDrawing.surface.finishPath': 'ڈرائنگ مکمل کریں',
   'mapDrawing.tool.polygon': 'کثیر الاضلاع',
   'mapDrawing.tool.circle': 'دائرہ',
   'mapDrawing.tool.pin': 'پن',

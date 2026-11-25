@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const sq: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Mjete për vizatimin e hartave',
   'mapDrawing.surface.aria': 'Sipërfaqja e vizatimit të hartës',
+  'mapDrawing.surface.finishPath': 'Përfundo vizatimin',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Rrethi',
   'mapDrawing.tool.pin': 'Pin',

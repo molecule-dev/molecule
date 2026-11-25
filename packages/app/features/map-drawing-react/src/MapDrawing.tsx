@@ -1,14 +1,10 @@
-import type {
-  CSSProperties,
-  PointerEvent as ReactPointerEvent,
-  ReactElement,
-  ReactNode,
-} from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import type { ReactElement, ReactNode } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+import { Box, Circle, G, Polygon, Polyline, Rect, Svg } from '@molecule/app-ui-react/elements'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
 import { MapDrawingToolbar } from './MapDrawingToolbar.js'
@@ -55,6 +51,8 @@ interface DraftPath {
 
 /** Ephemeral in-progress circle drag. */
 interface DraftCircle {
+  /** Circle tool. */
+  kind: 'circle'
   /** Circle center in `[lng, lat]` order. */
   center: [number, number]
   /** Current pointer position in `[lng, lat]` order — used to compute live radius. */
@@ -63,11 +61,15 @@ interface DraftCircle {
 
 /** Ephemeral selection-rectangle drag. */
 interface DraftSelection {
+  /** Selection tool. */
+  kind: 'select'
   /** Drag start point, in screen-space pixels. */
   start: ScreenPoint
   /** Current drag point, in screen-space pixels. */
   current: ScreenPoint
 }
+
+type Draft = DraftPath | DraftCircle | DraftSelection
 
 /** MapDrawing component props. */
 export interface MapDrawingProps {
@@ -144,32 +146,35 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
   const { t } = useTranslation()
 
   const [shapes, setShapes] = useState<MapShape[]>(() => initialShapes?.slice() ?? [])
+  const liveShapes = useRef(shapes)
   const [internalActive, setInternalActive] = useState<ActiveTool>(tools[0] ?? 'polygon')
   const activeTool = activeToolProp ?? internalActive
 
   const [selection, setSelection] = useState<ShapeSelection>(() => new Set<string>())
-  const [draftPath, setDraftPath] = useState<DraftPath | null>(null)
-  const [draftCircle, setDraftCircle] = useState<DraftCircle | null>(null)
-  const [draftSelection, setDraftSelection] = useState<DraftSelection | null>(null)
-
-  const surfaceRef = useRef<HTMLDivElement | null>(null)
+  const [draft, setVisibleDraft] = useState<Draft | null>(null)
+  const liveDraft = useRef<Draft | null>(null)
+  const setDraft = useCallback((next: Draft | null) => {
+    // Native can deliver buffered start, move and end in one render batch.
+    liveDraft.current = next
+    setVisibleDraft(next)
+  }, [])
+  const draftPath = draft && (draft.kind === 'polygon' || draft.kind === 'line') ? draft : null
+  const draftCircle = draft?.kind === 'circle' ? draft : null
+  const draftSelection = draft?.kind === 'select' ? draft : null
 
   // Push shape changes upward.
   const commitShapes = useCallback(
     (next: MapShape[]) => {
+      liveShapes.current = next
       setShapes(next)
       onChange(next)
     },
     [onChange],
   )
 
-  // Reset all three draft states — shared by tool switches and the
-  // toolbar's cancel-draft control.
   const clearDrafts = useCallback(() => {
-    setDraftPath(null)
-    setDraftCircle(null)
-    setDraftSelection(null)
-  }, [])
+    setDraft(null)
+  }, [setDraft])
 
   const setActiveTool = useCallback(
     (next: ActiveTool) => {
@@ -181,135 +186,110 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
     [activeToolProp, clearDrafts, onActiveToolChange],
   )
 
-  /**
-   * Convert a pointer event's client coords to a screen-space point
-   * relative to the drawing surface.
-   *
-   * @param event - React pointer event.
-   * @returns Screen-space point.
-   */
-  const pointForEvent = useCallback((event: ReactPointerEvent<HTMLDivElement>): ScreenPoint => {
-    const node = surfaceRef.current
-    if (!node) return { x: event.clientX, y: event.clientY }
-    const rect = node.getBoundingClientRect()
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top }
-  }, [])
+  /** Sets an anchor or adds a vertex at first contact. */
+  function startDrawing({ x, y }: ElementDragPoint): void {
+    const screen = { x, y }
+    const lngLat = mapBackend.unproject(screen)
 
-  const handlePointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      const screen = pointForEvent(event)
-      const lngLat = mapBackend.unproject(screen)
+    if (activeTool === 'select') {
+      setDraft({ kind: 'select', start: screen, current: screen })
+      return
+    }
 
-      if (activeTool === 'select') {
-        setDraftSelection({ start: screen, current: screen })
-        return
+    if (activeTool === 'circle') {
+      setDraft({ kind: 'circle', center: lngLat, pointer: lngLat })
+      return
+    }
+
+    if (activeTool === 'pin') {
+      const pin: MapShape = {
+        id: makeShapeId(),
+        kind: 'pin',
+        geometry: { type: 'Point', coordinates: lngLat } satisfies GeoJsonPoint,
       }
+      commitShapes([...liveShapes.current, pin])
+      return
+    }
 
-      if (activeTool === 'circle') {
-        setDraftCircle({ center: lngLat, pointer: lngLat })
-        return
-      }
+    const path = liveDraft.current
+    const vertices = path?.kind === activeTool ? path.vertices : []
+    setDraft({ kind: activeTool, vertices: [...vertices, lngLat] })
+  }
 
-      if (activeTool === 'pin') {
-        const pin: MapShape = {
+  /** Updates the circle or selection preview while contact moves. */
+  function moveDrawing({ x, y }: ElementDragPoint): void {
+    const current = liveDraft.current
+    if (current?.kind === 'circle') {
+      setDraft({ ...current, pointer: mapBackend.unproject({ x, y }) })
+    }
+    if (current?.kind === 'select') {
+      setDraft({ ...current, current: { x, y } })
+    }
+  }
+
+  /** Commits a circle or selection using the release location. */
+  function endDrawing({ x, y }: ElementDragPoint): void {
+    const current = liveDraft.current
+    if (current?.kind === 'circle') {
+      const radius = mapBackend.distanceMeters(current.center, mapBackend.unproject({ x, y }))
+      if (radius > 0) {
+        const circle: MapShape = {
           id: makeShapeId(),
-          kind: 'pin',
-          geometry: { type: 'Point', coordinates: lngLat } satisfies GeoJsonPoint,
+          kind: 'circle',
+          geometry: { type: 'Point', coordinates: current.center } satisfies GeoJsonPoint,
+          properties: { radiusMeters: radius },
         }
-        commitShapes([...shapes, pin])
-        return
+        commitShapes([...liveShapes.current, circle])
       }
+      clearDrafts()
+    }
+    if (current?.kind === 'select') {
+      const next = new Set<string>()
+      for (const shape of liveShapes.current) {
+        const anchor = anchorScreenPoint(shape, mapBackend)
+        if (anchor && pointInRect(anchor, current.start, { x, y })) {
+          next.add(shape.id)
+        }
+      }
+      setSelection(next)
+      clearDrafts()
+    }
+  }
 
-      // polygon / line: pointer-down adds a vertex to the open draft.
-      if (activeTool === 'polygon' || activeTool === 'line') {
-        if (draftPath && draftPath.kind !== activeTool) {
-          // Tool flipped mid-draft via external control — drop the stale draft.
-          setDraftPath({ vertices: [lngLat], kind: activeTool })
-          return
-        }
-        const next: DraftPath = draftPath
-          ? { ...draftPath, vertices: [...draftPath.vertices, lngLat] }
-          : { vertices: [lngLat], kind: activeTool }
-        setDraftPath(next)
-      }
-    },
-    [activeTool, commitShapes, draftPath, mapBackend, pointForEvent, shapes],
-  )
+  /** Discards the transient draft created by an interrupted drag. */
+  function cancelDrawing(): void {
+    if (liveDraft.current?.kind === 'circle' || liveDraft.current?.kind === 'select') clearDrafts()
+  }
 
-  const handlePointerMove = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (!draftCircle && !draftSelection) return
-      const screen = pointForEvent(event)
-      if (draftCircle) {
-        setDraftCircle({ ...draftCircle, pointer: mapBackend.unproject(screen) })
-      }
-      if (draftSelection) {
-        setDraftSelection({ ...draftSelection, current: screen })
-      }
-    },
-    [draftCircle, draftSelection, mapBackend, pointForEvent],
-  )
-
-  const handlePointerUp = useCallback(
-    (_event: ReactPointerEvent<HTMLDivElement>) => {
-      if (draftCircle) {
-        const radius = mapBackend.distanceMeters(draftCircle.center, draftCircle.pointer)
-        if (radius > 0) {
-          const circle: MapShape = {
-            id: makeShapeId(),
-            kind: 'circle',
-            geometry: { type: 'Point', coordinates: draftCircle.center } satisfies GeoJsonPoint,
-            properties: { radiusMeters: radius },
-          }
-          commitShapes([...shapes, circle])
+  /** Commits a line or polygon when its draft has enough vertices. */
+  function finishPath(): void {
+    const path = liveDraft.current
+    if (path?.kind !== 'polygon' && path?.kind !== 'line') return
+    if (path.kind === 'polygon') {
+      const ring = closeRing(path.vertices)
+      if (ring) {
+        const polygon: MapShape = {
+          id: makeShapeId(),
+          kind: 'polygon',
+          geometry: { type: 'Polygon', coordinates: [ring] } satisfies GeoJsonPolygon,
         }
-        setDraftCircle(null)
+        commitShapes([...liveShapes.current, polygon])
       }
-      if (draftSelection) {
-        const next = new Set<string>()
-        for (const shape of shapes) {
-          const anchor = anchorScreenPoint(shape, mapBackend)
-          if (anchor && pointInRect(anchor, draftSelection.start, draftSelection.current)) {
-            next.add(shape.id)
-          }
+    } else {
+      if (path.vertices.length >= 2) {
+        const line: MapShape = {
+          id: makeShapeId(),
+          kind: 'line',
+          geometry: {
+            type: 'LineString',
+            coordinates: path.vertices.slice(),
+          } satisfies GeoJsonLineString,
         }
-        setSelection(next)
-        setDraftSelection(null)
+        commitShapes([...liveShapes.current, line])
       }
-    },
-    [commitShapes, draftCircle, draftSelection, mapBackend, shapes],
-  )
-
-  const handleDoubleClick = useCallback(
-    (_event: ReactPointerEvent<HTMLDivElement>) => {
-      if (!draftPath) return
-      if (draftPath.kind === 'polygon') {
-        const ring = closeRing(draftPath.vertices)
-        if (ring) {
-          const polygon: MapShape = {
-            id: makeShapeId(),
-            kind: 'polygon',
-            geometry: { type: 'Polygon', coordinates: [ring] } satisfies GeoJsonPolygon,
-          }
-          commitShapes([...shapes, polygon])
-        }
-      } else {
-        if (draftPath.vertices.length >= 2) {
-          const line: MapShape = {
-            id: makeShapeId(),
-            kind: 'line',
-            geometry: {
-              type: 'LineString',
-              coordinates: draftPath.vertices.slice(),
-            } satisfies GeoJsonLineString,
-          }
-          commitShapes([...shapes, line])
-        }
-      }
-      setDraftPath(null)
-    },
-    [commitShapes, draftPath, shapes],
-  )
+    }
+    clearDrafts()
+  }
 
   const deleteSelected = useCallback(() => {
     if (selection.size === 0) return
@@ -326,11 +306,12 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
   if (prevActiveToolProp !== activeToolProp) {
     setPrevActiveToolProp(activeToolProp)
     if (activeToolProp !== undefined) {
-      setDraftPath(null)
-      setDraftCircle(null)
-      setDraftSelection(null)
+      setVisibleDraft(null)
     }
   }
+  useLayoutEffect(() => {
+    if (activeToolProp !== undefined) liveDraft.current = null
+  }, [activeToolProp])
 
   // Render shape geometry as SVG paths/markers in the overlay.
   const overlayElements = useMemo(
@@ -353,12 +334,12 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
   }
 
   // A draft is in progress (path vertices, circle drag or marquee selection).
-  const hasDraft = draftPath !== null || draftCircle !== null || draftSelection !== null
+  const hasDraft = draft !== null
 
   const ariaLabel = t('mapDrawing.surface.aria', {}, { defaultValue: 'Map drawing surface' })
 
   return (
-    <div data-mol-id="map-drawing" className={cm.cn(cm.stack(2), className)}>
+    <Box as="div" data-mol-id="map-drawing" className={cm.cn(cm.stack(2), className)}>
       <MapDrawingToolbar
         tools={tools}
         activeTool={activeTool}
@@ -368,36 +349,48 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
         hasDraft={hasDraft}
         onCancelDraft={clearDrafts}
       />
-      <div
-        ref={surfaceRef}
+      <Box
+        as="div"
         role="img"
         aria-label={ariaLabel}
         data-mol-id="map-drawing-surface"
         data-active-tool={activeTool}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onDoubleClick={
-          handleDoubleClick as unknown as (event: React.MouseEvent<HTMLDivElement>) => void
+        drag={{
+          onStart: startDrawing,
+          onMove: moveDrawing,
+          onEnd: endDrawing,
+          onCancel: cancelDrawing,
+        }}
+        secondaryAction={
+          activeTool === 'line' || activeTool === 'polygon'
+            ? {
+                label: t('mapDrawing.surface.finishPath', {}, { defaultValue: 'Finish drawing' }),
+                run: finishPath,
+              }
+            : undefined
         }
         className={cm.cn(cm.surface, cm.borderBPrimary)}
-        style={surfaceStyle}
+        webStyle={surfaceStyle}
       >
         {mapSlot ? (
-          <div data-mol-id="map-drawing-slot" style={{ position: 'absolute', inset: 0 }}>
+          <Box
+            as="div"
+            data-mol-id="map-drawing-slot"
+            webStyle={{ position: 'absolute', inset: 0 }}
+          >
             {mapSlot}
-          </div>
+          </Box>
         ) : null}
-        <svg
+        <Svg
           data-mol-id="map-drawing-overlay"
           width="100%"
           height="100%"
-          style={overlayStyle}
+          webStyle={overlayStyle}
           preserveAspectRatio="none"
         >
           {overlayElements}
           {draftSelection ? (
-            <rect
+            <Rect
               data-mol-id="map-drawing-selection-rect"
               x={Math.min(draftSelection.start.x, draftSelection.current.x)}
               y={Math.min(draftSelection.start.y, draftSelection.current.y)}
@@ -410,9 +403,9 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
               strokeDasharray="4 2"
             />
           ) : null}
-        </svg>
-      </div>
-    </div>
+        </Svg>
+      </Box>
+    </Box>
   )
 }
 
@@ -458,8 +451,8 @@ function buildOverlayElements(
   draftCircle: DraftCircle | null,
   backend: MapDrawingBackend,
   selection: ShapeSelection,
-): ReactNode[] {
-  const out: ReactNode[] = []
+): (ReactElement | null)[] {
+  const out: (ReactElement | null)[] = []
 
   for (const shape of shapes) {
     const selected = selection.has(shape.id)
@@ -475,7 +468,7 @@ function buildOverlayElements(
       .join(' ')
     if (draftPath.kind === 'polygon') {
       out.push(
-        <polyline
+        <Polyline
           key="__draft_polygon"
           data-mol-id="map-drawing-draft-polygon"
           points={points}
@@ -487,7 +480,7 @@ function buildOverlayElements(
       )
     } else {
       out.push(
-        <polyline
+        <Polyline
           key="__draft_line"
           data-mol-id="map-drawing-draft-line"
           points={points}
@@ -501,7 +494,7 @@ function buildOverlayElements(
     for (let i = 0; i < draftPath.vertices.length; i += 1) {
       const screen = backend.project(draftPath.vertices[i])
       out.push(
-        <circle
+        <Circle
           key={`__draft_vertex_${i}`}
           data-mol-id="map-drawing-draft-vertex"
           cx={screen.x}
@@ -520,7 +513,7 @@ function buildOverlayElements(
     const dy = edge.y - center.y
     const r = Math.sqrt(dx * dx + dy * dy)
     out.push(
-      <circle
+      <Circle
         key="__draft_circle"
         data-mol-id="map-drawing-draft-circle"
         cx={center.x}
@@ -552,21 +545,21 @@ function renderShape(
   backend: MapDrawingBackend,
   stroke: string,
   opacity: number,
-): ReactNode {
+): ReactElement | null {
   const geometry: GeoJsonGeometry = shape.geometry
 
   if (shape.kind === 'pin' && geometry.type === 'Point') {
     const p = backend.project(geometry.coordinates)
     return (
-      <g
+      <G
         key={shape.id}
         data-mol-id="map-drawing-shape"
         data-shape-id={shape.id}
         data-shape-kind="pin"
         opacity={opacity}
       >
-        <circle cx={p.x} cy={p.y} r={6} fill={stroke} />
-      </g>
+        <Circle cx={p.x} cy={p.y} r={6} fill={stroke} />
+      </G>
     )
   }
 
@@ -583,14 +576,14 @@ function renderShape(
     const edge = backend.project([eastLng, geometry.coordinates[1]])
     const r = Math.abs(edge.x - center.x)
     return (
-      <g
+      <G
         key={shape.id}
         data-mol-id="map-drawing-shape"
         data-shape-id={shape.id}
         data-shape-kind="circle"
         opacity={opacity}
       >
-        <circle
+        <Circle
           cx={center.x}
           cy={center.y}
           r={r}
@@ -599,7 +592,7 @@ function renderShape(
           stroke={stroke}
           strokeWidth={2}
         />
-      </g>
+      </G>
     )
   }
 
@@ -609,15 +602,15 @@ function renderShape(
       .map((p) => `${p.x},${p.y}`)
       .join(' ')
     return (
-      <g
+      <G
         key={shape.id}
         data-mol-id="map-drawing-shape"
         data-shape-id={shape.id}
         data-shape-kind="line"
         opacity={opacity}
       >
-        <polyline points={points} fill="none" stroke={stroke} strokeWidth={2} />
-      </g>
+        <Polyline points={points} fill="none" stroke={stroke} strokeWidth={2} />
+      </G>
     )
   }
 
@@ -628,15 +621,15 @@ function renderShape(
       .map((p) => `${p.x},${p.y}`)
       .join(' ')
     return (
-      <g
+      <G
         key={shape.id}
         data-mol-id="map-drawing-shape"
         data-shape-id={shape.id}
         data-shape-kind="polygon"
         opacity={opacity}
       >
-        <polygon points={points} fill={stroke} fillOpacity={0.15} stroke={stroke} strokeWidth={2} />
-      </g>
+        <Polygon points={points} fill={stroke} fillOpacity={0.15} stroke={stroke} strokeWidth={2} />
+      </G>
     )
   }
 

@@ -4,6 +4,7 @@ import type { MapDrawingTranslations } from './types.js'
 export const ru: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'инструменты для построения карт',
   'mapDrawing.surface.aria': 'Поверхность для рисования карт',
+  'mapDrawing.surface.finishPath': 'Завершить рисование',
   'mapDrawing.tool.polygon': 'Многоугольник',
   'mapDrawing.tool.circle': 'Круг',
   'mapDrawing.tool.pin': 'Приколоть',

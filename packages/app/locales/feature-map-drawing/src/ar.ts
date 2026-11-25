@@ -8,6 +8,7 @@ export const ar: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'حذف',
   'mapDrawing.toolbar.aria': 'أدوات رسم الخرائط',
   'mapDrawing.surface.aria': 'مساحات رسم الخرائط',
+  'mapDrawing.surface.finishPath': 'إنهاء الرسم',
   'mapDrawing.tool.polygon': 'مضلع',
   'mapDrawing.tool.circle': 'دائرة',
   'mapDrawing.tool.cancelDraft': 'إلغاء المسودة',
