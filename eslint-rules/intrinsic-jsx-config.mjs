@@ -3,6 +3,8 @@ import { join, relative } from 'node:path'
 
 import ts from 'typescript'
 
+import { ELEMENT_FOR_TAG, TAKES_AS } from './no-intrinsic-jsx.mjs'
+
 /**
  * molecule-only config (React features and the React UI kit): where `no-intrinsic-jsx` runs, and
  * the scan that tells which packages are still pending.
@@ -10,19 +12,15 @@ import ts from 'typescript'
  * The rule holds every `.tsx` file of `packages/app/features/*-react/src` and of the React UI
  * kit's `components`, except test files and the packages listed in `intrinsic-jsx-pending.json`.
  * That list was written once from the scan below and may only shrink: when a package stops
- * rendering an intrinsic element, `scripts/__tests__/eslint-no-intrinsic-jsx.test.ts` says to
- * delete its entry, and from then on the rule holds the package. An entry is never added: an
+ * rendering an intrinsic element, `scripts/check-intrinsic-jsx.mjs` (the pre-commit hook and CI run
+ * it) says to delete its entry, and from then on the rule holds the package. An entry is never added: an
  * intrinsic element in a converted package is a defect to fix, not an exemption to record.
  *
  * The scan reads each file with the TypeScript parser and applies the rule's own criterion: a JSX
  * opening or self-closing element whose tag is an identifier starting with a lowercase letter.
  *
- * To drop the entries the test names, from the molecule root. It only removes: a package that is
- * not listed stays unlisted whatever it renders.
- *
- * ```sh
- * node --input-type=module -e "import { writeFileSync } from 'node:fs'; import { prunedPending } from './eslint-rules/intrinsic-jsx-config.mjs'; writeFileSync('eslint-rules/intrinsic-jsx-pending.json', JSON.stringify(prunedPending(process.cwd()), null, 2) + '\n')"
- * ```
+ * `node scripts/check-intrinsic-jsx.mjs --fix` drops the entries it names. It only removes: a
+ * package that is not listed stays unlisted whatever it renders.
  */
 
 /** The React features, relative to the molecule root: one directory per feature. */
@@ -229,4 +227,81 @@ export function intrinsicJsxConfig(plugin) {
     plugins: { 'molecule-intrinsic-jsx': plugin },
     rules: { 'molecule-intrinsic-jsx/no-intrinsic-jsx': 'error' },
   }
+}
+
+/** The element types, relative to the molecule root: each element's props are `<Element>Props` (`Link`'s are `ElementLinkProps`). */
+const ELEMENT_TYPES = 'packages/app/core/ui/src/elements.ts'
+
+/**
+ * The web tags each element's `as` prop accepts, read from the element types with the TypeScript
+ * checker: every variant of a union of props (`TextProps`) counts.
+ *
+ * @param {string} root - The molecule root.
+ * @returns {Map<string, string[]>} Each element with an `as` prop, and its tags, sorted.
+ */
+export function tagsEachElementTakes(root) {
+  const file = join(root, ELEMENT_TYPES)
+  const program = ts.createProgram([file], { noEmit: true, skipLibCheck: true })
+  const checker = program.getTypeChecker()
+  const source = program.getSourceFile(file)
+  const module = source && checker.getSymbolAtLocation(source)
+  if (!source || !module) throw new Error(`cannot read ${file}`)
+  const taken = new Map()
+  for (const symbol of checker.getExportsOfModule(module)) {
+    if (!symbol.name.endsWith('Props')) continue
+    const props = checker.getDeclaredTypeOfSymbol(symbol)
+    const tags = (props.isUnion() ? props.types : [props]).flatMap((variant) => {
+      const as = checker.getPropertyOfType(variant, 'as')
+      if (!as) return []
+      const type = checker.getTypeOfSymbolAtLocation(as, source)
+      return (type.isUnion() ? type.types : [type]).flatMap((tag) =>
+        tag.isStringLiteral() ? [tag.value] : [],
+      )
+    })
+    const element = symbol.name.slice(0, -'Props'.length).replace(/^ElementLink$/, 'Link')
+    if (tags.length > 0) taken.set(element, [...new Set(tags)].sort())
+  }
+  return taken
+}
+
+/**
+ * Where the rule's tag table (`ELEMENT_FOR_TAG`, `TAKES_AS` in `no-intrinsic-jsx.mjs`) disagrees with
+ * the element types. Each gap makes the rule's message wrong: it suggests an `as` the element refuses,
+ * or tells the author to add an element for a tag one already renders.
+ *
+ * @param {string} root - The molecule root.
+ * @returns {{ unmapped: string[], refused: string[], takesAs: string[] }} One line per gap: a tag an
+ *   element renders with no element in the table, a suggested `as` the element's props refuse, and an
+ *   element whose `as` prop and `TAKES_AS` entry disagree.
+ */
+export function elementTagGaps(root) {
+  const taken = tagsEachElementTakes(root)
+  const unmapped = [...taken].flatMap(([element, tags]) =>
+    tags
+      .filter((tag) => !ELEMENT_FOR_TAG.has(tag))
+      .map(
+        (tag) =>
+          `<${tag}>: ${element} renders it; add it to ELEMENT_FOR_TAG in eslint-rules/no-intrinsic-jsx.mjs`,
+      ),
+  )
+  const refused = [...ELEMENT_FOR_TAG]
+    .filter(([tag, element]) => TAKES_AS.has(element) && !taken.get(element)?.includes(tag))
+    .map(([tag, element]) => `<${element} as="${tag}">: ${element}Props does not take as="${tag}"`)
+  const named = new Set(ELEMENT_FOR_TAG.values())
+  const withAs = new Set([...taken.keys()].filter((element) => named.has(element)))
+  const takesAs = [
+    ...[...withAs]
+      .filter((element) => !TAKES_AS.has(element))
+      .map(
+        (element) =>
+          `${element}: its props take \`as\`; add it to TAKES_AS in eslint-rules/no-intrinsic-jsx.mjs`,
+      ),
+    ...[...TAKES_AS]
+      .filter((element) => !withAs.has(element))
+      .map(
+        (element) =>
+          `${element}: TAKES_AS names it, but ${element}Props has no \`as\` the table uses`,
+      ),
+  ].sort()
+  return { unmapped, refused, takesAs }
 }

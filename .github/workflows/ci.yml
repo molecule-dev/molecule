@@ -147,6 +147,11 @@ jobs:
       # `.jsx`: tsc writes X.tsx to dist/X.jsx and keeps the specifier, so `./X.js`
       # builds and tests green here and is a missing file in the published package.
       - run: npm run check:jsx-specifiers
+      # no-intrinsic-jsx's inputs match the tree: eslint-rules/intrinsic-jsx-pending.json names only
+      # packages that still render an intrinsic JSX element (a stale entry keeps a converted package
+      # exempt), and the rule's tag table names an element for every tag an element type renders.
+      # As a scripts test alone it ran only after every build check passed.
+      - run: npm run check:intrinsic-jsx
       # No publishable package's build puts src/**/__tests__ in its tarball: tsc and
       # ngc through the tsconfig exclude, svelte-package through `files` negations.
       # 193 packages shipped dist/__tests__/*.test.js until 2026-11-16, and the

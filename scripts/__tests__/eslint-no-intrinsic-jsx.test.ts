@@ -156,12 +156,23 @@ ruleTester.run('no-intrinsic-jsx', rule as RuleModule, {
     },
     {
       ...TSX,
-      name: 'a rule, which no element covers yet',
+      name: 'a rule, which Rule renders',
       code: 'const x = <hr />',
       errors: [
         {
           message:
-            '`<hr>` cannot render on React Native: use an element from @molecule/app-ui-react/elements (add one if none fits).',
+            '`<hr>` cannot render on React Native: use `<Rule as="hr">` from \'@molecule/app-ui-react/elements\'.',
+        },
+      ],
+    },
+    {
+      ...TSX,
+      name: 'a dialog, which no element covers yet',
+      code: 'const x = <dialog />',
+      errors: [
+        {
+          message:
+            '`<dialog>` cannot render on React Native: use an element from @molecule/app-ui-react/elements (add one if none fits).',
         },
       ],
     },

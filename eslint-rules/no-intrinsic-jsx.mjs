@@ -15,7 +15,7 @@
 
 /** The element of `@molecule/app-ui-react/elements` that replaces each intrinsic tag. */
 const ELEMENTS = [
-  ['Box', 'div span section header footer main aside nav article ul ol li dl dd figure'],
+  ['Box', 'div span section header footer main aside nav article address ul ol li dl dd figure'],
   ['Text', 'p h1 h2 h3 h4 h5 h6 strong em small code pre kbd mark dt figcaption label time'],
   ['Pressable', 'button'],
   ['Link', 'a'],
@@ -36,6 +36,8 @@ const ELEMENTS = [
   ['Fieldset', 'fieldset'],
   ['TableBox', 'table thead tbody tfoot tr'],
   ['TableCell', 'td th'],
+  ['Disclosure', 'details'],
+  ['Rule', 'hr'],
 ]
 
 /** Each intrinsic tag and its element. A tag listed for two elements is refused, not resolved to one. */
@@ -60,6 +62,8 @@ export const TAKES_AS = new Set([
   'Fieldset',
   'TableBox',
   'TableCell',
+  'Disclosure',
+  'Rule',
 ])
 
 /** What else a container may be: its text goes to `Text`, something the user activates to `Pressable`. */

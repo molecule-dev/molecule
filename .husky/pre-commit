@@ -136,6 +136,11 @@ fi
 #   keeps every specifier, so `./X.js` names a missing file in the published package.
 #   It type-checks, tests and builds green; a consuming app's `vite build` was the first
 #   to fail (2026-11-14, five Solid feature packages).
+# - check-intrinsic-jsx: eslint-rules/intrinsic-jsx-pending.json names only packages that still
+#   render an intrinsic JSX element (a stale entry keeps a converted package exempt from
+#   no-intrinsic-jsx), and the rule's tag table names an element for every tag an element type
+#   renders. The avatar-stack and margin-notes conversions landed with their entries still listed,
+#   and three new elements landed with no table entry (2026-11-25).
 # - check-published-tests: no publishable package's build puts src/**/__tests__ in its
 #   tarball (precommit-changeset.mjs above counts on it). 193 packages whose tsconfig
 #   lacked the exclude shipped dist/__tests__/*.test.js to npm until 2026-11-16.
@@ -174,6 +179,7 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-i18n-parity.js --check" \
     "scripts/check-locale-placeholders.js" \
     "scripts/check-jsx-specifiers.mjs" \
+    "scripts/check-intrinsic-jsx.mjs" \
     "scripts/check-published-tests.mjs" \
     "scripts/check-undeclared-imports.mjs" \
     "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}" \

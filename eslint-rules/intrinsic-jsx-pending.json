@@ -2,7 +2,6 @@
   "features": [
     "audio-player-react",
     "audio-recorder-react",
-    "avatar-stack-react",
     "barcode-scanner-react",
     "canvas-engine-react",
     "canvas-react",
@@ -11,7 +10,6 @@
     "ide-react",
     "image-canvas-react",
     "image-gallery-editor-react",
-    "margin-notes-react",
     "mind-map-canvas-react",
     "settings-panel-react",
     "survey-question-react",
