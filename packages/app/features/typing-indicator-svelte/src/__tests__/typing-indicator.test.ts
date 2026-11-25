@@ -10,7 +10,25 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { setMoleculeContext } from '@molecule/app-svelte'
+import type * as AppUi from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+// The ClassMap's typing pulse recipe; `undefined` leaves the component on `DEFAULT_TYPING_PULSE`.
+let recipe: AppUi.DotPulseMotion | undefined
+
+// The bonded ClassMap with one member a test can set: `typingPulse` is the recipe above, and every
+// other member is the bond's own, so the rest of this suite keeps rendering the real class names.
+// The real module is spread in, so `DEFAULT_TYPING_PULSE` is the real value.
+vi.mock('@molecule/app-ui', async (importOriginal) => {
+  const real = await importOriginal<typeof AppUi>()
+  return {
+    ...real,
+    getClassMap: (): AppUi.UIClassMap =>
+      new Proxy(real.getClassMap(), {
+        get: (target, prop) => (prop === 'typingPulse' ? recipe : Reflect.get(target, prop)),
+      }),
+  }
+})
 
 import TypingIndicator from '../TypingIndicator.svelte'
 
@@ -102,5 +120,19 @@ describe('TypingIndicator', () => {
     expect(m.status?.getAttribute('class')).toBe(
       cm.cn(cm.flex({ align: 'center', gap: 'xs' }), 'ti-cls'),
     )
+  })
+
+  it('uses the ClassMap pulse recipe through the UI element', () => {
+    recipe = { peakAt: 0.25, restAt: 0.75, stagger: 0.125, dimOpacity: 0.2, dimScale: 0.5 }
+    try {
+      const m = render({ durationMs: 800 })
+      mounted.push(m)
+      expect(document.body.innerHTML).toContain(
+        '75%, 100% { opacity: 0.2; transform: scale(0.5); } 25%',
+      )
+      expect(document.body.innerHTML).toContain('800ms ease-in-out 200ms infinite')
+    } finally {
+      recipe = undefined
+    }
   })
 })

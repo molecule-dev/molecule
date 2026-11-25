@@ -17,11 +17,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { TypingIndicatorProps } from '../types.js'
 
 // A Proxy ClassMap that echoes each accessed member name back as its token —
-// the same mock the Solid suite uses.
-vi.mock('@molecule/app-ui', () => ({
+// the same mock the Solid suite uses. The real module is spread in, so
+// `DEFAULT_TYPING_PULSE` is the real value.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
+        if (prop === 'typingPulse') return undefined
         if (prop === 'cn') {
           return (...cls: unknown[]) =>
             cls

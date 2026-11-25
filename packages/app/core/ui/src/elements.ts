@@ -479,6 +479,37 @@ export interface GlyphIconProps extends ElementProps {
   webStyle?: WebStyle
 }
 
+/** Fractions of one cycle and the paint at its dimmest point. */
+export interface DotPulseMotion {
+  /** Full brightness as a fraction of the CSS keyframes and the native cycle, after zero. */
+  readonly peakAt: number
+  /** Return to dim paint in the CSS keyframes and native cycle, after the peak and at or before one. */
+  readonly restAt: number
+  /** Delay between dots as a fraction of a cycle, in the CSS animation and native driver. */
+  readonly stagger: number
+  /** Opacity from zero to one at rest, set by the stylesheet and the native view animation. */
+  readonly dimOpacity: number
+  /** Scale from zero to one at rest, set by the stylesheet and the native view animation. */
+  readonly dimScale: number
+}
+
+/** The motion both renderers use when the ClassMap omits its typing pulse. */
+export const DEFAULT_TYPING_PULSE: DotPulseMotion = Object.freeze({
+  peakAt: 0.4,
+  restAt: 0.8,
+  stagger: 1 / 6,
+  dimOpacity: 0.3,
+  dimScale: 0.8,
+})
+
+/** Three decorative dots drawn in the inherited text colour. */
+export interface PulseDotsProps {
+  /** Dot diameter, applied to the span in CSS px and the native view in dp. */
+  size: number
+  /** Duration of one CSS animation cycle on web or one native loop iteration on device, in ms. */
+  durationMs: number
+}
+
 /** Web tags a {@link TextProps} element renders. */
 export type TextTag =
   | 'span'

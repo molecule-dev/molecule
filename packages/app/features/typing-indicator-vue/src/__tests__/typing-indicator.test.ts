@@ -10,13 +10,21 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { DotPulseMotion } from '@molecule/app-ui'
+
+// The ClassMap's typing pulse recipe; `undefined` leaves the component on `DEFAULT_TYPING_PULSE`.
+let recipe: DotPulseMotion | undefined
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
-// bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+// bond — the same mock the React tests use. The real module is spread in, so
+// `DEFAULT_TYPING_PULSE` is the real value.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
+        if (prop === 'typingPulse') return recipe
         if (prop === 'cn') {
           return (...cls: unknown[]) =>
             cls
@@ -96,5 +104,16 @@ describe('TypingIndicator', () => {
   it('forwards className', () => {
     const markup = render({ className: 'ti-cls' })
     expect(markup).toContain('ti-cls')
+  })
+
+  it('uses the ClassMap pulse recipe through the UI element', () => {
+    recipe = { peakAt: 0.25, restAt: 0.75, stagger: 0.125, dimOpacity: 0.2, dimScale: 0.5 }
+    try {
+      const markup = render({ durationMs: 800 })
+      expect(markup).toContain('75%, 100% { opacity: 0.2; transform: scale(0.5); } 25%')
+      expect(markup).toContain('800ms ease-in-out 200ms infinite')
+    } finally {
+      recipe = undefined
+    }
   })
 })

@@ -12,7 +12,12 @@
  * @module
  */
 
-import type { ElementProps, ElementRole, UIClassMapNativeSplit } from './elements.js'
+import type {
+  DotPulseMotion,
+  ElementProps,
+  ElementRole,
+  UIClassMapNativeSplit,
+} from './elements.js'
 
 // ============================================================================
 // FRAMEWORK-AGNOSTIC BASE TYPES
@@ -2437,6 +2442,8 @@ export interface UIClassMap extends UIClassMapNativeSplit {
   progressLabelText: string
   /** Progress indeterminate animation. */
   progressIndeterminate: string
+  /** Three-dot motion in web keyframes and native timing. Omission uses the standard typing pulse. */
+  typingPulse?: DotPulseMotion
 
   // ---- Table sub-element tokens ----
 

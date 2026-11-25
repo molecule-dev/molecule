@@ -2,10 +2,16 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+import type { DotPulseMotion } from '@molecule/app-ui'
+
+let recipe: DotPulseMotion | undefined
+
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
+        if (prop === 'typingPulse') return recipe
         if (prop === 'cn') {
           return (...cls: unknown[]) =>
             cls
@@ -68,5 +74,16 @@ describe('TypingIndicator', () => {
   it('forwards className', () => {
     const markup = html(createElement(TypingIndicator, { className: 'ti-cls' }))
     expect(markup).toContain('ti-cls')
+  })
+
+  it('uses the ClassMap pulse recipe through the UI element', () => {
+    recipe = { peakAt: 0.25, restAt: 0.75, stagger: 0.125, dimOpacity: 0.2, dimScale: 0.5 }
+    try {
+      const markup = html(createElement(TypingIndicator, { durationMs: 800 }))
+      expect(markup).toContain('75%, 100% { opacity: 0.2; transform: scale(0.5); } 25%')
+      expect(markup).toContain('800ms ease-in-out 200ms infinite')
+    } finally {
+      recipe = undefined
+    }
   })
 })

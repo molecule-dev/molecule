@@ -9,13 +9,21 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { DotPulseMotion } from '@molecule/app-ui'
+
+// The ClassMap's typing pulse recipe; `undefined` leaves the component on `DEFAULT_TYPING_PULSE`.
+let recipe: DotPulseMotion | undefined
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* call was applied without a real bond — the
-// same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+// same mock the React package's own tests use. The real module is spread in, so
+// `DEFAULT_TYPING_PULSE` is the real value.
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
+        if (prop === 'typingPulse') return recipe
         if (prop === 'cn') {
           return (...cls: unknown[]) =>
             cls
@@ -93,5 +101,18 @@ describe('TypingIndicator', () => {
   it('forwards className', () => {
     const container = mount(() => <TypingIndicator className="ti-cls" />)
     expect(container.innerHTML).toContain('ti-cls')
+  })
+
+  it('uses the ClassMap pulse recipe through the UI element', () => {
+    recipe = { peakAt: 0.25, restAt: 0.75, stagger: 0.125, dimOpacity: 0.2, dimScale: 0.5 }
+    try {
+      const container = mount(() => <TypingIndicator durationMs={800} />)
+      expect(container.innerHTML).toContain(
+        '75%, 100% { opacity: 0.2; transform: scale(0.5); } 25%',
+      )
+      expect(container.innerHTML).toContain('800ms ease-in-out 200ms infinite')
+    } finally {
+      recipe = undefined
+    }
   })
 })

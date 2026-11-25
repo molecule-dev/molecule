@@ -9,10 +9,10 @@
 
 import { defineComponent, h, type PropType, type VNode } from 'vue'
 
-import { getClassMap } from '@molecule/app-ui'
+import { DEFAULT_TYPING_PULSE, getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
-/** The shared `@keyframes` rule the dots animate with. */
+/** The shared `@keyframes` rule the standard pulse curve animates with. */
 const KEYFRAMES_NAME = 'molecule-typing-pulse'
 
 /**
@@ -21,6 +21,10 @@ const KEYFRAMES_NAME = 'molecule-typing-pulse'
  * that pulse in sequence. The stylesheet also turns the pulse off under
  * `prefers-reduced-motion: reduce`, so the dots stay still for users who ask
  * for less motion (WCAG 2.3.3) instead of relying on a host stylesheet.
+ *
+ * The motion comes from the ClassMap's `typingPulse` recipe, read on every
+ * render as React's `PulseDots` reads it, and falls back to
+ * `DEFAULT_TYPING_PULSE`.
  *
  * @param props - Component props (see {@link TypingIndicatorProps}).
  * @returns The typing indicator component.
@@ -42,11 +46,21 @@ export const TypingIndicator = defineComponent({
       if (!props.visible) return null
       const label =
         props.ariaLabel ?? t('typingIndicator.aria.label', undefined, { defaultValue: 'Typing…' })
+      const { peakAt, restAt, stagger, dimOpacity, dimScale } =
+        getClassMap().typingPulse ?? DEFAULT_TYPING_PULSE
+      // Keyframes are document-wide. A custom curve must coexist with a mounted standard pulse.
+      const keyName =
+        peakAt === DEFAULT_TYPING_PULSE.peakAt &&
+        restAt === DEFAULT_TYPING_PULSE.restAt &&
+        dimOpacity === DEFAULT_TYPING_PULSE.dimOpacity &&
+        dimScale === DEFAULT_TYPING_PULSE.dimScale
+          ? KEYFRAMES_NAME
+          : `${KEYFRAMES_NAME}-${[peakAt, restAt, dimOpacity, dimScale].join('-').replaceAll('.', '_')}`
       // The pulse honours `prefers-reduced-motion` in the component's own
       // stylesheet: the host stylesheet's global 0.01ms collapse still leaves
       // the per-dot stagger delay, so the dots flash in sequence for a
       // reduced-motion user and the rendered frame depends on when it is painted.
-      const css = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [data-typing-dot] { animation: none !important; } }`
+      const css = `@keyframes ${keyName} { 0%, ${restAt * 100}%, 100% { opacity: ${dimOpacity}; transform: scale(${dimScale}); } ${peakAt * 100}% { opacity: 1; transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [data-typing-dot] { animation: none !important; } }`
       return h(
         'span',
         {
@@ -56,8 +70,11 @@ export const TypingIndicator = defineComponent({
         },
         [
           h('style', css),
-          ...[0, 1, 2].map((i) =>
-            h('span', {
+          ...[0, 1, 2].map((i) => {
+            // The original division preserves the exact serialized delay for fractional values.
+            const elapsed = i * props.durationMs
+            const delay = stagger === DEFAULT_TYPING_PULSE.stagger ? elapsed / 6 : elapsed * stagger
+            return h('span', {
               'aria-hidden': 'true',
               'data-typing-dot': '',
               style: {
@@ -66,10 +83,10 @@ export const TypingIndicator = defineComponent({
                 height: `${props.dotSize}px`,
                 'border-radius': '50%',
                 background: 'currentColor',
-                animation: `${KEYFRAMES_NAME} ${props.durationMs}ms ease-in-out ${(i * props.durationMs) / 6}ms infinite`,
+                animation: `${keyName} ${props.durationMs}ms ease-in-out ${delay}ms infinite`,
               },
-            }),
-          ),
+            })
+          }),
         ],
       )
     }

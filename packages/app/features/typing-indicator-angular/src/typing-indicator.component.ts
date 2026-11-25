@@ -10,6 +10,7 @@ import {
   Directive,
   ElementRef,
   inject,
+  Input,
   ViewChild,
 } from '@angular/core'
 
@@ -20,14 +21,29 @@ import {
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
-import type { UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import type { DotPulseMotion, UIClassMap } from '@molecule/app-ui'
+import { DEFAULT_TYPING_PULSE, getClassMap } from '@molecule/app-ui'
 
-/** The name of the `@keyframes` rule the dots animate with. */
+/** The name of the `@keyframes` rule the standard pulse curve animates with. */
 const KEYFRAMES_NAME = 'molecule-typing-pulse'
 
-/** The injected stylesheet: the pulse and its reduced-motion opt-out, written once per indicator. */
-const KEYFRAMES_CSS = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [data-typing-dot] { animation: none !important; } }`
+/**
+ * The `@keyframes` rule a motion recipe animates with: the shared one for the
+ * standard curve, a recipe-specific one for any other. Keyframes are
+ * document-wide, so a custom curve must coexist with a mounted standard pulse.
+ *
+ * @param pulse - The motion recipe.
+ * @returns The rule's name.
+ */
+function keyframesName(pulse: DotPulseMotion): string {
+  const { peakAt, restAt, dimOpacity, dimScale } = pulse
+  return peakAt === DEFAULT_TYPING_PULSE.peakAt &&
+    restAt === DEFAULT_TYPING_PULSE.restAt &&
+    dimOpacity === DEFAULT_TYPING_PULSE.dimOpacity &&
+    dimScale === DEFAULT_TYPING_PULSE.dimScale
+    ? KEYFRAMES_NAME
+    : `${KEYFRAMES_NAME}-${[peakAt, restAt, dimOpacity, dimScale].join('-').replaceAll('.', '_')}`
+}
 
 /**
  * Injects the indicator's `<style>` element as the span's first child.
@@ -41,6 +57,10 @@ const KEYFRAMES_CSS = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0
  * turns off. The `mol-typing-status` attribute is the directive's mount point
  * only — DOM normalization strips `mol-*` attributes, so it never appears in
  * a rendered page.
+ *
+ * The indicator binds `molTypingStylesheet` to the stylesheet of the ClassMap's
+ * current recipe each time it renders; the element's text follows the
+ * binding, as a React re-render rewrites the `<style>` element it renders.
  */
 @Directive({
   selector: 'span[mol-typing-status]',
@@ -49,12 +69,26 @@ const KEYFRAMES_CSS = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0
 class TypingStatusSpan implements AfterViewInit {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
+  /** The inserted element; undefined until the span's view exists. */
+  private styleElement?: HTMLStyleElement
+
+  /** The stylesheet most recently bound; the element takes it when the view exists. */
+  private css = ''
+
+  /** The indicator's stylesheet for its current motion recipe. */
+  @Input('molTypingStylesheet')
+  set stylesheet(css: string) {
+    this.css = css
+    if (this.styleElement) this.styleElement.textContent = css
+  }
+
   /** @inheritdoc */
   ngAfterViewInit(): void {
     const style = document.createElement('style')
-    style.textContent = KEYFRAMES_CSS
+    style.textContent = this.css
     // A node this component created, not one Angular rendered, so it places it itself.
     this.host.nativeElement.insertBefore(style, this.host.nativeElement.firstChild)
+    this.styleElement = style
   }
 }
 
@@ -64,9 +98,12 @@ class TypingStatusSpan implements AfterViewInit {
  * Three-dot "typing…" animation, CSS-only. React's root is the `<span>` when
  * visible and nothing when hidden, so the `<span>` renders in front of the
  * host's place and the host itself leaves the page (`placeElementBefore` +
- * `setElementPresent`). Each instance injects its own `<style>` tag with the shared keyframes
- * (plus a `prefers-reduced-motion: reduce` rule that stops the pulse for users
- * who ask for less motion) and renders three dots that pulse in sequence.
+ * `setElementPresent`). Each instance injects its own `<style>` tag with the
+ * keyframes of its motion recipe (the ClassMap's `typingPulse`, else the
+ * standard curve, read each time the indicator renders as React reads it per
+ * render; plus a `prefers-reduced-motion: reduce` rule that stops the pulse
+ * for users who ask for less motion) and renders three dots that pulse in
+ * sequence.
  *
  * The `<style>` element is not a template node (Angular's compiler strips
  * `<style>` elements from templates, and the rule's `@keyframes` text would
@@ -82,7 +119,14 @@ class TypingStatusSpan implements AfterViewInit {
   hostDirectives: [MolPlacement],
   inputs: ['visible', 'dotSize', 'durationMs', 'ariaLabel', 'className'],
   template: `@if (isVisible()) {
-    <span #root mol-typing-status role="status" [attr.aria-label]="labelText()" [class]="classes()">
+    <span
+      #root
+      mol-typing-status
+      role="status"
+      [attr.aria-label]="labelText()"
+      [class]="classes()"
+      [molTypingStylesheet]="stylesheet()"
+    >
       <span aria-hidden="true" data-typing-dot [style]="dotStyle(0)"></span>
       <span aria-hidden="true" data-typing-dot [style]="dotStyle(1)"></span>
       <span aria-hidden="true" data-typing-dot [style]="dotStyle(2)"></span>
@@ -161,19 +205,44 @@ export class TypingIndicator {
   }
 
   /**
+   * The motion recipe the indicator animates with: the ClassMap's `typingPulse`,
+   * else the standard curve. Read at each call, as React reads it per render.
+   * @returns The recipe.
+   */
+  private pulse(): DotPulseMotion {
+    return this.cm().typingPulse ?? DEFAULT_TYPING_PULSE
+  }
+
+  /**
+   * The stylesheet for the current motion recipe: the pulse and its
+   * reduced-motion opt-out.
+   * @returns The CSS text.
+   */
+  stylesheet(): string {
+    const pulse = this.pulse()
+    const { peakAt, restAt, dimOpacity, dimScale } = pulse
+    return `@keyframes ${keyframesName(pulse)} { 0%, ${restAt * 100}%, 100% { opacity: ${dimOpacity}; transform: scale(${dimScale}); } ${peakAt * 100}% { opacity: 1; transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [data-typing-dot] { animation: none !important; } }`
+  }
+
+  /**
    * Computes one dot's inline styles.
    * @param index - The dot's position (0–2); each dot's delay staggers it.
    * @returns The style map.
    */
   dotStyle(index: number): Record<string, string> {
+    const pulse = this.pulse()
     const durationMs = this.durationMs ?? 1200
+    // The original division preserves the exact serialized delay for fractional values.
+    const elapsed = index * durationMs
+    const delay =
+      pulse.stagger === DEFAULT_TYPING_PULSE.stagger ? elapsed / 6 : elapsed * pulse.stagger
     return {
       display: 'inline-block',
       width: `${this.dotSize ?? 6}px`,
       height: `${this.dotSize ?? 6}px`,
       'border-radius': '50%',
       background: 'currentColor',
-      animation: `${KEYFRAMES_NAME} ${durationMs}ms ease-in-out ${(index * durationMs) / 6}ms infinite`,
+      animation: `${keyframesName(pulse)} ${durationMs}ms ease-in-out ${delay}ms infinite`,
     }
   }
 }
