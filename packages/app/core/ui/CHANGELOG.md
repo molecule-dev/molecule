@@ -1,5 +1,16 @@
 # @molecule/app-ui
 
+## 1.7.0
+
+### Minor Changes
+
+- Types for the FormArea, Fieldset, CheckField, TableBox and TableCell elements, and `aria-sort` on the shared ARIA attributes.
+- `ElementLinkProps.target` accepts any browsing-context keyword or name.
+
+### Patch Changes
+
+- Native ClassMaps can report the exact line height at each breakpoint.
+
 ## 1.6.1
 
 ### Patch Changes

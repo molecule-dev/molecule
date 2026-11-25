@@ -1,5 +1,11 @@
 # @molecule/app-help-button-svelte
 
+## 1.1.3
+
+### Patch Changes
+
+- HelpButton navigates to app paths through the router.
+
 ## 1.1.2
 
 ### Patch Changes

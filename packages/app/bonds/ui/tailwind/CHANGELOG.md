@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.5.0
+
+### Minor Changes
+
+- Exports the checkbox and radio mark paths as `checkMarkPaths`, and adds `checkFieldMark` and `tableCellWithCheckbox` to the ClassMap.
+
 ## 1.4.0
 
 ### Minor Changes

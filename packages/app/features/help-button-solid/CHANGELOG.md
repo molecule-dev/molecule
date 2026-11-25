@@ -1,5 +1,11 @@
 # @molecule/app-help-button-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- HelpButton navigates to app paths through the router.
+
 ## 1.1.1
 
 ### Patch Changes

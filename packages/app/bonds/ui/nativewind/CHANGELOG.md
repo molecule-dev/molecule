@@ -1,5 +1,15 @@
 # @molecule/app-ui-nativewind
 
+## 1.6.0
+
+### Minor Changes
+
+- Draws checkbox and radio marks and styles table rows and cells on a device.
+
+### Patch Changes
+
+- Growing text areas follow responsive font sizes and the default line-height ratio.
+
 ## 1.5.0
 
 ### Minor Changes

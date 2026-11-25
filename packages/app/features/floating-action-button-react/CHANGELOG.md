@@ -1,5 +1,11 @@
 # @molecule/app-floating-action-button-react
 
+## 4.0.1
+
+### Patch Changes
+
+- FloatingActionButton uses shared React elements and navigates to app paths through the router.
+
 ## 4.0.0
 
 ### Patch Changes

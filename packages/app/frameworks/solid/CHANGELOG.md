@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.16.0
+
+### Minor Changes
+
+- External links render without a router, and `useLinkRouter` provides the router for a destination.
+
 ## 3.15.0
 
 ### Minor Changes

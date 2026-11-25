@@ -1,5 +1,11 @@
 # @molecule/app-help-button-react
 
+## 4.0.2
+
+### Patch Changes
+
+- HelpButton uses shared React elements and navigates to app paths through the router.
+
 ## 4.0.1
 
 ### Patch Changes

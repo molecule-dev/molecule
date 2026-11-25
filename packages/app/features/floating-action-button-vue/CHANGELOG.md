@@ -1,5 +1,11 @@
 # @molecule/app-floating-action-button-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- FloatingActionButton navigates to app paths through the router.
+
 ## 1.1.0
 
 ### Minor Changes

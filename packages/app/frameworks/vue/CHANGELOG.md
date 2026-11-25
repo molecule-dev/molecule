@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.14.0
+
+### Minor Changes
+
+- External links render without a router, and `useLinkRouter` provides the router for a destination.
+
 ## 3.13.1
 
 ### Patch Changes

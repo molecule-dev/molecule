@@ -1,5 +1,12 @@
 # @molecule/app-ui-angular
 
+## 1.5.5
+
+### Patch Changes
+
+- A form submits the last value of a repeated field name and keeps a `__proto__` field as an ordinary key; a prompt dialog lets the user retry when its submit handler throws.
+- A growing text area counts its rows in the field's exact line height.
+
 ## 1.5.4
 
 ### Patch Changes

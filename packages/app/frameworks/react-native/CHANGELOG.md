@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.4.0
+
+### Minor Changes
+
+- Export `useLinkRouter` for links that can open outside the app.
+
 ## 4.3.2
 
 ### Patch Changes

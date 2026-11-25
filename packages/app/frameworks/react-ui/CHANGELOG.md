@@ -1,5 +1,15 @@
 # @molecule/app-ui-react
 
+## 4.5.0
+
+### Minor Changes
+
+- Adds the FormArea, Fieldset, CheckField, TableBox and TableCell elements, which Form, Checkbox, RadioGroup, Switch and Table now render with; a PromptDialog whose onSubmit throws stays open for a retry.
+
+### Patch Changes
+
+- A growing text area counts its rows in the field's exact line height.
+
 ## 4.4.0
 
 ### Minor Changes

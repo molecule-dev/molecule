@@ -1,5 +1,11 @@
 # @molecule/app-header-react
 
+## 4.3.0
+
+### Minor Changes
+
+- AppHeader uses shared React elements and its navigation links accept element link props.
+
 ## 4.2.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.14.0
+
+### Minor Changes
+
+- External links render without a router, and `useLinkRouter` provides the router for a destination.
+
 ## 4.13.0
 
 ### Minor Changes
