@@ -437,15 +437,16 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
     event.preventDefault()
     if (this.pending()) return
     this.pending.set(true)
-    void Promise.resolve(this.onSubmit?.(this.value()))
-      .then(() => {
+    void (async (): Promise<void> => {
+      try {
+        await this.onSubmit?.(this.value())
         this.pending.set(false)
         this.close.emit()
-      })
-      .catch((_error: unknown) => {
-        // Deliberate: a rejection keeps the dialog open and the caller owns
-        // the error, rendering it through `children`.
+      } catch (_error: unknown) {
+        // Deliberate: a rejection or a synchronous throw keeps the dialog open
+        // and the caller owns the error, rendering it through `children`.
         this.pending.set(false)
-      })
+      }
+    })()
   }
 }

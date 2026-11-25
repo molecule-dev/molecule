@@ -4,7 +4,7 @@
  * @module
  */
 
-import { Component, ElementRef, inject, signal } from '@angular/core'
+import { Component, ElementRef, inject, isDevMode, signal } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import type { FormProps, UIClassMap } from '@molecule/app-ui'
@@ -225,11 +225,18 @@ export class Form implements HasElement<HTMLFormElement> {
       const form = event.currentTarget instanceof HTMLFormElement ? event.currentTarget : null
       if (this.onFormSubmit) {
         event.preventDefault()
-        const formData = new FormData(form ?? undefined)
-        const data: Record<string, unknown> = {}
-        formData.forEach((value, key) => {
-          data[key] = value
-        })
+        const entries = Array.from(new FormData(form ?? undefined))
+        // `Object.fromEntries` defines every name as an own key: a repeated name
+        // keeps its last value, and `__proto__` stays an ordinary field instead
+        // of replacing the object's prototype.
+        const data: Record<string, unknown> = Object.fromEntries(entries)
+        // React reads `process.env.NODE_ENV`; Angular's CLI defines no such
+        // global, and `isDevMode()` is false in its optimized (production) builds.
+        if (isDevMode() && Object.keys(data).length < entries.length) {
+          console.error(
+            "Form.onFormSubmit received repeated field names and keeps only their last values. Use the form's onSubmit handler for repeated entries.",
+          )
+        }
         call(() => this.onFormSubmit?.(data))
       }
       call(() => this.onSubmit?.(event))

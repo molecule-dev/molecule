@@ -590,6 +590,15 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       expect(classMap.splitForNative?.(classMap.tableHeader, '').descendants).toEqual({
         tr: 'border-b',
       })
+      expect(classMap.splitForNative?.(classMap.tableBody, '').descendants).toEqual({
+        'tr:last-child': '!border-0',
+      })
+      expect(classMap.splitForNative?.(classMap.tableFooter, '').descendants).toEqual({
+        'tr:last-child': '!border-b-0',
+      })
+      expect(classMap.tableHead.split(/\s+/)).toContain('min-h-12')
+      expect(classMap.tableHead.split(/\s+/)).not.toContain('h-12')
+      expect(classMap.tableCellWithCheckbox).toBe('pr-0')
       expect(classMap.tableRow).toContain('border-b')
     })
 

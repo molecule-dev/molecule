@@ -10,6 +10,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, ScrollArea, TableBox, TableCell } from '@molecule/app-ui-react/elements'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 import { rootProps } from '../utilities/rootProps.js'
@@ -48,10 +49,9 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
       if (typeof rowKey === 'function') {
         return rowKey(row)
       }
-      if (rowKey && row[rowKey] !== undefined) {
-        return row[rowKey] as string | number
-      }
-      return index
+      const key = rowKey ? row[rowKey] : undefined
+      if (key === undefined) return index
+      return typeof key === 'number' ? key : String(key)
     }
 
     const getCellValue = (
@@ -60,15 +60,15 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
       index: number,
     ): React.ReactNode => {
       if (column.render) {
-        return column.render(row[column.key as string], row, index) as React.ReactNode
+        return column.render(row[column.key], row, index) as React.ReactNode
       }
-      return row[column.key as string] as React.ReactNode
+      return row[column.key] as React.ReactNode
     }
 
     const handleSort = (column: TableColumn<Record<string, unknown>>): void => {
       if (!column.sortable || !onSort) return
 
-      const key = column.key as string
+      const key = column.key
       const currentDirection = sort?.key === key ? sort.direction : undefined
       const newDirection = currentDirection === 'asc' ? 'desc' : 'asc'
       onSort(key, newDirection)
@@ -77,37 +77,39 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
     const tableClasses = cm.cn(cm.table, bordered && cm.tableBordered, className)
 
     return (
-      <div className={cm.tableWrapper}>
+      <ScrollArea as="div" direction="horizontal" className={cm.tableWrapper}>
         {loading && (
-          <div className={cm.tableLoadingOverlay}>
+          <Box as="div" className={cm.tableLoadingOverlay}>
             <Spinner size="lg" />
-          </div>
+          </Box>
         )}
         {/* Every other declared prop (id, title, aria-*, data-*, automationId as data-mol-id,
             the DOM event handlers) reaches the table, with its class, style and test id. */}
-        <table
+        <TableBox
+          as="table"
           ref={ref}
           className={tableClasses}
-          style={style}
+          webStyle={style}
           data-testid={testId}
           {...rootProps(rest)}
         >
-          <thead className={cm.tableHeader}>
-            <tr className={cm.tableRow}>
+          <TableBox as="thead" className={cm.tableHeader}>
+            <TableBox as="tr" className={cm.tableRow}>
               {columns.map((column) => (
-                <th
-                  key={column.key as string}
+                <TableCell
+                  as="th"
+                  key={column.key}
                   className={cm.cn(
                     cm.tableHead,
                     column.align === 'center' && cm.textCenter,
                     column.align === 'right' && cm.textRight,
                     column.sortable && cm.tableHeadSortable,
                   )}
-                  style={{ width: column.width }}
-                  onClick={() => column.sortable && handleSort(column)}
+                  webStyle={{ width: column.width }}
+                  onClick={column.sortable && onSort ? () => handleSort(column) : undefined}
                   aria-sort={
                     column.sortable
-                      ? sort?.key === (column.key as string)
+                      ? sort?.key === column.key
                         ? sort.direction === 'asc'
                           ? 'ascending'
                           : 'descending'
@@ -115,31 +117,32 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
                       : undefined
                   }
                 >
-                  <div className={cm.tableSortWrapper}>
+                  <Box as="div" className={cm.tableSortWrapper}>
                     {column.header as React.ReactNode}
-                    {column.sortable && sort?.key === (column.key as string) && (
-                      <span className={cm.tableSortIcon}>
+                    {column.sortable && sort?.key === column.key && (
+                      <Box as="span" className={cm.tableSortIcon}>
                         {sort.direction === 'asc'
                           ? renderIcon('chevron-up', cm.iconSm)
                           : renderIcon('chevron-down', cm.iconSm)}
-                      </span>
+                      </Box>
                     )}
-                  </div>
-                </th>
+                  </Box>
+                </TableCell>
               ))}
-            </tr>
-          </thead>
-          <tbody className={cm.tableBody}>
+            </TableBox>
+          </TableBox>
+          <TableBox as="tbody" className={cm.tableBody}>
             {data.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className={cm.tableEmptyCell}>
+              <TableBox as="tr">
+                <TableCell as="td" colSpan={columns.length} className={cm.tableEmptyCell}>
                   {emptyContent ||
                     t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
-                </td>
-              </tr>
+                </TableCell>
+              </TableBox>
             ) : (
               data.map((row, rowIndex) => (
-                <tr
+                <TableBox
+                  as="tr"
                   key={getRowKey(row, rowIndex)}
                   className={cm.cn(
                     cm.tableRow,
@@ -147,26 +150,27 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
                     hoverable && cm.tableRowHoverable,
                     onRowClick && cm.tableRowClickable,
                   )}
-                  onClick={() => onRowClick?.(row, rowIndex)}
+                  onClick={onRowClick ? () => onRowClick(row, rowIndex) : undefined}
                 >
                   {columns.map((column) => (
-                    <td
-                      key={column.key as string}
+                    <TableCell
+                      as="td"
+                      key={column.key}
                       className={cm.cn(
                         cm.tableCell,
                         column.align === 'center' && cm.textCenter,
                         column.align === 'right' && cm.textRight,
                       )}
                     >
-                      {getCellValue(row, column, rowIndex) as React.ReactNode}
-                    </td>
+                      {getCellValue(row, column, rowIndex)}
+                    </TableCell>
                   ))}
-                </tr>
+                </TableBox>
               ))
             )}
-          </tbody>
-        </table>
-      </div>
+          </TableBox>
+        </TableBox>
+      </ScrollArea>
     )
   },
 )

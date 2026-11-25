@@ -2143,6 +2143,11 @@ export interface UIClassMap extends UIClassMapNativeSplit {
   select(opts?: SelectClassOptions): string
   checkbox(opts?: CheckboxClassOptions): string
   radio(opts?: RadioClassOptions): string
+  /** The shared checkbox or radio mark path and its text color classes, for device rendering. */
+  checkFieldMark?: (
+    mark: 'checked' | 'mixed' | 'radio',
+    controlClasses?: string,
+  ) => { path: string; className: string }
   switchBase(opts?: SwitchClassOptions): string
   switchThumb(opts?: SwitchClassOptions): string
   label(opts?: LabelClassOptions): string
@@ -2259,6 +2264,8 @@ export interface UIClassMap extends UIClassMapNativeSplit {
   tableRow: string
   tableHead: string
   tableCell: string
+  /** Removes the trailing padding when the author adds a checkbox cell. */
+  tableCellWithCheckbox?: string
   tableCaption: string
   tooltipContent: string
   toastViewport: string

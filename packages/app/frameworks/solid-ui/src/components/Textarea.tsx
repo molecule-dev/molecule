@@ -63,29 +63,29 @@ export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaEleme
     const element = textareaRef
     if (!local.autoResize || !element) return
     element.style.height = 'auto'
-    const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
-    const minHeight = (local.minRows ?? 3) * lineHeight
-    const maxHeight = local.maxRows ? local.maxRows * lineHeight : Infinity
-    const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-    element.style.height = `${newHeight}px`
+    element.style.height = `${element.scrollHeight}px`
   }
 
-  // Controlled usage (value tracked by the caller) recomputes here.
+  // Uncontrolled input events resize the field. Clear the previous measurement
+  // when the bounds change or growing stops.
   createEffect(() => {
-    void local.value
-    resize()
-  })
-
-  // Uncontrolled usage (defaultValue + the user typing) never changes
-  // `value`, so the effect above never re-runs — autoResize silently did
-  // nothing for every uncontrolled textarea. Listening for real `input`
-  // events on the element itself catches keystrokes, paste, and IME
-  // composition regardless of whether the caller tracks `value`.
-  createEffect(() => {
+    void local.minRows
+    void local.maxRows
     const element = textareaRef
     if (!local.autoResize || !element) return
     element.addEventListener('input', resize)
-    onCleanup(() => element.removeEventListener('input', resize))
+    onCleanup(() => {
+      element.removeEventListener('input', resize)
+      element.style.height = ''
+    })
+  })
+
+  // Measure after the old height is cleared and the new rows and bounds are applied.
+  createEffect(() => {
+    void local.value
+    void local.minRows
+    void local.maxRows
+    resize()
   })
 
   const textareaClasses = (): string =>
@@ -117,11 +117,15 @@ export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaEleme
           local.error ? `${textareaId()}-error` : local.hint ? `${textareaId()}-hint` : undefined
         }
         class={textareaClasses()}
-        // autoResize sizes the box to its content via inline height, but the
-        // bond's min-h class would floor it — neutralize it and let resize()
-        // enforce `minRows` instead. Caller style still wins.
         style={toStyleProps(
-          local.autoResize ? { minHeight: 0, resize: 'none', ...local.style } : local.style,
+          local.autoResize
+            ? {
+                resize: 'none',
+                ...local.style,
+                minHeight: `${Math.min(local.minRows ?? 3, local.maxRows ?? Infinity)}lh`,
+                ...(local.maxRows === undefined ? {} : { maxHeight: `${local.maxRows}lh` }),
+              }
+            : local.style,
         )}
         data-testid={local.testId}
         onInput={handleInput}

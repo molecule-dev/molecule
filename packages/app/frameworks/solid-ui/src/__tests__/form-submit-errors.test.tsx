@@ -42,6 +42,37 @@ function mount(view: () => JSX.Element): HTMLElement {
 }
 
 describe('Form submission error defaults', () => {
+  it('warns when flattening duplicates and preserves arbitrary field names as own keys', () => {
+    const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const save = vi.fn()
+    try {
+      const container = mount(() => (
+        <Form onFormSubmit={save}>
+          <input name="repeated" value="first" />
+          <input name="__proto__" value="ordinary input" />
+          <input name="repeated" value="last" />
+        </Form>
+      ))
+      const form = container.querySelector('form')
+      if (!form) throw new Error('Expected the form')
+      fireEvent.submit(form)
+      expect(save).toHaveBeenCalledExactlyOnceWith({
+        ['__proto__']: 'ordinary input',
+        repeated: 'last',
+      })
+      const values: unknown = save.mock.calls[0]?.[0]
+      if (typeof values !== 'object' || values === null) {
+        throw new TypeError('expected the submitted values')
+      }
+      expect(Object.hasOwn(values, '__proto__')).toBe(true)
+      expect(Object.getPrototypeOf(values)).toBe(Object.prototype)
+      expect(diagnostic).toHaveBeenCalledTimes(1)
+      expect(diagnostic).toHaveBeenCalledWith(expect.stringContaining('repeated field names'))
+    } finally {
+      diagnostic.mockRestore()
+    }
+  })
+
   it('catches an async onFormSubmit failure, renders it, and allows a successful retry', async () => {
     const save = vi
       .fn()

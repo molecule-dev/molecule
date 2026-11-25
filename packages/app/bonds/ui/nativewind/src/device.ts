@@ -51,8 +51,8 @@ export function joinClass(
   return [...variants, important ? `!${utility}` : utility].join(':')
 }
 
-/** A variant that styles the element's descendants with one tag (`[&_p]`), capturing the tag. */
-const DESCENDANT = /^\[&_([a-z][a-z0-9]*)\]$/
+/** A descendant tag selector, with an optional first- or last-child position. */
+const DESCENDANT = /^\[&_([a-z][a-z0-9]*(?::(?:first|last)-child)?)\]$/
 
 /**
  * The descendant rule a class is (`[&_p]:leading-relaxed`, `dark:[&_p]:text-x`): the tag it
@@ -69,7 +69,12 @@ export function descendantRule(cls: string): { tag: string; cls: string } | null
   if (!tag) return null
   return {
     tag,
-    cls: joinClass([...variants.slice(0, at), ...variants.slice(at + 1)], utility, important),
+    // A structural selector outranks the row's own single-class utilities.
+    cls: joinClass(
+      [...variants.slice(0, at), ...variants.slice(at + 1)],
+      utility,
+      important || tag.includes(':'),
+    ),
   }
 }
 
@@ -107,8 +112,8 @@ export function stateRule(
 /**
  * Whether a variant styles something a device has no equivalent for: another
  * element's state (`peer-*`, `group-*`), a pseudo-element (`before`, `after`,
- * `file`, …) or an arbitrary selector (`[&>svg]`, `[&_tr:last-child]`) other than a
- * descendant with one tag (`[&_p]`), which the native elements apply ({@link descendantRule}).
+ * `file`, …) or an arbitrary selector other than a supported descendant
+ * (`[&_p]` or `[&_tr:last-child]`, see {@link descendantRule}).
  *
  * @param variant - One variant.
  * @returns Whether NativeWind cannot apply it on a device.

@@ -58,6 +58,14 @@ describe('colorTokens', () => {
     expect(result.stderr).toContain('npm run gen:tokens')
   })
 
+  it('also rejects a changed check mark until the device paths are regenerated', () => {
+    const edited = BASE_CSS.replace("d='M3 7h10v2H3z'", "d='M3 6h10v4H3z'")
+    expect(edited).not.toBe(BASE_CSS)
+    const result = check(edited)
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('npm run gen:tokens')
+  })
+
   it('refuses a value form it cannot resolve, instead of dropping the token', () => {
     const edited = BASE_CSS.replace('@theme {', '@theme {\n  --color-odd: oklch(70% 0.1 200);')
     const result = check(edited)

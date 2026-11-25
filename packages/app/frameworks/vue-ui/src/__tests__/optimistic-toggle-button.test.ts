@@ -10,7 +10,7 @@
  *
  * @module
  */
-import { waitFor, within } from '@testing-library/dom'
+import { type BoundFunctions, type queries, waitFor, within } from '@testing-library/dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -104,7 +104,7 @@ function unmount(app: App): void {
   app.unmount()
 }
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 const button = (): HTMLButtonElement => body().getByRole('button') as HTMLButtonElement
 

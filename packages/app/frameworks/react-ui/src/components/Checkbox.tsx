@@ -4,11 +4,12 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
+import React, { forwardRef, useId } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, CheckField, Text } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -29,26 +30,13 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       disabled,
       name,
       id,
+      value,
       onChange,
       ...rest
     },
     ref,
   ) => {
     const label = slot(labelProp as React.ReactNode)
-    // Always track the node in internalRef (for the indeterminate DOM flag)
-    // AND forward it to the caller's ref. The previous `(ref || internalRef)
-    // as RefObject` cast silently broke `indeterminate` whenever the caller
-    // passed a CALLBACK ref (functions have no `.current`).
-    const internalRef = useRef<HTMLInputElement | null>(null)
-    const setRefs = useCallback(
-      (node: HTMLInputElement | null) => {
-        internalRef.current = node
-        if (typeof ref === 'function') ref(node)
-        else if (ref) ref.current = node
-      },
-      [ref],
-    )
-
     const cm = getClassMap()
     const checkboxId = id || name
     // The error message must be programmatically associated with the input
@@ -57,43 +45,42 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const generatedId = useId()
     const errorId = `${checkboxId || generatedId}-error`
 
-    useEffect(() => {
-      if (internalRef.current) {
-        internalRef.current.indeterminate = !!indeterminate
-      }
-    }, [indeterminate])
-
     const checkboxClasses = cm.cn(cm.checkbox({ error: !!error }), className)
 
     return (
-      <div className={cm.formFieldWrapper}>
-        <label className={cm.controlLabel}>
-          <input
-            ref={setRefs}
+      <Box as="div" className={cm.formFieldWrapper}>
+        <Box as="label" className={cm.controlLabel}>
+          <CheckField
+            as="input"
+            ref={ref}
             type="checkbox"
             id={checkboxId}
             name={name}
             checked={checked}
+            indeterminate={indeterminate}
+            value={value === undefined ? undefined : String(value)}
             disabled={disabled}
             data-state={checked ? 'checked' : 'unchecked'}
             aria-invalid={!!error}
             aria-describedby={error ? errorId : undefined}
             className={checkboxClasses}
-            style={style}
+            webStyle={style}
             data-testid={testId}
             onChange={onChange}
-            {...(rootProps(rest) as React.InputHTMLAttributes<HTMLInputElement>)}
+            {...rootProps(rest)}
           />
           {!!label && (
-            <span className={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>{label}</span>
+            <Text as="span" className={cm.cn(cm.controlText, disabled && cm.controlDisabled)}>
+              {label}
+            </Text>
           )}
-        </label>
+        </Box>
         {error && (
-          <p id={errorId} className={cm.cn(cm.formError, cm.sp('mt', 1))}>
+          <Text as="p" id={errorId} className={cm.cn(cm.formError, cm.sp('mt', 1))}>
             {error}
-          </p>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   },
 )

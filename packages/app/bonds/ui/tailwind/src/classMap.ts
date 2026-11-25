@@ -303,6 +303,7 @@ import {
   srOnly,
   stack as stackLayout,
 } from './layout.js'
+import { checkMarkPaths } from './tokens.generated.js'
 import { cn } from './utilities.js'
 
 // ============================================================================
@@ -625,6 +626,21 @@ export const classMap: UIClassMap = {
     return radio({ variant: opts?.error ? 'error' : 'default' })
   },
 
+  checkFieldMark(mark, controlClasses) {
+    const error = controlClasses?.split(/\s+/).includes('border-error')
+    return {
+      path: checkMarkPaths[mark],
+      className:
+        mark === 'radio'
+          ? error
+            ? 'text-error'
+            : 'text-primary'
+          : error
+            ? 'text-on-error'
+            : 'text-on-primary',
+    }
+  },
+
   switchBase(opts?: SwitchClassOptions): string {
     const size = opts?.size ? size3Map[opts.size] : 'md'
     return switchBaseCva({ color: opts?.color || 'primary', size })
@@ -856,6 +872,7 @@ export const classMap: UIClassMap = {
   tableRow,
   tableHead,
   tableCell,
+  tableCellWithCheckbox: 'pr-0',
   tableCaption,
   tooltipContent,
   toastViewport,

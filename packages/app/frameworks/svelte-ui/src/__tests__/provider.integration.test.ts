@@ -26,6 +26,7 @@
 
 import { fireEvent, screen } from '@testing-library/dom'
 import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { createClassComponent } from 'svelte/legacy'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { unbond } from '@molecule/app-bond'
@@ -635,6 +636,36 @@ describe('@molecule/app-ui-svelte × REAL Svelte mount + REAL @molecule/app-ui b
     const select2 = host.querySelector('select') as HTMLSelectElement
     const clearOption = Array.from(select2.options).find((o) => o.value === '')
     expect(clearOption?.textContent).toBe('--')
+  })
+
+  it('Textarea autoResize sets the minimum in line-height units', () => {
+    const target = document.createElement('div')
+    const view = createClassComponent({
+      component: Textarea,
+      target,
+      props: { autoResize: true, minRows: 3 },
+    })
+    try {
+      const field = target.querySelector('textarea')
+      if (!field) throw new Error('Missing textarea')
+      expect(field.style.minHeight).toBe('3lh')
+      expect(field.style.maxHeight).toBe('')
+      flushSync(() => view.$set({ maxRows: 4 }))
+      expect(field.getAttribute('style')).toBe(
+        'resize: none; min-height: 3lh; max-height: 4lh; height: 0px;',
+      )
+      flushSync(() => view.$set({ autoResize: false }))
+      expect(field.style.cssText).toBe('')
+    } finally {
+      view.$destroy()
+    }
+  })
+
+  it('Textarea autoResize caps both bounds when maxRows is below minRows', () => {
+    mountIn(Textarea, { autoResize: true, minRows: 6, maxRows: 2, testId: 'ta' })
+    expect(screen.getByTestId('ta').getAttribute('style')).toBe(
+      'resize: none; min-height: 2lh; max-height: 2lh; height: 0px;',
+    )
   })
 
   it('Textarea autoResize works UNCONTROLLED — real `input` events resize it, not just the `value` prop', () => {

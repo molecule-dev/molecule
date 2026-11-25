@@ -15,7 +15,7 @@
  *
  * @module
  */
-import { fireEvent, within } from '@testing-library/dom'
+import { type BoundFunctions, fireEvent, type queries, within } from '@testing-library/dom'
 import { flushSync, mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -108,7 +108,7 @@ const {
 const mounted: Array<ReturnType<typeof mount>> = []
 const hosts: HTMLElement[] = []
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 /**
  * Sets the viewport class the mocked matchMedia reports.

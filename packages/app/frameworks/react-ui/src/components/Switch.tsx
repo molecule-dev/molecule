@@ -4,18 +4,14 @@
  * @module
  */
 
-import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { forwardRef, useRef } from 'react'
 
 import { slot } from '@molecule/app-react/render'
-import type { SwitchProps } from '@molecule/app-ui'
+import type { CheckFieldHandle, KitMouseEvent, SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, CheckField, Pressable, Text } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
-
-// Layout effects run in the commit itself, so the listener below is attached
-// before the browser can deliver a click; on the server, fall back to
-// useEffect to avoid React's SSR useLayoutEffect warning.
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 /**
  * Switch component.
@@ -33,6 +29,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
       disabled,
       onChange,
       onClick,
+      value,
       ...rest
     },
     ref,
@@ -41,43 +38,13 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     const cm = getClassMap()
     const state = checked ? 'checked' : 'unchecked'
 
-    // A hidden, real native checkbox mirrors `checked` — `handleClick`
-    // below calls `.click()` on it instead of forging a fake event object.
-    // Its `change` is a GENUINE browser Event, so
-    // `event.preventDefault()`/`event.stopPropagation()` are real methods
-    // (no more "not a function" crash) and `event.target`/`currentTarget`
-    // resolve to a real element with a real `.checked` — matching the
-    // `(e.target as HTMLInputElement).checked` pattern every flagship
-    // template's onChange already uses against this component. The old
-    // `{ target: { checked } } as unknown as Event` cast happened to read
-    // back OK for that one property but crashed on any real Event method.
-    // Kept as a SIBLING of the visible <label> (not a descendant of it) —
-    // both the checkbox and the <button> are "labelable" elements per the
-    // HTML spec, so nesting both inside one <label> risks the browser's
-    // native label-click-forwarding firing a SECOND, redundant click on
-    // whichever one isn't the direct target.
-    const hiddenInputRef = useRef<HTMLInputElement>(null)
-
-    // Attached ONCE, in the commit, reading the latest `onChange` through a
-    // ref. A passive `useEffect` left a gap between the switch appearing and
-    // its listener existing: a click in that gap toggled nothing, silently
-    // (it flaked molecule-dev's auto-refill toggle test under load).
-    const onChangeRef = useRef(onChange)
-    useIsomorphicLayoutEffect(() => {
-      onChangeRef.current = onChange
-    })
-    useIsomorphicLayoutEffect(() => {
-      const input = hiddenInputRef.current
-      if (!input) return
-      const listener = (event: Event): void => onChangeRef.current?.(event)
-      input.addEventListener('change', listener)
-      return () => input.removeEventListener('change', listener)
-    }, [])
+    // Keep the hidden input beside the label so the button is its only labelable child.
+    const hiddenInputRef = useRef<CheckFieldHandle>(null)
 
     // A caller's onClick runs first and can veto the toggle with
     // preventDefault(); it used to be spread over this handler, so passing
     // one silently disabled the switch.
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    const handleClick = (event: KitMouseEvent): void => {
       onClick?.(event)
       if (!disabled && !event.defaultPrevented) {
         hiddenInputRef.current?.click()
@@ -86,7 +53,8 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
 
     return (
       <>
-        <input
+        <CheckField
+          as="input"
           ref={hiddenInputRef}
           type="checkbox"
           checked={!!checked}
@@ -94,14 +62,12 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           aria-hidden="true"
           tabIndex={-1}
           className={cm.srOnly}
-          // Controlled input requires an onChange to silence React's
-          // dev warning; the REAL forwarding to the caller happens through
-          // the native `addEventListener('change', …)` above (a genuine
-          // browser Event), not through this synthetic React handler.
-          onChange={() => {}}
+          nativeChangeEvent
+          onChange={onChange}
         />
-        <label className={cm.cn(cm.controlLabel, disabled && cm.controlDisabled)}>
-          <button
+        <Box as="label" className={cm.cn(cm.controlLabel, disabled && cm.controlDisabled)}>
+          <Pressable
+            as="button"
             ref={ref}
             type="button"
             role="switch"
@@ -113,14 +79,19 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
             data-state={state}
             onClick={handleClick}
             className={cm.cn(cm.switchBase({ size, color }), className)}
-            style={style}
+            webStyle={style}
             data-testid={testId}
-            {...(rootProps(rest) as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+            value={value === undefined ? undefined : String(value)}
+            {...rootProps(rest)}
           >
-            <span data-state={state} className={cm.switchThumb({ size })} />
-          </button>
-          {!!label && <span className={cm.controlText}>{label}</span>}
-        </label>
+            <Box as="span" data-state={state} className={cm.switchThumb({ size })} />
+          </Pressable>
+          {!!label && (
+            <Text as="span" className={cm.controlText}>
+              {label}
+            </Text>
+          )}
+        </Box>
       </>
     )
   },

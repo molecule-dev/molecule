@@ -19,7 +19,7 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-import { within } from '@testing-library/dom'
+import { type BoundFunctions, type queries, within } from '@testing-library/dom'
 import { type App, createApp, h, type VNodeChild } from 'vue'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
@@ -36,7 +36,7 @@ afterEach(() => {
   for (const host of hosts.splice(0)) host.remove()
 })
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 /**
  * Mounts a Form with the given controlled `submitError`, overridable children.

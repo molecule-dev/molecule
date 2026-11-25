@@ -99,18 +99,20 @@
     e.preventDefault()
     if (pending) return
     pending = true
-    void Promise.resolve(onSubmit(value))
-      .then(() => {
+    void (async () => {
+      try {
+        await onSubmit(value)
         // A parent that keeps the dialog open (a multi-stage flow advancing
         // in onClose) gets a form that accepts the next submit.
         pending = false
         onClose()
-      })
-      .catch((_error) => {
-        // Deliberate: a rejection keeps the dialog open (the caller renders
-        // the error through children); the value stays intact.
+      } catch (_error) {
+        // Deliberate: a rejection or a synchronous throw keeps the dialog
+        // open (the caller renders the error through children); the value
+        // stays intact.
         pending = false
-      })
+      }
+    })()
   }
 </script>
 

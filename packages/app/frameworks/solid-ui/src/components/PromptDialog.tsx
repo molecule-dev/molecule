@@ -146,20 +146,21 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
     event.preventDefault()
     if (pending()) return
     setPending(true)
-    void Promise.resolve(local.onSubmit(value()))
-      .then(() => {
+    void (async (): Promise<void> => {
+      try {
+        await local.onSubmit(value())
         // A parent that keeps the dialog open (a multi-stage flow advancing in
         // onClose) gets a form that accepts the next submit.
         setPending(false)
         local.onClose()
-      })
-      .catch((_error: unknown) => {
-        // Deliberate: a rejection keeps the dialog open (see the module
-        // remarks); the caller owns the error and renders it through
-        // `children`, so re-displaying or logging it here would duplicate
-        // that.
+      } catch (_error: unknown) {
+        // Deliberate: a rejection or a synchronous throw keeps the dialog open
+        // (see the module remarks); the caller owns the error and renders it
+        // through `children`, so re-displaying or logging it here would
+        // duplicate that.
         setPending(false)
-      })
+      }
+    })()
   }
 
   /**

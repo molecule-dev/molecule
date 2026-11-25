@@ -2,6 +2,11 @@
   Form: awaits onFormSubmit(data) / onSubmit, disables its fieldset while
   pending and renders rejected submissions as an accessible error list.
 -->
+<script module lang="ts">
+  // Web bundlers substitute this at build time.
+  declare const process: { env: { NODE_ENV?: string } }
+</script>
+
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
@@ -56,11 +61,16 @@
         }
         if (onFormSubmit) {
           e.preventDefault()
-          const formData = new FormData(e.currentTarget as HTMLFormElement)
-          const data: Record<string, unknown> = {}
-          formData.forEach((value, key) => {
-            data[key] = value
-          })
+          const entries = Array.from(new FormData(e.currentTarget as HTMLFormElement))
+          // `Object.fromEntries` defines every name as an own key: a repeated name
+          // keeps its last value, and `__proto__` stays an ordinary field instead
+          // of replacing the object's prototype.
+          const data: Record<string, unknown> = Object.fromEntries(entries)
+          if (process.env.NODE_ENV !== 'production' && Object.keys(data).length < entries.length) {
+            console.error(
+              "Form.onFormSubmit received repeated field names and keeps only their last values. Use the form's onSubmit handler for repeated entries.",
+            )
+          }
           call(() => onFormSubmit(data))
         }
         // Call both handlers before yielding: the native event's currentTarget is still valid.

@@ -13,7 +13,7 @@
  *
  * @module
  */
-import { fireEvent, within } from '@testing-library/dom'
+import { type BoundFunctions, fireEvent, type queries, within } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A mutable location the mocked `useLocation` returns — tests advance it to
@@ -128,7 +128,7 @@ async function flush(): Promise<void> {
   await nextTick()
 }
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 function setDesktop(next: boolean): void {
   matches = next

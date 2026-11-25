@@ -26,6 +26,9 @@ import { useElementRef } from '../utilities/elementRef.js'
 import { setDisplayName } from './displayName.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
 
+// Web bundlers substitute this at build time.
+declare const process: { env: { NODE_ENV?: string } }
+
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
 
@@ -108,11 +111,16 @@ export const Form = defineComponent({
         }
         if (onFormSubmit) {
           e.preventDefault()
-          const formData = new FormData(e.currentTarget)
-          const data: Record<string, unknown> = {}
-          formData.forEach((value, key) => {
-            data[key] = value
-          })
+          const entries = Array.from(new FormData(e.currentTarget))
+          // `Object.fromEntries` defines every name as an own key: a repeated name
+          // keeps its last value, and `__proto__` stays an ordinary field instead
+          // of replacing the object's prototype.
+          const data: Record<string, unknown> = Object.fromEntries(entries)
+          if (process.env.NODE_ENV !== 'production' && Object.keys(data).length < entries.length) {
+            console.error(
+              "Form.onFormSubmit received repeated field names and keeps only their last values. Use the form's onSubmit handler for repeated entries.",
+            )
+          }
           call(() => onFormSubmit(data))
         }
         // Call both handlers before yielding: the native event's currentTarget is still valid.

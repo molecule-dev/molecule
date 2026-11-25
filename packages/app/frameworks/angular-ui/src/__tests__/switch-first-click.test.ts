@@ -140,6 +140,18 @@ describe('Switch first click', () => {
     expect(event.target).toBeInstanceOf(HTMLInputElement)
   })
 
+  it('delivers the native change event and its checked target during activation', () => {
+    const receive = vi.fn()
+    const fixture = mountSwitch((instance) => {
+      instance.onChange = (event) => {
+        receive(event, event.target && 'checked' in event.target ? event.target.checked : undefined)
+      }
+    })
+    fireEvent.click(switchOf(fixture))
+    expect(receive).toHaveBeenCalledExactlyOnceWith(expect.any(Event), true)
+    expect(receive.mock.calls[0]?.[0]).toHaveProperty('type', 'change')
+  })
+
   it('calls the latest onChange after a re-render, once', () => {
     const first = vi.fn<(event: Event) => void>()
     const second = vi.fn<(event: Event) => void>()

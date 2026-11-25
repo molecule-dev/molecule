@@ -180,6 +180,24 @@ const HttpHost = Component({
   },
 )
 
+/** A form whose field names repeat and include `__proto__`. */
+const RepeatedNamesHost = Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'mol-spec-repeated-names-form',
+  standalone: true,
+  imports: [Form],
+  template: `<form mol-form [onFormSubmit]="save">
+    <input name="repeated" value="first" />
+    <input name="__proto__" value="ordinary input" />
+    <input name="repeated" value="last" />
+  </form>`,
+})(
+  class RepeatedNamesHostComponent {
+    /** The submission handler (React's `onFormSubmit`). */
+    save: (data: Record<string, unknown>) => void | Promise<void> = () => {}
+  },
+)
+
 /** The rendered form element. */
 const formOf = (fixture: ComponentFixture<unknown>): HTMLFormElement =>
   fixture.nativeElement.querySelector('form') as HTMLFormElement
@@ -224,6 +242,31 @@ afterEach(() => {
 })
 
 describe('Form submission error defaults', () => {
+  it('warns when flattening duplicates and preserves arbitrary field names as own keys', async () => {
+    const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const save = vi.fn<(data: Record<string, unknown>) => void | Promise<void>>()
+    try {
+      const fixture = render(RepeatedNamesHost, (instance) => {
+        instance.save = save
+      })
+      fireEvent.submit(formOf(fixture))
+      expect(save).toHaveBeenCalledExactlyOnceWith({
+        ['__proto__']: 'ordinary input',
+        repeated: 'last',
+      })
+      const values = save.mock.calls[0]?.[0]
+      if (!values) throw new TypeError('expected the submitted values')
+      expect(Object.hasOwn(values, '__proto__')).toBe(true)
+      expect(Object.getPrototypeOf(values)).toBe(Object.prototype)
+      expect(diagnostic).toHaveBeenCalledTimes(1)
+      expect(diagnostic).toHaveBeenCalledWith(expect.stringContaining('repeated field names'))
+      // Let the submission settle before the form is torn down.
+      await fixture.whenStable()
+    } finally {
+      diagnostic.mockRestore()
+    }
+  })
+
   it('catches an async onFormSubmit failure, renders it, and allows a successful retry', async () => {
     const save = vi
       .fn<(data: Record<string, unknown>) => void | Promise<void>>()

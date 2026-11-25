@@ -175,9 +175,7 @@ describe("what an app's Tailwind scan finds", () => {
     // This package's dist holds its source's literals and the generated list.
     const own = [
       ...scripts(join(packageDir, 'src')),
-      deviceOnlyClasses(web, forDevice).join(' '),
-      ruleClasses(web, forDevice, descendantRule).join(' '),
-      ruleClasses(web, forDevice, stateRule).join(' '),
+      readFileSync(join(packageDir, 'dist/device-classes.cjs'), 'utf8'),
     ]
     const named = new Set([...web, ...own].flatMap(words))
     expect(staticClasses.filter((cls) => !named.has(cls))).toEqual([])

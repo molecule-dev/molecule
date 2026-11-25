@@ -79,6 +79,14 @@ const webDist = dirname(fileURLToPath(import.meta.resolve('@molecule/app-ui-tail
 const webFiles = readdirSync(webDist, { recursive: true })
   .filter((file) => /\.c?js$/.test(file))
   .map((file) => readFileSync(join(webDist, file), 'utf8'))
+// Native ClassMap overrides can also supply descendant or data rules. Read the
+// compiled sources only, so a previous generated preset is never a build input.
+const ruleFiles = [
+  ...webFiles,
+  ...readdirSync(dist, { recursive: true })
+    .filter((file) => /\.js$/.test(file))
+    .map((file) => readFileSync(join(dist, file), 'utf8')),
+]
 // The classes the web ClassMap builds at run time (`text-${size}`): base.css lists them for Tailwind 4
 // with `@source inline()`, which Tailwind 3 does not read.
 const webCss = readFileSync(join(webDist, '..', 'base.css'), 'utf8')
@@ -91,8 +99,8 @@ const deviceClasses = [
     ...flexRowClasses([...webFiles, inlineClasses.join(' ')]),
     // What a descendant applies from its container's `[&_tag]:` rule, and what an element applies
     // when its data attributes match a `data-[…]:` class, which the native elements write.
-    ...ruleClasses(webFiles, forDevice, descendantRule),
-    ...ruleClasses(webFiles, forDevice, stateRule),
+    ...ruleClasses(ruleFiles, forDevice, descendantRule),
+    ...ruleClasses(ruleFiles, forDevice, stateRule),
     // The line height alone of an inherited size, which splitForNative writes at run time.
     ...Object.keys(WEB_FONT_SIZES).flatMap((name) =>
       FONT_SIZE_VARIANTS.map((variant) => `${variant}${lineHeightClass(name)}`),

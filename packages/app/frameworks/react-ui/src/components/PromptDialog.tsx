@@ -52,7 +52,9 @@ import React, { type JSX, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
+import type { KitEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, FormArea, Text } from '@molecule/app-ui-react/elements'
 
 import { Button } from './Button.js'
 import { Input } from './Input.js'
@@ -152,23 +154,18 @@ export function PromptDialog({
     if (open) inputRef.current?.focus()
   }, [open])
 
-  const handleSubmit = (e: React.FormEvent): void => {
+  const handleSubmit = async (e: KitEvent): Promise<void> => {
     e.preventDefault()
     if (pending) return
     setPending(true)
-    void Promise.resolve(onSubmit(value))
-      .then(() => {
-        // A parent that keeps the dialog open (a multi-stage flow advancing in
-        // onClose) gets a form that accepts the next submit.
-        setPending(false)
-        onClose()
-      })
-      .catch((_error) => {
-        // Deliberate: a rejection keeps the dialog open (see @remarks);
-        // the caller owns the error and renders it through `children`, so
-        // re-displaying or logging it here would duplicate that.
-        setPending(false)
-      })
+    try {
+      await onSubmit(value)
+      onClose()
+    } catch (_error) {
+      // The caller displays the submission error. Keep the input available to retry.
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -178,30 +175,35 @@ export function PromptDialog({
       aria-labelledby={title === undefined ? undefined : titleId}
       aria-describedby={description === undefined ? undefined : descriptionId}
     >
-      <form onSubmit={handleSubmit}>
-        <div className={cm.stack(3)}>
-          <h2
+      <FormArea as="form" onSubmit={handleSubmit}>
+        <Box as="div" className={cm.stack(3)}>
+          <Text
+            as="h2"
             id={title === undefined ? undefined : titleId}
             className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
           >
             {title}
-          </h2>
+          </Text>
           {description !== undefined ? (
-            <p id={descriptionId} className={cm.textSize('sm')}>
+            <Text as="p" id={descriptionId} className={cm.textSize('sm')}>
               {description}
-            </p>
+            </Text>
           ) : null}
           <Input
             ref={inputRef}
             value={value}
-            onChange={(e) => setValue((e.target as HTMLInputElement).value)}
+            onChange={({ target }) => {
+              if (target && 'value' in target && typeof target.value === 'string') {
+                setValue(target.value)
+              }
+            }}
             placeholder={placeholder}
             aria-label={typeof title === 'string' ? title : placeholder}
             disabled={pending}
             data-mol-id={inputMolId}
           />
           {children}
-          <div className={cm.flex({ justify: 'end', gap: 'sm' })}>
+          <Box as="div" className={cm.flex({ justify: 'end', gap: 'sm' })}>
             <Button
               type="button"
               variant="ghost"
@@ -220,9 +222,9 @@ export function PromptDialog({
             >
               {confirmLabel ?? t('prompt.confirm', {}, { defaultValue: 'Confirm' })}
             </Button>
-          </div>
-        </div>
-      </form>
+          </Box>
+        </Box>
+      </FormArea>
     </Modal>
   )
 }

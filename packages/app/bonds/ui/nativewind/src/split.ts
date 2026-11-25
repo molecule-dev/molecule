@@ -7,13 +7,29 @@
 import type { NativeClassSplit, NativeGridClasses } from '@molecule/app-ui'
 
 import { descendantRule, joinClass, splitVariants, stateRule } from './device.js'
-import { lineHeightClass, WEB_FONT_SIZES } from './fontSizes.js'
+import { FONT_SIZE_VARIANTS, lineHeightClass, WEB_FONT_SIZES } from './fontSizes.js'
 
 /** Named font-size utilities: each also sets a line height. */
 const FONT_SIZE = /^text-(?:xs|sm|base|lg|[2-9]?xl)$/
 
 /** Arbitrary font sizes (`text-[15px]`): a font size only. */
 const ARBITRARY_FONT_SIZE = /^text-\[[\d.]+(?:px|rem|em)\]$/
+
+/** The responsive breakpoints, including the base size, in cascade order. */
+const BREAKPOINTS = FONT_SIZE_VARIANTS.map((variant) => variant.slice(0, -1))
+
+/**
+ * Returns the base or responsive key for a utility that needs no other variant to apply.
+ * @param variants - The utility's variant prefixes.
+ * @returns A breakpoint key, or `null` for state and other selectors.
+ */
+function breakpointOf(variants: readonly string[]): string | null {
+  if (variants.length === 0) return ''
+  const [variant] = variants
+  return variants.length === 1 && variant !== undefined && BREAKPOINTS.includes(variant)
+    ? variant
+    : null
+}
 
 /** Font-weight utilities. */
 const FONT_WEIGHT =
@@ -54,45 +70,61 @@ const LEADING: Readonly<Record<string, number>> = {
 }
 
 /**
- * The line height, in pixels, of text with these classes at the base size, as the web's
- * stylesheet resolves it: a `leading-*` class wins over a font size's own line height.
+ * The line height in pixels at each breakpoint that sets a font size or line height.
+ * A `leading-*` class wins over a named font size's line height, and a larger breakpoint
+ * retains any metrics the new classes leave unset.
  *
  * @param text - Text classes (inherited ones first).
- * @returns The line height, or `null` when the classes set no font size or line height.
+ * @returns The base and responsive line heights.
  */
-function lineHeightOf(text: readonly string[]): number | null {
-  let size: number | null = null
-  let sizeLeading: number | null = null
-  let leading: { px: number } | { ratio: number } | null = null
+function lineHeightOf(text: readonly string[]): Readonly<Record<string, number>> {
+  const metrics: Record<string, string[]> = { '': [] }
   for (const cls of text) {
     const { variants, utility } = splitVariants(cls)
-    if (variants.length > 0) continue
-    const named = FONT_SIZE.test(utility)
-      ? WEB_FONT_SIZES[utility.slice('text-'.length)]
-      : undefined
-    if (named) {
-      size = Number.parseFloat(named.size) * 16
-      sizeLeading = Number(named.lineHeight)
-      continue
+    const at = breakpointOf(variants)
+    if (at === null) continue
+    if (
+      FONT_SIZE.test(utility) ||
+      ARBITRARY_FONT_SIZE.test(utility) ||
+      utility.startsWith('leading-')
+    ) {
+      ;(metrics[at] ??= []).push(utility)
     }
-    const arbitrary = /^text-\[(\d+(?:\.\d+)?)(px|rem|em)\]$/.exec(utility)
-    if (arbitrary?.[1]) {
-      size = Number(arbitrary[1]) * (arbitrary[2] === 'px' ? 1 : 16)
-      continue
-    }
-    const value = utility.startsWith('leading-') ? utility.slice('leading-'.length) : null
-    if (value === null) continue
-    const ratio = LEADING[value] ?? /^\[(\d+(?:\.\d+)?)\]$/.exec(value)?.[1] ?? null
-    const px = /^\d+(?:\.\d+)?$/.test(value)
-      ? Number(value) * 4
-      : Number(/^\[(\d+(?:\.\d+)?)px\]$/.exec(value)?.[1] ?? Number.NaN)
-    if (ratio !== null) leading = { ratio: Number(ratio) }
-    else if (!Number.isNaN(px)) leading = { px }
   }
-  if (leading && 'px' in leading) return leading.px
-  const fontSize = size ?? 16
-  if (leading) return fontSize * leading.ratio
-  return size === null || sizeLeading === null ? null : fontSize * sizeLeading
+
+  let size = 16
+  // The preflight on html supplies the inherited line-height when no utility sets it.
+  let sizeLeading = 1.5
+  let leading: { px: number } | { ratio: number } | undefined
+  const heights: Record<string, number> = {}
+  for (const at of BREAKPOINTS) {
+    const utilities = metrics[at]
+    if (!utilities) continue
+    for (const utility of utilities) {
+      const named = WEB_FONT_SIZES[utility.slice('text-'.length)]
+      if (named && FONT_SIZE.test(utility)) {
+        size = Number.parseFloat(named.size) * 16
+        sizeLeading = Number(named.lineHeight)
+        continue
+      }
+      const arbitrary = /^text-\[(\d+(?:\.\d+)?)(px|rem|em)\]$/.exec(utility)
+      if (arbitrary?.[1]) {
+        size = Number(arbitrary[1]) * (arbitrary[2] === 'px' ? 1 : 16)
+        continue
+      }
+      const value = utility.slice('leading-'.length)
+      const ratio = LEADING[value] ?? /^\[(\d+(?:\.\d+)?)\]$/.exec(value)?.[1]
+      if (ratio !== undefined) leading = { ratio: Number(ratio) }
+      else {
+        const px = /^\d+(?:\.\d+)?$/.test(value)
+          ? Number(value) * 4
+          : Number(/^\[(\d+(?:\.\d+)?)px\]$/.exec(value)?.[1] ?? Number.NaN)
+        if (!Number.isNaN(px)) leading = { px }
+      }
+    }
+    heights[at] = leading && 'px' in leading ? leading.px : size * (leading?.ratio ?? sizeLeading)
+  }
+  return heights
 }
 
 /** Flex-direction utilities. */
@@ -141,11 +173,24 @@ const DISPLAY: Readonly<Record<string, NativeClassSplit['display']>> = {
   'inline-flex': 'inline-flex',
   grid: 'grid',
   'inline-grid': 'inline-grid',
+  contents: 'contents',
   hidden: 'none',
 }
 
-/** The breakpoint variants a grid's columns, gaps and spans are read at. */
-const BREAKPOINT = /^(?:sm|md|lg|xl|2xl)$/
+/**
+ * The display an absolutely positioned or fixed element computes to (CSS 2.1 §9.7): it leaves the
+ * line, so an inline display becomes the block display of the same kind. An element with no
+ * display class, an inline `span` by its tag, is a block too. Other displays keep their value.
+ */
+const BLOCKIFIED: Readonly<Record<string, NativeClassSplit['display']>> = {
+  inline: 'block',
+  'inline-block': 'block',
+  'inline-flex': 'flex',
+  'inline-grid': 'grid',
+}
+
+/** A position utility; the last one with no variant sets the position. */
+const POSITION = /^(?:static|relative|absolute|fixed|sticky)$/
 
 /**
  * The pixels a gap utility sets and the gaps it sets (`gap-4` is 16 for both, `gap-x-2` 8 between
@@ -272,6 +317,9 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
   const own: string[] = []
   const ownKeys = new Set<string>()
   let display: NativeClassSplit['display'] = null
+  // Whether the element's base position takes it out of flow (`absolute`, `fixed`).
+  let outOfFlow = false
+  let verticalAlign: NativeClassSplit['verticalAlign']
   let lines: number | null = null
   // A web flex container lays its items in a row unless a class says otherwise; a device's in a
   // column. Each `flex` class without a direction class is given `flex-row` at its variants.
@@ -294,17 +342,16 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       continue
     }
     const { variants, utility, important } = splitVariants(cls)
+    if (utility === 'align-middle') {
+      if (variants.length === 0) verticalAlign = 'middle'
+      continue
+    }
     if (/^(?:w|size)-/.test(utility)) sizedWidth = true
     if (/^(?:h|size)-/.test(utility)) sizedHeight = true
     // A grid's columns, gaps and item alignment, and a grid item's span, at each breakpoint. A
     // device has no grid layout: the native elements lay one out from these, and the column and
     // span classes, which NativeWind cannot apply, leave the view.
-    const at =
-      variants.length === 0
-        ? ''
-        : variants.length === 1 && BREAKPOINT.test(variants[0] ?? '')
-          ? (variants[0] ?? '')
-          : null
+    const at = breakpointOf(variants)
     if (at !== null) {
       const cols = /^grid-cols-(?:(\d+)|(none)|\[(.+)\])$/.exec(utility)
       if (cols) {
@@ -348,6 +395,8 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
       continue
     }
     if (variants.length === 0 && utility in DISPLAY) display = DISPLAY[utility] ?? null
+    if (variants.length === 0 && POSITION.test(utility))
+      outOfFlow = utility === 'absolute' || utility === 'fixed'
     if (utility === 'flex' || utility === 'inline-flex') flexAt.push(variants)
     if (DIRECTION.test(utility)) direction = true
     const flow = FLOW_ONLY[utility]
@@ -370,6 +419,7 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
     return leading ? [joinClass(variants, leading, important)] : [cls]
   })
   if (!direction) for (const variants of flexAt) view.push([...variants, 'flex-row'].join(':'))
+  if (outOfFlow) display = display === null ? 'block' : (BLOCKIFIED[display] ?? display)
   const text = [...inherited, ...own]
   let weight: number | null = null
   for (const cls of text) {
@@ -384,6 +434,7 @@ function computeSplit(className: string, inheritedText: string): NativeClassSpli
     lines,
     weight,
     lineHeight: lineHeightOf(text),
+    ...(verticalAlign ? { verticalAlign } : {}),
     descendants:
       tags.length === 0
         ? NO_DESCENDANTS

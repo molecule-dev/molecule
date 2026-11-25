@@ -246,13 +246,21 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
   }
 
   /**
-   * Serializes the inline style for the textarea: `autoResize` neutralizes the
-   * bond's min-height class (`minHeight: 0`, `resize: none`) and the caller's
-   * style still wins, exactly like React's spread.
+   * Serializes the inline style for the textarea. The autoResize row bounds
+   * override the ClassMap minimum and use the textarea's own line height.
    * @returns The style attribute text.
    */
   hostStyle(): string | null {
-    return styleText(this.autoResize ? { minHeight: 0, resize: 'none', ...this.style } : this.style)
+    return styleText(
+      this.autoResize
+        ? {
+            resize: 'none',
+            ...this.style,
+            minHeight: `${Math.min(this.minRows ?? 3, this.maxRows ?? Infinity)}lh`,
+            ...(this.maxRows === undefined ? {} : { maxHeight: `${this.maxRows}lh` }),
+          }
+        : this.style,
+    )
   }
 
   /**
@@ -291,20 +299,13 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
   }
 
   /**
-   * Sizes the box to its content: React's `resize()` — height `auto`, then
-   * clamp `scrollHeight` between `minRows * lineHeight` and
-   * `maxRows * lineHeight` (`lineHeight` falls back to 20 when the computed
-   * value does not parse, matching React's `parseInt(...) || 20`).
+   * Sizes the box to its content. The inline CSS bounds clamp the result.
    */
   resize(): void {
     const element = this.textareaEl?.nativeElement
     if (!this.autoResize || !element) return
     element.style.height = 'auto'
-    const lineHeight = parseInt(window.getComputedStyle(element).lineHeight) || 20
-    const minHeight = (this.minRows ?? 3) * lineHeight
-    const maxHeight = this.maxRows ? this.maxRows * lineHeight : Infinity
-    const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-    element.style.height = `${newHeight}px`
+    element.style.height = `${element.scrollHeight}px`
   }
 
   /**

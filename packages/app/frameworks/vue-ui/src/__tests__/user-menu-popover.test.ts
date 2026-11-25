@@ -8,7 +8,7 @@
  *
  * @module
  */
-import { within } from '@testing-library/dom'
+import { type BoundFunctions, type queries, within } from '@testing-library/dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 /** The auth user fields the popover resolves its identity from. */
@@ -104,7 +104,7 @@ function mount(render: () => VNodeChild): void {
   app.mount(host)
 }
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 /**
  * Mounts the compose-as-documented popover: a trigger plus a panel holding

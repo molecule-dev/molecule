@@ -4,7 +4,7 @@
  * @module
  */
 
-import { defineComponent, h, onMounted, onUnmounted, type PropType, watch } from 'vue'
+import { defineComponent, h, onMounted, type PropType, watch } from 'vue'
 
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -81,19 +81,18 @@ export const Textarea = defineComponent({
       const node = element.value
       if (!props.autoResize || !node) return
       node.style.height = 'auto'
-      const lineHeight = parseInt(getComputedStyle(node).lineHeight) || 20
-      const minHeight = props.minRows * lineHeight
-      const maxHeight = props.maxRows ? props.maxRows * lineHeight : Infinity
-      const newHeight = Math.min(Math.max(node.scrollHeight, minHeight), maxHeight)
-      node.style.height = `${newHeight}px`
+      node.style.height = `${node.scrollHeight}px`
     }
 
-    // Controlled usage (value tracked by the caller) recomputes here, and a
-    // change of the sizing options re-runs it (React re-runs when `resize`
-    // is recreated).
+    // Measure the controlled value after Vue applies the textarea's styles and rows.
     watch(
       [() => props.value, () => props.autoResize, () => props.minRows, () => props.maxRows],
-      resize,
+      ([, growing, minRows, maxRows], [, wasGrowing, prevMin, prevMax]) => {
+        if (wasGrowing && (!growing || minRows !== prevMin || maxRows !== prevMax) && element.value)
+          element.value.style.height = ''
+        resize()
+      },
+      { flush: 'post' },
     )
 
     // React renders a textarea's `value`/`defaultValue` as the DOM property
@@ -108,20 +107,20 @@ export const Textarea = defineComponent({
     }
     watch(() => props.value, syncValue)
 
-    // Uncontrolled usage (defaultValue + the user typing) never changes
-    // `value`, so the watch above never fires — listening for real `input`
-    // events on the element itself catches keystrokes, paste, and IME
-    // composition regardless of whether the caller tracks `value`.
-    const onInputResize = (): void => resize()
+    // Keep measurement active when the caller forwards its own input listener.
+    watch(
+      [element, () => props.autoResize],
+      ([node, growing], _, onCleanup) => {
+        if (!node || !growing) return
+        node.addEventListener('input', resize)
+        onCleanup(() => node.removeEventListener('input', resize))
+      },
+      { flush: 'post' },
+    )
+
     onMounted(() => {
       syncValue()
       resize()
-      const node = element.value
-      if (props.autoResize && node) node.addEventListener('input', onInputResize)
-    })
-    onUnmounted(() => {
-      const node = element.value
-      if (node) node.removeEventListener('input', onInputResize)
     })
 
     return () => {
@@ -147,11 +146,15 @@ export const Textarea = defineComponent({
             ? `${textareaId}-hint`
             : undefined,
         class: textareaClasses,
-        // autoResize sizes the box to its content via inline height, but the
-        // bond's min-h class would floor it — neutralize it and let resize()
-        // enforce `minRows` instead. Caller style still wins.
         style: props.autoResize
-          ? [{ minHeight: 0, resize: 'none' }, styleOf(props.style, attrs)]
+          ? [
+              { resize: 'none' },
+              styleOf(props.style, attrs),
+              {
+                minHeight: `${Math.min(props.minRows, props.maxRows ?? Infinity)}lh`,
+                ...(props.maxRows === undefined ? {} : { maxHeight: `${props.maxRows}lh` }),
+              },
+            ]
           : styleOf(props.style, attrs),
         'data-testid': props.testId,
         // React's textarea `onChange` fires on the native `input` event, and

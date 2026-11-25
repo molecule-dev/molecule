@@ -24,6 +24,7 @@ import type {
   FocusEventHandler,
   FormEventHandler,
   KeyboardEventHandler,
+  KitEvent,
   MouseEventHandler,
 } from './types.js'
 
@@ -352,6 +353,7 @@ export interface AriaAttributes {
   'aria-required'?: AriaBoolean
   'aria-readonly'?: AriaBoolean
   'aria-orientation'?: 'horizontal' | 'vertical'
+  'aria-sort'?: 'none' | 'ascending' | 'descending' | 'other'
 }
 
 /** Props every element takes. */
@@ -417,8 +419,8 @@ export type BoxTag =
  * {@link PressableProps} for a control: a button, or anything announced as one.
  */
 export interface BoxProps<Node = unknown> extends ElementProps, InteractionProps {
-  /** The web tag. */
-  as: BoxTag
+  /** The web tag. A label activates the first labelable control it wraps. */
+  as: BoxTag | 'label'
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
   title?: string
   /** Layout and paint both renderers apply. */
@@ -492,7 +494,7 @@ export type TextProps<Node = unknown> =
   | (TextCommonProps<Node> & { as: TextTag })
   | (TextCommonProps<Node> & {
       as: 'label'
-      /** The id of the field this label names (web only: a native field needs its own `aria-label`). */
+      /** The id of the control this label names and activates. */
       htmlFor?: string
     })
   | (TextCommonProps<Node> & {
@@ -631,6 +633,136 @@ export interface TextFieldProps extends ElementProps, InteractionProps {
   /** Web-only paint (a field's border and outline resets). */
   webStyle?: WebStyle
 }
+
+/** A successful control's value, including files from a web form. */
+export type FormEntryValue = string | Blob
+
+/** A form's successful controls in order, with repeated names preserved. */
+export type FormEntries = ReadonlyArray<readonly [name: string, value: FormEntryValue]>
+
+/** The form element's focus and submission methods. */
+export interface FormAreaHandle extends ElementHandle {
+  /** Attempts submission through normal form validation. */
+  requestSubmit(): void
+}
+
+/** A form and its submission, validation and reset handlers. */
+export interface FormAreaProps<Node = unknown> extends ElementProps {
+  /** The web tag. */
+  as: 'form'
+  /** Web-only: browser submission destination. */
+  action?: string
+  /** Web-only: browser submission method. */
+  method?: 'get' | 'post' | 'dialog'
+  /** Submits even if a field fails validation. */
+  noValidate?: boolean
+  /** Whether browser autofill is enabled for the form. */
+  autoComplete?: 'on' | 'off'
+  /** Receives the event and the same entries as `new FormData(form)` on the web. */
+  onSubmit?: (event: KitEvent, entries: FormEntries) => void
+  /** Fires before uncontrolled fields return to their defaults. Calling preventDefault cancels reset. */
+  onReset?: FormEventHandler
+  /** Layout and paint both renderers apply. */
+  style?: BoxStyle
+  /** Web-only paint. */
+  webStyle?: WebStyle
+  /** The form's content. */
+  children?: Node
+}
+
+/** Groups controls and disables them together when necessary. */
+export interface FieldsetProps<Node = unknown> extends ElementProps {
+  /** The web tag. */
+  as: 'fieldset'
+  /** Disables the form controls inside it. */
+  disabled?: boolean
+  /** The group name. */
+  name?: string
+  /** Layout and paint both renderers apply. */
+  style?: BoxStyle
+  /** Web-only paint. */
+  webStyle?: WebStyle
+  /** The group's content. */
+  children?: Node
+}
+
+/** A checkbox or radio's state and activation methods. */
+export interface CheckFieldHandle extends ElementHandle {
+  /** Activates the control as a user click or press would. */
+  click(): void
+  /** The checked state at the time the handle is read. */
+  readonly checked: boolean
+}
+
+/** Props shared by checkboxes and radios. */
+interface CheckFieldCommonProps extends ElementProps {
+  as: 'input'
+  name?: string
+  /** Form value when checked, defaulting to `'on'`. */
+  value?: string
+  disabled?: boolean
+  required?: boolean
+  autoFocus?: boolean
+  /** Receives the change event. Its target's `checked` gives the new state. */
+  onChange?: ChangeEventHandler
+  /** Web-only: delivers the DOM change event to a legacy handler that expects it. */
+  nativeChangeEvent?: boolean
+  /** Receives the new checked state directly. */
+  onCheckedChange?: (checked: boolean) => void
+  onClick?: MouseEventHandler
+  onFocus?: FocusEventHandler
+  onBlur?: FocusEventHandler
+  tabIndex?: number
+  style?: BoxStyle
+  webStyle?: WebStyle
+}
+
+/** A checkbox, or a radio whose checked state is owned by its group. */
+export type CheckFieldProps =
+  | (CheckFieldCommonProps & {
+      type: 'checkbox'
+      checked?: boolean
+      defaultChecked?: boolean
+      /** Draws the mixed state. */
+      indeterminate?: boolean
+    })
+  | (CheckFieldCommonProps & {
+      type: 'radio'
+      checked: boolean
+      defaultChecked?: never
+      indeterminate?: never
+    })
+
+/** The table and row container tags. */
+export type TableBoxTag = 'table' | 'thead' | 'tbody' | 'tfoot' | 'tr'
+
+/** A table, a group of rows, or a row. */
+export interface TableBoxProps<Node = unknown> extends ElementProps, InteractionProps {
+  as: TableBoxTag
+  /** Layout and paint both renderers apply. */
+  style?: BoxStyle
+  /** Web-only paint. */
+  webStyle?: WebStyle
+  /** The table parts this element contains. */
+  children?: Node
+}
+
+/** Props shared by table data and header cells. */
+interface TableCellCommonProps<Node> extends ElementProps, InteractionProps {
+  /** How many columns the cell covers. */
+  colSpan?: number
+  /** Layout and paint, with a numeric or percentage width fixing a single column on native. */
+  style?: BoxStyle
+  /** Web-only paint. */
+  webStyle?: WebStyle
+  /** Text or elements, laid out as in Box. */
+  children?: Node
+}
+
+/** A data cell or a header cell, with optional row or column scope on headers. */
+export type TableCellProps<Node = unknown> =
+  | (TableCellCommonProps<Node> & { as: 'td'; scope?: never })
+  | (TableCellCommonProps<Node> & { as: 'th'; scope?: 'col' | 'row' })
 
 /** An image (native `Image`). */
 export interface ImageProps extends ElementProps {
@@ -863,7 +995,8 @@ export interface NativeClassSplit {
   /**
    * The display the classes give the element at its base size (no responsive or state variant), or
    * `null` when they set none: `flex`/`inline-flex` make its children flex items, `inline` and
-   * `inline-*` put it in a line with its inline siblings, `block` takes it out of one.
+   * `inline-*` put it in a line with its inline siblings, `block` takes it out of one and
+   * `contents` lets a fieldset's children participate directly in its parent's layout.
    */
   display:
     | 'block'
@@ -873,8 +1006,11 @@ export interface NativeClassSplit {
     | 'inline-flex'
     | 'grid'
     | 'inline-grid'
+    | 'contents'
     | 'none'
     | null
+  /** The vertical alignment requested for a native table cell. */
+  verticalAlign?: 'middle'
   /**
    * The lines the element's text is clamped to with an ellipsis (`truncate` is 1,
    * `line-clamp-3` is 3), or `null`. The clamp is the element's own: it is not inherited.
@@ -886,11 +1022,10 @@ export interface NativeClassSplit {
    */
   weight: number | null
   /**
-   * The line height, in pixels, {@link NativeClassSplit.text} gives its text at its base size
-   * (`text-sm` is 20, `text-sm leading-relaxed` 22.75), or `null` when it sets no font size or
-   * line height: what a native field that grows by lines counts in.
+   * The line height in pixels for a field that grows by lines, keyed by breakpoint like the grid
+   * classes (`''` at the base size). A bond can omit this if it does not resolve text metrics.
    */
-  lineHeight?: number | null
+  lineHeight?: Readonly<Record<string, number>>
   /**
    * Whether the classes set the element's width or height (`w-5`, `h-5`, `size-5`, at any
    * breakpoint). On the web a class beats a replaced element's `width` and `height` attributes, so

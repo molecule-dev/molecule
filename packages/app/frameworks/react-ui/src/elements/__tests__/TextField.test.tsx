@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { TextField } from '../TextField.js'
 
-/** A jsdom text area has no layout: its content height and line height are set by hand. */
+/** A jsdom text area has no layout: its scroll height is set by hand. */
 function layOut(element: HTMLTextAreaElement, scrollHeight: number): void {
   Object.defineProperty(element, 'scrollHeight', { configurable: true, value: scrollHeight })
 }
@@ -22,14 +22,10 @@ beforeEach(() => {
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
-  vi.spyOn(window, 'getComputedStyle').mockImplementation(
-    () => ({ lineHeight: '20px' }) as CSSStyleDeclaration,
-  )
 })
 afterEach(() => {
   act(() => root.unmount())
   container.remove()
-  vi.restoreAllMocks()
 })
 
 describe('TextField element (web)', () => {
@@ -65,11 +61,14 @@ describe('TextField element (web)', () => {
     act(() => root.render(<TextField as="textarea" autoGrow={{ minRows: 2 }} />))
     const area = container.querySelector('textarea')
     expect(area?.getAttributeNames().some((name) => name.toLowerCase() === 'autogrow')).toBe(false)
+    expect(area?.style.minHeight).toBe('2lh')
+    expect(area?.style.height).toBe('0px')
     act(() => root.render(<TextField as="textarea" />))
-    expect(container.querySelector('textarea')?.style.height).toBe('')
+    expect(area?.style.height).toBe('')
+    expect(area?.style.minHeight).toBe('')
   })
 
-  it('grows a text area the caller holds with its value, between the line counts', () => {
+  it('remeasures a controlled text area and leaves the row bounds to CSS', () => {
     const render = (value: string): void =>
       act(() =>
         root.render(
@@ -84,13 +83,16 @@ describe('TextField element (web)', () => {
     render('a')
     const area = container.querySelector('textarea')
     if (!area) throw new Error('no text area')
-    expect(area.style.height).toBe('40px') // two lines at least
+    expect(area.style.minHeight).toBe('2lh')
+    expect(area.style.maxHeight).toBe('4lh')
+    expect(area.style.height).toBe('0px')
     layOut(area, 60)
     render('abc')
     expect(area.style.height).toBe('60px')
     layOut(area, 200)
     render('long')
-    expect(area.style.height).toBe('80px') // four lines at most
+    expect(area.style.height).toBe('200px')
+    expect(area.style.maxHeight).toBe('4lh')
   })
 
   it('grows a text area the caller does not hold as the user types', () => {
@@ -106,7 +108,9 @@ describe('TextField element (web)', () => {
 
   it('never sizes an input, which does not grow', () => {
     act(() => root.render(<TextField as="input" autoGrow={{ minRows: 3 }} />))
-    expect(container.querySelector('input')?.style.height).toBe('')
+    const input = container.querySelector('input')
+    expect(input?.style.height).toBe('')
+    expect(input?.style.minHeight).toBe('')
   })
 
   it('calls onChange with the event and onValueChange with the text', () => {

@@ -19,6 +19,32 @@ afterEach(() => {
 })
 
 describe('Form submission error defaults', () => {
+  it('warns when flattening duplicates and preserves arbitrary field names as own keys', async () => {
+    const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const save = vi.fn()
+    try {
+      const { container } = render(
+        <Form onFormSubmit={save}>
+          <input name="repeated" defaultValue="first" />
+          <input name="__proto__" defaultValue="ordinary input" />
+          <input name="repeated" defaultValue="last" />
+        </Form>,
+      )
+      const form = container.querySelector('form')
+      if (!form) throw new Error('Expected the form')
+      await act(async () => {
+        fireEvent.submit(form)
+      })
+      expect(save).toHaveBeenCalledExactlyOnceWith({
+        ['__proto__']: 'ordinary input',
+        repeated: 'last',
+      })
+      expect(diagnostic).toHaveBeenCalledWith(expect.stringContaining('repeated field names'))
+    } finally {
+      diagnostic.mockRestore()
+    }
+  })
+
   it('catches an async onFormSubmit failure, renders it, and allows a successful retry', async () => {
     const save = vi
       .fn()

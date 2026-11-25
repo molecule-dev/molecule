@@ -11,9 +11,11 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 import { type Browser, chromium } from '@playwright/test'
+import { compile } from 'tailwindcss'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { colorTokens } from '../tokens.generated.js'
+import { classMap } from '../classMap.js'
+import { checkMarkPaths, colorTokens } from '../tokens.generated.js'
 import { resolveColorTokens, type ThemeColorInput } from '../tokens.js'
 
 const css = readFileSync(fileURLToPath(new URL('../../base.css', import.meta.url)), 'utf8')
@@ -50,6 +52,60 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await browser?.close()
+})
+
+describe('ClassMap form control paint', () => {
+  it('draws themed tick, mixed and radio masks using the paths the native bond receives', async () => {
+    const checkbox = classMap.checkbox()
+    const radio = classMap.radio({ error: true })
+    const compiler = await compile(`${css}\n@tailwind utilities;`)
+    const styles = compiler.build(`${checkbox} ${radio}`.split(/\s+/))
+    const page = await browser.newPage()
+    try {
+      await page.setContent(`
+        <style>${styles} :root { --mol-color-primary: #aa286b; }</style>
+        <input type="checkbox" id="checked" class="${checkbox}" checked>
+        <input type="checkbox" id="mixed" class="${checkbox}">
+        <input type="radio" id="radio" class="${radio}" checked>
+        <input type="checkbox" id="plain" checked>
+      `)
+      const controls = await page.evaluate(() => {
+        const mixed = document.querySelector<HTMLInputElement>('#mixed')
+        if (!mixed) throw new Error('Expected mixed checkbox')
+        mixed.indeterminate = true
+        return Object.fromEntries(
+          [...document.querySelectorAll('input')].map((input) => {
+            const paint = getComputedStyle(input)
+            const mark = getComputedStyle(input, '::before')
+            return [
+              input.id,
+              {
+                appearance: paint.appearance,
+                background: paint.backgroundColor,
+                ink: mark.backgroundColor,
+                mask: decodeURIComponent(mark.maskImage),
+              },
+            ]
+          }),
+        )
+      })
+      expect(controls.checked.appearance).toBe('none')
+      expect(controls.radio.appearance).toBe('none')
+      expect(controls.plain.appearance).toBe('auto')
+      expect(controls.checked.background).toBe('rgb(170, 40, 107)')
+      expect(controls.radio.ink).toBe('rgb(208, 32, 0)')
+      for (const kind of ['checked', 'mixed', 'radio'] as const) {
+        expect(controls[kind].mask).toContain(checkMarkPaths[kind])
+        expect(classMap.checkFieldMark?.(kind).path).toBe(checkMarkPaths[kind])
+      }
+      await page.emulateMedia({ forcedColors: 'active' })
+      expect(
+        await page.locator('#checked').evaluate((input) => getComputedStyle(input).appearance),
+      ).toBe('auto')
+    } finally {
+      await page.close()
+    }
+  })
 })
 
 /**

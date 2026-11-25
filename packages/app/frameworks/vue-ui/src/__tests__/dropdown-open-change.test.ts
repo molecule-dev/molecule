@@ -44,7 +44,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-import { within } from '@testing-library/dom'
+import { type BoundFunctions, type queries, within } from '@testing-library/dom'
 import { type App, createApp, defineComponent, h, nextTick, ref } from 'vue'
 
 const { Dropdown } = await import('../components/Dropdown.js')
@@ -77,7 +77,7 @@ function mount(render: () => unknown): void {
   app.mount(host)
 }
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 const optionsButton = (): HTMLElement => body().getByRole('button', { name: 'Options' })
 

@@ -7,11 +7,15 @@
 import React, { forwardRef, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import type { FormFieldProps, FormProps } from '@molecule/app-ui'
+import type { FormEntries, FormFieldProps, FormProps, KitEvent } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Fieldset, FormArea } from '@molecule/app-ui-react/elements'
 
 import { rootProps } from '../utilities/rootProps.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
+
+// Web bundlers and Metro substitute this at build time.
+declare const process: { env: { NODE_ENV?: string } }
 
 /** Props for the React form, including a failure managed by an external form controller. */
 export interface ReactFormProps extends FormProps {
@@ -49,7 +53,7 @@ export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => 
     },
     [],
   )
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (e: KitEvent, entries: FormEntries): Promise<void> => {
     if (!onFormSubmit && !onSubmit) return
     const current = ++attempt.current
     setFailure(null)
@@ -65,11 +69,12 @@ export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => 
       }
       if (onFormSubmit) {
         e.preventDefault()
-        const formData = new FormData(e.currentTarget)
-        const data: Record<string, unknown> = {}
-        formData.forEach((value, key) => {
-          data[key] = value
-        })
+        const data = Object.fromEntries(entries)
+        if (process.env.NODE_ENV !== 'production' && Object.keys(data).length < entries.length) {
+          console.error(
+            'Form.onFormSubmit received repeated field names and keeps only their last values. Use FormArea.onSubmit for repeated entries.',
+          )
+        }
         call(() => onFormSubmit(data))
       }
       // Call both handlers before yielding: the native event's currentTarget is still valid.
@@ -96,28 +101,31 @@ export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => 
     : []
 
   return (
-    <form
+    <FormArea
+      as="form"
       ref={ref}
       className={className}
-      style={style}
+      webStyle={style}
       data-testid={testId}
       action={action}
       method={method}
       noValidate={noValidate}
-      onSubmit={handleSubmit}
-      {...(rootProps(rest) as React.FormHTMLAttributes<HTMLFormElement>)}
+      onSubmit={onFormSubmit || onSubmit ? handleSubmit : undefined}
+      {...rootProps(rest)}
     >
       {messages.length > 0 && (
-        <ul role="alert" className={cm.formError}>
+        <Box as="ul" role="alert" className={cm.formError}>
           {messages.map((message, index) => (
-            <li key={index}>{message}</li>
+            <Box as="li" key={index}>
+              {message}
+            </Box>
           ))}
-        </ul>
+        </Box>
       )}
-      <fieldset disabled={submitting || pending} className={cm.formFieldsetContents}>
+      <Fieldset as="fieldset" disabled={submitting || pending} className={cm.formFieldsetContents}>
         {children as React.ReactNode}
-      </fieldset>
-    </form>
+      </Fieldset>
+    </FormArea>
   )
 })
 

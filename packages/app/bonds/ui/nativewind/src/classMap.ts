@@ -114,6 +114,8 @@ export const classMap: UIClassMap = {
   link: 'active:opacity-70',
   cursorPointer: '',
   tableRowHoverable: 'active:bg-surface-secondary',
+  tableHead: deviceClassMap.tableHead.replace('h-12', 'min-h-12'),
+  tableFooter: `${deviceClassMap.tableFooter} [&_tr:last-child]:border-b-0`,
 
   // Touch target (WCAG 2.5.5 / Apple HIG / Material): React Native is touch-first,
   // so the `pointer-coarse` variant the web bond uses is not meaningful here —

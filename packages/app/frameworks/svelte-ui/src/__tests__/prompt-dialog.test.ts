@@ -202,4 +202,22 @@ describe('PromptDialog', () => {
     )
     expect(inputField().value).toBe('Dup')
   })
+
+  it('allows a retry after an onSubmit handler throws synchronously', async () => {
+    const onSubmit = vi.fn<(value: string) => void | Promise<void>>().mockImplementationOnce(() => {
+      throw new Error('unavailable')
+    })
+    const d = await renderDialog({ onSubmit })
+    const confirm = within(document.body).getByRole<HTMLButtonElement>('button', {
+      name: 'Confirm',
+    })
+    fireEvent.click(confirm)
+    // The pending state reaches the DOM on the next flush (React's `act`).
+    flushSync()
+    expect(d.onClose).not.toHaveBeenCalled()
+    expect(confirm.disabled).toBe(false)
+    fireEvent.click(confirm)
+    await waitFor(() => expect(d.onClose).toHaveBeenCalledOnce())
+    expect(onSubmit.mock.calls).toEqual([['Sprint 4'], ['Sprint 4']])
+  })
 })

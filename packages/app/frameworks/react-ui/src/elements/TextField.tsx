@@ -51,12 +51,9 @@ export function TextField({
     },
     [forward],
   )
-  useAutoGrow(
-    node,
-    as === 'textarea' ? autoGrow?.minRows : undefined,
-    autoGrow?.maxRows,
-    props.value,
-  )
+  const grow = as === 'textarea' ? autoGrow : undefined
+  useAutoGrow(node, grow?.minRows, grow?.maxRows, props.value)
+  const inlineStyle = webElementStyle(style, webStyle)
   const handleChange =
     onChange || onValueChange
       ? (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
@@ -69,7 +66,13 @@ export function TextField({
     ...(as === 'input' ? { type } : { rows, cols, wrap }),
     onChange: handleChange,
     ref: setNode,
-    style: webElementStyle(style, webStyle),
+    style: grow
+      ? {
+          ...inlineStyle,
+          minHeight: `${Math.min(grow.minRows, grow.maxRows ?? Infinity)}lh`,
+          ...(grow.maxRows === undefined ? {} : { maxHeight: `${grow.maxRows}lh` }),
+        }
+      : inlineStyle,
   })
 }
 
@@ -93,30 +96,21 @@ function useAutoGrow(
     const element = node.current
     if (minRows === undefined || !element) return
     element.style.height = 'auto'
-    const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
-    const minHeight = minRows * lineHeight
-    const maxHeight = maxRows ? maxRows * lineHeight : Infinity
-    const height = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-    element.style.height = `${height}px`
-  }, [node, minRows, maxRows])
-  // A field the caller holds changes `value`.
+    element.style.height = `${element.scrollHeight}px`
+  }, [node, minRows])
+  // Remeasure on controlled value or row changes after React applies the bounds.
   useEffect(() => {
     resize()
-  }, [value, resize])
-  // A field that stops growing gets the height its classes give it back.
-  useEffect(() => {
-    const element = node.current
-    if (minRows === undefined || !element) return
-    return () => {
-      element.style.height = ''
-    }
-  }, [node, minRows])
+  }, [value, maxRows, resize])
   // A field the caller does not hold never changes `value`: its own `input` events (typing,
   // paste, IME composition) say it changed.
   useEffect(() => {
     const element = node.current
     if (minRows === undefined || !element) return
     element.addEventListener('input', resize)
-    return () => element.removeEventListener('input', resize)
-  }, [node, minRows, resize])
+    return () => {
+      element.removeEventListener('input', resize)
+      element.style.height = ''
+    }
+  }, [node, minRows, maxRows, resize])
 }

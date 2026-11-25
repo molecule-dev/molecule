@@ -170,4 +170,20 @@ describe('PromptDialog', () => {
     )
     expect(input().value).toBe('Dup')
   })
+
+  it('allows a retry after an onSubmit handler throws synchronously', async () => {
+    const onSubmit = vi.fn().mockImplementationOnce(() => {
+      throw new Error('unavailable')
+    })
+    const d = renderDialog({ onSubmit })
+    const confirm = within(document.body).getByRole<HTMLButtonElement>('button', {
+      name: 'Confirm',
+    })
+    fireEvent.click(confirm)
+    expect(d.onClose).not.toHaveBeenCalled()
+    expect(confirm.disabled).toBe(false)
+    fireEvent.click(confirm)
+    await waitFor(() => expect(d.onClose).toHaveBeenCalledOnce())
+    expect(onSubmit.mock.calls).toEqual([['Sprint 4'], ['Sprint 4']])
+  })
 })

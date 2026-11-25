@@ -19,7 +19,7 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-import { waitFor, within } from '@testing-library/dom'
+import { type BoundFunctions, type queries, waitFor, within } from '@testing-library/dom'
 import {
   type App,
   createApp,
@@ -48,7 +48,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 /**
  * Mounts a render function into a fresh host.
@@ -95,6 +95,36 @@ function submit(): void {
 }
 
 describe('Form submission error defaults', () => {
+  it('warns when flattening duplicates and preserves arbitrary field names as own keys', async () => {
+    const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const save = vi.fn()
+    try {
+      mount(() =>
+        h(Form, { onFormSubmit: save }, () => [
+          h('input', { name: 'repeated', value: 'first' }),
+          h('input', { name: '__proto__', value: 'ordinary input' }),
+          h('input', { name: 'repeated', value: 'last' }),
+        ]),
+      )
+      submit()
+      await nextTick()
+      expect(save).toHaveBeenCalledExactlyOnceWith({
+        ['__proto__']: 'ordinary input',
+        repeated: 'last',
+      })
+      const values: unknown = save.mock.calls[0]?.[0]
+      if (typeof values !== 'object' || values === null) {
+        throw new TypeError('expected the submitted values')
+      }
+      expect(Object.hasOwn(values, '__proto__')).toBe(true)
+      expect(Object.getPrototypeOf(values)).toBe(Object.prototype)
+      expect(diagnostic).toHaveBeenCalledTimes(1)
+      expect(diagnostic).toHaveBeenCalledWith(expect.stringContaining('repeated field names'))
+    } finally {
+      diagnostic.mockRestore()
+    }
+  })
+
   it('catches an async onFormSubmit failure, renders it, and allows a successful retry', async () => {
     const save = vi
       .fn()

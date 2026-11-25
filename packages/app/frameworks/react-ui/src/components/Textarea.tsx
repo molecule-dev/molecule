@@ -77,10 +77,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-invalid={!!error}
           aria-describedby={error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined}
           className={textareaClasses}
-          // autoResize sizes the box to its content (the element's autoGrow), but the bond's min-h
-          // class would floor it: neutralize it and let autoGrow enforce `minRows` instead. Caller
-          // style still wins.
-          webStyle={autoResize ? { minHeight: 0, resize: 'none', ...style } : style}
+          webStyle={autoResize ? { resize: 'none', ...style } : style}
           autoGrow={autoResize ? { minRows, maxRows } : undefined}
           data-testid={testId}
           onChange={onChange}

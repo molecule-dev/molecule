@@ -45,25 +45,29 @@
     const element = ref
     if (!autoResize || !element) return
     element.style.height = 'auto'
-    const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
-    const minHeight = minRows * lineHeight
-    const maxHeight = maxRows ? maxRows * lineHeight : Infinity
-    const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-    element.style.height = `${newHeight}px`
+    element.style.height = `${element.scrollHeight}px`
   }
 
-  // Controlled usage (value tracked by the caller) recomputes here.
-  $effect(() => {
-    void value
-    resize()
-  })
-
+  // Clear the previous measurement when the bounds change or growing stops.
   // Uncontrolled usage catches real keystrokes through input events.
   $effect(() => {
+    void minRows
+    void maxRows
     const element = ref
     if (!autoResize || !element) return
     element.addEventListener('input', resize)
-    return () => element.removeEventListener('input', resize)
+    return () => {
+      element.removeEventListener('input', resize)
+      element.style.height = ''
+    }
+  })
+
+  // Measure after the old height is cleared and the new rows and bounds are applied.
+  $effect(() => {
+    void value
+    void minRows
+    void maxRows
+    resize()
   })
 
   const shownValue = $derived(value !== undefined ? value : (defaultValue ?? undefined))
@@ -93,7 +97,14 @@
     aria-invalid={error ? 'true' : 'false'}
     aria-describedby={error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined}
     class={textareaClasses}
-    use:reactStyle={autoResize ? { minHeight: 0, resize: 'none', ...style } : style}
+    use:reactStyle={autoResize
+      ? {
+          resize: 'none',
+          ...style,
+          minHeight: `${Math.min(minRows, maxRows ?? Infinity)}lh`,
+          ...(maxRows === undefined ? {} : { maxHeight: `${maxRows}lh` }),
+        }
+      : style}
     data-testid={testId}
     oninput={handleChange}
     onfocusin={onFocus}

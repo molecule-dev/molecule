@@ -9,7 +9,7 @@
  *
  * @module
  */
-import { fireEvent, waitFor, within } from '@testing-library/dom'
+import { type BoundFunctions, fireEvent, type queries, waitFor, within } from '@testing-library/dom'
 import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -71,7 +71,8 @@ afterEach(() => {
 interface RenderedDialog {
   onClose: Mock<() => void>
   onSubmit: Mock<(value: string) => void | Promise<void>>
-  body: ReturnType<typeof within>
+  /** The document's queries (the Modal portals to `document.body`). */
+  body: BoundFunctions<typeof queries>
 }
 
 /**
@@ -178,5 +179,21 @@ describe('PromptDialog', () => {
     expect(
       (d.body.getByLabelText('Rename board', { selector: 'input' }) as HTMLInputElement).value,
     ).toBe('Dup')
+  })
+
+  it('allows a retry after an onSubmit handler throws synchronously', async () => {
+    const onSubmit = vi.fn<(value: string) => void | Promise<void>>().mockImplementationOnce(() => {
+      throw new Error('unavailable')
+    })
+    const d = renderDialog({ onSubmit })
+    const confirm = d.body.getByRole<HTMLButtonElement>('button', { name: 'Confirm' })
+    fireEvent.click(confirm)
+    // Vue applies the handler's state changes on the next flush (React's `act`).
+    await nextTick()
+    expect(d.onClose).not.toHaveBeenCalled()
+    expect(confirm.disabled).toBe(false)
+    fireEvent.click(confirm)
+    await waitFor(() => expect(d.onClose).toHaveBeenCalledOnce())
+    expect(onSubmit.mock.calls).toEqual([['Sprint 4'], ['Sprint 4']])
   })
 })

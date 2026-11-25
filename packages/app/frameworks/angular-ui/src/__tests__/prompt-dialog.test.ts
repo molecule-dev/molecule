@@ -23,7 +23,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
-import { fireEvent, within } from '@testing-library/dom'
+import { type BoundFunctions, fireEvent, type queries, within } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
@@ -132,8 +132,8 @@ interface RenderedDialog {
   onClose: Mock<() => void>
   /** React's `onSubmit`. */
   onSubmit: Mock<(value: string) => void | Promise<void>>
-  /** Queries scoped to the document (the Modal portals to `document.body`). */
-  body: ReturnType<typeof within>
+  /** The document's queries (the Modal portals to `document.body`). */
+  body: BoundFunctions<typeof queries>
 }
 
 /**
@@ -234,5 +234,23 @@ describe('PromptDialog', () => {
     expect(
       (d.body.getByLabelText('Rename board', { selector: 'input' }) as HTMLInputElement).value,
     ).toBe('Dup')
+  })
+
+  it('allows a retry after an onSubmit handler throws synchronously', async () => {
+    const onSubmit = vi.fn<(value: string) => void | Promise<void>>().mockImplementationOnce(() => {
+      throw new Error('unavailable')
+    })
+    const d = await renderDialog({ onSubmit })
+    const confirm = d.body.getByRole<HTMLButtonElement>('button', { name: 'Confirm' })
+    fireEvent.click(confirm)
+    // Change detection is explicit: one pass applies the handler's settled state
+    // (React's `act`).
+    await flush()
+    expect(d.onClose).not.toHaveBeenCalled()
+    expect(confirm.disabled).toBe(false)
+    fireEvent.click(confirm)
+    await flush()
+    expect(d.onClose).toHaveBeenCalledOnce()
+    expect(onSubmit.mock.calls).toEqual([['Sprint 4'], ['Sprint 4']])
   })
 })

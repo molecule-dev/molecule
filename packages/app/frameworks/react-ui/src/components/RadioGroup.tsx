@@ -9,6 +9,7 @@ import React, { forwardRef, useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, CheckField, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * RadioGroup component.
@@ -49,10 +50,11 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
     }
 
     return (
-      <div
+      <Box
+        as="div"
         ref={ref}
         className={className}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         data-mol-id={automationId}
         role="radiogroup"
@@ -61,19 +63,23 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
         aria-describedby={error ? errorId : undefined}
       >
         {label && (
-          <div className={cm.cn(cm.label({ required: false }), cm.sp('mb', 2))}>{label}</div>
+          <Box as="div" className={cm.cn(cm.label({ required: false }), cm.sp('mb', 2))}>
+            {label}
+          </Box>
         )}
-        <div className={cm.radioGroupLayout(direction)}>
+        <Box as="div" className={cm.radioGroupLayout(direction)}>
           {options.map((option) => {
             const isChecked = value === option.value
             const isDisabled = disabled || option.disabled
 
             return (
-              <label
+              <Box
+                as="label"
                 key={option.value}
                 className={cm.cn(cm.controlLabel, isDisabled && cm.controlDisabled)}
               >
-                <input
+                <CheckField
+                  as="input"
                   type="radio"
                   name={groupName}
                   value={option.value}
@@ -83,17 +89,19 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
                   data-state={isChecked ? 'checked' : 'unchecked'}
                   className={cm.cn(cm.radio({ error: !!error }), cm.cursorPointer)}
                 />
-                <span className={cm.controlText}>{option.label as React.ReactNode}</span>
-              </label>
+                <Text as="span" className={cm.controlText}>
+                  {option.label as React.ReactNode}
+                </Text>
+              </Box>
             )
           })}
-        </div>
+        </Box>
         {error && (
-          <p id={errorId} className={cm.cn(cm.formError, cm.sp('mt', 1))}>
+          <Text as="p" id={errorId} className={cm.cn(cm.formError, cm.sp('mt', 1))}>
             {error}
-          </p>
+          </Text>
         )}
-      </div>
+      </Box>
     )
   },
 )

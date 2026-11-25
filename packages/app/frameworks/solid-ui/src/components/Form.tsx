@@ -24,6 +24,9 @@ import { reactDomProps, toStyleProps, type WithRef } from '../utilities/dom.js'
 import { withDisplayName } from './displayName.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
 
+// Web bundlers substitute this at build time.
+declare const process: { env: { NODE_ENV?: string } }
+
 /** Props for the Solid form, including a failure managed by an external form controller. */
 export interface SolidFormProps extends FormProps {
   /** A rejected submission, for example a form controller's `submitError`. */
@@ -86,10 +89,16 @@ export const Form = withDisplayName<WithRef<SolidFormProps, HTMLFormElement>>((p
     let data: Record<string, unknown> | undefined
     if (local.onFormSubmit) {
       e.preventDefault()
-      const collected: Record<string, unknown> = {}
-      new FormData(e.currentTarget).forEach((value, key) => {
-        collected[key] = value
-      })
+      const entries = Array.from(new FormData(e.currentTarget))
+      // `Object.fromEntries` defines every name as an own key: a repeated name
+      // keeps its last value, and `__proto__` stays an ordinary field instead
+      // of replacing the object's prototype.
+      const collected: Record<string, unknown> = Object.fromEntries(entries)
+      if (process.env.NODE_ENV !== 'production' && Object.keys(collected).length < entries.length) {
+        console.error(
+          "Form.onFormSubmit received repeated field names and keeps only their last values. Use the form's onSubmit handler for repeated entries.",
+        )
+      }
       data = collected
     }
     setFailure(null)

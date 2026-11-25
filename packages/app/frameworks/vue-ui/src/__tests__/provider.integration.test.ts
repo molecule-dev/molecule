@@ -739,6 +739,28 @@ describe('@molecule/app-ui-vue × REAL vue + REAL @molecule/app-ui bonds', () =>
     expect(clearOption?.textContent).toBe('--')
   })
 
+  it('Textarea autoResize sets the minimum in line-height units', async () => {
+    const { update } = mountProps(Textarea, { autoResize: true, minRows: 3, testId: 'ta' })
+    await flush()
+    const field = screen.getByTestId('ta')
+    expect(field.style.minHeight).toBe('3lh')
+    expect(field.style.maxHeight).toBe('')
+    await update({ maxRows: 4 })
+    expect(field.getAttribute('style')).toBe(
+      'resize: none; min-height: 3lh; max-height: 4lh; height: 0px;',
+    )
+    await update({ autoResize: false })
+    expect(field.style.cssText).toBe('')
+  })
+
+  it('Textarea autoResize caps both bounds when maxRows is below minRows', async () => {
+    mountProps(Textarea, { autoResize: true, minRows: 6, maxRows: 2, testId: 'ta' })
+    await flush()
+    expect(screen.getByTestId('ta').getAttribute('style')).toBe(
+      'resize: none; min-height: 2lh; max-height: 2lh; height: 0px;',
+    )
+  })
+
   it('Textarea autoResize works UNCONTROLLED — real `input` events resize it, not just the `value` prop', async () => {
     mountProps(Textarea, { autoResize: true, defaultValue: 'line one', minRows: 2, testId: 'ta' })
     await flush()
@@ -755,6 +777,19 @@ describe('@molecule/app-ui-vue × REAL vue + REAL @molecule/app-ui bonds', () =>
 
     expect(el.style.height).not.toBe(initialHeight)
     expect(el.style.height).toBe('400px')
+  })
+
+  it('Textarea autoResize still measures input when the caller supplies an input listener', async () => {
+    const onInput = vi.fn()
+    mountProps(Textarea, { autoResize: true, onInput, testId: 'ta' })
+    await flush()
+    const field = screen.getByTestId('ta')
+    Object.defineProperty(field, 'scrollHeight', { value: 120, configurable: true })
+
+    fireEvent.input(field, { target: { value: 'more text' } })
+
+    expect(onInput).toHaveBeenCalledTimes(1)
+    expect(field.style.height).toBe('120px')
   })
 
   it('Accordion real lifecycle: expand/collapse with resolvable aria-controls', async () => {

@@ -10059,20 +10059,20 @@
    },
    "autoResize controlled": {
     "snapshots": [
-     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 60px; min-height: 0px; resize: none\" {value=\"hello\"}>\n</textarea>\n</div>\n@route /"
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 0px; min-height: 3lh; resize: none\" {value=\"hello\"}>\n</textarea>\n</div>\n@route /"
     ],
     "calls": []
    },
    "autoResize clamps to maxRows": {
     "snapshots": [
-     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"6\" style=\"height: 40px; min-height: 0px; resize: none\" {value=\"\"}>\n</textarea>\n</div>\n@route /"
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"6\" style=\"height: 0px; max-height: 2lh; min-height: 2lh; resize: none\" {value=\"\"}>\n</textarea>\n</div>\n@route /"
     ],
     "calls": []
    },
    "autoResize uncontrolled grows on typing": {
     "snapshots": [
-     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 60px; min-height: 0px; resize: none\" {value=\"seed\"}>\n</textarea>\n</div>\n@route /",
-     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 60px; min-height: 0px; resize: none\" {value=\"much longer content\"}>\n</textarea>\n</div>\n@route /"
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 0px; min-height: 3lh; resize: none\" {value=\"seed\"}>\n</textarea>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 0px; min-height: 3lh; resize: none\" {value=\"much longer content\"}>\n</textarea>\n</div>\n@route /"
     ],
     "calls": [
      {
@@ -10088,8 +10088,8 @@
    },
    "autoResize recalculates on value change": {
     "snapshots": [
-     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 60px; min-height: 0px; resize: none\" {value=\"one\"}>\n</textarea>\n</div>\n@route /",
-     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 60px; min-height: 0px; resize: none\" {value=\"a lot more text\"}>\n</textarea>\n</div>\n@route /"
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 0px; min-height: 3lh; resize: none\" {value=\"one\"}>\n</textarea>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" style=\"height: 0px; min-height: 3lh; resize: none\" {value=\"a lot more text\"}>\n</textarea>\n</div>\n@route /"
     ],
     "calls": []
    },

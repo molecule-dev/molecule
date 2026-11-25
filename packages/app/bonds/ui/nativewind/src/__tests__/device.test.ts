@@ -25,7 +25,9 @@ describe('forDevice', () => {
     expect(forDevice('text-sm [&_p]:leading-relaxed [&>svg]:absolute')).toBe(
       'text-sm [&_p]:leading-relaxed',
     )
-    expect(forDevice('p-2 [&_tr:last-child]:border-0 [&:has([role=checkbox])]:pr-0')).toBe('p-2')
+    expect(forDevice('p-2 [&_tr:last-child]:border-0 [&:has([role=checkbox])]:pr-0')).toBe(
+      'p-2 [&_tr:last-child]:border-0',
+    )
     expect(forDevice('m-0 divide-y divide-border')).toBe('m-0')
     expect(forDevice('leading-[1.25] font-inherit text-foreground')).toBe(
       'leading-[1.25] text-foreground',
@@ -108,9 +110,21 @@ describe('descendantRule', () => {
     })
   })
 
+  it('keeps first and last row selectors and preserves their precedence', () => {
+    expect(descendantRule('[&_tr:last-child]:border-0')).toEqual({
+      tag: 'tr:last-child',
+      cls: '!border-0',
+    })
+    expect(descendantRule('dark:[&_tr:first-child]:bg-surface')).toEqual({
+      tag: 'tr:first-child',
+      cls: 'dark:!bg-surface',
+    })
+    expect(forDevice('[&_tr:last-child]:border-0')).toBe('[&_tr:last-child]:border-0')
+  })
+
   it('is null for a class that styles the element itself or any other selector', () => {
     expect(descendantRule('leading-relaxed')).toBeNull()
     expect(descendantRule('[&>svg]:absolute')).toBeNull()
-    expect(descendantRule('[&_tr:last-child]:border-0')).toBeNull()
+    expect(descendantRule('[&_tr:nth-child(2)]:border-0')).toBeNull()
   })
 })

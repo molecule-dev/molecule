@@ -8,7 +8,7 @@
  *
  * @module
  */
-import { within } from '@testing-library/dom'
+import { type BoundFunctions, type queries, within } from '@testing-library/dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A reactive location the mocked `useLocation` returns — tests replace it to
@@ -85,7 +85,7 @@ function mount(render: () => VNodeChild): void {
   app.mount(host)
 }
 
-const body = (): ReturnType<typeof within> => within(document.body)
+const body = (): BoundFunctions<typeof queries> => within(document.body)
 
 describe('UserMenu — close on route change', () => {
   it('dismisses the open drawer when the route changes', async () => {

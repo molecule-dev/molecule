@@ -961,14 +961,6 @@ describe('Textarea component', () => {
     textareaCall[1].onInput!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
   })
-
-  it('autoResize neutralizes the min-height floor inline', async () => {
-    const { renderFn } = await setupTextarea({ autoResize: true })
-    renderFn()
-    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea')!
-    const style = (textareaCall[1] as Record<string, unknown>).style as Record<string, unknown>
-    expect(style).toContainEqual({ minHeight: 0, resize: 'none' })
-  })
 })
 
 // ============================================================================

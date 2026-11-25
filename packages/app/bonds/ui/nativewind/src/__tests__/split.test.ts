@@ -4,6 +4,23 @@ import { classMap } from '../classMap.js'
 import { splitForNative } from '../split.js'
 
 describe('splitForNative', () => {
+  it('passes structural row rules to descendants and exposes table cell alignment', () => {
+    expect(splitForNative('[&_tr:last-child]:border-0', '').descendants).toEqual({
+      'tr:last-child': '!border-0',
+    })
+    expect(splitForNative('h-12 align-middle', '')).toMatchObject({
+      verticalAlign: 'middle',
+      view: 'h-12',
+    })
+  })
+
+  it('keeps display contents as layout metadata for a boxless fieldset', () => {
+    expect(splitForNative('contents opacity-50', '')).toMatchObject({
+      display: 'contents',
+      view: 'opacity-50',
+    })
+  })
+
   it('moves text classes off the view and reads the display', () => {
     expect(splitForNative('flex flex-row gap-2 p-4 text-sm font-bold text-primary')).toEqual({
       view: 'flex flex-row gap-2 p-4',
@@ -11,7 +28,7 @@ describe('splitForNative', () => {
       display: 'flex',
       lines: null,
       weight: 700,
-      lineHeight: 20,
+      lineHeight: { '': 20 },
       descendants: {},
       grid: null,
       span: {},
@@ -26,7 +43,7 @@ describe('splitForNative', () => {
       display: 'block',
       lines: null,
       weight: null,
-      lineHeight: null,
+      lineHeight: { '': 24 },
       descendants: {},
       grid: null,
       span: {},
@@ -38,7 +55,7 @@ describe('splitForNative', () => {
       display: 'inline-flex',
       lines: null,
       weight: null,
-      lineHeight: null,
+      lineHeight: { '': 24 },
       descendants: {},
       grid: null,
       span: {},
@@ -49,6 +66,22 @@ describe('splitForNative', () => {
 
   it('a responsive display class does not set the base display', () => {
     expect(splitForNative('md:flex p-2').display).toBeNull()
+  })
+
+  it('makes an absolutely positioned or fixed element a block, as CSS does', () => {
+    // FloatingInput's label is an inline `label` placed with `absolute`: on the web it never sits
+    // in a line, so a device must not lay it in one.
+    expect(splitForNative('absolute left-3 top-2').display).toBe('block')
+    expect(splitForNative('fixed inline').display).toBe('block')
+    expect(splitForNative('absolute inline-block').display).toBe('block')
+    expect(splitForNative('absolute inline-flex items-center').display).toBe('flex')
+    expect(splitForNative('fixed inline-grid grid-cols-2').display).toBe('grid')
+    expect(splitForNative('absolute hidden').display).toBe('none')
+    expect(splitForNative('absolute contents').display).toBe('contents')
+    // The last position class wins, and a position at a variant leaves the base display alone.
+    expect(splitForNative('absolute relative inline').display).toBe('inline')
+    expect(splitForNative('md:absolute inline').display).toBe('inline')
+    expect(splitForNative('relative').display).toBeNull()
   })
 
   it("an element's own text class replaces the inherited one that sets the same property", () => {
@@ -78,7 +111,7 @@ describe('splitForNative', () => {
       display: null,
       lines: null,
       weight: null,
-      lineHeight: null,
+      lineHeight: { '': 24 },
       descendants: {},
       grid: null,
       span: {},
@@ -93,7 +126,7 @@ describe('splitForNative', () => {
       display: null,
       lines: 1,
       weight: null,
-      lineHeight: 20,
+      lineHeight: { '': 20 },
       descendants: {},
       grid: null,
       span: {},
@@ -201,12 +234,31 @@ describe('splitForNative', () => {
   })
 
   it("reads the text's line height in pixels, a leading class winning over the size's", () => {
-    expect(splitForNative('text-sm').lineHeight).toBe(20)
-    expect(splitForNative('text-sm leading-relaxed').lineHeight).toBeCloseTo(22.75)
-    expect(splitForNative('leading-6 text-lg').lineHeight).toBe(24)
-    expect(splitForNative('', 'font-document text-base text-foreground').lineHeight).toBe(24)
-    expect(splitForNative('text-[15px] leading-[1.4]').lineHeight).toBeCloseTo(21)
-    expect(splitForNative('p-2 text-primary').lineHeight).toBeNull()
+    expect(splitForNative('text-sm').lineHeight?.['']).toBe(20)
+    expect(splitForNative('text-sm leading-relaxed').lineHeight?.['']).toBeCloseTo(22.75)
+    expect(splitForNative('leading-6 text-lg').lineHeight?.['']).toBe(24)
+    expect(splitForNative('', 'font-document text-base text-foreground').lineHeight?.['']).toBe(24)
+    expect(splitForNative('text-[15px] leading-[1.4]').lineHeight?.['']).toBeCloseTo(21)
+    expect(splitForNative(classMap.textarea()).lineHeight?.['']).toBe(21.25)
+  })
+
+  it('resolves line heights at font-size and leading breakpoints in screen order', () => {
+    expect(
+      splitForNative('md:leading-tight text-sm sm:text-base lg:text-[17px]').lineHeight,
+    ).toEqual({
+      '': 20,
+      sm: 24,
+      md: 20,
+      lg: 21.25,
+    })
+  })
+
+  it('uses the preflight ratio with the default or an arbitrary font size', () => {
+    expect(splitForNative('p-2 text-primary').lineHeight).toEqual({ '': 24 })
+    expect(splitForNative('text-[17px] sm:text-[20px]').lineHeight).toEqual({
+      '': 25.5,
+      sm: 30,
+    })
   })
 
   it("says which sizes the classes set, which beat a replaced element's size attributes", () => {

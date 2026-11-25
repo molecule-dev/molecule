@@ -54,6 +54,10 @@ afterEach(() => {
 /**
  * A snippet rendering the given raw HTML.
  *
+ * A raw snippet renders ONE element: of several top-level nodes only the first
+ * is rendered (Svelte warns `invalid_raw_snippet_render`), so markup with more
+ * than one node is wrapped in a single element.
+ *
  * @param html - The HTML to render.
  * @returns The snippet.
  */
@@ -85,6 +89,36 @@ function render<Props extends Record<string, unknown>, Exports extends Record<st
 const formElement = (): HTMLFormElement => document.querySelector('form') as HTMLFormElement
 
 describe('Form submission error defaults', () => {
+  it('warns when flattening duplicates and preserves arbitrary field names as own keys', async () => {
+    const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const save = vi.fn()
+    try {
+      render(Form, {
+        onFormSubmit: save,
+        children: snippetOf(
+          '<div><input name="repeated" value="first" /><input name="__proto__" value="ordinary input" /><input name="repeated" value="last" /></div>',
+        ),
+      })
+      fireEvent.submit(formElement())
+      await waitFor(() =>
+        expect(save).toHaveBeenCalledExactlyOnceWith({
+          ['__proto__']: 'ordinary input',
+          repeated: 'last',
+        }),
+      )
+      const values: unknown = save.mock.calls[0]?.[0]
+      if (typeof values !== 'object' || values === null) {
+        throw new TypeError('expected the submitted values')
+      }
+      expect(Object.hasOwn(values, '__proto__')).toBe(true)
+      expect(Object.getPrototypeOf(values)).toBe(Object.prototype)
+      expect(diagnostic).toHaveBeenCalledTimes(1)
+      expect(diagnostic).toHaveBeenCalledWith(expect.stringContaining('repeated field names'))
+    } finally {
+      diagnostic.mockRestore()
+    }
+  })
+
   it('catches an async onFormSubmit failure, renders it, and allows a successful retry', async () => {
     const save = vi
       .fn()
@@ -92,7 +126,7 @@ describe('Form submission error defaults', () => {
       .mockResolvedValueOnce(undefined)
     const { host } = render(Form, {
       onFormSubmit: save,
-      children: snippetOf('<input name="name" value="Luke" /><button>Save</button>'),
+      children: snippetOf('<div><input name="name" value="Luke" /><button>Save</button></div>'),
     })
     fireEvent.submit(formElement())
     await screen.findByRole('alert')
@@ -197,7 +231,7 @@ describe('Form submission error defaults', () => {
         await http.post('/registrations', data)
       },
       children: snippetOf(
-        '<input name="email" value="reader@example.test" /><button>Register</button>',
+        '<div><input name="email" value="reader@example.test" /><button>Register</button></div>',
       ),
     })
     fireEvent.submit(formElement())

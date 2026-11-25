@@ -258,6 +258,55 @@
    light ones under a dark-themed app) whenever the two disagree. */
 @custom-variant dark (&:where([data-mol-mode='dark'], [data-mol-mode='dark'] *));
 
+/* The checkbox/radio ClassMap classes opt in to custom appearances. The token
+   generator reads the same mask paths for the marks on native. */
+@layer components {
+  :root {
+    --mol-check-mark-checked: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l1.5-1.5L7 9l4.5-4.5L13 6l-6 6z'/%3E%3C/svg%3E");
+    --mol-check-mark-mixed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 7h10v2H3z'/%3E%3C/svg%3E");
+    --mol-check-mark-radio: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a4 4 0 1 1 0 8 4 4 0 1 1 0-8z'/%3E%3C/svg%3E");
+  }
+
+  @media (forced-colors: none) {
+    :where(input[type='checkbox'].peer, input[type='radio'].aspect-square) {
+      @apply appearance-none;
+      position: relative;
+    }
+
+    :where(input[type='checkbox'].peer):is(:checked, :indeterminate) {
+      --mol-check-image: var(--mol-check-mark-checked);
+      --mol-check-ink: var(--color-on-primary);
+      background-color: var(--color-primary);
+    }
+
+    :where(input[type='checkbox'].peer.border-error):is(:checked, :indeterminate) {
+      --mol-check-ink: var(--color-on-error);
+      background-color: var(--color-error);
+    }
+
+    :where(input[type='checkbox'].peer):indeterminate {
+      --mol-check-image: var(--mol-check-mark-mixed);
+    }
+
+    :where(input[type='radio'].aspect-square):checked {
+      --mol-check-image: var(--mol-check-mark-radio);
+      --mol-check-ink: var(--color-primary);
+    }
+
+    :where(input[type='radio'].aspect-square.border-error):checked {
+      --mol-check-ink: var(--color-error);
+    }
+
+    :where(input[type='checkbox'].peer, input[type='radio'].aspect-square)::before {
+      position: absolute;
+      inset: 0;
+      content: '';
+      background-color: var(--mol-check-ink, transparent);
+      mask: var(--mol-check-image, none) center / contain no-repeat;
+    }
+  }
+}
+
 @layer base {
   /* Tell the browser which widget scheme matches the ACTIVE theme (the theme
      bond stamps data-mol-mode on <html>). Without this, native UI the page

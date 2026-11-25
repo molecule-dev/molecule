@@ -612,6 +612,28 @@ describe('@molecule/app-ui-solid × REAL solid-dom + REAL @molecule/app-ui bonds
     expect(clearOption?.textContent).toBe('--')
   })
 
+  it('Textarea autoResize sets the minimum in line-height units', () => {
+    const [autoResize, setAutoResize] = createSignal(true)
+    const [maxRows, setMaxRows] = createSignal<number>()
+    mount(() => <Textarea autoResize={autoResize()} minRows={3} maxRows={maxRows()} testId="ta" />)
+    const field = screen.getByTestId('ta')
+    expect(field.style.minHeight).toBe('3lh')
+    expect(field.style.maxHeight).toBe('')
+    setMaxRows(4)
+    expect(field.getAttribute('style')).toBe(
+      'resize: none; min-height: 3lh; max-height: 4lh; height: 0px;',
+    )
+    setAutoResize(false)
+    expect(field.style.cssText).toBe('')
+  })
+
+  it('Textarea autoResize caps both bounds when maxRows is below minRows', () => {
+    mount(() => <Textarea autoResize minRows={6} maxRows={2} testId="ta" />)
+    expect(screen.getByTestId('ta').getAttribute('style')).toBe(
+      'resize: none; min-height: 2lh; max-height: 2lh; height: 0px;',
+    )
+  })
+
   it('Textarea autoResize works UNCONTROLLED — real `input` events resize it, not just the `value` prop', () => {
     mount(() => <Textarea autoResize defaultValue="line one" minRows={2} testId="ta" />)
     const el = screen.getByTestId('ta') as HTMLTextAreaElement

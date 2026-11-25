@@ -4,8 +4,9 @@
  * Vue port of `@molecule/app-ui-react`'s PromptDialog (see that source for
  * the design notes, including the multi-stage-flow gotcha). Composes the
  * ported {@link Modal}, {@link Input} and {@link Button}. A fulfilled
- * `onSubmit` resolves, re-enables the form and closes; a rejection keeps the
- * dialog open with the value intact (the caller renders the error itself).
+ * `onSubmit` resolves, re-enables the form and closes; a rejection or a
+ * synchronous throw keeps the dialog open with the value intact (the caller
+ * renders the error itself).
  *
  * @example
  * ```ts
@@ -179,23 +180,22 @@ export const PromptDialog = defineComponent({
       { flush: 'post', immediate: true },
     )
 
-    const handleSubmit = (e: Event): void => {
+    const handleSubmit = async (e: Event): Promise<void> => {
       e.preventDefault()
       if (pending.value) return
       pending.value = true
-      void Promise.resolve(props.onSubmit?.(value.value))
-        .then(() => {
-          // A parent that keeps the dialog open (a multi-stage flow advancing
-          // in onClose) gets a form that accepts the next submit.
-          pending.value = false
-          emit('close')
-        })
-        .catch((_error) => {
-          // Deliberate: a rejection keeps the dialog open; the caller owns
-          // the error and renders it through the default slot, so
-          // re-displaying or logging it here would duplicate that.
-          pending.value = false
-        })
+      try {
+        await props.onSubmit?.(value.value)
+        // A parent that keeps the dialog open (a multi-stage flow advancing
+        // in onClose) gets a form that accepts the next submit.
+        pending.value = false
+        emit('close')
+      } catch (_error) {
+        // Deliberate: a rejection or a synchronous throw keeps the dialog
+        // open; the caller owns the error and renders it through the default
+        // slot, so re-displaying or logging it here would duplicate that.
+        pending.value = false
+      }
     }
 
     return () => {
