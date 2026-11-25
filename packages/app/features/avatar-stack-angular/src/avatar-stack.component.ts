@@ -6,6 +6,7 @@
 
 import { Component } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-angular'
@@ -28,8 +29,10 @@ const OVERLAP_MARGIN = '-0.5rem'
  *
  * Horizontal stack of overlapping avatars (assignees, attendees, etc.).
  * Renders up to `max` avatars; any remaining are summarised as `+N` in a
- * trailing chip. The host IS the outer `<div>` (`div[mol-avatar-stack]`),
- * matching React's root exactly.
+ * trailing chip, whose accessible name (`avatarStack.more`) and visible
+ * prefix (`avatarStack.overflowPrefix`) come from `useTranslation()`, so the
+ * chip follows the active locale. The host IS the outer `<div>`
+ * (`div[mol-avatar-stack]`), matching React's root exactly.
  */
 @Component({
   selector: 'div[mol-avatar-stack]',
@@ -45,7 +48,7 @@ const OVERLAP_MARGIN = '-0.5rem'
       <div mol-avatar [src]="person.src" [alt]="person.alt ?? person.name" [name]="person.name" [size]="avatarSize()"></div>
     </span>
   }@if (overflow() > 0) {
-    <span [class]="overflowClasses()" [style.margin-left]="overlapMargin" [attr.aria-label]="'+' + overflow() + ' more'">{{ '+' + overflow() }}</span>
+    <span [class]="overflowClasses()" [style.margin-left]="overlapMargin" [attr.aria-label]="overflowLabel()">{{ overflowText() }}</span>
   }`,
 })
 export class AvatarStack {
@@ -60,6 +63,12 @@ export class AvatarStack {
 
   /** The overlap's negative left margin. */
   readonly overlapMargin = OVERLAP_MARGIN
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the chip's two strings on a locale switch.
+   */
+  private readonly i18n = useTranslation()
 
   /**
    * The current class map.
@@ -93,6 +102,30 @@ export class AvatarStack {
    */
   overflow(): number {
     return Math.max(0, this.people.length - this.visible().length)
+  }
+
+  /**
+   * The overflow chip's accessible name (React's
+   * `t('avatarStack.more', { count: overflow }, { defaultValue: '+{{count}} more' })`).
+   * @returns The translated label.
+   */
+  overflowLabel(): string {
+    return this.i18n.t(
+      'avatarStack.more',
+      { count: this.overflow() },
+      { defaultValue: '+{{count}} more' },
+    )
+  }
+
+  /**
+   * The overflow chip's visible text: the translated prefix and the count
+   * (React's `{t('avatarStack.overflowPrefix', undefined, …)}{overflow}`).
+   * @returns The prefix followed by the overflow count.
+   */
+  overflowText(): string {
+    return (
+      this.i18n.t('avatarStack.overflowPrefix', undefined, { defaultValue: '+' }) + this.overflow()
+    )
   }
 
   /**

@@ -11,6 +11,7 @@ import { defineComponent, h, type PropType, type VNode } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-vue'
+import { useTranslation } from '@molecule/app-vue'
 
 import type { AvatarStackPerson } from './types.js'
 
@@ -29,7 +30,9 @@ const OVERLAP_MARGIN = { marginLeft: '-0.5rem' }
  * Horizontal stack of overlapping avatars (assignees, attendees, etc.).
  *
  * Renders up to `max` avatars; any remaining are summarised as `+N` in a
- * trailing chip.
+ * trailing chip. The chip's accessible name (`avatarStack.more`) and its
+ * visible prefix (`avatarStack.overflowPrefix`) come from `useTranslation()`,
+ * so the chip follows the active locale.
  *
  * @param props - Component props (see {@link AvatarStackProps}).
  * @returns The avatar stack component.
@@ -47,6 +50,7 @@ export const AvatarStack = defineComponent({
   },
   setup(props) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return (): VNode => {
       const visible = props.people.slice(0, props.max)
@@ -73,9 +77,14 @@ export const AvatarStack = defineComponent({
                   cm.fontWeight('medium'),
                 ),
                 style: OVERLAP_MARGIN,
-                'aria-label': `+${overflow} more`,
+                'aria-label': t(
+                  'avatarStack.more',
+                  { count: overflow },
+                  { defaultValue: '+{{count}} more' },
+                ),
               },
-              [`+${overflow}`],
+              // One text node, as React's two children read: the prefix, then the count.
+              [`${t('avatarStack.overflowPrefix', undefined, { defaultValue: '+' })}${overflow}`],
             )
           : null,
       ])

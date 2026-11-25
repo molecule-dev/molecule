@@ -42,8 +42,13 @@
  * is ignored. An empty-string `href` still renders a link.
  *
  * The overflow chip announces "+N more" — this is the only user-visible
- * text (currently English-only). Avatar fallbacks (initials, color hash)
- * come from `<Avatar>` in `@molecule/app-ui-solid`. The overlap is an
+ * text. Both of its strings come from `useTranslation()` in
+ * `@molecule/app-solid`: the chip's accessible name is the
+ * `avatarStack.more` key and the sign before its count is
+ * `avatarStack.overflowPrefix`. Add the companion bond
+ * `@molecule/app-locales-avatar-stack` to translate them; without a
+ * translation the English defaults render. Avatar fallbacks (initials, color
+ * hash) come from `<Avatar>` in `@molecule/app-ui-solid`. The overlap is an
  * inline negative left margin (`margin-left: '-0.5rem'`), not a ClassMap
  * class: the abstract spacing scale is non-negative, so a negative margin
  * is one of the sanctioned inline-style cases.

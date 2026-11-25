@@ -9,6 +9,7 @@
 
 import { type Component, For, type JSX, Show } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-solid'
 
@@ -29,13 +30,16 @@ const OVERLAP_MARGIN: JSX.CSSProperties = { 'margin-left': '-0.5rem' }
  * Horizontal stack of overlapping avatars (assignees, attendees, etc.).
  *
  * Renders up to `max` avatars; any remaining are summarised as `+N` in a
- * trailing chip.
+ * trailing chip. The chip's accessible name (`avatarStack.more`) and its
+ * visible prefix (`avatarStack.overflowPrefix`) come from `useTranslation()`,
+ * so the chip follows the active locale.
  *
  * @param props - Component props (see {@link AvatarStackProps}).
  * @returns The rendered avatar stack.
  */
 export const AvatarStack: Component<AvatarStackProps> = (props) => {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const max = (): number => props.max ?? 4
   const size = (): 'xs' | 'sm' | 'md' | 'lg' => props.size ?? 'sm'
   const visible = (): AvatarStackProps['people'] => props.people.slice(0, max())
@@ -64,9 +68,14 @@ export const AvatarStack: Component<AvatarStackProps> = (props) => {
             cm.fontWeight('medium'),
           )}
           style={OVERLAP_MARGIN}
-          aria-label={`+${overflow()} more`}
+          aria-label={t(
+            'avatarStack.more',
+            { count: overflow() },
+            { defaultValue: '+{{count}} more' },
+          )}
         >
-          +{overflow()}
+          {t('avatarStack.overflowPrefix', undefined, { defaultValue: '+' })}
+          {overflow()}
         </span>
       </Show>
     </div>

@@ -1,7 +1,9 @@
-import type { CSSProperties, JSX } from 'react'
+import type { JSX } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-react'
+import { getClassMap, type WebStyle } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * Negative left margin that pulls each avatar over its predecessor so the
@@ -12,7 +14,7 @@ import { Avatar } from '@molecule/app-ui-react'
  * inline-style cases (AGENTS.md Rule 5). `-0.5rem` mirrors the intended
  * `-2` Tailwind spacing step.
  */
-const OVERLAP_MARGIN: CSSProperties = { marginLeft: '-0.5rem' }
+const OVERLAP_MARGIN: WebStyle = { marginLeft: '-0.5rem' }
 
 /** Represents a single person entry rendered inside an AvatarStack. */
 export interface AvatarStackPerson {
@@ -50,29 +52,36 @@ export function AvatarStack({
   className,
 }: AvatarStackProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const visible = people.slice(0, max)
   const overflow = Math.max(0, people.length - visible.length)
   return (
-    <div className={cm.cn(cm.flex({ align: 'center' }), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ align: 'center' }), className)}>
       {visible.map((p, i) => (
-        <span key={i} style={i === 0 ? undefined : OVERLAP_MARGIN}>
+        <Box as="span" key={i} webStyle={i === 0 ? undefined : OVERLAP_MARGIN}>
           <Avatar src={p.src} alt={p.alt ?? p.name} name={p.name} size={size} />
-        </span>
+        </Box>
       ))}
       {overflow > 0 && (
-        <span
+        <Text
+          as="span"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'center' }),
             cm.roundedFull,
             cm.textSize('xs'),
             cm.fontWeight('medium'),
           )}
-          style={OVERLAP_MARGIN}
-          aria-label={`+${overflow} more`}
+          webStyle={OVERLAP_MARGIN}
+          aria-label={t(
+            'avatarStack.more',
+            { count: overflow },
+            { defaultValue: '+{{count}} more' },
+          )}
         >
-          +{overflow}
-        </span>
+          {t('avatarStack.overflowPrefix', undefined, { defaultValue: '+' })}
+          {overflow}
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }

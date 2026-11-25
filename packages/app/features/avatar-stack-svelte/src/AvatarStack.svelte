@@ -1,11 +1,14 @@
 <!--
   AvatarStack: the Svelte counterpart of `@molecule/app-avatar-stack-react`'s
   `AvatarStack` — a horizontal stack of up to `max` overlapping avatars with a
-  trailing "+N" overflow chip. Same props (React names), same DOM for the same
+  trailing "+N" overflow chip. The chip's label and its prefix come from the
+  `avatarStack.more` and `avatarStack.overflowPrefix` translations, so they
+  follow the active locale. Same props (React names), same DOM for the same
   input. The overlap is an inline negative left margin because the ClassMap
   spacing scale is non-negative.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Avatar } from '@molecule/app-ui-svelte'
 
@@ -13,6 +16,7 @@
 
   let { people, max = 4, size = 'sm', className }: AvatarStackProps = $props()
 
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const visible = $derived(people.slice(0, max))
   const overflow = $derived(Math.max(0, people.length - visible.length))
@@ -36,7 +40,8 @@
         cm.fontWeight('medium'),
       )}
       style={OVERLAP_MARGIN}
-      aria-label={`+${overflow} more`}>+{overflow}</span
+      aria-label={t('avatarStack.more', { count: overflow }, { defaultValue: '+{{count}} more' })}
+      >{t('avatarStack.overflowPrefix', undefined, { defaultValue: '+' })}{overflow}</span
     >
   {/if}
 </div>

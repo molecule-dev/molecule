@@ -1,20 +1,26 @@
-import type { AnchorHTMLAttributes, HTMLAttributes, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type AnchorProps,
+  type BoxProps,
+  type ForwardedElementProps,
+  getClassMap,
+} from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
+import { Anchor, Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link UserChip}. */
-export interface UserChipProps extends HTMLAttributes<HTMLDivElement> {
+export interface UserChipProps extends ForwardedElementProps<
+  BoxProps<ReactNode>,
+  'children' | 'className'
+> {
   /** Display name. */
   name: string
   /** Profile destination. Only the displayed name becomes a link; the avatar stays decorative. */
   href?: string
   /** Attributes for the canonical name link, including app styling and SPA navigation. */
-  nameLinkProps?: Omit<
-    AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'children' | 'dangerouslySetInnerHTML'
-  >
+  nameLinkProps?: ForwardedElementProps<AnchorProps<ReactNode>, 'href' | 'children'>
   /** Optional avatar image URL. */
   src?: string
   /** Optional secondary line (role / email / handle). */
@@ -47,26 +53,38 @@ export function UserChip({
   const cm = getClassMap()
   const avatar = <Avatar src={src} alt={name} name={name} size={size} />
   return (
-    <div {...rest} className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
+    <Box {...rest} as="div" className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
       {/* A linked chip hides the avatar from assistive tech so the link is the one name read
           out; an unlinked chip keeps the plain avatar, the same DOM every framework port renders. */}
-      {href === undefined ? avatar : <div aria-hidden="true">{avatar}</div>}
-      <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
+      {href === undefined ? (
+        avatar
+      ) : (
+        <Box as="div" aria-hidden="true">
+          {avatar}
+        </Box>
+      )}
+      <Box as="div" className={cm.cn(cm.flex1, cm.stack(0))}>
         {href === undefined ? (
-          <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{name}</span>
+          <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+            {name}
+          </Text>
         ) : (
-          <a
+          <Anchor
             data-mol-id="user-chip-profile"
             {...nameLinkProps}
             href={href}
             className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), nameLinkProps?.className)}
           >
             {name}
-          </a>
+          </Anchor>
         )}
-        {subtitle && <span className={cm.textSize('xs')}>{subtitle}</span>}
-      </div>
+        {subtitle && (
+          <Box as="span" className={cm.textSize('xs')}>
+            {subtitle}
+          </Box>
+        )}
+      </Box>
       {trailing}
-    </div>
+    </Box>
   )
 }

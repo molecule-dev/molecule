@@ -48,6 +48,7 @@
     "access": "public"
   },
   "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-svelte": "^3.13.0",
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-ui-svelte": "^1.1.0",
