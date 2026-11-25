@@ -1,0 +1,32 @@
+/**
+ * A tiny one-page PDF (generated with PDFKit) carrying three known lines.
+ * Static bytes keep the tests deterministic — no build step, no dependency
+ * on a PDF generator at test time.
+ *
+ * Text content: "INVOICE #2026-11-25\nAcme GmbH\nTOTAL 42.00 EUR"
+ */
+
+/** The fixture document as base64. */
+export const INVOICE_PDF_BASE64 =
+  'JVBERi0xLjMKJf////8KNyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDEgMCBSCi9NZWRpYUJveCBbMCAwIDU5NS4yOCA4' +
+  'NDEuODldCi9Db250ZW50cyA1IDAgUgovUmVzb3VyY2VzIDYgMCBSCi9Vc2VyVW5pdCAxCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9Q' +
+  'cm9jU2V0IFsvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJXQovRm9udCA8PAovRjEgOCAwIFIKPj4KL0NvbG9yU3Bh' +
+  'Y2UgPDwKPj4KPj4KZW5kb2JqCjUgMCBvYmoKPDwKL0xlbmd0aCAxNjMKL0ZpbHRlciAvRmxhdGVEZWNvZGUKPj4Kc3RyZWFtCnic' +
+  'nY+xbgJBEEP7/Yr5gVxmbM/unXSiQCJFukjbISoOOor8f4MQUAQoUCrLr/CTw9zcPsLcRsUwTrY/ld8Sr/C633hYg7UaA5qsn8rn' +
+  'V1jA+rFsZ006ZF2Z3GYdNYlKOEjQCVYsDAYWgrky31n/Lpteft6Uqg1yPEmjsi414Wp1qdD4j2lySD4up+5XrnnpgQsI7eEUgQOd' +
+  'DldmJv6IzzrfRvMKZW5kc3RyZWFtCmVuZG9iagoxMCAwIG9iagooUERGS2l0KQplbmRvYmoKMTEgMCBvYmoKKFBERktpdCkKZW5k' +
+  'b2JqCjEyIDAgb2JqCihEOjIwMjYxMTI1MDMwNjAzWikKZW5kb2JqCjkgMCBvYmoKPDwKL1Byb2R1Y2VyIDEwIDAgUgovQ3JlYXRv' +
+  'ciAxMSAwIFIKL0NyZWF0aW9uRGF0ZSAxMiAwIFIKPj4KZW5kb2JqCjggMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL0Jhc2VGb250IC9I' +
+  'ZWx2ZXRpY2EKL1N1YnR5cGUgL1R5cGUxCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nCj4+CmVuZG9iago0IDAgb2JqCjw8Cj4+' +
+  'CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9DYXRhbG9nCi9QYWdlcyAxIDAgUgovTmFtZXMgMiAwIFIKPj4KZW5kb2JqCjEgMCBv' +
+  'YmoKPDwKL1R5cGUgL1BhZ2VzCi9Db3VudCAxCi9LaWRzIFs3IDAgUl0KPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0Rlc3RzIDw8CiAg' +
+  'L05hbWVzIFsKXQo+Pgo+PgplbmRvYmoKeHJlZgowIDEzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDgyMCAwMDAwMCBuIAow' +
+  'MDAwMDAwODc3IDAwMDAwIG4gCjAwMDAwMDA3NTggMDAwMDAgbiAKMDAwMDAwMDczNyAwMDAwMCBuIAowMDAwMDAwMjQ0IDAwMDAw' +
+  'IG4gCjAwMDAwMDAxMzcgMDAwMDAgbiAKMDAwMDAwMDAxNSAwMDAwMCBuIAowMDAwMDAwNjQwIDAwMDAwIG4gCjAwMDAwMDA1NjUg' +
+  'MDAwMDAgbiAKMDAwMDAwMDQ3OSAwMDAwMCBuIAowMDAwMDAwNTA0IDAwMDAwIG4gCjAwMDAwMDA1MjkgMDAwMDAgbiAKdHJhaWxl' +
+  'cgo8PAovU2l6ZSAxMwovUm9vdCAzIDAgUgovSW5mbyA5IDAgUgovSUQgWzw2ZDBmM2RmYTJkZTcwMTZkZTdjY2Q1NzY2YzZkYzNh' +
+  'ZT4gPDZkMGYzZGZhMmRlNzAxNmRlN2NjZDU3NjZjNmRjM2FlPl0KPj4Kc3RhcnR4cmVmCjkyNAolJUVPRgo='
+
+/** The fixture document as bytes. */
+export const invoicePdfBytes = (): Uint8Array =>
+  new Uint8Array(Buffer.from(INVOICE_PDF_BASE64, 'base64'))

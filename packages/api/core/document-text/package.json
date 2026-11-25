@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-document-text",
+  "version": "1.0.0",
+  "description": "Abstract document text interface — extract the text of a PDF document (per page and joined) — bond pdf.js or molecule.dev’s hosted service",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "document-text",
+    "pdf",
+    "text-extraction",
+    "rag",
+    "indexing"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-i18n": "1.0.6",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/document-text"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-document-text",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -162,6 +162,7 @@
     "api::cryptoPrices.error.noProvider",
     "api::devices.invalidToken",
     "api::devices.tokenMismatch",
+    "api::document-text.error.noProvider",
     "api::drugDatabase.error.noProvider",
     "api::emailTemplates.error.unknownTemplate",
     "api::emailsInbound.error.noProvider",

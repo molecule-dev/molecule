@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-document-text-pdfjs",
+  "version": "1.0.0",
+  "description": "pdf.js document text provider for molecule.dev — extract the text of a PDF document in this process",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "document-text",
+    "pdf",
+    "pdfjs",
+    "text-extraction",
+    "self-hosted"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-document-text": ">=1.0.0"
+  },
+  "dependencies": {
+    "pdfjs-dist": "6.5.438",
+    "unpdf": "2.2.2"
+  },
+  "devDependencies": {
+    "@molecule/api-document-text": "1.0.0",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/document-text/pdfjs"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-document-text-pdfjs",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
