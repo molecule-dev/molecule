@@ -121,6 +121,23 @@ export const SearchBox = defineComponent({
       props.inputRef?.current?.focus()
     }
 
+    /**
+     * Hands a key press to `onKeyDown` the way React's text field does. A legacy IME
+     * reports key code 229 while it composes and on the Enter that confirms it, even
+     * after composing ended: that Enter is cancelled first, so it submits nothing, and
+     * the event reports the IME as composing. A composition still under way is the
+     * IME's own and is handed over as it is.
+     *
+     * @param event - The input's keydown event.
+     */
+    const onKeydown = (event: KeyboardEvent): void => {
+      const composing = event.isComposing
+      const legacyComposition = event.keyCode === 229
+      if (!composing && legacyComposition && event.key === 'Enter') event.preventDefault()
+      if (legacyComposition) Object.defineProperty(event, 'isComposing', { value: true })
+      props.onKeyDown?.(event)
+    }
+
     return (): VNode => {
       const value = props.value
       const showCount = props.count !== undefined && value.trim().length > 0
@@ -158,7 +175,8 @@ export const SearchBox = defineComponent({
         type: 'search',
         value,
         onInput,
-        onKeydown: props.onKeyDown ?? undefined,
+        // No handler, no listener: nothing is cancelled for a field without key handling.
+        onKeydown: props.onKeyDown ? onKeydown : undefined,
         onFocusin: () => {
           focused.value = true
         },

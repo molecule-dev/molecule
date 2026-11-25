@@ -231,6 +231,49 @@ describe('SearchResults', () => {
     expect(q('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
     expect(q('[data-mol-id="search-active"]')?.textContent).toBe('')
   })
+
+  it('reveals the replacement active row when its index stays the same', () => {
+    const revealed = vi.fn(function (this: HTMLElement, options: ScrollIntoViewOptions) {
+      return [this.dataset.hitId, options]
+    })
+    const old = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView')
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: revealed,
+    })
+    try {
+      render(
+        <SearchResults
+          hits={hits}
+          view={view}
+          activeIndex={0}
+          onOpen={() => {}}
+          emptyText="Nothing"
+        />,
+      )
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+      ])
+      act(() =>
+        root?.render(
+          <SearchResults
+            hits={hits.slice(1)}
+            view={view}
+            activeIndex={0}
+            onOpen={() => {}}
+            emptyText="Nothing"
+          />,
+        ),
+      )
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+        [hits[1].id, { block: 'nearest' }],
+      ])
+    } finally {
+      if (old) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', old)
+      else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
+    }
+  })
 })
 
 /** The document the quick-search test indexes. */

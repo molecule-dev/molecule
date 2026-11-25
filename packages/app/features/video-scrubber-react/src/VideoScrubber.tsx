@@ -1,13 +1,14 @@
-import type {
-  CSSProperties,
-  JSX,
-  KeyboardEvent as ReactKeyboardEvent,
-  PointerEvent as ReactPointerEvent,
-} from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import type { JSX } from 'react'
+import { useMemo } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type CSSProperties,
+  type ElementDragPoint,
+  getClassMap,
+  type KitKeyboardEvent,
+} from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /**
  * One pre-computed thumbnail at a given time. The scrubber renders a
@@ -207,11 +208,6 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
   const currentFrame = timeToFrame(clampedTime, safeFps)
   const totalFrames = timeToFrame(safeDuration, safeFps)
 
-  const stripBodyRef = useRef<HTMLDivElement | null>(null)
-  const seekDragRef = useRef<{ pointerId: number } | null>(null)
-  const [, forceRerender] = useState(0)
-  const bumpTick = useCallback(() => forceRerender((n) => n + 1), [])
-
   const ticks = useMemo(
     () => computeFilmstripTicks(safeDuration, thumbnailCount),
     [safeDuration, thumbnailCount],
@@ -242,67 +238,13 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
   const noThumbnailsLabel = t('videoScrubber.thumbnails.empty', {}, { defaultValue: 'No preview' })
 
   /**
-   * Convert a pointer's clientX (relative to the strip body) to a time
-   * in seconds, snapped to the nearest frame and clamped into
-   * `[0, duration]`.
+   * Seek to the nearest frame at the contact's horizontal position.
    *
-   * @param clientX - Pointer clientX in viewport coordinates.
-   * @returns The seek time in seconds.
+   * @param point - The contact in strip coordinates.
    */
-  function clientXToTime(clientX: number): number {
-    const el = stripBodyRef.current
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    if (rect.width <= 0) return 0
-    const ratio = (clientX - rect.left) / rect.width
-    const clampedRatio = ratio < 0 ? 0 : ratio > 1 ? 1 : ratio
-    const time = clampedRatio * safeDuration
-    return snapTimeToFrame(time, safeFps, safeDuration)
-  }
-
-  /**
-   * Begin a click-to-seek drag on the strip body.
-   *
-   * @param event - React pointer event from the strip body.
-   */
-  function onStripPointerDown(event: ReactPointerEvent<HTMLDivElement>): void {
-    if (event.button !== undefined && event.button !== 0) return
-    if (!onSeek) return
-    seekDragRef.current = { pointerId: event.pointerId }
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId)
-    } catch (_error) {
-      // jsdom + some older browsers may throw — ignore.
-    }
-    onSeek(clientXToTime(event.clientX))
-    bumpTick()
-  }
-
-  /**
-   * Continue a strip-body drag (scrub).
-   *
-   * @param event - React pointer event from the strip body.
-   */
-  function onStripPointerMove(event: ReactPointerEvent<HTMLDivElement>): void {
-    const drag = seekDragRef.current
-    if (!drag || drag.pointerId !== event.pointerId) return
-    onSeek?.(clientXToTime(event.clientX))
-  }
-
-  /**
-   * Finish a strip-body drag.
-   *
-   * @param event - React pointer event from the strip body.
-   */
-  function onStripPointerUp(event: ReactPointerEvent<HTMLDivElement>): void {
-    const drag = seekDragRef.current
-    if (!drag || drag.pointerId !== event.pointerId) return
-    seekDragRef.current = null
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    } catch (_error) {
-      // releasePointerCapture may throw if the pointer was never captured — safe to ignore.
-    }
+  function seekAt({ x, bounds }: ElementDragPoint): void {
+    const ratio = bounds.width > 0 ? Math.max(0, Math.min(1, x / bounds.width)) : 0
+    onSeek?.(snapTimeToFrame(ratio * safeDuration, safeFps, safeDuration))
   }
 
   /**
@@ -310,9 +252,9 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
    * ±1 second. Home/End jump to start/end. PageUp/PageDown step ±10
    * frames. Always emits a frame-snapped, clamped time via `onSeek`.
    *
-   * @param event - React keyboard event.
+   * @param event - The strip's key event.
    */
-  function onKeyDown(event: ReactKeyboardEvent<HTMLDivElement>): void {
+  function onKeyDown(event: KitKeyboardEvent): void {
     if (!onSeek) return
     const { key, shiftKey } = event
     let next: number | null = null
@@ -350,16 +292,11 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
     touchAction: 'none',
     userSelect: 'none',
   }
-  const cellStyle = (cell: { time: number; position: number }): CSSProperties => ({
+  const cellStyle: CSSProperties = {
     flex: '1 1 0',
-    minWidth: 0,
-    height: '100%',
-    backgroundImage: cellThumbnail(cell.time) ? `url("${cellThumbnail(cell.time)}")` : undefined,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
     backgroundColor: 'var(--mol-video-scrubber-cell-bg, rgba(127, 127, 127, 0.15))',
     borderRight: 'var(--mol-video-scrubber-cell-divider, 1px solid rgba(0, 0, 0, 0.08))',
-  })
+  }
   const playheadStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
@@ -388,7 +325,8 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
   }
 
   return (
-    <div
+    <Box
+      as="div"
       id={id}
       role="group"
       aria-label={rootLabel}
@@ -396,10 +334,10 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
       data-fps={safeFps}
       data-frame={currentFrame}
       className={cm.cn(className)}
-      style={rootStyle}
+      webStyle={rootStyle}
     >
-      <div
-        ref={stripBodyRef}
+      <Box
+        as="div"
         role="slider"
         tabIndex={0}
         aria-label={stripLabel}
@@ -407,50 +345,53 @@ export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
         aria-valuemax={safeDuration}
         aria-valuenow={clampedTime}
         data-mol-id="video-scrubber-strip"
-        style={stripBodyStyle}
-        onPointerDown={onStripPointerDown}
-        onPointerMove={onStripPointerMove}
-        onPointerUp={onStripPointerUp}
-        onPointerCancel={onStripPointerUp}
+        webStyle={stripBodyStyle}
+        drag={onSeek ? { axis: 'horizontal', onStart: seekAt, onMove: seekAt } : undefined}
         onKeyDown={onKeyDown}
       >
         {ticks.map((tk, i) => {
           const src = cellThumbnail(tk.time)
           return (
-            <div
+            <Box
+              as="div"
               key={`cell-${i}`}
               data-mol-id="video-scrubber-cell"
               data-time={tk.time}
               data-index={i}
               role="img"
               aria-label={src ? thumbnailAlt : noThumbnailsLabel}
-              style={cellStyle(tk)}
+              style={{ flex: 1, minWidth: 0, height: '100%', coverImage: src }}
+              webStyle={cellStyle}
             />
           )
         })}
-        <div
+        <Box
+          as="div"
           data-mol-id="video-scrubber-playhead"
           aria-label={playheadLabel}
-          style={playheadStyle}
+          webStyle={playheadStyle}
         />
-      </div>
+      </Box>
       {showFrameNumber ? (
-        <div
+        <Box
+          as="div"
           data-mol-id="video-scrubber-frame-readout"
           aria-label={frameReadoutLabel}
           className={cm.cn(cm.flex({ align: 'center', justify: 'between' }), cm.sp('p', 1))}
-          style={frameReadoutStyle}
+          webStyle={frameReadoutStyle}
         >
-          <span data-mol-id="video-scrubber-frame-current">{formatFrameNumber(currentFrame)}</span>
-          <span data-mol-id="video-scrubber-frame-total">
+          <Text as="span" data-mol-id="video-scrubber-frame-current">
+            {formatFrameNumber(currentFrame)}
+          </Text>
+          <Text as="span" data-mol-id="video-scrubber-frame-total">
             {t(
               'videoScrubber.frameReadout.total',
               { total: totalFrames },
               { defaultValue: '/ {{total}} frames' },
             )}
-          </span>
-        </div>
+          </Text>
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }

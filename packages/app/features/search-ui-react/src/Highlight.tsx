@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 
 import { highlightMatches } from '@molecule/app-client-search'
 import { getClassMap } from '@molecule/app-ui'
+import { Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link Highlight}. */
 export interface HighlightProps {
@@ -24,9 +25,9 @@ export function Highlight({ text, terms }: HighlightProps): React.JSX.Element {
     <>
       {highlightMatches(text, terms).map((seg, i) =>
         seg.hit ? (
-          <mark key={i} className={cm.resultMark}>
+          <Text as="mark" key={i} className={cm.resultMark}>
             {seg.text}
-          </mark>
+          </Text>
         ) : (
           <Fragment key={i}>{seg.text}</Fragment>
         ),

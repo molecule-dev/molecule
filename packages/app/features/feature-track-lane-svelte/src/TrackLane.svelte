@@ -6,9 +6,12 @@
   `useTranslation()` so a locale switch re-renders it.
 -->
 <script lang="ts">
+  import type { Action } from 'svelte/action'
+
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { createDragHosts, type DragHandlers } from './drag.js'
   import {
     clampClipMove,
     clipToPixels,
@@ -34,18 +37,32 @@
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
 
-  /** The pointer state of the drag in progress, or null. */
+  /** What a drag does to the clip: `'move'` drags its body, `'resize'` its right edge. */
+  type DragMode = 'move' | 'resize'
+
+  /** The gesture in progress: the clip being dragged, and where it was when the contact began. */
   interface DragState {
     clipId: string
-    mode: 'move' | 'resize'
-    pointerId: number
-    startX: number
+    mode: DragMode
+    /** The clip's start time when the contact began. */
     originStartTime: number
+    /** The clip's duration when the contact began. */
     originDuration: number
+    /** Whether the pointer has travelled past the drag threshold. */
     moved: boolean
   }
 
+  /** The gesture in progress, or null. */
   let drag: DragState | null = null
+
+  /** The drag hosts of this lane: every clip block and every resize handle. */
+  const hosts = createDragHosts()
+
+  /**
+   * Ends the contact of a clip block or handle that leaves the lane, as
+   * React's drag cleanup does when it unmounts.
+   */
+  const dragHost: Action<HTMLElement> = (node) => ({ destroy: () => hosts.cancel(node) })
 
   const scale = $derived(pixelsPerSecond ?? 20)
   const rowHeight = $derived(height ?? 44)
@@ -109,72 +126,53 @@
   }
 
   /**
-   * Native pointermove handler used during an active drag.
+   * Binds clip movement or resizing with a fixed origin for the contact.
    *
-   * @param event - Native pointer event.
-   */
-  function onMove(event: PointerEvent): void {
-    const current = drag
-    if (!current || event.pointerId !== current.pointerId) return
-    const dx = event.clientX - current.startX
-    if (!current.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX) return
-    current.moved = true
-    const dt = pixelsToTime(Math.abs(dx), scale) * (dx < 0 ? -1 : 1)
-    if (current.mode === 'move') {
-      onClipMove?.(current.clipId, clampClipMove(current.originStartTime + dt), lane)
-    } else {
-      onClipResize?.(
-        current.clipId,
-        Math.max(MIN_CLIP_DURATION_SECONDS, current.originDuration + dt),
-        lane,
-      )
-    }
-  }
-
-  /**
-   * Native pointerup / pointercancel handler that closes the drag gesture.
-   *
-   * @param event - Native pointer event.
-   */
-  function onUp(event: PointerEvent): void {
-    const current = drag
-    if (!current || event.pointerId !== current.pointerId) return
-    const wasClick = !current.moved
-    const finishedClipId = current.clipId
-    const finishedMode = current.mode
-    drag = null
-    if (wasClick && finishedMode === 'move') onClipClick?.(finishedClipId, lane)
-  }
-
-  $effect(() => {
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('pointercancel', onUp)
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('pointercancel', onUp)
-    }
-  })
-
-  /**
-   * Begin a drag gesture on a clip body or a resize handle.
-   *
-   * @param event - The pointer event from the clip element.
    * @param clip - The clip being dragged.
    * @param mode - `'move'` for body drags, `'resize'` for handle drags.
+   * @returns What the drag host reports about the contact.
    */
-  function beginDrag(event: PointerEvent, clip: Clip, mode: DragState['mode']): void {
-    if (event.button !== undefined && event.button !== 0) return
-    event.stopPropagation()
-    drag = {
-      clipId: clip.id,
-      mode,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      originStartTime: clip.startTime,
-      originDuration: clip.duration,
-      moved: false,
+  function clipDrag(clip: Clip, mode: DragMode): DragHandlers {
+    /** The gesture in progress when it is this clip's and of this mode. */
+    const current = (): DragState | undefined =>
+      drag?.clipId === clip.id && drag.mode === mode ? drag : undefined
+    return {
+      onStart() {
+        if (drag) return
+        drag = {
+          clipId: clip.id,
+          mode,
+          originStartTime: clip.startTime,
+          originDuration: clip.duration,
+          moved: false,
+        }
+      },
+      onMove(dx) {
+        const state = current()
+        if (!state || (!state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
+        state.moved = true
+        const dt = pixelsToTime(Math.abs(dx), scale) * (dx < 0 ? -1 : 1)
+        if (mode === 'move') {
+          onClipMove?.(clip.id, clampClipMove(state.originStartTime + dt), lane)
+        } else {
+          onClipResize?.(
+            clip.id,
+            Math.max(MIN_CLIP_DURATION_SECONDS, state.originDuration + dt),
+            lane,
+          )
+        }
+      },
+      onEnd(dx) {
+        const state = current()
+        if (!state) return
+        drag = null
+        if (mode === 'move' && !state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX) {
+          onClipClick?.(clip.id, lane)
+        }
+      },
+      onCancel() {
+        if (current()) drag = null
+      },
     }
   }
 </script>
@@ -214,7 +212,8 @@
         data-selected={selectedClipId === clip.id ? 'true' : 'false'}
         class={cm.cn(cm.cursorPointer)}
         style={clipStyle(clip, selectedClipId === clip.id)}
-        onpointerdown={(event) => beginDrag(event, clip, 'move')}
+        use:dragHost
+        onpointerdown={(event) => hosts.press(event.currentTarget, event, clipDrag(clip, 'move'))}
       >
         {#if clip.label !== undefined}<span
             data-mol-id="track-lane-clip-label"
@@ -227,7 +226,9 @@
           aria-label={resizeLabel}
           data-mol-id="track-lane-clip-handle"
           style="position: absolute; top: 0px; right: 0px; bottom: 0px; width: 8px; cursor: ew-resize; touch-action: none"
-          onpointerdown={(event) => beginDrag(event, clip, 'resize')}
+          use:dragHost
+          onpointerdown={(event) =>
+            hosts.press(event.currentTarget, event, clipDrag(clip, 'resize'))}
         ></div>
       </div>
     {/each}

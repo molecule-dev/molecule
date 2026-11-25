@@ -56,7 +56,7 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
  */
 function dispatchPointer(
   target: Element | Window,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
   init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
 ): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
@@ -204,6 +204,20 @@ describe('<TrackLane>', () => {
     expect(onClipClick).toHaveBeenCalledTimes(1)
     expect(onClipClick).toHaveBeenCalledWith('c2', undefined)
     expect(onClipMove).not.toHaveBeenCalled()
+  })
+
+  it('does not activate a clip when a stationary contact is canceled', () => {
+    const onClipClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <TrackLane clips={[{ id: 'clip', startTime: 0, duration: 2 }]} onClipClick={onClipClick} />
+      </Wrap>,
+    )
+    const clip = container.querySelector('[data-mol-id="track-lane-clip"]')
+    if (!clip) throw new Error('clip missing')
+    dispatchPointer(clip, 'pointerdown', { pointerId: 3 })
+    dispatchPointer(window, 'pointercancel', { pointerId: 3 })
+    expect(onClipClick).not.toHaveBeenCalled()
   })
 
   it('fires onClipMove (not onClipClick) when pointer moves past the drag threshold', () => {

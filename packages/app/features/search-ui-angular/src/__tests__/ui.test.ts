@@ -329,6 +329,58 @@ describe('SearchBox', () => {
     expect(tips).toContain('«searchUi.examplePhrase»')
     expect(tips).toContain('«searchUi.exampleExcluded»')
   })
+
+  it('cancels the legacy IME confirmation Enter and hands a legacy IME key to the handler as composing', async () => {
+    // What the key handler reads on each event: whether it was already cancelled, and `isComposing`.
+    const onKeyDown = vi.fn((event: KeyboardEvent) => [
+      event.defaultPrevented,
+      event.isComposing,
+      event.key,
+    ])
+    const boxTemplate = `<div mol-search-box
+      [value]="p['value']"
+      [onChange]="p['onChange']"
+      [onKeyDown]="p['onKeyDown']"
+      [placeholder]="p['placeholder']"
+      [molId]="p['molId']"
+    ></div>`
+    const mountBox = async (props: Record<string, unknown>): Promise<void> => {
+      mounted.push(await mount(boxTemplate, SearchBox as Type<unknown>, props))
+    }
+    /** Presses a key on the input; false when a listener cancelled the key's default action. */
+    const press = (init: KeyboardEventInit): boolean =>
+      (q('[data-mol-id="cat-input"]') as HTMLInputElement).dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }),
+      )
+    await mountBox({
+      value: 'auth',
+      onChange: vi.fn(),
+      onKeyDown,
+      placeholder: 'Search packages',
+      molId: 'cat',
+    })
+    // An ordinary key reaches the handler as it is.
+    expect(press({ key: 'ArrowDown' })).toBe(true)
+    // An Enter the IME is still composing is the IME's own: it is handed over untouched.
+    expect(press({ key: 'Enter', isComposing: true })).toBe(true)
+    // A legacy IME confirms with key code 229 once composing ended: that Enter is
+    // cancelled before the handler runs, so it submits nothing.
+    expect(press({ key: 'Enter', keyCode: 229, isComposing: false })).toBe(false)
+    // Another legacy key is left alone, and the handler still sees the IME composing.
+    expect(press({ key: 'a', keyCode: 229 })).toBe(true)
+    expect(press({ key: 'Escape' })).toBe(true)
+    expect(onKeyDown.mock.results.map((call) => call.value)).toEqual([
+      [false, false, 'ArrowDown'],
+      [false, true, 'Enter'],
+      [true, true, 'Enter'],
+      [false, true, 'a'],
+      [false, false, 'Escape'],
+    ])
+
+    // A field given no key handler cancels nothing.
+    await mountBox({ value: 'auth', onChange: vi.fn(), placeholder: 'Search', molId: 'cat' })
+    expect(press({ key: 'Enter', keyCode: 229, isComposing: false })).toBe(true)
+  })
 })
 
 /** The document the result tests index (a type alias, so it is a `ClientSearchDocument`). */
@@ -524,6 +576,108 @@ describe('SearchResults', () => {
     await m.setProps({ hits: [] })
     expect(tags()).toEqual(['i', 'p', 'p', 'i'])
     expect(m.host.querySelector('mol-search-results')).toBeNull()
+  })
+
+  it('reveals the replacement active row when its index stays the same', async () => {
+    const revealed = vi.fn(function (this: HTMLElement, options: ScrollIntoViewOptions) {
+      return [this.dataset.hitId, options]
+    })
+    const old = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView')
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: revealed,
+    })
+    try {
+      const m = await mount(resultsTemplate, SearchResults as Type<unknown>, {
+        hits,
+        view,
+        activeIndex: 0,
+        onOpen: () => {},
+        emptyText: 'Nothing',
+      })
+      mounted.push(m)
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+      ])
+      // The hits change under the component, as a new query's results do.
+      await m.setProps({ hits: hits.slice(1), view })
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+        [hits[1].id, { block: 'nearest' }],
+      ])
+      // Rendering the same results again as equal new objects is not a new active row.
+      await m.setProps({ hits: [{ ...hits[1] }], view })
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+        [hits[1].id, { block: 'nearest' }],
+      ])
+    } finally {
+      if (old) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', old)
+      else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
+    }
+  })
+
+  it('activates a row once per hover, and never for a touch contact', async () => {
+    const onOpen = vi.fn()
+    const onActivate = vi.fn()
+    const onPrefetch = vi.fn()
+    const m = await mount(resultsTemplate, SearchResults as Type<unknown>, {
+      hits,
+      view,
+      activeIndex: -1,
+      onActivate,
+      onOpen,
+      onPrefetch,
+      emptyText: 'Nothing',
+      molId: 'cat',
+    })
+    mounted.push(m)
+    const rows = (): HTMLElement[] => [
+      ...m.host.querySelectorAll<HTMLElement>('[data-mol-id="cat-hit"]'),
+    ]
+    const [first, second] = rows()
+    // A mouse or pen entering the row activates it and warms its page; the mouse entry
+    // the browser sends for the same move is not a second hover.
+    first.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+    expect(onActivate.mock.calls).toEqual([[0]])
+    expect(onPrefetch.mock.calls).toEqual([[hits[0].doc]])
+    first.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+    // Moving between the row's own children is not an entry.
+    const [heading, description] = [...first.querySelector('a')!.children] as HTMLElement[]
+    description.dispatchEvent(
+      new PointerEvent('pointerover', {
+        bubbles: true,
+        pointerType: 'mouse',
+        relatedTarget: heading,
+      }),
+    )
+    expect(onActivate).toHaveBeenCalledTimes(1)
+    expect(onPrefetch).toHaveBeenCalledTimes(1)
+    // Leaving and coming back is a new hover.
+    const around = first.parentElement!
+    first.dispatchEvent(
+      new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+        relatedTarget: around,
+      }),
+    )
+    first.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, relatedTarget: around }))
+    expect(onActivate).toHaveBeenCalledTimes(1)
+    first.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+    expect(onActivate.mock.calls).toEqual([[0], [0]])
+    onActivate.mockClear()
+    onPrefetch.mockClear()
+    // A finger is not a hover: the row warms on the touch itself, and the mouse event a
+    // browser sends after the touch is not a hover either.
+    second.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'touch' }))
+    second.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+    second.dispatchEvent(new Event('touchstart', { bubbles: true }))
+    expect(onActivate).not.toHaveBeenCalled()
+    expect(onPrefetch.mock.calls).toEqual([[hits[1].doc]])
+    // A pen entering afterwards is a hover again.
+    second.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'pen' }))
+    expect(onActivate.mock.calls).toEqual([[1]])
   })
 })
 

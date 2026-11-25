@@ -11,17 +11,18 @@
 
 import {
   defineComponent,
+  type Directive,
   h,
-  onBeforeUnmount,
-  onMounted,
   type PropType,
   type VNode,
   type VNodeChild,
+  withDirectives,
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
+import { createDragHosts, type DragHandlers } from './drag.js'
 import {
   clampClipMove,
   clipToPixels,
@@ -31,19 +32,18 @@ import {
 } from './geometry.js'
 import type { Clip, TrackLaneProps } from './types.js'
 
-/** The pointer state of one drag gesture, kept between the window listeners. */
+/** What a drag does to the clip: `'move'` drags its body, `'resize'` its right edge. */
+type DragMode = 'move' | 'resize'
+
+/** The gesture in progress: the clip being dragged, and where it was when the contact began. */
 interface DragState {
   /** The clip being moved or resized. */
   clipId: string
   /** `'move'` for body drags, `'resize'` for handle drags. */
-  mode: 'move' | 'resize'
-  /** The pointer that started the gesture. */
-  pointerId: number
-  /** The pointer's client X at the press. */
-  startX: number
-  /** The clip's start time at the press. */
+  mode: DragMode
+  /** The clip's start time when the contact began. */
   originStartTime: number
-  /** The clip's duration at the press. */
+  /** The clip's duration when the contact began. */
   originDuration: number
   /** Whether the pointer has travelled past the drag threshold. */
   moved: boolean
@@ -112,76 +112,68 @@ export const TrackLane = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
+    /** The gesture in progress, or null. */
     let drag: DragState | null = null
 
+    /** The drag hosts of this lane: every clip block and every resize handle. */
+    const hosts = createDragHosts()
+
     /**
-     * Native pointermove handler used during an active drag.
-     *
-     * @param event - Native pointer event.
+     * Ends the contact of a clip block or handle that leaves the lane, as
+     * React's drag cleanup does when it unmounts.
      */
-    function onMove(event: PointerEvent): void {
-      const current = drag
-      if (!current || event.pointerId !== current.pointerId) return
-      const dx = event.clientX - current.startX
-      if (!current.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX) return
-      current.moved = true
-      const scale = props.pixelsPerSecond ?? 20
-      const dt = pixelsToTime(Math.abs(dx), scale) * (dx < 0 ? -1 : 1)
-      if (current.mode === 'move') {
-        props.onClipMove?.(current.clipId, clampClipMove(current.originStartTime + dt), props.lane)
-      } else {
-        props.onClipResize?.(
-          current.clipId,
-          Math.max(MIN_CLIP_DURATION_SECONDS, current.originDuration + dt),
-          props.lane,
-        )
-      }
+    const vDragHost: Directive<HTMLElement> = {
+      unmounted: (element) => hosts.cancel(element),
     }
 
     /**
-     * Native pointerup / pointercancel handler that closes the drag gesture.
+     * Binds clip movement or resizing with a fixed origin for the contact.
      *
-     * @param event - Native pointer event.
-     */
-    function onUp(event: PointerEvent): void {
-      const current = drag
-      if (!current || event.pointerId !== current.pointerId) return
-      const wasClick = !current.moved
-      const finishedClipId = current.clipId
-      const finishedMode = current.mode
-      drag = null
-      if (wasClick && finishedMode === 'move') props.onClipClick?.(finishedClipId, props.lane)
-    }
-
-    onMounted(() => {
-      window.addEventListener('pointermove', onMove)
-      window.addEventListener('pointerup', onUp)
-      window.addEventListener('pointercancel', onUp)
-    })
-    onBeforeUnmount(() => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('pointercancel', onUp)
-    })
-
-    /**
-     * Begin a drag gesture on a clip body or a resize handle.
-     *
-     * @param event - The pointer event from the clip element.
      * @param clip - The clip being dragged.
      * @param mode - `'move'` for body drags, `'resize'` for handle drags.
+     * @returns What the drag host reports about the contact.
      */
-    function beginDrag(event: PointerEvent, clip: Clip, mode: DragState['mode']): void {
-      if (event.button !== undefined && event.button !== 0) return
-      event.stopPropagation()
-      drag = {
-        clipId: clip.id,
-        mode,
-        pointerId: event.pointerId,
-        startX: event.clientX,
-        originStartTime: clip.startTime,
-        originDuration: clip.duration,
-        moved: false,
+    function clipDrag(clip: Clip, mode: DragMode): DragHandlers {
+      /** The gesture in progress when it is this clip's and of this mode. */
+      const current = (): DragState | undefined =>
+        drag?.clipId === clip.id && drag.mode === mode ? drag : undefined
+      return {
+        onStart() {
+          if (drag) return
+          drag = {
+            clipId: clip.id,
+            mode,
+            originStartTime: clip.startTime,
+            originDuration: clip.duration,
+            moved: false,
+          }
+        },
+        onMove(dx) {
+          const state = current()
+          if (!state || (!state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
+          state.moved = true
+          const dt = pixelsToTime(Math.abs(dx), props.pixelsPerSecond ?? 20) * (dx < 0 ? -1 : 1)
+          if (mode === 'move') {
+            props.onClipMove?.(clip.id, clampClipMove(state.originStartTime + dt), props.lane)
+          } else {
+            props.onClipResize?.(
+              clip.id,
+              Math.max(MIN_CLIP_DURATION_SECONDS, state.originDuration + dt),
+              props.lane,
+            )
+          }
+        },
+        onEnd(dx) {
+          const state = current()
+          if (!state) return
+          drag = null
+          if (mode === 'move' && !state.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX) {
+            props.onClipClick?.(clip.id, props.lane)
+          }
+        },
+        onCancel() {
+          if (current()) drag = null
+        },
       }
     }
 
@@ -285,31 +277,39 @@ export const TrackLane = defineComponent({
           )
         }
         children.push(
-          h('div', {
-            role: 'separator',
-            'aria-label': resizeLabel,
-            'data-mol-id': 'track-lane-clip-handle',
-            style: handleStyle,
-            onPointerdown: (event: PointerEvent) => beginDrag(event, clip, 'resize'),
-          }),
+          withDirectives(
+            h('div', {
+              role: 'separator',
+              'aria-label': resizeLabel,
+              'data-mol-id': 'track-lane-clip-handle',
+              style: handleStyle,
+              onPointerdown: (event: PointerEvent) =>
+                hosts.press(event.currentTarget as HTMLElement, event, clipDrag(clip, 'resize')),
+            }),
+            [[vDragHost]],
+          ),
         )
 
-        return h(
-          'div',
-          {
-            key: clip.id,
-            role: 'button',
-            tabIndex: 0,
-            'aria-label': clipLabel(clip),
-            'aria-pressed': isSelected ? 'true' : undefined,
-            'data-mol-id': 'track-lane-clip',
-            'data-clip-id': clip.id,
-            'data-selected': isSelected ? 'true' : 'false',
-            class: cm.cn(cm.cursorPointer),
-            style: clipStyle,
-            onPointerdown: (event: PointerEvent) => beginDrag(event, clip, 'move'),
-          },
-          children,
+        return withDirectives(
+          h(
+            'div',
+            {
+              key: clip.id,
+              role: 'button',
+              tabIndex: 0,
+              'aria-label': clipLabel(clip),
+              'aria-pressed': isSelected ? 'true' : undefined,
+              'data-mol-id': 'track-lane-clip',
+              'data-clip-id': clip.id,
+              'data-selected': isSelected ? 'true' : 'false',
+              class: cm.cn(cm.cursorPointer),
+              style: clipStyle,
+              onPointerdown: (event: PointerEvent) =>
+                hosts.press(event.currentTarget as HTMLElement, event, clipDrag(clip, 'move')),
+            },
+            children,
+          ),
+          [[vDragHost]],
         )
       })
 

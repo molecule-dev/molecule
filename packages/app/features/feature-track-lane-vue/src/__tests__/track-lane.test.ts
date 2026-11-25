@@ -43,7 +43,7 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   }),
 }))
 
-import { createApp, defineComponent, h, type VNodeChild } from 'vue'
+import { createApp, defineComponent, h, nextTick, shallowRef, type VNodeChild } from 'vue'
 
 import {
   clampClipMove,
@@ -58,6 +58,8 @@ import {
 interface Mounted {
   /** The host element the app mounted into. */
   container: HTMLElement
+  /** Replaces the lane's props (merged over the current ones) and waits for its re-render. */
+  setProps(next: Partial<TrackLaneProps>): Promise<void>
   /** Unmounts the app (and with it the component's window listeners). */
   unmount: () => void
 }
@@ -70,15 +72,21 @@ let apps: Mounted[] = []
  *
  * @param props - Component props.
  * @param slots - Named slots.
- * @returns The host element and its unmount function.
+ * @returns The host element, its re-render and its unmount function.
  */
 function render(props: TrackLaneProps, slots?: Record<string, () => VNodeChild[]>): Mounted {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const app = createApp(defineComponent({ render: () => h(TrackLane, props, slots) }))
+  // The props as a ref, so replacing them re-renders the wrapper.
+  const current = shallowRef<TrackLaneProps>(props)
+  const app = createApp(defineComponent({ render: () => h(TrackLane, current.value, slots) }))
   app.mount(host)
   const mounted: Mounted = {
     container: host,
+    setProps: async (next) => {
+      current.value = { ...current.value, ...next }
+      await nextTick()
+    },
     unmount: () => {
       app.unmount()
       host.remove()
@@ -97,7 +105,7 @@ function render(props: TrackLaneProps, slots?: Record<string, () => VNodeChild[]
  */
 function dispatchPointer(
   target: Element | Window,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
   init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
 ): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
@@ -113,6 +121,56 @@ function dispatchPointer(
   target.dispatchEvent(event)
 }
 
+/**
+ * The element of the clip with the given id.
+ *
+ * @param container - The mounted lane's host element.
+ * @param id - The clip id.
+ * @returns The clip block.
+ */
+function clipOf(container: HTMLElement, id: string): Element {
+  const clip = container.querySelector(`[data-mol-id="track-lane-clip"][data-clip-id="${id}"]`)
+  if (!clip) throw new Error(`clip ${id} missing`)
+  return clip
+}
+
+/** One pointer-capture call a test recorded: the verb, the element and the pointer id. */
+type CaptureCall = ['set' | 'release', Element, number]
+
+/** Puts the page's pointer capture back after each test. */
+const restoreCapture: Array<() => void> = []
+
+/**
+ * Records pointer capture for the current test (jsdom has none of its own).
+ *
+ * @returns Each call so far.
+ */
+function recordPointerCapture(): CaptureCall[] {
+  const calls: CaptureCall[] = []
+  const record = (verb: 'set' | 'release') =>
+    function (this: Element, pointerId: number): void {
+      calls.push([verb, this, pointerId])
+    }
+  const own = {
+    setPointerCapture: Object.getOwnPropertyDescriptor(Element.prototype, 'setPointerCapture'),
+    releasePointerCapture: Object.getOwnPropertyDescriptor(
+      Element.prototype,
+      'releasePointerCapture',
+    ),
+  }
+  Object.defineProperties(Element.prototype, {
+    setPointerCapture: { configurable: true, value: record('set') },
+    releasePointerCapture: { configurable: true, value: record('release') },
+  })
+  restoreCapture.push(() => {
+    for (const name of ['setPointerCapture', 'releasePointerCapture'] as const) {
+      if (own[name]) Object.defineProperty(Element.prototype, name, own[name])
+      else delete (Element.prototype as Partial<Element>)[name]
+    }
+  })
+  return calls
+}
+
 const baseClips: Clip[] = [
   { id: 'c1', startTime: 0, duration: 2, color: '#0af', label: 'Kick' },
   { id: 'c2', startTime: 4, duration: 1.5, label: 'Snare' },
@@ -122,6 +180,7 @@ const baseClips: Clip[] = [
 afterEach(() => {
   for (const app of apps) app.unmount()
   apps = []
+  for (const restore of restoreCapture.splice(0)) restore()
   document.body.innerHTML = ''
 })
 
@@ -219,6 +278,139 @@ describe('<TrackLane>', () => {
     expect(onClipClick).toHaveBeenCalledTimes(1)
     expect(onClipClick).toHaveBeenCalledWith('c2', undefined)
     expect(onClipMove).not.toHaveBeenCalled()
+  })
+
+  it('does not activate a clip when a stationary contact is canceled', () => {
+    const onClipClick = vi.fn()
+    const { container } = render({
+      clips: [{ id: 'clip', startTime: 0, duration: 2 }],
+      onClipClick,
+    })
+    const clip = container.querySelector('[data-mol-id="track-lane-clip"]')
+    if (!clip) throw new Error('clip missing')
+    dispatchPointer(clip, 'pointerdown', { pointerId: 3 })
+    dispatchPointer(window, 'pointercancel', { pointerId: 3 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  // Beyond React's suite: the gesture rules React's lane gets from its UI
+  // kit's drag binding, which React's own tests do not pin.
+  it('does not activate a clip when the window loses focus before the release', () => {
+    const onClipClick = vi.fn()
+    const { container } = render({ clips: baseClips, onClipClick })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    window.dispatchEvent(new FocusEvent('blur'))
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('stops reporting moves when the window loses focus mid-drag', () => {
+    const onClipMove = vi.fn()
+    const { container } = render({ clips: baseClips, onClipMove })
+    dispatchPointer(clipOf(container, 'c2'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    window.dispatchEvent(new FocusEvent('blur'))
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onClipMove).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancels the gesture when the pressed clip loses its pointer capture', () => {
+    const onClipClick = vi.fn()
+    const { container } = render({ clips: baseClips, onClipClick })
+    clipOf(container, 'c1').dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 100, pointerId: 1 }),
+    )
+    clipOf(container, 'c1').dispatchEvent(new PointerEvent('lostpointercapture', { pointerId: 1 }))
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('does not click when the release is past the drag threshold without a move', () => {
+    const onClipClick = vi.fn()
+    const { container } = render({ clips: baseClips, onClipClick })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 110, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('ignores a press from a non-primary pointer', () => {
+    const onClipClick = vi.fn()
+    const { container } = render({ clips: baseClips, onClipClick })
+    clipOf(container, 'c1').dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 100,
+        button: 0,
+        pointerId: 2,
+        pointerType: 'touch',
+        isPrimary: false,
+      }),
+    )
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 2 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('lets an ancestor see the pointer press', () => {
+    const onPointerDown = vi.fn()
+    window.addEventListener('pointerdown', onPointerDown)
+    try {
+      const { container } = render({ clips: baseClips })
+      dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+      expect(onPointerDown).toHaveBeenCalledTimes(1)
+    } finally {
+      window.removeEventListener('pointerdown', onPointerDown)
+    }
+  })
+
+  it('still fires onClipClick when an ancestor stops the release event', () => {
+    const onClipClick = vi.fn()
+    const { container } = render({ clips: baseClips, onClipClick })
+    const stop = (event: Event): void => event.stopPropagation()
+    container.addEventListener('pointerup', stop)
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('captures the pressed clip pointer for the gesture', () => {
+    const calls = recordPointerCapture()
+    const { container } = render({ clips: baseClips })
+    const clip = clipOf(container, 'c2')
+    dispatchPointer(clip, 'pointerdown', { clientX: 100, pointerId: 1 })
+    expect(calls).toEqual([['set', clip, 1]])
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(calls).toEqual([
+      ['set', clip, 1],
+      ['release', clip, 1],
+    ])
+  })
+
+  it('cancels the gesture when the clip leaves the lane mid-drag', async () => {
+    const onClipMove = vi.fn()
+    const { container, setProps } = render({ clips: baseClips, onClipMove })
+    dispatchPointer(clipOf(container, 'c2'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    await setProps({ clips: [baseClips[0], baseClips[2]] })
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onClipMove).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves a press on a control inside a clip alone', () => {
+    const onClipClick = vi.fn()
+    const onClipMove = vi.fn()
+    const { container } = render({
+      clips: [{ id: 'c1', startTime: 0, duration: 2, label: h('button', 'Go') }],
+      onClipClick,
+      onClipMove,
+    })
+    const button = container.querySelector('[data-mol-id="track-lane-clip"] button')
+    if (!button) throw new Error('button missing')
+    dispatchPointer(button, 'pointerdown', { clientX: 20, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 80, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 80, pointerId: 1 })
+    expect(onClipMove).not.toHaveBeenCalled()
+    expect(onClipClick).not.toHaveBeenCalled()
   })
 
   it('fires onClipMove (not onClipClick) when pointer moves past the drag threshold', () => {

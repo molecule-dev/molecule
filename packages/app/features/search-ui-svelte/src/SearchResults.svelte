@@ -7,7 +7,27 @@
   hidden status region after the list. Apps pass a router link through
   `renderLink`.
 -->
+<script lang="ts" module>
+  /**
+   * Whether a row's `over` or `out` event crossed the row's edge. React derives
+   * its enter and leave events from these pairs through `relatedTarget`, so a
+   * move between two of the row's own children is neither.
+   *
+   * @param row - The row the event reached.
+   * @param event - Its pointer or mouse `over`/`out` event.
+   * @returns True when the other end of the move lies outside the row.
+   */
+  const crossesRowEdge = (row: Element, event: MouseEvent | PointerEvent): boolean => {
+    const other = event.relatedTarget
+    return !(other instanceof Node && row.contains(other))
+  }
+</script>
+
 <script lang="ts" generics="T extends ClientSearchDocument">
+  import { untrack } from 'svelte'
+  import type { Action } from 'svelte/action'
+  import { SvelteMap } from 'svelte/reactivity'
+
   import type { ClientSearchDocument } from '@molecule/app-client-search'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
@@ -32,14 +52,110 @@
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
 
-  let listEl: HTMLUListElement | null = $state(null)
+  /**
+   * The rendered rows, by the id of the hit each one shows. It is an element registry, not
+   * state: the effect below takes its row untracked, so the active row's index and id alone
+   * decide when that runs.
+   */
+  const rows = new SvelteMap<string, HTMLLIElement>()
 
-  // Keep the keyboard-active row in view.
+  /**
+   * Registers a row's element under its hit's id for as long as the row is
+   * rendered (React's per-row `ref`).
+   *
+   * @param node - The row's element.
+   * @param id - The id of the hit the row shows.
+   * @returns The action's update and teardown.
+   */
+  const registerRow: Action<HTMLLIElement, string> = (node, id) => {
+    rows.set(id, node)
+    return {
+      update(next) {
+        rows.delete(id)
+        id = next
+        rows.set(id, node)
+      },
+      destroy() {
+        rows.delete(id)
+      },
+    }
+  }
+
+  // Keep the active row in view: when it first renders, and whenever the
+  // active hit changes (a new result list can replace the row under an index
+  // that stays the same). React's effect depends on the active row's index
+  // and on the hit at it, so both are compared by value: receiving the same
+  // results in a new props object is not a new active row.
+  const activeRowIndex = $derived(activeIndex)
+  const activeHitId = $derived(activeRowIndex >= 0 ? hits[activeRowIndex]?.id : undefined)
   $effect(() => {
-    if (activeIndex < 0) return
-    const el = listEl?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`)
-    el?.scrollIntoView?.({ block: 'nearest' })
+    if (activeRowIndex < 0 || activeHitId === undefined) return
+    untrack(() => rows.get(activeHitId))?.scrollIntoView?.({ block: 'nearest' })
   })
+
+  /**
+   * Wires a row's hover the way React's kit wires its `onMouseEnter`: a mouse
+   * or a pen entering the row calls `onEnter` once per entry, while a finger
+   * is not a hover, and neither is the mouse event a browser sends after one.
+   *
+   * @param node - The row's element.
+   * @param onEnter - What a hover entering the row does.
+   * @returns The action's update and teardown.
+   */
+  const rowHover: Action<HTMLLIElement, () => void> = (node, onEnter) => {
+    let inside = false
+    let fromTouch = false
+    /**
+     * Routes one of the row's `over` and `out` events through its enter transition.
+     *
+     * @param entered - Whether the pointer moved onto the row (true) or off it.
+     * @returns The event listener.
+     */
+    const handler =
+      (entered: boolean) =>
+      (event: PointerEvent | MouseEvent): void => {
+        if (!crossesRowEdge(node, event)) return
+        if ('pointerType' in event) {
+          fromTouch = event.pointerType === 'touch'
+          if (fromTouch) return
+        } else if (fromTouch) {
+          // A compatibility mouse entry after a touch is not a hover.
+          return
+        }
+        if (inside === entered) return
+        inside = entered
+        if (entered) onEnter()
+      }
+    /**
+     * Listens for one pointer or mouse event on the row.
+     *
+     * @param type - The event type (`pointerover`, `mouseout`, ...).
+     * @param listener - Its handler.
+     * @returns What stops the listener.
+     */
+    const listen = (
+      type: string,
+      listener: (event: PointerEvent | MouseEvent) => void,
+    ): (() => void) => {
+      const onEvent: EventListener = (event) => listener(event as PointerEvent | MouseEvent)
+      node.addEventListener(type, onEvent)
+      return () => node.removeEventListener(type, onEvent)
+    }
+    const stops = [
+      listen('pointerover', handler(true)),
+      listen('pointerout', handler(false)),
+      listen('mouseover', handler(true)),
+      listen('mouseout', handler(false)),
+    ]
+    return {
+      update(next: () => void) {
+        onEnter = next
+      },
+      destroy() {
+        for (const stop of stops) stop()
+      },
+    }
+  }
 
   // The active row's announcement; empty when no row is keyboard-active.
   const activeHitText = (): string => {
@@ -59,7 +175,6 @@
   <p role="status" class={cm.srOnly} data-mol-id={`${molId}-active`}></p>
 {:else}
   <ul
-    bind:this={listEl}
     aria-label={t('searchUi.results', undefined, { defaultValue: 'Search results' })}
     class={cm.cn(cm.resultList, className)}
     data-mol-id={`${molId}-results`}
@@ -104,12 +219,13 @@
         },
       }}
       <li
+        use:registerRow={hit.id}
         aria-current={active ? 'true' : undefined}
         data-index={i}
         data-mol-id={`${molId}-hit`}
         data-hit-id={hit.id}
         class={cm.cn(cm.resultItem, active && cm.resultItemActive)}
-        onpointerover={() => {
+        use:rowHover={() => {
           onActivate?.(i)
           onPrefetch?.(hit.doc)
         }}

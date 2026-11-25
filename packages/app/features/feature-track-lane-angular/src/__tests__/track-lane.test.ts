@@ -18,7 +18,9 @@ import {
   type ComponentRef,
   createComponent,
   provideZonelessChangeDetection,
+  type TemplateRef,
   type Type,
+  ViewChild,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -60,13 +62,30 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 
 const { clampClipMove, clipToPixels, pixelsToTime, TrackLane } = await import('../index.js')
 
-/** The host template every test mounts: one attribute-selector lane with every input bound. */
-const TEMPLATE = `<div mol-track-lane [name]="p['name']" [clips]="p['clips']" [pixelsPerSecond]="p['pixelsPerSecond']" [lane]="p['lane']" [height]="p['height']" [onClipMove]="p['onClipMove']" [onClipResize]="p['onClipResize']" [onClipClick]="p['onClipClick']" [selectedClipId]="p['selectedClipId']" [className]="p['className']"></div>`
+/**
+ * The host template every test mounts: one attribute-selector lane with every
+ * input bound, and the template a clip label renders a control from.
+ */
+const TEMPLATE = `<ng-template #labelControl><button>Go</button></ng-template><div mol-track-lane [name]="p['name']" [clips]="p['clips']" [pixelsPerSecond]="p['pixelsPerSecond']" [lane]="p['lane']" [height]="p['height']" [onClipMove]="p['onClipMove']" [onClipResize]="p['onClipResize']" [onClipClick]="p['onClipClick']" [selectedClipId]="p['selectedClipId']" [className]="p['className']"></div>`
 
-/** A mounted spec host: its DOM and a teardown. */
+/** The props the host template binds, and the template its `ng-template` holds. */
+class SpecHost {
+  /** The props the template binds. */
+  p: Record<string, unknown> = {}
+  /** The template a clip label renders a control from. */
+  labelControl?: TemplateRef<unknown>
+}
+// The query as a property decorator applied by call, as the component above is.
+ViewChild('labelControl', { static: true })(SpecHost.prototype, 'labelControl')
+
+/** A mounted spec host: its DOM, its re-render and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** The template a clip label renders a control from. */
+  readonly labelControl: TemplateRef<unknown>
+  /** Replaces the lane's props (merged over the current ones) and re-renders it. */
+  setProps(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -85,24 +104,30 @@ async function mount(props: Record<string, unknown>): Promise<Mounted> {
     imports: [TrackLane as Type<unknown>],
     changeDetection: ChangeDetectionStrategy.Eager,
     template: TEMPLATE,
-  })(
-    class SpecHost {
-      /** The props the template binds. */
-      p: Record<string, unknown> = props
-    },
-  )
+  })(SpecHost)
   const appRef: ApplicationRef = await createApplication({
     providers: [provideZonelessChangeDetection()],
   })
-  const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
+  const ref: ComponentRef<SpecHost> = createComponent(Host, {
     environmentInjector: appRef.injector,
   })
+  ref.instance.p = props
   const host = ref.location.nativeElement as HTMLElement
   document.body.appendChild(host)
   appRef.attachView(ref.hostView)
   appRef.tick()
+  const control = ref.instance.labelControl
+  if (!control) throw new Error('the spec host has no label template')
   return {
     host,
+    labelControl: control,
+    setProps: (next) => {
+      ref.instance.p = { ...ref.instance.p, ...next }
+      // Zoneless: tick() only refreshes views marked dirty, and nothing marks
+      // the host after a plain field write, so mark it before ticking.
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -125,6 +150,68 @@ const render = async (props: Record<string, unknown>): Promise<HTMLElement> => {
 }
 
 /**
+ * The mounted lane behind a host element `render` returned.
+ *
+ * @param host - The element `render` returned.
+ * @returns The mounted lane.
+ */
+function laneOf(host: HTMLElement): Mounted {
+  const m = mounted.find((entry) => entry.host === host)
+  if (!m) throw new Error('no lane is mounted in this host')
+  return m
+}
+
+/**
+ * The element of the clip with the given id.
+ *
+ * @param container - The mounted lane's host element.
+ * @param id - The clip id.
+ * @returns The clip block.
+ */
+function clipOf(container: HTMLElement, id: string): Element {
+  const clip = container.querySelector(`[data-mol-id="track-lane-clip"][data-clip-id="${id}"]`)
+  if (!clip) throw new Error(`clip ${id} missing`)
+  return clip
+}
+
+/** One pointer-capture call a test recorded: the verb, the element and the pointer id. */
+type CaptureCall = ['set' | 'release', Element, number]
+
+/** Puts the page's pointer capture back after each test. */
+const restoreCapture: Array<() => void> = []
+
+/**
+ * Records pointer capture for the current test (jsdom has none of its own).
+ *
+ * @returns Each call so far.
+ */
+function recordPointerCapture(): CaptureCall[] {
+  const calls: CaptureCall[] = []
+  const record = (verb: 'set' | 'release') =>
+    function (this: Element, pointerId: number): void {
+      calls.push([verb, this, pointerId])
+    }
+  const own = {
+    setPointerCapture: Object.getOwnPropertyDescriptor(Element.prototype, 'setPointerCapture'),
+    releasePointerCapture: Object.getOwnPropertyDescriptor(
+      Element.prototype,
+      'releasePointerCapture',
+    ),
+  }
+  Object.defineProperties(Element.prototype, {
+    setPointerCapture: { configurable: true, value: record('set') },
+    releasePointerCapture: { configurable: true, value: record('release') },
+  })
+  restoreCapture.push(() => {
+    for (const name of ['setPointerCapture', 'releasePointerCapture'] as const) {
+      if (own[name]) Object.defineProperty(Element.prototype, name, own[name])
+      else delete (Element.prototype as Partial<Element>)[name]
+    }
+  })
+  return calls
+}
+
+/**
  * Dispatch a real `PointerEvent` so the global window listener picks it up.
  *
  * @param target - Element to dispatch from (for pointerdown) or window (for move/up).
@@ -133,7 +220,7 @@ const render = async (props: Record<string, unknown>): Promise<HTMLElement> => {
  */
 function dispatchPointer(
   target: Element | Window,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
   init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
 ): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
@@ -157,6 +244,7 @@ const baseClips: Clip[] = [
 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  for (const restore of restoreCapture.splice(0)) restore()
   document.body.innerHTML = ''
 })
 
@@ -254,6 +342,140 @@ describe('<TrackLane>', () => {
     expect(onClipClick).toHaveBeenCalledTimes(1)
     expect(onClipClick).toHaveBeenCalledWith('c2', undefined)
     expect(onClipMove).not.toHaveBeenCalled()
+  })
+
+  it('does not activate a clip when a stationary contact is canceled', async () => {
+    const onClipClick = vi.fn()
+    const container = await render({
+      clips: [{ id: 'clip', startTime: 0, duration: 2 }],
+      onClipClick,
+    })
+    const clip = container.querySelector('[data-mol-id="track-lane-clip"]')
+    if (!clip) throw new Error('clip missing')
+    dispatchPointer(clip, 'pointerdown', { pointerId: 3 })
+    dispatchPointer(window, 'pointercancel', { pointerId: 3 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  // Beyond React's suite: the gesture rules React's lane gets from its UI
+  // kit's drag binding, which React's own tests do not pin.
+  it('does not activate a clip when the window loses focus before the release', async () => {
+    const onClipClick = vi.fn()
+    const container = await render({ clips: baseClips, onClipClick })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    window.dispatchEvent(new FocusEvent('blur'))
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('stops reporting moves when the window loses focus mid-drag', async () => {
+    const onClipMove = vi.fn()
+    const container = await render({ clips: baseClips, onClipMove })
+    dispatchPointer(clipOf(container, 'c2'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    window.dispatchEvent(new FocusEvent('blur'))
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onClipMove).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancels the gesture when the pressed clip loses its pointer capture', async () => {
+    const onClipClick = vi.fn()
+    const container = await render({ clips: baseClips, onClipClick })
+    const clip = clipOf(container, 'c1')
+    clip.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 100, pointerId: 1 }),
+    )
+    clip.dispatchEvent(new PointerEvent('lostpointercapture', { pointerId: 1 }))
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('does not click when the release is past the drag threshold without a move', async () => {
+    const onClipClick = vi.fn()
+    const container = await render({ clips: baseClips, onClipClick })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 110, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('ignores a press from a non-primary pointer', async () => {
+    const onClipClick = vi.fn()
+    const container = await render({ clips: baseClips, onClipClick })
+    clipOf(container, 'c1').dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 100,
+        button: 0,
+        pointerId: 2,
+        pointerType: 'touch',
+        isPrimary: false,
+      }),
+    )
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 2 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('lets an ancestor see the pointer press', async () => {
+    const onPointerDown = vi.fn()
+    window.addEventListener('pointerdown', onPointerDown)
+    try {
+      const container = await render({ clips: baseClips })
+      dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+      expect(onPointerDown).toHaveBeenCalledTimes(1)
+    } finally {
+      window.removeEventListener('pointerdown', onPointerDown)
+    }
+  })
+
+  it('still fires onClipClick when an ancestor stops the release event', async () => {
+    const onClipClick = vi.fn()
+    const container = await render({ clips: baseClips, onClipClick })
+    const stop = (event: Event): void => event.stopPropagation()
+    container.addEventListener('pointerup', stop)
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('captures the pressed clip pointer for the gesture', async () => {
+    const calls = recordPointerCapture()
+    const container = await render({ clips: baseClips })
+    const clip = clipOf(container, 'c2')
+    dispatchPointer(clip, 'pointerdown', { clientX: 100, pointerId: 1 })
+    expect(calls).toEqual([['set', clip, 1]])
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(calls).toEqual([
+      ['set', clip, 1],
+      ['release', clip, 1],
+    ])
+  })
+
+  it('cancels the gesture when the clip leaves the lane mid-drag', async () => {
+    const onClipMove = vi.fn()
+    const container = await render({ clips: baseClips, onClipMove })
+    dispatchPointer(clipOf(container, 'c2'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    laneOf(container).setProps({ clips: [baseClips[0], baseClips[2]] })
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onClipMove).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves a press on a control inside a clip alone', async () => {
+    const onClipClick = vi.fn()
+    const onClipMove = vi.fn()
+    const container = await render({ clips: baseClips, onClipClick, onClipMove })
+    // The label draws a control inside the clip.
+    laneOf(container).setProps({
+      clips: [{ id: 'c1', startTime: 0, duration: 2, label: laneOf(container).labelControl }],
+    })
+    const button = container.querySelector('[data-mol-id="track-lane-clip"] button')
+    if (!button) throw new Error('button missing')
+    dispatchPointer(button, 'pointerdown', { clientX: 20, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 80, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 80, pointerId: 1 })
+    expect(onClipMove).not.toHaveBeenCalled()
+    expect(onClipClick).not.toHaveBeenCalled()
   })
 
   it('fires onClipMove (not onClipClick) when pointer moves past the drag threshold', async () => {

@@ -1,10 +1,11 @@
-import type { KeyboardEvent as ReactKeyboardEvent, ReactNode, RefObject } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import { useEffect, useState } from 'react'
 
 import type { ClientSearchFilter } from '@molecule/app-client-search'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap, type KeyboardEventHandler } from '@molecule/app-ui'
 import { Icon, Tooltip } from '@molecule/app-ui-react'
+import { Box, Pressable, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { Kbd } from './Kbd.js'
 
@@ -15,9 +16,9 @@ export interface SearchBoxProps {
   /** Called with the new text on every keystroke. */
   onChange: (value: string) => void
   /** Key handling for the input (arrows, Enter, Escape), usually a session's `onKeyDown`. */
-  onKeyDown?: (event: ReactKeyboardEvent<HTMLInputElement>) => void
+  onKeyDown?: KeyboardEventHandler
   /** A ref to the input, so a shortcut can focus it. */
-  inputRef?: RefObject<HTMLInputElement | null>
+  inputRef?: RefObject<ElementHandle | null>
   /** Placeholder, already translated. Also the accessible name unless `label` is given. */
   placeholder: string
   /** Accessible name for the input, already translated. Defaults to `placeholder`. */
@@ -94,7 +95,7 @@ export function SearchBox({
   const help = showHelp ? (
     // The tooltip's content class keeps short labels on one line; the tips
     // are a sentence or two, so the inner block wraps on its own.
-    <div className={cm.searchTips} style={{ whiteSpace: 'normal', maxWidth: 360 }}>
+    <Box as="div" className={cm.searchTips} webStyle={{ whiteSpace: 'normal', maxWidth: 360 }}>
       {t('searchUi.syntax', undefined, {
         defaultValue: 'Narrow with a field, quote a phrase, or exclude a word:',
       })}{' '}
@@ -103,30 +104,31 @@ export function SearchBox({
         t('searchUi.examplePhrase', undefined, { defaultValue: '"exact phrase"' }),
         t('searchUi.exampleExcluded', undefined, { defaultValue: '-word' }),
       ].map((ex, i) => (
-        <span key={ex}>
+        <Text as="span" key={ex}>
           {i > 0 ? ' · ' : ''}
-          <code>{ex}</code>
-        </span>
+          <Text as="code">{ex}</Text>
+        </Text>
       ))}
       {' · '}
       <Kbd>↑</Kbd> <Kbd>↓</Kbd> <Kbd>↵</Kbd>{' '}
       {t('searchUi.keys', undefined, {
         defaultValue: 'The arrow keys move through the results and Enter opens one.',
       })}
-    </div>
+    </Box>
   ) : null
 
   return (
-    <div data-mol-id={`${molId}-box`}>
-      <div className={cm.cn(cm.searchField, className)}>
-        <span className={cm.searchFieldIcon} aria-hidden="true">
+    <Box as="div" data-mol-id={`${molId}-box`}>
+      <Box as="div" className={cm.cn(cm.searchField, className)}>
+        <Box as="span" className={cm.searchFieldIcon} aria-hidden="true">
           <Icon name="search" size={18} />
-        </span>
-        <input
+        </Box>
+        <TextField
+          as="input"
           ref={inputRef}
           type="search"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onValueChange={(next) => onChange?.(next)}
           onKeyDown={onKeyDown}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -139,21 +141,23 @@ export function SearchBox({
           className={cm.searchFieldInput}
           data-mol-id={`${molId}-input`}
         />
-        <span className={cm.searchFieldActions}>
+        <Box as="span" className={cm.searchFieldActions}>
           {help ? (
             <Tooltip content={help} placement="bottom-end">
-              <button
+              <Pressable
+                as="button"
                 type="button"
                 aria-label={t('searchUi.help', undefined, { defaultValue: 'Search tips' })}
                 className={cm.searchFieldClear}
                 data-mol-id={`${molId}-help`}
               >
                 <Icon name="question" size={16} />
-              </button>
+              </Pressable>
             </Tooltip>
           ) : null}
           {value && onClear ? (
-            <button
+            <Pressable
+              as="button"
               type="button"
               onClick={() => {
                 onClear()
@@ -163,19 +167,22 @@ export function SearchBox({
               className={cm.searchFieldClear}
               data-mol-id={`${molId}-clear`}
             >
-              <span aria-hidden="true">×</span>
-            </button>
+              <Text as="span" aria-hidden="true">
+                ×
+              </Text>
+            </Pressable>
           ) : null}
           {shortcut && !value && !focused ? <Kbd>{shortcut}</Kbd> : null}
-        </span>
-      </div>
+        </Box>
+      </Box>
       {afterField}
       {hasStatus ? (
-        <div className={cm.searchStatusRow}>
+        <Box as="div" className={cm.searchStatusRow}>
           {filters.map((f, i) => {
             const text = `${f.negate ? '−' : ''}${f.field}: ${f.values.join(', ')}`
             return (
-              <button
+              <Pressable
+                as="button"
                 key={`${f.field}:${f.values.join(',')}:${i}`}
                 type="button"
                 onClick={() => onRemoveFilter?.(i)}
@@ -189,20 +196,20 @@ export function SearchBox({
                 data-filter-field={f.field}
               >
                 {text}
-                <span className={cm.filterChipRemove} aria-hidden="true">
+                <Text as="span" className={cm.filterChipRemove} aria-hidden="true">
                   ×
-                </span>
-              </button>
+                </Text>
+              </Pressable>
             )
           })}
-          <span className={cm.mxAuto} />
+          <Box as="span" className={cm.mxAuto} />
           {showCount ? (
-            <span data-mol-id={`${molId}-count`}>
+            <Text as="span" data-mol-id={`${molId}-count`}>
               {t('searchUi.count', { count }, { defaultValue: '{{count}} results' })}
-            </span>
+            </Text>
           ) : null}
-        </div>
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }

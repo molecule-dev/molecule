@@ -1,8 +1,9 @@
-import type { MouseEvent as ReactMouseEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type AnchorProps, type ElementHandle, getClassMap } from '@molecule/app-ui'
+import { Anchor, Box, Text, useRevealElement } from '@molecule/app-ui-react/elements'
 
 import { Highlight } from './Highlight.js'
 
@@ -33,13 +34,11 @@ export interface SearchResultView {
 }
 
 /** Props the row's link gets; `renderLink` turns them into an element. */
-export interface SearchResultLinkProps {
-  href: string
-  className: string
-  children: ReactNode
-  onClick: (event: ReactMouseEvent<HTMLElement>) => void
+export interface SearchResultLinkProps extends Required<
+  Pick<AnchorProps<ReactNode>, 'href' | 'className' | 'children' | 'onClick' | 'data-mol-id'>
+> {
+  /** Optional router state. */
   state?: unknown
-  'data-mol-id': string
 }
 
 /** Props for {@link SearchResults}. */
@@ -78,7 +77,7 @@ export interface SearchResultsProps<T> {
  */
 function defaultLink(props: SearchResultLinkProps): ReactNode {
   const { state: _state, children, ...rest } = props
-  return <a {...rest}>{children}</a>
+  return <Anchor {...rest}>{children}</Anchor>
 }
 
 /**
@@ -107,28 +106,29 @@ export function SearchResults<T>({
 }: SearchResultsProps<T>): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const listRef = useRef<HTMLUListElement | null>(null)
+  const rows = useRef(new Map<string, ElementHandle>())
+  const reveal = useRevealElement()
+  const activeHit = activeIndex >= 0 ? hits[activeIndex] : undefined
+  const activeId = activeHit?.id
 
   // Keep the keyboard-active row in view.
   useEffect(() => {
-    if (activeIndex < 0) return
-    const el = listRef.current?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`)
-    el?.scrollIntoView?.({ block: 'nearest' })
-  }, [activeIndex])
+    const row = activeId === undefined ? undefined : rows.current.get(activeId)
+    if (row) reveal(row)
+  }, [activeId, activeIndex, reveal])
 
   if (!hits.length) {
     return (
       <>
-        <p className={cm.resultEmpty} data-mol-id={`${molId}-empty`}>
+        <Text as="p" className={cm.resultEmpty} data-mol-id={`${molId}-empty`}>
           {emptyText}
-        </p>
-        <p role="status" className={cm.srOnly} data-mol-id={`${molId}-active`} />
+        </Text>
+        <Text as="p" role="status" className={cm.srOnly} data-mol-id={`${molId}-active`} />
       </>
     )
   }
 
   // The active row's announcement; empty when no row is keyboard-active.
-  const activeHit = activeIndex >= 0 ? hits[activeIndex] : undefined
   const activeText = activeHit
     ? t(
         'searchUi.activeResult',
@@ -143,8 +143,8 @@ export function SearchResults<T>({
 
   return (
     <>
-      <ul
-        ref={listRef}
+      <Box
+        as="ul"
         aria-label={t('searchUi.results', undefined, { defaultValue: 'Search results' })}
         className={cm.cn(cm.resultList, className)}
         data-mol-id={`${molId}-results`}
@@ -154,14 +154,19 @@ export function SearchResults<T>({
           const active = i === activeIndex
           const meta = [...(v.meta ?? [])]
           return (
-            <li
+            <Box
+              as="li"
               key={hit.id}
+              ref={(row) => {
+                if (row) rows.current.set(hit.id, row)
+                else rows.current.delete(hit.id)
+              }}
               aria-current={active ? true : undefined}
               data-index={i}
               data-mol-id={`${molId}-hit`}
               data-hit-id={hit.id}
               className={cm.cn(cm.resultItem, active && cm.resultItemActive)}
-              onPointerEnter={() => {
+              onMouseEnter={() => {
                 onActivate?.(i)
                 onPrefetch?.(hit.doc)
               }}
@@ -181,15 +186,21 @@ export function SearchResults<T>({
                 },
                 children: (
                   <>
-                    <span className={cm.flex({ align: 'baseline', wrap: 'wrap', gap: 2 })}>
-                      <span className={cm.cn(cm.resultTitle, v.mono && cm.resultTitleMono)}>
+                    <Box as="span" className={cm.flex({ align: 'baseline', wrap: 'wrap', gap: 2 })}>
+                      <Text
+                        as="span"
+                        className={cm.cn(cm.resultTitle, v.mono && cm.resultTitleMono)}
+                      >
                         <Highlight text={v.title} terms={hit.terms} />
-                      </span>
+                      </Text>
                       {meta.length ? (
-                        <span className={cm.resultMeta}>{meta.join(' · ')}</span>
+                        <Text as="span" className={cm.resultMeta}>
+                          {meta.join(' · ')}
+                        </Text>
                       ) : null}
                       {hit.related ? (
-                        <span
+                        <Text
+                          as="span"
                           className={cm.resultMeta}
                           data-mol-id={`${molId}-related`}
                           title={t('searchUi.relatedTitle', undefined, {
@@ -197,25 +208,29 @@ export function SearchResults<T>({
                           })}
                         >
                           {t('searchUi.related', undefined, { defaultValue: 'related' })}
-                        </span>
+                        </Text>
                       ) : null}
-                    </span>
+                    </Box>
                     {v.description ? (
-                      <span className={cm.cn(cm.resultDescription, cm.displayBlock)}>
+                      <Text as="span" className={cm.cn(cm.resultDescription, cm.displayBlock)}>
                         <Highlight text={v.description} terms={hit.terms} />
-                      </span>
+                      </Text>
                     ) : null}
                   </>
                 ),
               })}
-              {action ? <span className={cm.resultAction}>{action(hit.doc)}</span> : null}
-            </li>
+              {action ? (
+                <Box as="span" className={cm.resultAction}>
+                  {action(hit.doc)}
+                </Box>
+              ) : null}
+            </Box>
           )
         })}
-      </ul>
-      <p role="status" className={cm.srOnly} data-mol-id={`${molId}-active`}>
+      </Box>
+      <Text as="p" role="status" className={cm.srOnly} data-mol-id={`${molId}-active`}>
         {activeText}
-      </p>
+      </Text>
     </>
   )
 }

@@ -80,7 +80,7 @@ interface ChipRecord {
         [value]="value"
         [attr.value]="restoreValue()"
         (input)="onType($event)"
-        (keydown)="onKeyDown?.($event)"
+        (keydown)="handKeyDown($event)"
         (focus)="focused.set(true)"
         (blur)="focused.set(false)"
         [attr.placeholder]="placeholder"
@@ -489,6 +489,24 @@ export class SearchBox implements AfterViewInit, OnChanges {
   onClearClick(): void {
     this.onClear?.()
     this.inputRef?.current?.focus()
+  }
+
+  /**
+   * Hands a key press to `onKeyDown` the way React's text field does. A legacy IME
+   * reports key code 229 while it composes and on the Enter that confirms it, even
+   * after composing ended: that Enter is cancelled first, so it submits nothing, and
+   * the event reports the IME as composing. A composition still under way is the
+   * IME's own and is handed over as it is. A field given no key handler cancels nothing.
+   *
+   * @param event - The input's keydown event.
+   */
+  handKeyDown(event: KeyboardEvent): void {
+    if (!this.onKeyDown) return
+    const composing = event.isComposing
+    const legacyComposition = event.keyCode === 229
+    if (!composing && legacyComposition && event.key === 'Enter') event.preventDefault()
+    if (legacyComposition) Object.defineProperty(event, 'isComposing', { value: true })
+    this.onKeyDown(event)
   }
 
   /**

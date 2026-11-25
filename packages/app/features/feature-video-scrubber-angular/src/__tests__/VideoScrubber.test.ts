@@ -65,12 +65,14 @@ function buildStubClassMap(): UIClassMap {
 /** The host template, written the way an Angular app writes the component. */
 const TEMPLATE = `<div mol-video-scrubber [duration]="p['duration']" [currentTime]="p['currentTime']" [fps]="p['fps']" [thumbnails]="p['thumbnails']" [onSeek]="p['onSeek']" [showFrameNumber]="p['showFrameNumber']" [thumbnailCount]="p['thumbnailCount']" [thumbnailHeight]="p['thumbnailHeight']" [id]="p['id']" [className]="p['className']"></div>`
 
-/** A mounted spec host: its DOM, a flush and a teardown. */
+/** A mounted spec host: its DOM, a flush, a props update and a teardown. */
 interface Mounted {
   /** The host element whose child is the component. */
   readonly host: HTMLElement
   /** Flushes change detection. */
   flush(): void
+  /** Changes the props the template reads, then flushes change detection. */
+  set(next: Record<string, unknown>): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -111,6 +113,12 @@ async function mount(
   return {
     host,
     flush: () => appRef.tick(),
+    set: (next) => {
+      // A new props object and a mark for check: a zoneless tick does not see a plain field write.
+      ref.instance.p = { ...ref.instance.p, ...next }
+      ref.changeDetectorRef.markForCheck()
+      appRef.tick()
+    },
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -133,29 +141,99 @@ async function render(props: Record<string, unknown>): Promise<HTMLElement> {
   return instance.host
 }
 
+/** A scrubber whose props a test can change while it stays mounted. */
+interface LiveView {
+  /** The host element holding the rendered component. */
+  readonly container: HTMLElement
+  /** Changes props and lets Angular apply the change. */
+  set(next: Record<string, unknown>): Promise<void>
+  /** Unmounts the scrubber; the test's teardown then leaves it alone. */
+  unmount(): Promise<void>
+}
+
+/**
+ * Mounts a {@link VideoScrubber} whose props a test can change while it stays mounted.
+ *
+ * @param props - The scrubber props.
+ * @returns The container, a way to change props and a way to unmount early.
+ */
+async function renderLive(props: Record<string, unknown>): Promise<LiveView> {
+  const instance = await mount(VideoScrubber, props)
+  mounted.push(instance)
+  return {
+    container: instance.host,
+    set: async (next) => instance.set(next),
+    unmount: async () => {
+      await instance.destroy()
+      mounted.splice(mounted.indexOf(instance), 1)
+    },
+  }
+}
+
 /**
  * Dispatch a real `PointerEvent` so the component's listeners pick it up.
  *
- * @param target - Target element.
+ * @param target - Target element or window.
  * @param type - Pointer event type.
  * @param init - Pointer init properties.
  */
 function dispatchPointer(
-  target: Element,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
-  init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
+  target: Element | Window,
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel' | 'lostpointercapture',
+  init: {
+    clientX?: number
+    clientY?: number
+    pointerId?: number
+    button?: number
+    pointerType?: string
+    isPrimary?: boolean
+  },
 ): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
     clientX: number
     clientY: number
     pointerId: number
     button: number
+    pointerType?: string
+    isPrimary?: boolean
   }
   event.clientX = init.clientX ?? 0
   event.clientY = init.clientY ?? 0
   event.pointerId = init.pointerId ?? 1
   event.button = init.button ?? 0
+  // A real pointer event always carries both; a test that leaves them out dispatches the
+  // device-less event React's own suite does.
+  if (init.pointerType !== undefined) event.pointerType = init.pointerType
+  if (init.isPrimary !== undefined) event.isPrimary = init.isPrimary
   target.dispatchEvent(event)
+}
+
+/**
+ * The strip of a rendered scrubber, laid out as a 100 px box starting at x = 10, so
+ * `clientX` 30, 50, 60 and 80 seek to 2, 4, 5 and 7 seconds of a 10 s scrubber.
+ *
+ * @param container - The rendered scrubber's container.
+ * @returns The strip.
+ */
+function seekableStrip(container: HTMLElement): HTMLElement {
+  const strip = container.querySelector('[data-mol-id="video-scrubber-strip"]')
+  if (!strip) throw new Error('strip missing')
+  strip.getBoundingClientRect = () => new DOMRect(10, 20, 100, 40)
+  return strip
+}
+
+/**
+ * Dispatch a cancelable single-finger `touchmove` on the window.
+ *
+ * @param clientX - The finger's horizontal position.
+ * @param clientY - The finger's vertical position.
+ * @returns Whether a listener consumed it.
+ */
+function dispatchTouchMove(clientX: number, clientY: number): boolean {
+  const scroll = new Event('touchmove', { bubbles: true, cancelable: true })
+  Object.defineProperty(scroll, 'touches', { value: [{ clientX, clientY }] })
+  window.dispatchEvent(scroll)
+  return scroll.defaultPrevented
 }
 
 const baseThumbnails: Thumbnail[] = [
@@ -395,6 +473,7 @@ describe('<VideoScrubber>', () => {
     // Way past the right edge.
     dispatchPointer(strip, 'pointerdown', { clientX: 9999, pointerId: 1 })
     expect(onSeek).toHaveBeenLastCalledWith(10)
+    dispatchPointer(strip, 'pointerup', { clientX: 9999, pointerId: 1 })
     // Way before the left edge.
     dispatchPointer(strip, 'pointerdown', { clientX: -500, pointerId: 2 })
     expect(onSeek).toHaveBeenLastCalledWith(0)
@@ -421,6 +500,148 @@ describe('<VideoScrubber>', () => {
     dispatchPointer(strip, 'pointermove', { clientX: 300, pointerId: 1 })
     dispatchPointer(strip, 'pointerup', { clientX: 300, pointerId: 1 })
     expect(onSeek.mock.calls.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('keeps frame snapping outside the strip until the initiating contact ends', async () => {
+    const onSeek = vi.fn()
+    const container = await render({ duration: 10, currentTime: 0, fps: 24, onSeek })
+    const strip = container.querySelector('[data-mol-id="video-scrubber-strip"]')
+    if (!strip) throw new Error('strip missing')
+    strip.getBoundingClientRect = () => new DOMRect(10, 20, 100, 40)
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 120, pointerId: 2 })
+    dispatchPointer(window, 'pointermove', { clientX: 120, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 120, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 50, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2], [10]])
+  })
+
+  it('a press from another pointer does not take over the contact in progress', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    dispatchPointer(strip, 'pointerdown', { clientX: 60, pointerId: 2 })
+    expect(onSeek.mock.calls).toEqual([[2]])
+    dispatchPointer(strip, 'pointerup', { clientX: 60, pointerId: 1 })
+    dispatchPointer(strip, 'pointerdown', { clientX: 60, pointerId: 2 })
+    expect(onSeek.mock.calls).toEqual([[2], [5]])
+  })
+
+  it('a second press of the same pointer replaces the contact in progress', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    dispatchPointer(strip, 'pointerdown', { clientX: 60, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 80, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 80, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 50, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2], [5], [7]])
+  })
+
+  it('a contact that is not the primary pointer is ignored', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    dispatchPointer(strip, 'pointerdown', {
+      clientX: 30,
+      pointerId: 1,
+      pointerType: 'touch',
+      isPrimary: false,
+    })
+    expect(onSeek).not.toHaveBeenCalled()
+  })
+
+  it('a cancelled press outside the strip ends the contact', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    dispatchPointer(window, 'pointercancel', { clientX: 60, pointerId: 1 })
+    dispatchPointer(strip, 'pointermove', { clientX: 50, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2]])
+  })
+
+  it('the window losing focus ends the contact', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    window.dispatchEvent(new Event('blur'))
+    dispatchPointer(strip, 'pointermove', { clientX: 50, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2]])
+  })
+
+  it('losing the pointer capture ends the contact', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    dispatchPointer(strip, 'lostpointercapture', { clientX: 30, pointerId: 1 })
+    dispatchPointer(strip, 'pointermove', { clientX: 50, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2]])
+  })
+
+  it('a held touch keeps the page from scrolling', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    const touch = { pointerId: 1, pointerType: 'touch' }
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, clientY: 20, ...touch })
+    expect(dispatchTouchMove(60, 100)).toBe(true)
+    dispatchPointer(window, 'pointerup', { clientX: 60, clientY: 100, ...touch })
+    expect(dispatchTouchMove(62, 120)).toBe(false)
+  })
+
+  it('a touch that turns into a vertical swipe ends the contact and lets the page scroll', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    // The strip's own `touch-action: none` never scrolls; a stylesheet that lifts it makes this reachable.
+    strip.style.setProperty('touch-action', 'auto', 'important')
+    const touch = { pointerId: 1, pointerType: 'touch' }
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, clientY: 20, ...touch })
+    expect(dispatchTouchMove(30, 100)).toBe(false)
+    dispatchPointer(window, 'pointermove', { clientX: 60, clientY: 22, ...touch })
+    expect(onSeek.mock.calls).toEqual([[2]])
+  })
+
+  it('a touch that moves along a scrollable strip keeps seeking and holds the page still', async () => {
+    const onSeek = vi.fn()
+    const strip = seekableStrip(await render({ duration: 10, currentTime: 0, fps: 24, onSeek }))
+    strip.style.setProperty('touch-action', 'auto', 'important')
+    const touch = { pointerId: 1, pointerType: 'touch' }
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, clientY: 20, ...touch })
+    expect(dispatchTouchMove(100, 22)).toBe(true)
+    dispatchPointer(window, 'pointermove', { clientX: 100, clientY: 22, ...touch })
+    expect(onSeek.mock.calls).toEqual([[2], [9]])
+  })
+
+  it('stops following the pointer once the scrubber unmounts', async () => {
+    const onSeek = vi.fn()
+    const view = await renderLive({ duration: 10, currentTime: 0, fps: 24, onSeek })
+    const strip = seekableStrip(view.container)
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    await view.unmount()
+    dispatchPointer(window, 'pointermove', { clientX: 60, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 60, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2]])
+  })
+
+  it('ends the contact when onSeek is removed mid-press', async () => {
+    const onSeek = vi.fn()
+    const view = await renderLive({ duration: 10, currentTime: 0, fps: 24, onSeek })
+    const strip = seekableStrip(view.container)
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    await view.set({ onSeek: undefined })
+    await view.set({ onSeek })
+    dispatchPointer(window, 'pointermove', { clientX: 60, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2]])
+  })
+
+  it('a new onSeek function mid-press keeps the contact', async () => {
+    const first = vi.fn()
+    const second = vi.fn()
+    const view = await renderLive({ duration: 10, currentTime: 0, fps: 24, onSeek: first })
+    const strip = seekableStrip(view.container)
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    await view.set({ onSeek: second })
+    dispatchPointer(window, 'pointermove', { clientX: 60, pointerId: 1 })
+    expect(first.mock.calls).toEqual([[2]])
+    expect(second.mock.calls).toEqual([[5]])
   })
 
   it('arrow-right steps forward exactly one frame; arrow-left steps back one frame', async () => {

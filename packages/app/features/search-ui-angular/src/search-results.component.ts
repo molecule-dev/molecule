@@ -6,11 +6,11 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  type AfterViewInit,
+  type AfterViewChecked,
   Component,
+  Directive,
   ElementRef,
   inject,
-  type SimpleChanges,
   type TemplateRef,
   ViewChild,
 } from '@angular/core'
@@ -34,6 +34,58 @@ import type {
   SearchResultView,
 } from './types.js'
 
+/** One row's hover state, kept for as long as its element is rendered. */
+interface HoverState {
+  /** A mouse or a pen is over the row. */
+  inside: boolean
+  /** The last entry was a finger, so the mouse event a browser sends after it is not a hover. */
+  fromTouch: boolean
+}
+
+/** Each row's hover state, by its element. */
+const hoverStates = new WeakMap<Element, HoverState>()
+
+/**
+ * Whether a row's `over` or `out` event crossed the row's edge. React derives
+ * its enter and leave events from these pairs through `relatedTarget`, so a
+ * move between two of the row's own children is neither.
+ *
+ * @param event - The row's pointer or mouse `over`/`out` event.
+ * @returns True when the other end of the move lies outside the row.
+ */
+const crossesRowEdge = (event: PointerEvent | MouseEvent): boolean => {
+  const other = event.relatedTarget
+  return !(other instanceof Node && (event.currentTarget as Node).contains(other))
+}
+
+/**
+ * Registers its row's element with the results list under the hit's id, for as
+ * long as the row is rendered: the per-row `ref` React's list hands each row.
+ */
+@Directive({
+  selector: '[molResultsRow]',
+  standalone: true,
+  inputs: ['hitId: molResultsRow'],
+})
+class ResultsRow {
+  /** The id of the hit the row shows. */
+  hitId = ''
+  /** The row's element. */
+  private readonly el = inject(ElementRef<HTMLElement>)
+  /** The list the row belongs to. */
+  private readonly list = inject(SearchResults)
+
+  /** Hands the list the row's element. */
+  ngOnInit(): void {
+    this.list.registerRow(this.hitId, this.el.nativeElement)
+  }
+
+  /** Takes it back as the row leaves the list. */
+  ngOnDestroy(): void {
+    this.list.unregisterRow(this.hitId, this.el.nativeElement)
+  }
+}
+
 /**
  * The default row link is a plain anchor; the row body renders through the
  * `rowBody` template. React's root is a FRAGMENT of two nodes (the `<ul>` and
@@ -52,7 +104,7 @@ import type {
   selector: 'mol-search-results',
   standalone: true,
   hostDirectives: [MolPlacement],
-  imports: [Highlight, NgTemplateOutlet],
+  imports: [Highlight, NgTemplateOutlet, ResultsRow],
   inputs: [
     'hits',
     'view',
@@ -73,19 +125,22 @@ import type {
       <p role="status" [class]="cm().cn(cm().srOnly)" [attr.data-mol-id]="id() + '-active'"></p>
     } @else {
       <ul
-        #listEl
         [attr.aria-label]="t('searchUi.results', undefined, { defaultValue: 'Search results' })"
         [class]="listClasses()"
         [attr.data-mol-id]="id() + '-results'"
       >
         @for (hit of hits; track hit.id; let i = $index) {
           <li
+            [molResultsRow]="hit.id"
             [attr.aria-current]="i === activeIndex ? 'true' : null"
             [attr.data-index]="i"
             [attr.data-mol-id]="id() + '-hit'"
             [attr.data-hit-id]="hit.id"
             [class]="itemClasses(i)"
-            (pointerover)="onPointerOver(i, hit)"
+            (pointerover)="onRowHover($event, true, i, hit)"
+            (pointerout)="onRowHover($event, false, i, hit)"
+            (mouseover)="onRowHover($event, true, i, hit)"
+            (mouseout)="onRowHover($event, false, i, hit)"
             (focusin)="onPrefetch?.(hit.doc)"
             (touchstart)="onPrefetch?.(hit.doc)"
           >
@@ -146,7 +201,7 @@ import type {
     </ng-template>`,
 })
 export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument>
-  implements SearchResultsProps<T>, AfterViewInit
+  implements SearchResultsProps<T>, AfterViewChecked
 {
   /** The hits to render. */
   hits: SearchResultHit<T>[] = []
@@ -174,8 +229,6 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
   /** Extra classes composed onto the list. */
   className?: string
 
-  /** The list element, read to keep the active row in view. */
-  @ViewChild('listEl') listEl?: ElementRef<HTMLUListElement>
   /**
    * The row body template, handed to a custom `renderLink` as its children. Static: it sits
    * outside every block, so it exists before the first render builds the link props.
@@ -345,30 +398,82 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
   }
 
   /**
-   * A pointer moving onto a row makes it active and warms its page, as
-   * React's `onPointerEnter` does.
+   * Handles a row's pointer or mouse `over` and `out` events the way React's
+   * kit handles its `onMouseEnter`: a mouse or a pen entering makes the row
+   * active and warms its page once per entry. A finger is not a hover, and
+   * neither is the mouse event a browser sends after one.
    *
+   * @param event - The row's `over` or `out` event.
+   * @param entered - Whether the pointer moved onto the row (true) or off it.
    * @param index - The row's index.
-   * @param hit - The hit.
+   * @param hit - The row's hit.
    */
-  onPointerOver(index: number, hit: SearchResultHit<T>): void {
-    this.onActivate?.(index)
-    this.onPrefetch?.(hit.doc)
+  onRowHover(
+    event: PointerEvent | MouseEvent,
+    entered: boolean,
+    index: number,
+    hit: SearchResultHit<T>,
+  ): void {
+    if (!crossesRowEdge(event)) return
+    const row = event.currentTarget as HTMLElement
+    const state = hoverStates.get(row) ?? { inside: false, fromTouch: false }
+    hoverStates.set(row, state)
+    if ('pointerType' in event) {
+      state.fromTouch = event.pointerType === 'touch'
+      if (state.fromTouch) return
+    } else if (state.fromTouch) {
+      // A compatibility mouse entry after a touch is not a hover.
+      return
+    }
+    if (state.inside === entered) return
+    state.inside = entered
+    if (entered) {
+      this.onActivate?.(index)
+      this.onPrefetch?.(hit.doc)
+    }
+  }
+
+  /** The rendered rows, by the id of the hit each one shows. */
+  private readonly rows = new Map<string, HTMLElement>()
+
+  /** The active row the last view check revealed for: its index and the id of the hit in it. */
+  private revealedFor: { index: number; id: string | undefined } | null = null
+
+  /**
+   * Registers a row's element under its hit's id (each row's `ResultsRow`, as React's
+   * per-row `ref` does).
+   *
+   * @param id - The id of the hit the row shows.
+   * @param el - The row's element.
+   */
+  registerRow(id: string, el: HTMLElement): void {
+    this.rows.set(id, el)
   }
 
   /**
-   * Keeps the keyboard-active row in view, the way React's effect keyed on
-   * `activeIndex` does.
+   * Forgets a row as it leaves the list.
    *
-   * @param changes - The changed inputs.
+   * @param id - The id of the hit the row showed.
+   * @param el - The row's element.
    */
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['activeIndex']) this.keepInView()
+  unregisterRow(id: string, el: HTMLElement): void {
+    if (this.rows.get(id) === el) this.rows.delete(id)
   }
 
-  /** Keeps the active row in view after the list first renders. */
-  ngAfterViewInit(): void {
-    this.keepInView()
+  /**
+   * Keeps the active row in view: when the list first renders, and whenever the
+   * active hit changes (a new result list can replace the row under an index
+   * that stays the same). React's effect depends on the active row's index and
+   * on the hit at it, so rendering the same results again reveals nothing.
+   */
+  ngAfterViewChecked(): void {
+    const index = this.activeIndex
+    const id = index >= 0 ? this.hits[index]?.id : undefined
+    const last = this.revealedFor
+    if (last && last.index === index && last.id === id) return
+    this.revealedFor = { index, id }
+    if (id === undefined) return
+    this.rows.get(id)?.scrollIntoView?.({ block: 'nearest' })
   }
 
   /** The host element (kept out of the page; React renders only the fragment's nodes). */
@@ -382,13 +487,5 @@ export class SearchResults<T extends ClientSearchDocument = ClientSearchDocument
   private adopt(): void {
     placeContentBefore(this.hostEl, this.hostEl)
     setElementPresent(this.hostEl, false)
-  }
-
-  /** Scrolls the active row into view when there is one. */
-  private keepInView(): void {
-    const index = this.activeIndex
-    if (index < 0) return
-    const el = this.listEl?.nativeElement.querySelector<HTMLElement>(`[data-index="${index}"]`)
-    el?.scrollIntoView?.({ block: 'nearest' })
   }
 }

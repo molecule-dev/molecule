@@ -14,13 +14,10 @@
     "map-drawing-react",
     "margin-notes-react",
     "mind-map-canvas-react",
-    "search-ui-react",
     "settings-panel-react",
     "survey-question-react",
     "three-viewer-react",
-    "track-lane-react",
     "video-player-react",
-    "video-scrubber-react",
     "video-timeline-react",
     "whiteboard-canvas-react"
   ],

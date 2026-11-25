@@ -5,8 +5,15 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
-import { onMounted, ref, watch } from 'vue'
+import {
+  type ComponentPublicInstance,
+  defineComponent,
+  h,
+  onMounted,
+  type PropType,
+  type VNodeChild,
+  watch,
+} from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
@@ -24,6 +31,30 @@ import type { SearchResultHit, SearchResultLinkProps, SearchResultView } from '.
 const defaultLink = (linkProps: SearchResultLinkProps): VNodeChild => {
   const { state: _state, children, className, ...rest } = linkProps
   return h('a', { ...rest, class: className }, Array.isArray(children) ? children : [children])
+}
+
+/** One row's hover state, kept for as long as its element is rendered. */
+interface HoverState {
+  /** A mouse or a pen is over the row. */
+  inside: boolean
+  /** The last entry was a finger, so the mouse event a browser sends after it is not a hover. */
+  fromTouch: boolean
+}
+
+/** Each row's hover state, by its element. */
+const hoverStates = new WeakMap<Element, HoverState>()
+
+/**
+ * Whether a row's `over` or `out` event crossed the row's edge. React derives
+ * its enter and leave events from these pairs through `relatedTarget`, so a
+ * move between two of the row's own children is neither.
+ *
+ * @param event - The row's pointer or mouse `over`/`out` event.
+ * @returns True when the other end of the move lies outside the row.
+ */
+const crossesRowEdge = (event: MouseEvent | PointerEvent): boolean => {
+  const other = event.relatedTarget
+  return !(other instanceof Node && (event.currentTarget as Node).contains(other))
 }
 
 /**
@@ -70,24 +101,56 @@ export const SearchResults = defineComponent({
   setup(props) {
     const cm = getClassMap()
     const { t } = useTranslation()
-    const listRef = ref<HTMLUListElement | null>(null)
+    // The rendered rows, by the id of the hit each one shows.
+    const rows = new Map<string, HTMLElement>()
 
-    // Keep the keyboard-active row in view.
-    const keepInView = (index: number): void => {
-      if (index < 0) return
-      const el = listRef.value?.querySelector<HTMLElement>(`[data-index="${index}"]`)
-      el?.scrollIntoView?.({ block: 'nearest' })
-    }
-    onMounted(() => keepInView(props.activeIndex))
-    watch(
-      () => props.activeIndex,
-      (index) => keepInView(index),
-    )
+    /** The id of the hit at the active index. */
+    const activeId = (): string | undefined =>
+      props.activeIndex >= 0 ? props.hits[props.activeIndex]?.id : undefined
 
-    /** Assigns the list element into `listRef`, as React's `ref` does. */
-    const listRefFn = (el: unknown): void => {
-      listRef.value = (el as HTMLUListElement | null) ?? null
+    // Keep the active row in view: when it first renders, and whenever the
+    // active hit changes (a new result list can replace the row under an
+    // index that stays the same).
+    const keepInView = (): void => {
+      const id = activeId()
+      const row = id === undefined ? undefined : rows.get(id)
+      row?.scrollIntoView?.({ block: 'nearest' })
     }
+    onMounted(keepInView)
+    watch([activeId, () => props.activeIndex], keepInView, { flush: 'post' })
+
+    /**
+     * Handles a row's pointer or mouse `over` and `out` events the way React's
+     * kit handles its `onMouseEnter`: a mouse or a pen entering makes the row
+     * active and warms its page once per entry. A finger is not a hover, and
+     * neither is the mouse event a browser sends after one.
+     *
+     * @param entered - Whether the pointer moved onto the row (true) or off it.
+     * @param index - The row's index.
+     * @param hit - The row's hit.
+     * @returns The row's event handler.
+     */
+    const onRowHover =
+      (entered: boolean, index: number, hit: SearchResultHit<unknown>) =>
+      (event: MouseEvent | PointerEvent): void => {
+        if (!crossesRowEdge(event)) return
+        const row = event.currentTarget as HTMLElement
+        const state = hoverStates.get(row) ?? { inside: false, fromTouch: false }
+        hoverStates.set(row, state)
+        if ('pointerType' in event) {
+          state.fromTouch = event.pointerType === 'touch'
+          if (state.fromTouch) return
+        } else if (state.fromTouch) {
+          // A compatibility mouse entry after a touch is not a hover.
+          return
+        }
+        if (state.inside === entered) return
+        state.inside = entered
+        if (entered) {
+          props.onActivate?.(index)
+          props.onPrefetch?.(hit.doc)
+        }
+      }
 
     return (): VNodeChild => {
       if (!props.hits.length) {
@@ -169,15 +232,20 @@ export const SearchResults = defineComponent({
           'li',
           {
             key: hit.id,
+            // React's per-row ref: the row's element, by the id of its hit.
+            ref: (el: Element | ComponentPublicInstance | null) => {
+              if (el) rows.set(hit.id, el as HTMLElement)
+              else rows.delete(hit.id)
+            },
             'aria-current': active ? 'true' : undefined,
             'data-index': i,
             'data-mol-id': `${props.molId}-hit`,
             'data-hit-id': hit.id,
             class: cm.cn(cm.resultItem, active && cm.resultItemActive),
-            onPointerover: () => {
-              props.onActivate?.(i)
-              props.onPrefetch?.(hit.doc)
-            },
+            onPointerover: onRowHover(true, i, hit),
+            onPointerout: onRowHover(false, i, hit),
+            onMouseover: onRowHover(true, i, hit),
+            onMouseout: onRowHover(false, i, hit),
             onFocusin: () => props.onPrefetch?.(hit.doc),
             onTouchstart: () => props.onPrefetch?.(hit.doc),
           },
@@ -194,7 +262,6 @@ export const SearchResults = defineComponent({
         h(
           'ul',
           {
-            ref: listRefFn,
             'aria-label': t('searchUi.results', undefined, { defaultValue: 'Search results' }),
             class: cm.cn(cm.resultList, props.className),
             'data-mol-id': `${props.molId}-results`,

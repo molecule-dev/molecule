@@ -110,6 +110,24 @@
     onClear?.()
     inputRef?.current?.focus()
   }
+
+  /**
+   * Hands a key press to `onKeyDown` the way React's text field does. A legacy IME
+   * reports key code 229 while it composes and on the Enter that confirms it, even
+   * after composing ended: that Enter is cancelled first, so it submits nothing, and
+   * the event reports the IME as composing. A composition still under way is the
+   * IME's own and is handed over as it is. The input listens only while a key
+   * handler is given, so a field without one cancels nothing.
+   *
+   * @param event - The input's keydown event.
+   */
+  const onKeydown = (event: KeyboardEvent): void => {
+    const composing = event.isComposing
+    const legacyComposition = event.keyCode === 229
+    if (!composing && legacyComposition && event.key === 'Enter') event.preventDefault()
+    if (legacyComposition) Object.defineProperty(event, 'isComposing', { value: true })
+    onKeyDown?.(event)
+  }
 </script>
 
 <div data-mol-id={`${molId}-box`}>
@@ -122,7 +140,7 @@
       type="search"
       {value}
       oninput={onInput}
-      onkeydown={(event) => onKeyDown?.(event)}
+      onkeydown={onKeyDown && onKeydown}
       onfocusin={() => (focused = true)}
       onfocusout={() => (focused = false)}
       {placeholder}

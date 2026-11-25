@@ -33,6 +33,7 @@ import SearchResults from '../SearchResults.svelte'
 import type { SearchResultView } from '../types.js'
 import CustomLinkResults from './CustomLinkResults.svelte'
 import Host from './Host.svelte'
+import ReactiveHost from './ReactiveHost.svelte'
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -75,6 +76,33 @@ const mountWith = <Props extends object>(
       container!.innerHTML = ''
       current = next
       host()
+    },
+  }
+}
+/**
+ * Mounts a component through `ReactiveHost` and replaces its props bag in place, the way a
+ * parent's update re-renders it (React's re-render keeps the component instance), so an update
+ * is told apart from a first render.
+ *
+ * @param component - The component under test.
+ * @param props - Its first props.
+ * @returns The instance, whose `setProps` hands the component new props without a remount.
+ */
+const mountReactive = <Props extends object>(
+  component: Component<Props>,
+  props: NoInfer<Props>,
+): { setProps: (next: Props) => void } => {
+  container = document.createElement('div')
+  document.body.appendChild(container)
+  instance = mount(ReactiveHost<Props>, {
+    target: container!,
+    props: { config: { i18n: getProvider() }, component, initial: props },
+  })
+  flushSync()
+  return {
+    setProps: (next: Props): void => {
+      instance?.setProps(next)
+      flushSync()
     },
   }
 }
@@ -156,6 +184,48 @@ describe('SearchBox', () => {
     const tips = q('[data-tooltip]')?.textContent ?? ''
     expect(tips).toContain('«searchUi.examplePhrase»')
     expect(tips).toContain('«searchUi.exampleExcluded»')
+  })
+
+  it('cancels the legacy IME confirmation Enter and hands a legacy IME key to the handler as composing', () => {
+    // What the key handler reads on each event: whether it was already cancelled, and `isComposing`.
+    const onKeyDown = vi.fn((event: KeyboardEvent) => [
+      event.defaultPrevented,
+      event.isComposing,
+      event.key,
+    ])
+    mountWith(SearchBox, {
+      value: 'auth',
+      onChange: vi.fn(),
+      onKeyDown,
+      placeholder: 'Search packages',
+      molId: 'cat',
+    })
+    /** Presses a key on the input; false when a listener cancelled the key's default action. */
+    const press = (init: KeyboardEventInit): boolean =>
+      (q('[data-mol-id="cat-input"]') as HTMLInputElement).dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }),
+      )
+    // An ordinary key reaches the handler as it is.
+    expect(press({ key: 'ArrowDown' })).toBe(true)
+    // An Enter the IME is still composing is the IME's own: it is handed over untouched.
+    expect(press({ key: 'Enter', isComposing: true })).toBe(true)
+    // A legacy IME confirms with key code 229 once composing ended: that Enter is
+    // cancelled before the handler runs, so it submits nothing.
+    expect(press({ key: 'Enter', keyCode: 229, isComposing: false })).toBe(false)
+    // Another legacy key is left alone, and the handler still sees the IME composing.
+    expect(press({ key: 'a', keyCode: 229 })).toBe(true)
+    expect(press({ key: 'Escape' })).toBe(true)
+    expect(onKeyDown.mock.results.map((call) => call.value)).toEqual([
+      [false, false, 'ArrowDown'],
+      [false, true, 'Enter'],
+      [true, true, 'Enter'],
+      [false, true, 'a'],
+      [false, false, 'Escape'],
+    ])
+
+    // A field given no key handler cancels nothing.
+    mountWith(SearchBox, { value: 'auth', onChange: vi.fn(), placeholder: 'Search', molId: 'cat' })
+    expect(press({ key: 'Enter', keyCode: 229, isComposing: false })).toBe(true)
   })
 })
 
@@ -247,6 +317,119 @@ describe('SearchResults', () => {
     // The status region exists in the empty state too, so it is live before results arrive.
     expect(q('[data-mol-id="search-active"]')?.getAttribute('role')).toBe('status')
     expect(q('[data-mol-id="search-active"]')?.textContent).toBe('')
+  })
+
+  it('reveals the replacement active row when its index stays the same', () => {
+    const revealed = vi.fn(function (this: HTMLElement, options: ScrollIntoViewOptions) {
+      return [this.dataset.hitId, options]
+    })
+    const old = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView')
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: revealed,
+    })
+    try {
+      // The hits change under the component, as a new query's results do; the list is not
+      // mounted again, so only an update's effect can reveal the new row.
+      const list = mountReactive(SearchResults<PackageDoc>, {
+        hits,
+        view,
+        activeIndex: 0,
+        onOpen: () => {},
+        emptyText: 'Nothing',
+      })
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+      ])
+      list.setProps({
+        hits: hits.slice(1),
+        view,
+        activeIndex: 0,
+        onOpen: () => {},
+        emptyText: 'Nothing',
+      })
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+        [hits[1].id, { block: 'nearest' }],
+      ])
+      // Rendering the same results again as equal new objects is not a new active row.
+      list.setProps({
+        hits: [{ ...hits[1] }],
+        view,
+        activeIndex: 0,
+        onOpen: () => {},
+        emptyText: 'Nothing',
+      })
+      expect(revealed.mock.results.map((call) => call.value)).toEqual([
+        [hits[0].id, { block: 'nearest' }],
+        [hits[1].id, { block: 'nearest' }],
+      ])
+    } finally {
+      if (old) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', old)
+      else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
+    }
+  })
+
+  it('activates a row once per hover, and never for a touch contact', () => {
+    const onOpen = vi.fn()
+    const onActivate = vi.fn()
+    const onPrefetch = vi.fn()
+    mountWith(SearchResults<PackageDoc>, {
+      hits,
+      view,
+      activeIndex: -1,
+      onActivate,
+      onOpen,
+      onPrefetch,
+      emptyText: 'Nothing',
+      molId: 'cat',
+    })
+    const rows = (): HTMLElement[] => [
+      ...container!.querySelectorAll<HTMLElement>('[data-mol-id="cat-hit"]'),
+    ]
+    const [first, second] = rows()
+    // A mouse or pen entering the row activates it and warms its page; the mouse entry
+    // the browser sends for the same move is not a second hover.
+    first.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+    expect(onActivate.mock.calls).toEqual([[0]])
+    expect(onPrefetch.mock.calls).toEqual([[hits[0].doc]])
+    first.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+    // Moving between the row's own children is not an entry.
+    const [heading, description] = [...first.querySelector('a')!.children] as HTMLElement[]
+    description.dispatchEvent(
+      new PointerEvent('pointerover', {
+        bubbles: true,
+        pointerType: 'mouse',
+        relatedTarget: heading,
+      }),
+    )
+    expect(onActivate).toHaveBeenCalledTimes(1)
+    expect(onPrefetch).toHaveBeenCalledTimes(1)
+    // Leaving and coming back is a new hover.
+    const around = first.parentElement!
+    first.dispatchEvent(
+      new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+        relatedTarget: around,
+      }),
+    )
+    first.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, relatedTarget: around }))
+    expect(onActivate).toHaveBeenCalledTimes(1)
+    first.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+    expect(onActivate.mock.calls).toEqual([[0], [0]])
+    onActivate.mockClear()
+    onPrefetch.mockClear()
+    // A finger is not a hover: the row warms on the touch itself, and the mouse event a
+    // browser sends after the touch is not a hover either.
+    second.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'touch' }))
+    second.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+    second.dispatchEvent(new Event('touchstart', { bubbles: true }))
+    expect(onActivate).not.toHaveBeenCalled()
+    expect(onPrefetch.mock.calls).toEqual([[hits[1].doc]])
+    // A pen entering afterwards is a hover again.
+    second.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'pen' }))
+    expect(onActivate.mock.calls).toEqual([[1]])
   })
 })
 

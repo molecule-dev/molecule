@@ -1,8 +1,9 @@
-import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { JSX, ReactNode } from 'react'
+import { useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type CSSProperties, type ElementDrag, getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
 
 /**
  * A single clip block on a track lane. `startTime` and `duration` are
@@ -104,8 +105,6 @@ export function clampClipMove(proposedStartTime: number): number {
 interface DragState {
   clipId: string
   mode: 'move' | 'resize'
-  pointerId: number
-  startX: number
   originStartTime: number
   originDuration: number
   moved: boolean
@@ -141,8 +140,6 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
   const { t } = useTranslation()
 
   const dragRef = useRef<DragState | null>(null)
-  const [, forceRerender] = useState(0)
-  const bumpDragTick = useCallback(() => forceRerender((n) => n + 1), [])
 
   const laneLabel = t(
     'trackLane.aria.lane',
@@ -162,79 +159,47 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
       { defaultValue: 'Clip {{label}} starting at {{startTime}}s for {{duration}}s' },
     )
 
-  // Global pointermove / pointerup listeners while a drag is active so
-  // the gesture survives the cursor leaving the clip element.
-  useEffect(() => {
-    /**
-     * Native pointermove handler used during an active drag.
-     *
-     * @param event - Native pointer event.
-     */
-    function onMove(event: PointerEvent): void {
+  /** Binds clip movement or resizing with a fixed origin for the contact. */
+  function clipDrag(clip: Clip, mode: DragState['mode']): ElementDrag {
+    const current = (): DragState | undefined => {
       const drag = dragRef.current
-      if (!drag || event.pointerId !== drag.pointerId) return
-      const dx = event.clientX - drag.startX
-      if (!drag.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX) return
-      drag.moved = true
-      const dt = pixelsToTime(Math.abs(dx), pixelsPerSecond) * (dx < 0 ? -1 : 1)
-      if (drag.mode === 'move') {
-        const next = clampClipMove(drag.originStartTime + dt)
-        onClipMove?.(drag.clipId, next, lane)
-      } else {
-        const next = Math.max(MIN_CLIP_DURATION_SECONDS, drag.originDuration + dt)
-        onClipResize?.(drag.clipId, next, lane)
-      }
-      bumpDragTick()
+      return drag?.clipId === clip.id && drag.mode === mode ? drag : undefined
     }
-    /**
-     * Native pointerup handler that closes the drag gesture.
-     *
-     * @param event - Native pointer event.
-     */
-    function onUp(event: PointerEvent): void {
-      const drag = dragRef.current
-      if (!drag || event.pointerId !== drag.pointerId) return
-      const wasClick = !drag.moved
-      const finishedClipId = drag.clipId
-      const finishedMode = drag.mode
-      dragRef.current = null
-      if (wasClick && finishedMode === 'move') {
-        onClipClick?.(finishedClipId, lane)
-      }
-      bumpDragTick()
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('pointercancel', onUp)
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('pointercancel', onUp)
-    }
-  }, [pixelsPerSecond, lane, onClipMove, onClipResize, onClipClick, bumpDragTick])
-
-  /**
-   * Begin a drag gesture on a clip body or a resize handle.
-   *
-   * @param event - React pointer event from the clip element.
-   * @param clip - The clip being dragged.
-   * @param mode - `'move'` for body drags, `'resize'` for handle drags.
-   */
-  function beginDrag(
-    event: ReactPointerEvent<HTMLDivElement>,
-    clip: Clip,
-    mode: DragState['mode'],
-  ): void {
-    if (event.button !== undefined && event.button !== 0) return
-    event.stopPropagation()
-    dragRef.current = {
-      clipId: clip.id,
-      mode,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      originStartTime: clip.startTime,
-      originDuration: clip.duration,
-      moved: false,
+    return {
+      onStart() {
+        if (dragRef.current) return
+        dragRef.current = {
+          clipId: clip.id,
+          mode,
+          originStartTime: clip.startTime,
+          originDuration: clip.duration,
+          moved: false,
+        }
+      },
+      onMove({ dx }) {
+        const drag = current()
+        if (!drag || (!drag.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX)) return
+        drag.moved = true
+        const dt = pixelsToTime(Math.abs(dx), pixelsPerSecond) * (dx < 0 ? -1 : 1)
+        if (mode === 'move') onClipMove?.(clip.id, clampClipMove(drag.originStartTime + dt), lane)
+        else
+          onClipResize?.(
+            clip.id,
+            Math.max(MIN_CLIP_DURATION_SECONDS, drag.originDuration + dt),
+            lane,
+          )
+      },
+      onEnd({ dx }) {
+        const drag = current()
+        if (!drag) return
+        dragRef.current = null
+        if (mode === 'move' && !drag.moved && Math.abs(dx) < DRAG_DISTANCE_THRESHOLD_PX) {
+          onClipClick?.(clip.id, lane)
+        }
+      },
+      onCancel() {
+        if (current()) dragRef.current = null
+      },
     }
   }
 
@@ -248,7 +213,8 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="group"
       aria-label={laneLabel}
       data-mol-id="track-lane"
@@ -256,20 +222,22 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
       className={cm.cn(cm.flex({ align: 'stretch', gap: 'sm' }), className)}
     >
       {(name !== undefined || lane !== undefined) && (
-        <div
+        <Box
+          as="div"
           data-mol-id="track-lane-header"
           className={cm.cn(cm.flex({ align: 'center' }), cm.sp('p', 2), cm.shrink0)}
-          style={{ width: 120, minWidth: 120 }}
+          webStyle={{ width: 120, minWidth: 120 }}
         >
-          <span
+          <Box
+            as="span"
             className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
             data-mol-id="track-lane-name"
           >
             {name ?? headerLabel}
-          </span>
-        </div>
+          </Box>
+        </Box>
       )}
-      <div data-mol-id="track-lane-body" style={laneStyle}>
+      <Box as="div" data-mol-id="track-lane-body" webStyle={laneStyle}>
         {clips.map((clip) => {
           const { left, width } = clipToPixels(clip, pixelsPerSecond)
           const isSelected = selectedClipId === clip.id
@@ -302,7 +270,8 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
             touchAction: 'none',
           }
           return (
-            <div
+            <Pressable
+              as="div"
               key={clip.id}
               role="button"
               tabIndex={0}
@@ -312,14 +281,15 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
               data-clip-id={clip.id}
               data-selected={isSelected ? 'true' : 'false'}
               className={cm.cn(cm.cursorPointer)}
-              style={clipStyle}
-              onPointerDown={(e) => beginDrag(e, clip, 'move')}
+              webStyle={clipStyle}
+              drag={clipDrag(clip, 'move')}
             >
               {clip.label !== undefined && (
-                <span
+                <Box
+                  as="span"
                   data-mol-id="track-lane-clip-label"
                   className={cm.cn(cm.textSize('xs'))}
-                  style={{
+                  webStyle={{
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -327,19 +297,20 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
                   }}
                 >
                   {clip.label}
-                </span>
+                </Box>
               )}
-              <div
+              <Box
+                as="div"
                 role="separator"
                 aria-label={resizeLabel}
                 data-mol-id="track-lane-clip-handle"
-                style={handleStyle}
-                onPointerDown={(e) => beginDrag(e, clip, 'resize')}
+                webStyle={handleStyle}
+                drag={clipDrag(clip, 'resize')}
               />
-            </div>
+            </Pressable>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

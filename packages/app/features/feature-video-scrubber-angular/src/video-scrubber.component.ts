@@ -4,7 +4,14 @@
  * @module
  */
 
-import { Component, type ElementRef, ViewChild } from '@angular/core'
+import {
+  Component,
+  type ElementRef,
+  type OnChanges,
+  type OnDestroy,
+  type SimpleChanges,
+  ViewChild,
+} from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
@@ -137,9 +144,26 @@ export function formatFrameNumber(frame: number): string {
   return `#${Math.max(0, Math.round(frame))}`
 }
 
-/** The pointer state of one click-to-seek drag, or null. */
-interface DragState {
-  pointerId: number
+/** A touch may move this many CSS pixels before it counts as a swipe. */
+const TOUCH_SLOP = 8
+
+/**
+ * The part of a contact's sample the strip seeks with: React's `ElementDragPoint`
+ * (`@molecule/app-ui`) as this scrubber reads it.
+ */
+interface SeekPoint {
+  /** Unclamped horizontal offset from the strip's current box. */
+  readonly x: number
+  /** The strip's current box in the window. */
+  readonly bounds: { readonly width: number }
+}
+
+/** The contact that owns a seek in progress, until its pointer is released or interrupted. */
+interface Contact {
+  /** The pointer that pressed the strip. */
+  readonly pointerId: number
+  /** Ends the contact the way an interruption does. */
+  cancel(): void
 }
 
 /**
@@ -179,9 +203,9 @@ interface DragState {
     '[style]': 'rootStyle',
   },
   // prettier-ignore
-  template: `<div #strip role="slider" tabindex="0" [attr.aria-label]="stripLabel()" aria-valuemin="0" [attr.aria-valuemax]="safeDuration()" [attr.aria-valuenow]="clampedTime()" data-mol-id="video-scrubber-strip" [style]="stripBodyStyle()" (pointerdown)="onStripPointerDown($event)" (pointermove)="onStripPointerMove($event)" (pointerup)="onStripPointerUp($event)" (pointercancel)="onStripPointerUp($event)" (keydown)="onKeyDown($event)">@for (tk of ticks(); track $index) {<div data-mol-id="video-scrubber-cell" [attr.data-time]="tk.time" [attr.data-index]="$index" role="img" [attr.aria-label]="cellLabel(tk.time)" [style]="cellStyle(tk.time)"></div>}<div data-mol-id="video-scrubber-playhead" [attr.aria-label]="playheadLabel()" [style]="playheadStyle()"></div></div>@if (showFrameReadout()) {<div data-mol-id="video-scrubber-frame-readout" [attr.aria-label]="frameReadoutLabel()" [class]="readoutClasses()" style="font-variant-numeric: tabular-nums"><span data-mol-id="video-scrubber-frame-current">{{ frameNumber() }}</span><span data-mol-id="video-scrubber-frame-total">{{ totalLabel() }}</span></div>}`,
+  template: `<div #strip role="slider" tabindex="0" [attr.aria-label]="stripLabel()" aria-valuemin="0" [attr.aria-valuemax]="safeDuration()" [attr.aria-valuenow]="clampedTime()" data-mol-id="video-scrubber-strip" [style]="stripBodyStyle()" (pointerdown)="onStripPointerDown($event)" (keydown)="onKeyDown($event)">@for (tk of ticks(); track $index) {<div data-mol-id="video-scrubber-cell" [attr.data-time]="tk.time" [attr.data-index]="$index" role="img" [attr.aria-label]="cellLabel(tk.time)" [style]="cellStyle(tk.time)"></div>}<div data-mol-id="video-scrubber-playhead" [attr.aria-label]="playheadLabel()" [style]="playheadStyle()"></div></div>@if (showFrameReadout()) {<div data-mol-id="video-scrubber-frame-readout" [attr.aria-label]="frameReadoutLabel()" [class]="readoutClasses()" style="font-variant-numeric: tabular-nums"><span data-mol-id="video-scrubber-frame-current">{{ frameNumber() }}</span><span data-mol-id="video-scrubber-frame-total">{{ totalLabel() }}</span></div>}`,
 })
-export class VideoScrubber {
+export class VideoScrubber implements OnChanges, OnDestroy {
   /** Total media duration in seconds. */
   duration = 0
   /** Current playhead time in seconds. */
@@ -212,8 +236,8 @@ export class VideoScrubber {
   /** The i18n state; `t` re-reads the provider on every call and on every locale switch. */
   private readonly i18n = useTranslation()
 
-  /** The press in progress, or null. */
-  private drag: DragState | null = null
+  /** The contact in progress, or null. */
+  private contact: Contact | null = null
 
   /**
    * The current class map.
@@ -462,60 +486,146 @@ export class VideoScrubber {
   }
 
   /**
-   * Convert a pointer's clientX (relative to the strip body) to a time in
-   * seconds, snapped to the nearest frame and clamped into `[0, duration]`.
-   * @param clientX - Pointer clientX in viewport coordinates.
-   * @returns The seek time in seconds.
+   * Seek to the nearest frame at the contact's horizontal position.
+   * @param point - The contact in strip coordinates.
    */
-  clientXToTime(clientX: number): number {
-    const el = this.stripRef?.nativeElement
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    if (rect.width <= 0) return 0
-    const ratio = (clientX - rect.left) / rect.width
-    const clampedRatio = ratio < 0 ? 0 : ratio > 1 ? 1 : ratio
-    return snapTimeToFrame(clampedRatio * this.safeDuration(), this.safeFps(), this.safeDuration())
+  private seekAt({ x, bounds }: SeekPoint): void {
+    const duration = this.safeDuration()
+    const ratio = bounds.width > 0 ? Math.max(0, Math.min(1, x / bounds.width)) : 0
+    this.onSeek?.(snapTimeToFrame(ratio * duration, this.safeFps(), duration))
   }
 
   /**
-   * Begin a click-to-seek drag on the strip body.
-   * @param event - The native pointer event from the strip body.
+   * End the contact in progress, as when the strip stops being seekable or the
+   * scrubber is destroyed under a held pointer.
+   */
+  private endContact(): void {
+    this.contact?.cancel()
+  }
+
+  /**
+   * Ends a contact in progress when the strip stops being seekable.
+   * @param changes - The inputs that changed.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    const seek = changes['onSeek']
+    if (seek && typeof seek.currentValue !== 'function') this.endContact()
+  }
+
+  /** Ends a contact in progress before the scrubber is destroyed. */
+  ngOnDestroy(): void {
+    this.endContact()
+  }
+
+  /**
+   * Begin a contact on the strip: seek at the press, then keep following that one
+   * pointer wherever it moves in the window until it is released or interrupted.
+   * @param event - The native pointer event from the strip.
    */
   onStripPointerDown(event: PointerEvent): void {
     if (event.button !== undefined && event.button !== 0) return
     if (typeof this.onSeek !== 'function') return
-    this.drag = { pointerId: event.pointerId }
-    try {
-      this.stripRef?.nativeElement.setPointerCapture(event.pointerId)
-    } catch (_error) {
-      // jsdom + some older browsers may throw — ignore.
-    }
-    this.onSeek(this.clientXToTime(event.clientX))
-  }
+    // A pointer event can lack a device type when dispatched through a mouse-only host.
+    if (event.pointerType && event.isPrimary === false) return
+    const host = this.stripRef?.nativeElement
+    const ownerWindow = host?.ownerDocument.defaultView
+    if (!host || !ownerWindow) return
+    const { pointerId } = event
+    // A press from another pointer leaves the contact in progress alone; the same
+    // pointer pressing again after a lost release starts a new contact.
+    if (this.contact && this.contact.pointerId !== pointerId) return
+    this.endContact()
 
-  /**
-   * Continue a strip-body drag (scrub).
-   * @param event - The native pointer event from the strip body.
-   */
-  onStripPointerMove(event: PointerEvent): void {
-    const current = this.drag
-    if (!current || current.pointerId !== event.pointerId) return
-    this.onSeek?.(this.clientXToTime(event.clientX))
-  }
+    const down = event
+    const touch = down.pointerType === 'touch'
+    let captured = false
+    // The strip's own style forbids touch scrolling, so a touch on it never yields to a
+    // scroller; only a stylesheet that overrides the style makes the choice below matter.
+    let axisChosen = touch && ownerWindow.getComputedStyle(host).touchAction === 'none'
+    const session: Contact = { pointerId, cancel: () => finish() }
+    this.contact = session
 
-  /**
-   * Finish a strip-body drag.
-   * @param event - The native pointer event from the strip body.
-   */
-  onStripPointerUp(event: PointerEvent): void {
-    const current = this.drag
-    if (!current || current.pointerId !== event.pointerId) return
-    this.drag = null
-    try {
-      this.stripRef?.nativeElement.releasePointerCapture(event.pointerId)
-    } catch (_error) {
-      // releasePointerCapture may throw if the pointer was never captured — safe to ignore.
+    /** Samples the contact against the strip's current box. */
+    const sample = (at: PointerEvent): SeekPoint => {
+      const { left, width } = host.getBoundingClientRect()
+      return { x: at.clientX - left, bounds: { width } }
     }
+
+    /**
+     * Whether a touch whose scroll intent is still undecided has become a vertical
+     * swipe, which belongs to an enclosing scroller.
+     */
+    const shouldYield = (x: number, y: number): boolean => {
+      if (!touch || axisChosen) return false
+      const dx = Math.abs(x - down.clientX)
+      const dy = Math.abs(y - down.clientY)
+      if (Math.max(dx, dy) <= TOUCH_SLOP) return false
+      axisChosen = true
+      return dy > dx
+    }
+
+    /** Scrubs to the owning pointer's position. */
+    const move = (at: PointerEvent): void => {
+      if (at.pointerId !== pointerId) return
+      if (shouldYield(at.clientX, at.clientY)) finish()
+      else this.seekAt(sample(at))
+    }
+
+    /** Keeps a held touch for the scrubber instead of the page scroll. */
+    const preventScroll = (at: TouchEvent): void => {
+      const finger = at.touches[0]
+      if (at.touches.length !== 1 || !finger) return
+      if (shouldYield(finger.clientX, finger.clientY)) finish()
+      else if (axisChosen && at.cancelable) at.preventDefault()
+    }
+
+    /** Releases the contact when its pointer lifts. */
+    const up = (at: PointerEvent): void => {
+      if (at.pointerId === pointerId) finish()
+    }
+
+    /** Ends the contact when its pointer is cancelled or the strip loses its capture. */
+    const cancel = (at: Event): void => {
+      const id = 'pointerId' in at ? at.pointerId : undefined
+      if (id === pointerId) finish()
+    }
+
+    /** Tears the contact down: unlistens, then gives up the pointer capture. */
+    const finish = (): void => {
+      if (this.contact !== session) return
+      this.contact = null
+      ownerWindow.removeEventListener('pointermove', move, true)
+      ownerWindow.removeEventListener('pointerup', up, true)
+      ownerWindow.removeEventListener('pointercancel', cancel, true)
+      ownerWindow.removeEventListener('touchmove', preventScroll)
+      ownerWindow.removeEventListener('blur', session.cancel)
+      host.removeEventListener('lostpointercapture', cancel)
+      if (captured && host.releasePointerCapture) {
+        try {
+          host.releasePointerCapture(pointerId)
+        } catch (_error) {
+          // The browser can release capture before notifying of the cancellation or removal.
+        }
+      }
+    }
+
+    // Window capture listeners: the pointer is followed outside the strip and past any
+    // handler that stops propagation.
+    ownerWindow.addEventListener('pointermove', move, true)
+    ownerWindow.addEventListener('pointerup', up, true)
+    ownerWindow.addEventListener('pointercancel', cancel, true)
+    ownerWindow.addEventListener('blur', session.cancel)
+    host.addEventListener('lostpointercapture', cancel)
+    if (touch) ownerWindow.addEventListener('touchmove', preventScroll, { passive: false })
+    if (host.setPointerCapture && Number.isFinite(pointerId)) {
+      try {
+        host.setPointerCapture(pointerId)
+        captured = true
+      } catch (_error) {
+        // A browser may reject capture for a contact it no longer tracks. The window listens too.
+      }
+    }
+    this.seekAt(sample(down))
   }
 
   /**

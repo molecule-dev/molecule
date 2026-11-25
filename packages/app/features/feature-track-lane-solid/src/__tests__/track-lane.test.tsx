@@ -8,6 +8,7 @@
  * @module
  */
 
+import { createSignal } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -51,10 +52,8 @@ const { clampClipMove, clipToPixels, pixelsToTime, TrackLane } = await import('.
 /** The containers holding the apps rendered by the current test. */
 const disposers: Array<() => void> = []
 
-afterEach(() => {
-  for (const dispose of disposers.splice(0)) dispose()
-  document.body.innerHTML = ''
-})
+/** The re-render of each mounted lane, so a test can replace its props. */
+const setters = new Map<HTMLElement, (next: Partial<TrackLaneProps>) => void>()
 
 /**
  * Mounts a `TrackLane` with the given props.
@@ -65,9 +64,81 @@ afterEach(() => {
 function mount(props: TrackLaneProps): HTMLElement {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  disposers.push(render(() => <TrackLane {...props} />, container))
+  // The props as a signal, so a test can replace them after mount.
+  const [lane, setLane] = createSignal<TrackLaneProps>(props)
+  setters.set(container, (next) => setLane({ ...lane(), ...next }))
+  disposers.push(render(() => <TrackLane {...lane()} />, container))
   return container
 }
+
+/**
+ * Replaces a mounted lane's props, merged over the current ones.
+ *
+ * @param container - The element `mount` returned.
+ * @param next - The props to replace.
+ */
+function setProps(container: HTMLElement, next: Partial<TrackLaneProps>): void {
+  const set = setters.get(container)
+  if (!set) throw new Error('no lane is mounted in this container')
+  set(next)
+}
+
+/**
+ * The element of the clip with the given id.
+ *
+ * @param container - The mounted lane's container element.
+ * @param id - The clip id.
+ * @returns The clip block.
+ */
+function clipOf(container: HTMLElement, id: string): Element {
+  const clip = container.querySelector(`[data-mol-id="track-lane-clip"][data-clip-id="${id}"]`)
+  if (!clip) throw new Error(`clip ${id} missing`)
+  return clip
+}
+
+/** One pointer-capture call a test recorded: the verb, the element and the pointer id. */
+type CaptureCall = ['set' | 'release', Element, number]
+
+/** Puts the page's pointer capture back after each test. */
+const restoreCapture: Array<() => void> = []
+
+/**
+ * Records pointer capture for the current test (jsdom has none of its own).
+ *
+ * @returns Each call so far.
+ */
+function recordPointerCapture(): CaptureCall[] {
+  const calls: CaptureCall[] = []
+  const record = (verb: 'set' | 'release') =>
+    function (this: Element, pointerId: number): void {
+      calls.push([verb, this, pointerId])
+    }
+  const own = {
+    setPointerCapture: Object.getOwnPropertyDescriptor(Element.prototype, 'setPointerCapture'),
+    releasePointerCapture: Object.getOwnPropertyDescriptor(
+      Element.prototype,
+      'releasePointerCapture',
+    ),
+  }
+  Object.defineProperties(Element.prototype, {
+    setPointerCapture: { configurable: true, value: record('set') },
+    releasePointerCapture: { configurable: true, value: record('release') },
+  })
+  restoreCapture.push(() => {
+    for (const name of ['setPointerCapture', 'releasePointerCapture'] as const) {
+      if (own[name]) Object.defineProperty(Element.prototype, name, own[name])
+      else delete (Element.prototype as Partial<Element>)[name]
+    }
+  })
+  return calls
+}
+
+afterEach(() => {
+  for (const dispose of disposers.splice(0)) dispose()
+  for (const restore of restoreCapture.splice(0)) restore()
+  setters.clear()
+  document.body.innerHTML = ''
+})
 
 /**
  * Dispatch a real `PointerEvent` so the global window listener picks it up.
@@ -78,7 +149,7 @@ function mount(props: TrackLaneProps): HTMLElement {
  */
 function dispatchPointer(
   target: Element | Window,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
   init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
 ): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
@@ -194,6 +265,138 @@ describe('<TrackLane>', () => {
     expect(onClipClick).toHaveBeenCalledTimes(1)
     expect(onClipClick).toHaveBeenCalledWith('c2', undefined)
     expect(onClipMove).not.toHaveBeenCalled()
+  })
+
+  it('does not activate a clip when a stationary contact is canceled', () => {
+    const onClipClick = vi.fn()
+    const container = mount({ clips: [{ id: 'clip', startTime: 0, duration: 2 }], onClipClick })
+    const clip = container.querySelector('[data-mol-id="track-lane-clip"]')
+    if (!clip) throw new Error('clip missing')
+    dispatchPointer(clip, 'pointerdown', { pointerId: 3 })
+    dispatchPointer(window, 'pointercancel', { pointerId: 3 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  // Beyond React's suite: the gesture rules React's lane gets from its UI
+  // kit's drag binding, which React's own tests do not pin.
+  it('does not activate a clip when the window loses focus before the release', () => {
+    const onClipClick = vi.fn()
+    const container = mount({ clips: baseClips, onClipClick })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    window.dispatchEvent(new FocusEvent('blur'))
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('stops reporting moves when the window loses focus mid-drag', () => {
+    const onClipMove = vi.fn()
+    const container = mount({ clips: baseClips, onClipMove })
+    dispatchPointer(clipOf(container, 'c2'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    window.dispatchEvent(new FocusEvent('blur'))
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onClipMove).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancels the gesture when the pressed clip loses its pointer capture', () => {
+    const onClipClick = vi.fn()
+    const container = mount({ clips: baseClips, onClipClick })
+    const clip = clipOf(container, 'c1')
+    clip.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 100, pointerId: 1 }),
+    )
+    clip.dispatchEvent(new PointerEvent('lostpointercapture', { pointerId: 1 }))
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('does not click when the release is past the drag threshold without a move', () => {
+    const onClipClick = vi.fn()
+    const container = mount({ clips: baseClips, onClipClick })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 110, pointerId: 1 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('ignores a press from a non-primary pointer', () => {
+    const onClipClick = vi.fn()
+    const container = mount({ clips: baseClips, onClipClick })
+    clipOf(container, 'c1').dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 100,
+        button: 0,
+        pointerId: 2,
+        pointerType: 'touch',
+        isPrimary: false,
+      }),
+    )
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 2 })
+    expect(onClipClick).not.toHaveBeenCalled()
+  })
+
+  it('lets an ancestor see the pointer press', () => {
+    const onPointerDown = vi.fn()
+    window.addEventListener('pointerdown', onPointerDown)
+    try {
+      const container = mount({ clips: baseClips })
+      dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+      expect(onPointerDown).toHaveBeenCalledTimes(1)
+    } finally {
+      window.removeEventListener('pointerdown', onPointerDown)
+    }
+  })
+
+  it('still fires onClipClick when an ancestor stops the release event', () => {
+    const onClipClick = vi.fn()
+    const container = mount({ clips: baseClips, onClipClick })
+    const stop = (event: Event): void => event.stopPropagation()
+    container.addEventListener('pointerup', stop)
+    dispatchPointer(clipOf(container, 'c1'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(clipOf(container, 'c1'), 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(onClipClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('captures the pressed clip pointer for the gesture', () => {
+    const calls = recordPointerCapture()
+    const container = mount({ clips: baseClips })
+    const clip = clipOf(container, 'c2')
+    dispatchPointer(clip, 'pointerdown', { clientX: 100, pointerId: 1 })
+    expect(calls).toEqual([['set', clip, 1]])
+    dispatchPointer(window, 'pointerup', { clientX: 100, pointerId: 1 })
+    expect(calls).toEqual([
+      ['set', clip, 1],
+      ['release', clip, 1],
+    ])
+  })
+
+  it('cancels the gesture when the clip leaves the lane mid-drag', () => {
+    const onClipMove = vi.fn()
+    const container = mount({ clips: baseClips, onClipMove })
+    dispatchPointer(clipOf(container, 'c2'), 'pointerdown', { clientX: 100, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 140, pointerId: 1 })
+    setProps(container, { clips: [baseClips[0], baseClips[2]] })
+    dispatchPointer(window, 'pointermove', { clientX: 180, pointerId: 1 })
+    expect(onClipMove).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves a press on a control inside a clip alone', () => {
+    const onClipClick = vi.fn()
+    const onClipMove = vi.fn()
+    const container = mount({
+      // The label draws a control inside the clip.
+      clips: [{ id: 'c1', startTime: 0, duration: 2, label: <button>Go</button> }],
+      onClipClick,
+      onClipMove,
+    })
+    const button = container.querySelector('[data-mol-id="track-lane-clip"] button')
+    if (!button) throw new Error('button missing')
+    dispatchPointer(button, 'pointerdown', { clientX: 20, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 80, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 80, pointerId: 1 })
+    expect(onClipMove).not.toHaveBeenCalled()
+    expect(onClipClick).not.toHaveBeenCalled()
   })
 
   it('fires onClipMove (not onClipClick) when pointer moves past the drag threshold', () => {

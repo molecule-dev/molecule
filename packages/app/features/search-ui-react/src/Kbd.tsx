@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link Kbd}. */
 export interface KbdProps {
@@ -21,8 +22,8 @@ export interface KbdProps {
 export function Kbd({ children, className }: KbdProps): React.JSX.Element {
   const cm = getClassMap()
   return (
-    <kbd className={cm.cn(cm.kbd, className)} translate="no">
+    <Text as="kbd" className={cm.cn(cm.kbd, className)} translate="no">
       {children}
-    </kbd>
+    </Text>
   )
 }

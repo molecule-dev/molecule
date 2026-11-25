@@ -1,16 +1,38 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import { useEffect } from 'react'
 
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-react'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementHandle, getClassMap, type KeyboardEventHandler } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-react'
+import { ScrollArea, Text } from '@molecule/app-ui-react/elements'
 
 import { Kbd } from './Kbd.js'
 import { SearchBox } from './SearchBox.js'
 import type { SearchResultLinkProps, SearchResultView } from './SearchResults.js'
 import { SearchResults } from './SearchResults.js'
+
+/** The search operations and input bindings used by the dialog. */
+type QuickSearchSession<T extends ClientSearchDocument> = Pick<
+  SearchSession<T>,
+  | 'active'
+  | 'activeIndex'
+  | 'clear'
+  | 'hits'
+  | 'open'
+  | 'parsed'
+  | 'prefetch'
+  | 'query'
+  | 'removeFilter'
+  | 'setActiveIndex'
+  | 'setQuery'
+> & {
+  /** Receives the dialog's input handle on either renderer. */
+  inputRef: RefObject<ElementHandle | null>
+  /** Handles the input's portable key events. */
+  onKeyDown: KeyboardEventHandler
+}
 
 /** Props for {@link QuickSearchDialog}. */
 export interface QuickSearchDialogProps<T extends ClientSearchDocument> {
@@ -19,7 +41,7 @@ export interface QuickSearchDialogProps<T extends ClientSearchDocument> {
   /** Close it (Escape with nothing typed, the overlay, or after opening a hit). */
   onClose: () => void
   /** The search session (from `useSearchSession`), created with `syncUrl: false` and `onEscape: onClose`. */
-  session: SearchSession<T>
+  session: QuickSearchSession<T>
   /** How a hit renders. */
   view: (doc: T) => SearchResultView
   /** Placeholder for the box, already translated. */
@@ -101,7 +123,7 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
         shortcut={null}
         molId={molId}
       />
-      <div className={cm.dialogBody} data-mol-id={`${molId}-pane`}>
+      <ScrollArea as="div" className={cm.dialogBody} data-mol-id={`${molId}-pane`}>
         <SearchResults
           hits={session.active ? session.hits : []}
           view={view}
@@ -113,13 +135,13 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
           emptyText={session.active ? emptyText : (idleText ?? emptyText)}
           molId={molId}
         />
-      </div>
-      <p className={cm.cn(cm.dialogFooter, cm.resultMeta)} data-mol-id={`${molId}-keys`}>
+      </ScrollArea>
+      <Text as="p" className={cm.cn(cm.dialogFooter, cm.resultMeta)} data-mol-id={`${molId}-keys`}>
         <Kbd>↑</Kbd> <Kbd>↓</Kbd> <Kbd>↵</Kbd> <Kbd>esc</Kbd>{' '}
         {t('searchUi.dialogKeys', undefined, {
           defaultValue: 'The arrow keys move through the results, Enter opens one, Escape closes.',
         })}
-      </p>
+      </Text>
     </Modal>
   )
 }

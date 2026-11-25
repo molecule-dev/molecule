@@ -94,6 +94,23 @@ export const SearchBox = (props: SearchBoxProps): JSX.Element => {
     props.inputRef?.current?.focus()
   }
 
+  /**
+   * Hands a key press to `onKeyDown` the way React's text field does. A legacy IME
+   * reports key code 229 while it composes and on the Enter that confirms it, even
+   * after composing ended: that Enter is cancelled first, so it submits nothing, and
+   * the event reports the IME as composing. A composition still under way is the
+   * IME's own and is handed over as it is.
+   *
+   * @param event - The input's keydown event.
+   */
+  const onKeydown = (event: KeyboardEvent): void => {
+    const composing = event.isComposing
+    const legacyComposition = event.keyCode === 229
+    if (!composing && legacyComposition && event.key === 'Enter') event.preventDefault()
+    if (legacyComposition) Object.defineProperty(event, 'isComposing', { value: true })
+    props.onKeyDown?.(event)
+  }
+
   /** One stable record per chip key, so a re-passed or reordered array keeps the rendered chips per key. */
   const chipRecords = new Map<string, Chip>()
   const keyedChips = (): Chip[] => {
@@ -132,7 +149,8 @@ export const SearchBox = (props: SearchBoxProps): JSX.Element => {
           ref={inputRefFn}
           type="search"
           onInput={onInput}
-          onKeyDown={(event: KeyboardEvent) => props.onKeyDown?.(event)}
+          // No handler, no listener: nothing is cancelled for a field without key handling.
+          onKeyDown={props.onKeyDown && onKeydown}
           onFocusIn={() => setFocused(true)}
           onFocusOut={() => setFocused(false)}
           placeholder={props.placeholder}

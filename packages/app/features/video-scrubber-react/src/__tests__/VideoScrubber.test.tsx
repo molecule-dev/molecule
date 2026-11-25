@@ -340,6 +340,7 @@ describe('<VideoScrubber>', () => {
     // Way past the right edge.
     dispatchPointer(strip, 'pointerdown', { clientX: 9999, pointerId: 1 })
     expect(onSeek).toHaveBeenLastCalledWith(10)
+    dispatchPointer(strip, 'pointerup', { clientX: 9999, pointerId: 1 })
     // Way before the left edge.
     dispatchPointer(strip, 'pointerdown', { clientX: -500, pointerId: 2 })
     expect(onSeek).toHaveBeenLastCalledWith(0)
@@ -370,6 +371,24 @@ describe('<VideoScrubber>', () => {
     dispatchPointer(strip, 'pointermove', { clientX: 300, pointerId: 1 })
     dispatchPointer(strip, 'pointerup', { clientX: 300, pointerId: 1 })
     expect(onSeek.mock.calls.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('keeps frame snapping outside the strip until the initiating contact ends', () => {
+    const onSeek = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <VideoScrubber duration={10} currentTime={0} fps={24} onSeek={onSeek} />
+      </Wrap>,
+    )
+    const strip = container.querySelector('[data-mol-id="video-scrubber-strip"]')
+    if (!strip) throw new Error('strip missing')
+    strip.getBoundingClientRect = () => new DOMRect(10, 20, 100, 40)
+    dispatchPointer(strip, 'pointerdown', { clientX: 30, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 120, pointerId: 2 })
+    dispatchPointer(window, 'pointermove', { clientX: 120, pointerId: 1 })
+    dispatchPointer(window, 'pointerup', { clientX: 120, pointerId: 1 })
+    dispatchPointer(window, 'pointermove', { clientX: 50, pointerId: 1 })
+    expect(onSeek.mock.calls).toEqual([[2], [10]])
   })
 
   it('arrow-right steps forward exactly one frame; arrow-left steps back one frame', () => {
