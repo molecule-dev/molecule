@@ -104,18 +104,19 @@ function stubSurfaceRect(container: HTMLElement): void {
 }
 
 /**
- * Dispatch a pointer event carrying viewport coordinates.
+ * Dispatch a pointer event carrying viewport coordinates. The window is a
+ * valid target: a drag that leaves the surface releases or is cancelled there.
  *
- * @param target - Element to dispatch on.
+ * @param target - Element or window to dispatch on.
  * @param type - Event type.
  * @param x - Viewport X.
  * @param y - Viewport Y.
  */
 function dispatchPointer(
-  target: Element,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
-  x: number,
-  y: number,
+  target: Element | Window,
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
+  x = 0,
+  y = 0,
 ): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
     clientX: number
@@ -330,6 +331,25 @@ describe('<MapDrawing> circle radius', () => {
     dispatchPointer(surface, 'pointerdown', 50, 50)
     dispatchPointer(surface, 'pointerup', 50, 50)
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('uses the release position outside the surface and discards an interrupted circle', () => {
+    const onChange = vi.fn()
+    const container = mount({ onChange, activeTool: 'circle' })
+    stubSurfaceRect(container)
+    const surface = surfaceOf(container)
+
+    dispatchPointer(surface, 'pointerdown', 50, 50)
+    dispatchPointer(surface, 'pointermove', 80, 90)
+    dispatchPointer(window, 'pointercancel')
+    expect(container.querySelector('[data-mol-id="map-drawing-draft-circle"]')).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+
+    dispatchPointer(surface, 'pointerdown', 50, 50)
+    dispatchPointer(window, 'pointerup', 250, 50)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ kind: 'circle', properties: { radiusMeters: 200 } }),
+    ])
   })
 })
 

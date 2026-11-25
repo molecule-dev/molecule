@@ -47,8 +47,8 @@
   },
   "peerDependencies": {
     "@molecule/app-solid": "^3.14.0",
-    "@molecule/app-ui": "^1.0.1",
-    "@molecule/app-ui-solid": "^1.1.0",
+    "@molecule/app-ui": "^1.9.0",
+    "@molecule/app-ui-solid": "^1.4.2",
     "solid-js": "^1.8.0"
   },
   "devDependencies": {

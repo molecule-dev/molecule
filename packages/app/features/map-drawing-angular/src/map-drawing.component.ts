@@ -7,6 +7,11 @@
  * classes and inline styles, same SVG overlay, same pointer semantics, same
  * callback calls.
  *
+ * The surface follows its pointer contact wherever the pointer goes, inside
+ * or outside the surface, and commits at the release position. A contact that
+ * is interrupted (the pointer cancelled, the window losing focus) discards the
+ * circle or marquee it was drawing; path vertices stay.
+ *
  * @module
  */
 
@@ -27,8 +32,13 @@ import {
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
-import type { UIClassMap } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type ElementDrag,
+  type ElementDragPoint,
+  getClassMap,
+  type UIClassMap,
+} from '@molecule/app-ui'
+import { WebDragDirective } from '@molecule/app-ui-angular'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
 import { MapDrawingToolbar } from './map-drawing-toolbar.component.js'
@@ -95,7 +105,7 @@ interface DraftSelection {
 @Component({
   selector: 'div[mol-map-drawing]',
   standalone: true,
-  imports: [MapDrawingToolbar],
+  imports: [MapDrawingToolbar, WebDragDirective],
   hostDirectives: [MolPlacement],
   inputs: [
     'initialShapes',
@@ -113,7 +123,7 @@ interface DraftSelection {
     '[class]': 'rootClasses()',
   },
   // prettier-ignore
-  template: `<div mol-map-drawing-toolbar [tools]="toolsValue()" [activeTool]="activeToolValue()" [onActiveToolChange]="toolChange" [onDeleteSelected]="deleteHandler" [hasSelection]="selection().size > 0" [hasDraft]="hasDraft()" [onCancelDraft]="cancelHandler"></div><div #surface role="img" [attr.aria-label]="surfaceLabel()" data-mol-id="map-drawing-surface" [attr.data-active-tool]="activeToolValue()" (pointerdown)="handlePointerDown($event)" (pointermove)="handlePointerMove($event)" (pointerup)="handlePointerUp()" (dblclick)="handleDoubleClick()" [class]="surfaceClasses()" [style]="surfaceStyleText()"><div #slotEl data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px"><ng-content select="[slot=mapSlot]"></ng-content></div><svg data-mol-id="map-drawing-overlay" width="100%" height="100%" [style]="overlayStyleText()" preserveAspectRatio="none">@for (shape of shapes(); track shape.id) {@if (isPin(shape)) {@let p = pinPoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="pin" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="p.x" [attr.cy]="p.y" r="6" fill="currentColor"></circle></g>} @else if (isCircleShape(shape)) {@let c = circlePoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="circle" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="c.x" [attr.cy]="c.y" [attr.r]="circleRadius(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></circle></g>} @else if (isLineShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="line" [attr.opacity]="shapeOpacity(shape)"><polyline [attr.points]="linePoints(shape)" fill="none" stroke="currentColor" stroke-width="2"></polyline></g>} @else if (isPolygonShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="polygon" [attr.opacity]="shapeOpacity(shape)"><polygon [attr.points]="polygonPoints(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></polygon></g>}}@if (draftPath(); as draft) {@if (draft.vertices.length > 0) {@let draftPoints = draftPathPoints(draft);<polyline [attr.data-mol-id]="draft.kind === 'polygon' ? 'map-drawing-draft-polygon' : 'map-drawing-draft-line'" [attr.points]="draftPoints" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></polyline>@for (vertex of draft.vertices; track $index) {@let vertexPoint = projectPoint(vertex);<circle data-mol-id="map-drawing-draft-vertex" [attr.cx]="vertexPoint.x" [attr.cy]="vertexPoint.y" r="3" fill="currentColor"></circle>}}}@if (draftCircle(); as circle) {@let center = draftCircleCenter(circle);@let circleR = draftCircleRadius(circle);<circle data-mol-id="map-drawing-draft-circle" [attr.cx]="center.x" [attr.cy]="center.y" [attr.r]="circleR" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></circle>}@if (draftSelection(); as marquee) {<rect data-mol-id="map-drawing-selection-rect" [attr.x]="rectX(marquee)" [attr.y]="rectY(marquee)" [attr.width]="rectWidth(marquee)" [attr.height]="rectHeight(marquee)" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.6" stroke-dasharray="4 2"></rect>}</svg></div>`,
+  template: `<div mol-map-drawing-toolbar [tools]="toolsValue()" [activeTool]="activeToolValue()" [onActiveToolChange]="toolChange" [onDeleteSelected]="deleteHandler" [hasSelection]="selection().size > 0" [hasDraft]="hasDraft()" [onCancelDraft]="cancelHandler"></div><div #surface role="img" [attr.aria-label]="surfaceLabel()" data-mol-id="map-drawing-surface" [attr.data-active-tool]="activeToolValue()" [molDrag]="surfaceDrag" (dblclick)="handleDoubleClick($event)" [class]="surfaceClasses()" [style]="surfaceStyleText()"><div #slotEl data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px"><ng-content select="[slot=mapSlot]"></ng-content></div><svg data-mol-id="map-drawing-overlay" width="100%" height="100%" [style]="overlayStyleText()" preserveAspectRatio="none">@for (shape of shapes(); track shape.id) {@if (isPin(shape)) {@let p = pinPoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="pin" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="p.x" [attr.cy]="p.y" r="6" fill="currentColor"></circle></g>} @else if (isCircleShape(shape)) {@let c = circlePoint(shape);<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="circle" [attr.opacity]="shapeOpacity(shape)"><circle [attr.cx]="c.x" [attr.cy]="c.y" [attr.r]="circleRadius(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></circle></g>} @else if (isLineShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="line" [attr.opacity]="shapeOpacity(shape)"><polyline [attr.points]="linePoints(shape)" fill="none" stroke="currentColor" stroke-width="2"></polyline></g>} @else if (isPolygonShape(shape)) {<g data-mol-id="map-drawing-shape" [attr.data-shape-id]="shape.id" data-shape-kind="polygon" [attr.opacity]="shapeOpacity(shape)"><polygon [attr.points]="polygonPoints(shape)" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"></polygon></g>}}@if (draftPath(); as draft) {@if (draft.vertices.length > 0) {@let draftPoints = draftPathPoints(draft);<polyline [attr.data-mol-id]="draft.kind === 'polygon' ? 'map-drawing-draft-polygon' : 'map-drawing-draft-line'" [attr.points]="draftPoints" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></polyline>@for (vertex of draft.vertices; track $index) {@let vertexPoint = projectPoint(vertex);<circle data-mol-id="map-drawing-draft-vertex" [attr.cx]="vertexPoint.x" [attr.cy]="vertexPoint.y" r="3" fill="currentColor"></circle>}}}@if (draftCircle(); as circle) {@let center = draftCircleCenter(circle);@let circleR = draftCircleRadius(circle);<circle data-mol-id="map-drawing-draft-circle" [attr.cx]="center.x" [attr.cy]="center.y" [attr.r]="circleR" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"></circle>}@if (draftSelection(); as marquee) {<rect data-mol-id="map-drawing-selection-rect" [attr.x]="rectX(marquee)" [attr.y]="rectY(marquee)" [attr.width]="rectWidth(marquee)" [attr.height]="rectHeight(marquee)" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.6" stroke-dasharray="4 2"></rect>}</svg></div>`,
 })
 export class MapDrawing implements OnInit, OnChanges {
   /** Initial shapes to seed the surface with. */
@@ -161,6 +171,14 @@ export class MapDrawing implements OnInit, OnChanges {
 
   /** The i18n translator (re-read on every locale switch). */
   private readonly i18n = useTranslation()
+
+  /** The shared web drag binding used by the surface. */
+  readonly surfaceDrag: ElementDrag = {
+    onStart: (point) => this.startDrawing(point),
+    onMove: (point) => this.moveDrawing(point),
+    onEnd: (point) => this.endDrawing(point),
+    onCancel: () => this.cancelDrawing(),
+  }
 
   /**
    * Keeps the map-slot wrapper on the page only while it renders projected
@@ -309,24 +327,11 @@ export class MapDrawing implements OnInit, OnChanges {
   }
 
   /**
-   * Convert a pointer event's client coords to a screen-space point relative
-   * to the drawing surface.
-   * @param event - The pointer event.
-   * @returns The screen-space point.
+   * Set an anchor, or add a vertex, at the contact's first position.
+   * @param point - The position, relative to the surface.
    */
-  private pointForEvent(event: PointerEvent): ScreenPoint {
-    const node = this.surfaceRef?.nativeElement
-    if (!node) return { x: event.clientX, y: event.clientY }
-    const rect = node.getBoundingClientRect()
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top }
-  }
-
-  /**
-   * Handle a pointer press on the surface.
-   * @param event - The pointer event.
-   */
-  handlePointerDown(event: PointerEvent): void {
-    const screen = this.pointForEvent(event)
+  private startDrawing({ x, y }: ElementDragPoint): void {
+    const screen = { x, y }
     const lngLat = this.backend().unproject(screen)
     const active = this.activeToolValue()
 
@@ -351,37 +356,36 @@ export class MapDrawing implements OnInit, OnChanges {
     }
 
     if (active === 'polygon' || active === 'line') {
-      const current = this.draftPath()
-      if (current && current.kind !== active) {
-        this.draftPath.set({ vertices: [lngLat], kind: active })
-        return
-      }
-      this.draftPath.set(
-        current
-          ? { ...current, vertices: [...current.vertices, lngLat] }
-          : { vertices: [lngLat], kind: active },
-      )
+      const open = this.draftPath()
+      // A draft of the other path tool is stale: start over at this position.
+      const vertices = open?.kind === active ? open.vertices : []
+      this.draftPath.set({ kind: active, vertices: [...vertices, lngLat] })
     }
   }
 
   /**
-   * Handle a pointer move during a circle or marquee drag.
-   * @param event - The pointer event.
+   * Update the circle or marquee preview while the contact moves.
+   * @param point - The position, relative to the surface.
    */
-  handlePointerMove(event: PointerEvent): void {
+  private moveDrawing({ x, y }: ElementDragPoint): void {
     const circle = this.draftCircle()
     const marquee = this.draftSelection()
-    if (!circle && !marquee) return
-    const screen = this.pointForEvent(event)
-    if (circle) this.draftCircle.set({ ...circle, pointer: this.backend().unproject(screen) })
-    if (marquee) this.draftSelection.set({ ...marquee, current: screen })
+    if (circle) this.draftCircle.set({ ...circle, pointer: this.backend().unproject({ x, y }) })
+    if (marquee) this.draftSelection.set({ ...marquee, current: { x, y } })
   }
 
-  /** Handle a pointer release that commits a circle or a marquee selection. */
-  handlePointerUp(): void {
+  /**
+   * Commit a circle or a marquee selection from the contact's release
+   * position.
+   * @param point - The position, relative to the surface.
+   */
+  private endDrawing({ x, y }: ElementDragPoint): void {
     const circle = this.draftCircle()
     if (circle) {
-      const radius = this.backend().distanceMeters(circle.center, circle.pointer)
+      const radius = this.backend().distanceMeters(
+        circle.center,
+        this.backend().unproject({ x, y }),
+      )
       if (radius > 0) {
         const shape: MapShape = {
           id: makeShapeId(),
@@ -398,15 +402,25 @@ export class MapDrawing implements OnInit, OnChanges {
       const next = new Set<string>()
       for (const shape of this.shapes()) {
         const anchor = this.anchorScreenPoint(shape)
-        if (anchor && pointInRect(anchor, marquee.start, marquee.current)) next.add(shape.id)
+        if (anchor && pointInRect(anchor, marquee.start, { x, y })) next.add(shape.id)
       }
       this.selection.set(next)
       this.draftSelection.set(null)
     }
   }
 
-  /** Finalise the open polygon or line draft on a double click. */
-  handleDoubleClick(): void {
+  /**
+   * Discard the draft an interrupted contact leaves behind. A path's vertices
+   * stay: they were placed by presses that did complete.
+   */
+  private cancelDrawing(): void {
+    if (this.draftCircle() === null && this.draftSelection() === null) return
+    this.draftCircle.set(null)
+    this.draftSelection.set(null)
+  }
+
+  /** Commit the open polygon or line draft when it has enough vertices. */
+  private finishPath(): void {
     const draft = this.draftPath()
     if (!draft) return
     if (draft.kind === 'polygon') {
@@ -428,6 +442,16 @@ export class MapDrawing implements OnInit, OnChanges {
       this.commitShapes([...this.shapes(), line])
     }
     this.draftPath.set(null)
+  }
+
+  /**
+   * Finalise the open polygon or line draft on a double click that nothing
+   * inside the surface claimed first.
+   * @param event - The double-click.
+   */
+  handleDoubleClick(event: MouseEvent): void {
+    if (event.defaultPrevented) return
+    this.finishPath()
   }
 
   /** Remove every selected shape and clear the selection. */

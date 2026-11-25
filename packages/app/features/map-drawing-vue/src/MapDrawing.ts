@@ -18,9 +18,11 @@ import {
   type VNode,
   type VNodeChild,
   watch,
+  withDirectives,
 } from 'vue'
 
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+import { vWebDrag } from '@molecule/app-ui-vue'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
@@ -140,6 +142,11 @@ const slotOrProp = (
  * - **select**: pointer-drag draws a marquee; any shape whose anchor
  *   point lies inside the marquee is added to the selection.
  *
+ * The surface follows its pointer contact wherever the pointer goes, inside
+ * or outside the surface, and commits at the release position. A contact that
+ * is interrupted (the pointer cancelled, the window losing focus) discards the
+ * circle or marquee it was drawing; path vertices stay.
+ *
  * @param props - Component props (see {@link MapDrawingProps}).
  * @returns The map-drawing component.
  */
@@ -214,26 +221,12 @@ export const MapDrawing = defineComponent({
     }
 
     /**
-     * Convert a pointer event's client coords to a screen-space point
-     * relative to the drawing surface.
+     * Set an anchor, or add a vertex, at the contact's first position.
      *
-     * @param event - Native pointer event.
-     * @returns Screen-space point.
+     * @param point - The position, relative to the surface.
      */
-    const pointForEvent = (event: PointerEvent): ScreenPoint => {
-      const node = surfaceEl.value
-      if (!node) return { x: event.clientX, y: event.clientY }
-      const rect = node.getBoundingClientRect()
-      return { x: event.clientX - rect.left, y: event.clientY - rect.top }
-    }
-
-    /**
-     * Handle a pointer press on the surface.
-     *
-     * @param event - Native pointer event.
-     */
-    const handlePointerDown = (event: PointerEvent): void => {
-      const screen = pointForEvent(event)
+    const startDrawing = ({ x, y }: ElementDragPoint): void => {
+      const screen = { x, y }
       const backend = props.mapBackend ?? identityBackend
       const lngLat = backend.unproject(screen)
 
@@ -257,42 +250,40 @@ export const MapDrawing = defineComponent({
         return
       }
 
-      // polygon / line: pointer-down adds a vertex to the open draft.
       if (activeTool.value === 'polygon' || activeTool.value === 'line') {
-        if (draftPath.value && draftPath.value.kind !== activeTool.value) {
-          // Tool flipped mid-draft via external control — drop the stale draft.
-          draftPath.value = { vertices: [lngLat], kind: activeTool.value }
-          return
-        }
-        const next: DraftPath = draftPath.value
-          ? { ...draftPath.value, vertices: [...draftPath.value.vertices, lngLat] }
-          : { vertices: [lngLat], kind: activeTool.value }
-        draftPath.value = next
+        const tool = activeTool.value
+        const open = draftPath.value
+        // A draft of the other path tool is stale: start over at this position.
+        const vertices = open?.kind === tool ? open.vertices : []
+        draftPath.value = { kind: tool, vertices: [...vertices, lngLat] }
       }
     }
 
     /**
-     * Handle a pointer move during a circle or marquee drag.
+     * Update the circle or marquee preview while the contact moves.
      *
-     * @param event - Native pointer event.
+     * @param point - The position, relative to the surface.
      */
-    const handlePointerMove = (event: PointerEvent): void => {
-      if (!draftCircle.value && !draftSelection.value) return
-      const screen = pointForEvent(event)
+    const moveDrawing = ({ x, y }: ElementDragPoint): void => {
       const backend = props.mapBackend ?? identityBackend
       if (draftCircle.value) {
-        draftCircle.value = { ...draftCircle.value, pointer: backend.unproject(screen) }
+        draftCircle.value = { ...draftCircle.value, pointer: backend.unproject({ x, y }) }
       }
       if (draftSelection.value) {
-        draftSelection.value = { ...draftSelection.value, current: screen }
+        draftSelection.value = { ...draftSelection.value, current: { x, y } }
       }
     }
 
-    /** Handle a pointer release that commits a circle or a marquee selection. */
-    const handlePointerUp = (): void => {
+    /**
+     * Commit a circle or a marquee selection from the contact's release
+     * position.
+     *
+     * @param point - The position, relative to the surface.
+     */
+    const endDrawing = ({ x, y }: ElementDragPoint): void => {
       const backend = props.mapBackend ?? identityBackend
       if (draftCircle.value) {
-        const radius = backend.distanceMeters(draftCircle.value.center, draftCircle.value.pointer)
+        const radius = backend.distanceMeters(draftCircle.value.center, backend.unproject({ x, y }))
         if (radius > 0) {
           const circle: MapShape = {
             id: makeShapeId(),
@@ -311,10 +302,7 @@ export const MapDrawing = defineComponent({
         const next = new Set<string>()
         for (const shape of shapes.value) {
           const anchor = anchorScreenPoint(shape, backend)
-          if (
-            anchor &&
-            pointInRect(anchor, draftSelection.value.start, draftSelection.value.current)
-          ) {
+          if (anchor && pointInRect(anchor, draftSelection.value.start, { x, y })) {
             next.add(shape.id)
           }
         }
@@ -323,8 +311,18 @@ export const MapDrawing = defineComponent({
       }
     }
 
-    /** Finalise the open polygon or line draft on a double click. */
-    const handleDoubleClick = (): void => {
+    /**
+     * Discard the draft an interrupted contact leaves behind. A path's
+     * vertices stay: they were placed by presses that did complete.
+     */
+    const cancelDrawing = (): void => {
+      if (!draftCircle.value && !draftSelection.value) return
+      draftCircle.value = null
+      draftSelection.value = null
+    }
+
+    /** Commit the open polygon or line draft when it has enough vertices. */
+    const finishPath = (): void => {
       if (!draftPath.value) return
       if (draftPath.value.kind === 'polygon') {
         const ring = closeRing(draftPath.value.vertices)
@@ -348,6 +346,25 @@ export const MapDrawing = defineComponent({
         commitShapes([...shapes.value, line])
       }
       draftPath.value = null
+    }
+
+    /** The shared web drag binding used by the surface. */
+    const surfaceDrag: ElementDrag = {
+      onStart: startDrawing,
+      onMove: moveDrawing,
+      onEnd: endDrawing,
+      onCancel: cancelDrawing,
+    }
+
+    /**
+     * Finalise the open polygon or line draft on a double click that nothing
+     * inside the surface claimed first.
+     *
+     * @param event - Native mouse event.
+     */
+    const handleDoubleClick = (event: MouseEvent): void => {
+      if (event.defaultPrevented) return
+      finishPath()
     }
 
     /** Remove every selected shape and clear the selection. */
@@ -440,6 +457,24 @@ export const MapDrawing = defineComponent({
         ),
       )
 
+      const surface = withDirectives(
+        h(
+          'div',
+          {
+            ref: surfaceEl,
+            role: 'img',
+            'aria-label': ariaLabel,
+            'data-mol-id': 'map-drawing-surface',
+            'data-active-tool': active,
+            onDblclick: handleDoubleClick,
+            class: cm.cn(cm.surface, cm.borderBPrimary),
+            style: surfaceStyle,
+          },
+          surfaceChildren,
+        ),
+        [[vWebDrag, surfaceDrag]],
+      )
+
       return h(
         'div',
         { 'data-mol-id': 'map-drawing', class: cm.cn(cm.stack(2), props.className) },
@@ -453,23 +488,7 @@ export const MapDrawing = defineComponent({
             hasDraft,
             onCancelDraft: clearDrafts,
           }),
-          h(
-            'div',
-            {
-              ref: surfaceEl,
-              role: 'img',
-              'aria-label': ariaLabel,
-              'data-mol-id': 'map-drawing-surface',
-              'data-active-tool': active,
-              onPointerdown: handlePointerDown,
-              onPointermove: handlePointerMove,
-              onPointerup: handlePointerUp,
-              onDblclick: handleDoubleClick,
-              class: cm.cn(cm.surface, cm.borderBPrimary),
-              style: surfaceStyle,
-            },
-            surfaceChildren,
-          ),
+          surface,
         ],
       )
     }

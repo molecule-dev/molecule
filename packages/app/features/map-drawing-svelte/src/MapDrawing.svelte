@@ -4,13 +4,19 @@
   geofence shapes (polygons, circles, pins, lines). Same props (React names),
   same ClassMap classes and inline styles, same SVG overlay, same pointer
   semantics, same callback calls.
+
+  The surface follows its pointer contact wherever the pointer goes, inside or
+  outside the surface, and commits at the release position. A contact that is
+  interrupted (the pointer cancelled, the window losing focus) discards the
+  circle or marquee it was drawing; path vertices stay.
 -->
 <script lang="ts">
   import { untrack } from 'svelte'
   import { SvelteSet } from 'svelte/reactivity'
 
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { type ElementDrag, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+  import { webDrag } from '@molecule/app-ui-svelte'
 
   import { closeRing, identityBackend, pointInRect } from './geometry.js'
   import MapDrawingToolbar from './MapDrawingToolbar.svelte'
@@ -113,26 +119,12 @@
   }
 
   /**
-   * Convert a pointer event's client coords to a screen-space point
-   * relative to the drawing surface.
+   * Set an anchor, or add a vertex, at the contact's first position.
    *
-   * @param event - Native pointer event.
-   * @returns Screen-space point.
+   * @param point - The position, relative to the surface.
    */
-  function pointForEvent(event: PointerEvent): ScreenPoint {
-    const node = surfaceEl
-    if (!node) return { x: event.clientX, y: event.clientY }
-    const rect = node.getBoundingClientRect()
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top }
-  }
-
-  /**
-   * Handle a pointer press on the surface.
-   *
-   * @param event - Native pointer event.
-   */
-  function handlePointerDown(event: PointerEvent): void {
-    const screen = pointForEvent(event)
+  function startDrawing({ x, y }: ElementDragPoint): void {
+    const screen = { x, y }
     const lngLat = mapBackend.unproject(screen)
     const active = activeTool
 
@@ -156,36 +148,33 @@
       return
     }
 
-    // polygon / line: pointer-down adds a vertex to the open draft.
     if (active === 'polygon' || active === 'line') {
-      const current = draftPath
-      if (current && current.kind !== active) {
-        // Tool flipped mid-draft via external control — drop the stale draft.
-        draftPath = { vertices: [lngLat], kind: active }
-        return
-      }
-      draftPath = current
-        ? { ...current, vertices: [...current.vertices, lngLat] }
-        : { vertices: [lngLat], kind: active }
+      const open = draftPath
+      // A draft of the other path tool is stale: start over at this position.
+      const vertices = open?.kind === active ? open.vertices : []
+      draftPath = { kind: active, vertices: [...vertices, lngLat] }
     }
   }
 
   /**
-   * Handle a pointer move during a circle or marquee drag.
+   * Update the circle or marquee preview while the contact moves.
    *
-   * @param event - Native pointer event.
+   * @param point - The position, relative to the surface.
    */
-  function handlePointerMove(event: PointerEvent): void {
-    if (!draftCircle && !draftSelection) return
-    const screen = pointForEvent(event)
-    if (draftCircle) draftCircle = { ...draftCircle, pointer: mapBackend.unproject(screen) }
-    if (draftSelection) draftSelection = { ...draftSelection, current: screen }
+  function moveDrawing({ x, y }: ElementDragPoint): void {
+    if (draftCircle) draftCircle = { ...draftCircle, pointer: mapBackend.unproject({ x, y }) }
+    if (draftSelection) draftSelection = { ...draftSelection, current: { x, y } }
   }
 
-  /** Handle a pointer release that commits a circle or a marquee selection. */
-  function handlePointerUp(): void {
+  /**
+   * Commit a circle or a marquee selection from the contact's release
+   * position.
+   *
+   * @param point - The position, relative to the surface.
+   */
+  function endDrawing({ x, y }: ElementDragPoint): void {
     if (draftCircle) {
-      const radius = mapBackend.distanceMeters(draftCircle.center, draftCircle.pointer)
+      const radius = mapBackend.distanceMeters(draftCircle.center, mapBackend.unproject({ x, y }))
       if (radius > 0) {
         const circle: MapShape = {
           id: makeShapeId(),
@@ -201,7 +190,7 @@
       selection.clear()
       for (const shape of shapes) {
         const anchor = anchorScreenPoint(shape)
-        if (anchor && pointInRect(anchor, draftSelection.start, draftSelection.current)) {
+        if (anchor && pointInRect(anchor, draftSelection.start, { x, y })) {
           selection.add(shape.id)
         }
       }
@@ -209,8 +198,18 @@
     }
   }
 
-  /** Finalise the open polygon or line draft on a double click. */
-  function handleDoubleClick(): void {
+  /**
+   * Discard the draft an interrupted contact leaves behind. A path's
+   * vertices stay: they were placed by presses that did complete.
+   */
+  function cancelDrawing(): void {
+    if (!draftCircle && !draftSelection) return
+    draftCircle = null
+    draftSelection = null
+  }
+
+  /** Commit the open polygon or line draft when it has enough vertices. */
+  function finishPath(): void {
     if (!draftPath) return
     if (draftPath.kind === 'polygon') {
       const ring = closeRing(draftPath.vertices)
@@ -231,6 +230,25 @@
       commitShapes([...shapes, line])
     }
     draftPath = null
+  }
+
+  /** The shared web drag binding used by the surface. */
+  const surfaceDrag: ElementDrag = {
+    onStart: startDrawing,
+    onMove: moveDrawing,
+    onEnd: endDrawing,
+    onCancel: cancelDrawing,
+  }
+
+  /**
+   * Finalise the open polygon or line draft on a double click that nothing
+   * inside the surface claimed first.
+   *
+   * @param event - Native mouse event.
+   */
+  function handleDoubleClick(event: MouseEvent): void {
+    if (event.defaultPrevented) return
+    finishPath()
   }
 
   /** Remove every selected shape and clear the selection. */
@@ -329,12 +347,10 @@
     aria-label={t('mapDrawing.surface.aria', {}, { defaultValue: 'Map drawing surface' })}
     data-mol-id="map-drawing-surface"
     data-active-tool={activeTool}
-    onpointerdown={handlePointerDown}
-    onpointermove={handlePointerMove}
-    onpointerup={handlePointerUp}
     ondblclick={handleDoubleClick}
     class={cm.cn(cm.surface, cm.borderBPrimary)}
     style={surfaceStyleText()}
+    use:webDrag={surfaceDrag}
   >
     {#if mapSlot}
       <PresentWhileContent data-mol-id="map-drawing-slot" style="position: absolute; inset: 0px">

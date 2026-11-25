@@ -12,7 +12,8 @@
 import { type Component, createEffect, createSignal, type JSX, Show } from 'solid-js'
 
 import { PresentWhileNode, useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementDrag, type ElementDragPoint, getClassMap } from '@molecule/app-ui'
+import { webDrag } from '@molecule/app-ui-solid'
 
 import { closeRing, identityBackend, pointInRect } from './geometry.js'
 import { MapDrawingToolbar } from './MapDrawingToolbar.jsx'
@@ -115,6 +116,11 @@ export interface MapDrawingProps {
  * - **select**: pointer-drag draws a marquee; any shape whose anchor
  *   point lies inside the marquee is added to the selection.
  *
+ * The surface follows its pointer contact wherever the pointer goes, inside
+ * or outside the surface, and commits at the release position. A contact that
+ * is interrupted (the pointer cancelled, the window losing focus) discards the
+ * circle or marquee it was drawing; path vertices stay.
+ *
  * @param props - Component props (see {@link MapDrawingProps}).
  * @returns The rendered map-drawing surface.
  */
@@ -133,8 +139,6 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
   const [draftPath, setDraftPath] = createSignal<DraftPath | null>(null)
   const [draftCircle, setDraftCircle] = createSignal<DraftCircle | null>(null)
   const [draftSelection, setDraftSelection] = createSignal<DraftSelection | null>(null)
-
-  let surfaceEl: HTMLDivElement | undefined
 
   /**
    * Push shape changes upward.
@@ -165,26 +169,12 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
   }
 
   /**
-   * Convert a pointer event's client coords to a screen-space point
-   * relative to the drawing surface.
+   * Set an anchor, or add a vertex, at the contact's first position.
    *
-   * @param event - Native pointer event.
-   * @returns Screen-space point.
+   * @param point - The position, relative to the surface.
    */
-  const pointForEvent = (event: PointerEvent): ScreenPoint => {
-    const node = surfaceEl
-    if (!node) return { x: event.clientX, y: event.clientY }
-    const rect = node.getBoundingClientRect()
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top }
-  }
-
-  /**
-   * Handle a pointer press on the surface.
-   *
-   * @param event - Native pointer event.
-   */
-  const handlePointerDown = (event: PointerEvent): void => {
-    const screen = pointForEvent(event)
+  const startDrawing = ({ x, y }: ElementDragPoint): void => {
+    const screen = { x, y }
     const lngLat = backend().unproject(screen)
     const active = activeTool()
 
@@ -208,40 +198,36 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
       return
     }
 
-    // polygon / line: pointer-down adds a vertex to the open draft.
     if (active === 'polygon' || active === 'line') {
-      const current = draftPath()
-      if (current && current.kind !== active) {
-        // Tool flipped mid-draft via external control — drop the stale draft.
-        setDraftPath({ vertices: [lngLat], kind: active })
-        return
-      }
-      const next: DraftPath = current
-        ? { ...current, vertices: [...current.vertices, lngLat] }
-        : { vertices: [lngLat], kind: active }
-      setDraftPath(next)
+      const open = draftPath()
+      // A draft of the other path tool is stale: start over at this position.
+      const vertices = open?.kind === active ? open.vertices : []
+      setDraftPath({ kind: active, vertices: [...vertices, lngLat] })
     }
   }
 
   /**
-   * Handle a pointer move during a circle or marquee drag.
+   * Update the circle or marquee preview while the contact moves.
    *
-   * @param event - Native pointer event.
+   * @param point - The position, relative to the surface.
    */
-  const handlePointerMove = (event: PointerEvent): void => {
+  const moveDrawing = ({ x, y }: ElementDragPoint): void => {
     const circle = draftCircle()
     const marquee = draftSelection()
-    if (!circle && !marquee) return
-    const screen = pointForEvent(event)
-    if (circle) setDraftCircle({ ...circle, pointer: backend().unproject(screen) })
-    if (marquee) setDraftSelection({ ...marquee, current: screen })
+    if (circle) setDraftCircle({ ...circle, pointer: backend().unproject({ x, y }) })
+    if (marquee) setDraftSelection({ ...marquee, current: { x, y } })
   }
 
-  /** Handle a pointer release that commits a circle or a marquee selection. */
-  const handlePointerUp = (): void => {
+  /**
+   * Commit a circle or a marquee selection from the contact's release
+   * position.
+   *
+   * @param point - The position, relative to the surface.
+   */
+  const endDrawing = ({ x, y }: ElementDragPoint): void => {
     const circle = draftCircle()
     if (circle) {
-      const radius = backend().distanceMeters(circle.center, circle.pointer)
+      const radius = backend().distanceMeters(circle.center, backend().unproject({ x, y }))
       if (radius > 0) {
         const shape: MapShape = {
           id: makeShapeId(),
@@ -258,15 +244,25 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
       const next = new Set<string>()
       for (const shape of shapes()) {
         const anchor = anchorScreenPoint(shape, backend())
-        if (anchor && pointInRect(anchor, marquee.start, marquee.current)) next.add(shape.id)
+        if (anchor && pointInRect(anchor, marquee.start, { x, y })) next.add(shape.id)
       }
       setSelection(next)
       setDraftSelection(null)
     }
   }
 
-  /** Finalise the open polygon or line draft on a double click. */
-  const handleDoubleClick = (): void => {
+  /**
+   * Discard the draft an interrupted contact leaves behind. A path's
+   * vertices stay: they were placed by presses that did complete.
+   */
+  const cancelDrawing = (): void => {
+    if (draftCircle() === null && draftSelection() === null) return
+    setDraftCircle(null)
+    setDraftSelection(null)
+  }
+
+  /** Commit the open polygon or line draft when it has enough vertices. */
+  const finishPath = (): void => {
     const draft = draftPath()
     if (!draft) return
     if (draft.kind === 'polygon') {
@@ -291,6 +287,25 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
       commitShapes([...shapes(), line])
     }
     setDraftPath(null)
+  }
+
+  /** The shared web drag binding used by the surface. */
+  const surfaceDrag: ElementDrag = {
+    onStart: startDrawing,
+    onMove: moveDrawing,
+    onEnd: endDrawing,
+    onCancel: cancelDrawing,
+  }
+
+  /**
+   * Finalise the open polygon or line draft on a double click that nothing
+   * inside the surface claimed first.
+   *
+   * @param event - Native mouse event.
+   */
+  const handleDoubleClick = (event: MouseEvent): void => {
+    if (event.defaultPrevented) return
+    finishPath()
   }
 
   /** Remove every selected shape and clear the selection. */
@@ -346,15 +361,12 @@ export const MapDrawing: Component<MapDrawingProps> = (props): JSX.Element => {
       />
       <div
         ref={(element: HTMLDivElement) => {
-          surfaceEl = element
+          webDrag(element, () => surfaceDrag)
         }}
         role="img"
         aria-label={t('mapDrawing.surface.aria', {}, { defaultValue: 'Map drawing surface' })}
         data-mol-id="map-drawing-surface"
         data-active-tool={activeTool()}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
         onDblClick={handleDoubleClick}
         class={cm.cn(cm.surface, cm.borderBPrimary)}
         style={surfaceStyle()}
