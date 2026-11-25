@@ -305,6 +305,41 @@ it('passes over versions that reject the same call with a diagnostic at a differ
   ])
 })
 
+it('gives a workspace dependency the peer copy the checked package selected, as one install does', async () => {
+  // A name registry the way app-icons declares CustomIconNames: an empty interface that other
+  // packages augment. The workspace copy is a different file from the published floor's.
+  const names = "export interface CustomNames {}\nexport type Name = 'base' | keyof CustomNames\n"
+  publishes(model, ['1.0.0'])
+  publishedFile(model, '1.0.0', { types: './dist/index.d.ts' }, { 'dist/index.d.ts': names })
+  write(`${workspaceModel}/src/index.ts`, names)
+  // An unpublished workspace dependency registers a name, as app-ide-panel-logic does for the IDE.
+  const augment = '@molecule/floor-augment'
+  write('packages/augment/package.json', {
+    name: augment,
+    version: '1.0.0',
+    type: 'module',
+    types: 'dist/index.d.ts',
+    peerDependencies: { [model]: '^1.0.0' },
+  })
+  write(
+    'packages/augment/src/index.ts',
+    `import '${model}'\n\ndeclare module '${model}' {\n  interface CustomNames {\n    extra: true\n  }\n}\n\nexport const registered = true\n`,
+  )
+  createFeature(
+    { [model]: '^1.0.0' },
+    `import { registered } from '${augment}'\nimport type { Name } from '${model}'\n\nexport const name: Name = 'extra'\nexport const ready = registered\n`,
+  )
+  write(`${feature}/package.json`, {
+    name: '@molecule/floor-feature',
+    type: 'module',
+    peerDependencies: { [model]: '^1.0.0' },
+    dependencies: { [augment]: '1.0.0' },
+  })
+
+  const [row] = await scanPeerFloorTypes(root, new Set([feature]))
+  expect(row.diagnostics).toEqual([])
+})
+
 it('skips packages without Molecule peers without a registry request', async () => {
   createFeature({ react: '^19.0.0' }, 'export const ok = true')
   const [row] = await scanPeerFloorTypes(root, new Set([feature]))

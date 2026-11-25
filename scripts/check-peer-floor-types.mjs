@@ -218,7 +218,18 @@ function compilerHost(root, dir, options, workspace, graph, peers, installed) {
       return selected && semver.satisfies(selected.version, range)
         ? selected
         : graph.dependency(name, range)
-    if (owner?.slot === 'workspace') return workspace.get(name) ?? selected
+    if (owner?.slot === 'workspace') {
+      // One install holds one copy of a shared peer, so a workspace package whose own range
+      // accepts the version the checked package selected uses that copy. A second copy would
+      // keep apart what they share: an interface one augments and the other reads
+      // (app-ide-panel-logic registering icon names for app-ide-react).
+      const own =
+        owner.pkg.peerDependencies?.[name] ??
+        owner.pkg.dependencies?.[name] ??
+        owner.pkg.optionalDependencies?.[name]
+      if (selected && own !== undefined && semver.satisfies(selected.version, own)) return selected
+      return workspace.get(name) ?? selected
+    }
     return selected ?? workspace.get(name)
   }
   const controlledPeer = (name, owner) =>
