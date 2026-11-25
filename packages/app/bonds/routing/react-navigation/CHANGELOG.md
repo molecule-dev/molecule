@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Route change listeners receive `pop` for back navigation and `replace` for replacements, as the router contract describes.
+- Route change listeners receive `pop` for back navigation (`router.back()`, the device back button, or a tab the navigator already kept) and `replace` for replacements, as the router contract describes; the `NavigationRoute` and `PartialNavigationState` types are exported. Requires `@molecule/app-routing` 1.5.0.
 
 ## 1.1.1
 

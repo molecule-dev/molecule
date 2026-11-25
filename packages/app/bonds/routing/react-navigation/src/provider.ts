@@ -21,6 +21,8 @@ import type {
   Router,
 } from '@molecule/app-routing'
 
+import type { NavigationSnapshot } from './route-change.js'
+import { classifyRouteChange, readNavigationSnapshot } from './route-change.js'
 import type { NavigationRef, ReactNavigationConfig } from './types.js'
 import {
   generatePath,
@@ -36,7 +38,11 @@ import {
  *
  * The router translates between URL-based routing (used by molecule's
  * Router interface) and screen-based routing (used by React Navigation)
- * via a linking configuration.
+ * via a linking configuration. Each route change listener receives the
+ * action that moved the history: `pop` when the newly focused route is one
+ * the navigator already kept (a back, a tab it already has), `replace`
+ * when a route took the focused route's place, `push` otherwise, a change
+ * that keeps the focused route included.
  * @param config - React Navigation configuration including routes, linking, and navigation ref.
  * @returns A Router implementation backed by React Navigation.
  */
@@ -49,6 +55,7 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
   const namedRoutes = new Map<string, RouteDefinition>()
 
   let unsubscribeStateChange: (() => void) | undefined
+  let previousState: NavigationSnapshot | undefined
 
   // Index named routes for navigateTo() lookups
   const indexRoutes = (routeList: RouteDefinition[], prefix = ''): void => {
@@ -96,13 +103,31 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
   }
 
   /**
-   * Subscribes to React Navigation state changes and forwards them to listeners.
+   * Reads the navigation state as it is, to classify the change that follows it.
+   * @returns The snapshot, or `undefined` while the container has no state.
+   */
+  function readCurrentState(): NavigationSnapshot | undefined {
+    return readNavigationSnapshot(navigationRef?.getState(), navigationRef?.getCurrentRoute()?.key)
+  }
+
+  /**
+   * Subscribes to React Navigation state changes and forwards them to listeners with the
+   * action that moved the history (`push`, `replace` or `pop`), read from the state before
+   * and after each change.
    */
   function setupStateListener(): void {
     if (unsubscribeStateChange) unsubscribeStateChange()
     if (navigationRef) {
+      // React Navigation logs an error when the state is read before the container has a
+      // navigator, so it is read here only once it has one.
+      previousState = navigationRef.isReady?.() ? readCurrentState() : undefined
       unsubscribeStateChange = navigationRef.addListener('state', () => {
-        notifyListeners('push')
+        const next = readCurrentState()
+        const action = classifyRouteChange(previousState, next)
+        // Kept before the listeners run, so a change one of them starts is classified
+        // against this one.
+        previousState = next
+        notifyListeners(action)
       })
     }
   }
@@ -321,6 +346,7 @@ export function createReactNavigationRouter(config: ReactNavigationConfig): Rout
         unsubscribeStateChange()
         unsubscribeStateChange = undefined
       }
+      previousState = undefined
       listeners.clear()
       guards.length = 0
     },

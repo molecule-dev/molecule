@@ -47,7 +47,7 @@
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-logger": "^1.0.1",
-    "@molecule/app-routing": "^1.0.1",
+    "@molecule/app-routing": "^1.5.0",
     "@molecule/app-theme": "^1.0.4",
     "@react-navigation/native": "^7.0.0",
     "react": "^18.0.0 || ^19.0.0",

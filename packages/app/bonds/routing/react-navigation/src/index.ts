@@ -51,6 +51,12 @@
  * - Navigation guards (`addGuard`) intercept only molecule-initiated `navigate()` /
  *   `navigateTo()` calls — navigations dispatched directly through React Navigation
  *   (taps on native navigators) bypass them; route-change listeners still fire.
+ * - **Route-change listeners get the action that moved the history**, read from the
+ *   navigation state at each change: `pop` when the newly focused route is one the
+ *   navigator already kept (a back, from `router.back()` or from the device, or a tab the
+ *   navigator already has), `replace` when a route took the focused route's place, and
+ *   `push` otherwise. A change that keeps the focused route (params set on it, a nested
+ *   navigator's change that does not move focus) is reported as `push`, as it always was.
  *
  * @module
  */
