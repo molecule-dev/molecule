@@ -4,6 +4,46 @@
  * @module
  */
 
+import type { ReactNode } from 'react'
+
+import type {
+  BoxProps,
+  DataAttributes,
+  ForwardedElementProps,
+  HTMLElementProps,
+  ToastProps as CoreToastProps,
+  TooltipProps as CoreTooltipProps,
+} from '@molecule/app-ui'
+
+type BoxRoot = ForwardedElementProps<BoxProps<ReactNode>, 'children' | 'style'>
+type OverlayRootProps = Pick<
+  HTMLElementProps,
+  Extract<keyof BoxRoot, keyof HTMLElementProps> | 'style' | 'testId' | 'automationId'
+> &
+  DataAttributes
+
+/** Toast's root box attributes and notification content. */
+export interface ToastProps
+  extends
+    Omit<OverlayRootProps, 'title'>,
+    Omit<CoreToastProps, keyof HTMLElementProps | 'children'> {
+  /** The displayed notification heading. */
+  title?: CoreToastProps['title']
+  /** Message shown when no description was supplied. */
+  children?: ReactNode
+}
+
+/** Tooltip's root box attributes and the trigger that shows its content. */
+export interface TooltipProps
+  extends
+    OverlayRootProps,
+    Omit<CoreTooltipProps, keyof HTMLElementProps | 'children' | 'content'> {
+  /** The tooltip's content. */
+  content: ReactNode
+  /** The trigger whose focus or hover reveals the tooltip. */
+  children: ReactNode
+}
+
 // Re-export all UI types
 export type {
   // Accordion
@@ -81,8 +121,6 @@ export type {
   TextareaElementProps,
   // Textarea
   TextareaProps,
-  ToastProps,
   // Tooltip
   TooltipPlacement,
-  TooltipProps,
 } from '@molecule/app-ui'

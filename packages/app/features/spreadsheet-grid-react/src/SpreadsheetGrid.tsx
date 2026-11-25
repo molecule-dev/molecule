@@ -1,17 +1,16 @@
-import {
-  type CSSProperties,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type ElementDragPoint,
+  type ElementHandle,
+  getClassMap,
+  type KitKeyboardEvent,
+  type ScrollOffset,
+  type WebStyle,
+} from '@molecule/app-ui'
+import { Box, ScrollArea, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import type { CellMap, CellRef, CellValue, SpreadsheetSelection } from './types.js'
 import {
@@ -107,12 +106,11 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const editInputRef = useRef<HTMLInputElement>(null)
-  const dragAnchorRef = useRef<{ row: number; col: number } | null>(null)
-
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const [scrollTop, setScrollTop] = useState(0)
+  const editInputRef = useRef<ElementHandle>(null)
+  const range = useRef<SpreadsheetSelection>(null)
+  const [offset, setOffset] = useState<ScrollOffset>({ x: 0, y: 0 })
+  const currentOffset = useRef(offset)
+  const { x: scrollLeft, y: scrollTop } = offset
   const [editing, setEditing] = useState<{ row: number; col: number; draft: string } | null>(null)
 
   const frozenRowsHeight = frozenRows * cellHeight
@@ -198,39 +196,47 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
     setEditing(null)
   }, [])
 
+  const editorKey = editing && cellRef(editing.row, editing.col)
   useEffect(() => {
-    if (editing && editInputRef.current) {
-      editInputRef.current.focus()
-      editInputRef.current.select()
+    if (editorKey) editInputRef.current?.focus()
+  }, [editorKey])
+
+  /** Converts a grid-local point into a cell. Frozen axes keep their viewport coordinates. */
+  function cellAt({ x, y }: ElementDragPoint): { row: number; col: number } | undefined {
+    if (x < gutterWidth || y < headerHeight || x >= viewportWidth || y >= viewportHeight) return
+    const alongColumn = x - gutterWidth
+    const alongRow = y - headerHeight
+    const offset = currentOffset.current
+    const col = Math.floor(
+      (alongColumn + (alongColumn < frozenColsWidth ? 0 : offset.x)) / cellWidth,
+    )
+    const row = Math.floor((alongRow + (alongRow < frozenRowsHeight ? 0 : offset.y)) / cellHeight)
+    return row < rows && col < columns ? { row, col } : undefined
+  }
+
+  /** Commits the editor if open and selects the cell or extends from the current anchor. */
+  function selectCell(row: number, col: number, extend: boolean): SpreadsheetSelection {
+    if (editing) commitEdit()
+    const next = {
+      r1: extend ? selection.r1 : row,
+      c1: extend ? selection.c1 : col,
+      r2: row,
+      c2: col,
     }
-  }, [editing])
+    onSelectionChange(next)
+    return next
+  }
 
-  const handleMouseDown = useCallback(
-    (row: number, col: number, shiftKey: boolean) => {
-      if (editing) commitEdit()
-      if (shiftKey) {
-        onSelectionChange({ r1: selection.r1, c1: selection.c1, r2: row, c2: col })
-      } else {
-        dragAnchorRef.current = { row, col }
-        onSelectionChange({ r1: row, c1: col, r2: row, c2: col })
-      }
-    },
-    [commitEdit, editing, onSelectionChange, selection.c1, selection.r1],
-  )
-
-  const handleMouseEnter = useCallback(
-    (row: number, col: number, buttonsDown: boolean) => {
-      if (!buttonsDown) return
-      const anchor = dragAnchorRef.current
-      if (!anchor) return
-      onSelectionChange({ r1: anchor.row, c1: anchor.col, r2: row, c2: col })
-    },
-    [onSelectionChange],
-  )
-
-  const handleMouseUp = useCallback(() => {
-    dragAnchorRef.current = null
-  }, [])
+  /** Moves the active range endpoint when the contact reaches another visible cell. */
+  function extendRange(point: ElementDragPoint): void {
+    const previous = range.current
+    if (!previous) return
+    const cell = cellAt(point)
+    if (!cell || (cell.row === previous.r2 && cell.col === previous.c2)) return
+    const next = { ...previous, r2: cell.row, c2: cell.col }
+    range.current = next
+    onSelectionChange(next)
+  }
 
   const handleCopy = useCallback(async () => {
     const tsv = serializeSelectionTsv(cells, selection)
@@ -262,7 +268,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
   )
 
   const handleKeyDown = useCallback(
-    (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    (event: KitKeyboardEvent) => {
       const isMod = event.ctrlKey || event.metaKey
       if (editing) return
       if (isMod && event.key.toLowerCase() === 'c') {
@@ -283,22 +289,14 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
     [beginEdit, editing, handleCopy, selection.c1, selection.r1],
   )
 
-  const handlePasteEvent = useCallback(
-    (event: React.ClipboardEvent<HTMLDivElement>) => {
-      const text = event.clipboardData.getData('text/plain')
-      if (!text) return
-      event.preventDefault()
-      handlePaste(text)
-    },
-    [handlePaste],
-  )
-
   const totalGridWidth = gutterWidth + columns * cellWidth
   const totalGridHeight = headerHeight + rows * cellHeight
   const totalScrollWidth = Math.max(0, columns - frozenCols) * cellWidth
   const totalScrollHeight = Math.max(0, rows - frozenRows) * cellHeight
+  const clipColumnHeaders = frozenCols > 0 && scrollLeft > 0
+  const clipRowHeaders = frozenRows > 0 && scrollTop > 0
 
-  const containerStyle: CSSProperties = {
+  const containerStyle: WebStyle = {
     width: viewportWidth,
     height: viewportHeight,
     position: 'relative',
@@ -307,7 +305,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
   }
 
   // The scrollable region sits to the right of frozen-cols and below frozen-rows.
-  const scrollRegionStyle: CSSProperties = {
+  const scrollRegionStyle: WebStyle = {
     position: 'absolute',
     left: gutterWidth + frozenColsWidth,
     top: headerHeight + frozenRowsHeight,
@@ -316,7 +314,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
     overflow: 'auto',
   }
 
-  const scrollSpacerStyle: CSSProperties = {
+  const scrollSpacerStyle: WebStyle = {
     width: totalScrollWidth,
     height: totalScrollHeight,
     position: 'relative',
@@ -338,7 +336,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
     const isEditing = editing && editing.row === row && editing.col === col
     const inSel = isInSelection(selection, row, col)
     const isAnchor = selection.r1 === row && selection.c1 === col
-    const style: CSSProperties = {
+    const style: WebStyle = {
       position: 'absolute',
       left: leftPx,
       top: topPx,
@@ -347,7 +345,8 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       boxSizing: 'border-box',
     }
     return (
-      <div
+      <Box
+        as="div"
         key={ref}
         role="gridcell"
         data-mol-id={`spreadsheet-grid-cell-${ref}`}
@@ -362,18 +361,45 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
           inSel ? cm.spreadsheetGridCellSelected : cm.surface,
           isAnchor ? cm.spreadsheetGridCellAnchor : '',
         )}
-        style={style}
-        onMouseDown={(e) => handleMouseDown(row, col, e.shiftKey)}
-        onMouseEnter={(e) => handleMouseEnter(row, col, e.buttons === 1)}
-        onDoubleClick={() => beginEdit(row, col)}
+        webStyle={style}
+        onMouseDown={
+          isEditing
+            ? undefined
+            : (event) => {
+                // Standalone mouse presses can identify a cell even without pointer geometry.
+                if (event.target && !range.current) selectCell(row, col, event.shiftKey)
+              }
+        }
+        onClick={
+          isEditing
+            ? undefined
+            : (event) => {
+                // The device responder emits a press after a stationary touch, with no DOM target.
+                if (!event.target) selectCell(row, col, event.shiftKey)
+              }
+        }
+        secondaryAction={
+          isEditing
+            ? undefined
+            : {
+                label: t(
+                  'spreadsheetGrid.cellEditor',
+                  { ref },
+                  { defaultValue: 'Edit cell {{ref}}' },
+                ),
+                run: () => beginEdit(row, col),
+              }
+        }
       >
         {isEditing ? (
-          <input
+          <TextField
+            as="input"
             ref={editInputRef}
             data-mol-id={`spreadsheet-grid-editor-${ref}`}
             className={cm.cn(cm.w('full'), cm.h('full'), cm.spreadsheetGridCellEditor)}
             value={editing.draft}
-            onChange={(e) => setEditing({ ...editing, draft: e.target.value })}
+            onValueChange={(draft) => setEditing({ ...editing, draft })}
+            selectTextOnFocus
             onBlur={commitEdit}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -393,7 +419,8 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             )}
           />
         ) : (
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.w('full'),
               cm.h('full'),
@@ -402,15 +429,15 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             )}
           >
             {renderCellContent(row, col)}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     )
   }
 
   return (
-    <div
-      ref={containerRef}
+    <Box
+      as="div"
       data-mol-id={dataMolId ?? 'spreadsheet-grid'}
       role="grid"
       tabIndex={0}
@@ -418,16 +445,31 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       aria-colcount={columns}
       aria-label={t('spreadsheetGrid.label', undefined, { defaultValue: 'Spreadsheet' })}
       className={cm.cn(cm.spreadsheetGridRoot, cm.spreadsheetGridRootBorder)}
-      style={containerStyle}
+      webStyle={containerStyle}
       onKeyDown={handleKeyDown}
-      onPaste={handlePasteEvent}
-      onMouseUp={handleMouseUp}
+      onPasteText={handlePaste}
+      drag={{
+        touchStart: 'longPress',
+        onStart: (point) => {
+          const cell = cellAt(point)
+          range.current = cell ? selectCell(cell.row, cell.col, point.shiftKey) : null
+        },
+        onMove: extendRange,
+        onEnd: (point) => {
+          extendRange(point)
+          range.current = null
+        },
+        onCancel: () => {
+          range.current = null
+        },
+      }}
     >
       {/* Top-left corner (gutter × header). */}
-      <div
+      <Box
+        as="div"
         aria-hidden="true"
         className={cm.spreadsheetGridCorner}
-        style={{
+        webStyle={{
           position: 'absolute',
           left: 0,
           top: 0,
@@ -437,11 +479,12 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       />
 
       {/* Column-letter header (frozen + scrollable). */}
-      <div
+      <Box
+        as="div"
         role="row"
         aria-rowindex={1}
         className={cm.spreadsheetGridLane}
-        style={{
+        webStyle={{
           position: 'absolute',
           left: gutterWidth,
           top: 0,
@@ -452,7 +495,8 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       >
         {/* Frozen column letters. */}
         {frozenColIndices.map((col) => (
-          <div
+          <Box
+            as="div"
             key={`hdr-frozen-${col}`}
             role="columnheader"
             aria-colindex={col + 1}
@@ -462,7 +506,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
               cm.textSize('xs'),
               cm.fontWeight('semibold'),
             )}
-            style={{
+            webStyle={{
               position: 'absolute',
               left: col * cellWidth,
               top: 0,
@@ -472,20 +516,23 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             }}
           >
             {columnLetter(col)}
-          </div>
+          </Box>
         ))}
         {/* Scrolling column letters. */}
-        <div
-          style={{
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
-            left: frozenColsWidth - scrollLeft,
+            left: clipColumnHeaders ? frozenColsWidth : frozenColsWidth - scrollLeft,
             top: 0,
-            width: totalScrollWidth,
+            width: clipColumnHeaders ? scrollableViewportWidth : totalScrollWidth,
             height: headerHeight,
+            overflow: clipColumnHeaders ? 'hidden' : undefined,
           }}
         >
           {visibleCols.map((col) => (
-            <div
+            <Box
+              as="div"
               key={`hdr-${col}`}
               role="columnheader"
               aria-colindex={col + 1}
@@ -495,9 +542,9 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
                 cm.textSize('xs'),
                 cm.fontWeight('semibold'),
               )}
-              style={{
+              webStyle={{
                 position: 'absolute',
-                left: (col - frozenCols) * cellWidth,
+                left: (col - frozenCols) * cellWidth - (clipColumnHeaders ? scrollLeft : 0),
                 top: 0,
                 width: cellWidth,
                 height: headerHeight,
@@ -505,16 +552,17 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
               }}
             >
               {columnLetter(col)}
-            </div>
+            </Box>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Row-number gutter (frozen + scrollable). */}
-      <div
+      <Box
+        as="div"
         aria-hidden="true"
         className={cm.spreadsheetGridLane}
-        style={{
+        webStyle={{
           position: 'absolute',
           left: 0,
           top: headerHeight,
@@ -524,7 +572,8 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
         }}
       >
         {frozenRowIndices.map((row) => (
-          <div
+          <Box
+            as="div"
             key={`gutter-frozen-${row}`}
             className={cm.cn(
               cm.spreadsheetGridHeaderCell,
@@ -532,7 +581,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
               cm.textSize('xs'),
               cm.fontWeight('semibold'),
             )}
-            style={{
+            webStyle={{
               position: 'absolute',
               left: 0,
               top: row * cellHeight,
@@ -542,19 +591,22 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             }}
           >
             {row + 1}
-          </div>
+          </Box>
         ))}
-        <div
-          style={{
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
             left: 0,
-            top: frozenRowsHeight - scrollTop,
+            top: clipRowHeaders ? frozenRowsHeight : frozenRowsHeight - scrollTop,
             width: gutterWidth,
-            height: totalScrollHeight,
+            height: clipRowHeaders ? scrollableViewportHeight : totalScrollHeight,
+            overflow: clipRowHeaders ? 'hidden' : undefined,
           }}
         >
           {visibleRows.map((row) => (
-            <div
+            <Box
+              as="div"
               key={`gutter-${row}`}
               className={cm.cn(
                 cm.spreadsheetGridHeaderCell,
@@ -562,25 +614,26 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
                 cm.textSize('xs'),
                 cm.fontWeight('semibold'),
               )}
-              style={{
+              webStyle={{
                 position: 'absolute',
                 left: 0,
-                top: (row - frozenRows) * cellHeight,
+                top: (row - frozenRows) * cellHeight - (clipRowHeaders ? scrollTop : 0),
                 width: gutterWidth,
                 height: cellHeight,
                 lineHeight: `${cellHeight}px`,
               }}
             >
               {row + 1}
-            </div>
+            </Box>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Frozen-rows × scrolling-cols region. */}
       {frozenRows > 0 && (
-        <div
-          style={{
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
             left: gutterWidth + frozenColsWidth,
             top: headerHeight,
@@ -589,8 +642,9 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             overflow: 'hidden',
           }}
         >
-          <div
-            style={{
+          <Box
+            as="div"
+            webStyle={{
               position: 'absolute',
               left: -scrollLeft,
               top: 0,
@@ -603,14 +657,15 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
                 renderCellBox(row, col, (col - frozenCols) * cellWidth, row * cellHeight),
               ),
             )}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
       {/* Frozen-cols × scrolling-rows region. */}
       {frozenCols > 0 && (
-        <div
-          style={{
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
             left: gutterWidth,
             top: headerHeight + frozenRowsHeight,
@@ -619,8 +674,9 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             overflow: 'hidden',
           }}
         >
-          <div
-            style={{
+          <Box
+            as="div"
+            webStyle={{
               position: 'absolute',
               left: 0,
               top: -scrollTop,
@@ -633,14 +689,15 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
                 renderCellBox(row, col, col * cellWidth, (row - frozenRows) * cellHeight),
               ),
             )}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
       {/* Frozen-rows × frozen-cols corner. */}
       {frozenRows > 0 && frozenCols > 0 && (
-        <div
-          style={{
+        <Box
+          as="div"
+          webStyle={{
             position: 'absolute',
             left: gutterWidth,
             top: headerHeight,
@@ -654,20 +711,21 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
               renderCellBox(row, col, col * cellWidth, row * cellHeight),
             ),
           )}
-        </div>
+        </Box>
       )}
 
       {/* Main scrollable region. */}
-      <div
+      <ScrollArea
+        as="div"
         data-mol-id="spreadsheet-grid-scroll"
-        style={scrollRegionStyle}
-        onScroll={(e) => {
-          const el = e.currentTarget
-          setScrollLeft(el.scrollLeft)
-          setScrollTop(el.scrollTop)
+        direction="both"
+        webStyle={scrollRegionStyle}
+        onScroll={(next) => {
+          currentOffset.current = next
+          setOffset(next)
         }}
       >
-        <div style={scrollSpacerStyle}>
+        <Box as="div" webStyle={scrollSpacerStyle}>
           {visibleRows.map((row) =>
             visibleCols.map((col) =>
               renderCellBox(
@@ -678,17 +736,18 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
               ),
             ),
           )}
-        </div>
-      </div>
+        </Box>
+      </ScrollArea>
 
       {/* Hidden total-size hint for accessibility tooling. */}
-      <span
+      <Text
+        as="span"
         className={cm.cn(cm.displayBlock)}
-        style={{ position: 'absolute', left: -10000, top: -10000 }}
+        webStyle={{ position: 'absolute', left: -10000, top: -10000 }}
         aria-hidden="true"
       >
         {totalGridWidth}×{totalGridHeight}
-      </span>
-    </div>
+      </Text>
+    </Box>
   )
 }

@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.tests.json",
+  "compilerOptions": {
+    "customConditions": ["react-native"],
+    "lib": ["ES2022"]
+  },
+  "include": ["src/components/*.native.ts", "src/__tests__/native-*.types.tsx"]
+}

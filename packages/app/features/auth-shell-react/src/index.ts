@@ -54,7 +54,7 @@
  * ```
  *
  * @remarks
- * `AuthShell` renders an `<Link>` from `@molecule/app-react/link`
+ * `AuthShell` renders an element `<Link>` from `@molecule/app-ui-react/elements`
  * ("Back to home") by default, so it MUST be rendered inside the app's
  * router (`RouterProvider`); pass `showBackLink={false}` in router-less
  * setups. The back link's arrow uses the Material Symbols

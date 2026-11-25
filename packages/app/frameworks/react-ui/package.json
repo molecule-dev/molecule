@@ -5,15 +5,23 @@
   "type": "module",
   "sideEffects": false,
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/index.web.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "react-native": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "types": "./dist/index.web.d.ts",
+      "import": "./dist/index.web.js"
     },
     "./components/Tooltip.js": {
-      "types": "./dist/components/Tooltip.d.ts",
-      "import": "./dist/components/Tooltip.js"
+      "react-native": {
+        "types": "./dist/components/Tooltip.native.d.ts",
+        "default": "./dist/components/Tooltip.native.js"
+      },
+      "types": "./dist/components/Tooltip.web.d.ts",
+      "import": "./dist/components/Tooltip.web.js"
     },
     "./elements": {
       "types": "./dist/elements/index.d.ts",
@@ -32,8 +40,10 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "pretest": "npm run typecheck:tests",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck:tests": "node scripts/typecheck-tests.mjs"
   },
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",

@@ -3,7 +3,6 @@
     "audio-effects-rack-react",
     "audio-player-react",
     "audio-recorder-react",
-    "auth-shell-react",
     "avatar-stack-react",
     "barcode-scanner-react",
     "canvas-engine-react",
@@ -19,7 +18,6 @@
     "mind-map-canvas-react",
     "search-ui-react",
     "settings-panel-react",
-    "spreadsheet-grid-react",
     "survey-question-react",
     "tag-input-react",
     "three-viewer-react",
@@ -31,8 +29,6 @@
   ],
   "kitComponents": [
     "Dropdown.tsx",
-    "Toast.tsx",
-    "Tooltip.tsx",
     "UserMenuPopover.tsx"
   ]
 }

@@ -1,10 +1,15 @@
-import type { CSSProperties, ElementType, HTMLAttributes, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { Link } from '@molecule/app-react/link'
 import { slot } from '@molecule/app-react/render'
 import type { StorageProvider } from '@molecule/app-storage'
-import { getClassMap } from '@molecule/app-ui'
+import {
+  type BoxProps,
+  type ForwardedElementProps,
+  getClassMap,
+  type WebStyle,
+} from '@molecule/app-ui'
+import { Box, GlyphIcon, Link, Text } from '@molecule/app-ui-react/elements'
 
 import { AuthFormStateProvider } from './AuthFormStateProvider.js'
 
@@ -17,7 +22,7 @@ import { AuthFormStateProvider } from './AuthFormStateProvider.js'
 export interface AuthShellContainerProps {
   children: ReactNode
   /** Optional CSS background applied to the container. */
-  style?: CSSProperties
+  style?: WebStyle
   /** Optional extra className appended after defaults. */
   className?: string
   /** Layout direction. Defaults to centered-Flex; pass `'column'` for a vertical stack (top-bar / main / footer). */
@@ -44,9 +49,9 @@ export function AuthShellContainer({
           cm.authShellContainer,
         )
   return (
-    <div className={cm.cn(base, className)} style={style}>
+    <Box as="div" className={cm.cn(base, className)} webStyle={style}>
       {children}
-    </div>
+    </Box>
   )
 }
 
@@ -57,7 +62,11 @@ export function AuthShellContainer({
  */
 export function AuthShellDecoration({ children }: { children: ReactNode }): JSX.Element {
   const cm = getClassMap()
-  return <div className={cm.cn(cm.authShellDecoration)}>{children}</div>
+  return (
+    <Box as="div" className={cm.cn(cm.authShellDecoration)}>
+      {children}
+    </Box>
+  )
 }
 
 /**
@@ -78,7 +87,7 @@ export interface AuthShellCardProps {
   outerClassName?: string
   /** data-mol-id pass-through for E2E selectors. */
   dataMolId?: string
-  style?: CSSProperties
+  style?: WebStyle
 }
 
 /**
@@ -95,20 +104,21 @@ export function AuthShellCard({
   const cm = getClassMap()
   const outer = outerClassName ?? cm.cn(cm.w('full'), cm.authShellCardOuter)
   return (
-    <main className={outer}>
-      <div
+    <Box as="main" className={outer}>
+      <Box
+        as="div"
         className={cm.cn(
           cm.flex({ direction: 'col', gap: 'lg' }),
           cm.sp('p', 8),
           surfaceClassName ?? cm.authShellCardSurface,
           className,
         )}
-        style={style}
+        webStyle={style}
         data-mol-id={dataMolId}
       >
         {children}
-      </div>
-    </main>
+      </Box>
+    </Box>
   )
 }
 
@@ -123,7 +133,7 @@ export interface AuthShellHeadingProps {
   /** Optional override for the h1 className (e.g. custom font-family). */
   headingClassName?: string
   /** Optional override for the h1 style. */
-  headingStyle?: CSSProperties
+  headingStyle?: WebStyle
 }
 
 /**
@@ -138,29 +148,33 @@ export function AuthShellHeading({
 }: AuthShellHeadingProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <header className={cm.flex({ direction: 'col', align: 'center', gap: 'xs' })}>
+    <Box as="header" className={cm.flex({ direction: 'col', align: 'center', gap: 'xs' })}>
       {eyebrow ? (
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.authShellHeadingEyebrow)}
         >
           {eyebrow}
-        </span>
+        </Text>
       ) : null}
-      <h1
+      <Text
+        as="h1"
         className={cm.cn(
           cm.textSize('2xl'),
           cm.fontWeight('bold'),
           cm.authShellHeadingTitle,
           headingClassName,
         )}
-        style={headingStyle}
+        webStyle={headingStyle}
       >
         {heading}
-      </h1>
+      </Text>
       {subheading ? (
-        <p className={cm.cn(cm.textSize('sm'), cm.authShellHeadingSub)}>{subheading}</p>
+        <Text as="p" className={cm.cn(cm.textSize('sm'), cm.authShellHeadingSub)}>
+          {subheading}
+        </Text>
       ) : null}
-    </header>
+    </Box>
   )
 }
 
@@ -170,9 +184,9 @@ export function AuthShellHeading({
 export function AuthShellFooter({ children }: { children: ReactNode }): JSX.Element {
   const cm = getClassMap()
   return (
-    <footer className={cm.cn(cm.textCenter, cm.textSize('sm'), cm.authShellFooter)}>
+    <Box as="footer" className={cm.cn(cm.textCenter, cm.textSize('sm'), cm.authShellFooter)}>
       {children}
-    </footer>
+    </Box>
   )
 }
 
@@ -192,7 +206,10 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): 
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <p className={cm.cn(cm.textCenter, cm.textSize('xs'), cm.sp('mt', 6), cm.authShellBackLink)}>
+    <Box
+      as="p"
+      className={cm.cn(cm.textCenter, cm.textSize('xs'), cm.sp('mt', 6), cm.authShellBackLink)}
+    >
       <Link
         className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.authShellBackLinkAnchor)}
         to={to}
@@ -200,14 +217,19 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): 
         {/* The Material Symbols ligature name paints a glyph, not text — hidden
             from the accessibility tree so the link's accessible name is its
             `t()` label alone. */}
-        <span className={cm.iconGlyphFont} style={{ fontSize: 14 }} aria-hidden="true">
-          arrow_back
-        </span>
+        <GlyphIcon
+          name="arrow_back"
+          className={undefined}
+          style={{ fontSize: 14 }}
+          aria-hidden="true"
+        />
         {label?.trim() ? label : t('auth.backHome', undefined, { defaultValue: 'Back to home' })}
       </Link>
-    </p>
+    </Box>
   )
 }
+
+type AuthShellWrapperProps = ForwardedElementProps<BoxProps<ReactNode>, 'children' | 'className'>
 
 /**
  * Outer frame for the two-column "decorated brand panel + card" auth
@@ -222,7 +244,7 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): 
  * Background, text color, and font are per-app — pass them via
  * `className`.
  */
-export interface AuthShellSplitProps extends HTMLAttributes<HTMLDivElement> {
+export interface AuthShellSplitProps extends AuthShellWrapperProps {
   children: ReactNode
   /** Cosmetic classes (background, text color, font) for the outer container. */
   className?: string
@@ -234,9 +256,13 @@ export interface AuthShellSplitProps extends HTMLAttributes<HTMLDivElement> {
 export function AuthShellSplit({ children, className, ...rest }: AuthShellSplitProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), className)} {...rest}>
+    <Box
+      className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), className)}
+      {...rest}
+      as="div"
+    >
       {children}
-    </div>
+    </Box>
   )
 }
 
@@ -252,7 +278,7 @@ export function AuthShellSplit({ children, className, ...rest }: AuthShellSplitP
  * flex row or `cm.grid({ cols: 2 })` (or a custom grid template) so the
  * primitive never fights a grid-based shell.
  */
-export interface AuthShellSplitRowProps extends HTMLAttributes<HTMLElement> {
+export interface AuthShellSplitRowProps extends AuthShellWrapperProps {
   children: ReactNode
   /**
    * Layout classes for the row — typically `cm.flex({})` or
@@ -272,9 +298,9 @@ export function AuthShellSplitRow({
   const cm = getClassMap()
   // `<main>` — the row is the auth page's primary content landmark.
   return (
-    <main className={cm.cn(cm.flex1, className)} {...rest}>
+    <Box className={cm.cn(cm.flex1, className)} {...rest} as="main">
       {children}
-    </main>
+    </Box>
   )
 }
 
@@ -287,7 +313,7 @@ export function AuthShellSplitRow({
  * positioning; extra props (`style`, `aria-*`, `data-*`) pass through to
  * the `<aside>`.
  */
-export interface AuthShellPanelProps extends HTMLAttributes<HTMLElement> {
+export interface AuthShellPanelProps extends AuthShellWrapperProps {
   children: ReactNode
   /** Cosmetic classes — width ratio, padding, gradient, positioning. */
   className?: string
@@ -299,9 +325,9 @@ export interface AuthShellPanelProps extends HTMLAttributes<HTMLElement> {
 export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <aside className={cm.cn(cm.authShellPanel, className)} {...rest}>
+    <Box className={cm.cn(cm.authShellPanel, className)} {...rest} as="aside">
       {children}
-    </aside>
+    </Box>
   )
 }
 
@@ -312,7 +338,7 @@ export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelP
  * Provides only the `flex` centering; pass `className` for width ratio,
  * padding, and `flex-1`.
  */
-export interface AuthShellCardColumnProps extends HTMLAttributes<HTMLElement> {
+export interface AuthShellCardColumnProps extends AuthShellWrapperProps {
   children: ReactNode
   /** Cosmetic classes — width ratio, padding. */
   className?: string
@@ -335,9 +361,8 @@ export function AuthShellCardColumn({
   ...rest
 }: AuthShellCardColumnProps): JSX.Element {
   const cm = getClassMap()
-  const Tag = as as ElementType
   return (
-    <Tag
+    <Box
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
         // min-w-0: this element is a flex item of the auth row. The default
@@ -349,9 +374,10 @@ export function AuthShellCardColumn({
         className,
       )}
       {...rest}
+      as={as}
     >
       {children}
-    </Tag>
+    </Box>
   )
 }
 
@@ -413,7 +439,7 @@ export function AuthShell({
     <AuthFormStateProvider storage={formStateStorage} storageKey={formStateKey}>
       <AuthShellContainer>
         {decoration ? <AuthShellDecoration>{decoration}</AuthShellDecoration> : null}
-        <div>
+        <Box as="div">
           <AuthShellCard>
             {brand}
             <AuthShellHeading heading={heading} subheading={subheading} />
@@ -421,7 +447,7 @@ export function AuthShell({
             {footer ? <AuthShellFooter>{footer}</AuthShellFooter> : null}
           </AuthShellCard>
           {showBackLink ? <AuthShellBackLink to={backTo} /> : null}
-        </div>
+        </Box>
       </AuthShellContainer>
     </AuthFormStateProvider>
   )

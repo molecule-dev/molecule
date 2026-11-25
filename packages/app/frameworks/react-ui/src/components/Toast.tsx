@@ -4,23 +4,32 @@
  * @module
  */
 
-import React, {
+import {
   createContext,
+  type FC,
   forwardRef,
+  type NamedExoticComponent,
+  type ReactNode,
+  type RefAttributes,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 
 import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
-import { slot } from '@molecule/app-react/render'
-import type { ColorVariant, ToastProps } from '@molecule/app-ui'
+import { slot, useCommittedRef } from '@molecule/app-react/render'
+import type { ColorVariant, ElementHandle, ToastProps as WebToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable } from '@molecule/app-ui-react/elements'
+import { OverlayPortal, useOverlayLayer } from '@molecule/app-ui-react/platform'
 
+import type { ToastProps } from '../types.js'
+import { isReactNode } from '../utilities/isReactNode.js'
+import { mergeRefs } from '../utilities/mergeRefs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 import { rootProps } from '../utilities/rootProps.js'
 
@@ -58,7 +67,10 @@ const statusIconMap: Record<string, IconName> = {
  * the polite `role="status"` so routine confirmations don't interrupt a
  * screen reader mid-sentence the way an assertive announcement does.
  */
-export const Toast = forwardRef<HTMLDivElement, ToastProps>(
+export const Toast: NamedExoticComponent<WebToastProps & RefAttributes<ElementHandle>> = forwardRef<
+  ElementHandle,
+  WebToastProps
+>(
   (
     {
       children: childrenProp,
@@ -81,7 +93,6 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     },
     ref,
   ) => {
-    const children = slot(childrenProp as React.ReactNode)
     const [isVisible, setIsVisible] = useState(true)
     const { t } = useTranslation()
     const cm = getClassMap()
@@ -95,9 +106,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     // as new toasts arrive) restarted the countdown — a busy toast stack
     // never auto-dismissed.
     const onDismissRef = useRef(onDismiss)
-    useEffect(() => {
-      onDismissRef.current = onDismiss
-    }, [onDismiss])
+    useCommittedRef(onDismissRef, onDismiss)
 
     // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
     // cannot pause loses the message mid-read. `remainingRef` carries the
@@ -105,7 +114,10 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     // instead of a fixed deadline.
     const remainingRef = useRef(duration)
     const startedAtRef = useRef<number | null>(null)
-    const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+    const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+    const dismissed = useRef(false)
+    const hovered = useRef(false)
+    const focused = useRef(false)
 
     const clearTimer = useCallback(() => {
       if (timerRef.current) {
@@ -115,17 +127,22 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
       startedAtRef.current = null
     }, [])
 
+    const handleDismiss = useCallback(() => {
+      if (dismissed.current) return
+      dismissed.current = true
+      clearTimer()
+      setIsVisible(false)
+      onDismissRef.current?.()
+    }, [clearTimer])
+
     const startTimer = useCallback(
       (ms: number) => {
         clearTimer()
         if (ms <= 0) return
         startedAtRef.current = Date.now()
-        timerRef.current = setTimeout(() => {
-          setIsVisible(false)
-          onDismissRef.current?.()
-        }, ms)
+        timerRef.current = setTimeout(handleDismiss, ms)
       },
-      [clearTimer],
+      [clearTimer, handleDismiss],
     )
 
     const pauseTimer = useCallback(() => {
@@ -135,22 +152,21 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
       clearTimer()
     }, [clearTimer])
 
-    const resumeTimer = useCallback(() => {
-      if (remainingRef.current > 0) startTimer(remainingRef.current)
-    }, [startTimer])
+    const updatePause = (interaction: { current: boolean }, active: boolean): void => {
+      if (interaction.current === active) return
+      interaction.current = active
+      if (hovered.current || focused.current) pauseTimer()
+      else startTimer(remainingRef.current)
+    }
 
     useEffect(() => {
       remainingRef.current = duration
-      startTimer(duration)
+      if (!dismissed.current && !hovered.current && !focused.current) startTimer(duration)
       return () => clearTimer()
     }, [duration, startTimer, clearTimer])
 
-    const handleDismiss = useCallback(() => {
-      setIsVisible(false)
-      onDismiss?.()
-    }, [onDismiss])
-
     if (!isVisible) return null
+    const message = description || (isReactNode(childrenProp) ? slot(childrenProp) : undefined)
 
     // Assertive announcement is appropriate for warnings/errors — an info or
     // success toast interrupting a screen-reader user mid-sentence for a
@@ -159,12 +175,14 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     const role = variant === 'warning' || variant === 'error' ? 'alert' : 'status'
 
     return (
-      <div
+      <Box
+        as="div"
+        accessibilityGroup={false}
         ref={ref}
         role={role}
         data-state="open"
         className={cm.cn(cm.toast({ variant }), className)}
-        style={style}
+        webStyle={style}
         data-testid={testId}
         // Every other declared prop (id, aria-*, data-*, automationId as data-mol-id, the DOM
         // event handlers) reaches the root; a caller's role replaces the live-region default.
@@ -172,42 +190,51 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
         // The timer pauses while the pointer or focus is on the toast; the caller's handlers
         // for the same events run after it.
         onMouseEnter={(event) => {
-          pauseTimer()
+          updatePause(hovered, true)
           onMouseEnter?.(event)
         }}
         onMouseLeave={(event) => {
-          resumeTimer()
+          updatePause(hovered, false)
           onMouseLeave?.(event)
         }}
         onFocus={(event) => {
-          pauseTimer()
+          updatePause(focused, true)
           onFocus?.(event)
         }}
         onBlur={(event) => {
-          resumeTimer()
+          updatePause(focused, false)
           onBlur?.(event)
         }}
       >
-        {statusIcon && <span className={cm.toastIconWrapper}>{statusIcon}</span>}
-        <div className={cm.toastContentWrapper}>
-          {title && <div className={cm.toastTitle}>{title}</div>}
-          {!!(description || children) && (
-            <div className={cm.toastDescription}>
-              {(description as React.ReactNode) || children}
-            </div>
+        {statusIcon && (
+          <Box as="span" className={cm.toastIconWrapper}>
+            {statusIcon}
+          </Box>
+        )}
+        <Box as="div" className={cm.toastContentWrapper}>
+          {title && (
+            <Box as="div" className={cm.toastTitle}>
+              {title}
+            </Box>
           )}
-        </div>
+          {!!message && (
+            <Box as="div" className={cm.toastDescription}>
+              {message}
+            </Box>
+          )}
+        </Box>
         {dismissible && (
-          <button
+          <Pressable
+            as="button"
             type="button"
             onClick={handleDismiss}
             className={cm.toastClose}
             aria-label={closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}
           >
             {renderIcon('x-mark', cm.iconSm)}
-          </button>
+          </Pressable>
         )}
-      </div>
+      </Box>
     )
   },
 )
@@ -217,8 +244,8 @@ Toast.displayName = 'Toast'
 /**
  * Toast container for positioning toasts.
  */
-interface ToastContainerProps {
-  children?: React.ReactNode
+export interface ToastContainerProps {
+  children?: ReactNode
   position?: ToastProps['position']
   className?: string
 }
@@ -229,18 +256,27 @@ interface ToastContainerProps {
  * Container that positions toasts on screen via a portal.
  * @returns The rendered toast container element.
  */
-export const ToastContainer = forwardRef<HTMLDivElement, ToastContainerProps>(
+export const ToastContainer: NamedExoticComponent<
+  ToastContainerProps & RefAttributes<ElementHandle>
+> = forwardRef<ElementHandle, ToastContainerProps>(
   ({ children, position = 'bottom-right', className }, ref) => {
     const cm = getClassMap()
 
-    const container = (
-      <div ref={ref} className={cm.cn(cm.toastContainer({ position }), className)}>
-        {children}
-      </div>
-    )
+    const surface = useRef<ElementHandle>(null)
+    const setSurface = useMemo(() => mergeRefs(ref, surface), [ref])
+    const layer = useOverlayLayer({ open: true, kind: 'toast', surface })
 
-    if (typeof document === 'undefined') return null
-    return createPortal(container, document.body)
+    return (
+      <OverlayPortal layer={layer} presentation="host" server="omit">
+        <Box
+          as="div"
+          ref={setSurface}
+          className={cm.cn(cm.toastContainer({ position }), className)}
+        >
+          {children}
+        </Box>
+      </OverlayPortal>
+    )
   },
 )
 
@@ -249,19 +285,21 @@ ToastContainer.displayName = 'ToastContainer'
 /**
  * Toast context for managing toasts globally.
  */
-interface ToastContextValue {
-  toasts: (ToastProps & { id: string })[]
-  addToast: (toast: Omit<ToastProps, 'onDismiss'>) => string
+export interface ToastContextValue<Payload, Input = Payload> {
+  toasts: (Payload & { id: string })[]
+  addToast: (toast: Omit<Input, 'onDismiss'>) => string
   removeToast: (id: string) => void
 }
 
-const ToastContext = createContext<ToastContextValue | null>(null)
+type SharedToastContext = ToastContextValue<ToastProps, WebToastProps>
+
+const ToastContext = createContext<SharedToastContext | null>(null)
 
 /**
  * Hook to access the toast context for adding and removing toasts.
  * @returns The toast context value with toast management methods.
  */
-export const useToast = (): ToastContextValue => {
+export const useToast = (): SharedToastContext => {
   const { t } = useTranslation()
   const context = useContext(ToastContext)
   if (!context) {
@@ -275,7 +313,7 @@ export const useToast = (): ToastContextValue => {
 }
 
 interface ToastProviderProps {
-  children: React.ReactNode
+  children: ReactNode
   position?: ToastProps['position']
 }
 
@@ -288,16 +326,20 @@ let toastCounter = 0
  * @param root0.position - The default position for toasts.
  * @returns The rendered provider with toast container.
  */
-export const ToastProvider: React.FC<ToastProviderProps> = ({
-  children,
-  position = 'bottom-right',
-}) => {
+export const ToastProvider: FC<ToastProviderProps> = ({ children, position = 'bottom-right' }) => {
   const [toasts, setToasts] = useState<(ToastProps & { id: string })[]>([])
 
-  const addToast = useCallback((toast: Omit<ToastProps, 'onDismiss'>) => {
+  const addToast = useCallback((toast: Omit<WebToastProps, 'onDismiss'>) => {
     // A caller's `id` is the toast's handle and its element id; otherwise one is generated.
     const id = toast.id ?? `toast-${++toastCounter}`
-    setToasts((prev) => [...prev, { ...toast, id }])
+    const { children } = toast
+    const entry: ToastProps & { id: string } = {
+      ...toast,
+      children: isReactNode(children) ? children : undefined,
+      id,
+    }
+    if (!Object.hasOwn(toast, 'children')) delete entry.children
+    setToasts((prev) => [...prev, entry])
     return id
   }, [])
 

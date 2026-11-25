@@ -4,10 +4,11 @@
  * @module
  */
 
-import { createElement, forwardRef, type ReactElement, useCallback, useEffect, useRef } from 'react'
+import { createElement, forwardRef, type ReactElement, useEffect, useMemo, useRef } from 'react'
 
 import type { BoxProps, ElementHandle, KitMouseEvent } from '@molecule/app-ui'
 
+import { mergeRefs } from '../utilities/mergeRefs.js'
 import { useWebDrag } from './drag.js'
 import { useWebHover } from './hover.js'
 import { pasteHandler } from './paste.js'
@@ -24,19 +25,21 @@ import type { ElementNode } from './types.js'
  * @returns The element.
  */
 export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box(
-  { as, children, drag, onPressOutside, secondaryAction, ...props },
+  {
+    as,
+    children,
+    drag,
+    onPressOutside,
+    secondaryAction,
+    accessibilityGroup: _accessibilityGroup,
+    ...props
+  },
   ref,
 ): ReactElement {
   const { hidden, onDoubleClick, onMouseEnter, onMouseLeave, onPasteText, onTouchStart } = props
   const node = useRef<HTMLElement>(null)
   const forward = useElementRef<HTMLElement>(ref)
-  const setNode = useCallback(
-    (element: HTMLElement | null): void => {
-      node.current = element
-      forward?.(element)
-    },
-    [forward],
-  )
+  const setNode = useMemo(() => mergeRefs(node, forward), [forward])
   const pointerDown = useWebDrag(hidden ? undefined : drag, as)
   const hover = useWebHover<HTMLElement>({ onMouseEnter, onMouseLeave })
   useEffect(() => {

@@ -306,17 +306,35 @@ describe('<SpreadsheetGrid> selection', () => {
   })
 
   it('extends selection on mouse drag', () => {
-    const { container } = render(
+    const { getByRole } = render(
       <Wrap>
-        <Harness rows={4} columns={4} />
+        <Harness rows={30} columns={20} frozenRows={1} frozenCols={1} />
       </Wrap>,
     )
-    const a1 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-A1"]')!
-    fireEvent.mouseDown(a1)
-    const b2 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-B2"]')!
-    // buttons === 1 means primary mouse held down
-    fireEvent.mouseEnter(b2, { buttons: 1 })
-    expect(b2.getAttribute('aria-selected')).toBe('true')
+    const grid = getByRole('grid')
+    vi.spyOn(grid, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 20, 400, 200))
+    const scroll = grid.querySelector<HTMLElement>('[data-mol-id="spreadsheet-grid-scroll"]')
+    if (!scroll) throw new Error('Missing scroll viewport')
+    scroll.scrollLeft = 192
+    scroll.scrollTop = 56
+    fireEvent.scroll(scroll)
+    const cell = (ref: string) => grid.querySelector(`[data-mol-id="spreadsheet-grid-cell-${ref}"]`)
+    const a1 = cell('A1')
+    if (!a1) throw new Error('Missing frozen A1')
+    const contact = { pointerId: 7, pointerType: 'mouse', isPrimary: true }
+    fireEvent.pointerDown(a1, { ...contact, clientX: 70, clientY: 55 })
+    // x=150 and y=60 within the grid are just past both frozen cells.
+    fireEvent.pointerMove(window, { ...contact, clientX: 160, clientY: 80 })
+    expect(a1.getAttribute('aria-selected')).toBe('true')
+    expect(cell('B2')?.getAttribute('aria-selected')).toBe('true')
+    expect(cell('D4')?.getAttribute('aria-selected')).toBe('true')
+    fireEvent.pointerUp(window, { ...contact, clientX: 160, clientY: 80 })
+    fireEvent.pointerMove(window, { ...contact, clientX: 260, clientY: 108 })
+    expect(cell('E5')?.getAttribute('aria-selected')).toBeNull()
+    expect(getByRole('columnheader', { name: 'A' }).style.left).toBe('0px')
+    const scrollingHeader = getByRole('columnheader', { name: 'D' }).parentElement
+    expect(scrollingHeader?.style.left).toBe('80px')
+    expect(scrollingHeader?.style.overflow).toBe('hidden')
   })
 })
 

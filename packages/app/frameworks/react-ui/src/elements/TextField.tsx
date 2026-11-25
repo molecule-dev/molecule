@@ -8,6 +8,7 @@ import {
   type ChangeEvent,
   createElement,
   type FocusEvent,
+  type KeyboardEvent,
   type ReactElement,
   type RefObject,
   useCallback,
@@ -37,7 +38,7 @@ export function TextField({
   ref,
   ...props
 }: TextFieldProps & ElementRefProps): ReactElement {
-  const { type, style, webStyle, onChange, onValueChange, onFocus, onPasteText } = props
+  const { type, style, webStyle, onChange, onValueChange, onFocus, onKeyDown, onPasteText } = props
   // The raw DOM handle provides select() and preserves the field's identity for measurement.
   const forward = useElementRef<HTMLInputElement | HTMLTextAreaElement>(ref)
   const node = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
@@ -74,6 +75,16 @@ export function TextField({
               onFocus?.(event)
             }
           : onFocus,
+        onKeyDown: onKeyDown
+          ? (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+              const composing = event.nativeEvent.isComposing
+              const legacyComposition = event.keyCode === 229
+              // The legacy confirmation can arrive with isComposing already false.
+              // Cancel its implicit submit while leaving current composition to the IME.
+              if (!composing && legacyComposition && event.key === 'Enter') event.preventDefault()
+              onKeyDown(Object.assign(event, { isComposing: composing || legacyComposition }))
+            }
+          : undefined,
         onPaste: pasteHandler(onPasteText),
         ref: setNode,
         ...(grow && {

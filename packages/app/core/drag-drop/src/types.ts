@@ -44,15 +44,17 @@ export interface DragMoveEvent {
 }
 
 /**
- * Payload emitted when a drag operation ends (drop or cancel).
+ * Payload emitted when a drag operation ends.
  */
 export interface DragEndEvent {
   /** Identifier of the dragged item. */
   id: string
-  /** Identifier of the item or zone the item was dropped onto, if any. */
+  /** Identifier of the destination, or the last valid target of a scoped drag. */
   overId?: string
   /** Arbitrary data attached to the dragged item. */
   data?: unknown
+  /** Release, input interruption or disposal of the source or scope. Older providers may omit it. */
+  reason?: 'drop' | 'cancel' | 'unmount'
 }
 
 /**

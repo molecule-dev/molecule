@@ -4,9 +4,11 @@
  * @module
  */
 
-import { type Ref, type RefCallback, useCallback } from 'react'
+import { type Ref, type RefCallback, useMemo } from 'react'
 
 import type { ElementHandle } from '@molecule/app-ui'
+
+import { mergeRefs } from '../utilities/mergeRefs.js'
 
 /**
  * A stable callback ref that passes the DOM element (which satisfies {@link ElementHandle}) to the
@@ -18,12 +20,5 @@ import type { ElementHandle } from '@molecule/app-ui'
 export function useElementRef<T extends HTMLElement | SVGElement>(
   ref: Ref<ElementHandle> | undefined,
 ): RefCallback<T> | undefined {
-  const callback = useCallback(
-    (element: T | null): void => {
-      if (typeof ref === 'function') ref(element)
-      else if (ref) ref.current = element
-    },
-    [ref],
-  )
-  return ref ? callback : undefined
+  return useMemo(() => (ref ? mergeRefs<ElementHandle>(ref) : undefined), [ref])
 }

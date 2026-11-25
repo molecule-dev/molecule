@@ -69,8 +69,18 @@ function renderOptions(options: SelectFieldProps['options']): ReactElement[] {
       ? createElement('optgroup', { key, label: option.label }, renderOptions(option.options))
       : createElement(
           'option',
-          { key, value: option.value, disabled: option.disabled },
+          {
+            key,
+            value: option.value,
+            disabled: option.disabled,
+            ref: option.webDefaultSelected ? reflectDefaultSelected : undefined,
+          },
           option.label,
         )
   })
+}
+
+/** Preserves the browser reset attribute without changing the select's live value. */
+function reflectDefaultSelected(option: HTMLOptionElement | null): void {
+  if (option?.selected) option.defaultSelected = true
 }

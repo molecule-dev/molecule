@@ -21,10 +21,12 @@
 import type {
   ChangeEventHandler,
   CSSProperties,
+  EventHandler,
   FocusEventHandler,
   FormEventHandler,
   KeyboardEventHandler,
   KitEvent,
+  KitKeyboardEvent,
   KitModifierKeys,
   MouseEventHandler,
 } from './types.js'
@@ -58,6 +60,25 @@ export interface ElementBox {
   /** Height of the box. */
   height: number
 }
+
+/** The visible window containing a registered element. */
+export interface ElementViewport {
+  /** Available width, excluding the browser's scrollbar, or the native window width. */
+  readonly width: number
+  /** Full browser viewport or native window height. */
+  readonly height: number
+  /** Height excluding the browser's scrollbar. Equal to height on a device. */
+  readonly contentHeight: number
+  /** Web content uses the document scroll. Device content scrolls in an element. */
+  readonly scrollOwner: 'document' | 'element'
+}
+
+/** Which part of a registered element to measure, in window coordinates. */
+export type ElementMeasureTarget =
+  /** The element's own rendered frame on web and device. */
+  | 'frame'
+  /** The browser's first child element, falling back to the registered frame on either renderer. */
+  | 'content-start'
 
 /** One sample from the contact that owns a drag, in CSS pixels on web or dp on native. */
 export interface ElementDragPoint extends KitModifierKeys {
@@ -415,6 +436,11 @@ export interface ElementProps extends AriaAttributes, DataAttributes {
   role?: ElementRole
 }
 
+/** Pass-through props of each element variant after the component's own keys are removed. */
+export type ForwardedElementProps<P, Owned extends PropertyKey = never> = P extends unknown
+  ? Omit<P, 'as' | Owned>
+  : never
+
 /** The interaction handlers a focusable element takes on both renderers. */
 export interface InteractionProps {
   /** Activation: a click on the web, a press on native. */
@@ -451,10 +477,11 @@ export interface MousePressProps {
 // ELEMENTS
 // ============================================================================
 
-/** Web container tags and their native view counterparts, including address blocks. */
+/** Web container tags and their native view counterparts, including paragraphs with controls. */
 export type BoxTag =
   | 'div'
   | 'span'
+  | 'p'
   | 'section'
   | 'header'
   | 'footer'
@@ -484,6 +511,8 @@ export interface BoxProps<Node = unknown>
   title?: string
   /** HTML hidden state. Native excludes the box from layout, hits and accessibility while mounted. */
   hidden?: boolean
+  /** Native groups the box and its contents as one screen-reader element when true. Web ignores this. */
+  accessibilityGroup?: boolean
   /** Web outside mouse down. Native observes outside touches in the enclosing box tree. */
   onPressOutside?: () => void
   /** Observes touch-down, including on a child, without claiming it on web or native. */
@@ -674,6 +703,8 @@ export interface PressableProps<Node = unknown>
   form?: string
   /** Whether it is disabled. */
   disabled?: boolean
+  /** A browser double-click, device double tap, or device assistive action. */
+  secondaryAction?: BoxProps['secondaryAction']
   /** Tooltip text (native: the accessibility label when there is no `aria-label`). */
   title?: string
   /** Layout and paint both renderers apply. */
@@ -729,8 +760,14 @@ export type AnchorProps<Node = unknown> = Omit<
   href: string
 }
 
+/** Keyboard input received by a browser text field or native TextInput. */
+export interface TextFieldKeyEvent extends KitKeyboardEvent {
+  /** The browser reports IME-owned keystrokes, including legacy key code 229. Device key events omit it. */
+  readonly isComposing?: boolean
+}
+
 /** Props common to a browser text field or text area and the native TextInput. */
-export interface TextFieldBaseProps extends ElementProps, InteractionProps {
+export interface TextFieldBaseProps extends ElementProps, Omit<InteractionProps, 'onKeyDown'> {
   /** `input` for one line, `textarea` for several. */
   as: 'input' | 'textarea'
   /**
@@ -804,6 +841,8 @@ export interface TextFieldBaseProps extends ElementProps, InteractionProps {
   onChange?: ChangeEventHandler
   /** The text changed, with the new text. */
   onValueChange?: (value: string) => void
+  /** Browser key-down with composition state, or a key delivered by the device's TextInput. */
+  onKeyDown?: EventHandler<TextFieldKeyEvent>
   /** The text changed: fires with {@link TextFieldProps.onChange} on each edit, on both renderers. */
   onInput?: FormEventHandler
   /** Layout, paint and text styles both renderers apply. */
@@ -864,6 +903,8 @@ export interface SelectFieldOption {
   label: string
   /** Both renderers keep the row visible but exclude it from edits and form entries. */
   disabled?: boolean
+  /** Reflects this option's initial selection as a web reset attribute. Device uses the field value. */
+  webDefaultSelected?: true
 }
 
 /** A browser optgroup and the corresponding device list section. */
@@ -1082,12 +1123,22 @@ export interface ImageProps extends ElementProps {
   webStyle?: WebStyle
 }
 
+/** The physical scroll position, in CSS pixels on web or density-independent pixels on device. */
+export interface ScrollOffset {
+  /** Distance from the content's left edge on both renderers, including in RTL layouts. */
+  readonly x: number
+  /** Distance from the content's top edge on both renderers. */
+  readonly y: number
+}
+
 /** A container that scrolls its children (native `ScrollView`). */
 export interface ScrollAreaProps<Node = unknown> extends ElementProps {
   /** The web tag. */
   as: BoxTag
-  /** The scroll direction. */
-  direction?: 'vertical' | 'horizontal'
+  /** Axes enabled on device, default vertical. On web the authored overflow styles set the axes. */
+  direction?: 'vertical' | 'horizontal' | 'both'
+  /** Supplies both offsets when either changes on the web host or its native scroll view. */
+  onScroll?: (offset: ScrollOffset) => void
   /** Focus order on the scroll area's outer frame. */
   tabIndex?: InteractionProps['tabIndex']
   /** Layout and paint both renderers apply. */

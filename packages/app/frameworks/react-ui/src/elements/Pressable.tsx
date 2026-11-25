@@ -6,7 +6,7 @@
 
 import { createElement, forwardRef, type ReactElement, useCallback } from 'react'
 
-import type { ElementHandle, PressableProps } from '@molecule/app-ui'
+import type { ElementHandle, KitMouseEvent, PressableProps } from '@molecule/app-ui'
 
 import { markPressTarget, useWebDrag } from './drag.js'
 import { useWebHover } from './hover.js'
@@ -24,7 +24,7 @@ import type { ElementNode } from './types.js'
  * @returns The element.
  */
 export const Pressable = forwardRef<ElementHandle, PressableProps<ElementNode>>(function Pressable(
-  { as, children, drag, ...props },
+  { as, children, drag, secondaryAction, ...props },
   ref,
 ): ReactElement {
   const forward = useElementRef<HTMLElement>(ref)
@@ -39,7 +39,17 @@ export const Pressable = forwardRef<ElementHandle, PressableProps<ElementNode>>(
   const hover = useWebHover<HTMLElement>(props)
   return createElement(
     as,
-    webElementAttributes(props, { ...hover, ref: setNode, onPointerDown }),
+    webElementAttributes(props, {
+      ...hover,
+      ref: setNode,
+      onPointerDown,
+      onDoubleClick: secondaryAction
+        ? (event: KitMouseEvent): void => {
+            props.onDoubleClick?.(event)
+            if (!props.disabled && !event.defaultPrevented) secondaryAction.run()
+          }
+        : props.onDoubleClick,
+    }),
     children,
   )
 })
