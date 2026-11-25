@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, TableBox, TableCell, Text } from '@molecule/app-ui-react/elements'
 
 import type { GpaScale, Grade } from './types.js'
 import { computePercentage, formatGpa } from './utilities.js'
@@ -81,72 +82,82 @@ export function Gradebook(props: GradebookProps): JSX.Element {
 
   if (grades.length === 0) {
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.sp('p', 4), className)}
         data-mol-id="gradebook-empty"
         role="region"
         aria-label={regionLabel}
       >
-        <span className={cm.textSize('sm')}>{emptyText}</span>
-      </div>
+        <Text as="span" className={cm.textSize('sm')}>
+          {emptyText}
+        </Text>
+      </Box>
     )
   }
 
   return (
-    <div
+    <Box
+      as="div"
       role="region"
       aria-label={regionLabel}
       data-mol-id="gradebook"
       className={cm.cn(className)}
     >
-      <table className={cm.cn(cm.w('full'))} data-mol-id="gradebook-table">
-        <thead>
-          <tr data-mol-id="gradebook-header-row">
-            <th
+      <TableBox as="table" className={cm.cn(cm.w('full'))} data-mol-id="gradebook-table">
+        <TableBox as="thead">
+          <TableBox as="tr" data-mol-id="gradebook-header-row">
+            <TableCell
+              as="th"
               scope="col"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               data-mol-id="gradebook-h-title"
             >
               {headTitle}
-            </th>
-            <th
+            </TableCell>
+            <TableCell
+              as="th"
               scope="col"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               data-mol-id="gradebook-h-letter"
             >
               {headLetter}
-            </th>
-            <th
+            </TableCell>
+            <TableCell
+              as="th"
               scope="col"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               data-mol-id="gradebook-h-numeric"
             >
               {headNumeric}
-            </th>
-            <th
+            </TableCell>
+            <TableCell
+              as="th"
               scope="col"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               data-mol-id="gradebook-h-weight"
             >
               {headWeight}
-            </th>
-            <th
+            </TableCell>
+            <TableCell
+              as="th"
               scope="col"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               data-mol-id="gradebook-h-contribution"
             >
               {headContribution}
-            </th>
-            <th
+            </TableCell>
+            <TableCell
+              as="th"
               scope="col"
               className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
               data-mol-id="gradebook-h-posted"
             >
               {headPosted}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+            </TableCell>
+          </TableBox>
+        </TableBox>
+        <TableBox as="tbody">
           {grades.map((grade) => {
             const numericText = renderNumericCell(grade)
             const weightText =
@@ -155,54 +166,60 @@ export function Gradebook(props: GradebookProps): JSX.Element {
               typeof grade.contribution === 'number' ? formatGpa(grade.contribution, gpaScale) : '—'
             const cellClass = cm.cn(cm.textSize('sm'))
             return (
-              <tr key={grade.id} data-mol-id="gradebook-row" data-row-id={grade.id}>
-                <td
+              <TableBox as="tr" key={grade.id} data-mol-id="gradebook-row" data-row-id={grade.id}>
+                <TableCell
+                  as="td"
                   className={cellClass}
                   data-mol-id="gradebook-cell-title"
                   onClick={handlerFor(grade, 'title')}
                 >
                   {grade.title}
-                </td>
-                <td
+                </TableCell>
+                <TableCell
+                  as="td"
                   className={cellClass}
                   data-mol-id="gradebook-cell-letter"
                   onClick={handlerFor(grade, 'letter')}
                 >
                   {grade.letter ?? '—'}
-                </td>
-                <td
+                </TableCell>
+                <TableCell
+                  as="td"
                   className={cellClass}
                   data-mol-id="gradebook-cell-numeric"
                   onClick={handlerFor(grade, 'numeric')}
                 >
                   {numericText}
-                </td>
-                <td
+                </TableCell>
+                <TableCell
+                  as="td"
                   className={cellClass}
                   data-mol-id="gradebook-cell-weight"
                   onClick={handlerFor(grade, 'weight')}
                 >
                   {weightText}
-                </td>
-                <td
+                </TableCell>
+                <TableCell
+                  as="td"
                   className={cellClass}
                   data-mol-id="gradebook-cell-contribution"
                   onClick={handlerFor(grade, 'contribution')}
                 >
                   {contributionText}
-                </td>
-                <td
+                </TableCell>
+                <TableCell
+                  as="td"
                   className={cellClass}
                   data-mol-id="gradebook-cell-posted"
                   onClick={handlerFor(grade, 'posted')}
                 >
                   {grade.postedAt ?? '—'}
-                </td>
-              </tr>
+                </TableCell>
+              </TableBox>
             )
           })}
-        </tbody>
-      </table>
-    </div>
+        </TableBox>
+      </TableBox>
+    </Box>
   )
 }

@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { TableBox, TableCell } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link RowWithActions}. */
 export interface RowWithActionsProps {
@@ -31,17 +32,18 @@ export function RowWithActions({
 }: RowWithActionsProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <tr
+    <TableBox
+      as="tr"
       onClick={onClick}
       aria-selected={selected}
       className={cm.cn(onClick ? cm.cursorPointer : undefined, className)}
     >
       {children}
       {actions !== undefined && (
-        <td onClick={(e) => e.stopPropagation()} className={cm.cn(cm.textCenter)}>
+        <TableCell as="td" onClick={(e) => e.stopPropagation()} className={cm.cn(cm.textCenter)}>
           {actions}
-        </td>
+        </TableCell>
       )}
-    </tr>
+    </TableBox>
   )
 }

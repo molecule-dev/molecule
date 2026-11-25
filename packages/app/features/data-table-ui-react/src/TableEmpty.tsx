@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { TableBox, TableCell } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link TableEmpty}. */
 export interface TableEmptyProps {
@@ -20,10 +21,14 @@ export interface TableEmptyProps {
 export function TableEmpty({ colSpan, children, className }: TableEmptyProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <tr>
-      <td colSpan={colSpan} className={cm.cn(cm.sp('py', 10), cm.textCenter, className)}>
+    <TableBox as="tr">
+      <TableCell
+        as="td"
+        colSpan={colSpan}
+        className={cm.cn(cm.sp('py', 10), cm.textCenter, className)}
+      >
         {children}
-      </td>
-    </tr>
+      </TableCell>
+    </TableBox>
   )
 }

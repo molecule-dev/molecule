@@ -1,10 +1,11 @@
-import type { FormEvent, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitEvent } from '@molecule/app-ui'
 import { Button, Input } from '@molecule/app-ui-react'
+import { Box, FormArea, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link NewsletterSignup}. */
 export interface NewsletterSignupProps {
@@ -54,7 +55,7 @@ export function NewsletterSignup({
    * Handles form submit: calls onSubscribe and tracks submitting/error/success state.
    * @param e
    */
-  async function handle(e: FormEvent): Promise<void> {
+  async function handle(e: KitEvent): Promise<void> {
     e.preventDefault()
     if (submitting) return
     setSubmitting(true)
@@ -75,14 +76,29 @@ export function NewsletterSignup({
   }
 
   if (submitted && successContent !== undefined) {
-    return <div className={className}>{successContent}</div>
+    return (
+      <Box as="div" className={className}>
+        {successContent}
+      </Box>
+    )
   }
 
   return (
-    <form onSubmit={handle} className={cm.cn(cm.stack(2), className)}>
-      {title && <h4 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title}</h4>}
-      {description && <p className={cm.textSize('sm')}>{description}</p>}
-      <div className={layout === 'inline' ? cm.flex({ align: 'center', gap: 'sm' }) : cm.stack(2)}>
+    <FormArea as="form" onSubmit={handle} className={cm.cn(cm.stack(2), className)}>
+      {title && (
+        <Text as="h4" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {title}
+        </Text>
+      )}
+      {description && (
+        <Text as="p" className={cm.textSize('sm')}>
+          {description}
+        </Text>
+      )}
+      <Box
+        as="div"
+        className={layout === 'inline' ? cm.flex({ align: 'center', gap: 'sm' }) : cm.stack(2)}
+      >
         <Input
           type="email"
           value={email}
@@ -99,8 +115,12 @@ export function NewsletterSignup({
             ? t('newsletter.subscribing', {}, { defaultValue: 'Subscribing…' })
             : (buttonLabel ?? t('newsletter.subscribe', {}, { defaultValue: 'Subscribe' }))}
         </Button>
-      </div>
-      {error && <p className={cm.textSize('sm')}>{error}</p>}
-    </form>
+      </Box>
+      {error && (
+        <Text as="p" className={cm.textSize('sm')}>
+          {error}
+        </Text>
+      )}
+    </FormArea>
   )
 }

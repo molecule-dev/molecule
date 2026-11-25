@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { GpaScale, GpaTrend } from './types.js'
 import { defaultGpaMax, formatGpa } from './utilities.js'
@@ -67,47 +68,53 @@ export function GpaCard(props: GpaCardProps): JSX.Element {
 
   return (
     <Card className={className}>
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.stack(2 as const))}
         data-mol-id="gpa-card"
         role="region"
         aria-label={titleText}
       >
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
           data-mol-id="gpa-card-title"
         >
           {titleText}
-        </span>
-        <div className={cm.flex({ align: 'baseline', gap: 'sm' })}>
-          <span
+        </Text>
+        <Box as="div" className={cm.flex({ align: 'baseline', gap: 'sm' })}>
+          <Text
+            as="span"
             className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}
             data-mol-id="gpa-card-value"
           >
             {formatted}
-          </span>
-          <span className={cm.textSize('sm')} data-mol-id="gpa-card-out-of">
+          </Text>
+          <Text as="span" className={cm.textSize('sm')} data-mol-id="gpa-card-out-of">
             {outOfText}
-          </span>
-        </div>
+          </Text>
+        </Box>
         {trendText && (
-          <div
+          <Box
+            as="div"
             className={cm.flex({ align: 'center', gap: 'sm' })}
             data-mol-id="gpa-card-trend"
             data-trend={trend}
           >
-            <span aria-hidden="true">{trendGlyph}</span>
-            <span className={cm.textSize('xs')} data-mol-id="gpa-card-trend-text">
+            <Text as="span" aria-hidden="true">
+              {trendGlyph}
+            </Text>
+            <Text as="span" className={cm.textSize('xs')} data-mol-id="gpa-card-trend-text">
               {trendText}
-            </span>
+            </Text>
             {trendLabel && (
-              <span className={cm.textSize('xs')} data-mol-id="gpa-card-trend-label">
+              <Text as="span" className={cm.textSize('xs')} data-mol-id="gpa-card-trend-label">
                 {trendLabel}
-              </span>
+              </Text>
             )}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     </Card>
   )
 }

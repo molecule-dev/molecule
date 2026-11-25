@@ -9,6 +9,7 @@ import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, TextField } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ChatbotTesterInput}. */
 export interface ChatbotTesterInputProps {
@@ -42,7 +43,8 @@ export function ChatbotTesterInput({
       ? t('chatbotTester.label.send', undefined, { defaultValue: 'Send' })
       : sendLabel
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ align: 'end', gap: 2 }),
         cm.sp('px', 6),
@@ -50,9 +52,10 @@ export function ChatbotTesterInput({
         cm.chatbotTesterInputRow,
       )}
     >
-      <textarea
+      <TextField
+        as="textarea"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onValueChange={onChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
@@ -71,7 +74,8 @@ export function ChatbotTesterInput({
           cm.chatbotTesterInputField,
         )}
       />
-      <button
+      <Pressable
+        as="button"
         type="button"
         data-mol-id="chatbot-tester-send"
         onClick={onSend}
@@ -82,8 +86,8 @@ export function ChatbotTesterInput({
         )}
       >
         {sendText}
-      </button>
-    </div>
+      </Pressable>
+    </Box>
   )
 }
 

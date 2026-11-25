@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link TableToolbar}. */
 export interface TableToolbarProps {
@@ -23,12 +24,19 @@ export interface TableToolbarProps {
 export function TableToolbar({ left, right, below, className }: TableToolbarProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.stack(2), className)}>
-      <div className={cm.flex({ justify: 'between', align: 'center', gap: 'sm', wrap: 'wrap' })}>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>{left}</div>
-        <div className={cm.flex({ align: 'center', gap: 'sm' })}>{right}</div>
-      </div>
+    <Box as="div" className={cm.cn(cm.stack(2), className)}>
+      <Box
+        as="div"
+        className={cm.flex({ justify: 'between', align: 'center', gap: 'sm', wrap: 'wrap' })}
+      >
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+          {left}
+        </Box>
+        <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+          {right}
+        </Box>
+      </Box>
       {below}
-    </div>
+    </Box>
   )
 }

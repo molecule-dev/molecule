@@ -1,10 +1,11 @@
-import type { ChangeEvent, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, SelectField, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import { substituteTemplate } from './substitute.js'
 import type {
@@ -89,13 +90,15 @@ export function EmbedSnippet(props: EmbedSnippetProps): ReactElement {
   )
 
   return (
-    <section
+    <Box
+      as="section"
       data-mol-id={molId}
       data-mol-language={language}
       aria-label={ariaLabel}
       className={cm.cn(cm.surface, className)}
     >
-      <header
+      <Box
+        as="header"
         data-mol-id={`${molId}-header`}
         className={cm.cn(
           cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
@@ -104,24 +107,26 @@ export function EmbedSnippet(props: EmbedSnippetProps): ReactElement {
           cm.borderB,
         )}
       >
-        <div>
-          <p
+        <Box as="div">
+          <Text
+            as="p"
             data-mol-id={`${molId}-eyebrow`}
             className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'), cm.textMuted)}
           >
             {eyebrowText}
-          </p>
-          <h3
+          </Text>
+          <Text
+            as="h3"
             data-mol-id={`${molId}-heading`}
             className={cm.cn(cm.textSize('base'), cm.fontWeight('bold'))}
           >
             {headingText}
-          </h3>
-        </div>
+          </Text>
+        </Box>
         <Button variant="solid" size="sm" onClick={handleCopy} data-mol-id={`${molId}-copy-button`}>
           {copyLabel}
         </Button>
-      </header>
+      </Box>
 
       {controls ? (
         <ControlsRow
@@ -134,14 +139,15 @@ export function EmbedSnippet(props: EmbedSnippetProps): ReactElement {
       ) : null}
 
       {/* The generated embed code is code, not prose: never translated. */}
-      <pre
+      <Text
+        as="pre"
         data-mol-id={`${molId}-code`}
         translate="no"
         className={cm.cn(cm.sp('px', 4), cm.sp('py', 3), cm.textSize('sm'))}
       >
-        <code>{rendered}</code>
-      </pre>
-    </section>
+        <Text as="code">{rendered}</Text>
+      </Text>
+    </Box>
   )
 }
 
@@ -175,18 +181,19 @@ function ControlsRow(props: ControlsRowProps): ReactElement {
     return []
   }, [controls.theme, t])
 
-  const onWidthChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    updateValue({ width: e.target.value })
+  const onWidthChange = (width: string): void => {
+    updateValue({ width })
   }
-  const onHeightChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    updateValue({ height: e.target.value })
+  const onHeightChange = (height: string): void => {
+    updateValue({ height })
   }
-  const onThemeChange = (e: ChangeEvent<HTMLSelectElement>): void => {
-    updateValue({ theme: e.target.value })
+  const onThemeChange = (theme: string): void => {
+    updateValue({ theme })
   }
 
   return (
-    <div
+    <Box
+      as="div"
       data-mol-id={`${molId}-controls`}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'md', wrap: 'wrap' }),
@@ -196,68 +203,69 @@ function ControlsRow(props: ControlsRowProps): ReactElement {
       )}
     >
       {controls.width ? (
-        <label
+        <Box
+          as="label"
           data-mol-id={`${molId}-control-width`}
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}
         >
-          <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
             {t('embedSnippet.controls.width', {}, { defaultValue: 'Width' })}
-          </span>
-          <input
+          </Text>
+          <TextField
+            as="input"
             type="text"
             inputMode="numeric"
             value={String(values.width ?? '')}
-            onChange={onWidthChange}
+            onValueChange={onWidthChange}
             className={cm.input()}
             aria-label={t('embedSnippet.controls.width', {}, { defaultValue: 'Width' })}
             data-mol-id={`${molId}-input-width`}
           />
-        </label>
+        </Box>
       ) : null}
 
       {controls.height ? (
-        <label
+        <Box
+          as="label"
           data-mol-id={`${molId}-control-height`}
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}
         >
-          <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
             {t('embedSnippet.controls.height', {}, { defaultValue: 'Height' })}
-          </span>
-          <input
+          </Text>
+          <TextField
+            as="input"
             type="text"
             inputMode="numeric"
             value={String(values.height ?? '')}
-            onChange={onHeightChange}
+            onValueChange={onHeightChange}
             className={cm.input()}
             aria-label={t('embedSnippet.controls.height', {}, { defaultValue: 'Height' })}
             data-mol-id={`${molId}-input-height`}
           />
-        </label>
+        </Box>
       ) : null}
 
       {themeOptions.length > 0 ? (
-        <label
+        <Box
+          as="label"
           data-mol-id={`${molId}-control-theme`}
           className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}
         >
-          <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+          <Text as="span" className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
             {t('embedSnippet.controls.theme', {}, { defaultValue: 'Theme' })}
-          </span>
-          <select
+          </Text>
+          <SelectField
+            as="select"
             value={values.theme ?? ''}
-            onChange={onThemeChange}
+            onValueChange={onThemeChange}
             className={cm.select()}
             aria-label={t('embedSnippet.controls.theme', {}, { defaultValue: 'Theme' })}
             data-mol-id={`${molId}-input-theme`}
-          >
-            {themeOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
+            options={themeOptions}
+          />
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }

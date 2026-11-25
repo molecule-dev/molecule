@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, TableBox, TableCell, Text } from '@molecule/app-ui-react/elements'
 
 /** Column definition for a DataTableCard — specifies key, header, and cell renderer. */
 export interface DataTableColumn<Row> {
@@ -73,12 +74,14 @@ export function DataTableCard<Row>({
   const title = slot(titleProp)
   const cm = getClassMap()
   return (
-    <section
+    <Box
+      as="section"
       data-mol-id={dataMolId}
       className={cm.cn(cm.stack(4), cm.dataTableCardShell, className)}
     >
       {(title !== undefined || titleAction !== undefined) && (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ justify: 'between', align: 'center' }),
             cm.sp('px', 8),
@@ -86,19 +89,23 @@ export function DataTableCard<Row>({
           )}
         >
           {title !== undefined && (
-            <h3 className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}>
+            <Text
+              as="h3"
+              className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}
+            >
               {title}
-            </h3>
+            </Text>
           )}
           {titleAction}
-        </div>
+        </Box>
       )}
-      <div className={cm.dataTableCardScroller}>
-        <table className={cm.cn(cm.w('full'), cm.dataTableCardTable)}>
-          <thead>
-            <tr className={cm.dataTableCardHead}>
+      <Box as="div" className={cm.dataTableCardScroller}>
+        <TableBox as="table" className={cm.cn(cm.w('full'), cm.dataTableCardTable)}>
+          <TableBox as="thead">
+            <TableBox as="tr" className={cm.dataTableCardHead}>
               {columns.map((col, idx) => (
-                <th
+                <TableCell
+                  as="th"
                   key={col.key}
                   className={cm.cn(
                     idx === 0 ? cm.sp('px', 8) : cm.sp('px', 4),
@@ -108,22 +115,27 @@ export function DataTableCard<Row>({
                   )}
                 >
                   {col.header}
-                </th>
+                </TableCell>
               ))}
-            </tr>
-          </thead>
-          <tbody className={cm.dataTableCardBody}>
+            </TableBox>
+          </TableBox>
+          <TableBox as="tbody" className={cm.dataTableCardBody}>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={`skeleton-${i}`} aria-hidden="true">
-                  <td colSpan={columns.length} className={cm.cn(cm.sp('px', 8), cm.sp('py', 5))}>
-                    <div className={cm.cn(cm.h(4), cm.dataTableCardSkeletonBar)} />
-                  </td>
-                </tr>
+                <TableBox as="tr" key={`skeleton-${i}`} aria-hidden="true">
+                  <TableCell
+                    as="td"
+                    colSpan={columns.length}
+                    className={cm.cn(cm.sp('px', 8), cm.sp('py', 5))}
+                  >
+                    <Box as="div" className={cm.cn(cm.h(4), cm.dataTableCardSkeletonBar)} />
+                  </TableCell>
+                </TableBox>
               ))
             ) : rows.length === 0 ? (
-              <tr>
-                <td
+              <TableBox as="tr">
+                <TableCell
+                  as="td"
                   colSpan={columns.length}
                   className={cm.cn(
                     cm.sp('px', 8),
@@ -133,17 +145,19 @@ export function DataTableCard<Row>({
                   )}
                 >
                   {emptyMessage}
-                </td>
-              </tr>
+                </TableCell>
+              </TableBox>
             ) : (
               rows.map((row) => (
-                <tr
+                <TableBox
+                  as="tr"
                   key={rowKey(row)}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   className={cm.cn(onRowClick ? cm.cursorPointer : '', cm.dataTableCardRowHover)}
                 >
                   {columns.map((col, idx) => (
-                    <td
+                    <TableCell
+                      as="td"
                       key={col.key}
                       className={cm.cn(
                         idx === 0 ? cm.sp('px', 8) : cm.sp('px', 4),
@@ -152,14 +166,14 @@ export function DataTableCard<Row>({
                       )}
                     >
                       {col.cell(row)}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableBox>
               ))
             )}
-          </tbody>
-        </table>
-      </div>
-    </section>
+          </TableBox>
+        </TableBox>
+      </Box>
+    </Box>
   )
 }

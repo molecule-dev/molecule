@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link TableFooter}. */
 export interface TableFooterProps {
@@ -19,15 +20,16 @@ export interface TableFooterProps {
 export function TableFooter({ left, right, className }: TableFooterProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         cm.flex({ justify: 'between', align: 'center', gap: 'sm', wrap: 'wrap' }),
         cm.sp('pt', 3),
         className,
       )}
     >
-      <div>{left}</div>
-      <div>{right}</div>
-    </div>
+      <Box as="div">{left}</Box>
+      <Box as="div">{right}</Box>
+    </Box>
   )
 }

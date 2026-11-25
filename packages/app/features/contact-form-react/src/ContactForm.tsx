@@ -1,10 +1,11 @@
-import type { FormEvent, JSX, ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitEvent } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
+import { Box, FormArea, Text } from '@molecule/app-ui-react/elements'
 
 /** Shape of values collected by the contact form and passed to `onSubmit`. */
 export interface ContactFormValues {
@@ -63,7 +64,7 @@ export function ContactForm({
    * Handles form submission: calls `onSubmit` with collected values and manages submitting/error state.
    * @param e
    */
-  async function handle(e: FormEvent): Promise<void> {
+  async function handle(e: KitEvent): Promise<void> {
     e.preventDefault()
     if (submitting) return
     setSubmitting(true)
@@ -86,18 +87,28 @@ export function ContactForm({
   }
 
   if (submitted && successContent !== undefined) {
-    return <div className={className}>{successContent}</div>
+    return (
+      <Box as="div" className={className}>
+        {successContent}
+      </Box>
+    )
   }
 
   return (
-    <form onSubmit={handle} className={cm.cn(cm.stack(3), className)}>
+    <FormArea as="form" onSubmit={handle} className={cm.cn(cm.stack(3), className)}>
       {(title || description) && (
-        <header className={cm.stack(1 as const)}>
+        <Box as="header" className={cm.stack(1 as const)}>
           {title && (
-            <h3 className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>{title}</h3>
+            <Text as="h3" className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+              {title}
+            </Text>
           )}
-          {description && <p className={cm.textSize('sm')}>{description}</p>}
-        </header>
+          {description && (
+            <Text as="p" className={cm.textSize('sm')}>
+              {description}
+            </Text>
+          )}
+        </Box>
       )}
       <Input
         type="text"
@@ -124,12 +135,16 @@ export function ContactForm({
         rows={5}
         aria-label={t('contactForm.label.message', {}, { defaultValue: 'Message' })}
       />
-      {error && <p className={cm.textSize('sm')}>{error}</p>}
+      {error && (
+        <Text as="p" className={cm.textSize('sm')}>
+          {error}
+        </Text>
+      )}
       <Button type="submit" variant="solid" color="primary" disabled={submitting}>
         {submitting
           ? t('contactForm.sending', {}, { defaultValue: 'Sending…' })
           : (submitLabel ?? t('contactForm.send', {}, { defaultValue: 'Send message' }))}
       </Button>
-    </form>
+    </FormArea>
   )
 }

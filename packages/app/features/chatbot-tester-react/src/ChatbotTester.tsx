@@ -15,6 +15,7 @@ import { type JSX, type ReactNode, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, SelectField, Text } from '@molecule/app-ui-react/elements'
 
 import { ChatbotTesterInput } from './ChatbotTesterInput.js'
 import { ChatbotTesterMessages } from './ChatbotTesterMessages.js'
@@ -75,9 +76,10 @@ export function ChatbotTester({
   }
 
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.flex1, cm.minW(0), className)}>
+    <Box as="div" className={cm.cn(cm.flex({ direction: 'col' }), cm.flex1, cm.minW(0), className)}>
       {bots && bots.length > 1 ? (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ align: 'center' }),
             cm.sp('px', 6),
@@ -85,34 +87,32 @@ export function ChatbotTester({
             cm.chatbotTesterBotBar,
           )}
         >
-          <label
+          <Text
+            as="label"
             htmlFor="chatbot-tester-bot-select"
             className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'))}
           >
             {pickerLabel}
-          </label>
-          <select
+          </Text>
+          <SelectField
+            as="select"
             id="chatbot-tester-bot-select"
             value={botId ?? ''}
-            onChange={(e) => onBotChange?.(e.target.value)}
+            onValueChange={(id) => onBotChange?.(id)}
             className={cm.cn(cm.textSize('sm'), cm.chatbotTesterBotSelect)}
-          >
-            {bots.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name || b.id}
-              </option>
-            ))}
-          </select>
-        </div>
+            options={bots.map((b) => ({ value: b.id, label: b.name || b.id }))}
+          />
+        </Box>
       ) : null}
       <ChatbotTesterMessages messages={messages} loading={loading} emptyState={emptyState} />
       {error ? (
-        <p
+        <Text
+          as="p"
           role="alert"
           className={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}
         >
           {error}
-        </p>
+        </Text>
       ) : null}
       <ChatbotTesterInput
         value={input}
@@ -122,7 +122,7 @@ export function ChatbotTester({
         placeholder={inputPlaceholder}
         sendLabel={sendLabel}
       />
-    </div>
+    </Box>
   )
 }
 

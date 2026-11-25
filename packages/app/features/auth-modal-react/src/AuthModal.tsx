@@ -31,8 +31,9 @@ import {
 } from '@molecule/app-react'
 import { useOAuth } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitEvent, type WebStyle } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-react'
+import { Box, FormArea, Pressable, TextField } from '@molecule/app-ui-react/elements'
 
 import type { AuthModalMode } from './cta-intercept.js'
 
@@ -241,7 +242,7 @@ export function AuthModal({
     onError: (message: string) => setOauthError(message),
   })
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = async (e: KitEvent): Promise<void> => {
     e.preventDefault()
     onBeforeAuth?.()
     try {
@@ -255,7 +256,7 @@ export function AuthModal({
     }
   }
 
-  const fieldStyle: React.CSSProperties = {
+  const fieldStyle: WebStyle = {
     width: '100%',
     padding: '10px 12px',
     borderRadius: 6,
@@ -281,7 +282,11 @@ export function AuthModal({
       }
       data-mol-id="auth-modal"
     >
-      <div data-mol-id="auth-modal-body" style={{ display: 'flex', flexDirection: 'column' }}>
+      <Box
+        as="div"
+        data-mol-id="auth-modal-body"
+        webStyle={{ display: 'flex', flexDirection: 'column' }}
+      >
         {succeeded ? (
           (() => {
             // Who just authenticated — shown under the headline so the
@@ -293,9 +298,10 @@ export function AuthModal({
             } | null
             const who = profile?.name || profile?.email || profile?.username || ''
             return (
-              <div
+              <Box
+                as="div"
                 data-mol-id="auth-modal-success"
-                style={{
+                webStyle={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -305,24 +311,25 @@ export function AuthModal({
                 }}
               >
                 <Icon name="check-circle" size={44} className={cm.textSuccess} aria-hidden="true" />
-                <div style={{ fontSize: 17, fontWeight: 600 }}>
+                <Box as="div" webStyle={{ fontSize: 17, fontWeight: 600 }}>
                   {isSignup
                     ? t('auth.modal.signedUp', undefined, { defaultValue: 'Signed up!' })
                     : t('auth.modal.loggedIn', undefined, { defaultValue: 'Logged in!' })}
-                </div>
+                </Box>
                 {who && (
-                  <div className={cm.textMuted} style={{ fontSize: 13 }}>
+                  <Box as="div" className={cm.textMuted} webStyle={{ fontSize: 13 }}>
                     {t('auth.modal.loggedInAs', { who }, { defaultValue: 'Logged in as {{who}}' })}
-                  </div>
+                  </Box>
                 )}
-              </div>
+              </Box>
             )
           })()
         ) : (
           <>
-            <div
+            <Box
+              as="div"
               className={cm.textMuted}
-              style={{ marginBottom: 12, fontSize: 13, lineHeight: 1.45 }}
+              webStyle={{ marginBottom: 12, fontSize: 13, lineHeight: 1.45 }}
             >
               {isSignup
                 ? t('auth.modal.signupBlurb', undefined, {
@@ -331,61 +338,73 @@ export function AuthModal({
                 : t('auth.modal.loginBlurb', undefined, {
                     defaultValue: 'Log in to keep your work.',
                   })}
-            </div>
-            <form onSubmit={(e) => void handleSubmit(e)} style={{ display: 'grid', gap: 10 }}>
+            </Box>
+            <FormArea
+              as="form"
+              onSubmit={(e) => void handleSubmit(e)}
+              webStyle={{ display: 'grid', gap: 10 }}
+            >
               {isSignup && (
-                <input
+                <TextField
+                  as="input"
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onValueChange={setName}
                   autoComplete="name"
                   data-mol-id="auth-modal-name"
                   placeholder={t('auth.signup.name', undefined, {
                     defaultValue: 'Name (optional)',
                   })}
-                  style={fieldStyle}
+                  webStyle={fieldStyle}
                 />
               )}
-              <input
+              <TextField
+                as="input"
                 type="email"
                 value={email}
-                onChange={(e) => setField('email', e.target.value)}
+                onValueChange={(value) => setField('email', value)}
                 autoComplete="email"
                 ref={emailRef}
                 required
                 data-mol-id="auth-modal-email"
                 placeholder={t('auth.login.email', undefined, { defaultValue: 'Email' })}
-                style={fieldStyle}
+                webStyle={fieldStyle}
               />
-              <input
+              <TextField
+                as="input"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onValueChange={setPassword}
                 autoComplete={isSignup ? 'new-password' : 'current-password'}
                 required
                 data-mol-id="auth-modal-password"
                 placeholder={t('auth.login.password', undefined, { defaultValue: 'Password' })}
-                style={fieldStyle}
+                webStyle={fieldStyle}
               />
               {!isSignup && (
-                <input
+                <TextField
+                  as="input"
                   type="text"
                   inputMode="numeric"
                   value={twoFactorToken}
-                  onChange={(e) => setTwoFactorToken(e.target.value)}
+                  onValueChange={setTwoFactorToken}
                   autoComplete="one-time-code"
                   data-mol-id="auth-modal-2fa"
                   placeholder={t('auth.login.twoFactor', undefined, {
                     defaultValue: 'Two-Factor Token (If enabled)',
                   })}
-                  style={fieldStyle}
+                  webStyle={fieldStyle}
                 />
               )}
               {/* Human-verification challenge — signup only (login is not gated). */}
               {isSignup && captchaSlot && (
-                <div data-mol-id="auth-modal-captcha" style={{ display: 'grid', marginTop: 2 }}>
+                <Box
+                  as="div"
+                  data-mol-id="auth-modal-captcha"
+                  webStyle={{ display: 'grid', marginTop: 2 }}
+                >
                   {captchaSlot}
-                </div>
+                </Box>
               )}
               <Button
                 type="submit"
@@ -402,12 +421,14 @@ export function AuthModal({
                     : t('auth.login.logIn', undefined, { defaultValue: 'Log in' })}
               </Button>
               {(errorMessage || oauthError) && (
-                <div className={cm.authFormError}>{errorMessage || oauthError}</div>
+                <Box as="div" className={cm.authFormError}>
+                  {errorMessage || oauthError}
+                </Box>
               )}
-            </form>
+            </FormArea>
 
             {providers.length > 0 && (
-              <div style={{ marginTop: 4 }}>
+              <Box as="div" webStyle={{ marginTop: 4 }}>
                 <OAuthDivider />
                 {/* Popup OAuth — never navigates the host. */}
                 <OAuthButtons
@@ -418,15 +439,16 @@ export function AuthModal({
                     loginViaPopup(provider)
                   }}
                 />
-              </div>
+              </Box>
             )}
 
-            <button
+            <Pressable
+              as="button"
               type="button"
               data-mol-id="auth-modal-switch"
               onClick={() => setMode(isSignup ? 'login' : 'signup')}
               className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
-              style={{ marginTop: 12, alignSelf: 'center' }}
+              webStyle={{ marginTop: 12, alignSelf: 'center' }}
             >
               {isSignup
                 ? t('auth.modal.haveAccount', undefined, {
@@ -435,10 +457,10 @@ export function AuthModal({
                 : t('auth.modal.needAccount', undefined, {
                     defaultValue: "Don't have an account? Sign up",
                   })}
-            </button>
+            </Pressable>
           </>
         )}
-      </div>
+      </Box>
     </Modal>
   )
 }
