@@ -1,5 +1,19 @@
 # @molecule/api-uploads-filesystem
 
+## 1.2.0
+
+### Minor Changes
+
+- Refuses a blocked file type, also when declared with a charset, with `UploadRefusedError` (415 through `receiveUploads()`) unless the route passes `allowActiveTypes`; requires `@molecule/api-uploads` 1.3.
+- `getFile` resolves `null` for an id that resolves outside the upload folder, as for a missing file, and logs the refused id.
+
+### Patch Changes
+
+- Only an id `upload()` minted names a file: `getFile` answers `null` for any other id, a symlink or a directory, and `getFileStream` throws for them instead of handing out a stream that errors later.
+- An upload aborted before its file was opened, such as a file refused at its first chunk, no longer leaves an empty file on disk.
+- The upload folder it creates holds a `.gitignore` of `*`, so git never tracks uploaded files.
+- Names files with `randomUUID()` from `node:crypto` and no longer depends on `uuid`.
+
 ## 1.1.3
 
 ### Patch Changes

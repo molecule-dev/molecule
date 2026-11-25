@@ -1,5 +1,11 @@
 # @molecule/app-rule-builder-react
 
+## 4.2.0
+
+### Minor Changes
+
+- 7a92839: Make rule field, operator and value pickers available on React Native.
+
 ## 4.1.0
 
 ### Minor Changes

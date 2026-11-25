@@ -1,5 +1,11 @@
 # @molecule/api-bonds-default-express
 
+## 1.2.0
+
+### Minor Changes
+
+- Wire the upload parser factory, so `receiveUploads()` works with the default bonds.
+
 ## 1.1.5
 
 ### Patch Changes

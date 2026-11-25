@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-document-text",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Abstract document text interface — extract the text of a PDF document (per page and joined) — bond pdf.js or molecule.dev’s hosted service",
   "type": "module",
   "main": "dist/index.js",

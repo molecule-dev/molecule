@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-push",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Client-side push notifications interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -31,6 +31,11 @@
     "@molecule/app-bond": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-pwa-default": "^1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-pwa-default": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.5",

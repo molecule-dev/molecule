@@ -1,5 +1,11 @@
 # @molecule/api-locales-body-parser
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the upload parser's messages.
+
 ## 1.0.3
 
 ### Patch Changes

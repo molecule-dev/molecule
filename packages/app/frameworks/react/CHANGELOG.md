@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.16.0
+
+### Minor Changes
+
+- Export shared React overlay platform types and avoid translation subscription warnings on React 18 servers.
+
 ## 4.15.0
 
 ### Minor Changes

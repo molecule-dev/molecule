@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 4.4.0
+
+### Minor Changes
+
+- 7a92839: Use SelectField for the chat settings, script options and share role.
+
 ## 4.3.2
 
 ### Patch Changes

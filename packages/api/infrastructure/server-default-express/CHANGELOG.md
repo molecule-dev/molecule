@@ -1,5 +1,11 @@
 # @molecule/api-server-default-express
 
+## 1.2.7
+
+### Patch Changes
+
+- Note that upload routes no longer need the `preBodyParser` hook.
+
 ## 1.2.6
 
 ### Patch Changes

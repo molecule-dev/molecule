@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-document-text-pdfjs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "pdf.js document text provider for molecule.dev — extract the text of a PDF document in this process",
   "type": "module",
   "main": "dist/index.js",
@@ -37,7 +37,7 @@
     "unpdf": "2.2.2"
   },
   "devDependencies": {
-    "@molecule/api-document-text": "1.0.0",
+    "@molecule/api-document-text": "1.1.0",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

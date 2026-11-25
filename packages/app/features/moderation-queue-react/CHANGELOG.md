@@ -1,5 +1,11 @@
 # @molecule/app-moderation-queue-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders the moderation queue with shared elements on the web and React Native.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -29,7 +29,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/app-framework-conformance": "0.0.0",
-    "@molecule/app-react": "4.15.0",
+    "@molecule/app-react": "4.16.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "jsdom": "31.0.1",

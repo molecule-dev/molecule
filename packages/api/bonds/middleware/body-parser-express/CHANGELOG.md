@@ -1,5 +1,17 @@
 # @molecule/api-middleware-body-parser-express
 
+## 2.0.0
+
+### Major Changes
+
+- Leave `multipart/form-data` bodies unread app-wide so a route's upload parser can stream them, add `uploadParserFactory`, and parse URL-encoded bodies that carry a charset.
+
+### Patch Changes
+
+- Reads bodies with `busboy` directly: a multipart body without a boundary is refused with 400, and an empty URL-encoded form passes with an empty `req.body`.
+- A storage can refuse a file with an `onError` error carrying a 4xx `status` and an `errorKey` (`StorageRefusal`); the upload parser answers it as JSON with that status.
+- The upload parser removes a request's files when the route answers 400 or more and accepts a file of exactly `maxFileBytes`; a URL-encoded body past the field limits is answered with 413 instead of being cut.
+
 ## 1.0.5
 
 ### Patch Changes

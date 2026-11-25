@@ -1,5 +1,11 @@
 # @molecule/api-locales-uploads
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the messages for a blocked file type and for a route that lists one, and write the Armenian and Georgian messages in their own scripts.
+
 ## 1.0.3
 
 ### Patch Changes

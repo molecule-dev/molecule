@@ -1,5 +1,11 @@
 # @molecule/app-admin-table-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders the admin table and its row-actions menu with shared elements on the web and React Native.
+
 ## 4.0.4
 
 ### Patch Changes

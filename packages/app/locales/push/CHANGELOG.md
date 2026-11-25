@@ -1,5 +1,11 @@
 # @molecule/app-locales-push
 
+## 1.0.6
+
+### Patch Changes
+
+- `@molecule/app-pwa-default` is an optional peer of `@molecule/app-push`, so an app that never sends web push installs no service worker toolchain, and the missing-worker error names the package to add.
+
 ## 1.0.5
 
 ### Patch Changes

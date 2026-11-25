@@ -1,5 +1,12 @@
 # @molecule/app-ui
 
+## 1.9.0
+
+### Minor Changes
+
+- Add renderer-neutral overlay options and support setting the scroll area's tab order.
+- 7a92839: Add renderer-neutral types for single and multiple select fields.
+
 ## 1.8.0
 
 ### Minor Changes

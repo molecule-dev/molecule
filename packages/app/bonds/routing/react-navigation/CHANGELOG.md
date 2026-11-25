@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-navigation
 
+## 1.1.2
+
+### Patch Changes
+
+- Route change listeners receive `pop` for back navigation and `replace` for replacements, as the router contract describes.
+
 ## 1.1.1
 
 ### Patch Changes

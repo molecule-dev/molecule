@@ -59,7 +59,7 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-locales-settings-actions-bar": "1.0.5",
     "@molecule/app-svelte": "3.16.0",
-    "@molecule/app-ui": "1.8.0",
+    "@molecule/app-ui": "1.9.0",
     "@molecule/app-ui-svelte": "1.4.4",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",

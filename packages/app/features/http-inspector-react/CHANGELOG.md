@@ -1,5 +1,11 @@
 # @molecule/app-http-inspector-react
 
+## 4.2.0
+
+### Minor Changes
+
+- 7a92839: Make the HTTP method picker available on React Native.
+
 ## 4.1.0
 
 ### Minor Changes

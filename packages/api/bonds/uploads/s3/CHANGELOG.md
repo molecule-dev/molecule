@@ -1,5 +1,15 @@
 # @molecule/api-uploads-s3
 
+## 1.3.0
+
+### Minor Changes
+
+- Refuses a blocked file type, also when declared with a charset, with `UploadRefusedError` (415 through `receiveUploads()`) unless the route passes `allowActiveTypes`; requires `@molecule/api-uploads` 1.3.
+
+### Patch Changes
+
+- Aborting an upload waits for the SDK's cleanup, so no multipart upload or object is left behind, and `getFile`, `headFile` and `deleteFile` refuse an id `upload()` never mints without calling S3.
+
 ## 1.2.4
 
 ### Patch Changes

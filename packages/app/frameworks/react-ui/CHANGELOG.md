@@ -1,5 +1,16 @@
 # @molecule/app-ui-react
 
+## 4.7.0
+
+### Minor Changes
+
+- Add the `./platform` overlay API and coordinate dismissal, focus and scroll locking across Modal, ResponsiveAppShell drawers and ConfirmDialog.
+- 7a92839: Add SelectField and support ordered multiple values in Select.
+
+### Patch Changes
+
+- Form fields, labels and PageShell render with the renderer-neutral elements. `Label` now takes `role` and `aria-invalid` with the types every kit component's props declare (`ElementRole`, `AriaBoolean`); its other attributes are unchanged.
+
 ## 4.6.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-filter-bar-react
 
+## 4.1.0
+
+### Minor Changes
+
+- 7a92839: Render FilterBar with controls and layout supported on React Native.
+
 ## 4.0.1
 
 ### Patch Changes

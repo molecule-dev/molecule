@@ -1,5 +1,15 @@
 # @molecule/api-resource-device
 
+## 1.2.0
+
+### Minor Changes
+
+- b180971: Logging out or deleting a device now refuses that session's token on the very next request, instead of after the session cache expires.
+
+### Patch Changes
+
+- The push public-key route and the payments locale peer are marked optional, so a project without push or payments mounts and installs neither.
+
 ## 1.1.5
 
 ### Patch Changes

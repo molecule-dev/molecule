@@ -1,5 +1,11 @@
 # @molecule/app-pagination-bar-react
 
+## 4.2.0
+
+### Minor Changes
+
+- 7a92839: Make the page-size picker available on React Native.
+
 ## 4.1.0
 
 ### Minor Changes
