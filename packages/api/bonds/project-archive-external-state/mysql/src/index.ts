@@ -13,7 +13,9 @@
  * setExternalStateProvider(
  *   createMysqlExternalStateProvider({
  *     // YOUR deployment provisioned these, so it states them. Nothing is discovered.
- *     databaseUrls: (projectId) => [`mysql://user:pw@db:3306/app_${projectId}`],
+ *     databaseUrls: (projectId) => [
+ *       `mysql://archiver:${process.env.ARCHIVE_DB_PASSWORD}@db:3306/app_${projectId}`,
+ *     ],
  *   }),
  * )
  * ```

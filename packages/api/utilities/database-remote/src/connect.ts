@@ -53,7 +53,7 @@ export interface ConnectRemoteHooks {
  * import { connectRemote } from '@molecule/api-database-remote'
  *
  * const db = await connectRemote({
- *   url: 'postgresql://reader:secret@db.example.com:5432/analytics',
+ *   url: `postgresql://reader:${process.env.ANALYTICS_DB_PASSWORD}@db.example.com:5432/analytics`,
  *   type: 'postgresql',
  *   readonly: true,
  * })

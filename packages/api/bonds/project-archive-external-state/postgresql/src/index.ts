@@ -13,7 +13,9 @@
  * setExternalStateProvider(
  *   createPostgresqlExternalStateProvider({
  *     // YOUR deployment provisioned these, so it states them. Nothing is discovered.
- *     databaseUrls: (projectId) => [`postgres://user:pw@db:5432/app_${projectId}`],
+ *     databaseUrls: (projectId) => [
+ *       `postgres://archiver:${process.env.ARCHIVE_DB_PASSWORD}@db:5432/app_${projectId}`,
+ *     ],
  *   }),
  * )
  * ```
