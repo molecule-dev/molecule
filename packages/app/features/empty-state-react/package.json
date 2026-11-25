@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-empty-state-react",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "React empty-state and CTA-card primitives",
   "homepage": "https://www.molecule.dev/packages/app-empty-state-react",
   "type": "module",

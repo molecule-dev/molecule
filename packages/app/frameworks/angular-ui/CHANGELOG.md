@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.5.4
+
+### Patch Changes
+
+- A FloatingInput puts its `automationId` on the input as `data-mol-id`, as the React kit does.
+
 ## 1.5.3
 
 ### Patch Changes

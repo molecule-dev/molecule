@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-transport-bar-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Transport-control bar (play / pause / stop / record / skip / loop) used by music-daw + video-editor for editor playback control",
   "homepage": "https://www.molecule.dev/packages/app-feature-transport-bar-react",
   "type": "module",

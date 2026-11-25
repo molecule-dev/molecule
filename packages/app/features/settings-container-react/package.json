@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-settings-container-react",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "React layout for Settings pages (sidebar + content + section cards)",
   "homepage": "https://www.molecule.dev/packages/app-settings-container-react",
   "type": "module",

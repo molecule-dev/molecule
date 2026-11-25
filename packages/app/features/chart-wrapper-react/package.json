@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-chart-wrapper-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "React ChartCard and ChartLegend wrappers around @molecule/app-charts",
   "homepage": "https://www.molecule.dev/packages/app-chart-wrapper-react",
   "type": "module",

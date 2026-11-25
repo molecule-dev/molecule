@@ -64,7 +64,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ui": "1.6.1",
-    "@molecule/app-ui-angular": "1.5.3",
+    "@molecule/app-ui-angular": "1.5.4",
     "@molecule/app-ui-tailwind": "1.4.0",
     "@testing-library/dom": "10.4.2",
     "@types/node": "26.6.5",

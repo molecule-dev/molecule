@@ -1,5 +1,11 @@
 # @molecule/app-listing-card-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Render with the renderer-neutral elements, so the component also renders on React Native; it peers on `@molecule/app-ui-react` 4.4.
+
 ## 4.1.1
 
 ### Patch Changes
