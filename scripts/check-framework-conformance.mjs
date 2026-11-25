@@ -802,6 +802,8 @@ export const TITLE_PARITY_EXEMPT = {
   [BINDING_REFERENCE]: {
     'src/render/':
       "`@molecule/app-react/render` holds helpers for React's render model (committed refs, effect events, stable callbacks), which no other binding has; app-facing hooks live on the root export, which every binding matches",
+    'src/__tests__/translation-ssr.test.tsx':
+      'checks that the translation hook asks for no layout effect while React renders on a server, where React 18 warns about one; no other binding has layout effects',
     'src/__tests__/useRouter.route-params-hook.test.tsx':
       "tests `RouterProvider`'s `useRouteParams`, a hook only React Router needs: it scopes route params to the calling component, while Vue Router, SvelteKit, Solid Router and Angular Router answer params at the router's root, so no other binding takes such a hook",
   },
@@ -1012,8 +1014,6 @@ export const EXPORT_EXEMPT = {
   '@molecule/app-ui-react': {
     './elements':
       'the renderer-neutral elements one React feature renders with on React DOM and React Native; a Vue, Svelte, Solid or Angular port renders its own DOM',
-    './platform':
-      'the overlay host, layer, portal and backdrop one React kit places its dialogs and drawers with on React DOM and React Native; a Vue, Svelte, Solid or Angular kit composes its own overlays',
   },
   '@molecule/app-react': {
     './overlay':

@@ -4,7 +4,6 @@
 
 ### Minor Changes
 
-- Add the `./platform` overlay API and coordinate dismissal, focus and scroll locking across Modal, ResponsiveAppShell drawers and ConfirmDialog.
 - 7a92839: Add SelectField and support ordered multiple values in Select.
 
 ### Patch Changes

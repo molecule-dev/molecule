@@ -944,6 +944,8 @@ export interface ScrollAreaProps<Node = unknown> extends ElementProps {
   as: BoxTag
   /** The scroll direction. */
   direction?: 'vertical' | 'horizontal'
+  /** Focus order on the scroll area's outer frame. */
+  tabIndex?: InteractionProps['tabIndex']
   /** Layout and paint both renderers apply. */
   style?: BoxStyle
   /** Web-only paint. */

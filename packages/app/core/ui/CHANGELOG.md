@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- Add renderer-neutral overlay options and support setting the scroll area's tab order.
+- Add renderer-neutral overlay types (`OverlayLayerOptions`, `OverlayTarget`, `OverlayFocusOptions`, `OverlayDismissReason`, `OverlayLayerKind`, `OverlayAnchorGeometry`) and a `tabIndex` prop on the scroll area's frame.
 - 7a92839: Add renderer-neutral types for single and multiple select fields.
 
 ## 1.8.0

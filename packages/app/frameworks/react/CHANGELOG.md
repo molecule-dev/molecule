@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- Export shared React overlay platform types and avoid translation subscription warnings on React 18 servers.
+- Export the React overlay platform types from `@molecule/app-react/overlay`, and render translated text on a React 18 server without the layout-effect warning. Requires `@molecule/app-ui` 1.9.0.
 
 ## 4.15.0
 

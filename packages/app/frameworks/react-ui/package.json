@@ -19,10 +19,6 @@
       "types": "./dist/elements/index.d.ts",
       "import": "./dist/elements/index.js"
     },
-    "./platform": {
-      "types": "./dist/platform/index.d.ts",
-      "import": "./dist/platform/index.js"
-    },
     "./package.json": "./package.json"
   },
   "files": [

@@ -4,7 +4,14 @@
  * @module
  */
 
-import { useCallback, useContext, useLayoutEffect, useMemo, useSyncExternalStore } from 'react'
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useSyncExternalStore,
+} from 'react'
 
 import type {
   DateFormatOptions,
@@ -104,6 +111,8 @@ function createLocaleStore(provider: I18nProvider): LocaleStore {
   }
 }
 
+const useLocaleSubscriptionEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
+
 /**
  * Subscribes the calling component to the provider's locale notifications
  * through `useSyncExternalStore`, like the package's other store hooks.
@@ -139,7 +148,7 @@ function createLocaleStore(provider: I18nProvider): LocaleStore {
  */
 function useLocaleSnapshot(provider: I18nProvider): LocaleSnapshot {
   const store = useMemo(() => createLocaleStore(provider), [provider])
-  useLayoutEffect(() => provider.onLocaleChange(store.listener), [provider, store])
+  useLocaleSubscriptionEffect(() => provider.onLocaleChange(store.listener), [provider, store])
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 }
 
