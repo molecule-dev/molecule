@@ -56,7 +56,7 @@
 import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { builtinModules } from 'node:module'
-import { dirname, extname, join, relative } from 'node:path'
+import { dirname, extname, join, posix, relative } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
@@ -323,8 +323,11 @@ export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
 
 /**
  * Optional peers a package may load from named files only, by package name and peer. Each file is
- * an entry of its own (an `exports` subpath) that only a consumer who has the peer loads, and no
- * other file of the package imports it. A load of the peer from any other file is still flagged.
+ * an entry of its own (an `exports` subpath) that only a consumer who has the peer loads. The
+ * package files an entry loads are covered with it, so a helper split out of the entry needs no
+ * entry here (app-drag-drop's `src/scoped-web.ts`, loaded by `src/react.ts`), but only while no
+ * other file of the package loads that file or the entry itself. A load of the peer from any
+ * other file is still flagged.
  */
 export const OPTIONAL_PEER_ENTRY_FILES = {
   '@molecule/app-drag-drop': {
@@ -368,16 +371,77 @@ export function findOptionalPeersLoaded(
       )
       .map(([name]) => name),
   )
+  const graph = localLoads(imports)
+  const covered = new Map(
+    Object.entries(entryFiles).map(([name, { files }]) => [name, entryClosure(files, graph)]),
+  )
   const found = new Map()
   for (const imp of imports) {
     const name = packageNameOf(imp.specifier)
     if (!name || !optional.has(name)) continue
-    if (entryFiles[name]?.files.includes(imp.file)) continue
+    if (covered.get(name)?.has(imp.file)) continue
     found.set(name, (found.get(name) ?? new Set()).add(imp.file))
   }
   return [...found]
     .map(([name, files]) => ({ name, files: [...files].sort() }))
     .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * The package files each source file loads when it loads: its relative load-time imports, resolved
+ * to the files the import list names (a file with no load-time import loads no peer either).
+ *
+ * @param imports - `{ specifier, file }` from {@link loadTimeImports}, files relative to the package.
+ * @returns The files each file loads, by file.
+ */
+function localLoads(imports) {
+  const files = new Set(imports.map((imp) => imp.file))
+  const sourceOf = (path) =>
+    [
+      path,
+      path.replace(/\.js$/, '.ts'),
+      path.replace(/\.js$/, '.tsx'),
+      path.replace(/\.jsx$/, '.tsx'),
+      path.replace(/\.mjs$/, '.mts'),
+      path.replace(/\.cjs$/, '.cts'),
+    ].find((candidate) => files.has(candidate))
+  const graph = new Map()
+  for (const { specifier, file } of imports) {
+    if (!specifier.startsWith('./') && !specifier.startsWith('../')) continue
+    const target = sourceOf(posix.join(posix.dirname(file), specifier))
+    if (!target) continue
+    if (!graph.has(file)) graph.set(file, new Set())
+    graph.get(file).add(target)
+  }
+  return graph
+}
+
+/**
+ * The files reachable from `start` through `graph`, `start` included.
+ *
+ * @param start - The first files.
+ * @param graph - The files each file loads.
+ * @returns Every file reached.
+ */
+function reachable(start, graph) {
+  const seen = new Set(start)
+  for (const file of seen) for (const next of graph.get(file) ?? []) seen.add(next)
+  return seen
+}
+
+/**
+ * The files an optional peer's entry files cover: the entries and every package file they load,
+ * less whatever another file of the package also loads, since that file loads on start-up.
+ *
+ * @param entries - The entry files listed for the peer.
+ * @param graph - The files each file loads ({@link localLoads}).
+ * @returns The covered files.
+ */
+function entryClosure(entries, graph) {
+  const inside = reachable(entries, graph)
+  const outside = [...graph.keys()].filter((file) => !inside.has(file))
+  const shared = reachable(outside, graph)
+  return new Set([...inside].filter((file) => !shared.has(file)))
 }
 
 /**

@@ -240,6 +240,53 @@ it('uses the workspace source for floors above the workspace or absent from npm'
   expect(fetches.some((path) => path.endsWith('.tgz'))).toBe(false)
 })
 
+it('loads a workspace peer authored in TSX for a consumer whose tsconfig sets no jsx', async () => {
+  publishes(elements, ['4.4.0'])
+  write(`${workspaceElements}/package.json`, {
+    name: elements,
+    version: '4.5.2',
+    type: 'module',
+    exports: { '.': { types: './dist/index.d.ts', import: './dist/index.js' } },
+  })
+  write(`${workspaceElements}/src/index.ts`, "export * from './card.js'\n")
+  write(
+    `${workspaceElements}/src/card.tsx`,
+    'export interface CardProps { title: string }\nexport function Card(props: CardProps): number { return props.title.length }\n',
+  )
+  write(`${feature}/package.json`, {
+    name: '@molecule/floor-feature',
+    type: 'module',
+    peerDependencies: { [elements]: '^4.5.0' },
+  })
+  write(`${feature}/tsconfig.json`, {
+    compilerOptions: {
+      strict: true,
+      target: 'ES2022',
+      module: 'NodeNext',
+      types: [],
+      rootDir: 'src',
+    },
+    include: ['src/**/*'],
+  })
+  write(
+    `${feature}/src/width.ts`,
+    `import { Card, type CardProps } from '${elements}'\n\nconst props: CardProps = { title: 'a' }\nexport const width: number = Card(props)\n`,
+  )
+  const [row] = await scanPeerFloorTypes(root, new Set([feature]))
+  expect(row.diagnostics).toEqual([])
+  expect(row.fallbacks).toEqual([
+    { peer: elements, range: '^4.5.0', workspace: '4.5.2', published: null },
+  ])
+
+  // The consumer's own setting is kept: a mistyped call is still its error.
+  write(
+    `${feature}/src/width.ts`,
+    `import { Card } from '${elements}'\n\nexport const width: number = Card({ title: 1 })\n`,
+  )
+  const [bad] = await scanPeerFloorTypes(root, new Set([feature]))
+  expect(bad.diagnostics.map((diag: { code: number }) => diag.code)).toEqual([2322])
+})
+
 it('resolves Molecule type reference directives at the peer floor as well as imports', async () => {
   const ambient = (members: string) => `export {}\ndeclare global { type FloorMode = ${members} }\n`
   publishes(model, ['1.0.0', '1.1.0'])

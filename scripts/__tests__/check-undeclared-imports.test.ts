@@ -387,6 +387,38 @@ describe('findOptionalPeersLoaded', () => {
     ])
   })
 
+  it('covers the files an entry loads unless another file of the package loads them too', () => {
+    const dragDrop = {
+      name: '@molecule/app-drag-drop',
+      peerDependencies: { react: '^18.0.0 || ^19.0.0' },
+      peerDependenciesMeta: { react: { optional: true } },
+    }
+    const entry = at(
+      'src/react.ts',
+      "import { webScopedDragDrop } from './scoped-web.js'\nexport const renderer = webScopedDragDrop",
+    )
+    const helper = at(
+      'src/scoped-web.ts',
+      "import { useRef } from 'react'\nimport type { DragEndEvent } from './types.js'\nexport const webScopedDragDrop = useRef",
+    )
+    const root = at('src/index.ts', "export * from './provider.js'\nexport * from './types.js'")
+    expect(findOptionalPeersLoaded(dragDrop, [...entry, ...helper, ...root])).toEqual([])
+
+    const rootLoadsHelper = at('src/index.ts', "export * from './scoped-web.js'")
+    expect(findOptionalPeersLoaded(dragDrop, [...entry, ...helper, ...rootLoadsHelper])).toEqual([
+      { name: 'react', files: ['src/scoped-web.ts'] },
+    ])
+
+    const rootLoadsEntry = at('src/index.ts', "export * from './react.js'")
+    const entryUsesReact = at(
+      'src/react.ts',
+      "import { createContext } from 'react'\nimport { webScopedDragDrop } from './scoped-web.js'\nexport const c = createContext(webScopedDragDrop)",
+    )
+    expect(
+      findOptionalPeersLoaded(dragDrop, [...entryUsesReact, ...helper, ...rootLoadsEntry]),
+    ).toEqual([{ name: 'react', files: ['src/react.ts', 'src/scoped-web.ts'] }])
+  })
+
   it('exempts only a peer the ledger says is supplied some other way', () => {
     const native = {
       name: '@molecule/app-ui-react-native',

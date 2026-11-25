@@ -326,7 +326,18 @@ function diagnosticRecord(root, diagnostic) {
 
 /** Run the no-emit compiler for this package and the selected peer versions. */
 function compile(root, dir, project, workspace, graph, peers, installed) {
-  const { options, files, references, errors } = project
+  const { files, references, errors } = project
+  // A workspace peer is mounted from its authored sources (`sourceTargets`), which can be `.tsx`.
+  // A consumer whose tsconfig sets no `jsx` cannot load those (TS6142), so every `export *` of
+  // them comes back empty and the consumer reads `any` for the peer's components: a `.ts`-only
+  // package such as app-drag-drop reported a missing `Box` against app-ui-react's source.
+  // Published declarations never need it. Only the consumer's own files are reported, and its own
+  // build reports any JSX it writes without the option.
+  const mounted = [...peers.values()].some((peer) => peer?.slot === 'workspace')
+  const options =
+    mounted && project.options.jsx === undefined
+      ? { ...project.options, jsx: ts.JsxEmit.Preserve }
+      : project.options
   const host = compilerHost(root, dir, options, workspace, graph, peers, installed)
   const program = ts.createProgram({
     rootNames: files,

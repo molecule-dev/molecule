@@ -59,6 +59,30 @@ describe('partialBindingMocks', () => {
     expect(lines(text, 'x.test.tsx')).toEqual([])
   })
 
+  it('accepts the real-module loader under any parameter name, and only as the parameter', () => {
+    const named = [
+      "vi.mock('@molecule/app-react', async (load) => ({",
+      '  ...(await load<Record<string, unknown>>()),',
+      '  useTranslation: () => ({ t: (k: string) => k }),',
+      '}))',
+      "vi.mock('@molecule/app-vue', async (original) => {",
+      '  const actual = await original<Record<string, unknown>>()',
+      '  return { ...actual, useTranslation: () => ({ t: (k: string) => k }) }',
+      '})',
+    ].join('\n')
+    expect(lines(named, 'x.test.tsx')).toEqual([])
+    // Without the parameter, `importOriginal` is not defined when the mock loads.
+    const unbound = [
+      "vi.mock('@molecule/app-react', async () => ({",
+      '  ...(await importOriginal<Record<string, unknown>>()),',
+      '}))',
+      "vi.mock('@molecule/app-solid', async (load) => ({",
+      '  ...(await importOriginal<Record<string, unknown>>()),',
+      '}))',
+    ].join('\n')
+    expect(lines(unbound)).toEqual([1, 4])
+  })
+
   it('counterexample: ignores other packages, automocks and strings that mention vi.mock', () => {
     const text = [
       "vi.mock('@molecule/app-ui-angular', () => ({ Button: class {} }))",

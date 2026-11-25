@@ -9,7 +9,9 @@
  *
  * So a factory mock of a binding returns an object that spreads the real module first
  * (`...(await importOriginal())`, `...(await vi.importActual(…))`, or a variable holding either),
- * and overrides only what the test needs. `check-framework-conformance.mjs` runs this over every
+ * and overrides only what the test needs. Vitest passes the real-module loader as the factory's first
+ * parameter, so a call of that parameter counts under any name the test gives it (`load`), and a call
+ * named `importOriginal` in a factory without that parameter does not: it throws when the mock loads. `check-framework-conformance.mjs` runs this over every
  * app package's tests.
  *
  * @module
@@ -24,19 +26,20 @@ export const BINDING_MOCK_FIX =
   "start the factory from the real module and override only what the test needs: vi.mock('<binding>', async (importOriginal) => ({ ...(await importOriginal<Record<string, unknown>>()), … }))"
 
 /**
- * Whether an expression reads the real module: `importOriginal()`, `vi.importActual(…)`, either
- * awaited or parenthesized.
+ * Whether an expression reads the real module: a call of the factory's loader parameter
+ * (`importOriginal()`), or `vi.importActual(…)`, either awaited or parenthesized.
  *
  * @param node - The expression.
+ * @param loader - The name of the factory's first parameter, or null when it declares none.
  * @returns True when it does.
  */
-function readsRealModule(node) {
+function readsRealModule(node, loader) {
   let n = node
   while (ts.isParenthesizedExpression(n) || ts.isAwaitExpression(n) || ts.isAsExpression(n))
     n = n.expression
   if (!ts.isCallExpression(n)) return false
   const callee = n.expression
-  if (ts.isIdentifier(callee)) return callee.text === 'importOriginal'
+  if (ts.isIdentifier(callee)) return loader !== null && callee.text === loader
   return (
     ts.isPropertyAccessExpression(callee) &&
     callee.name.text === 'importActual' &&
@@ -52,13 +55,15 @@ function readsRealModule(node) {
  * @returns True when every object it returns does.
  */
 function spreadsRealModule(factory) {
+  const first = factory.parameters[0]
+  const loader = first && ts.isIdentifier(first.name) ? first.name.text : null
   const real = new Set()
   const objects = []
   if (ts.isBlock(factory.body)) {
     for (const statement of factory.body.statements) {
       if (ts.isVariableStatement(statement))
         for (const d of statement.declarationList.declarations)
-          if (ts.isIdentifier(d.name) && d.initializer && readsRealModule(d.initializer))
+          if (ts.isIdentifier(d.name) && d.initializer && readsRealModule(d.initializer, loader))
             real.add(d.name.text)
       if (ts.isReturnStatement(statement) && statement.expression)
         objects.push(statement.expression)
@@ -75,7 +80,7 @@ function spreadsRealModule(factory) {
           o.properties.some(
             (p) =>
               ts.isSpreadAssignment(p) &&
-              (readsRealModule(p.expression) ||
+              (readsRealModule(p.expression, loader) ||
                 (ts.isIdentifier(p.expression) && real.has(p.expression.text))),
           ),
       )
