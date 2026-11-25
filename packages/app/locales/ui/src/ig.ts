@@ -57,4 +57,8 @@ export const ig: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Gbadaa akụkụ aka nri',
   'ui.pageShell.expandSidebar': 'Gbasaa akụkụ akụkụ aka nri',
   'ui.pageHeader.breadcrumbs': 'Ụzọ nchọgharị',
+  'ui.dragDrop.moveItem': 'Bugharịa {{item}}',
+  'ui.dragDrop.moveItemTo': 'Bugharịa {{item}} gaa na {{destination}}',
+  'ui.dragDrop.cancelMove': 'Kagbuo mbugharị',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

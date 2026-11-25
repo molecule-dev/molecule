@@ -64,4 +64,8 @@ export const my: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'ဘေးဘက်ဘားကို ခေါက်ပါ',
   'ui.pageShell.expandSidebar': 'ဘေးဘက်ဘားကို ချဲ့ထွင်ပါ',
   'ui.pageHeader.breadcrumbs': 'နေဝိဂေးရှင်း လမ်းကြောင်း',
+  'ui.dragDrop.moveItem': '{{item}} ကို ရွှေ့ပါ',
+  'ui.dragDrop.moveItemTo': '{{item}} ကို {{destination}} သို့ ရွှေ့ပါ',
+  'ui.dragDrop.cancelMove': 'ရွှေ့ခြင်းကို ပယ်ဖျက်ပါ',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

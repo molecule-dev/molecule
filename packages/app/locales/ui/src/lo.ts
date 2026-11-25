@@ -58,4 +58,8 @@ export const lo: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'ຫຍໍ້ແຖບດ້ານຂ້າງ',
   'ui.pageShell.expandSidebar': 'ຂະຫຍາຍແຖບດ້ານຂ້າງ',
   'ui.pageHeader.breadcrumbs': 'ເສັ້ນທາງການນຳທາງ',
+  'ui.dragDrop.moveItem': 'ຍ້າຍ {{item}}',
+  'ui.dragDrop.moveItemTo': 'ຍ້າຍ {{item}} ໄປທີ່ {{destination}}',
+  'ui.dragDrop.cancelMove': 'ຍົກເລີກການຍ້າຍ',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

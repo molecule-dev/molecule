@@ -1,9 +1,14 @@
 import type { JSX, ReactNode } from 'react'
 
+import type { DragEndEvent } from '@molecule/app-drag-drop'
+import { type DragMoveControls, useDragDropRenderer } from '@molecule/app-drag-drop/react'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box } from '@molecule/app-ui-react/elements'
 
-import { KanbanColumn } from './KanbanColumn.js'
+import { KanbanColumnView } from './KanbanColumn.js'
 import type { KanbanCardData, KanbanColumnData } from './types.js'
+import { readCardDrop, writeCardDrag } from './web-drag.js'
 
 /** Props for {@link KanbanBoard}. */
 export interface KanbanBoardProps {
@@ -21,11 +26,9 @@ export interface KanbanBoardProps {
 }
 
 /**
- * Kanban board with HTML5 drag-drop between columns.
+ * Kanban board with drag and drop between columns.
  *
- * Pure UI — consumers own the card data and call back on `onCardMove`
- * to persist reorder. For fancier drag experiences, wire
- * `@molecule/app-drag-drop` at the column level instead.
+ * Consumers own the card data and persist moves from `onCardMove`.
  *
  * @param props - Component props (see {@link KanbanBoardProps}).
  * @example
@@ -49,59 +52,71 @@ export function KanbanBoard({
   className,
 }: KanbanBoardProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
+  const renderer = useDragDropRenderer()
 
-  /**
-   * Stores card identity in the drag payload so the drop handler knows the source column.
-   * @param card
-   * @param column
-   * @param e
-   */
-  function onCardDragStart(
-    card: KanbanCardData,
-    column: KanbanColumnData,
-    e: React.DragEvent,
-  ): void {
-    e.dataTransfer.setData(
-      'text/molecule-kanban',
-      JSON.stringify({ cardId: card.id, fromColumnId: column.id }),
-    )
-    e.dataTransfer.effectAllowed = 'move'
+  /** Validates an adapter's drop against the current board before emitting a move. */
+  function moveCard({ id, overId, data: fromId }: DragEndEvent): void {
+    if (typeof fromId !== 'string' || overId === undefined || fromId === overId) return
+    const source = columns.find((column) => column.id === fromId)
+    if (!source?.cards.some((card) => card.id === id)) return
+    if (!columns.some((column) => column.id === overId)) return
+    onCardMove?.(id, fromId, overId)
   }
 
-  /**
-   * Handles a card drop onto a column, parsing the drag payload and invoking onCardMove.
-   * @param column
-   * @param e
-   */
-  function onDrop(column: KanbanColumnData, e: React.DragEvent): void {
-    e.preventDefault()
-    const payload = e.dataTransfer.getData('text/molecule-kanban')
-    if (!payload || !onCardMove) return
-    try {
-      const { cardId, fromColumnId } = JSON.parse(payload) as {
-        cardId: string
-        fromColumnId: string
-      }
-      if (fromColumnId !== column.id) onCardMove(cardId, fromColumnId, column.id)
-    } catch (_error) {
-      // Safe to ignore: dataTransfer payload is untrusted/malformed — we simply cancel the drop.
+  /** Labels the native alternatives to dragging a card. */
+  function moveControls(card: KanbanCardData, from: KanbanColumnData): DragMoveControls {
+    const cardLabel = typeof card.title === 'string' ? card.title : card.id
+    return {
+      id: `kanban-move-${from.id}-${card.id}`,
+      label: t('ui.dragDrop.moveItem', { item: cardLabel }, { defaultValue: 'Move {{item}}' }),
+      cancelLabel: t('ui.dragDrop.cancelMove', {}, { defaultValue: 'Cancel move' }),
+      className: cm.cn(cm.button({ variant: 'outline', size: 'xs' }), cm.touchTargetCompact),
+      choices: columns
+        .filter((column) => column.id !== from.id)
+        .map((column) => ({
+          targetId: column.id,
+          label: t(
+            'ui.dragDrop.moveItemTo',
+            {
+              item: cardLabel,
+              destination: typeof column.title === 'string' ? column.title : column.id,
+            },
+            { defaultValue: 'Move {{item}} to {{destination}}' },
+          ),
+        })),
     }
   }
 
-  return (
-    <div className={cm.cn(cm.flex({ align: 'start', gap: 'md' }), className)}>
+  const nativeDrag = renderer && onCardMove ? { renderer, moveControls } : undefined
+  const DragScope = nativeDrag?.renderer.Scope
+  const board = (
+    <Box as="div" className={cm.cn(cm.flex({ align: 'start', gap: 'md' }), className)}>
       {columns.map((col) => (
-        <div key={col.id} className={cm.flex1}>
-          <KanbanColumn
+        <Box as="div" key={col.id} className={cm.flex1}>
+          <KanbanColumnView
             column={col}
             onCardClick={onCardClick}
-            onDrop={onCardMove ? onDrop : undefined}
-            onCardDragStart={onCardDragStart}
+            onDrop={
+              !renderer && onCardMove
+                ? (column, event) => {
+                    const drop = readCardDrop(event, column.id)
+                    if (drop) moveCard(drop)
+                  }
+                : undefined
+            }
+            onCardDragStart={
+              renderer
+                ? undefined
+                : (card, column, event) => writeCardDrag(event, card.id, column.id)
+            }
+            drag={nativeDrag}
             headerActions={renderHeaderActions?.(col)}
             footer={renderFooter?.(col)}
           />
-        </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
+  return DragScope ? <DragScope onDragEnd={moveCard}>{board}</DragScope> : board
 }

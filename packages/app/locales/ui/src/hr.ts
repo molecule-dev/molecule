@@ -57,4 +57,8 @@ export const hr: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Sažmi bočnu traku',
   'ui.pageShell.expandSidebar': 'Proširi bočnu traku',
   'ui.pageHeader.breadcrumbs': 'Navigacijska staza',
+  'ui.dragDrop.moveItem': 'Premjesti {{item}}',
+  'ui.dragDrop.moveItemTo': 'Premjesti {{item}} u {{destination}}',
+  'ui.dragDrop.cancelMove': 'Otkaži premještanje',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

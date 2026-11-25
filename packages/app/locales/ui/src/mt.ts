@@ -57,4 +57,8 @@ export const mt: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Agħlaq il-menu tal-ġenb',
   'ui.pageShell.expandSidebar': 'Espandi l-menu tal-ġenb',
   'ui.pageHeader.breadcrumbs': 'Triq in-navigazzjoni',
+  'ui.dragDrop.moveItem': 'Mexxi {{item}}',
+  'ui.dragDrop.moveItemTo': 'Mexxi {{item}} lejn {{destination}}',
+  'ui.dragDrop.cancelMove': 'Ikkanċella ċ-ċaqliq',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

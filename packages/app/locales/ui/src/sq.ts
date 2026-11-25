@@ -57,4 +57,8 @@ export const sq: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Palos shiritin anësor',
   'ui.pageShell.expandSidebar': 'Zgjero shiritin anësor',
   'ui.pageHeader.breadcrumbs': 'Rruga e navigimit',
+  'ui.dragDrop.moveItem': 'Zhvendos {{item}}',
+  'ui.dragDrop.moveItemTo': 'Zhvendos {{item}} te {{destination}}',
+  'ui.dragDrop.cancelMove': 'Anulo zhvendosjen',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

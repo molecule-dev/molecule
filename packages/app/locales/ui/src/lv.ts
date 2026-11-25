@@ -57,4 +57,8 @@ export const lv: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Sakļaut sānu joslu',
   'ui.pageShell.expandSidebar': 'Izvērst sānu joslu',
   'ui.pageHeader.breadcrumbs': 'Navigācijas ceļš',
+  'ui.dragDrop.moveItem': 'Pārvietot {{item}}',
+  'ui.dragDrop.moveItemTo': 'Pārvietot {{item}} uz {{destination}}',
+  'ui.dragDrop.cancelMove': 'Atcelt pārvietošanu',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

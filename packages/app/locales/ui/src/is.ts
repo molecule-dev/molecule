@@ -57,4 +57,8 @@ export const is: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Fella saman hliðarstiku',
   'ui.pageShell.expandSidebar': 'Stækka hliðarstikuna',
   'ui.pageHeader.breadcrumbs': 'Brauðmolaslóða',
+  'ui.dragDrop.moveItem': 'Færa {{item}}',
+  'ui.dragDrop.moveItemTo': 'Færa {{item}} í {{destination}}',
+  'ui.dragDrop.cancelMove': 'Hætta við færslu',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

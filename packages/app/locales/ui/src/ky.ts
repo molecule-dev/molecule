@@ -57,4 +57,8 @@ export const ky: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Каптал тилкесин жыйыштыруу',
   'ui.pageShell.expandSidebar': 'Каптал тилкесин жайып көрсөтүү',
   'ui.pageHeader.breadcrumbs': 'Навигация жолу',
+  'ui.dragDrop.moveItem': '{{item}} элементин жылдыруу',
+  'ui.dragDrop.moveItemTo': '{{item}} элементин {{destination}} бөлүмүнө жылдыруу',
+  'ui.dragDrop.cancelMove': 'Жылдырууну жокко чыгаруу',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

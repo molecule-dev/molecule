@@ -57,4 +57,8 @@ export const gu: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'સાઇડબાર સંકુચિત કરો',
   'ui.pageShell.expandSidebar': 'સાઇડબાર વિસ્તૃત કરો',
   'ui.pageHeader.breadcrumbs': 'બ્રેડક્રમ્બ નેવિગેશન',
+  'ui.dragDrop.moveItem': '{{item}} ખસેડો',
+  'ui.dragDrop.moveItemTo': '{{item}}ને {{destination}} પર ખસેડો',
+  'ui.dragDrop.cancelMove': 'ખસેડવાનું રદ કરો',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

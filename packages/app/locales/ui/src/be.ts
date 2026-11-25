@@ -57,4 +57,8 @@ export const be: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Згарнуць бакавую панэль',
   'ui.pageShell.expandSidebar': 'Разгарнуць бакавую панэль',
   'ui.pageHeader.breadcrumbs': 'Навігацыйны шлях',
+  'ui.dragDrop.moveItem': 'Перамясціць {{item}}',
+  'ui.dragDrop.moveItemTo': 'Перамясціць {{item}} у {{destination}}',
+  'ui.dragDrop.cancelMove': 'Скасаваць перамяшчэнне',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

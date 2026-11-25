@@ -2,7 +2,7 @@
  * React Kanban board primitives (pure presentational — you own the data).
  *
  * Exports:
- * - `<KanbanBoard>` — columns side-by-side with HTML5 drag-drop between columns.
+ * - `<KanbanBoard>` — columns side-by-side with drag and drop between columns.
  *   Props: `columns`, `onCardMove?(cardId, fromColumnId, toColumnId)`,
  *   `onCardClick?(card, column)`, `renderHeaderActions?(column)`,
  *   `renderFooter?(column)`, `className?`.
@@ -18,8 +18,8 @@
  * yourself in `onCardMove`.
  *
  * @remarks
- * - Drag-drop is native HTML5 DnD: it does not fire on touch devices — provide
- *   an alternate affordance (e.g. a move menu in `renderHeaderActions`) for mobile.
+ * - React DOM uses HTML5 drag and drop. React Native uses the renderer supplied by
+ *   `DragDropRendererProvider`, with a move menu on each card.
  * - `onCardMove` fires only when a card is dropped on a DIFFERENT column, and no
  *   insertion index is reported — same-column reordering is not supported; movers
  *   can only append to the target column.
@@ -48,6 +48,6 @@
 
 export * from './KanbanBoard.js'
 export * from './KanbanCard.js'
-export * from './KanbanColumn.js'
+export { KanbanColumn, type KanbanColumnProps } from './KanbanColumn.js'
 export * from './KanbanColumnHeader.js'
 export * from './types.js'

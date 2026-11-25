@@ -57,4 +57,8 @@ export const ar: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'طي الشريط الجانبي',
   'ui.pageShell.expandSidebar': 'توسيع الشريط الجانبي',
   'ui.pageHeader.breadcrumbs': 'مسار التنقل',
+  'ui.dragDrop.moveItem': 'نقل {{item}}',
+  'ui.dragDrop.moveItemTo': 'نقل {{item}} إلى {{destination}}',
+  'ui.dragDrop.cancelMove': 'إلغاء النقل',
+  'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
 }

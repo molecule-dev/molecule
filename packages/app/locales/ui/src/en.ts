@@ -57,4 +57,8 @@ export const en: UiTranslations = {
     'No UIClassMap has been set. Call setClassMap() at app startup with a styling library implementation (e.g., @molecule/app-ui-tailwind).',
   'ui.pageShell.collapseSidebar': 'Collapse sidebar',
   'ui.pageShell.expandSidebar': 'Expand sidebar',
+  'ui.dragDrop.moveItem': 'Move {{item}}',
+  'ui.dragDrop.moveItemTo': 'Move {{item}} to {{destination}}',
+  'ui.dragDrop.cancelMove': 'Cancel move',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

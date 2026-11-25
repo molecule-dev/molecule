@@ -57,4 +57,8 @@ export const cs: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Sbalit postranní panel',
   'ui.pageShell.expandSidebar': 'Rozbalit postranní panel',
   'ui.pageHeader.breadcrumbs': 'Navigační cesta',
+  'ui.dragDrop.moveItem': 'Přesunout {{item}}',
+  'ui.dragDrop.moveItemTo': 'Přesunout {{item}} do {{destination}}',
+  'ui.dragDrop.cancelMove': 'Zrušit přesun',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -57,4 +57,8 @@ export const id: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Tutup bilah sisi',
   'ui.pageShell.expandSidebar': 'Perluas bilah sisi',
   'ui.pageHeader.breadcrumbs': 'Jejak navigasi',
+  'ui.dragDrop.moveItem': 'Pindahkan {{item}}',
+  'ui.dragDrop.moveItemTo': 'Pindahkan {{item}} ke {{destination}}',
+  'ui.dragDrop.cancelMove': 'Batalkan pemindahan',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

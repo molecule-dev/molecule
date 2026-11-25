@@ -58,4 +58,8 @@ export const it: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Comprimi la barra laterale',
   'ui.pageShell.expandSidebar': 'Espandi la barra laterale',
   'ui.pageHeader.breadcrumbs': 'Percorso di navigazione',
+  'ui.dragDrop.moveItem': 'Sposta {{item}}',
+  'ui.dragDrop.moveItemTo': 'Sposta {{item}} in {{destination}}',
+  'ui.dragDrop.cancelMove': 'Annulla spostamento',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

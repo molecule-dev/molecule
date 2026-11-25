@@ -57,4 +57,8 @@ export const tr: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Kenar çubuğunu daralt',
   'ui.pageShell.expandSidebar': 'Kenar çubuğunu genişlet',
   'ui.pageHeader.breadcrumbs': 'Kırıntı navigasyonu',
+  'ui.dragDrop.moveItem': '{{item}} öğesini taşı',
+  'ui.dragDrop.moveItemTo': '{{item}} öğesini {{destination}} konumuna taşı',
+  'ui.dragDrop.cancelMove': 'Taşımayı iptal et',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

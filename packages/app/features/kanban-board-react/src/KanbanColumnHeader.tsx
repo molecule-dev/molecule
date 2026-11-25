@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link KanbanColumnHeader}. */
 export interface KanbanColumnHeaderProps {
@@ -25,18 +26,25 @@ export function KanbanColumnHeader({
 }: KanbanColumnHeaderProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <header
+    <Box
+      as="header"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
         cm.sp('pb', 2),
         className,
       )}
     >
-      <div className={cm.flex({ align: 'center', gap: 'xs' })}>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title}</span>
-        {typeof count === 'number' && <span className={cm.textSize('xs')}>({count})</span>}
-      </div>
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
+        <Text as="span" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {title}
+        </Text>
+        {typeof count === 'number' && (
+          <Text as="span" className={cm.textSize('xs')}>
+            ({count})
+          </Text>
+        )}
+      </Box>
       {actions}
-    </header>
+    </Box>
   )
 }

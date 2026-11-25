@@ -57,4 +57,8 @@ export const zu: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Goqa ibha eseceleni',
   'ui.pageShell.expandSidebar': 'Nweba ibha eseceleni',
   'ui.pageHeader.breadcrumbs': 'Indlela yokuzulazela',
+  'ui.dragDrop.moveItem': 'Hambisa {{item}}',
+  'ui.dragDrop.moveItemTo': 'Hambisa {{item}} uye ku-{{destination}}',
+  'ui.dragDrop.cancelMove': 'Khansela ukuhambisa',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

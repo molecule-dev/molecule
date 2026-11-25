@@ -2,8 +2,10 @@ import type { DragEvent, JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import type { KanbanCardData } from './types.js'
+import { cardDragProps } from './web-drag.js'
 
 /** Props for {@link KanbanCard}. */
 export interface KanbanCardProps {
@@ -37,19 +39,27 @@ export function KanbanCard({
       className={cm.cn(cm.cursorPointer, className)}
       onClick={onClick ? () => onClick(card) : undefined}
     >
-      <div className={cm.stack(2)}>
-        <h4 className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{card.title}</h4>
-        {card.body && <div className={cm.textSize('sm')}>{card.body}</div>}
-        {card.footer && (
-          <div className={cm.flex({ align: 'center', gap: 'sm' })}>{card.footer}</div>
+      <Box as="div" className={cm.stack(2)}>
+        <Text as="h4" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+          {card.title}
+        </Text>
+        {card.body && (
+          <Box as="div" className={cm.textSize('sm')}>
+            {card.body}
+          </Box>
         )}
-      </div>
+        {card.footer && (
+          <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+            {card.footer}
+          </Box>
+        )}
+      </Box>
     </Card>
   )
   if (!onDragStart) return <>{body}</>
   return (
-    <div draggable onDragStart={(e) => onDragStart(card, e)}>
+    <Box as="div" {...cardDragProps((event) => onDragStart(card, event))}>
       {body}
-    </div>
+    </Box>
   )
 }

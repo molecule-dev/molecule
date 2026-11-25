@@ -62,4 +62,8 @@ export const pa: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'ਸਾਈਡਬਾਰ ਨੂੰ ਸਮੇਟੋ',
   'ui.pageShell.expandSidebar': 'ਸਾਈਡਬਾਰ ਦਾ ਵਿਸਤਾਰ ਕਰੋ',
   'ui.pageHeader.breadcrumbs': 'ਬਰੈੱਡਕਰੰਬ ਨੇਵੀਗੇਸ਼ਨ',
+  'ui.dragDrop.moveItem': '{{item}} ਨੂੰ ਹਿਲਾਓ',
+  'ui.dragDrop.moveItemTo': '{{item}} ਨੂੰ {{destination}} ਵਿੱਚ ਹਿਲਾਓ',
+  'ui.dragDrop.cancelMove': 'ਹਿਲਾਉਣਾ ਰੱਦ ਕਰੋ',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

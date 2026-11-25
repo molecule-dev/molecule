@@ -67,4 +67,8 @@ export const ne: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'साइडबार संक्षिप्त गर्नुहोस्',
   'ui.pageShell.expandSidebar': 'साइडबार विस्तार गर्नुहोस्',
   'ui.pageHeader.breadcrumbs': 'ब्रेडक्रम्ब नेभिगेसन',
+  'ui.dragDrop.moveItem': '{{item}} सार्नुहोस्',
+  'ui.dragDrop.moveItemTo': '{{item}} लाई {{destination}} मा सार्नुहोस्',
+  'ui.dragDrop.cancelMove': 'सार्न रद्द गर्नुहोस्',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

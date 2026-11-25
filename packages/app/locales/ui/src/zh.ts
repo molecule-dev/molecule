@@ -57,4 +57,8 @@ export const zh: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': '折叠侧边栏',
   'ui.pageShell.expandSidebar': '展开侧边栏',
   'ui.pageHeader.breadcrumbs': '面包屑导航',
+  'ui.dragDrop.moveItem': '移动{{item}}',
+  'ui.dragDrop.moveItemTo': '将{{item}}移至{{destination}}',
+  'ui.dragDrop.cancelMove': '取消移动',
+  'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
 }

@@ -57,4 +57,8 @@ export const gl: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Contraer a barra lateral',
   'ui.pageShell.expandSidebar': 'Expandir a barra lateral',
   'ui.pageHeader.breadcrumbs': 'Ruta de navegación',
+  'ui.dragDrop.moveItem': 'Mover {{item}}',
+  'ui.dragDrop.moveItemTo': 'Mover {{item}} a {{destination}}',
+  'ui.dragDrop.cancelMove': 'Cancelar o movemento',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

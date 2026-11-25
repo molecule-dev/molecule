@@ -57,4 +57,8 @@ export const bg: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Свиване на страничната лента',
   'ui.pageShell.expandSidebar': 'Разгъване на страничната лента',
   'ui.pageHeader.breadcrumbs': 'Навигационен път',
+  'ui.dragDrop.moveItem': 'Преместване на {{item}}',
+  'ui.dragDrop.moveItemTo': 'Преместване на {{item}} в {{destination}}',
+  'ui.dragDrop.cancelMove': 'Отказ от преместването',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

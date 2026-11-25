@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-reorderable-list-react",
   "version": "4.0.2",
-  "description": "Vertical drag-handle reorder list with onReorder callback (HTML5 drag — mouse/pointer only, no touch)",
+  "description": "Vertical drag-handle reorder list with accessible move controls for React DOM and React Native",
   "homepage": "https://www.molecule.dev/packages/app-reorderable-list-react",
   "type": "module",
   "main": "dist/index.js",
@@ -33,12 +33,14 @@
     "directory": "packages/app/features/reorderable-list-react"
   },
   "peerDependencies": {
+    "@molecule/app-drag-drop": "^1.1.0",
     "@molecule/app-react": "^4.0.0",
-    "@molecule/app-ui": "^1.0.1",
-    "@molecule/app-ui-react": "^4.0.0",
+    "@molecule/app-ui": "^1.8.0",
+    "@molecule/app-ui-react": "^4.6.0",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@molecule/app-drag-drop": "1.0.4",
     "@molecule/app-react": "4.14.0",
     "@molecule/app-ui": "1.7.0",
     "@molecule/app-ui-react": "4.5.0",

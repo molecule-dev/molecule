@@ -63,4 +63,8 @@ export const mn: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Хажуугийн цэсийг хумих',
   'ui.pageShell.expandSidebar': 'Хажуугийн самбарыг дэлгэх',
   'ui.pageHeader.breadcrumbs': 'Навигацийн зам',
+  'ui.dragDrop.moveItem': '{{item}}-г зөөх',
+  'ui.dragDrop.moveItemTo': '{{item}}-г {{destination}} рүү зөөх',
+  'ui.dragDrop.cancelMove': 'Зөөлтийг цуцлах',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

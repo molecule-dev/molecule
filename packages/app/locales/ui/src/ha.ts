@@ -57,4 +57,8 @@ export const ha: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Rufe gefen gefe',
   'ui.pageShell.expandSidebar': 'Faɗaɗa gefen gefe',
   'ui.pageHeader.breadcrumbs': 'Hanyar kewaya',
+  'ui.dragDrop.moveItem': 'Matsar da {{item}}',
+  'ui.dragDrop.moveItemTo': 'Matsar da {{item}} zuwa {{destination}}',
+  'ui.dragDrop.cancelMove': 'Soke matsarwa',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

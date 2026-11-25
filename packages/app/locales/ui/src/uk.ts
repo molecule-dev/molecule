@@ -57,4 +57,8 @@ export const uk: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Згорнути бічну панель',
   'ui.pageShell.expandSidebar': 'Розгорнути бічну панель',
   'ui.pageHeader.breadcrumbs': 'Навігаційний ланцюжок',
+  'ui.dragDrop.moveItem': 'Перемістити {{item}}',
+  'ui.dragDrop.moveItemTo': 'Перемістити {{item}} до {{destination}}',
+  'ui.dragDrop.cancelMove': 'Скасувати переміщення',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

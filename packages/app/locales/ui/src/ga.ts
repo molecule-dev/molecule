@@ -57,4 +57,8 @@ export const ga: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Laghdaigh an barra taoibh',
   'ui.pageShell.expandSidebar': 'Leathnaigh an barra taoibh',
   'ui.pageHeader.breadcrumbs': 'Cosán nascleanúna',
+  'ui.dragDrop.moveItem': 'Bog {{item}}',
+  'ui.dragDrop.moveItemTo': 'Bog {{item}} go {{destination}}',
+  'ui.dragDrop.cancelMove': 'Cealaigh an t-aistriú',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

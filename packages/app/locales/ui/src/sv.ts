@@ -57,4 +57,8 @@ export const sv: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Komprimera sidofältet',
   'ui.pageShell.expandSidebar': 'Expandera sidofältet',
   'ui.pageHeader.breadcrumbs': 'Brödsmulsnavigering',
+  'ui.dragDrop.moveItem': 'Flytta {{item}}',
+  'ui.dragDrop.moveItemTo': 'Flytta {{item}} till {{destination}}',
+  'ui.dragDrop.cancelMove': 'Avbryt flytt',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

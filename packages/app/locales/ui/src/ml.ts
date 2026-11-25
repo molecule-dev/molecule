@@ -66,4 +66,8 @@ export const ml: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'സൈഡ്‌ബാർ ചുരുക്കുക',
   'ui.pageShell.expandSidebar': 'സൈഡ്‌ബാർ വികസിപ്പിക്കുക',
   'ui.pageHeader.breadcrumbs': 'ബ്രെഡ്ക്രംബ് നാവിഗേഷൻ',
+  'ui.dragDrop.moveItem': '{{item}} നീക്കുക',
+  'ui.dragDrop.moveItemTo': '{{item}} {{destination}} എന്നതിലേക്ക് നീക്കുക',
+  'ui.dragDrop.cancelMove': 'നീക്കൽ റദ്ദാക്കുക',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -57,4 +57,8 @@ export const am: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'የጎን አሞሌን ሰብስብ',
   'ui.pageShell.expandSidebar': 'የጎን አሞሌን ዘርጋ',
   'ui.pageHeader.breadcrumbs': 'የአሰሳ መንገድ',
+  'ui.dragDrop.moveItem': '{{item}}ን አንቀሳቅስ',
+  'ui.dragDrop.moveItemTo': '{{item}}ን ወደ {{destination}} አንቀሳቅስ',
+  'ui.dragDrop.cancelMove': 'ማንቀሳቀሱን ሰርዝ',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

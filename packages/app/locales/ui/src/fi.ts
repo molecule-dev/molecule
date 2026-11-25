@@ -57,4 +57,8 @@ export const fi: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Pienennä sivupalkki',
   'ui.pageShell.expandSidebar': 'Laajenna sivupalkki',
   'ui.pageHeader.breadcrumbs': 'Polkunavigaatio',
+  'ui.dragDrop.moveItem': 'Siirrä {{item}}',
+  'ui.dragDrop.moveItemTo': 'Siirrä {{item}} kohteeseen {{destination}}',
+  'ui.dragDrop.cancelMove': 'Peru siirto',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

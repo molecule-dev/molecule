@@ -61,4 +61,8 @@ export const kk: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Бүйірлік тақтаны жию',
   'ui.pageShell.expandSidebar': 'Бүйірлік тақтаны жаю',
   'ui.pageHeader.breadcrumbs': 'Навигация жолы',
+  'ui.dragDrop.moveItem': '{{item}} элементін жылжыту',
+  'ui.dragDrop.moveItemTo': '{{item}} элементін {{destination}} бөліміне жылжыту',
+  'ui.dragDrop.cancelMove': 'Жылжытудан бас тарту',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

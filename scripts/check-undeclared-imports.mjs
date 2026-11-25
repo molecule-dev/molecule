@@ -326,6 +326,12 @@ export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
  * other file of the package imports it. A load of the peer from any other file is still flagged.
  */
 export const OPTIONAL_PEER_ENTRY_FILES = {
+  '@molecule/app-drag-drop': {
+    react: {
+      files: ['src/react.ts'],
+      reason: 'The ./react entry supplies React bindings. The package root never imports it.',
+    },
+  },
   '@molecule/app-vue': {
     vitest: {
       files: ['src/testing/setup.ts'],

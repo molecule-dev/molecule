@@ -57,4 +57,8 @@ export const lt: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Sutraukti šoninę juostą',
   'ui.pageShell.expandSidebar': 'Išskleisti šoninę juostą',
   'ui.pageHeader.breadcrumbs': 'Naršymo kelias',
+  'ui.dragDrop.moveItem': 'Perkelti {{item}}',
+  'ui.dragDrop.moveItemTo': 'Perkelti {{item}} į {{destination}}',
+  'ui.dragDrop.cancelMove': 'Atšaukti perkėlimą',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

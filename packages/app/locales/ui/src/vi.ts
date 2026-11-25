@@ -57,4 +57,8 @@ export const vi: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Thu gọn thanh bên',
   'ui.pageShell.expandSidebar': 'Mở rộng thanh bên',
   'ui.pageHeader.breadcrumbs': 'Điều hướng phân cấp',
+  'ui.dragDrop.moveItem': 'Di chuyển {{item}}',
+  'ui.dragDrop.moveItemTo': 'Di chuyển {{item}} đến {{destination}}',
+  'ui.dragDrop.cancelMove': 'Hủy di chuyển',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

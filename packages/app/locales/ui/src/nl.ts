@@ -57,4 +57,8 @@ export const nl: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Zijbalk inklappen',
   'ui.pageShell.expandSidebar': 'Zijbalk uitklappen',
   'ui.pageHeader.breadcrumbs': 'Kruimelpad',
+  'ui.dragDrop.moveItem': 'Verplaats {{item}}',
+  'ui.dragDrop.moveItemTo': 'Verplaats {{item}} naar {{destination}}',
+  'ui.dragDrop.cancelMove': 'Verplaatsing annuleren',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -62,4 +62,8 @@ export const si: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'පැති තීරුව හකුළන්න',
   'ui.pageShell.expandSidebar': 'පැති තීරුව දිග හරින්න',
   'ui.pageHeader.breadcrumbs': 'බ්‍රෙඩ්ක්‍රම්බ් මාර්ගය',
+  'ui.dragDrop.moveItem': '{{item}} ගෙන යන්න',
+  'ui.dragDrop.moveItemTo': '{{item}} {{destination}} වෙත ගෙන යන්න',
+  'ui.dragDrop.cancelMove': 'ගෙන යාම අවලංගු කරන්න',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

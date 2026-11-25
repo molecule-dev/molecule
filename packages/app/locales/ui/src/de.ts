@@ -57,4 +57,8 @@ export const de: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Seitenleiste ausklappen',
   'ui.pageShell.expandSidebar': 'Seitenleiste erweitern',
   'ui.pageHeader.breadcrumbs': 'Brotkrümelnavigation',
+  'ui.dragDrop.moveItem': '{{item}} verschieben',
+  'ui.dragDrop.moveItemTo': '{{item}} nach {{destination}} verschieben',
+  'ui.dragDrop.cancelMove': 'Verschieben abbrechen',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

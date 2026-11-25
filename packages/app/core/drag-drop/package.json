@@ -15,6 +15,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
     }
   },
   "files": [
@@ -35,11 +39,20 @@
     "directory": "packages/app/core/drag-drop"
   },
   "peerDependencies": {
-    "@molecule/app-bond": "^1.0.1"
+    "@molecule/app-bond": "^1.0.1",
+    "@molecule/app-ui-react": "^4.4.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-ui-react": { "optional": true },
+    "react": { "optional": true }
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.5",
+    "@molecule/app-ui-react": "4.5.0",
     "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "react": "19.3.1",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

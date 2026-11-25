@@ -57,4 +57,8 @@ export const ro: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Restrângeți bara laterală',
   'ui.pageShell.expandSidebar': 'Extinde bara laterală',
   'ui.pageHeader.breadcrumbs': 'Firul Ariadnei',
+  'ui.dragDrop.moveItem': 'Mută {{item}}',
+  'ui.dragDrop.moveItemTo': 'Mută {{item}} în {{destination}}',
+  'ui.dragDrop.cancelMove': 'Anulează mutarea',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

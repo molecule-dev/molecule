@@ -57,4 +57,8 @@ export const ja: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'サイドバーを折りたたむ',
   'ui.pageShell.expandSidebar': 'サイドバーを展開する',
   'ui.pageHeader.breadcrumbs': 'パンくずリスト',
+  'ui.dragDrop.moveItem': '{{item}}を移動',
+  'ui.dragDrop.moveItemTo': '{{item}}を{{destination}}に移動',
+  'ui.dragDrop.cancelMove': '移動をキャンセル',
+  'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
 }

@@ -1,5 +1,5 @@
 /**
- * Drag-handle reorderable list (HTML5 drag-and-drop).
+ * Drag-handle reorderable list for React DOM and React Native.
  *
  * Exports `<ReorderableList>` and the `ReorderableItem<T>` type
  * (`{ id: string; data: T }`). Fully controlled: it renders rows and calls
@@ -20,6 +20,7 @@
  *
  * import { ReorderableList } from '@molecule/app-reorderable-list-react'
  * import type { ReorderableItem } from '@molecule/app-reorderable-list-react'
+ * import { Text } from '@molecule/app-ui-react/elements'
  *
  * function Steps() {
  *   const [items, setItems] = useState<ReorderableItem<{ label: string }>[]>([
@@ -31,17 +32,15 @@
  *     <ReorderableList
  *       items={items}
  *       onReorder={setItems}
- *       renderItem={(item) => <span>{item.data.label}</span>}
+ *       renderItem={(item) => <Text as="span">{item.data.label}</Text>}
  *     />
  *   )
  * }
  * ```
  *
  * @remarks
- * - Native HTML5 drag works with MOUSE/POINTER only — touch devices
- *   (iOS/Android) fire no HTML5 drag events. The keyboard path (move buttons +
- *   Alt+Arrow) is the a11y/touch-safe fallback and is always present; add a
- *   pointer/touch drag library only if you also need touch DRAG specifically.
+ * - React DOM uses HTML5 drag and drop. React Native uses the renderer supplied
+ *   by `DragDropRendererProvider`. Move buttons are available on both renderers.
  * - Requires a bonded ClassMap (`setClassMap()` at startup) and an
  *   `<I18nProvider>` (for the control labels) or rendering throws.
  * - Item `id`s must be unique — drop resolution matches by id.

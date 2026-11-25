@@ -57,4 +57,8 @@ export const az: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Yan paneli yığcamlaşdırın',
   'ui.pageShell.expandSidebar': 'Yan paneli genişləndirin',
   'ui.pageHeader.breadcrumbs': 'Naviqasiya yolu',
+  'ui.dragDrop.moveItem': '{{item}} elementini köçür',
+  'ui.dragDrop.moveItemTo': '{{item}} elementini {{destination}} bölməsinə köçür',
+  'ui.dragDrop.cancelMove': 'Köçürməni ləğv et',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

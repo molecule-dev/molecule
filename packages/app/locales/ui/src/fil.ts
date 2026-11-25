@@ -57,4 +57,8 @@ export const fil: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'I-collapse ang sidebar',
   'ui.pageShell.expandSidebar': 'Palawakin ang sidebar',
   'ui.pageHeader.breadcrumbs': 'Landas ng pag-navigate',
+  'ui.dragDrop.moveItem': 'Ilipat ang {{item}}',
+  'ui.dragDrop.moveItemTo': 'Ilipat ang {{item}} sa {{destination}}',
+  'ui.dragDrop.cancelMove': 'Kanselahin ang paglipat',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

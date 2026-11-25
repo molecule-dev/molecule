@@ -54,6 +54,10 @@ export type UiTranslationKey =
   | 'ui.error.noClassMap'
   | 'ui.pageShell.collapseSidebar'
   | 'ui.pageShell.expandSidebar'
+  | 'ui.dragDrop.moveItem'
+  | 'ui.dragDrop.moveItemTo'
+  | 'ui.dragDrop.cancelMove'
+  | 'ui.dragDrop.moveAtPosition'
 
 /** Translation record mapping ui keys to translated strings. */
 export type UiTranslations = Record<UiTranslationKey, string>

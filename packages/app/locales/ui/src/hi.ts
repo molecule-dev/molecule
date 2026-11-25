@@ -57,4 +57,8 @@ export const hi: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'साइडबार को छोटा करें',
   'ui.pageShell.expandSidebar': 'साइडबार का विस्तार करें',
   'ui.pageHeader.breadcrumbs': 'ब्रेडक्रंब नेविगेशन',
+  'ui.dragDrop.moveItem': '{{item}} को ले जाएँ',
+  'ui.dragDrop.moveItemTo': '{{item}} को {{destination}} में ले जाएँ',
+  'ui.dragDrop.cancelMove': 'स्थानांतरण रद्द करें',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -64,4 +64,8 @@ export const ta: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'பக்கப் பட்டியைச் சுருக்கு',
   'ui.pageShell.expandSidebar': 'பக்கப் பட்டியை விரிவாக்கு',
   'ui.pageHeader.breadcrumbs': 'பிரெட் கிரம்ப் வழிசெலுத்தல்',
+  'ui.dragDrop.moveItem': '{{item}} என்பதை நகர்த்தவும்',
+  'ui.dragDrop.moveItemTo': '{{item}} என்பதை {{destination}} என்பதற்கு நகர்த்தவும்',
+  'ui.dragDrop.cancelMove': 'நகர்த்துவதை ரத்துசெய்',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -57,4 +57,8 @@ export const he: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'כווץ את סרגל הצד',
   'ui.pageShell.expandSidebar': 'הרחב את הצד',
   'ui.pageHeader.breadcrumbs': 'ניווט פירורי לחם',
+  'ui.dragDrop.moveItem': 'העברת {{item}}',
+  'ui.dragDrop.moveItemTo': 'העברת {{item}} אל {{destination}}',
+  'ui.dragDrop.cancelMove': 'ביטול ההעברה',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

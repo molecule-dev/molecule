@@ -57,4 +57,8 @@ export const pl: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Zwiń pasek boczny',
   'ui.pageShell.expandSidebar': 'Rozwiń pasek boczny',
   'ui.pageHeader.breadcrumbs': 'Ścieżka nawigacji',
+  'ui.dragDrop.moveItem': 'Przenieś {{item}}',
+  'ui.dragDrop.moveItemTo': 'Przenieś {{item}} do {{destination}}',
+  'ui.dragDrop.cancelMove': 'Anuluj przenoszenie',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

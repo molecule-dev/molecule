@@ -57,4 +57,8 @@ export const sk: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Zbaliť bočný panel',
   'ui.pageShell.expandSidebar': 'Rozbaliť bočný panel',
   'ui.pageHeader.breadcrumbs': 'Navigačná cesta',
+  'ui.dragDrop.moveItem': 'Presunúť {{item}}',
+  'ui.dragDrop.moveItemTo': 'Presunúť {{item}} do {{destination}}',
+  'ui.dragDrop.cancelMove': 'Zrušiť presun',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

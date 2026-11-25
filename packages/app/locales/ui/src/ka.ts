@@ -64,4 +64,8 @@ export const ka: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'გვერდითი ზოლის ჩაკეცვა',
   'ui.pageShell.expandSidebar': 'გვერდითი ზოლის გაფართოება',
   'ui.pageHeader.breadcrumbs': 'ნავიგაციის გზა',
+  'ui.dragDrop.moveItem': '{{item}}-ის გადატანა',
+  'ui.dragDrop.moveItemTo': '{{item}}-ის გადატანა {{destination}}-ში',
+  'ui.dragDrop.cancelMove': 'გადატანის გაუქმება',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

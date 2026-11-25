@@ -57,4 +57,8 @@ export const zhTW: UiTranslations = {
   'ui.pageShell.collapseSidebar': '折疊側邊欄',
   'ui.pageShell.expandSidebar': '展開側邊欄',
   'ui.pageHeader.breadcrumbs': '麵包屑導覽',
+  'ui.dragDrop.moveItem': '移動{{item}}',
+  'ui.dragDrop.moveItemTo': '將{{item}}移至{{destination}}',
+  'ui.dragDrop.cancelMove': '取消移動',
+  'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
 }

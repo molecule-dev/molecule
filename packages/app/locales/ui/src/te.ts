@@ -63,4 +63,8 @@ export const te: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'సైడ్‌బార్‌ను కుదించండి',
   'ui.pageShell.expandSidebar': 'సైడ్‌బార్‌ను విస్తరించండి',
   'ui.pageHeader.breadcrumbs': 'బ్రెడ్‌క్రంబ్ నావిగేషన్',
+  'ui.dragDrop.moveItem': '{{item}}ను తరలించండి',
+  'ui.dragDrop.moveItemTo': '{{item}}ను {{destination}}కి తరలించండి',
+  'ui.dragDrop.cancelMove': 'తరలింపును రద్దు చేయండి',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

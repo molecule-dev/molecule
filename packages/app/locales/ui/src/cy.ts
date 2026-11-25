@@ -57,4 +57,8 @@ export const cy: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': "Plygu'r bar ochr",
   'ui.pageShell.expandSidebar': "Ehangu'r bar ochr",
   'ui.pageHeader.breadcrumbs': 'Llwybr brahin bara',
+  'ui.dragDrop.moveItem': 'Symud {{item}}',
+  'ui.dragDrop.moveItemTo': 'Symud {{item}} i {{destination}}',
+  'ui.dragDrop.cancelMove': 'Canslo symud',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

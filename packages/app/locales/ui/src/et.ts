@@ -57,4 +57,8 @@ export const et: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Sulge külgriba',
   'ui.pageShell.expandSidebar': 'Laienda külgriba',
   'ui.pageHeader.breadcrumbs': 'Navigeerimisrada',
+  'ui.dragDrop.moveItem': 'Teisalda {{item}}',
+  'ui.dragDrop.moveItemTo': 'Teisalda {{item}} sihtkohta {{destination}}',
+  'ui.dragDrop.cancelMove': 'Tühista teisaldamine',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

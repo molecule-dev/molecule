@@ -63,4 +63,8 @@ export const ur: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'سائڈبار کو سکیڑیں۔',
   'ui.pageShell.expandSidebar': 'سائڈبار کو پھیلائیں۔',
   'ui.pageHeader.breadcrumbs': 'بریڈکرمب نیویگیشن',
+  'ui.dragDrop.moveItem': '{{item}} منتقل کریں',
+  'ui.dragDrop.moveItemTo': '{{item}} کو {{destination}} میں منتقل کریں',
+  'ui.dragDrop.cancelMove': 'منتقلی منسوخ کریں',
+  'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
 }

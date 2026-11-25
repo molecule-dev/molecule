@@ -57,4 +57,8 @@ export const hu: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Oldalsáv összecsukása',
   'ui.pageShell.expandSidebar': 'Oldalsáv kibontása',
   'ui.pageHeader.breadcrumbs': 'Morzsamenü',
+  'ui.dragDrop.moveItem': '{{item}} áthelyezése',
+  'ui.dragDrop.moveItemTo': '{{item}} áthelyezése ide: {{destination}}',
+  'ui.dragDrop.cancelMove': 'Áthelyezés megszakítása',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -64,4 +64,8 @@ export const kn: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'ಸೈಡ್‌ಬಾರ್ ಅನ್ನು ಕುಗ್ಗಿಸಿ',
   'ui.pageShell.expandSidebar': 'ಸೈಡ್‌ಬಾರ್ ವಿಸ್ತರಿಸಿ',
   'ui.pageHeader.breadcrumbs': 'ಬ್ರೆಡ್‌ಕ್ರಂಬ್ ನ್ಯಾವಿಗೇಶನ್',
+  'ui.dragDrop.moveItem': '{{item}} ಸರಿಸಿ',
+  'ui.dragDrop.moveItemTo': '{{item}} ಅನ್ನು {{destination}} ಗೆ ಸರಿಸಿ',
+  'ui.dragDrop.cancelMove': 'ಸರಿಸುವುದನ್ನು ರದ್ದುಗೊಳಿಸಿ',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

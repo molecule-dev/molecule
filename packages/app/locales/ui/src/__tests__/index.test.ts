@@ -19,6 +19,15 @@ describe('ui locale bond', () => {
     expect(REQUIRED_KEYS.length).toBeGreaterThan(0)
   })
 
+  it('provides localized drag controls with the item, destination and position placeholders', () => {
+    expect(locales.fr).toMatchObject({
+      'ui.dragDrop.moveItem': 'Déplacer {{item}}',
+      'ui.dragDrop.moveItemTo': 'Déplacer {{item}} vers {{destination}}',
+      'ui.dragDrop.cancelMove': 'Annuler le déplacement',
+      'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
+    })
+  })
+
   it.each(localeTables)('locale "%s" supplies every key en defines', (code, table) => {
     for (const key of REQUIRED_KEYS) {
       expect(typeof table[key], `${code} missing ${String(key)}`).toBe('string')

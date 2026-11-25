@@ -371,6 +371,22 @@ describe('findOptionalPeersLoaded', () => {
     expect(OPTIONAL_PEER_ENTRY_FILES['@molecule/app-vue'].vitest.reason).toMatch(/setupFiles/)
   })
 
+  it('accepts React at the opt-in drag renderer entry and flags it at the package root', () => {
+    const dragDrop = {
+      name: '@molecule/app-drag-drop',
+      peerDependencies: { react: '^18.0.0 || ^19.0.0' },
+      peerDependenciesMeta: { react: { optional: true } },
+    }
+    const source = "import { createContext } from 'react'\ncreateContext(null)"
+    const adapter = at('src/react.ts', source)
+    const root = at('src/index.ts', source)
+
+    expect(findOptionalPeersLoaded(dragDrop, adapter)).toEqual([])
+    expect(findOptionalPeersLoaded(dragDrop, [...adapter, ...root])).toEqual([
+      { name: 'react', files: ['src/index.ts'] },
+    ])
+  })
+
   it('exempts only a peer the ledger says is supplied some other way', () => {
     const native = {
       name: '@molecule/app-ui-react-native',

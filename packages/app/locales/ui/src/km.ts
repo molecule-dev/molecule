@@ -60,4 +60,8 @@ export const km: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'បង្រួមរបារចំហៀង',
   'ui.pageShell.expandSidebar': 'ពង្រីករបារចំហៀង',
   'ui.pageHeader.breadcrumbs': 'ផ្លូវរុករក',
+  'ui.dragDrop.moveItem': 'ផ្លាស់ទី {{item}}',
+  'ui.dragDrop.moveItemTo': 'ផ្លាស់ទី {{item}} ទៅ {{destination}}',
+  'ui.dragDrop.cancelMove': 'បោះបង់ការផ្លាស់ទី',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

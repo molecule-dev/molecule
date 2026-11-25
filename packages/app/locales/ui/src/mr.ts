@@ -62,4 +62,8 @@ export const mr: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'साइडबार संकुचित करा',
   'ui.pageShell.expandSidebar': 'साइडबारचा विस्तार करा',
   'ui.pageHeader.breadcrumbs': 'ब्रेडक्रंब नेव्हिगेशन',
+  'ui.dragDrop.moveItem': '{{item}} हलवा',
+  'ui.dragDrop.moveItemTo': '{{item}} {{destination}} मध्ये हलवा',
+  'ui.dragDrop.cancelMove': 'हलवणे रद्द करा',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

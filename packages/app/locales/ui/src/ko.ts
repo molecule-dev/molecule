@@ -57,4 +57,8 @@ export const ko: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': '사이드바 접기',
   'ui.pageShell.expandSidebar': '사이드바 펼치기',
   'ui.pageHeader.breadcrumbs': '브레드크럼 탐색',
+  'ui.dragDrop.moveItem': '{{item}} 이동',
+  'ui.dragDrop.moveItemTo': '{{item}}을(를) {{destination}}(으)로 이동',
+  'ui.dragDrop.cancelMove': '이동 취소',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

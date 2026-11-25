@@ -62,4 +62,8 @@ export const hy: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Ծալել կողային վահանակը',
   'ui.pageShell.expandSidebar': 'Ընդարձակել կողային վահանակը',
   'ui.pageHeader.breadcrumbs': 'Նավիգացիոն ուղի',
+  'ui.dragDrop.moveItem': 'Տեղափոխել {{item}}',
+  'ui.dragDrop.moveItemTo': 'Տեղափոխել {{item}} դեպի {{destination}}',
+  'ui.dragDrop.cancelMove': 'Չեղարկել տեղափոխումը',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

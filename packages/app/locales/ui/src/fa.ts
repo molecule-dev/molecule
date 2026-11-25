@@ -57,4 +57,8 @@ export const fa: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'نوار کناری را جمع کنید',
   'ui.pageShell.expandSidebar': 'نوار کناری را گسترش دهید',
   'ui.pageHeader.breadcrumbs': 'مسیر ناوبری',
+  'ui.dragDrop.moveItem': 'جابه‌جایی {{item}}',
+  'ui.dragDrop.moveItemTo': 'جابه‌جایی {{item}} به {{destination}}',
+  'ui.dragDrop.cancelMove': 'لغو جابه‌جایی',
+  'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
 }

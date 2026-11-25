@@ -33,6 +33,9 @@
  *   `setItems()` so the UI never lies about saved state.
  * - After external data changes, push fresh data with `setItems()` — the instance
  *   does not observe your store.
+ * - React features can read a scoped `DragDropRenderer` from the optional
+ *   `@molecule/app-drag-drop/react` entry. Its sources and targets communicate
+ *   with the same ID-based events. Compose the renderer provider above the features.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

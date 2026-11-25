@@ -61,4 +61,8 @@ export const th: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'ยุบแถบด้านข้าง',
   'ui.pageShell.expandSidebar': 'ขยายแถบด้านข้าง',
   'ui.pageHeader.breadcrumbs': 'เส้นทางการนำทาง',
+  'ui.dragDrop.moveItem': 'ย้าย {{item}}',
+  'ui.dragDrop.moveItemTo': 'ย้าย {{item}} ไปยัง {{destination}}',
+  'ui.dragDrop.cancelMove': 'ยกเลิกการย้าย',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

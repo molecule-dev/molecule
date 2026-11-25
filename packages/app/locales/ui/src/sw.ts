@@ -57,4 +57,8 @@ export const sw: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Kunja upau wa pembeni',
   'ui.pageShell.expandSidebar': 'Panua upau wa pembeni',
   'ui.pageHeader.breadcrumbs': 'Njia ya urambazaji',
+  'ui.dragDrop.moveItem': 'Hamisha {{item}}',
+  'ui.dragDrop.moveItemTo': 'Hamisha {{item}} hadi {{destination}}',
+  'ui.dragDrop.cancelMove': 'Ghairi kuhamisha',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

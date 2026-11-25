@@ -57,4 +57,8 @@ export const af: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Vou sybalk in',
   'ui.pageShell.expandSidebar': 'Vou die sybalk uit',
   'ui.pageHeader.breadcrumbs': 'Broodkrummelnavigasie',
+  'ui.dragDrop.moveItem': 'Skuif {{item}}',
+  'ui.dragDrop.moveItemTo': 'Skuif {{item}} na {{destination}}',
+  'ui.dragDrop.cancelMove': 'Kanselleer skuif',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

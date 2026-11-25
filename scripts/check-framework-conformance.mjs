@@ -821,6 +821,14 @@ export const TITLE_PARITY_EXEMPT = {
     'src/__tests__/legal-rich-elements.test.tsx':
       'checks that the React page and modal use the portable elements path without assigning innerHTML; the DOM ports use their own HTML rendering',
   },
+  '@molecule/app-kanban-board-react': {
+    'src/__tests__/kanban-board-renderer.test.tsx':
+      'covers React DragDropRendererProvider switching and React portal event bubbling; the four DOM ports use their own renderer and event system',
+  },
+  '@molecule/app-reorderable-list-react': {
+    'src/__tests__/reorderable-list-renderer.test.tsx':
+      'exercises React portal event bubbling and focus across a portal to an iframe; the four DOM ports use their own renderer and event system',
+  },
   '@molecule/app-photo-lightbox-react': {
     'src/__tests__/photo-lightbox-no-document.test.tsx':
       'opens the lightbox with no global `document`, as on React Native; a Vue, Svelte, Solid or Angular port renders in a browser, which always has one',

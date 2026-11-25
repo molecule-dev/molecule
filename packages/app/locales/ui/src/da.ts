@@ -57,4 +57,8 @@ export const da: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Skjul sidebjælken',
   'ui.pageShell.expandSidebar': 'Udvid sidebjælken',
   'ui.pageHeader.breadcrumbs': 'Brødkrummenavigering',
+  'ui.dragDrop.moveItem': 'Flyt {{item}}',
+  'ui.dragDrop.moveItemTo': 'Flyt {{item}} til {{destination}}',
+  'ui.dragDrop.cancelMove': 'Annuller flytning',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

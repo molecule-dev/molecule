@@ -57,4 +57,8 @@ export const eu: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Tolestu alboko barra',
   'ui.pageShell.expandSidebar': 'Zabaldu alboko barra',
   'ui.pageHeader.breadcrumbs': 'Nabigazio-bidea',
+  'ui.dragDrop.moveItem': 'Mugitu {{item}}',
+  'ui.dragDrop.moveItemTo': 'Mugitu {{item}} {{destination}} helburura',
+  'ui.dragDrop.cancelMove': 'Utzi mugimendua bertan behera',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

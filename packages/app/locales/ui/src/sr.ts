@@ -63,4 +63,8 @@ export const sr: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Склопи бочну траку',
   'ui.pageShell.expandSidebar': 'Прошири бочну траку',
   'ui.pageHeader.breadcrumbs': 'Навигациона стаза',
+  'ui.dragDrop.moveItem': 'Премести {{item}}',
+  'ui.dragDrop.moveItemTo': 'Премести {{item}} у {{destination}}',
+  'ui.dragDrop.cancelMove': 'Откажи премештање',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

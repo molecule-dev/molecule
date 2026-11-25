@@ -57,4 +57,8 @@ export const bn: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'সাইডবার সংকুচিত করুন',
   'ui.pageShell.expandSidebar': 'সাইডবার প্রসারিত করুন',
   'ui.pageHeader.breadcrumbs': 'ব্রেডক্রাম্ব নেভিগেশন',
+  'ui.dragDrop.moveItem': '{{item}} সরান',
+  'ui.dragDrop.moveItemTo': '{{item}}-কে {{destination}}-এ সরান',
+  'ui.dragDrop.cancelMove': 'সরানো বাতিল করুন',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

@@ -57,4 +57,8 @@ export const el: Partial<UiTranslations> = {
   'ui.pageShell.collapseSidebar': 'Σύμπτυξη πλευρικής γραμμής',
   'ui.pageShell.expandSidebar': 'Ανάπτυξη πλευρικής γραμμής',
   'ui.pageHeader.breadcrumbs': 'Διαδρομή πλοήγησης',
+  'ui.dragDrop.moveItem': 'Μετακίνηση του στοιχείου {{item}}',
+  'ui.dragDrop.moveItemTo': 'Μετακίνηση του στοιχείου {{item}} στο {{destination}}',
+  'ui.dragDrop.cancelMove': 'Ακύρωση μετακίνησης',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }

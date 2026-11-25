@@ -57,4 +57,8 @@ export const yo: UiTranslations = {
   'ui.pageShell.collapseSidebar': 'Ṣe ìdìpọ̀ ẹ̀gbẹ́ ẹ̀gbẹ́',
   'ui.pageShell.expandSidebar': 'Fẹ̀ ẹ̀gbẹ́ ẹ̀gbẹ́',
   'ui.pageHeader.breadcrumbs': 'Ọna lilọ kiri',
+  'ui.dragDrop.moveItem': 'Gbé {{item}}',
+  'ui.dragDrop.moveItemTo': 'Gbé {{item}} lọ sí {{destination}}',
+  'ui.dragDrop.cancelMove': 'Fagilé gbígbé',
+  'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
 }
