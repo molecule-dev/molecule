@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.16.0
+
+### Minor Changes
+
+- Add a locale-reactive `useRichTranslation` hook for rich catalog messages.
+
 ## 3.15.1
 
 ### Patch Changes

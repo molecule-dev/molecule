@@ -1,5 +1,11 @@
 # @molecule/app-feature-graph-view-react
 
+## 5.0.0
+
+### Major Changes
+
+- Render graphs with interactive SVG elements and require custom renderers to return SVG shapes.
+
 ## 4.0.1
 
 ### Patch Changes

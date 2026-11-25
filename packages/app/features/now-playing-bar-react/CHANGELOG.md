@@ -1,5 +1,11 @@
 # @molecule/app-now-playing-bar-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the now-playing controls with portable UI elements.
+
 ## 4.0.1
 
 ### Patch Changes

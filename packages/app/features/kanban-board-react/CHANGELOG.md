@@ -1,5 +1,11 @@
 # @molecule/app-kanban-board-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Support moving kanban cards on React Native through drag gestures and accessible destination controls.
+
 ## 4.0.0
 
 ### Patch Changes

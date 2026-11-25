@@ -1,5 +1,13 @@
 # @molecule/app-ui
 
+## 1.8.0
+
+### Minor Changes
+
+- Adds shared props for literal anchors and types automatic margins in the ClassMap spacing utility.
+- Add element props for input hints, hidden state, translation, numeric ARIA, paste, mouse events and SVG interaction.
+- Add the shared RangeField props for numeric sliders.
+
 ## 1.7.0
 
 ### Minor Changes

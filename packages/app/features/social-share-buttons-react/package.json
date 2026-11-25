@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-social-share-buttons-react",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Twitter/LinkedIn/Facebook/copy share button group",
   "homepage": "https://www.molecule.dev/packages/app-social-share-buttons-react",
   "type": "module",
@@ -41,9 +41,9 @@
   },
   "devDependencies": {
     "@molecule/app-clipboard": "1.0.5",
-    "@molecule/app-react": "4.14.0",
-    "@molecule/app-ui": "1.7.0",
-    "@molecule/app-ui-react": "4.5.0",
+    "@molecule/app-react": "4.15.0",
+    "@molecule/app-ui": "1.8.0",
+    "@molecule/app-ui-react": "4.6.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

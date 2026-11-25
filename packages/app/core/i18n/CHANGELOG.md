@@ -1,5 +1,11 @@
 # @molecule/app-i18n
 
+## 1.3.0
+
+### Minor Changes
+
+- Read rich catalog translations with portable tags and literal text interpolation.
+
 ## 1.2.2
 
 ### Patch Changes

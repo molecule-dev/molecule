@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.2.0
+
+### Minor Changes
+
+- Translate drag-and-drop move controls and position labels in all supported locales.
+
 ## 1.1.5
 
 ### Patch Changes

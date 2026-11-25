@@ -1,5 +1,11 @@
 # @molecule/app-drag-drop
 
+## 1.1.0
+
+### Minor Changes
+
+- Add a scoped React drag-and-drop renderer contract for shared web and native features.
+
 ## 1.0.4
 
 ### Patch Changes

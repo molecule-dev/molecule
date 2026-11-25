@@ -1,5 +1,11 @@
 # @molecule/app-word-cloud-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render word clouds with shared SVG text and preserve click behavior.
+
 ## 4.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-action-menu-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders action menus with shared elements on the web and React Native, preserving link navigation.
+
 ## 4.0.2
 
 ### Patch Changes

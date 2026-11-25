@@ -1,5 +1,11 @@
 # @molecule/app-pricing-page-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders pricing and plan confirmation pages with shared elements and preserves the confirmation link.
+
 ## 4.0.2
 
 ### Patch Changes

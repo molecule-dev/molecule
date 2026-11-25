@@ -1,5 +1,11 @@
 # @molecule/app-cookie-banner-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders the consent banner with shared elements and preserves its privacy-policy link.
+
 ## 4.0.3
 
 ### Patch Changes

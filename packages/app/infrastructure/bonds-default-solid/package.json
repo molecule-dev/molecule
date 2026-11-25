@@ -131,7 +131,7 @@
     "@molecule/app-clipboard": "1.0.5",
     "@molecule/app-routing": "1.5.3",
     "@molecule/app-routing-solid-router": "1.4.0",
-    "@molecule/app-solid": "3.16.0",
+    "@molecule/app-solid": "3.17.0",
     "@solidjs/router": "0.16.1",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",

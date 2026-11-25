@@ -1,5 +1,11 @@
 # @molecule/app-reorderable-list-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Support reordering list rows on React Native by dragging or using accessible move controls.
+
 ## 4.0.2
 
 ### Patch Changes

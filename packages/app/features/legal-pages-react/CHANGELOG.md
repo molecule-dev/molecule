@@ -1,5 +1,11 @@
 # @molecule/app-legal-pages-react
 
+## 4.1.2
+
+### Patch Changes
+
+- Render legal pages and modals through portable React elements.
+
 ## 4.1.1
 
 ### Patch Changes

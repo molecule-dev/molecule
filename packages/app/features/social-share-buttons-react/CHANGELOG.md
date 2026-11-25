@@ -1,5 +1,11 @@
 # @molecule/app-social-share-buttons-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Renders social share buttons with shared elements and preserves sharing URLs.
+
 ## 4.1.0
 
 ### Minor Changes

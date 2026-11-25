@@ -1,5 +1,11 @@
 # @molecule/app-join-code-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Use shared fields to select join-code slots and receive complete plain-text paste.
+
 ## 4.0.1
 
 ### Patch Changes

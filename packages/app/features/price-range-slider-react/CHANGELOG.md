@@ -1,5 +1,11 @@
 # @molecule/app-price-range-slider-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the two price range controls with portable UI elements.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-node-editor-panel-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Render the properties panel controls with portable UI elements.
+
 ## 4.1.1
 
 ### Patch Changes

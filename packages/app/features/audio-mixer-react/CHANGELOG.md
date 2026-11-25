@@ -1,5 +1,11 @@
 # @molecule/app-feature-audio-mixer-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the mixer and its faders with portable UI elements.
+
 ## 4.0.2
 
 ### Patch Changes

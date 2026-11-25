@@ -1,5 +1,11 @@
 # @molecule/app-contact-display-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders contact details with shared elements, including email and phone links.
+
 ## 4.0.1
 
 ### Patch Changes

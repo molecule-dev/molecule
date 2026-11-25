@@ -1,5 +1,11 @@
 # @molecule/app-breadcrumb-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders breadcrumbs with shared elements and preserves browser navigation for linked crumbs.
+
 ## 4.0.3
 
 ### Patch Changes

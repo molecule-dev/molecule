@@ -1,5 +1,11 @@
 # @molecule/app-file-card-react
 
+## 5.0.0
+
+### Major Changes
+
+- Render file cards with shared elements and deliver renderer-neutral mouse events to card handlers.
+
 ## 4.1.1
 
 ### Patch Changes

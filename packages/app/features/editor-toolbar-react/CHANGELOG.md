@@ -1,5 +1,11 @@
 # @molecule/app-editor-toolbar-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders editor toolbars with shared elements and preserves linked actions.
+
 ## 4.0.0
 
 ### Patch Changes

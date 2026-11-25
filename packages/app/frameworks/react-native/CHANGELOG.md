@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.5.0
+
+### Minor Changes
+
+- Re-export the rich translation hook through the React Native binding.
+
 ## 4.4.0
 
 ### Minor Changes

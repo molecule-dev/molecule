@@ -1,5 +1,14 @@
 # @molecule/app-ui-react
 
+## 4.6.0
+
+### Minor Changes
+
+- Adds an Anchor element that renders a literal href and uses browser navigation without a router.
+- Support plain-text paste, focus selection, outside dismissal and interactive SVG shapes in shared React elements.
+- Add RangeField for platform range inputs.
+- Add a `RichText` element for rendering rich translation messages.
+
 ## 4.5.0
 
 ### Minor Changes

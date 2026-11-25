@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.15.0
+
+### Minor Changes
+
+- Add a locale-reactive `useRichTranslation` composable for rich catalog messages.
+
 ## 3.14.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.15.0
+
+### Minor Changes
+
+- Add a locale-reactive `useRichTranslation` hook for rich catalog messages.
+
 ## 4.14.0
 
 ### Minor Changes

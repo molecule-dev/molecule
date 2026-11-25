@@ -1,5 +1,11 @@
 # @molecule/app-footer-react
 
+## 4.2.1
+
+### Patch Changes
+
+- Render footer legal translations through portable React elements.
+
 ## 4.2.0
 
 ### Minor Changes

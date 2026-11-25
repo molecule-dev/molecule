@@ -1,5 +1,11 @@
 # @molecule/app-author-bio-card-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders author cards with shared elements and preserves profile and social link destinations.
+
 ## 4.0.1
 
 ### Patch Changes

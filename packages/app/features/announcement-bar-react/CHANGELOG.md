@@ -1,5 +1,11 @@
 # @molecule/app-announcement-bar-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders announcement bars with shared elements on the web and React Native.
+
 ## 4.0.0
 
 ### Patch Changes

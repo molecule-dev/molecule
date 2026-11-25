@@ -1,5 +1,11 @@
 # @molecule/app-integration-card-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders integration cards with shared elements and preserves connection links.
+
 ## 4.0.2
 
 ### Patch Changes

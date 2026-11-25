@@ -1,5 +1,11 @@
 # @molecule/app-adjustment-slider-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render the adjustment slider with portable UI elements.
+
 ## 4.0.2
 
 ### Patch Changes

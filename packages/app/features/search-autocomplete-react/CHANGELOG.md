@@ -1,5 +1,11 @@
 # @molecule/app-search-autocomplete-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Use shared list and press elements for search suggestions and outside dismissal.
+
 ## 4.1.0
 
 ### Minor Changes

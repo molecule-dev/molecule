@@ -34,7 +34,7 @@
     "directory": "packages/app/features/safe-link-react"
   },
   "devDependencies": {
-    "@molecule/app-react": "4.14.0",
+    "@molecule/app-react": "4.15.0",
     "@molecule/app-routing": "1.5.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

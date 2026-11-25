@@ -1,5 +1,11 @@
 # @molecule/app-nav-chrome-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Renders navigation chrome with shared elements and preserves literal footer links.
+
 ## 4.0.2
 
 ### Patch Changes

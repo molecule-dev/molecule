@@ -1,5 +1,11 @@
 # @molecule/app-trace-waterfall-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Use shared elements to expose trace hierarchy on web and native.
+
 ## 4.1.0
 
 ### Minor Changes

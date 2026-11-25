@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.17.0
+
+### Minor Changes
+
+- Add a locale-reactive `useRichTranslation` primitive for rich catalog messages.
+
 ## 3.16.0
 
 ### Minor Changes

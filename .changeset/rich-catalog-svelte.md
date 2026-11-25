@@ -1,5 +1,0 @@
----
-'@molecule/app-svelte': minor
----
-
-Add a locale-reactive `useRichTranslation` hook for rich catalog messages.
