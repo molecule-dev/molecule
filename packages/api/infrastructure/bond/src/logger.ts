@@ -1,8 +1,10 @@
 /**
  * Safe logger accessor for provider bonds.
  *
- * Returns the bonded logger if available, otherwise falls back to console.
- * This allows provider bonds to log without hard-depending on `@molecule/api-logger`.
+ * Returns the bonded logger if available, otherwise falls back to console,
+ * which prints messages at `LOG_LEVEL` or above (`info` by default), as
+ * `@molecule/api-logger` does. This allows provider bonds to log without
+ * hard-depending on `@molecule/api-logger`.
  *
  * @module
  */
@@ -17,12 +19,38 @@ interface MinimalLogger {
   error: (...args: unknown[]) => void
 }
 
+type Level = keyof MinimalLogger
+
+/** Numeric priority for each level, as `@molecule/api-logger` orders them; `silent` drops everything. */
+const LEVEL_PRIORITY: Record<Level | 'silent', number> = {
+  trace: 0,
+  debug: 1,
+  info: 2,
+  warn: 3,
+  error: 4,
+  silent: 5,
+}
+
+/**
+ * Whether the console fallback prints a message of this level: at `LOG_LEVEL` or above, `info`
+ * when it is unset or not a level — the same gate `@molecule/api-logger` applies. Read on each call,
+ * so a `.env` loaded after the first import still counts.
+ *
+ * @param level - The message's level.
+ * @returns Whether to print it.
+ */
+function allowed(level: Level): boolean {
+  const env = typeof process !== 'undefined' ? process.env?.LOG_LEVEL?.toLowerCase() : undefined
+  const min = env && env in LEVEL_PRIORITY ? (env as Level | 'silent') : 'info'
+  return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[min]
+}
+
 const consoleFallback: MinimalLogger = {
-  trace: (...args) => console.trace(...args),
-  debug: (...args) => console.debug(...args),
-  info: (...args) => console.info(...args),
-  warn: (...args) => console.warn(...args),
-  error: (...args) => console.error(...args),
+  trace: (...args) => allowed('trace') && console.trace(...args),
+  debug: (...args) => allowed('debug') && console.debug(...args),
+  info: (...args) => allowed('info') && console.info(...args),
+  warn: (...args) => allowed('warn') && console.warn(...args),
+  error: (...args) => allowed('error') && console.error(...args),
 }
 
 /**

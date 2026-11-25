@@ -28,7 +28,7 @@
  * // Named providers
  * const stripePayments = get<PaymentProvider>('payments', 'stripe')
  *
- * // Safe logging (falls back to console if no logger bonded)
+ * // Safe logging (falls back to console if no logger bonded, printing LOG_LEVEL and up: info by default)
  * const logger = getLogger()
  * logger.info('Server started')
  * ```
