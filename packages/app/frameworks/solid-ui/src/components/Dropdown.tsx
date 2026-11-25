@@ -19,6 +19,7 @@ import {
   untrack,
 } from 'solid-js'
 
+import { isOutsideOverlay, measureDropdownPosition, OverlayLayer } from '@molecule/app-overlay-dom'
 import { BodyPortal, resolveNode, useLocation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -30,65 +31,6 @@ import { withDisplayName } from './displayName.js'
 interface Position {
   top: number
   left: number
-}
-
-/**
- * Calculate dropdown position based on trigger element and placement.
- * @param triggerRect - The bounding rectangle of the trigger element.
- * @param menuRect - The bounding rectangle of the dropdown menu.
- * @param placement - The desired placement direction.
- * @param align - The alignment within the placement axis.
- * @param offset - The pixel offset from the trigger element.
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  menuRect: DOMRect,
-  placement: NonNullable<DropdownProps['placement']>,
-  align: NonNullable<DropdownProps['align']>,
-  offset = 4,
-): Position {
-  let top = 0
-  let left: number
-
-  // Vertical positioning
-  if (placement.startsWith('top')) {
-    top = triggerRect.top + window.scrollY - menuRect.height - offset
-  } else if (placement.startsWith('bottom')) {
-    top = triggerRect.bottom + window.scrollY + offset
-  } else if (placement === 'left' || placement === 'right') {
-    top = triggerRect.top + window.scrollY + (triggerRect.height - menuRect.height) / 2
-  }
-
-  // Horizontal positioning
-  if (placement === 'left') {
-    left = triggerRect.left + window.scrollX - menuRect.width - offset
-  } else if (placement === 'right') {
-    left = triggerRect.right + window.scrollX + offset
-  } else {
-    // For top/bottom placements, use align
-    switch (align) {
-      case 'start':
-        left = triggerRect.left + window.scrollX
-        break
-      case 'end':
-        left = triggerRect.right + window.scrollX - menuRect.width
-        break
-      case 'center':
-      default:
-        left = triggerRect.left + window.scrollX + (triggerRect.width - menuRect.width) / 2
-        break
-    }
-  }
-
-  // Handle top-start, top-end, bottom-start, bottom-end
-  if (placement.endsWith('-start')) {
-    left = triggerRect.left + window.scrollX
-  } else if (placement.endsWith('-end')) {
-    left = triggerRect.right + window.scrollX - menuRect.width
-  }
-
-  return { top, left }
 }
 
 /** Props for {@link DropdownMenuItem}. */
@@ -217,8 +159,11 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   // The actual interactive trigger node — either the merged single-element
   // trigger, or the fallback `role="button"` wrapper. Used for position
   // measurement, outside-click detection, AND focus restoration.
-  let triggerRef: HTMLElement | SVGElement | undefined
-  let menuRef: HTMLDivElement | undefined
+  const [trigger, setTrigger] = createSignal<HTMLElement | SVGElement | null>(null)
+  const [menu, setMenu] = createSignal<HTMLDivElement | null>(null)
+  const [portalTarget, setPortalTarget] = createSignal<HTMLElement | null>(null)
+  createEffect(() => setPortalTarget(trigger()?.ownerDocument.body ?? null))
+  const layer = new OverlayLayer()
   const itemRefs: (HTMLDivElement | null)[] = []
   // React reconciles the menu items by
   // `key={item.separator ? `separator-${index}` : item.value}`: an item's node
@@ -255,21 +200,6 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
       setInternalOpen(open)
     }
     props.onOpenChange?.(open)
-  }
-
-  const updatePosition = (): void => {
-    if (triggerRef && menuRef) {
-      const triggerRect = triggerRef.getBoundingClientRect()
-      const menuRect = menuRef.getBoundingClientRect()
-      setPosition(
-        calculatePosition(
-          triggerRect,
-          menuRect,
-          props.placement ?? 'bottom-start',
-          props.align ?? 'start',
-        ),
-      )
-    }
   }
 
   const handleTriggerClick = (): void => {
@@ -312,19 +242,25 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   // deliberately do NOT refocus (the user's attention is already elsewhere).
   const closeAndRefocusTrigger = (): void => {
     handleClose()
-    triggerRef?.focus()
+    trigger()?.focus()
   }
 
   const handleSelect = (value: string): void => {
     props.onSelect?.(value)
   }
 
-  // Update position when menu opens
+  // Wait for the portalled menu to mount before measuring it.
   createEffect(() => {
-    if (isOpen()) {
-      // Use requestAnimationFrame to ensure menu is rendered before calculating position
-      requestAnimationFrame(updatePosition)
-    }
+    const anchor = trigger()
+    const surface = menu()
+    const view = anchor?.ownerDocument.defaultView
+    if (!isOpen() || !anchor || !surface || !view) return
+    const placement = props.placement ?? 'bottom-start'
+    const align = props.align ?? 'start'
+    const frame = view.requestAnimationFrame(() =>
+      setPosition(measureDropdownPosition(anchor, surface, placement, align)),
+    )
+    onCleanup(() => view.cancelAnimationFrame(frame))
   })
 
   // Moves focus to the first (or last, for an ArrowUp-driven open) item
@@ -354,7 +290,7 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   // `[isOpen, activeIndex]`).
   let focusedItemRef: HTMLDivElement | null = null
   createEffect(() => {
-    if (!isOpen() || activeIndex() < 0) return
+    if (!isOpen() || !menu() || activeIndex() < 0) return
     const el = itemRefs[activeIndex()] ?? null
     el?.focus()
     focusedItemRef = el
@@ -368,43 +304,39 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   let itemHadFocus = false
   createComputed(() => {
     void props.items
-    itemHadFocus = focusedItemRef !== null && document.activeElement === focusedItemRef
+    itemHadFocus =
+      focusedItemRef !== null && focusedItemRef.ownerDocument.activeElement === focusedItemRef
   })
   createEffect(() => {
     void props.items
     const el = focusedItemRef
     if (!itemHadFocus || !el || !untrack(isOpen)) return
-    if (el.isConnected && document.activeElement !== el) el.focus()
+    if (el.isConnected && el.ownerDocument.activeElement !== el) el.focus()
   })
 
-  // Close on outside click and Escape (with focus restoration).
   createEffect(() => {
-    if (!isOpen()) return
-
-    const handleClickOutside = (e: MouseEvent): void => {
-      if (
-        triggerRef &&
-        !triggerRef.contains(e.target as Node) &&
-        menuRef &&
-        !menuRef.contains(e.target as Node)
-      ) {
-        handleClose()
-      }
-    }
-
-    const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        closeAndRefocusTrigger()
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleEscape)
-
-    onCleanup(() => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleEscape)
+    layer.sync({
+      open: isOpen(),
+      kind: 'popover',
+      surface: { current: menu() },
+      anchor: { current: trigger() },
+      dismissKey: true,
+      onDismiss: closeAndRefocusTrigger,
     })
+  })
+  onCleanup(() => layer.release())
+
+  // Outside clicks close without moving focus.
+  createEffect(() => {
+    const anchor = trigger()
+    const surface = menu()
+    if (!isOpen() || !anchor || !surface) return
+    const owner = anchor.ownerDocument
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (isOutsideOverlay(event, anchor, surface)) handleClose()
+    }
+    owner.addEventListener('mousedown', handleClickOutside)
+    onCleanup(() => owner.removeEventListener('mousedown', handleClickOutside))
   })
 
   // Close on route change — a dropdown left open over the next page blocks
@@ -461,7 +393,8 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
       // frame, before layout); undefined lets the menu size itself, and a
       // later re-render (position update) recomputes the real pixel width.
       // An SVG trigger has no offsetWidth: React's `triggerRef.current?.offsetWidth` is undefined.
-      return triggerRef instanceof HTMLElement ? triggerRef.offsetWidth : undefined
+      const anchor = trigger()
+      return anchor && 'offsetWidth' in anchor ? anchor.offsetWidth : undefined
     }
     return props.width
   }
@@ -470,7 +403,7 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
   // via cloneElement; the DOM equivalent here is setting them on the node
   // (its own handlers run first, then the dropdown's, in listener order).
   const wireClonedTrigger = (el: HTMLElement | SVGElement): void => {
-    triggerRef = el
+    setTrigger(el)
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
     el.setAttribute('aria-haspopup', 'menu')
     // Both element kinds share these events' types (a union of their overloads has none).
@@ -514,7 +447,7 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
         fallback={
           <div
             ref={(el) => {
-              triggerRef = el
+              setTrigger(el)
             }}
             role="button"
             tabIndex={props.disabled ? -1 : 0}
@@ -538,10 +471,10 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
         {(el) => <ClonedTrigger node={el} wire={wireClonedTrigger} />}
       </Show>
       <Show when={isOpen()}>
-        <BodyPortal>
+        <BodyPortal mount={portalTarget()}>
           <div
             ref={(el) => {
-              menuRef = el
+              setMenu(el)
               // The menu is Dropdown's ref element; it takes no rest spread, so hand it over here.
               if (typeof props.ref === 'function') props.ref(el)
             }}

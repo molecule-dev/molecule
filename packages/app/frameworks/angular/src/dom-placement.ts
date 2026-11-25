@@ -591,7 +591,10 @@ function takeAlong(node: Node): void {
  */
 function restoreAbsentHostOf(parent: Node): void {
   if (parent.isConnected) return
-  absentHosts.get(parent.getRootNode())?.()
+  // Angular's server DOM does not implement getRootNode().
+  let root = parent
+  while (root.parentNode) root = root.parentNode
+  absentHosts.get(root)?.()
 }
 
 /**

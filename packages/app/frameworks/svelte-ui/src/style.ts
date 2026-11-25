@@ -85,6 +85,21 @@ const reactStyleValue = (
 }
 
 /**
+ * Serializes styles for markup rendered before any client action can run.
+ *
+ * @param style - The caller's React-shaped style object.
+ * @returns The style attribute value, or undefined when there are no declarations.
+ */
+export function reactStyleText(style: CSSStyle | undefined): string | undefined {
+  const declarations: string[] = []
+  for (const [name, value] of Object.entries(style ?? {})) {
+    const text = reactStyleValue(name, value)
+    if (text) declarations.push(`${name.startsWith('--') ? name : kebab(name)}:${text}`)
+  }
+  return declarations.length ? declarations.join(';') : undefined
+}
+
+/**
  * Svelte action applying a React-shaped style object to an element the way
  * React applies it: every entry is assigned through the CSSOM property setter
  * (in object order, numbers gaining `px` unless unitless, falsy entries

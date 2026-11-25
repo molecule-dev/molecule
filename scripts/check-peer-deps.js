@@ -11,7 +11,9 @@
  *   excludes it tells npm the package cannot run with the one version it is known
  *   to run with. A consumer who installs that version (a scaffold pins what the
  *   registry pins) is refused by a strict-peer install, and a consumer kept on an
- *   older version gets one the package was never tested with. Found 2026-11-13:
+ *   older version gets one the package was never tested with. A third rule, for every
+ *   peer: it is not below what one of the package's own dependencies requires of the
+ *   same peer (`dependencyPeerProblems`). Found 2026-11-13:
  *   `@molecule/app-angular` declared `@angular/core` `22.0.0` while testing with
  *   22.2.3, the version every Angular scaffold installs, and
  *   `@molecule/app-routing-vue-router` declared `vue-router` `^4.3.0` while
@@ -83,13 +85,51 @@ export function peerDependencyProblems(pkg, workspace) {
 }
 
 /**
- * Recursively check every package.json under a directory.
+ * The peers a package declares below what its own dependencies need.
+ *
+ * A dependency's required peer is resolved from the app, next to the package's own
+ * peer of the same name, so the package's range must not allow a version its
+ * dependency refuses. Otherwise a consumer on a version the package's range allows
+ * gets an ERESOLVE from npm naming the dependency, not the package that bundled it.
+ * Found 2026-11-25: the Svelte, Solid and Angular UI kits peered on
+ * `@molecule/app-ui` `^1.5.0` while depending on `@molecule/app-overlay-dom`, which
+ * peers on `^1.9.0`.
+ *
+ * @param pkg - A parsed package.json.
+ * @param workspace - The package's directory relative to the repo root, for the fix line.
+ * @param manifests - Every workspace package.json, by package name.
+ * @returns One message per problem, each naming the fix; empty when the manifest is fine.
+ */
+export function dependencyPeerProblems(pkg, workspace, manifests) {
+  const problems = []
+  for (const dependency of Object.keys(pkg.dependencies || {})) {
+    const target = manifests.get(dependency)
+    if (!target) continue
+    for (const [peer, needed] of Object.entries(target.peerDependencies || {})) {
+      if (target.peerDependenciesMeta?.[peer]?.optional) continue
+      const declared = pkg.peerDependencies?.[peer]
+      if (!declared || !semver.validRange(declared) || !semver.validRange(needed)) continue
+      const declaredFloor = semver.minVersion(declared)
+      const neededFloor = semver.minVersion(needed)
+      if (declaredFloor && neededFloor && semver.lt(declaredFloor, neededFloor)) {
+        problems.push(
+          `${pkg.name} peers on ${peer} "${declared}", but its dependency ${dependency} requires "${needed}".\n` +
+            `  Raise the peer in ${workspace}/package.json to "^${neededFloor.version}" (and say so in its changeset).`,
+        )
+      }
+    }
+  }
+  return problems
+}
+
+/**
+ * Every package.json under a directory, with its directory relative to the repo root.
  *
  * @param dir - Directory to walk.
- * @returns Every problem found under it.
+ * @returns The parsed manifests found under it.
  */
 function walk(dir) {
-  const problems = []
+  const found = []
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry)
     if (entry === 'node_modules' || entry === 'dist') continue
@@ -101,17 +141,22 @@ function walk(dir) {
       } catch (_error) {
         // No package.json here (or it does not parse) — this is a grouping
         // directory, so recurse deeper instead of reporting.
-        problems.push(...walk(full))
+        found.push(...walk(full))
         continue
       }
-      problems.push(...peerDependencyProblems(pkg, full.replace(PACKAGES_DIR + '/', 'packages/')))
+      found.push({ pkg, workspace: full.replace(PACKAGES_DIR + '/', 'packages/') })
     }
   }
-  return problems
+  return found
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
-  const problems = walk(PACKAGES_DIR)
+  const found = walk(PACKAGES_DIR)
+  const manifests = new Map(found.map(({ pkg }) => [pkg.name, pkg]))
+  const problems = found.flatMap(({ pkg, workspace }) => [
+    ...peerDependencyProblems(pkg, workspace),
+    ...dependencyPeerProblems(pkg, workspace, manifests),
+  ])
   for (const problem of problems) console.error(`ERROR: ${problem}`)
   if (problems.length > 0) {
     console.error(
@@ -120,7 +165,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     process.exit(1)
   } else {
     console.log(
-      'Peer deps OK — every external peerDependency has a matching devDependency inside its range.',
+      'Peer deps OK — every external peerDependency has a matching devDependency inside its range, and no peer is below what a dependency needs.',
     )
   }
 }

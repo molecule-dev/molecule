@@ -1,0 +1,471 @@
+// @vitest-environment jsdom
+import '@angular/compiler'
+import '@molecule/app-framework-conformance/ui/setup'
+import {
+  type ApplicationRef,
+  ChangeDetectionStrategy,
+  Component,
+  createComponent,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'
+import { createApplication } from '@angular/platform-browser'
+import { fireEvent, within } from '@testing-library/dom'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+
+import type * as Binding from '@molecule/app-angular'
+import { provideDomPlacement } from '@molecule/app-angular'
+
+import { ConfirmDialog } from '../components/confirm-dialog.component.js'
+import { Dropdown } from '../components/dropdown.component.js'
+import { Modal } from '../components/modal.component.js'
+import {
+  ResponsiveAppShell,
+  ResponsiveAppShellDrawer,
+  ResponsiveAppShellTopBar,
+} from '../components/responsive-app-shell.component.js'
+
+vi.mock('@molecule/app-angular', async (importOriginal) => {
+  const { signal } = await import('@angular/core')
+  const location = signal({ pathname: '/dashboard', search: '', hash: '', key: 'dashboard' })
+  return {
+    ...(await importOriginal<typeof Binding>()),
+    useRouter: () => ({ location }),
+  }
+})
+
+const apps: ApplicationRef[] = []
+const state = signal<Scene>(defaults())
+
+const OverlayScene = Component({
+  selector: 'mol-spec-mixed-overlay',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    ConfirmDialog,
+    Dropdown,
+    Modal,
+    ResponsiveAppShell,
+    ResponsiveAppShellDrawer,
+    ResponsiveAppShellTopBar,
+  ],
+  template: `
+    <div (click)="scene().onShellClick($event)">
+      @if (scene().shell) {
+        <div mol-responsive-app-shell>
+          <header mol-responsive-app-shell-topbar><span slot="brand">Time tracking</span></header>
+          @if (scene().drawer) {
+            <mol-responsive-app-shell-drawer>
+              <a href="#dashboard">Dashboard</a>
+            </mol-responsive-app-shell-drawer>
+          }
+        </div>
+      }
+    </div>
+    @if (scene().mode === 'pair') {
+      <mol-modal [open]="true" title="Lower" (close)="scene().onLowerClose($event)" />
+    }
+    @if (scene().mode === 'confirm') {
+      <mol-confirm-dialog [open]="scene().modal" title="Actions" description="Confirm action" (close)="scene().onClose($event)" />
+    } @else if (scene().showModal) {
+      <mol-modal
+        [open]="scene().modal"
+        [title]="titleFor(scene().mode)"
+        [closeOnEscape]="scene().closeOnEscape"
+        [preventScroll]="scene().preventScroll"
+        [showCloseButton]="scene().mode !== 'controls'"
+        (close)="scene().onClose($event)"
+      >
+        @switch (scene().mode) {
+          @case ('action') { <button type="button">Second control</button> }
+          @case ('controls') {
+            @if (scene().controls) {
+              <button type="button">First</button>
+              <button type="button">Last</button>
+            }
+          }
+          @case ('dropdown') {
+            <mol-dropdown [items]="items">
+              <button type="button" slot="trigger">Open actions</button>
+            </mol-dropdown>
+          }
+        }
+      </mol-modal>
+    }
+    <button type="button">Original opener</button>
+  `,
+})(
+  class SpecOverlayScene {
+    readonly scene = state
+    readonly titleFor = titleFor
+    readonly items = [{ value: 'edit', label: 'Edit' }]
+  },
+)
+
+async function mount(initial: Partial<Scene> = {}, owner = document): Promise<View> {
+  state.set({ ...defaults(), ...initial })
+  const app = await createApplication({
+    providers: [provideZonelessChangeDetection(), provideDomPlacement()],
+  })
+  apps.push(app)
+  const host = owner.createElement('mol-spec-mixed-overlay')
+  owner.body.append(host)
+  const ref = createComponent(OverlayScene, {
+    hostElement: host,
+    environmentInjector: app.injector,
+  })
+  app.attachView(ref.hostView)
+  await flush()
+  return {
+    update: (patch) => {
+      state.update((current) => ({ ...current, ...patch }))
+      app.tick()
+    },
+  }
+}
+
+async function flush(): Promise<void> {
+  for (const app of apps) {
+    app.tick()
+    await app.whenStable()
+  }
+}
+
+interface Scene {
+  shell: boolean
+  drawer: boolean
+  modal: boolean
+  showModal: boolean
+  mode: 'action' | 'controls' | 'dropdown' | 'pair' | 'confirm'
+  controls: boolean
+  onClose: (event?: unknown) => void
+  onLowerClose: (event?: unknown) => void
+  onShellClick: (event: MouseEvent) => void
+  closeOnEscape: boolean
+  preventScroll: boolean
+}
+
+function defaults(): Scene {
+  return {
+    shell: true,
+    drawer: true,
+    modal: false,
+    showModal: true,
+    mode: 'action',
+    controls: true,
+    onClose: vi.fn(),
+    onLowerClose: vi.fn(),
+    onShellClick: vi.fn(),
+    closeOnEscape: true,
+    preventScroll: true,
+  }
+}
+
+function titleFor(mode: Scene['mode']): string {
+  if (mode === 'pair') return 'Upper'
+  return mode === 'action' ? 'Confirm' : 'Actions'
+}
+
+interface View {
+  update: (patch: Partial<Scene>) => void
+}
+
+const body = () => within(document.body)
+
+async function openDrawer(): Promise<HTMLElement> {
+  const trigger = body().getByRole('button', { name: 'Open navigation menu' })
+  trigger.focus()
+  fireEvent.click(trigger)
+  await flush()
+  return trigger
+}
+
+beforeEach(() => {
+  document.body.style.overflow = 'scroll'
+  vi.stubGlobal('matchMedia', () => ({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }))
+})
+
+afterEach(() => {
+  for (const app of apps.splice(0)) app.destroy()
+  document.body.replaceChildren()
+  document.body.removeAttribute('style')
+  vi.unstubAllGlobals()
+})
+
+it('delivers one Escape to the modal above the drawer', async () => {
+  const close = vi.fn()
+  const view = await mount({ onClose: close })
+  await openDrawer()
+  view.update({ modal: true })
+  await flush()
+  expect(body().getAllByRole('dialog')).toHaveLength(2)
+
+  fireEvent.keyDown(document, { key: 'Escape' })
+  await flush()
+
+  expect(close).toHaveBeenCalledExactlyOnceWith(undefined)
+  expect(body().queryByRole('dialog', { name: 'Primary navigation' })).not.toBeNull()
+})
+
+it('keeps the modal lock when the lower drawer unmounts and restores the original on last close', async () => {
+  const view = await mount()
+  await openDrawer()
+  view.update({ modal: true })
+  await flush()
+  expect(document.body.style.overflow).toBe('hidden')
+
+  view.update({ shell: false })
+  await flush()
+  const whileModal = document.body.style.overflow
+  view.update({ modal: false })
+  await flush()
+
+  expect([whileModal, document.body.style.overflow]).toEqual(['hidden', 'scroll'])
+})
+
+it('restores the original overflow when a drawer opens and closes by itself', async () => {
+  await mount()
+  await openDrawer()
+  expect(document.body.style.overflow).toBe('hidden')
+
+  fireEvent.keyDown(document, { key: 'Escape' })
+  await flush()
+
+  expect(body().queryByRole('dialog')).toBeNull()
+  expect(document.body.style.overflow).toBe('scroll')
+})
+
+it('restores drawer focus and keeps its lock when the upper modal closes first', async () => {
+  document.body.style.setProperty('overflow', 'scroll', 'important')
+  const view = await mount()
+  const trigger = await openDrawer()
+  const drawerClose = body().getByRole('button', { name: 'Close navigation menu' })
+  expect(document.activeElement).toBe(drawerClose)
+
+  view.update({ modal: true })
+  await flush()
+  expect(document.activeElement).toBe(body().getByRole('button', { name: 'Close' }))
+  view.update({ modal: false })
+  await flush()
+
+  expect(document.activeElement).toBe(drawerClose)
+  expect(document.body.style.overflow).toBe('hidden')
+  fireEvent.keyDown(document, { key: 'Escape' })
+  await flush()
+  expect(document.activeElement).toBe(trigger)
+  expect(document.body.style.overflow).toBe('scroll')
+  expect(document.body.style.getPropertyPriority('overflow')).toBe('important')
+})
+
+it('leaves focus in the upper layer and restores the original opener after lower drawer removal', async () => {
+  const view = await mount()
+  const original = body().getByRole('button', { name: 'Original opener' })
+  original.focus()
+  fireEvent.click(body().getByRole('button', { name: 'Open navigation menu' }))
+  await flush()
+  view.update({ modal: true })
+  await flush()
+  const second = body().getByRole('button', { name: 'Second control' })
+  second.focus()
+  view.update({ drawer: false })
+  await flush()
+  expect(document.activeElement).toBe(second)
+  view.update({ modal: false })
+  await flush()
+  expect(document.activeElement).toBe(original)
+})
+
+it('an upper modal with Escape disabled shields the drawer and reacts to changed options', async () => {
+  const obsolete = vi.fn()
+  const close = vi.fn()
+  const view = await mount({ onClose: obsolete, closeOnEscape: false })
+  await openDrawer()
+  view.update({ modal: true })
+  await flush()
+  const second = body().getByRole('button', { name: 'Second control' })
+  second.focus()
+  fireEvent.keyDown(second, { key: 'Escape' })
+  await flush()
+  expect(obsolete).not.toHaveBeenCalled()
+  expect(body().getByRole('dialog', { name: 'Primary navigation' })).toBeDefined()
+
+  view.update({ onClose: close, closeOnEscape: true, preventScroll: false })
+  await flush()
+  expect(document.activeElement).toBe(second)
+  expect(document.body.style.overflow).toBe('hidden')
+  fireEvent.keyDown(second, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledTimes(1)
+  expect(obsolete).not.toHaveBeenCalled()
+  expect(body().getByRole('dialog', { name: 'Primary navigation' })).toBeDefined()
+})
+
+it('a synchronous close cannot deliver the same event to the next layer', async () => {
+  const lower = vi.fn()
+  const upper = vi.fn()
+  const view = await mount({
+    shell: false,
+    modal: true,
+    mode: 'pair',
+    onLowerClose: lower,
+    onClose: () => {
+      upper()
+      view.update({ modal: false })
+    },
+  })
+
+  fireEvent.keyDown(document, { key: 'Escape' })
+  expect(upper).toHaveBeenCalledTimes(1)
+  expect(lower).not.toHaveBeenCalled()
+  expect(body().queryByRole('dialog', { name: 'Upper' })).toBeNull()
+  fireEvent.keyDown(document, { key: 'Escape' })
+  expect(lower).toHaveBeenCalledTimes(1)
+})
+
+it('keeps an owned Dropdown in the dialog focus scope and gives it the first Escape', async () => {
+  const close = vi.fn()
+  await mount({ shell: false, modal: true, mode: 'dropdown', onClose: close })
+  const trigger = body().getByRole('button', { name: 'Open actions' })
+  fireEvent.click(trigger)
+  await flush()
+  const item = body().getByRole('menuitem', { name: 'Edit' })
+  expect(body().getByRole('menu').parentElement).toBe(document.body)
+  expect(document.activeElement).toBe(item)
+  expect(fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })).toBe(true)
+  expect(document.activeElement).toBe(item)
+
+  fireEvent.keyDown(item, { key: 'Escape' })
+  await flush()
+  expect(body().queryByRole('menu')).toBeNull()
+  expect(document.activeElement).toBe(trigger)
+  expect(close).not.toHaveBeenCalled()
+  fireEvent.keyDown(trigger, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledTimes(1)
+})
+
+it('returns focus to the opener when a dialog and its open Dropdown unmount together', async () => {
+  const view = await mount({ shell: false, showModal: false, modal: true, mode: 'dropdown' })
+  const opener = body().getByRole('button', { name: 'Original opener' })
+  opener.focus()
+  view.update({ showModal: true })
+  await flush()
+  fireEvent.click(body().getByRole('button', { name: 'Open actions' }))
+  await flush()
+  expect(document.activeElement).toBe(body().getByRole('menuitem', { name: 'Edit' }))
+  view.update({ showModal: false })
+  await flush()
+  expect(document.activeElement).toBe(opener)
+})
+
+it('traps both Tab directions and falls back to the panel when there are no controls', async () => {
+  const view = await mount({ shell: false, modal: true, mode: 'controls' })
+  const first = body().getByRole('button', { name: 'First' })
+  const last = body().getByRole('button', { name: 'Last' })
+  expect(document.activeElement).toBe(first)
+  expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false)
+  expect(document.activeElement).toBe(last)
+  expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false)
+  expect(document.activeElement).toBe(first)
+  view.update({ controls: false })
+  await flush()
+  const panel = body().getByRole('dialog')
+  expect(fireEvent.keyDown(document, { key: 'Tab' })).toBe(false)
+  expect(document.activeElement).toBe(panel)
+})
+
+it('keeps drawer scrolling available and contains a content click before it reaches the shell', async () => {
+  const onClick = vi.fn()
+  await mount({ onShellClick: onClick })
+  await openDrawer()
+  onClick.mockClear()
+  const panel = body().getByRole('dialog')
+  expect(panel.style.overflowY).toBe('auto')
+  expect(panel.style.maxWidth).toBe('85vw')
+  expect(document.body.style.overflow).toBe('hidden')
+  fireEvent.click(within(panel).getByRole('link', { name: 'Dashboard' }))
+  await flush()
+  expect(body().getByRole('dialog')).toBe(panel)
+  expect(onClick).not.toHaveBeenCalled()
+  const backdrop = panel.parentElement
+  if (!backdrop) throw new Error('Expected a presentation wrapper')
+  fireEvent.click(backdrop)
+  await flush()
+  expect(body().queryByRole('dialog')).toBeNull()
+})
+
+it('uses one layer for a ConfirmDialog above the drawer', async () => {
+  const close = vi.fn()
+  const view = await mount({ mode: 'confirm', onClose: close })
+  await openDrawer()
+  view.update({ modal: true })
+  await flush()
+  const dialog = body().getByRole('dialog', { name: 'Actions' })
+  fireEvent.keyDown(dialog, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledExactlyOnceWith(undefined)
+  expect(body().getByRole('dialog', { name: 'Primary navigation' })).toBeDefined()
+  view.update({ modal: false })
+  await flush()
+  fireEvent.keyDown(document, { key: 'Escape' })
+  await flush()
+  expect(body().queryByRole('dialog')).toBeNull()
+})
+
+it('keeps an iframe-hosted Dropdown with its modal and gives it the first Escape', async () => {
+  const frame = document.createElement('iframe')
+  document.body.append(frame)
+  const owner = frame.contentDocument
+  const view = frame.contentWindow
+  if (!owner || !view) throw new Error('Expected an iframe document and window')
+  Object.defineProperties(view, { scrollX: { value: 40 }, scrollY: { value: 60 } })
+  const close = vi.fn()
+  await mount({ shell: false, modal: true, mode: 'dropdown', onClose: close }, owner)
+  const iframe = within(owner.body)
+  const trigger =
+    iframe.queryByRole('button', { name: 'Open actions' }) ??
+    body().getByRole('button', { name: 'Open actions' })
+  fireEvent.click(trigger)
+  await flush()
+  const placement = {
+    modalInFrame: !!iframe.queryByRole('dialog'),
+    menuInFrame: !!iframe.queryByRole('menu'),
+    menuInMain: !!body().queryByRole('menu'),
+  }
+  fireEvent.keyDown(owner, { key: 'Escape' })
+  await flush()
+  expect({
+    ...placement,
+    menuClosed: !iframe.queryByRole('menu') && !body().queryByRole('menu'),
+    modalCloseCalls: close.mock.calls.length,
+  }).toEqual({
+    modalInFrame: true,
+    menuInFrame: true,
+    menuInMain: false,
+    menuClosed: true,
+    modalCloseCalls: 0,
+  })
+  expect(owner.activeElement).toBe(trigger)
+
+  fireEvent.click(trigger)
+  await flush()
+  const menu = iframe.getByRole('menu')
+  await vi.waitFor(() => {
+    expect(menu.style.left).toBe('40px')
+    expect(menu.style.top).toBe('64px')
+  })
+  fireEvent.mouseDown(document.body)
+  await flush()
+  expect(iframe.getByRole('menu')).toBe(menu)
+  fireEvent.mouseDown(owner.body)
+  await flush()
+  expect(iframe.queryByRole('menu')).toBeNull()
+  expect(close).not.toHaveBeenCalled()
+  fireEvent.keyDown(owner, { key: 'Escape' })
+  await flush()
+  expect(close).toHaveBeenCalledTimes(1)
+})

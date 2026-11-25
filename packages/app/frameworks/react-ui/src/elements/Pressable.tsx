@@ -4,13 +4,13 @@
  * @module
  */
 
-import { createElement, type ReactElement } from 'react'
+import { createElement, forwardRef, type ReactElement } from 'react'
 
-import type { PressableProps } from '@molecule/app-ui'
+import type { ElementHandle, PressableProps } from '@molecule/app-ui'
 
 import { useElementRef } from './ref.js'
 import { webElementStyle } from './style.js'
-import type { ElementNode, ElementRefProps } from './types.js'
+import type { ElementNode } from './types.js'
 
 /**
  * Something the user activates: renders exactly its `as` tag (`<Pressable as="button"
@@ -18,19 +18,16 @@ import type { ElementNode, ElementRefProps } from './types.js'
  * and a string child is drawn in a `Text`.
  *
  * @param props - See {@link PressableProps}.
+ * @param ref - The element rendered by `as`.
  * @returns The element.
  */
-export function Pressable({
-  as,
-  style,
-  webStyle,
-  children,
+export const Pressable = forwardRef<ElementHandle, PressableProps<ElementNode>>(function Pressable(
+  { as, style, webStyle, children, ...props },
   ref,
-  ...props
-}: PressableProps<ElementNode> & ElementRefProps): ReactElement {
+): ReactElement {
   return createElement(
     as,
     { ...props, ref: useElementRef(ref), style: webElementStyle(style, webStyle) },
     children,
   )
-}
+})

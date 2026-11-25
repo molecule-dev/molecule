@@ -9,6 +9,9 @@
 
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
+import type * as OverlayDom from '@molecule/app-overlay-dom'
+import type { OverlayLayerOptions, OverlayTarget } from '@molecule/app-ui'
+
 // Each suite loads its component with `await import(...)` so the mocked `vue`
 // module is in place, which means that component module's first transform runs
 // inside the test body. On a machine running several suites at once that
@@ -81,6 +84,7 @@ const mockWatch = vi.fn(
     _options?: { immediate?: boolean },
   ) => {},
 )
+const mockWatchPostEffect = vi.fn((effect: () => void) => effect())
 const mockOnMounted = vi.fn()
 const mockOnUnmounted = vi.fn()
 const mockProvide = vi.fn()
@@ -122,7 +126,9 @@ vi.mock('vue', async () => {
     shallowRef: (val: unknown) => mockShallowRef(val),
     computed: (fn: () => unknown) => mockComputed(fn),
     watch: (...args: unknown[]) => mockWatch(...(args as Parameters<typeof mockWatch>)),
+    watchPostEffect: mockWatchPostEffect,
     onMounted: (fn: unknown) => mockOnMounted(fn),
+    onBeforeUnmount: (fn: unknown) => mockOnUnmounted(fn),
     onUnmounted: (fn: unknown) => mockOnUnmounted(fn),
     provide: (...args: unknown[]) => mockProvide(...args),
     inject: (...args: unknown[]) => mockInject(...args),
@@ -147,6 +153,29 @@ vi.mock('vue', async () => {
     Fragment: 'Fragment',
   }
 })
+
+// These vnode tests inspect the callback wired by the view. The mounted
+// mixed-overlay suite and stack suite exercise the document behavior.
+vi.mock('@molecule/app-overlay-dom', async (importOriginal) => ({
+  ...(await importOriginal<typeof OverlayDom>()),
+  OverlayLayer: class {
+    private options?: OverlayLayerOptions
+
+    sync(options: OverlayLayerOptions): void {
+      this.options = options
+    }
+
+    dismissBackdrop(): void {
+      if (this.options?.open && this.options.kind === 'modal' && this.options.dismissBackdrop) {
+        this.options.onDismiss?.('backdrop')
+      }
+    }
+
+    release(): void {
+      this.options = undefined
+    }
+  },
+}))
 
 // ============================================================================
 // Mock @molecule/app-ui with getClassMap
@@ -2692,14 +2721,19 @@ describe('Modal component', () => {
     const { Modal } = await import('../components/Modal.js')
     const mockEmit = vi.fn()
     const mockSlots = { default: () => 'body' }
-    const renderFn = (Modal.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
-      { ...modalBaseProps, ...extraProps },
-      { attrs, emit: mockEmit, slots: mockSlots },
-    )
-    mockH.mockClear()
-    mockEmit.mockClear()
-    renderFn()
-    return { mockEmit }
+    vi.stubGlobal('document', {})
+    try {
+      const renderFn = (Modal.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+        { ...modalBaseProps, ...extraProps },
+        { attrs, emit: mockEmit, slots: mockSlots },
+      )
+      mockH.mockClear()
+      mockEmit.mockClear()
+      renderFn()
+      return { mockEmit }
+    } finally {
+      vi.unstubAllGlobals()
+    }
   }
 
   it('renders nothing when open is false', async () => {
@@ -2709,10 +2743,12 @@ describe('Modal component', () => {
   })
 
   it('renders into a body Teleport', async () => {
+    const body = {}
+    mockShallowRef.mockReturnValueOnce({ value: { ownerDocument: { body } } })
     await renderModal({ title: 'Portaled' })
     const teleportCall = mockH.mock.calls.find((call) => call[0] === 'Teleport')
     expect(teleportCall).toBeDefined()
-    expect(teleportCall![1]).toEqual({ to: 'body' })
+    expect(teleportCall![1]).toEqual({ to: body, disabled: false })
   })
 
   it('centered (default true): the wrapper renders with no inline style', async () => {
@@ -6149,8 +6185,13 @@ describe('PromptDialog component', () => {
   })
 
   it('focuses its input when the dialog opens', async () => {
+    const { JSDOM } = await import('jsdom')
+    const { OverlayLayer } = await vi.importActual<typeof OverlayDom>('@molecule/app-overlay-dom')
     const { PromptDialog } = await import('../components/PromptDialog.js')
+    const { modalInitialFocus } = await import('../utilities/modal-focus.js')
     const mockEmit = vi.fn()
+    const provideFocus = vi.fn<(key: unknown, target: OverlayTarget) => void>()
+    mockProvide.mockImplementationOnce(provideFocus)
 
     const renderFn = (
       PromptDialog.setup as (...args: unknown[]) => (...args: unknown[]) => unknown
@@ -6168,18 +6209,33 @@ describe('PromptDialog component', () => {
     // The ref handed to the Input vnode is the dialog's own input ref; the
     // element it receives is the native input itself (Input's `$el`).
     const inputCall = mockH.mock.calls.find((call) => hTargetName(call[0]) === 'MInput')
-    const inputRef = (inputCall![1] as { ref: { value: unknown } }).ref
-    const fakeInput = { focus: vi.fn() }
-    inputRef.value = { $el: fakeInput }
-
-    // The open watcher defers one tick so Modal's focus-into-dialog runs
-    // first, then the input ends up focused.
-    const focusWatch = mockWatch.mock.calls
-      .filter((call) => (call[2] as { immediate?: boolean } | undefined)?.immediate)
-      .pop()
-    ;(focusWatch![1] as (open: boolean) => void)(true)
-
-    expect(fakeInput.focus).toHaveBeenCalled()
+    const inputRef = inputCall?.[1].ref
+    if (!inputRef || typeof inputRef !== 'object' || !('value' in inputRef)) {
+      throw new Error('Expected a ref on the prompt input')
+    }
+    const dom = new JSDOM('<section><button type="button">Close</button><input></section>')
+    const { document } = dom.window
+    const surface = document.querySelector('section')
+    const input = document.querySelector('input')
+    if (!surface || !input) throw new Error('Expected a dialog and input')
+    inputRef.value = { $el: input }
+    const focus = vi.spyOn(input, 'focus')
+    const initial = provideFocus.mock.calls.find(([key]) => key === modalInitialFocus)?.[1]
+    const layer = new OverlayLayer()
+    try {
+      expect(initial?.current).toBe(input)
+      layer.sync({
+        open: modalCall?.[1].open === true,
+        kind: 'modal',
+        surface: { current: surface },
+        focus: { trap: true, initial, restore: false },
+      })
+      expect(focus).toHaveBeenCalled()
+      expect(document.activeElement).toBe(input)
+    } finally {
+      layer.release()
+      dom.window.close()
+    }
   })
 })
 
@@ -7675,7 +7731,7 @@ describe('ResponsiveAppShell components', () => {
     it('watches the open transition with post-flush watchers', async () => {
       const { ResponsiveAppShellDrawer } = await import('../components/ResponsiveAppShell.js')
       stubInjection(makeShellContext())
-      mockWatch.mockClear()
+      mockWatchPostEffect.mockClear()
       ;(ResponsiveAppShellDrawer.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
         { ...drawerBaseProps },
         {
@@ -7684,10 +7740,7 @@ describe('ResponsiveAppShell components', () => {
           slots: {},
         },
       )
-      const postWatchers = mockWatch.mock.calls.filter(
-        (call) => (call[2] as { flush?: string } | undefined)?.flush === 'post',
-      )
-      expect(postWatchers).toHaveLength(3)
+      expect(mockWatchPostEffect).toHaveBeenCalledTimes(1)
     })
   })
 

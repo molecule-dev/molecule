@@ -76,6 +76,7 @@ const { ResponsiveAppShellDrawer } = await import('../components/responsive-app-
  * register; `appRef.tick()` runs them the way a real render does.
  */
 let appRef: ApplicationRef
+const overlays: { ngOnDestroy: () => void }[] = []
 
 /** An injector serving the components' `inject(ElementRef)` / `inject(Renderer2)`. */
 const injectionContext = (): Injector =>
@@ -107,6 +108,7 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
+  for (const overlay of overlays.splice(0)) overlay.ngOnDestroy()
   document.body.innerHTML = ''
   // The outside-a-shell context is one shared object, so a spy on it must not outlive its test.
   vi.restoreAllMocks()
@@ -249,6 +251,12 @@ describe('Modal backdrop click handling', () => {
     dialog.appendChild(inner)
     wrapper.appendChild(dialog)
     document.body.appendChild(wrapper)
+    modal.open = true
+    modal.dialog = new ElementRef(dialog)
+    modal.wrapper = new ElementRef(wrapper)
+    modal.overlay = new ElementRef(document.createElement('div'))
+    modal.ngAfterViewInit()
+    overlays.push(modal)
     wrapper.addEventListener('click', (event) => modal.handleOverlayClick(event))
     return { modal, closed, wrapper, inner }
   }
@@ -262,6 +270,7 @@ describe('Modal backdrop click handling', () => {
   it('stays open on a wrapper click when closeOnOverlayClick is false', () => {
     const { modal, closed, wrapper } = makeModal()
     modal.closeOnOverlayClick = false
+    modal.ngDoCheck()
     wrapper.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     expect(closed).toHaveLength(0)
   })
@@ -279,15 +288,23 @@ describe('Modal backdrop click handling', () => {
 describe('Drawer backdrop click handling', () => {
   const makeDrawer = () => {
     const drawer = runInInjectionContext(injectionContext(), () => new ResponsiveAppShellDrawer())
-    // Outside a shell the context is the module default; the spy proves the
-    // handler closes (or not) through it.
-    const closeDrawer = vi.spyOn(drawer.shell(), 'closeDrawer')
+    const closeDrawer = vi.fn()
+    vi.spyOn(drawer, 'shell').mockReturnValue({
+      ...drawer.shell(),
+      drawerOpen: true,
+      closeDrawer,
+    })
     const wrapper = document.createElement('div')
     const panel = document.createElement('div')
     const inner = document.createElement('button')
     panel.appendChild(inner)
     wrapper.appendChild(panel)
     document.body.appendChild(wrapper)
+    drawer.panel = new ElementRef(panel)
+    drawer.wrapper = new ElementRef(wrapper)
+    drawer.overlay = new ElementRef(document.createElement('div'))
+    drawer.ngAfterViewInit()
+    overlays.push(drawer)
     wrapper.addEventListener('click', (event) => drawer.handleBackdropClick(event))
     return { closeDrawer, wrapper, inner }
   }

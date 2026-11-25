@@ -8,10 +8,12 @@
   navigation. Renders nothing on desktop or while closed.
 -->
 <script lang="ts">
+  import { onDestroy } from 'svelte'
+
+  import { OverlayLayer } from '@molecule/app-overlay-dom'
   import { BodyPortal, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { getFocusableElements, lockBodyScroll, unlockBodyScroll } from '../dom.js'
   import { useShellContext } from '../shell-context.js'
   import { reactStyle } from '../style.js'
   import type { ResponsiveAppShellDrawerProps } from '../types.js'
@@ -41,7 +43,6 @@
 
   let panelRef = $state<HTMLDivElement | null>(null)
   // The element to restore focus to on close (React's previouslyFocusedRef).
-  let previouslyFocused: HTMLElement | null = null
   const open = $derived(shell.drawerOpen && !shell.isDesktop)
   // React's `typeof document === 'undefined'` guard (SSR renders nothing).
   const hasDocument = typeof document !== 'undefined'
@@ -54,78 +55,26 @@
     return () => shell.registerDrawer(false)
   })
 
-  // Effect A — dialog focus management (the Modal approach): on open, capture
-  // the previously focused element and move focus into the panel; on close,
-  // restore it. Reading `panelRef` gives the effect a re-run once the portal
-  // DOM exists (React commits the DOM before its effects run).
+  const layer = new OverlayLayer()
   $effect(() => {
-    if (!open) return
-    previouslyFocused = document.activeElement as HTMLElement | null
-    const panelEl = panelRef
-    if (panelEl) {
-      const focusables = getFocusableElements(panelEl)
-      ;(focusables[0] ?? panelEl).focus()
-    }
-    return () => {
-      const toRestore = previouslyFocused
-      if (toRestore && document.contains(toRestore)) {
-        toRestore.focus()
-      }
-    }
+    layer.sync({
+      open: open,
+      kind: 'modal',
+      surface: { current: panelRef },
+      dismissKey: true,
+      dismissBackdrop: true,
+      focus: { trap: true, restore: 'opener' },
+      lockScroll: true,
+      onDismiss: shell.closeDrawer,
+    })
   })
-
-  // Effect B — body scroll lock, reference-counted so a stacked <Modal>
-  // never loses its lock when the drawer closes first.
-  $effect(() => {
-    if (!open) return
-    lockBodyScroll()
-    return () => unlockBodyScroll()
-  })
-
-  // Effect C — Escape closes; Tab is trapped inside the panel.
-  $effect(() => {
-    if (!open) return
-    const close = shell.closeDrawer
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        close()
-        return
-      }
-      if (e.key !== 'Tab') return
-
-      const el = panelRef
-      if (!el) return
-      const focusables = getFocusableElements(el)
-      if (focusables.length === 0) {
-        e.preventDefault()
-        el.focus()
-        return
-      }
-
-      const first = focusables[0]!
-      const last = focusables[focusables.length - 1]!
-      const active = document.activeElement
-
-      if (e.shiftKey) {
-        if (active === first || !el.contains(active)) {
-          e.preventDefault()
-          last.focus()
-        }
-      } else if (active === last || !el.contains(active)) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  })
+  onDestroy(() => layer.release())
 
   // The backdrop wrapper is a presentation layer around the panel: a click on
   // the wrapper itself (the backdrop) closes, and a click that bubbled up
-  // from the panel stops here. Escape closes from the keyboard (Effect C).
+  // from the panel stops here. Escape closes from the keyboard.
   const handleWrapperClick = (event: MouseEvent): void => {
-    if (event.target === event.currentTarget) shell.closeDrawer()
+    if (event.target === event.currentTarget) layer.dismissBackdrop()
     else event.stopPropagation()
   }
 </script>

@@ -10,6 +10,9 @@ export default defineConfig({
       '@molecule/app-ui-react/elements': fileURLToPath(
         new URL('./src/elements/index.ts', import.meta.url),
       ),
+      '@molecule/app-ui-react/platform': fileURLToPath(
+        new URL('./src/platform/index.tsx', import.meta.url),
+      ),
     },
   },
   test: {

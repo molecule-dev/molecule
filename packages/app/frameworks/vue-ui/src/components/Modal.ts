@@ -5,90 +5,30 @@
  */
 
 import {
+  computed,
   defineComponent,
   h,
-  onMounted,
-  onUnmounted,
+  inject,
+  nextTick,
+  onBeforeUnmount,
   type PropType,
   Teleport,
   type VNode,
-  watch,
+  watchPostEffect,
 } from 'vue'
 
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import type { ModalProps, ModalSize } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { useElementRef } from '../utilities/elementRef.js'
+import { modalInitialFocus } from '../utilities/modal-focus.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 import { setDisplayName } from './displayName.js'
 
-/** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-/**
- * Returns the tab-stop elements inside a container, in DOM (tab) order.
- * @param container - The element to search within.
- * @returns The focusable descendants, in document order.
- */
-function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-}
-
-// ---------------------------------------------------------------------------
-// Module-level open-modal stack. Every open <Modal> instance registers its
-// own instance id here. Escape and the Tab focus-trap only act for the
-// TOPMOST entry, so a confirm dialog stacked over a drawer doesn't let one
-// Escape press close both (the user could never tell which action was
-// cancelled).
-// ---------------------------------------------------------------------------
-const openModalStack: string[] = []
-
-/** Pushes a modal instance onto the open-stack (it becomes the topmost). */
-function pushModalStack(id: string): void {
-  if (!openModalStack.includes(id)) openModalStack.push(id)
-}
-
-/** Removes a modal instance from the open-stack. */
-function popModalStack(id: string): void {
-  const index = openModalStack.indexOf(id)
-  if (index !== -1) openModalStack.splice(index, 1)
-}
-
-/** Whether the given modal instance is currently the topmost of the stack. */
-function isTopOfModalStack(id: string): boolean {
-  return openModalStack.length > 0 && openModalStack[openModalStack.length - 1] === id
-}
-
-// ---------------------------------------------------------------------------
-// Reference-counted body scroll lock. Two modals can be open at once (a
-// drawer with a confirm dialog above it); without a shared counter, closing
-// EITHER one reset `overflow` to '', silently unlocking page scroll behind
-// the dialog that is still open.
-// ---------------------------------------------------------------------------
-let scrollLockCount = 0
-let previousBodyOverflow = ''
-
-/** Locks body scroll on the first caller; later callers just increment the count. */
-function lockBodyScroll(): void {
-  if (scrollLockCount === 0) {
-    previousBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-  }
-  scrollLockCount += 1
-}
-
-/** Decrements the lock count; restores the ORIGINAL overflow only once it reaches zero. */
-function unlockBodyScroll(): void {
-  scrollLockCount = Math.max(0, scrollLockCount - 1)
-  if (scrollLockCount === 0) {
-    document.body.style.overflow = previousBodyOverflow
-  }
-}
-
-/** Per-instance counter backing each Modal's unique title/stack id. */
+/** Per-instance counter backing each Modal's unique title id. */
 let nextModalInstanceId = 0
 
 /**
@@ -108,7 +48,7 @@ let nextModalInstanceId = 0
  * to the first focusable element inside the dialog (or the dialog itself
  * when it has none); Tab/Shift+Tab are trapped inside the dialog; on close,
  * focus returns to whatever was focused before the dialog opened. Stacked
- * dialogs (a confirm above a drawer) each register on a module-level stack —
+ * dialogs (a confirm above a drawer) each register on the document stack —
  * Escape and the Tab trap only act for the TOPMOST dialog, and the body
  * scroll lock is reference-counted so closing one of several open dialogs
  * never unlocks scroll behind the ones still open.
@@ -156,152 +96,38 @@ export const Modal = defineComponent({
   setup(props, { attrs, emit, slots, expose }) {
     const cm = getClassMap()
     const { t } = useTranslation()
-    // Per-instance title id AND stack key. A hardcoded 'modal-title'
-    // duplicated the id whenever two modals were mounted (stacked dialogs, a
-    // drawer + a confirm) — aria-labelledby then resolved to the FIRST
-    // match, so screen readers announced the WRONG dialog title.
+    // Each dialog names its own heading, including when another dialog is open.
     const instanceId = `mol-modal-${nextModalInstanceId++}`
     const titleId = instanceId
 
     // The dialog is React's `forwardRef` target; it holds `null` while closed.
     const dialogRef = useElementRef<HTMLDivElement>(expose)
-    // The element focused right before this dialog opened — restored on close.
-    const previouslyFocused: { current: HTMLElement | null } = { current: null }
-    // Whether the open-side bookkeeping (stack entry, keydown listener,
-    // scroll lock) currently applies to this instance.
-    let openBookkeeping = false
-    let scrollLocked = false
-
-    // The wrapper is a presentation layer around the dialog: a click on the
-    // wrapper itself (the backdrop) closes, and a click that bubbled up from
-    // inside the dialog stops here, so it never reaches whatever rendered the
-    // modal. Escape closes from the keyboard.
-    const handleOverlayClick = (e: MouseEvent): void => {
-      if (e.target !== e.currentTarget) {
-        e.stopPropagation()
-        return
-      }
-      if (props.closeOnOverlayClick) emit('close')
-    }
-
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        if (props.closeOnEscape && isTopOfModalStack(instanceId)) {
-          emit('close')
-        }
-        return
-      }
-
-      if (e.key !== 'Tab' || !isTopOfModalStack(instanceId)) return
-
-      const el = dialogRef.value
-      if (!el) return
-      const focusables = getFocusableElements(el)
-      if (focusables.length === 0) {
-        e.preventDefault()
-        el.focus()
-        return
-      }
-
-      const first = focusables[0]
-      const last = focusables[focusables.length - 1]
-      const active = document.activeElement
-
-      if (e.shiftKey) {
-        if (active === first || !el.contains(active)) {
-          e.preventDefault()
-          last.focus()
-        }
-      } else if (active === last || !el.contains(active)) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-
-    /**
-     * Opens the dialog bookkeeping: saves the previously focused element,
-     * registers on the stack, moves focus into the dialog and subscribes the
-     * document keydown handler. Runs after the DOM update (React effect A +
-     * C run after commit), so the teleported dialog exists when focused.
-     */
-    const beginOpenBookkeeping = (): void => {
-      if (openBookkeeping) return
-      openBookkeeping = true
-      previouslyFocused.current = document.activeElement as HTMLElement | null
-      pushModalStack(instanceId)
-
-      const dialogEl = dialogRef.value
-      if (dialogEl) {
-        const focusables = getFocusableElements(dialogEl)
-        ;(focusables[0] ?? dialogEl).focus()
-      }
-
-      document.addEventListener('keydown', handleKeyDown)
-    }
-
-    /**
-     * Closes the dialog bookkeeping: pops the stack, unsubscribes the
-     * keydown handler and restores focus to whatever opened the dialog.
-     * Best-effort: if that element was itself removed from the document
-     * while the dialog was open, there is nothing sensible to restore to.
-     */
-    const endOpenBookkeeping = (): void => {
-      if (!openBookkeeping) return
-      openBookkeeping = false
-      popModalStack(instanceId)
-      document.removeEventListener('keydown', handleKeyDown)
-      const toRestore = previouslyFocused.current
-      if (toRestore && document.contains(toRestore)) {
-        toRestore.focus()
-      }
-    }
-
-    // Effect A + C — move focus into the dialog on open and restore focus on
-    // close (post-flush: after the teleported dialog has been patched in/out,
-    // like React's commit-then-effect ordering). Runs exactly once per
-    // open/close transition, NOT on every parent re-render that hands down a
-    // fresh `onClose` closure.
-    watch(
-      () => props.open,
-      (open) => {
-        if (open) beginOpenBookkeeping()
-        else endOpenBookkeeping()
-      },
-      { flush: 'post' },
-    )
-
-    // Effect B — reference-counted body scroll lock, independent of focus
-    // and Escape handling so it can react to `preventScroll` toggling on
-    // its own.
-    watch(
-      (): [boolean, boolean] => [props.open, props.preventScroll],
-      ([open, preventScroll]) => {
-        if (open && preventScroll && !scrollLocked) {
-          lockBodyScroll()
-          scrollLocked = true
-        } else if (scrollLocked && !(open && preventScroll)) {
-          unlockBodyScroll()
-          scrollLocked = false
-        }
-      },
-      { flush: 'post' },
-    )
-
-    onMounted(() => {
-      if (props.open) beginOpenBookkeeping()
-      if (props.open && props.preventScroll) {
-        lockBodyScroll()
-        scrollLocked = true
-      }
+    const initialFocus = inject(modalInitialFocus, undefined)
+    // Vue mounts or hydrates the inline nodes before moving them to their own
+    // document's body. Wait for the move before focusing a control.
+    const portalTarget = computed(() => dialogRef.value?.ownerDocument.body ?? null)
+    const layer = new OverlayLayer((focus, transition) => {
+      if (transition === 'open') void nextTick(focus)
+      else focus()
     })
-
-    onUnmounted(() => {
-      endOpenBookkeeping()
-      if (scrollLocked) {
-        unlockBodyScroll()
-        scrollLocked = false
-      }
+    watchPostEffect(() => {
+      layer.sync({
+        open: props.open,
+        kind: 'modal',
+        surface: { current: dialogRef.value },
+        dismissKey: props.closeOnEscape,
+        dismissBackdrop: props.closeOnOverlayClick,
+        focus: { trap: true, initial: initialFocus, restore: 'opener' },
+        lockScroll: props.preventScroll,
+        onDismiss: () => emit('close'),
+      })
     })
+    onBeforeUnmount(() => layer.release())
+
+    const handleOverlayClick = (event: MouseEvent): void => {
+      if (event.target === event.currentTarget) layer.dismissBackdrop()
+      else event.stopPropagation()
+    }
 
     return () => {
       if (!props.open) {
@@ -384,8 +210,12 @@ export const Modal = defineComponent({
         ),
       ]
 
-      // Render into a body portal.
-      return h(Teleport, { to: 'body' }, modalContent)
+      // The server and first hydration pass render inline. Move the same nodes after mount.
+      return h(
+        Teleport,
+        { to: portalTarget.value ?? 'body', disabled: !portalTarget.value },
+        modalContent,
+      )
     }
   },
 })

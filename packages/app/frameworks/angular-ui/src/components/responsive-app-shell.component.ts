@@ -5,6 +5,7 @@
  * @module
  */
 
+import { isPlatformBrowser } from '@angular/common'
 import {
   afterNextRender,
   type AfterViewInit,
@@ -14,9 +15,9 @@ import {
   ElementRef,
   EnvironmentInjector,
   inject,
-  Injector,
   type OnDestroy,
   type OnInit,
+  PLATFORM_ID,
   signal,
   type TemplateRef,
   ViewChild,
@@ -32,12 +33,12 @@ import {
   useRouter,
   useTranslation,
 } from '@molecule/app-angular'
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useIsDesktop } from '../hooks/use-is-desktop.js'
 import { createDomContext } from '../utilities/dom-context.js'
-import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { asTemplate, isGiven, nodeText } from '../utilities/node-value.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
@@ -822,16 +823,14 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
    */
   private readonly i18n = useTranslation()
 
-  /** Schedules the deferred focus moves from the change-detection hooks. */
-  private readonly injector = inject(Injector)
-  /** Schedules the focus restore of a destroyed open drawer (the component's own injector is gone). */
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID))
   private readonly environmentInjector = inject(EnvironmentInjector)
-  private readonly scrollLock = createScrollLock()
+  private readonly layer = new OverlayLayer((focus) => {
+    if (!this.environmentInjector.destroyed)
+      afterNextRender(focus, { injector: this.environmentInjector })
+  })
   private hasFooter = false
-  private locked = false
-  private lastOpen = false
-  private previouslyFocused: HTMLElement | null = null
-  private listeners: (() => void)[] = []
+  private lastOpen: boolean | undefined
 
   /** Applies React's conditional header/footer wrappers, and takes the host out of the page. */
   constructor() {
@@ -951,7 +950,7 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
       event.stopPropagation()
       return
     }
-    this.shell().closeDrawer()
+    this.layer.dismissBackdrop()
   }
 
   /**
@@ -966,10 +965,7 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
   /** Registers the drawer, reads slots and applies the initial open state. */
   ngAfterViewInit(): void {
     this.shell().registerDrawer(true)
-    const open = this.shell().drawerOpen && !this.shell().isDesktop
-    this.lastOpen = open
-    if (open) this.openPanel()
-    else this.detachPortal()
+    this.syncOpen()
   }
 
   /** Reconciles the open state and the drawer registration. */
@@ -977,28 +973,10 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
     this.syncOpen()
   }
 
-  /**
-   * Unregisters the drawer, unlocks scroll and, when it was open, puts focus back on whatever
-   * opened it (React's effect cleanup does on unmount).
-   */
+  /** Releases the drawer when the shell or the parent destroys it. */
   ngOnDestroy(): void {
     this.shell().registerDrawer(false)
-    this.removeListeners()
-    // After the render, since a view removed by its parent's template is destroyed while Angular
-    // checks that parent; not while the whole application is torn down (its environment injector
-    // is already marked destroyed and takes no new hook).
-    const toRestore = this.lastOpen ? this.previouslyFocused : null
-    if (toRestore && !this.environmentInjector.destroyed)
-      afterNextRender(
-        () => {
-          if (document.contains(toRestore)) toRestore.focus()
-        },
-        { injector: this.environmentInjector },
-      )
-    if (this.locked) {
-      this.scrollLock.unlock()
-      this.locked = false
-    }
+    this.layer.release()
   }
 
   /** Applies React's conditional header/footer wrappers, and takes the host out of the page. */
@@ -1016,116 +994,36 @@ export class ResponsiveAppShellDrawer implements OnInit, AfterViewInit, DoCheck,
     setElementPresent(this.host.nativeElement, false)
   }
 
-  /** Applies the open transition (portal mounting, focus, scroll lock). */
+  /** Reconciles the mounted drawer panel with the shell state. */
   private syncOpen(): void {
-    const open = this.shell().drawerOpen && !this.shell().isDesktop
-    if (open === this.lastOpen) return
+    // Reading the shell state lets placement and the view follow the root signal.
+    const shell = this.shell()
+    const open = this.browser && shell.drawerOpen && !shell.isDesktop
+    const panel = this.panel?.nativeElement
+    const overlay = this.overlay?.nativeElement
+    const wrapper = this.wrapper?.nativeElement
+    if (!panel || !overlay || !wrapper || open === this.lastOpen) return
     this.lastOpen = open
     if (open) {
-      this.openPanel()
+      const { body } = panel.ownerDocument
+      placeElement(overlay, body)
+      placeElement(wrapper, body)
+      this.layer.sync({
+        open: true,
+        kind: 'modal',
+        surface: { current: panel },
+        dismissKey: true,
+        dismissBackdrop: true,
+        focus: { trap: true, restore: 'opener' },
+        lockScroll: true,
+        onDismiss: () => shell.closeDrawer(),
+      })
     } else {
-      this.removeListeners()
-      this.detachPortal()
-      if (this.locked) {
-        this.scrollLock.unlock()
-        this.locked = false
-      }
-      const toRestore = this.previouslyFocused
-      // After the render: the focus events fire listeners whose state changes
-      // must be rendered (they are not while the view is still being checked).
-      if (toRestore)
-        afterNextRender(
-          () => {
-            if (document.contains(toRestore)) toRestore.focus()
-          },
-          { injector: this.injector },
-        )
-    }
-  }
-
-  /** Mounts the open panel: portal, focus into the panel, scroll lock, keys. */
-  private openPanel(): void {
-    this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
-    this.attachPortal()
-    // After the render, so the panel's `focusin` listeners settle after the
-    // view check (a state change made during it is never rendered).
-    afterNextRender(
-      () => {
-        const panel = this.panel?.nativeElement
-        if (!panel) return
-        const focusables = getFocusableElements(panel)
-        ;(focusables[0] ?? panel).focus()
-      },
-      { injector: this.injector },
-    )
-    this.scrollLock.lock()
-    this.locked = true
-    this.addListeners()
-  }
-
-  /** Renders the portal nodes in `document.body`. */
-  private attachPortal(): void {
-    const overlay = this.overlay?.nativeElement
-    const wrapper = this.wrapper?.nativeElement
-    if (!overlay || !wrapper) return
-    placeElement(overlay, document.body)
-    placeElement(wrapper, document.body)
-  }
-
-  /** Removes the portal nodes (React renders null). */
-  private detachPortal(): void {
-    const overlay = this.overlay?.nativeElement
-    const wrapper = this.wrapper?.nativeElement
-    placeElement(overlay, null)
-    setElementPresent(overlay, false)
-    placeElement(wrapper, null)
-    setElementPresent(wrapper, false)
-  }
-
-  /** Adds Escape and the Tab focus trap while open. */
-  private addListeners(): void {
-    this.removeListeners()
-    const onKeyDown = (event: KeyboardEvent): void => this.handleKeyDown(event)
-    document.addEventListener('keydown', onKeyDown)
-    this.listeners.push(() => document.removeEventListener('keydown', onKeyDown))
-  }
-
-  /** Removes the document listeners. */
-  private removeListeners(): void {
-    for (const off of this.listeners) off()
-    this.listeners = []
-  }
-
-  /**
-   * Escape closes the drawer; Tab wraps inside the panel.
-   *
-   * @param event - The key event.
-   */
-  private handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.shell().closeDrawer()
-      return
-    }
-    if (event.key !== 'Tab') return
-    const el = this.panel?.nativeElement
-    if (!el) return
-    const focusables = getFocusableElements(el)
-    if (focusables.length === 0) {
-      event.preventDefault()
-      el.focus()
-      return
-    }
-    const first = focusables[0]
-    const last = focusables[focusables.length - 1]
-    const active = document.activeElement
-    if (event.shiftKey) {
-      if (active === first || !el.contains(active)) {
-        event.preventDefault()
-        last.focus()
-      }
-    } else if (active === last || !el.contains(active)) {
-      event.preventDefault()
-      first.focus()
+      this.layer.release()
+      placeElement(overlay, null)
+      setElementPresent(overlay, false)
+      placeElement(wrapper, null)
+      setElementPresent(wrapper, false)
     }
   }
 }

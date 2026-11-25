@@ -4,6 +4,7 @@
  * @module
  */
 
+import { isPlatformBrowser } from '@angular/common'
 import {
   afterNextRender,
   type AfterViewChecked,
@@ -14,9 +15,9 @@ import {
   EnvironmentInjector,
   EventEmitter,
   inject,
-  Injector,
   type OnDestroy,
   Output,
+  PLATFORM_ID,
   signal,
   ViewChild,
 } from '@angular/core'
@@ -24,39 +25,22 @@ import {
 import {
   MolPlacement,
   placeElement,
+  placeElementBefore,
   setElementPresent,
   setHostRoot,
   type SlotReader,
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import type { ModalSize, MouseEventHandler, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HasElement } from '../utilities/element.js'
-import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
 import { adoptHostDataMolId } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
-
-/** Module-level open-modal stack (Escape/Tab act only for the topmost). */
-const openModalStack: number[] = []
-
-/** Pushes a modal onto the stack (it becomes the topmost). */
-const pushModalStack = (id: number): void => {
-  if (!openModalStack.includes(id)) openModalStack.push(id)
-}
-
-/** Removes a modal from the stack. */
-const popModalStack = (id: number): void => {
-  const index = openModalStack.indexOf(id)
-  if (index !== -1) openModalStack.splice(index, 1)
-}
-
-/** Whether the given modal is currently the topmost of the stack. */
-const isTopOfModalStack = (id: number): boolean =>
-  openModalStack.length > 0 && openModalStack[openModalStack.length - 1] === id
 
 let modalInstance = 0
 
@@ -211,20 +195,20 @@ export class Modal
   /** The centering wrapper (moved to `document.body`). */
   @ViewChild('wrapper') wrapper?: ElementRef<HTMLDivElement>
   /** The dialog element. */
-  @ViewChild('dialog') dialog?: ElementRef<HTMLDivElement>
+  @ViewChild('dialog', { static: true }) dialog?: ElementRef<HTMLDivElement>
   /** The footer wrapper (detached when unused). */
   @ViewChild('footerSlot') footerSlot?: ElementRef<HTMLDivElement>
 
   /** The per-instance title id (the normalizer renumbers it). */
   readonly titleId = `mol-modal-title-${++modalInstance}`
-  /** The instance's stack id. */
-  private readonly stackId = modalInstance
-
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  /** Schedules the deferred focus moves from the change-detection hooks. */
-  private readonly injector = inject(Injector)
-  /** Schedules the focus restore of a destroyed open dialog (the component's own injector is gone). */
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID))
   private readonly environmentInjector = inject(EnvironmentInjector)
+  private readonly layer = new OverlayLayer((focus) => {
+    // DoCheck and view destruction can be in the middle of another component's check.
+    if (!this.environmentInjector.destroyed)
+      afterNextRender(focus, { injector: this.environmentInjector })
+  })
   private readonly inner = signal<HTMLDivElement | null>(null)
   /** The element a caller's ref receives: the dialog, or `null` while closed. */
   readonly element = this.inner.asReadonly()
@@ -241,12 +225,8 @@ export class Modal
    */
   private readonly i18n = useTranslation()
 
-  private readonly sync = createScrollLock()
-  private lastOpen = false
+  private lastOpen: boolean | undefined
   private lastFooter = false
-  private previouslyFocused: HTMLElement | null = null
-  private listeners: (() => void)[] = []
-  private locked = false
   /** The `data-mol-id` a caller bound on the host (React spreads it onto the dialog). */
   private externalMolId: string | undefined
 
@@ -319,7 +299,7 @@ export class Modal
       event.stopPropagation()
       return
     }
-    if (this.closeOnOverlayClick) this.requestClose()
+    this.layer.dismissBackdrop()
   }
 
   /** Emits the close request (React's `onClose`). */
@@ -342,8 +322,6 @@ export class Modal
    * content into `document.body` and applies the initial open state.
    */
   ngAfterViewInit(): void {
-    const overlay = this.overlay?.nativeElement
-    const wrapper = this.wrapper?.nativeElement
     const dialog = this.dialog?.nativeElement
     if (dialog) {
       adoptHostDataMolId(
@@ -355,30 +333,12 @@ export class Modal
         () => this.molId(),
       )
     }
-    const open = !!this.open
-    if (open) {
-      this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
-      pushModalStack(this.stackId)
-      if (overlay && wrapper) this.attachPortal()
-      this.focusFirstInDialog()
-      this.addListeners()
-    } else if (overlay && wrapper) {
-      // React renders nothing while closed.
-      this.detachPortal()
-    }
-    this.syncScrollLock()
-    this.lastOpen = open
+    this.syncOpen()
   }
-  /**
-   * Reconciles the open state on later passes.
-   */
+
+  /** Reconciles open transitions and option changes after the view exists. */
   ngDoCheck(): void {
-    const open = !!this.open
-    if (open !== this.lastOpen) {
-      this.lastOpen = open
-      this.transition(open)
-    }
-    this.syncScrollLock()
+    this.syncOpen()
   }
 
   /**
@@ -398,26 +358,9 @@ export class Modal
     )
   }
 
-  /** Removes listeners, unlocks scroll and restores the portal nodes (unmount). */
+  /** Releases the layer when its parent destroys the view. */
   ngOnDestroy(): void {
-    this.removeListeners()
-    popModalStack(this.stackId)
-    // Removed while open: focus goes back to whatever opened the dialog, as React's effect
-    // cleanup does on unmount. After the render, since a view removed by its parent's template
-    // is destroyed while Angular checks that parent. Not while the whole application is torn
-    // down: its environment injector is already marked destroyed and takes no new hook.
-    const toRestore = this.lastOpen ? this.previouslyFocused : null
-    if (toRestore && !this.environmentInjector.destroyed)
-      afterNextRender(
-        () => {
-          if (document.contains(toRestore)) toRestore.focus()
-        },
-        { injector: this.environmentInjector },
-      )
-    if (this.locked) {
-      this.sync.unlock()
-      this.locked = false
-    }
+    this.layer.release()
   }
 
   /**
@@ -432,133 +375,67 @@ export class Modal
     this.lastFooter = hasContent(this.footerSlot?.nativeElement)
     setElementPresent(this.footerSlot?.nativeElement, this.lastFooter)
     setElementPresent(this.host.nativeElement, false)
-    setHostRoot(this.host.nativeElement, this.dialog?.nativeElement, { except: ['data-mol-id'] })
+    setHostRoot(this.host.nativeElement, this.wrapper ? this.dialog?.nativeElement : null, {
+      except: ['data-mol-id'],
+    })
   }
 
-  /**
-   * Applies an open/closed transition (React mounts/unmounts the portal and
-   * its effects).
-   *
-   * @param open - The new open state.
-   */
-  private transition(open: boolean): void {
-    if (open) {
-      this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
-      pushModalStack(this.stackId)
-      this.attachPortal()
-      this.focusFirstInDialog()
-      this.addListeners()
-    } else {
-      popModalStack(this.stackId)
-      this.removeListeners()
-      this.detachPortal()
-      const toRestore = this.previouslyFocused
-      // After the render: the focus events fire listeners whose state changes
-      // must be rendered (they are not while the view is still being checked).
-      if (toRestore)
-        afterNextRender(
-          () => {
-            if (document.contains(toRestore)) toRestore.focus()
-          },
-          { injector: this.injector },
-        )
+  /** Applies a portal transition and updates the open layer’s options. */
+  private syncOpen(): void {
+    const dialog = this.dialog?.nativeElement
+    if (!dialog) return
+    const open = !!this.open
+    // The unconditional dialog query resolves before embedded views are checked.
+    // Register in that order, and place the nodes once the view is initialized.
+    if (open && this.browser) this.syncLayer(dialog)
+    if (!this.wrapper) return
+
+    if (open !== this.lastOpen) {
+      this.lastOpen = open
+      if (open) this.attachPortal()
+      else {
+        this.layer.release()
+        this.detachPortal()
+      }
     }
-    this.syncScrollLock()
   }
 
-  /**
-   * Moves focus into the dialog after the render — the WAI-ARIA open focus.
-   * Deferred out of the change-detection hooks: focusing during one fires the
-   * dialog's `focusin` listeners while Angular is still checking, and a state
-   * change they make is never rendered.
-   */
-  private focusFirstInDialog(): void {
-    afterNextRender(
-      () => {
-        const dialog = this.dialog?.nativeElement
-        if (!dialog) return
-        const focusables = getFocusableElements(dialog)
-        ;(focusables[0] ?? dialog).focus()
-      },
-      { injector: this.injector },
-    )
+  /** Registers the open layer before later overlays can enter the stack. */
+  private syncLayer(dialog: HTMLDivElement): void {
+    this.layer.sync({
+      open: true,
+      kind: 'modal',
+      surface: { current: dialog },
+      dismissKey: this.closeOnEscape,
+      dismissBackdrop: this.closeOnOverlayClick,
+      focus: { trap: true, restore: 'opener' },
+      lockScroll: this.preventScroll,
+      onDismiss: () => this.requestClose(),
+    })
   }
 
-  /** Re-inserts the portal nodes into `document.body` (in React's order). */
+  /** Moves the browser dialog to its own body and keeps the server dialog inline. */
   private attachPortal(): void {
     const overlay = this.overlay?.nativeElement
     const wrapper = this.wrapper?.nativeElement
     if (!overlay || !wrapper) return
-    placeElement(overlay, document.body)
-    placeElement(wrapper, document.body)
+    if (this.browser) {
+      const { body } = wrapper.ownerDocument
+      placeElement(overlay, body)
+      placeElement(wrapper, body)
+    } else {
+      placeElementBefore(overlay, this.host.nativeElement)
+      placeElementBefore(wrapper, this.host.nativeElement)
+    }
     this.inner.set(this.dialog?.nativeElement ?? null)
   }
 
-  /** Removes the portal nodes from the document (React renders null). */
+  /** Removes the portal nodes while closed. */
   private detachPortal(): void {
     placeElement(this.overlay?.nativeElement, null)
     setElementPresent(this.overlay?.nativeElement, false)
     placeElement(this.wrapper?.nativeElement, null)
     setElementPresent(this.wrapper?.nativeElement, false)
     this.inner.set(null)
-  }
-
-  /** Locks or unlocks body scroll for React's `open && preventScroll`. */
-  private syncScrollLock(): void {
-    const shouldLock = !!this.open && this.preventScroll
-    if (shouldLock && !this.locked) {
-      this.sync.lock()
-      this.locked = true
-    } else if (!shouldLock && this.locked) {
-      this.sync.unlock()
-      this.locked = false
-    }
-  }
-
-  /** Adds Escape and the Tab focus trap while open (React's effect). */
-  private addListeners(): void {
-    this.removeListeners()
-    const onKeyDown = (event: KeyboardEvent): void => this.handleKeyDown(event)
-    document.addEventListener('keydown', onKeyDown)
-    this.listeners.push(() => document.removeEventListener('keydown', onKeyDown))
-  }
-
-  /** Removes the document listeners. */
-  private removeListeners(): void {
-    for (const off of this.listeners) off()
-    this.listeners = []
-  }
-
-  /**
-   * Escape closes the topmost dialog; Tab wraps inside it.
-   *
-   * @param event - The key event.
-   */
-  private handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      if (this.closeOnEscape && isTopOfModalStack(this.stackId)) this.requestClose()
-      return
-    }
-    if (event.key !== 'Tab' || !isTopOfModalStack(this.stackId)) return
-    const el = this.dialog?.nativeElement
-    if (!el) return
-    const focusables = getFocusableElements(el)
-    if (focusables.length === 0) {
-      event.preventDefault()
-      el.focus()
-      return
-    }
-    const first = focusables[0]
-    const last = focusables[focusables.length - 1]
-    const active = document.activeElement
-    if (event.shiftKey) {
-      if (active === first || !el.contains(active)) {
-        event.preventDefault()
-        last.focus()
-      }
-    } else if (active === last || !el.contains(active)) {
-      event.preventDefault()
-      first.focus()
-    }
   }
 }

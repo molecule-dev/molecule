@@ -1,21 +1,35 @@
 import solid from 'vite-plugin-solid'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig, type TestUserConfig } from 'vitest/config'
+
+const ssr = 'src/__tests__/overlay-ssr.test.tsx'
+const settings = {
+  globals: true,
+  environment: 'node',
+  testTimeout: 30000,
+  hookTimeout: 30000,
+  fileParallelism: false,
+  pool: 'forks',
+} satisfies TestUserConfig
 
 export default defineConfig({
-  // The package ships preserved JSX for consumers that compile it with
-  // vite-plugin-solid; the tests compile it the same way.
-  plugins: [solid()],
-  resolve: {
-    // Solid's client build (its `node` build is SSR-only and cannot mount).
-    conditions: ['browser'],
-  },
   test: {
-    globals: true,
-    environment: 'node',
-    testTimeout: 30000,
-    hookTimeout: 30000,
-    fileParallelism: false,
-    pool: 'forks',
-    server: { deps: { inline: ['solid-js'] } },
+    projects: [
+      {
+        // Test preserved JSX with the same compiler the kit's consumers use.
+        plugins: [solid()],
+        resolve: { conditions: ['browser'] },
+        test: {
+          ...settings,
+          name: 'app-ui-solid',
+          exclude: [...configDefaults.exclude, ssr],
+          server: { deps: { inline: ['solid-js'] } },
+        },
+      },
+      {
+        plugins: [solid({ ssr: true })],
+        resolve: { conditions: ['node'] },
+        test: { ...settings, name: 'app-ui-solid-ssr', include: [ssr] },
+      },
+    ],
   },
 })

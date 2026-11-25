@@ -8,8 +8,15 @@
  */
 
 import { type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
+import { isServer } from 'solid-js/web'
 
-import { createNodePresence, ResolveNode, useTranslation } from '@molecule/app-solid'
+import {
+  createNodePresence,
+  rendersNode,
+  ResolveNode,
+  resolveNode,
+  useTranslation,
+} from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.jsx'
@@ -75,16 +82,26 @@ export const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
   // branch, so they are created only while the dialog shows.
   const title = createNodePresence()
   const description = createNodePresence()
+  // SSR writes the dialog attributes before its children report presence.
+  const serverTitle = isServer && local.open ? resolveNode(() => local.title) : undefined
+  const serverDescription =
+    isServer && local.open ? resolveNode(() => local.description) : undefined
 
   return (
     <Modal
       open={local.open}
       onClose={local.onClose}
-      aria-labelledby={title.present() ? titleId : undefined}
-      aria-describedby={description.present() ? descriptionId : undefined}
+      aria-labelledby={
+        (serverTitle ? rendersNode(serverTitle()) : title.present()) ? titleId : undefined
+      }
+      aria-describedby={
+        (serverDescription ? rendersNode(serverDescription()) : description.present())
+          ? descriptionId
+          : undefined
+      }
     >
       <div class={cm.stack(3)}>
-        <ResolveNode node={local.title}>
+        <ResolveNode node={serverTitle ? serverTitle() : local.title}>
           {(node, present) => {
             title.report(present)
             return (
@@ -97,7 +114,7 @@ export const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
             )
           }}
         </ResolveNode>
-        <ResolveNode node={local.description}>
+        <ResolveNode node={serverDescription ? serverDescription() : local.description}>
           {(node, present) => {
             description.report(present)
             return (

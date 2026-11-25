@@ -11,6 +11,7 @@ import {
   h,
   inject,
   type InjectionKey,
+  onBeforeUnmount,
   onMounted,
   onUnmounted,
   type PropType,
@@ -20,8 +21,10 @@ import {
   Teleport,
   type VNodeChild,
   watch,
+  watchPostEffect,
 } from 'vue'
 
+import { OverlayLayer } from '@molecule/app-overlay-dom'
 import { getClassMap } from '@molecule/app-ui'
 import { useLocation, useTranslation } from '@molecule/app-vue'
 
@@ -104,46 +107,6 @@ function resolveWidthPx(width?: ShellSidebarWidth): number {
   if (typeof width === 'number') return width
   if (width) return SIDEBAR_WIDTH_PX[width]
   return SIDEBAR_WIDTH_PX.md
-}
-
-// ---------------------------------------------------------------------------
-// Reference-counted body scroll lock — the same approach Modal uses (its
-// counter is module-private there). A drawer and a <Modal> confirm stacked
-// above it can BOTH lock scroll; without a shared counter shape, closing
-// either one would unlock scroll behind the other.
-// ---------------------------------------------------------------------------
-let scrollLockCount = 0
-let previousBodyOverflow = ''
-
-/** Locks body scroll on the first caller; later callers just increment the count. */
-function lockBodyScroll(): void {
-  if (scrollLockCount === 0) {
-    previousBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-  }
-  scrollLockCount += 1
-}
-
-/** Decrements the lock count; restores the ORIGINAL overflow only once it reaches zero. */
-function unlockBodyScroll(): void {
-  scrollLockCount = Math.max(0, scrollLockCount - 1)
-  if (scrollLockCount === 0) {
-    document.body.style.overflow = previousBodyOverflow
-  }
-}
-
-/** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-/**
- * Returns the tab-stop elements inside a container, in DOM (tab) order.
- *
- * @param container - The element to search within.
- * @returns The focusable descendants, in document order.
- */
-function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
 }
 
 /**
@@ -627,134 +590,21 @@ export const ResponsiveAppShellDrawer = defineComponent({
     onUnmounted(() => shell.registerDrawer(false))
 
     const panelRef = ref<HTMLElement | null>(null)
-    const previouslyFocused: { current: HTMLElement | null } = { current: null }
-    // Whether each open-side effect's bookkeeping currently applies.
-    let focusTrapped = false
-    let scrollLocked = false
-    let keydownBound = false
-
     const open = computed(() => shell.drawerOpen.value && !shell.isDesktop.value)
-
-    /**
-     * Escape closes; Tab is trapped inside the panel (WAI-ARIA APG dialog).
-     *
-     * @param event - The document keydown event.
-     */
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        shell.closeDrawer()
-        return
-      }
-      if (event.key !== 'Tab') return
-
-      const el = panelRef.value
-      if (!el) return
-      const focusables = getFocusableElements(el)
-      if (focusables.length === 0) {
-        event.preventDefault()
-        el.focus()
-        return
-      }
-
-      const first = focusables[0]
-      const last = focusables[focusables.length - 1]
-      const active = document.activeElement
-
-      if (event.shiftKey) {
-        if (active === first || !el.contains(active)) {
-          event.preventDefault()
-          last.focus()
-        }
-      } else if (active === last || !el.contains(active)) {
-        event.preventDefault()
-        first.focus()
-      }
-    }
-
-    // Effect A — dialog focus management (Modal's approach): on open, capture
-    // the previously focused element and move focus into the panel; on close,
-    // restore it. Post-flush, so it runs once per open/close transition AFTER
-    // the teleported panel has been patched in/out — React's commit-then-
-    // effect ordering.
-    const beginFocusTrap = (): void => {
-      if (focusTrapped) return
-      focusTrapped = true
-      previouslyFocused.current = document.activeElement as HTMLElement | null
-      const panelEl = panelRef.value
-      if (panelEl) {
-        const focusables = getFocusableElements(panelEl)
-        ;(focusables[0] ?? panelEl).focus()
-      }
-    }
-
-    /**
-     * Restores focus to whatever opened the drawer. Best-effort: if that
-     * element was removed from the document while the drawer was open, there
-     * is nothing sensible to restore to.
-     */
-    const endFocusTrap = (): void => {
-      if (!focusTrapped) return
-      focusTrapped = false
-      const toRestore = previouslyFocused.current
-      if (toRestore && document.contains(toRestore)) {
-        toRestore.focus()
-      }
-    }
-
-    watch(
-      open,
-      (isOpen) => {
-        if (isOpen) beginFocusTrap()
-        else endFocusTrap()
-      },
-      { flush: 'post' },
+    const layer = new OverlayLayer()
+    watchPostEffect(() =>
+      layer.sync({
+        open: open.value,
+        kind: 'modal',
+        surface: { current: panelRef.value },
+        dismissKey: true,
+        dismissBackdrop: true,
+        focus: { trap: true, restore: 'opener' },
+        lockScroll: true,
+        onDismiss: shell.closeDrawer,
+      }),
     )
-
-    // Effect B — body scroll lock, reference-counted so a stacked <Modal>
-    // never loses its lock when the drawer closes first.
-    watch(
-      open,
-      (isOpen) => {
-        if (isOpen && !scrollLocked) {
-          lockBodyScroll()
-          scrollLocked = true
-        } else if (scrollLocked && !isOpen) {
-          unlockBodyScroll()
-          scrollLocked = false
-        }
-      },
-      { flush: 'post' },
-    )
-
-    // Effect C — the document keydown listener lives exactly while open.
-    watch(
-      open,
-      (isOpen) => {
-        if (isOpen && !keydownBound) {
-          keydownBound = true
-          document.addEventListener('keydown', handleKeyDown)
-        } else if (keydownBound && !isOpen) {
-          keydownBound = false
-          document.removeEventListener('keydown', handleKeyDown)
-        }
-      },
-      { flush: 'post' },
-    )
-
-    onUnmounted(() => {
-      // React runs every effect cleanup on unmount; mirror it so an app
-      // unmounted with the drawer open still restores focus, unlocks body
-      // scroll and drops the document listener.
-      endFocusTrap()
-      if (scrollLocked) {
-        unlockBodyScroll()
-        scrollLocked = false
-      }
-      if (keydownBound) {
-        keydownBound = false
-        document.removeEventListener('keydown', handleKeyDown)
-      }
-    })
+    onBeforeUnmount(() => layer.release())
 
     return () => {
       if (!open.value || typeof document === 'undefined') return null
@@ -782,7 +632,7 @@ export const ResponsiveAppShellDrawer = defineComponent({
             // 41 keeps the wrapper (and everything in it) above the backdrop.
             style: { zIndex: 41 },
             onClick: (event: MouseEvent) => {
-              if (event.target === event.currentTarget) shell.closeDrawer()
+              if (event.target === event.currentTarget) layer.dismissBackdrop()
               else event.stopPropagation()
             },
           },

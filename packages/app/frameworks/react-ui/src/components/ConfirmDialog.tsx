@@ -42,6 +42,7 @@ import { type JSX, type ReactNode, useId } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Text } from '@molecule/app-ui-react/elements'
 
 import { Button } from './Button.js'
 import { Modal } from './Modal.js'
@@ -109,18 +110,19 @@ export function ConfirmDialog({
       aria-labelledby={title === undefined ? undefined : titleId}
       aria-describedby={description === undefined ? undefined : descriptionId}
     >
-      <div className={cm.stack(3)}>
-        <h2
+      <Box as="div" className={cm.stack(3)}>
+        <Text
+          as="h2"
           id={title === undefined ? undefined : titleId}
           className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}
         >
           {title}
-        </h2>
-        <p id={descriptionId} className={cm.textSize('sm')}>
+        </Text>
+        <Text as="p" id={descriptionId} className={cm.textSize('sm')}>
           {description}
-        </p>
+        </Text>
         {children}
-        <div className={cm.flex({ justify: 'end', gap: 'sm' })}>
+        <Box as="div" className={cm.flex({ justify: 'end', gap: 'sm' })}>
           <Button variant="ghost" onClick={onClose} disabled={loading}>
             {cancelLabel ?? t('confirm.cancel', {}, { defaultValue: 'Cancel' })}
           </Button>
@@ -134,8 +136,8 @@ export function ConfirmDialog({
               ? '…'
               : (confirmLabel ?? t('confirm.confirm', {}, { defaultValue: 'Confirm' }))}
           </Button>
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Modal>
   )
 }

@@ -4,12 +4,14 @@
  * @module
  */
 
+import { isPlatformBrowser } from '@angular/common'
 import {
   Component,
   ElementRef,
   EventEmitter,
   inject,
   Output,
+  PLATFORM_ID,
   signal,
   type TemplateRef,
   ViewChild,
@@ -218,6 +220,7 @@ export class ConfirmDialog {
   @ViewChild('modal', { read: ElementRef }) modalElement?: ElementRef<HTMLElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID))
 
   /**
    * Recomputes {@link ariaLabelledBy} and {@link ariaDescribedBy} from the
@@ -235,7 +238,7 @@ export class ConfirmDialog {
           ? this.descriptionId
           : null,
       )
-      setElementPresent(this.host.nativeElement, false)
+      setElementPresent(this.host.nativeElement, !this.browser && this.open)
       setHostRoot(this.host.nativeElement, this.modalElement?.nativeElement)
     })
   }

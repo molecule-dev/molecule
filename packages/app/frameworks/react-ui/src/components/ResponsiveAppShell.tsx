@@ -107,10 +107,17 @@ import {
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 
 import { useLocation, useTranslation } from '@molecule/app-react'
+import type { ElementHandle } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, ScrollArea } from '@molecule/app-ui-react/elements'
+import {
+  OverlayBackdrop,
+  OverlayPortal,
+  useOverlayLayer,
+  useViewportMatch,
+} from '@molecule/app-ui-react/platform'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 
@@ -133,20 +140,7 @@ const DESKTOP_QUERY = '(min-width: 768px)'
  * @returns Whether the desktop shell should mount.
  */
 export function useIsDesktop(query: string = DESKTOP_QUERY): boolean {
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
-    return window.matchMedia(query).matches
-  })
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined
-    const mq = window.matchMedia(query)
-    const onChange = (e: MediaQueryListEvent): void => setIsDesktop(e.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [query])
-
-  return isDesktop
+  return useViewportMatch(query)
 }
 
 /**
@@ -177,45 +171,6 @@ function resolveWidthPx(width?: ShellSidebarWidth): number {
   return SIDEBAR_WIDTH_PX.md
 }
 
-// ---------------------------------------------------------------------------
-// Reference-counted body scroll lock — the same approach Modal uses (its
-// counter is module-private there). A drawer and a <Modal> confirm stacked
-// above it can BOTH lock scroll; without a shared counter shape, closing
-// either one would unlock scroll behind the other.
-// ---------------------------------------------------------------------------
-let scrollLockCount = 0
-let previousBodyOverflow = ''
-
-/** Locks body scroll on the first caller; later callers just increment the count. */
-function lockBodyScroll(): void {
-  if (scrollLockCount === 0) {
-    previousBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-  }
-  scrollLockCount += 1
-}
-
-/** Decrements the lock count; restores the ORIGINAL overflow only once it reaches zero. */
-function unlockBodyScroll(): void {
-  scrollLockCount = Math.max(0, scrollLockCount - 1)
-  if (scrollLockCount === 0) {
-    document.body.style.overflow = previousBodyOverflow
-  }
-}
-
-/** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-/**
- * Returns the tab-stop elements inside a container, in DOM (tab) order.
- * @param container - The element to search within.
- * @returns The focusable descendants, in document order.
- */
-function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-}
-
 interface ShellContextValue {
   /** Whether the desktop shell (sidebar) is mounted. */
   isDesktop: boolean
@@ -229,6 +184,8 @@ interface ShellContextValue {
   closeDrawer: () => void
   /** DOM id of the drawer panel — wires the trigger's `aria-controls`. */
   drawerId: string
+  /** The drawer's trigger, used for presentation ownership and opener focus. */
+  drawerTrigger: { readonly current: ElementHandle | null }
   /**
    * Whether a `Drawer` sub-component is part of the composition. The Drawer
    * registers itself on mount so a shell composed WITHOUT a drawer never
@@ -301,6 +258,7 @@ function ResponsiveAppShellBase({
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [hasDrawer, setHasDrawer] = useState(false)
   const drawerId = useId()
+  const drawerTrigger = useRef<ElementHandle>(null)
 
   // Close the drawer whenever the route changes — without it the drawer
   // stays mounted over the next page and blocks clicks underneath (the
@@ -329,7 +287,8 @@ function ResponsiveAppShellBase({
   const closeDrawer = (): void => setDrawerOpen(false)
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(
         // Root flex ROW — the sidebar sits beside the content column (the
         // dashboard-shell-layout rule: never position main next to a flow
@@ -358,13 +317,14 @@ function ResponsiveAppShellBase({
           openDrawer,
           closeDrawer,
           drawerId,
+          drawerTrigger,
           hasDrawer,
           registerDrawer: setHasDrawer,
         }}
       >
         {children}
       </ShellContext.Provider>
-    </div>
+    </Box>
   )
 }
 
@@ -423,7 +383,8 @@ export function ResponsiveAppShellTopBar({
   const triggerLabel = t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' })
 
   return (
-    <header
+    <Box
+      as="header"
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
         cm.sp('px', 4),
@@ -443,9 +404,15 @@ export function ResponsiveAppShellTopBar({
     >
       {/* minWidth: 0 lets this group shrink below its content width so a
           long brand never pushes the actions off-screen (no ClassMap token). */}
-      <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))} style={{ minWidth: 0 }}>
+      <Box
+        as="div"
+        className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }))}
+        style={{ minWidth: 0 }}
+      >
         {shell.hasDrawer && !shell.isDesktop ? (
-          <button
+          <Pressable
+            as="button"
+            ref={shell.drawerTrigger}
             type="button"
             onClick={shell.openDrawer}
             aria-label={triggerLabel}
@@ -466,14 +433,20 @@ export function ResponsiveAppShellTopBar({
             style={{ width: 44, height: 44 }}
           >
             {renderIcon('menu', cm.iconMd)}
-          </button>
+          </Pressable>
         ) : null}
-        {brand ? <div style={{ minWidth: 0 }}>{brand}</div> : null}
-      </div>
+        {brand ? (
+          <Box as="div" style={{ minWidth: 0 }}>
+            {brand}
+          </Box>
+        ) : null}
+      </Box>
       {actions ? (
-        <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0)}>{actions}</div>
+        <Box as="div" className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0)}>
+          {actions}
+        </Box>
       ) : null}
-    </header>
+    </Box>
   )
 }
 
@@ -535,7 +508,8 @@ export function ResponsiveAppShellSidebar({
     navLabel ?? t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' })
 
   return (
-    <aside
+    <ScrollArea
+      as="aside"
       className={cm.cn(
         cm.flex({ direction: 'col' }),
         cm.shrink0,
@@ -550,15 +524,17 @@ export function ResponsiveAppShellSidebar({
       // Inline exceptions (Rule 5, documented): a specific pixel width and
       // `overflow-y: auto` have no ClassMap tokens — the same documented
       // case `@molecule/app-sidebar-layout-react` routes around.
-      style={{ top: 0, width: sidebarWidthPx, overflowY: 'auto' }}
+      style={{ top: 0, width: sidebarWidthPx }}
+      webStyle={{ overflowY: 'auto' }}
       data-mol-id={dataMolId}
       data-testid={testId}
     >
-      <nav aria-label={resolvedNavLabel} className={cm.cn(cm.flex1, cm.stack(1))}>
+      <Box as="nav" aria-label={resolvedNavLabel} className={cm.cn(cm.flex1, cm.stack(1))}>
         {children}
-      </nav>
+      </Box>
       {footer ? (
-        <div
+        <Box
+          as="div"
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
             cm.borderT,
@@ -567,9 +543,9 @@ export function ResponsiveAppShellSidebar({
           )}
         >
           {footer}
-        </div>
+        </Box>
       ) : null}
-    </aside>
+    </ScrollArea>
   )
 }
 
@@ -634,8 +610,15 @@ export function ResponsiveAppShellDrawer({
 }: ResponsiveAppShellDrawerProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { isDesktop, sidebarWidthPx, drawerOpen, closeDrawer, drawerId, registerDrawer } =
-    useShellContext('ResponsiveAppShell.Drawer')
+  const {
+    isDesktop,
+    sidebarWidthPx,
+    drawerOpen,
+    closeDrawer,
+    drawerId,
+    drawerTrigger,
+    registerDrawer,
+  } = useShellContext('ResponsiveAppShell.Drawer')
 
   // Register presence so the TopBar knows a trigger is meaningful. Mounted
   // once per composition; the root's `hasDrawer` flips right after the first
@@ -647,90 +630,28 @@ export function ResponsiveAppShellDrawer({
 
   const resolvedNavLabel =
     navLabel ?? t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' })
-  const panelRef = useRef<HTMLDivElement | null>(null)
-  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
+  const panelRef = useRef<ElementHandle>(null)
   const open = drawerOpen && !isDesktop
+  const layer = useOverlayLayer({
+    open,
+    kind: 'modal',
+    surface: panelRef,
+    anchor: drawerTrigger,
+    dismissKey: true,
+    dismissBackdrop: true,
+    focus: { trap: true, restore: 'opener' },
+    lockScroll: true,
+    onDismiss: closeDrawer,
+  })
 
-  // Effect A — dialog focus management (Modal's approach): on open, capture
-  // the previously focused element and move focus into the panel; on close,
-  // restore it. Narrow deps — must run once per open/close transition, not
-  // on every parent re-render.
-  useEffect(() => {
-    if (!open) return undefined
-
-    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
-    const panelEl = panelRef.current
-    if (panelEl) {
-      const focusables = getFocusableElements(panelEl)
-      ;(focusables[0] ?? panelEl).focus()
-    }
-
-    return () => {
-      const toRestore = previouslyFocusedRef.current
-      if (toRestore && document.contains(toRestore)) {
-        toRestore.focus()
-      }
-    }
-  }, [open])
-
-  // Effect B — body scroll lock, reference-counted so a stacked <Modal>
-  // never loses its lock when the drawer closes first.
-  useEffect(() => {
-    if (!open) return undefined
-    lockBodyScroll()
-    return () => unlockBodyScroll()
-  }, [open])
-
-  // Effect C — Escape closes; Tab is trapped inside the panel.
-  useEffect(() => {
-    if (!open) return undefined
-
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        closeDrawer()
-        return
-      }
-      if (e.key !== 'Tab') return
-
-      const el = panelRef.current
-      if (!el) return
-      const focusables = getFocusableElements(el)
-      if (focusables.length === 0) {
-        e.preventDefault()
-        el.focus()
-        return
-      }
-
-      const first = focusables[0]
-      const last = focusables[focusables.length - 1]
-      const active = document.activeElement
-
-      if (e.shiftKey) {
-        if (active === first || !el.contains(active)) {
-          e.preventDefault()
-          last.focus()
-        }
-      } else if (active === last || !el.contains(active)) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [open, closeDrawer])
-
-  if (!open || typeof document === 'undefined') return null
-
-  const closeLabel = t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })
-
-  const drawer = (
+  const drawer = open && (
     <>
       {/* Backdrop click-to-close. The wrapper is a presentation layer: a click
           on the wrapper itself (the backdrop) closes, and a click that bubbled
           up from the panel stops here. Escape closes from the keyboard. */}
-      <div className={cm.overlay} aria-hidden="true" />
-      <div
+      <Box as="div" className={cm.overlay} aria-hidden="true" />
+      <OverlayBackdrop
+        layer={layer}
         className={cm.cn(cm.position('fixed'), cm.inset0)}
         role="presentation"
         // The WRAPPER carries the z-index: a positioned element with
@@ -740,12 +661,9 @@ export function ResponsiveAppShellDrawer({
         // (click-dead drawer; found by the first eight adopting apps).
         // 41 keeps the wrapper (and everything in it) above the backdrop.
         style={{ zIndex: 41 }}
-        onClick={(e: React.MouseEvent) => {
-          if (e.target === e.currentTarget) closeDrawer()
-          else e.stopPropagation()
-        }}
       >
-        <div
+        <ScrollArea
+          as="div"
           ref={panelRef}
           id={drawerId}
           role="dialog"
@@ -762,26 +680,38 @@ export function ResponsiveAppShellDrawer({
           // above — see its comment.
           style={{
             width: sidebarWidthPx,
-            maxWidth: '85vw',
-            overflowY: 'auto',
+            maxWidth: '85%',
           }}
+          webStyle={{ maxWidth: '85vw', overflowY: 'auto' }}
           data-mol-id={dataMolId}
           data-testid={testId}
         >
           {(header || showCloseButton) && (
-            <div
+            <Box
+              as="div"
               className={cm.cn(
                 cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
                 cm.sp('p', 3),
                 cm.shrink0,
               )}
             >
-              {header ? <div style={{ minWidth: 0 }}>{header}</div> : <span aria-hidden="true" />}
+              {header ? (
+                <Box as="div" style={{ minWidth: 0 }}>
+                  {header}
+                </Box>
+              ) : (
+                <Box as="span" aria-hidden="true" />
+              )}
               {showCloseButton ? (
-                <button
+                <Pressable
+                  as="button"
                   type="button"
                   onClick={closeDrawer}
-                  aria-label={closeLabel}
+                  aria-label={t(
+                    'appShell.closeMenu',
+                    {},
+                    { defaultValue: 'Close navigation menu' },
+                  )}
                   data-mol-id={closeDataMolId}
                   className={cm.cn(
                     cm.flex({ align: 'center', justify: 'center' }),
@@ -794,15 +724,16 @@ export function ResponsiveAppShellDrawer({
                   )}
                 >
                   {renderIcon('x-mark', cm.iconMd)}
-                </button>
+                </Pressable>
               ) : null}
-            </div>
+            </Box>
           )}
-          <nav aria-label={resolvedNavLabel} className={cm.cn(cm.flex1, cm.stack(1))}>
+          <Box as="nav" aria-label={resolvedNavLabel} className={cm.cn(cm.flex1, cm.stack(1))}>
             {children}
-          </nav>
+          </Box>
           {footer ? (
-            <div
+            <Box
+              as="div"
               className={cm.cn(
                 cm.flex({ direction: 'col', gap: 'sm' }),
                 cm.borderT,
@@ -811,14 +742,18 @@ export function ResponsiveAppShellDrawer({
               )}
             >
               {footer}
-            </div>
+            </Box>
           ) : null}
-        </div>
-      </div>
+        </ScrollArea>
+      </OverlayBackdrop>
     </>
   )
 
-  return createPortal(drawer, document.body)
+  return (
+    <OverlayPortal layer={layer} presentation="host" server="omit">
+      {drawer}
+    </OverlayPortal>
+  )
 }
 
 /**
@@ -859,14 +794,16 @@ export function ResponsiveAppShellContent({
     // — without it a wide table widens the whole flex row (see
     // dashboard-shell-layout). Pages own their own padding, like
     // `@molecule/app-sidebar-layout-react`'s main.
-    <main
+    <Box
+      as="main"
       className={cm.cn(cm.flex1, className)}
-      style={{ minWidth: 0, ...style }}
+      style={{ minWidth: 0 }}
+      webStyle={{ ...style }}
       data-mol-id={dataMolId}
       data-testid={testId}
     >
       {children}
-    </main>
+    </Box>
   )
 }
 

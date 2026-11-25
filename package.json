@@ -24,6 +24,7 @@
     "packages/app/infrastructure/*",
     "packages/app/locales/*",
     "packages/app/native/*",
+    "packages/app/utilities/*",
     "packages/tooling/*"
   ],
   "engines": {

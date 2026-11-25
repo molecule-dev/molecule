@@ -16,16 +16,20 @@
   rect one animation frame after opening.
 -->
 <script lang="ts">
-  import { untrack } from 'svelte'
+  import { onDestroy, untrack } from 'svelte'
   import { type Attachment, createAttachmentKey } from 'svelte/attachments'
 
+  import {
+    isOutsideOverlay,
+    measureDropdownPosition,
+    OverlayLayer,
+  } from '@molecule/app-overlay-dom'
   import { BodyPortal, useLocation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { useGeneratedId } from '../dom.js'
   import { type CSSStyle, reactStyle } from '../style.js'
   import type { DropdownItem, DropdownProps, DropdownTriggerProps } from '../types.js'
-  import { calculateDropdownPosition } from './dropdown.js'
   import ReactNode from './ReactNode.svelte'
 
   let {
@@ -81,14 +85,7 @@
   const updatePosition = (): void => {
     const t = triggerEl
     const m = ref
-    if (t && m) {
-      position = calculateDropdownPosition(
-        t.getBoundingClientRect(),
-        m.getBoundingClientRect(),
-        placement,
-        align,
-      )
-    }
+    if (t && m) position = measureDropdownPosition(t, m, placement, align)
   }
 
   const handleTriggerClick = (): void => {
@@ -137,10 +134,12 @@
   // Update position when menu opens: the animation frame ensures the menu is
   // rendered before its position is calculated.
   $effect(() => {
-    if (!isOpen) return
+    const view = triggerEl?.ownerDocument.defaultView
+    if (!isOpen || !ref || !view) return
     void placement
     void align
-    requestAnimationFrame(updatePosition)
+    const frame = view.requestAnimationFrame(updatePosition)
+    return () => view.cancelAnimationFrame(frame)
   })
 
   // Moves focus to the first (or last, for an ArrowUp-driven open) item
@@ -164,7 +163,7 @@
   // `[isOpen, activeIndex]`).
   let focusedItemEl: HTMLDivElement | null = null
   $effect(() => {
-    if (!isOpen || activeIndex < 0) return
+    if (!isOpen || !ref || activeIndex < 0) return
     const el = itemEls[activeIndex] ?? null
     el?.focus()
     focusedItemEl = el
@@ -179,32 +178,40 @@
   let itemHadFocus = false
   $effect.pre(() => {
     void items
-    itemHadFocus = focusedItemEl !== null && document.activeElement === focusedItemEl
+    itemHadFocus =
+      focusedItemEl !== null && focusedItemEl.ownerDocument.activeElement === focusedItemEl
   })
   $effect(() => {
     void items
     const el = focusedItemEl
     if (!itemHadFocus || !el || !untrack(() => isOpen)) return
-    if (el.isConnected && document.activeElement !== el) el.focus()
+    if (el.isConnected && el.ownerDocument.activeElement !== el) el.focus()
   })
 
-  // Close on outside mousedown and Escape (with focus restoration).
+  const layer = new OverlayLayer()
   $effect(() => {
-    if (!isOpen) return
-    const handleClickOutside = (e: MouseEvent): void => {
-      const t = triggerEl
-      const m = ref
-      if (t && !t.contains(e.target as Node) && m && !m.contains(e.target as Node)) handleClose()
+    layer.sync({
+      open: isOpen,
+      kind: 'popover',
+      surface: { current: ref },
+      anchor: { current: triggerEl },
+      dismissKey: true,
+      onDismiss: closeAndRefocusTrigger,
+    })
+  })
+  onDestroy(() => layer.release())
+
+  // Outside clicks close without moving focus.
+  $effect(() => {
+    const trigger = triggerEl
+    const menu = ref
+    if (!isOpen || !trigger || !menu) return
+    const owner = trigger.ownerDocument
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (isOutsideOverlay(event, trigger, menu)) handleClose()
     }
-    const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') closeAndRefocusTrigger()
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleEscape)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleEscape)
-    }
+    owner.addEventListener('mousedown', handleClickOutside)
+    return () => owner.removeEventListener('mousedown', handleClickOutside)
   })
 
   // Close on route change — a dropdown left open over the next page blocks
@@ -427,8 +434,8 @@
   <!-- Focusable but never a Tab stop (the items carry the roving tab stop):
        a click on a separator or the menu's padding keeps focus in the menu,
        so the arrow keys still move between its items. -->
-  <BodyPortal
-    ><div
+  <BodyPortal target={triggerEl?.ownerDocument.body ?? null}>
+    <div
       bind:this={ref}
       id={menuId}
       role="menu"

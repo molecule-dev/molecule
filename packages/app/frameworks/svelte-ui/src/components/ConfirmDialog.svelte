@@ -49,8 +49,17 @@
   const reportDescription = (renders: boolean): void => {
     descriptionRenders = renders
   }
-  const headingId = $derived(titleRenders ? titleId : undefined)
-  const describedById = $derived(descriptionRenders ? descriptionId : undefined)
+  // Attachments measure client content. On the server, associate the supplied
+  // title and description with their rendered elements on the first pass.
+  const server = typeof document === 'undefined'
+  const hasSuppliedNode = (node: typeof title): boolean =>
+    typeof node === 'string' ? node.trim().length > 0 : node != null
+  const headingId = $derived(
+    titleRenders || (server && hasSuppliedNode(title)) ? titleId : undefined,
+  )
+  const describedById = $derived(
+    descriptionRenders || (server && hasSuppliedNode(description)) ? descriptionId : undefined,
+  )
 </script>
 
 <Modal {open} {onClose} aria-labelledby={headingId} aria-describedby={describedById}>

@@ -20,17 +20,19 @@ import {
   type ComponentPublicInstance,
   defineComponent,
   h,
-  nextTick,
   type PropType,
+  provide,
   ref,
   useId,
   type VNodeChild,
   watch,
 } from 'vue'
 
+import { domElement } from '@molecule/app-overlay-dom'
 import { getClassMap } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
+import { modalInitialFocus } from '../utilities/modal-focus.js'
 import { Button } from './Button.js'
 import { Input } from './Input.js'
 import { Modal } from './Modal.js'
@@ -145,9 +147,14 @@ export const PromptDialog = defineComponent({
     // dialog (axe `aria-dialog-name`).
     const titleId = useId()
     const descriptionId = useId()
-    // The Input component instance, whose root wraps the native input this
-    // dialog focuses on open.
+    // Modal reads the native input when its portal is ready to take focus.
     const inputRef = ref<ComponentPublicInstance | null>(null)
+    provide(modalInitialFocus, {
+      /** The input exposed by the binding's Input component. */
+      get current() {
+        return domElement(inputRef.value?.$el)
+      },
+    })
 
     // Re-seed from initialValue each open so a reopened dialog shows the
     // CURRENT value, not whatever the user typed last time.
@@ -157,28 +164,6 @@ export const PromptDialog = defineComponent({
         pending.value = false
       }
     })
-
-    // The dialog exists to take one string, so opening it puts focus in the
-    // input. Modal's own open watcher moves focus to the dialog's first
-    // control (the close button), and its post-flush watcher — registered in
-    // the child setup, which runs after this component's — flushes after this
-    // one, so focusing here directly would lose to it. One tick of deferral
-    // runs after Modal's focus, and the input ends up focused. `immediate`
-    // covers the dialog mounted already open (React's effect runs on mount
-    // too); the DOM exists by the deferred tick. Input's ref element IS the
-    // native input (its `$el`), so it is focused directly.
-    watch(
-      () => props.open,
-      (open) => {
-        if (!open) return
-        void nextTick(() => {
-          // Input's ref element IS the native input (its `$el`), so focus it.
-          const element: HTMLElement | null | undefined = inputRef.value?.$el
-          element?.focus()
-        })
-      },
-      { flush: 'post', immediate: true },
-    )
 
     const handleSubmit = async (e: Event): Promise<void> => {
       e.preventDefault()

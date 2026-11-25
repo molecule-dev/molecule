@@ -14,76 +14,18 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 
+import { isOutsideOverlay, measureDropdownPosition } from '@molecule/app-overlay-dom'
 import { useLocation } from '@molecule/app-react'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { OverlayPortal, useOverlayLayer } from '@molecule/app-ui-react/platform'
 
 import { mergeRefs } from '../utilities/mergeRefs.js'
 
 interface Position {
   top: number
   left: number
-}
-
-/**
- * Calculate dropdown position based on trigger element and placement.
- * @param triggerRect - The bounding rectangle of the trigger element.
- * @param menuRect - The bounding rectangle of the dropdown menu.
- * @param placement - The desired placement direction.
- * @param align - The alignment within the placement axis.
- * @param offset - The pixel offset from the trigger element.
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  menuRect: DOMRect,
-  placement: NonNullable<DropdownProps['placement']>,
-  align: NonNullable<DropdownProps['align']>,
-  offset = 4,
-): Position {
-  let top = 0
-  let left: number
-
-  // Vertical positioning
-  if (placement.startsWith('top')) {
-    top = triggerRect.top + window.scrollY - menuRect.height - offset
-  } else if (placement.startsWith('bottom')) {
-    top = triggerRect.bottom + window.scrollY + offset
-  } else if (placement === 'left' || placement === 'right') {
-    top = triggerRect.top + window.scrollY + (triggerRect.height - menuRect.height) / 2
-  }
-
-  // Horizontal positioning
-  if (placement === 'left') {
-    left = triggerRect.left + window.scrollX - menuRect.width - offset
-  } else if (placement === 'right') {
-    left = triggerRect.right + window.scrollX + offset
-  } else {
-    // For top/bottom placements, use align
-    switch (align) {
-      case 'start':
-        left = triggerRect.left + window.scrollX
-        break
-      case 'end':
-        left = triggerRect.right + window.scrollX - menuRect.width
-        break
-      case 'center':
-      default:
-        left = triggerRect.left + window.scrollX + (triggerRect.width - menuRect.width) / 2
-        break
-    }
-  }
-
-  // Handle top-start, top-end, bottom-start, bottom-end
-  if (placement.endsWith('-start')) {
-    left = triggerRect.left + window.scrollX
-  } else if (placement.endsWith('-end')) {
-    left = triggerRect.right + window.scrollX - menuRect.width
-  }
-
-  return { top, left }
 }
 
 /**
@@ -216,6 +158,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     // measurement, outside-click detection, AND focus restoration.
     const triggerRef = useRef<HTMLElement | null>(null)
     const menuRef = useRef<HTMLDivElement>(null)
+    const [menuElement, setMenuElement] = useState<HTMLDivElement | null>(null)
     const itemRefs = useRef<(HTMLDivElement | null)[]>([])
     // Which end of the menu keyboard-driven opens should focus: ArrowDown
     // (and Enter/Space/click) want the first item, ArrowUp wants the last.
@@ -230,7 +173,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     // A disabled dropdown never opens, whatever `open` says.
     const isOpen = !disabled && (controlledOpen !== undefined ? controlledOpen : internalOpen)
     // The forwarded ref names the menu, the element that carries className and style.
-    const setMenuRef = useMemo(() => mergeRefs<HTMLDivElement>(ref, menuRef), [ref])
+    const setMenuRef = useMemo(() => mergeRefs<HTMLDivElement>(ref, menuRef, setMenuElement), [ref])
 
     const setOpen = useCallback(
       (open: boolean) => {
@@ -243,11 +186,9 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     )
 
     const updatePosition = useCallback(() => {
-      if (triggerRef.current && menuRef.current) {
-        const triggerRect = triggerRef.current.getBoundingClientRect()
-        const menuRect = menuRef.current.getBoundingClientRect()
-        setPosition(calculatePosition(triggerRect, menuRect, placement, align))
-      }
+      const trigger = triggerRef.current
+      const menu = menuRef.current
+      if (trigger && menu) setPosition(measureDropdownPosition(trigger, menu, placement, align))
     }, [placement, align])
 
     const handleTriggerClick = useCallback(() => {
@@ -296,6 +237,15 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
       triggerRef.current?.focus()
     }, [handleClose])
 
+    const layer = useOverlayLayer({
+      open: isOpen,
+      kind: 'popover',
+      surface: menuRef,
+      anchor: triggerRef,
+      dismissKey: true,
+      onDismiss: closeAndRefocusTrigger,
+    })
+
     const handleSelect = useCallback(
       (value: string) => {
         onSelect?.(value)
@@ -303,13 +253,13 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
       [onSelect],
     )
 
-    // Update position when menu opens
+    // Wait for the portalled menu to mount before measuring it.
     useEffect(() => {
-      if (isOpen) {
-        // Use requestAnimationFrame to ensure menu is rendered before calculating position
-        requestAnimationFrame(updatePosition)
-      }
-    }, [isOpen, updatePosition])
+      const view = triggerRef.current?.ownerDocument.defaultView
+      if (!menuElement || !view) return
+      const frame = view.requestAnimationFrame(updatePosition)
+      return () => view.cancelAnimationFrame(frame)
+    }, [menuElement, updatePosition])
 
     // Moves the roving tab stop to the first (or last, for an ArrowUp-driven
     // open) item whenever the menu opens, a menu mounted open included, and
@@ -343,39 +293,23 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
 
     // Syncs real DOM focus to the roving-tabindex active item.
     useEffect(() => {
-      if (!isOpen || activeIndex < 0) return
+      if (!menuElement || activeIndex < 0) return
       itemRefs.current[activeIndex]?.focus()
-    }, [isOpen, activeIndex])
+    }, [menuElement, activeIndex])
 
-    // Close on outside click and Escape (with focus restoration).
+    // Close on outside mouse down without moving focus.
     useEffect(() => {
-      if (!isOpen) return
+      const trigger = triggerRef.current
+      if (!trigger || !menuElement) return
 
-      const handleClickOutside = (e: MouseEvent): void => {
-        if (
-          triggerRef.current &&
-          !triggerRef.current.contains(e.target as Node) &&
-          menuRef.current &&
-          !menuRef.current.contains(e.target as Node)
-        ) {
-          handleClose()
-        }
+      const owner = trigger.ownerDocument
+      const handleClickOutside = (event: MouseEvent): void => {
+        if (isOutsideOverlay(event, trigger, menuElement)) handleClose()
       }
 
-      const handleEscape = (e: KeyboardEvent): void => {
-        if (e.key === 'Escape') {
-          closeAndRefocusTrigger()
-        }
-      }
-
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleEscape)
-
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
-        document.removeEventListener('keydown', handleEscape)
-      }
-    }, [isOpen, handleClose, closeAndRefocusTrigger])
+      owner.addEventListener('mousedown', handleClickOutside)
+      return () => owner.removeEventListener('mousedown', handleClickOutside)
+    }, [menuElement, handleClose])
 
     // Close on route change — a dropdown left open over the next page
     // blocks clicks underneath. React Router's `location` updates on
@@ -534,7 +468,11 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     return (
       <>
         {renderedTrigger}
-        {typeof document !== 'undefined' && menu && createPortal(menu, document.body)}
+        {menu && (
+          <OverlayPortal layer={layer} presentation="host" server="omit">
+            {menu}
+          </OverlayPortal>
+        )}
       </>
     )
   },

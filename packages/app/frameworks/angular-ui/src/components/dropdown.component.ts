@@ -5,6 +5,7 @@
  * @module
  */
 
+import { isPlatformBrowser } from '@angular/common'
 import {
   afterEveryRender,
   afterNextRender,
@@ -20,6 +21,7 @@ import {
   Injector,
   type OnDestroy,
   Output,
+  PLATFORM_ID,
   Renderer2,
   signal,
   TemplateRef,
@@ -40,6 +42,7 @@ import {
   usePlacement,
   useRouter,
 } from '@molecule/app-angular'
+import { isOutsideOverlay, measureDropdownPosition, OverlayLayer } from '@molecule/app-overlay-dom'
 import type { DropdownItem, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -54,63 +57,6 @@ interface Position {
   top: number
   /** Left offset in pixels. */
   left: number
-}
-
-/**
- * Calculates the menu position from the trigger and menu rectangles — a
- * faithful port of React's `calculatePosition`.
- *
- * @param triggerRect - The trigger's bounding rectangle.
- * @param menuRect - The menu's bounding rectangle.
- * @param placement - The desired placement.
- * @param align - The alignment within the placement axis.
- * @param offset - The pixel gap from the trigger (default 4).
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  menuRect: DOMRect,
-  placement: NonNullable<DropdownPlacement>,
-  align: NonNullable<DropdownAlign>,
-  offset = 4,
-): Position {
-  let top = 0
-  let left: number
-
-  if (placement.startsWith('top')) {
-    top = triggerRect.top + window.scrollY - menuRect.height - offset
-  } else if (placement.startsWith('bottom')) {
-    top = triggerRect.bottom + window.scrollY + offset
-  } else if (placement === 'left' || placement === 'right') {
-    top = triggerRect.top + window.scrollY + (triggerRect.height - menuRect.height) / 2
-  }
-
-  if (placement === 'left') {
-    left = triggerRect.left + window.scrollX - menuRect.width - offset
-  } else if (placement === 'right') {
-    left = triggerRect.right + window.scrollX + offset
-  } else {
-    switch (align) {
-      case 'start':
-        left = triggerRect.left + window.scrollX
-        break
-      case 'end':
-        left = triggerRect.right + window.scrollX - menuRect.width
-        break
-      case 'center':
-      default:
-        left = triggerRect.left + window.scrollX + (triggerRect.width - menuRect.width) / 2
-        break
-    }
-  }
-
-  if (placement.endsWith('-start')) {
-    left = triggerRect.left + window.scrollX
-  } else if (placement.endsWith('-end')) {
-    left = triggerRect.right + window.scrollX - menuRect.width
-  }
-
-  return { top, left }
 }
 
 /** The dropdown placement values (React's union). */
@@ -259,6 +205,8 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
   /** The element a caller's ref receives: the menu, or `null` while closed. */
   readonly element = this.inner.asReadonly()
   private readonly renderer = inject(Renderer2)
+  private readonly layer = new OverlayLayer()
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID))
   private readonly cdr = inject(ChangeDetectorRef)
   /** Schedules the deferred focus moves from the change-detection hooks. */
   private readonly injector = inject(Injector)
@@ -556,7 +504,9 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
    */
   ngDoCheck(): void {
     // Before the view (and its `@for`) updates: note whether the item still has focus.
-    this.itemHadFocus = this.focusedItemEl !== null && document.activeElement === this.focusedItemEl
+    this.itemHadFocus =
+      this.focusedItemEl !== null &&
+      this.focusedItemEl.ownerDocument.activeElement === this.focusedItemEl
     this.syncMenu()
   }
 
@@ -712,7 +662,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
     if (!itemsChanged || !this.itemHadFocus || !this.menuEl) return
     const restore = this.focusedItemEl
     // An element outside this component: the menu lives in document.body.
-    if (restore?.isConnected && document.activeElement !== restore) restore.focus()
+    if (restore?.isConnected && restore.ownerDocument.activeElement !== restore) restore.focus()
   }
 
   /**
@@ -721,7 +671,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
    * the position update.
    */
   private syncMenu(): void {
-    const open = this.isOpen()
+    const open = this.browser && this.isOpen()
     if (open) {
       // The menu view can only be created once the view queries resolve
       // (ngAfterViewInit), so creation is keyed on its absence, not on an
@@ -730,6 +680,14 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
       else if (this.placement !== this.lastPlacement || this.align !== this.lastAlign)
         this.schedulePosition()
       this.updateMenuWidth()
+      this.layer.sync({
+        open,
+        kind: 'popover',
+        surface: { current: this.menuEl },
+        anchor: { current: this.triggerEl },
+        dismissKey: true,
+        onDismiss: () => this.closeAndRefocusTrigger(),
+      })
     } else if (this.menuEl) {
       this.destroyMenu()
     }
@@ -750,7 +708,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
         HTMLDivElement | undefined
       if (root) {
         this.menuEl = root
-        placeElement(root, document.body)
+        placeElement(root, (this.triggerEl?.ownerDocument ?? root.ownerDocument).body)
         this.inner.set(root)
       }
       // The view is created in "create" mode; run its first update now so the
@@ -777,6 +735,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
 
   /** Destroys the menu view (moving its DOM back under the host first). */
   private destroyMenu(): void {
+    this.layer.release()
     this.removeListeners()
     this.activeIndex.set(-1)
     if (this.menuEl) placeElement(this.menuEl, null)
@@ -801,31 +760,28 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
 
   /** Schedules a position measurement on the next animation frame (React's effect). */
   private schedulePosition(): void {
-    requestAnimationFrame(() => this.updatePosition())
+    this.menuEl?.ownerDocument.defaultView?.requestAnimationFrame(() => this.updatePosition())
   }
 
   /** Measures the trigger and menu and updates the position (React's `updatePosition`). */
   private updatePosition(): void {
     if (!this.triggerEl || !this.menuEl) return
-    const triggerRect = this.triggerEl.getBoundingClientRect()
-    const menuRect = this.menuEl.getBoundingClientRect()
-    this.position.set(calculatePosition(triggerRect, menuRect, this.placement, this.align))
+    this.position.set(
+      measureDropdownPosition(this.triggerEl, this.menuEl, this.placement, this.align),
+    )
     this.updateMenuWidth()
   }
 
-  /** Adds the outside-mousedown and Escape listeners while open (React's effect). */
+  /** Adds the outside-mousedown listener while the menu is open. */
   private addListeners(): void {
     this.removeListeners()
+    const owner = this.menuEl?.ownerDocument
+    if (!owner) return
     this.removedListeners.push(
-      this.renderer.listen('document', 'mousedown', (event: MouseEvent) => {
-        const target = event.target as Node | null
-        if (!target) return
-        if (this.triggerEl?.contains(target)) return
-        if (this.menuEl?.contains(target)) return
-        this.handleClose()
-      }),
-      this.renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
-        if (event.key === 'Escape') this.closeAndRefocusTrigger()
+      this.renderer.listen(owner, 'mousedown', (event: MouseEvent) => {
+        const trigger = this.triggerEl
+        const menu = this.menuEl
+        if (trigger && menu && isOutsideOverlay(event, trigger, menu)) this.handleClose()
       }),
     )
   }

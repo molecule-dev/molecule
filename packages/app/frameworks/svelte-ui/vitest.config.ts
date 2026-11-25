@@ -1,21 +1,35 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { configDefaults, defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig, type TestUserConfig } from 'vitest/config'
+
+const ssr = 'src/__tests__/overlay-ssr.test.ts'
+const settings = {
+  globals: true,
+  environment: 'node',
+  testTimeout: 30000,
+  hookTimeout: 30000,
+  fileParallelism: false,
+  pool: 'forks',
+} satisfies TestUserConfig
 
 export default defineConfig({
-  plugins: [svelte({ compilerOptions: { dev: false }, emitCss: false })],
-  resolve: {
-    // Svelte's client runtime (its `node` build is SSR-only and cannot mount).
-    conditions: ['browser'],
-  },
   test: {
-    // svelte-package copies every test into dist/ and stages its output under .svelte-kit/.
-    exclude: [...configDefaults.exclude, 'dist/**', '.svelte-kit/**'],
-    globals: true,
-    environment: 'node',
-    testTimeout: 30000,
-    hookTimeout: 30000,
-    fileParallelism: false,
-    pool: 'forks',
-    server: { deps: { inline: ['svelte'] } },
+    projects: [
+      {
+        plugins: [svelte({ compilerOptions: { dev: false }, emitCss: false })],
+        resolve: { conditions: ['browser'] },
+        test: {
+          ...settings,
+          name: 'app-ui-svelte',
+          // svelte-package stages copies of tests under these directories.
+          exclude: [...configDefaults.exclude, 'dist/**', '.svelte-kit/**', ssr],
+          server: { deps: { inline: ['svelte'] } },
+        },
+      },
+      {
+        plugins: [svelte({ compilerOptions: { dev: false }, emitCss: false })],
+        resolve: { conditions: ['node'] },
+        test: { ...settings, name: 'app-ui-svelte-ssr', include: [ssr] },
+      },
+    ],
   },
 })

@@ -4,6 +4,7 @@
  * @module
  */
 
+import { calculateDropdownPosition as calculateDomDropdownPosition } from '@molecule/app-overlay-dom'
 import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import { classAtLoad } from '../class-at-load.js'
@@ -206,45 +207,12 @@ export function calculateDropdownPosition(
   align: DropdownAlign = 'start',
   offset = 4,
 ): DropdownPosition {
-  let top = 0
-  let left: number
-
-  // Vertical positioning
-  if (placement.startsWith('top')) {
-    top = triggerRect.top + window.scrollY - menuRect.height - offset
-  } else if (placement.startsWith('bottom')) {
-    top = triggerRect.bottom + window.scrollY + offset
-  } else if (placement === 'left' || placement === 'right') {
-    top = triggerRect.top + window.scrollY + (triggerRect.height - menuRect.height) / 2
-  }
-
-  // Horizontal positioning
-  if (placement === 'left') {
-    left = triggerRect.left + window.scrollX - menuRect.width - offset
-  } else if (placement === 'right') {
-    left = triggerRect.right + window.scrollX + offset
-  } else {
-    // For top/bottom placements, use align
-    switch (align) {
-      case 'start':
-        left = triggerRect.left + window.scrollX
-        break
-      case 'end':
-        left = triggerRect.right + window.scrollX - menuRect.width
-        break
-      case 'center':
-      default:
-        left = triggerRect.left + window.scrollX + (triggerRect.width - menuRect.width) / 2
-        break
-    }
-  }
-
-  // Handle top-start, top-end, bottom-start, bottom-end
-  if (placement.endsWith('-start')) {
-    left = triggerRect.left + window.scrollX
-  } else if (placement.endsWith('-end')) {
-    left = triggerRect.right + window.scrollX - menuRect.width
-  }
-
-  return { top, left }
+  return calculateDomDropdownPosition(
+    triggerRect,
+    menuRect,
+    placement,
+    align,
+    offset,
+    typeof window === 'undefined' ? undefined : window,
+  )
 }

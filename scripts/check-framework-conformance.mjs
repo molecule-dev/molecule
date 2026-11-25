@@ -796,6 +796,8 @@ export const TITLE_PARITY_PENDING = 'scripts/test-title-parity-pending.json'
  */
 export const TITLE_PARITY_EXEMPT = {
   [REFERENCE]: {
+    'src/__tests__/mixed-overlay-react.test.tsx':
+      'exercises the React OverlayHost context and its zero-node portal placement, React ref forwarding to the host div, React portal and iterable ReactNode slots, and React Strict Mode effect replay; the DOM ports cover shared keyboard, focus and scroll behavior in their own renderers',
     'src/elements/':
       'tests the renderer-neutral elements (`@molecule/app-ui-react/elements`) one React kit renders with on React DOM and React Native; a Vue, Svelte, Solid or Angular port renders its own DOM, and matches the components built on the elements through the conformance goldens',
   },
@@ -1014,6 +1016,8 @@ export const EXPORT_EXEMPT = {
   '@molecule/app-ui-react': {
     './elements':
       'the renderer-neutral elements one React feature renders with on React DOM and React Native; a Vue, Svelte, Solid or Angular port renders its own DOM',
+    './platform':
+      'the overlay host, layer, portal and backdrop one React kit places its dialogs and drawers with on React DOM and React Native; a Vue, Svelte, Solid or Angular kit composes its own overlays',
   },
   '@molecule/app-react': {
     './overlay':

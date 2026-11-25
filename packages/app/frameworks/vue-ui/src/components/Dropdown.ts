@@ -12,15 +12,24 @@ import {
   Fragment,
   h,
   isVNode,
+  onBeforeUnmount,
   type PropType,
   ref,
+  shallowRef,
   Teleport,
   type VNode,
   type VNodeChild,
   watch,
   watchEffect,
+  watchPostEffect,
 } from 'vue'
 
+import {
+  domElement,
+  isOutsideOverlay,
+  measureDropdownPosition,
+  OverlayLayer,
+} from '@molecule/app-overlay-dom'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useLocation } from '@molecule/app-vue'
@@ -39,9 +48,17 @@ type RefNode = Element | ComponentPublicInstance | null
  * @param node - What Vue passed the ref.
  * @returns The element, or null.
  */
-const refElement = (node: RefNode): HTMLElement | null => {
-  const element: unknown = node instanceof Element ? node : node?.$el
-  return element instanceof HTMLElement ? element : null
+const refElement = (node: RefNode): ReturnType<typeof domElement> =>
+  domElement(node && '$el' in node ? node.$el : node)
+
+/** Identifies an HTML element in any document, so SVG triggers stay unsized. */
+function isHtmlElement(element: Element | null): element is HTMLElement {
+  return element?.namespaceURI === 'http://www.w3.org/1999/xhtml'
+}
+
+/** The forwarded menu ref points at the native div. */
+function isDiv(element: Element | null): element is HTMLDivElement {
+  return isHtmlElement(element) && element.localName === 'div'
 }
 
 type Placement = NonNullable<DropdownProps['placement']>
@@ -117,65 +134,6 @@ function withReactStyleUnits(
       typeof value === 'number' && !UNITLESS_STYLE_PROPERTIES.has(key) ? `${value}px` : value
   }
   return out
-}
-
-/**
- * Calculate dropdown position based on trigger element and placement.
- * @param triggerRect - The bounding rectangle of the trigger element.
- * @param menuRect - The bounding rectangle of the dropdown menu.
- * @param placement - The desired placement direction.
- * @param align - The alignment within the placement axis.
- * @param offset - The pixel offset from the trigger element.
- * @returns The computed top and left position.
- */
-function calculatePosition(
-  triggerRect: DOMRect,
-  menuRect: DOMRect,
-  placement: Placement,
-  align: Align,
-  offset = 4,
-): Position {
-  let top = 0
-  let left: number
-
-  // Vertical positioning
-  if (placement.startsWith('top')) {
-    top = triggerRect.top + window.scrollY - menuRect.height - offset
-  } else if (placement.startsWith('bottom')) {
-    top = triggerRect.bottom + window.scrollY + offset
-  } else if (placement === 'left' || placement === 'right') {
-    top = triggerRect.top + window.scrollY + (triggerRect.height - menuRect.height) / 2
-  }
-
-  // Horizontal positioning
-  if (placement === 'left') {
-    left = triggerRect.left + window.scrollX - menuRect.width - offset
-  } else if (placement === 'right') {
-    left = triggerRect.right + window.scrollX + offset
-  } else {
-    // For top/bottom placements, use align
-    switch (align) {
-      case 'start':
-        left = triggerRect.left + window.scrollX
-        break
-      case 'end':
-        left = triggerRect.right + window.scrollX - menuRect.width
-        break
-      case 'center':
-      default:
-        left = triggerRect.left + window.scrollX + (triggerRect.width - menuRect.width) / 2
-        break
-    }
-  }
-
-  // Handle top-start, top-end, bottom-start, bottom-end
-  if (placement.endsWith('-start')) {
-    left = triggerRect.left + window.scrollX
-  } else if (placement.endsWith('-end')) {
-    left = triggerRect.right + window.scrollX - menuRect.width
-  }
-
-  return { top, left }
 }
 
 /** Indices of the non-separator, non-disabled items — the set Arrow/Home/End navigate. */
@@ -324,11 +282,12 @@ export const Dropdown = defineComponent({
     // trigger, or the fallback `role="button"` wrapper. Used for position
     // measurement, outside-click detection, AND focus restoration. A plain
     // variable, like React's ref: reads during render are not reactive.
-    let triggerRef: HTMLElement | null = null
+    const triggerRef = shallowRef<ReturnType<typeof refElement>>(null)
     // The `role="menu"` element is React's `forwardRef` target; it holds
     // `null` while closed.
     const menuRef = useElementRef<HTMLDivElement>(expose)
-    const itemRefs: (HTMLElement | null)[] = []
+    const layer = new OverlayLayer()
+    const itemRefs: ReturnType<typeof refElement>[] = []
     // Which end of the menu keyboard-driven opens should focus: ArrowDown
     // (and Enter/Space/click) want the first item, ArrowUp wants the last.
     let pendingOpenFocus: 'first' | 'last' = 'first'
@@ -349,10 +308,10 @@ export const Dropdown = defineComponent({
     }
 
     const updatePosition = (): void => {
-      if (triggerRef && menuRef.value) {
-        const triggerRect = triggerRef.getBoundingClientRect()
-        const menuRect = menuRef.value.getBoundingClientRect()
-        position.value = calculatePosition(triggerRect, menuRect, props.placement, props.align)
+      const trigger = triggerRef.value
+      const menu = menuRef.value
+      if (trigger && menu) {
+        position.value = measureDropdownPosition(trigger, menu, props.placement, props.align)
       }
     }
 
@@ -396,22 +355,12 @@ export const Dropdown = defineComponent({
     // deliberately do NOT refocus (the user's attention is already elsewhere).
     const closeAndRefocusTrigger = (): void => {
       handleClose()
-      triggerRef?.focus()
+      triggerRef.value?.focus()
     }
 
     const handleSelect = (value: string): void => {
       emit('select', value)
     }
-
-    // Update position when the menu opens: the animation frame ensures the
-    // menu is rendered before calculating its position.
-    watch(
-      isOpen,
-      (open) => {
-        if (open) requestAnimationFrame(updatePosition)
-      },
-      { flush: 'post' },
-    )
 
     // Moves focus to the first (or last, for an ArrowUp-driven open) item
     // whenever the menu transitions closed → open. Reading `items` here
@@ -437,45 +386,42 @@ export const Dropdown = defineComponent({
     // Syncs real DOM focus to the roving-tabindex active item.
     watchEffect(
       () => {
-        if (!isOpen.value || activeIndex.value < 0) return
+        if (!isOpen.value || !menuRef.value || activeIndex.value < 0) return
         itemRefs[activeIndex.value]?.focus()
       },
       { flush: 'post' },
     )
 
-    // Close on outside click and Escape (with focus restoration).
-    const handleClickOutside = (event: MouseEvent): void => {
-      const { target } = event
-      if (
-        target instanceof Node &&
-        triggerRef &&
-        !triggerRef.contains(target) &&
-        menuRef.value &&
-        !menuRef.value.contains(target)
-      ) {
-        handleClose()
-      }
-    }
+    watchPostEffect((onCleanup) => {
+      const trigger = triggerRef.value
+      const menu = menuRef.value
+      layer.sync({
+        open: isOpen.value,
+        kind: 'popover',
+        surface: { current: menu },
+        anchor: { current: trigger },
+        dismissKey: true,
+        onDismiss: closeAndRefocusTrigger,
+      })
+      if (!isOpen.value || !trigger || !menu) return
 
-    const handleEscape = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        closeAndRefocusTrigger()
+      const owner = trigger.ownerDocument
+      const handleClickOutside = (event: MouseEvent): void => {
+        if (isOutsideOverlay(event, trigger, menu)) handleClose()
       }
-    }
-
-    watch(
-      isOpen,
-      (open) => {
-        if (open) {
-          document.addEventListener('mousedown', handleClickOutside)
-          document.addEventListener('keydown', handleEscape)
-        } else {
-          document.removeEventListener('mousedown', handleClickOutside)
-          document.removeEventListener('keydown', handleEscape)
-        }
-      },
-      { flush: 'post' },
-    )
+      owner.addEventListener('mousedown', handleClickOutside)
+      onCleanup(() => owner.removeEventListener('mousedown', handleClickOutside))
+    })
+    watchPostEffect((onCleanup) => {
+      const view = triggerRef.value?.ownerDocument.defaultView
+      if (!isOpen.value || !menuRef.value || !view) return
+      // Reposition when an open menu's placement or alignment changes.
+      void props.placement
+      void props.align
+      const frame = view.requestAnimationFrame(updatePosition)
+      onCleanup(() => view.cancelAnimationFrame(frame))
+    })
+    onBeforeUnmount(() => layer.release())
 
     // Closing on route change — a dropdown left open over the next page blocks
     // clicks underneath — covers both in-app navigation and back/forward
@@ -549,21 +495,24 @@ export const Dropdown = defineComponent({
     }
 
     const setTriggerRef = (node: RefNode): void => {
-      triggerRef = refElement(node)
+      triggerRef.value = refElement(node)
     }
 
     const setMenuRef = (node: RefNode): void => {
       const element = refElement(node)
-      menuRef.value = element instanceof HTMLDivElement ? element : null
+      menuRef.value = isDiv(element) ? element : null
     }
 
     return () => {
       // Calculate menu width. Not measurable until the trigger ref exists
       // (the first open frame, before layout); `undefined` then lets the menu
       // size itself until the position update re-renders with a real width.
+      const trigger = triggerRef.value
       const menuWidth =
         props.width === 'trigger'
-          ? triggerRef?.offsetWidth
+          ? isHtmlElement(trigger)
+            ? trigger.offsetWidth
+            : undefined
           : typeof props.width === 'number'
             ? props.width
             : props.width
@@ -578,40 +527,42 @@ export const Dropdown = defineComponent({
         ...(menuWidth !== undefined ? { width: menuWidth } : {}),
       })
 
-      const menu = isOpen.value
-        ? h(Teleport, { to: 'body' }, [
-            h(
-              'div',
-              {
-                ref: setMenuRef,
-                id: menuId,
-                role: 'menu',
-                // Focusable but never a Tab stop (the items carry the roving tab stop):
-                // a click on a separator or the menu's padding keeps focus in the menu,
-                // so the arrow keys still move between its items.
-                tabindex: -1,
-                'data-state': 'open',
-                class: cm.cn(cm.dropdownContent, ...classOf(props.className, attrs)),
-                style: menuStyle,
-                'data-testid': props.testId ? `${props.testId}-menu` : undefined,
-                'data-mol-id': props.automationId ? `${props.automationId}-menu` : undefined,
-                onKeydown: handleMenuKeyDown,
-              },
-              props.items.map((item, index) =>
-                h(DropdownMenuItem, {
-                  key: item.separator ? `separator-${index}` : item.value,
-                  item,
-                  isActive: index === activeIndex.value,
-                  onSelect: handleSelect,
-                  onClose: closeAndRefocusTrigger,
-                  registerRef: (node: RefNode): void => {
-                    itemRefs[index] = refElement(node)
-                  },
-                }),
+      const target = trigger?.ownerDocument.body
+      const menu =
+        isOpen.value && target
+          ? h(Teleport, { to: target }, [
+              h(
+                'div',
+                {
+                  ref: setMenuRef,
+                  id: menuId,
+                  role: 'menu',
+                  // Focusable but never a Tab stop (the items carry the roving tab stop):
+                  // a click on a separator or the menu's padding keeps focus in the menu,
+                  // so the arrow keys still move between its items.
+                  tabindex: -1,
+                  'data-state': 'open',
+                  class: cm.cn(cm.dropdownContent, ...classOf(props.className, attrs)),
+                  style: menuStyle,
+                  'data-testid': props.testId ? `${props.testId}-menu` : undefined,
+                  'data-mol-id': props.automationId ? `${props.automationId}-menu` : undefined,
+                  onKeydown: handleMenuKeyDown,
+                },
+                props.items.map((item, index) =>
+                  h(DropdownMenuItem, {
+                    key: item.separator ? `separator-${index}` : item.value,
+                    item,
+                    isActive: index === activeIndex.value,
+                    onSelect: handleSelect,
+                    onClose: closeAndRefocusTrigger,
+                    registerRef: (node: RefNode): void => {
+                      itemRefs[index] = refElement(node)
+                    },
+                  }),
+                ),
               ),
-            ),
-          ])
-        : null
+            ])
+          : null
 
       const triggerContent = (props.trigger ?? slots.trigger?.()) as RenderableChildren | undefined
       let renderedTrigger: VNodeChild
@@ -667,7 +618,7 @@ export const Dropdown = defineComponent({
         )
       }
 
-      return [renderedTrigger, typeof document !== 'undefined' ? menu : null] as VNodeChild[]
+      return [renderedTrigger, menu]
     }
   },
 })

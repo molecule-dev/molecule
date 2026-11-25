@@ -1,15 +1,8 @@
 /**
- * DOM helpers shared by the Svelte components: generated ids, the focus-trap
- * query and the reference-counted body scroll lock. Each mirrors the exact
- * behavior of its React counterpart so focus and locking are indistinguishable
- * between frameworks.
+ * DOM helpers shared by the Svelte components.
  *
  * @module
  */
-
-/** Elements the WAI-ARIA APG dialog pattern treats as tab-stops for the focus trap. */
-export const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 let idCounter = 0
 
@@ -25,77 +18,6 @@ let idCounter = 0
 export function useGeneratedId(): string {
   idCounter += 1
   return `mol-uid-${idCounter}`
-}
-
-/**
- * Returns the tab-stop elements inside a container, in DOM (tab) order.
- *
- * @param container - The element to search within.
- * @returns The focusable descendants, in document order.
- */
-export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-}
-
-// Module-level open-modal stack: every open Modal instance registers its id
-// here. Escape and the Tab focus-trap only act for the TOPMOST entry, so a
-// confirm dialog stacked over a drawer does not let one Escape press close
-// both (mirrors the React Modal's stack).
-const openModalStack: string[] = []
-
-/**
- * Pushes a modal instance onto the open-stack (it becomes the topmost).
- *
- * @param id - The modal instance id.
- */
-export function pushModalStack(id: string): void {
-  if (!openModalStack.includes(id)) openModalStack.push(id)
-}
-
-/**
- * Removes a modal instance from the open-stack.
- *
- * @param id - The modal instance id.
- */
-export function popModalStack(id: string): void {
-  const index = openModalStack.indexOf(id)
-  if (index !== -1) openModalStack.splice(index, 1)
-}
-
-/**
- * Whether the given modal instance is currently the topmost of the stack.
- *
- * @param id - The modal instance id.
- * @returns True when the instance is the topmost open modal.
- */
-export function isTopOfModalStack(id: string): boolean {
-  return openModalStack.length > 0 && openModalStack[openModalStack.length - 1] === id
-}
-
-// Reference-counted body scroll lock: two overlays can be open at once; closing
-// either one must not unlock page scroll behind the other.
-let scrollLockCount = 0
-let previousBodyOverflow = ''
-
-/**
- * Locks body scroll on the first caller; later callers just increment the count.
- */
-export function lockBodyScroll(): void {
-  if (scrollLockCount === 0) {
-    previousBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-  }
-  scrollLockCount += 1
-}
-
-/**
- * Decrements the lock count; restores the original overflow only once it reaches zero.
- */
-export function unlockBodyScroll(): void {
-  scrollLockCount = Math.max(0, scrollLockCount - 1)
-  if (scrollLockCount === 0) {
-    document.body.style.overflow = previousBodyOverflow
-  }
 }
 
 /**

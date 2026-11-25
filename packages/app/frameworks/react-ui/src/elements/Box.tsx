@@ -4,32 +4,27 @@
  * @module
  */
 
-import { createElement, type ReactElement, useCallback, useEffect, useRef } from 'react'
+import { createElement, forwardRef, type ReactElement, useCallback, useEffect, useRef } from 'react'
 
-import type { BoxProps } from '@molecule/app-ui'
+import type { BoxProps, ElementHandle } from '@molecule/app-ui'
 
 import { pasteHandler } from './paste.js'
 import { useElementRef } from './ref.js'
 import { webElementStyle } from './style.js'
-import type { ElementNode, ElementRefProps } from './types.js'
+import type { ElementNode } from './types.js'
 
 /**
  * A container: renders exactly its `as` tag (`<Box as="ul">` is a `<ul>`) with the props given.
  * On React Native it is a `View`. Text goes in a {@link Text}.
  *
  * @param props - See {@link BoxProps}.
+ * @param ref - The element rendered by `as`.
  * @returns The element.
  */
-export function Box({
-  as,
-  style,
-  webStyle,
-  children,
-  onPasteText,
-  onPressOutside,
+export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box(
+  { as, style, webStyle, children, onPasteText, onPressOutside, ...props },
   ref,
-  ...props
-}: BoxProps<ElementNode> & ElementRefProps): ReactElement {
+): ReactElement {
   const node = useRef<HTMLElement>(null)
   const forward = useElementRef<HTMLElement>(ref)
   const setNode = useCallback(
@@ -63,4 +58,4 @@ export function Box({
     },
     children,
   )
-}
+})
