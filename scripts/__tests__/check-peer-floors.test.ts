@@ -33,8 +33,10 @@ import {
   namedImports,
   packagesForPaths,
   prefetchTarballs,
+  prepublishWindowFile,
   publishedExports,
   raisedRange,
+  releasePublishing,
   scanFleet,
   scriptText,
   versionCommit,
@@ -511,6 +513,135 @@ describe('findFloorGaps', () => {
         ],
       }),
     ])
+  })
+})
+
+describe('an unpublished workspace version', () => {
+  /** A peer at the unpublished 1.4.0, whose version commit lacks `added`, and its consumer. */
+  const fleet = () =>
+    tree({
+      'packages/app/core/core/package.json': JSON.stringify({
+        name: '@molecule/core',
+        version: '1.4.0',
+      }),
+      'packages/app/core/core/src/index.ts': 'export const old = 1\nexport const added = 2\n',
+      'packages/app/features/user/package.json': JSON.stringify({
+        name: '@molecule/user',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/core': '^1.4.0' },
+      }),
+      'packages/app/features/user/src/index.ts': "import { added, old } from '@molecule/core'",
+    })
+  const scan = (root: string, publishing: boolean) =>
+    scanFleet(root, {
+      versionsOf: async () => new Map([['@molecule/core', ['1.0.0', '1.3.0']]]),
+      prefetch: async () => undefined,
+      exportsAt: () => new Set(['old']),
+      versionedOf: () => new Set(['old']),
+      publishingOf: (_root: string, name: string, version: string) =>
+        publishing && name === '@molecule/core' && version === '1.4.0',
+    })
+
+  it('is read at its version commit while a live release publishes it', async () => {
+    const root = fleet()
+    try {
+      expect(await scan(root, true)).toEqual([
+        {
+          package: '@molecule/user',
+          dir: 'packages/app/features/user',
+          gaps: [
+            {
+              peer: '@molecule/core',
+              range: '^1.4.0',
+              floor: '1.4.0',
+              fix: '^1.5.0',
+              missing: [{ name: 'added', files: ['packages/app/features/user/src/index.ts'] }],
+            },
+          ],
+        },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  // 2026-11-25: a version commit made outside a release bumped app-ui to 1.9.0 ahead of its source;
+  // the next release publishes 1.9.0 from the tree it pushes, yet every commit of that source was
+  // asked to raise its floor to 1.10.0.
+  it('is read as the checked tree when no live release publishes it', async () => {
+    const root = fleet()
+    try {
+      expect(await scan(root, false)).toEqual([])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  describe('releasePublishing', () => {
+    const window = (contents: string | null) => {
+      const dir = mkdtempSync(join(tmpdir(), 'peer-floors-window-'))
+      const file = join(dir, 'prepublish-window.json')
+      if (contents !== null) writeFileSync(file, contents)
+      return { dir, file }
+    }
+    const recorded = JSON.stringify({
+      pid: 4242,
+      versionCommit: 'abc',
+      packages: { '@molecule/core': { from: '1.3.0', to: '1.4.0' } },
+    })
+
+    it('covers the version a live release bumped a package to, and nothing else', () => {
+      const { dir, file } = window(recorded)
+      try {
+        const alive = (pid: number) => pid === 4242
+        expect(releasePublishing('/r', '@molecule/core', '1.4.0', { file, alive })).toBe(true)
+        expect(releasePublishing('/r', '@molecule/core', '1.3.0', { file, alive })).toBe(false)
+        expect(releasePublishing('/r', '@molecule/other', '1.4.0', { file, alive })).toBe(false)
+      } finally {
+        rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
+    it('covers nothing for a stopped release or with no window', () => {
+      const stopped = window(recorded)
+      const none = window(null)
+      try {
+        const alive = () => false
+        expect(
+          releasePublishing('/r', '@molecule/core', '1.4.0', { file: stopped.file, alive }),
+        ).toBe(false)
+        expect(
+          releasePublishing('/r', '@molecule/core', '1.4.0', {
+            file: none.file,
+            alive: () => true,
+          }),
+        ).toBe(false)
+      } finally {
+        rmSync(stopped.dir, { recursive: true, force: true })
+        rmSync(none.dir, { recursive: true, force: true })
+      }
+    })
+
+    it('reads a window still being written as covering every package', () => {
+      const { dir, file } = window('{"pid": 42')
+      try {
+        expect(releasePublishing('/r', '@molecule/core', '1.4.0', { file })).toBe(true)
+      } finally {
+        rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
+    it("finds the workspace's window beside the repository, or the one MOL_PREPUBLISH_WINDOW names", () => {
+      expect(prepublishWindowFile('/w/molecule', {})).toBe(
+        '/w/.release-state/prepublish-window.json',
+      )
+      expect(prepublishWindowFile('/x/export', { MOL_INDEX_REPO: '/w/molecule' })).toBe(
+        '/w/.release-state/prepublish-window.json',
+      )
+      expect(
+        prepublishWindowFile('/w/molecule', { MOL_PREPUBLISH_WINDOW: '/elsewhere.json' }),
+      ).toBe('/elsewhere.json')
+    })
   })
 })
 

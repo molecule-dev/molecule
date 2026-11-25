@@ -61,6 +61,13 @@
  *   `~/.cache/molecule-check-peer-floors`. It stays out of the checkout because the
  *   release gate runs this check in an exported tree whose node_modules is linked in
  *   later, and a real directory there would block that link.
+ * - A workspace version npm does not serve yet has the names of the commit that versioned
+ *   it while a live release is publishing it (its pre-publish window, see
+ *   {@link releasePublishing}), and every name the checked tree has otherwise: a version
+ *   left unpublished (its release stopped, or a version run happened outside a release) is
+ *   published by the next release from the tree it pushes (2026-11-25: a version commit made
+ *   outside a release bumped packages ahead of their source, and every commit of that source
+ *   was asked to raise its floor past the unpublished version).
  *
  * Fix an offender by raising that peer's floor to the first version that has every
  * imported name, which the fix names: the workspace version when npm does not serve
@@ -357,10 +364,11 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
     const resolved = resolvePeerFloor(published, range, current)
     if (resolved.version && !resolved.published) continue
     // A workspace version npm does not serve yet is what the range installs first when it
-    // allows it: the release in flight publishes it from the commit that versioned it, which
+    // allows it: a release in flight publishes it from the commit that versioned it, which
     // lacks the names added since (2026-11-24: 14 Svelte ports imported `ContentOrElse`
     // under `^3.13.0` while app-svelte 3.13.0 was publishing from an earlier commit).
-    // `exportsAt` reads that version's names there.
+    // `exportsAt` reads that version's names there, or every name when no release is
+    // publishing it (the next one publishes it from the tree it pushes).
     const floor =
       resolved.version ??
       (current !== null && !published.includes(current) && semver.satisfies(current, range)
@@ -676,6 +684,71 @@ export function versionCommit(root, dir, version, git = gitAt(root)) {
   if (found === null) return null
   const parent = git(['rev-list', '--parents', '-n', '1', found]).trim().split(' ')[1]
   return parent !== undefined && versionAt(parent) !== null ? found : null
+}
+
+/**
+ * The file a live release records its pre-publish window in: `MOL_PREPUBLISH_WINDOW` when set,
+ * else `.release-state/prepublish-window.json` beside the repository, where the workspace's
+ * release (`scripts/lib/prepublish-window.mjs`) writes it. A checkout outside the workspace (CI)
+ * has none.
+ *
+ * @param root - The tree the check reads.
+ * @param env - The environment.
+ * @returns The file's path.
+ */
+export function prepublishWindowFile(root, env = process.env) {
+  return (
+    env.MOL_PREPUBLISH_WINDOW ||
+    join(historyRepo(root, env), '..', '.release-state', 'prepublish-window.json')
+  )
+}
+
+/**
+ * Whether a pid names a live process: ESRCH means gone, EPERM means another user's.
+ *
+ * @param pid - The process id.
+ * @returns Whether it runs.
+ */
+function processAlive(pid) {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return error.code === 'EPERM'
+  }
+}
+
+/**
+ * Whether a live release is publishing `name@version` now. Its version stage records the packages
+ * it bumped, each with the version it bumped it to, and its process, as its pre-publish window; it
+ * publishes them from the commit that versioned them, and clears the window once they are on npm.
+ * An unpublished version no live release covers (one versioned by a release that stopped, or by a
+ * version run outside a release) is published by the next release from the tree it pushes, which
+ * carries the commit being checked.
+ *
+ * @param root - The tree the check reads.
+ * @param name - The package.
+ * @param version - Its unpublished workspace version.
+ * @param deps - `file` (see {@link prepublishWindowFile}) and `alive`, the pid check.
+ * @returns Whether that version is being published from its version commit.
+ */
+export function releasePublishing(
+  root,
+  name,
+  version,
+  { file = prepublishWindowFile(root), alive = processAlive } = {},
+) {
+  if (!existsSync(file)) return false
+  let window
+  try {
+    window = JSON.parse(readFileSync(file, 'utf8'))
+  } catch (_error) {
+    // A file the release is still writing: read it as covering every package, the stricter answer.
+    return true
+  }
+  return Number.isInteger(window?.pid) && window.pid > 0 && alive(window.pid)
+    ? window.packages?.[name]?.to === version
+    : false
 }
 
 const versionedCache = new Map()
@@ -1258,8 +1331,9 @@ function readFleet(root, only = null) {
  * @param root - The monorepo root (its `packages/` is scanned).
  * @param deps - Injected npm access: `versionsOf` (see {@link fetchPublishedVersions}),
  *   `exportsAt` (see {@link findFloorGaps}), `prefetch`, which receives each
- *   `name@version` before it is read, and `versionedOf`, which reads an unpublished workspace
- *   version's names (see {@link versionedExports}).
+ *   `name@version` before it is read, `versionedOf`, which reads an unpublished workspace
+ *   version's names (see {@link versionedExports}), and `publishingOf`, which says whether a live
+ *   release is publishing one (see {@link releasePublishing}).
  * @param options - `only`: package directories relative to `root` to check (see
  *   {@link packagesForPaths}); omitted checks every package.
  * @returns One row per package with a gap.
@@ -1271,6 +1345,7 @@ export async function scanFleet(
     exportsAt = publishedExports,
     prefetch = prefetchTarballs,
     versionedOf = versionedExports,
+    publishingOf = releasePublishing,
   } = {},
   { only = null } = {},
 ) {
@@ -1290,12 +1365,18 @@ export async function scanFleet(
     const wanted = new Set()
     const read = (name, version, entry) => {
       const key = `${name}@${version}`
-      // An unpublished workspace version (see findFloorGaps): its names at its version commit.
+      // An unpublished workspace version (see findFloorGaps): a live release publishes it from its
+      // version commit, so its names there; with none publishing it, the next release publishes it
+      // from the tree it pushes, which carries this one, so every name this tree has passes.
       if (
         version === workspaceVersions.get(name) &&
         !(publishedVersions.get(name) ?? []).includes(version)
       )
-        return versionedOf(root, workspaceDirs.get(name), version, entry) ?? EVERY_NAME
+        return (
+          (publishingOf(root, name, version)
+            ? versionedOf(root, workspaceDirs.get(name), version, entry)
+            : null) ?? EVERY_NAME
+        )
       if (fetched.has(key)) return exportsAt(name, version, entry)
       wanted.add(key)
       return EVERY_NAME
