@@ -7,7 +7,8 @@
  * spread: {@link restAttrs} is the `{...rest}`, {@link classOf} merges the
  * `className` prop with Vue's own `class` attr, and {@link styleOf} merges the
  * React-shaped `style` prop (numbers become `px` except where CSS keeps them
- * unitless) with Vue's own `style` attr.
+ * unitless; {@link elementStyle} first turns its `coverImage` into the
+ * background the React element paints) with Vue's own `style` attr.
  *
  * @module
  */
@@ -64,6 +65,44 @@ const UNITLESS = new Set([
  */
 const hyphenate = (name: string): string =>
   name.startsWith('--') ? name : name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
+
+/** Escapes special characters for a double-quoted CSS string (the React element's rule). */
+const escapeCssString = (value: string): string =>
+  value.replace(/["\\\n\r\f]/g, (character) => `\\${character.charCodeAt(0).toString(16)} `)
+
+/**
+ * The declarations a React element's `style` paints for its `coverImage`: the
+ * image behind the contents, centred and sized to cover the box. An empty URI
+ * paints none.
+ *
+ * @param url - The image URI, or undefined for none.
+ * @returns The camelCase declarations, in the order React writes them.
+ */
+const coverImage = (url: string | undefined): [string, string | undefined][] => [
+  ['backgroundImage', url ? `url("${escapeCssString(url)}")` : undefined],
+  ['backgroundSize', 'cover'],
+  ['backgroundPosition', 'center'],
+]
+
+/**
+ * A React element's `style` with its `coverImage` turned into the background
+ * declarations the element paints, in the place the key had (React's
+ * `webElementStyle`).
+ *
+ * @param style - The React-shaped style object, or undefined.
+ * @returns The same declarations, `coverImage` replaced where it stood.
+ */
+export function elementStyle(
+  style: Record<string, string | number | undefined> | undefined,
+): Record<string, string | number | undefined> {
+  return Object.fromEntries(
+    Object.entries(style ?? {}).flatMap(([name, entry]): [string, string | number | undefined][] =>
+      name === 'coverImage'
+        ? coverImage(typeof entry === 'string' ? entry : undefined)
+        : [[name, entry]],
+    ),
+  )
+}
 
 /**
  * Converts a React-shaped `style` object into the declarations Vue applies,

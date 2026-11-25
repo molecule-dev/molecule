@@ -8,10 +8,11 @@ import '@molecule/app-framework-conformance/ui/setup'
  *
  * @module
  */
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import {
   byMol,
+  byTestId,
   click,
   disposeAll,
   enter,
@@ -21,13 +22,180 @@ import {
   installI18n,
   leave,
   makeDoc,
+  makeSections,
   mountNotes,
+  raw,
+  settle,
 } from './helpers.js'
+
+/** The notes column of a row: the element React's own test reads the offset from. */
+const gutterOf = (rowId: string): HTMLElement =>
+  byMol(`margin-notes-row-${rowId}`).querySelector<HTMLElement>('[role="complementary"]')!
 
 describe('<MarginNotes>', () => {
   beforeAll(() => {
     installI18n()
     installBonds()
+  })
+
+  afterEach(disposeAll)
+
+  it('aligns each gutter to the content in its own registered block when IDs repeat', () => {
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      const top = this.tagName === 'P' ? (this.textContent === 'First heading' ? 32 : 56) : 12
+      return new DOMRect(0, top, 200, 20)
+    })
+    const notes = [{ id: 'shared-note', kind: 'summary', content: 'Side note' }]
+    const block = (heading: string) => ({
+      id: 'heading',
+      content: raw(`<p>${heading}</p>`),
+      noteIds: ['shared-note'],
+    })
+    try {
+      const first = document.createElement('div')
+      first.dataset.testid = 'first-document'
+      const second = document.createElement('div')
+      second.dataset.testid = 'second-document'
+      document.body.append(first, second)
+      mountNotes({ blocks: [block('First heading')], notes }, first)
+      mountNotes({ blocks: [block('Second heading')], notes }, second)
+      const offset = (documentId: string) =>
+        byTestId(documentId).querySelector<HTMLElement>('[role="complementary"]')?.style.paddingTop
+      expect(offset('first-document')).toBe('20px')
+      expect(offset('second-document')).toBe('44px')
+    } finally {
+      rect.mockRestore()
+    }
+  })
+
+  it('the section being read follows a scroll inside a nested scroller', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    let scrolled = false
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      const row = this.dataset.molId?.startsWith('margin-notes-row-')
+      return new DOMRect(0, row && scrolled ? 10 : 1000, 200, 20)
+    })
+    try {
+      const scroller = mountNotes(makeSections())
+      expect(byMol('margin-note-panel-s1').hidden).toBe(false)
+      scrolled = true
+      // A scroll event does not bubble: only a listener on the capture path sees a scroller's.
+      scroller.dispatchEvent(new Event('scroll'))
+      settle()
+      expect(document.querySelector('[data-mol-id="margin-note-panel-s2"]')).toBeNull()
+      vi.advanceTimersToNextFrame()
+      settle()
+      expect(document.querySelector('[data-mol-id="margin-note-panel-s1"]')).toBeNull()
+      expect(byMol('margin-note-panel-s2').hidden).toBe(false)
+    } finally {
+      rect.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('a resize realigns the notes on the next animation frame', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    let headingTop = 32
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      return new DOMRect(0, this.tagName === 'H2' ? headingTop : 12, 200, 20)
+    })
+    try {
+      mountNotes(makeSections())
+      expect(gutterOf('h1').style.paddingTop).toBe('20px')
+      headingTop = 56
+      window.dispatchEvent(new Event('resize'))
+      settle()
+      expect(gutterOf('h1').style.paddingTop).toBe('20px')
+      vi.advanceTimersToNextFrame()
+      settle()
+      expect(gutterOf('h1').style.paddingTop).toBe('44px')
+    } finally {
+      rect.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('a touch does not hover: a tap on a block or a note leaves the emphasis alone', () => {
+    mountNotes(makeDoc())
+    const block = byMol('margin-notes-block-p2')
+    // A tap enters and leaves as a touch pointer, then as the mouse event the browser makes of it.
+    block.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }))
+    block.dispatchEvent(new MouseEvent('mouseenter'))
+    settle()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBeUndefined()
+    block.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'touch' }))
+    block.dispatchEvent(new MouseEvent('mouseleave'))
+    settle()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBeUndefined()
+
+    const note = byMol('margin-note-gutter-s1')
+    note.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }))
+    note.dispatchEvent(new MouseEvent('mouseenter'))
+    settle()
+    expect(byMol('margin-notes-block-p1').className).not.toMatch(/bg-primary\/10/)
+  })
+
+  it('a pointer entering or leaving drives the hover relationship too', () => {
+    mountNotes(makeDoc())
+    byMol('margin-notes-block-p2').dispatchEvent(
+      new PointerEvent('pointerenter', { pointerType: 'mouse' }),
+    )
+    settle()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBe('true')
+    byMol('margin-notes-block-p2').dispatchEvent(
+      new PointerEvent('pointerleave', { pointerType: 'mouse' }),
+    )
+    settle()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBeUndefined()
+
+    byMol('margin-note-gutter-s1').dispatchEvent(
+      new PointerEvent('pointerenter', { pointerType: 'pen' }),
+    )
+    settle()
+    expect(byMol('margin-notes-block-p1').className).toMatch(/bg-primary\/10/)
+  })
+
+  it('a webStyle paints the outer wrapper after its style', () => {
+    mountNotes({
+      ...makeDoc(),
+      style: { width: '50%' },
+      webStyle: { borderColor: 'red', maxWidth: '10px' },
+    })
+    mountNotes(makeDoc())
+    const roots = document.querySelectorAll<HTMLElement>('[data-mol-id="margin-notes"]')
+    const [styled, plain] = roots
+    expect(styled.style.width).toBe('50%')
+    expect(styled.style.borderColor).toBe('red')
+    expect(plain.style.borderColor).toBe('')
+    // The measure the layout computes still wins, as it does over `style`.
+    expect(styled.style.maxWidth).toBe(plain.style.maxWidth)
+    expect(styled.style.maxWidth).not.toBe('10px')
+    expect(styled.hasAttribute('webstyle')).toBe(false)
+  })
+
+  it('a coverImage in the style paints the image behind the wrapper', () => {
+    mountNotes({
+      ...makeDoc(),
+      style: { width: '50%', coverImage: '/cover.png' },
+      webStyle: { borderColor: 'red' },
+    })
+    mountNotes({ ...makeDoc(), style: { width: '50%', coverImage: '' } })
+    const roots = document.querySelectorAll<HTMLElement>('[data-mol-id="margin-notes"]')
+    const [image, empty] = roots
+    expect(image.style.backgroundImage).toBe('url("/cover.png")')
+    expect(image.style.backgroundSize).toBe('cover')
+    expect(image.style.backgroundPosition).toMatch(/^center( center)?$/)
+    // Where the key stood: after `width`, before the web-only paint and the layout's own width.
+    const css = image.getAttribute('style') ?? ''
+    expect(css.indexOf('background-image')).toBeGreaterThan(css.indexOf('width'))
+    expect(css.indexOf('border-color')).toBeGreaterThan(css.indexOf('background-position'))
+    expect(css.indexOf('max-width')).toBeGreaterThan(css.indexOf('border-color'))
+    // An empty URI paints no image, and still sizes and centres the background.
+    expect(empty.style.backgroundImage).toBe('')
+    expect(empty.style.backgroundSize).toBe('cover')
   })
 
   it('a switch hides and restores its kind, in the gutter and the phone panel', () => {

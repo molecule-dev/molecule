@@ -64,6 +64,27 @@ export function makeDoc(): {
   }
 }
 
+/**
+ * A document of two sections that each open on a heading: a later noted section
+ * for the phone panel to reach, and rows whose text starts below the row's top.
+ *
+ * @returns Fresh blocks and notes.
+ */
+export function makeSections(): { blocks: MarginNotesBlock[]; notes: MarginNote[] } {
+  return {
+    blocks: [
+      { id: 'h1', content: <h2>First section</h2>, noteIds: ['s1'] },
+      { id: 'a1', content: <p>First body.</p>, noteIds: ['s1'] },
+      { id: 'h2', content: <h2>Second section</h2>, noteIds: ['s2'] },
+      { id: 'b1', content: <p>Second body.</p>, noteIds: ['s2'], marked: true },
+    ],
+    notes: [
+      { id: 's1', kind: 'summary', content: <p>FIRST-SUMMARY</p> },
+      { id: 's2', kind: 'summary', content: <p>SECOND-SUMMARY</p> },
+    ],
+  }
+}
+
 /** The teardowns of the trees the running test rendered. */
 const disposers: Array<() => void> = []
 
@@ -122,6 +143,18 @@ export function renderHtml(view: () => JSX.Element): string {
 export function byMol(id: string): HTMLElement {
   const el = document.querySelector<HTMLElement>(`[data-mol-id="${id}"]`)
   if (!el) throw new Error(`no ${id}`)
+  return el
+}
+
+/**
+ * The element carrying `data-testid="<id>"`.
+ *
+ * @param id - The `data-testid` value.
+ * @returns The element.
+ */
+export function byTestId(id: string): HTMLElement {
+  const el = document.querySelector<HTMLElement>(`[data-testid="${id}"]`)
+  if (!el) throw new Error(`no test id ${id}`)
   return el
 }
 

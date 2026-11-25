@@ -24,7 +24,8 @@ import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Switch } from '@molecule/app-ui-solid'
 
-import { styleString } from './css.js'
+import { elementStyle, styleString } from './css.js'
+import { hover } from './hover.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNoteKind, MarginNotesProps } from './types.js'
 
@@ -75,6 +76,7 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
     'onShownKindsChange',
     'className',
     'style',
+    'webStyle',
   ])
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -120,54 +122,35 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
   const [readingRow, setReadingRow] = createSignal<string | null>(firstWithNotes())
   const [pinnedBlock, setPinnedBlock] = createSignal<string | null>(null)
   const rowRefs = new Map<string, HTMLElement>()
+  // Each block registers the element this component rendered for it: two
+  // documents on a page can repeat block ids, and a lookup by id in the whole
+  // document answers with the first one's.
+  const blockRefs = new Map<string, HTMLElement>()
 
-  /**
-   * Installs the scroll/resize measurement of the section being read and
-   * reads it once, exactly as React's effect does.
-   *
-   * @returns What undoes this installation.
-   */
-  const installReading = (): (() => void) => {
-    if (!hasNotes() || typeof window === 'undefined') return () => {}
-    let frame = 0
-    const read = (): void => {
-      frame = 0
-      const line = window.innerHeight * READING_LINE
-      let current: string | null = null
-      for (const row of rows()) {
-        const el = rowRefs.get(row.id)
-        if (!el) continue
-        if (el.getBoundingClientRect().top > line) break
-        if (row.noteIds.length > 0) current = row.id
-      }
-      setReadingRow(current ?? firstWithNotes())
+  /** Reads the section being read: the last noted row whose top is at or above the reading line. */
+  const readRow = (): void => {
+    if (!hasNotes()) return
+    const line = window.innerHeight * READING_LINE
+    let current: string | null = null
+    for (const row of rows()) {
+      const el = rowRefs.get(row.id)
+      if (!el) continue
+      if (el.getBoundingClientRect().top > line) break
+      if (row.noteIds.length > 0) current = row.id
     }
-    const onScroll = (): void => {
-      if (!frame) frame = window.requestAnimationFrame(read)
-    }
-    read()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      if (frame) window.cancelAnimationFrame(frame)
-    }
+    setReadingRow(current ?? firstWithNotes())
   }
-  // React's effect depends on `hasNotes`, `rows` and `firstWithNotes`: a new
-  // document tears the listeners down and installs a fresh measurement.
-  createEffect(on([hasNotes, rows, firstWithNotes], () => onCleanup(installReading())))
 
   // A row that opens on a heading (or any block with a top margin) starts its
   // text below the row's top; push the notes down by the same distance so a
   // note lines up with the first line it covers, not the margin above it.
   const [noteOffsets, setNoteOffsets] = createSignal<Record<string, number>>({})
-  const measureOffsets = (): void => {
+  const alignGutter = (): void => {
     const next: Record<string, number> = {}
     for (const row of rows()) {
       if (row.notes.length === 0) continue
       const rowEl = rowRefs.get(row.id)
-      const blockEl = document.getElementById(row.blocks[0].id)
+      const blockEl = blockRefs.get(row.blocks[0].id)
       const first = blockEl?.firstElementChild ?? blockEl
       if (!rowEl || !first) continue
       const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
@@ -176,13 +159,47 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
     }
     if (JSON.stringify(noteOffsets()) !== JSON.stringify(next)) setNoteOffsets(next)
   }
-  const installOffsets = (): (() => void) => {
-    if (!hasNotes()) return () => {}
-    measureOffsets()
-    window.addEventListener('resize', measureOffsets)
-    return () => window.removeEventListener('resize', measureOffsets)
+
+  /**
+   * Installs the reading-position observer and reads once, exactly as React's
+   * `useReadingPosition` does: every scroll in the document is read once per
+   * animation frame (a nested scroller's included, so the bar follows the
+   * reader inside one), and the frame that follows a resize also realigns the
+   * notes, since the viewport's size is what a note was aligned to.
+   *
+   * @returns What undoes this installation.
+   */
+  const installObserver = (): (() => void) => {
+    if (typeof window === 'undefined') return () => {}
+    let frame = 0
+    let resized = true
+    const read = (): void => {
+      frame = 0
+      if (resized) {
+        resized = false
+        if (hasNotes()) alignGutter()
+      }
+      readRow()
+    }
+    const schedule = (): void => {
+      if (!frame) frame = window.requestAnimationFrame(read)
+    }
+    const onResize = (): void => {
+      resized = true
+      schedule()
+    }
+    read()
+    window.addEventListener('scroll', schedule, { capture: true, passive: true })
+    window.addEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('scroll', schedule, true)
+      window.removeEventListener('resize', onResize)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
   }
-  createEffect(on([hasNotes, rows], () => onCleanup(installOffsets())))
+  // React's effect depends on `hasNotes`, `rows` and `firstWithNotes`: a new
+  // document tears the listeners down and installs a fresh measurement.
+  createEffect(on([hasNotes, rows, firstWithNotes], () => onCleanup(installObserver())))
 
   // Kinds that reach the panel only through a block's pin (notes about one paragraph).
   const tapOnly = createMemo(
@@ -236,7 +253,11 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
             <Switch
               label={kind.label}
               checked={shown().includes(kind.id)}
-              onChange={(event) => setShown(kind.id, (event.target as HTMLInputElement).checked)}
+              onChange={({ target }) => {
+                if (target && 'checked' in target && typeof target.checked === 'boolean') {
+                  setShown(kind.id, target.checked)
+                }
+              }}
               className={placement === 'bar' ? cm.touchTarget : cm.touchTargetCompact}
               data-mol-id={`margin-notes-switch-${placement}-${kind.id}`}
             />
@@ -262,18 +283,32 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
         data-note-kind={note.kind}
         data-note-emphasis={emphasised() ? 'true' : undefined}
         data-mol-id={`margin-note-${where}-${note.id}`}
+        onPointerEnter={
+          where === 'gutter'
+            ? hover(true, () => {
+                setActiveNote(note.id)
+              })
+            : undefined
+        }
+        onPointerLeave={
+          where === 'gutter'
+            ? hover(false, () => {
+                setActiveNote(null)
+              })
+            : undefined
+        }
         onMouseEnter={
           where === 'gutter'
-            ? () => {
+            ? hover(true, () => {
                 setActiveNote(note.id)
-              }
+              })
             : undefined
         }
         onMouseLeave={
           where === 'gutter'
-            ? () => {
+            ? hover(false, () => {
                 setActiveNote(null)
-              }
+              })
             : undefined
         }
         onFocusIn={
@@ -304,13 +339,16 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
   }
 
   /**
-   * The outer wrapper's inline style (React's `containerStyle`).
+   * The outer wrapper's inline style: React's `containerStyle`, which takes
+   * the element's `webStyle` too (the web-only paint, after `style`, whose
+   * `coverImage` is painted as the React element paints it).
    *
    * @returns The `style` attribute text.
    */
   const containerStyle = (): string =>
     styleString({
-      ...(props.style ?? {}),
+      ...elementStyle(props.style ?? {}),
+      ...(props.webStyle ?? {}),
       maxWidth: hasNotes()
         ? `calc(${props.measure ?? '38rem'} + ${props.gutterWidth ?? '18rem'} + 4rem)`
         : (props.measure ?? '38rem'),
@@ -348,40 +386,26 @@ export const MarginNotes: Component<MarginNotesProps> = (props) => {
                       const togglePin = (): void => {
                         setPinnedBlock((p) => (p === block.id ? null : block.id))
                       }
+                      const enter = (): void => {
+                        setActiveBlock(block.id)
+                      }
+                      const leave = (): void => {
+                        setActiveBlock(null)
+                      }
+                      onCleanup(() => blockRefs.delete(block.id))
                       return (
                         <div
+                          ref={(el) => blockRefs.set(block.id, el)}
                           id={block.id}
                           data-mol-id={`margin-notes-block-${block.id}`}
                           data-block-marked={block.marked ? 'true' : undefined}
                           data-block-pinned={pinnedBlock() === block.id ? 'true' : undefined}
-                          onMouseEnter={
-                            interactive
-                              ? () => {
-                                  setActiveBlock(block.id)
-                                }
-                              : undefined
-                          }
-                          onMouseLeave={
-                            interactive
-                              ? () => {
-                                  setActiveBlock(null)
-                                }
-                              : undefined
-                          }
-                          onFocusIn={
-                            interactive
-                              ? () => {
-                                  setActiveBlock(block.id)
-                                }
-                              : undefined
-                          }
-                          onFocusOut={
-                            interactive
-                              ? () => {
-                                  setActiveBlock(null)
-                                }
-                              : undefined
-                          }
+                          onPointerEnter={interactive ? hover(true, enter) : undefined}
+                          onPointerLeave={interactive ? hover(false, leave) : undefined}
+                          onMouseEnter={interactive ? hover(true, enter) : undefined}
+                          onMouseLeave={interactive ? hover(false, leave) : undefined}
+                          onFocusIn={interactive ? enter : undefined}
+                          onFocusOut={interactive ? leave : undefined}
                           class={cm.cn(cm.position('relative'), tinted() && cm.bgPrimarySubtle)}
                         >
                           <Show when={block.marked}>

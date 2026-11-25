@@ -24,7 +24,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Icon, Switch } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
-import { classOf, reactStyle, restAttrs, styleOf } from './attrs.js'
+import { classOf, elementStyle, reactStyle, restAttrs, styleOf } from './attrs.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNoteKind, MarginNotesBlock, MarginNotesProps } from './types.js'
 
@@ -36,6 +36,65 @@ type NotePlacement = 'gutter' | 'panel'
 
 /** Where a switch group is shown: above the text, or in the phone bar. */
 type SwitchPlacement = 'side' | 'bar'
+
+/** Where one element's hover stands: inside or out, and whether a touch pointer last moved it. */
+interface HoverState {
+  inside: boolean
+  fromTouch: boolean
+}
+
+/** The hover state of each element that reported an enter or a leave. */
+const hoverStates = new WeakMap<Element, HoverState>()
+
+/**
+ * Routes the pointer and the mouse enter/leave of one element through a single
+ * transition, as the React kit's element does (React's `MarginNotes` renders
+ * its blocks and notes with it). Whichever stream arrives first makes the
+ * transition and the other repeats nothing. A touch contact never hovers, nor
+ * does the mouse event a browser raises after one, until a real pointer (a
+ * mouse, a pen) enters.
+ *
+ * @param event - The enter or the leave, on the element it happened to.
+ * @param entered - Whether it is an entry.
+ * @returns Whether the element's hover changed.
+ */
+function hoverChanged(event: Event, entered: boolean): boolean {
+  const element = event.currentTarget
+  if (!(element instanceof Element)) return false
+  const state = hoverStates.get(element) ?? { inside: false, fromTouch: false }
+  hoverStates.set(element, state)
+  if ('pointerType' in event) {
+    state.fromTouch = event.pointerType === 'touch'
+    if (state.fromTouch) return false
+  } else if (state.fromTouch) {
+    return false
+  }
+  if (state.inside === entered) return false
+  state.inside = entered
+  return true
+}
+
+/**
+ * The enter and leave handlers of one hoverable element, both streams routed
+ * through {@link hoverChanged}.
+ *
+ * @param onEnter - What an entry does.
+ * @param onLeave - What a leave does.
+ * @returns The handlers `h()` spreads onto the element.
+ */
+function hoverHandlers(onEnter: () => void, onLeave: () => void): Record<string, unknown> {
+  const handler =
+    (entered: boolean, run: () => void) =>
+    (event: Event): void => {
+      if (hoverChanged(event, entered)) run()
+    }
+  return {
+    onPointerenter: handler(true, onEnter),
+    onPointerleave: handler(false, onLeave),
+    onMouseenter: handler(true, onEnter),
+    onMouseleave: handler(false, onLeave),
+  }
+}
 
 /**
  * Long-form text with notes beside each paragraph.
@@ -90,6 +149,10 @@ export const MarginNotes = defineComponent({
       type: Object as PropType<MarginNotesProps['style']>,
       default: undefined,
     },
+    webStyle: {
+      type: Object as PropType<MarginNotesProps['webStyle']>,
+      default: undefined,
+    },
   },
   setup(props, { attrs }) {
     const cm = getClassMap()
@@ -136,63 +199,38 @@ export const MarginNotes = defineComponent({
     const readingRow = ref<string | null>(firstWithNotes.value)
     const pinnedBlock = ref<string | null>(null)
     const rowRefs = new Map<string, HTMLElement>()
+    // Each block registers the element this component rendered for it. Two
+    // documents on a page can repeat block ids, and a lookup by id in the whole
+    // document answers with the first one's.
+    const blockRefs = new Map<string, HTMLElement>()
 
     /**
-     * Installs the scroll/resize measurement of the section being read and
-     * reads it once, exactly as React's effect does.
-     *
-     * @returns What undoes this installation.
+     * Reads the section being read: the last noted row whose top is at or above
+     * the reading line.
      */
-    const installReading = (): (() => void) => {
-      if (!hasNotes.value || typeof window === 'undefined') return () => {}
-      let frame = 0
-      const read = (): void => {
-        frame = 0
-        const line = window.innerHeight * READING_LINE
-        let current: string | null = null
-        for (const row of rows.value) {
-          const el = rowRefs.get(row.id)
-          if (!el) continue
-          if (el.getBoundingClientRect().top > line) break
-          if (row.noteIds.length > 0) current = row.id
-        }
-        readingRow.value = current ?? firstWithNotes.value
+    const readRow = (): void => {
+      if (!hasNotes.value) return
+      const line = window.innerHeight * READING_LINE
+      let current: string | null = null
+      for (const row of rows.value) {
+        const el = rowRefs.get(row.id)
+        if (!el) continue
+        if (el.getBoundingClientRect().top > line) break
+        if (row.noteIds.length > 0) current = row.id
       }
-      const onScroll = (): void => {
-        if (!frame) frame = window.requestAnimationFrame(read)
-      }
-      read()
-      window.addEventListener('scroll', onScroll, { passive: true })
-      window.addEventListener('resize', onScroll)
-      return () => {
-        window.removeEventListener('scroll', onScroll)
-        window.removeEventListener('resize', onScroll)
-        if (frame) window.cancelAnimationFrame(frame)
-      }
+      readingRow.value = current ?? firstWithNotes.value
     }
-    let uninstallReading: (() => void) | null = null
-    onMounted(() => {
-      uninstallReading = installReading()
-    })
-    watch(
-      [hasNotes, rows, firstWithNotes],
-      () => {
-        uninstallReading?.()
-        uninstallReading = installReading()
-      },
-      { flush: 'post' },
-    )
 
     // A row that opens on a heading (or any block with a top margin) starts its
     // text below the row's top; push the notes down by the same distance so a
     // note lines up with the first line it covers, not the margin above it.
     const noteOffsets = ref<Record<string, number>>({})
-    const measureOffsets = (): void => {
+    const alignGutter = (): void => {
       const next: Record<string, number> = {}
       for (const row of rows.value) {
         if (row.notes.length === 0) continue
         const rowEl = rowRefs.get(row.id)
-        const blockEl = document.getElementById(row.blocks[0].id)
+        const blockEl = blockRefs.get(row.blocks[0].id)
         const first = blockEl?.firstElementChild ?? blockEl
         if (!rowEl || !first) continue
         const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
@@ -201,28 +239,57 @@ export const MarginNotes = defineComponent({
       }
       if (JSON.stringify(noteOffsets.value) !== JSON.stringify(next)) noteOffsets.value = next
     }
-    const installOffsets = (): (() => void) => {
-      if (!hasNotes.value) return () => {}
-      measureOffsets()
-      window.addEventListener('resize', measureOffsets)
-      return () => window.removeEventListener('resize', measureOffsets)
+
+    /**
+     * Installs the reading-position observer and reads once, exactly as React's
+     * `useReadingPosition` does: every scroll in the document is read once per
+     * animation frame (a nested scroller's included, so the bar follows the
+     * reader inside one), and the frame that follows a resize also realigns the
+     * notes, since the viewport's size is what a note was aligned to.
+     *
+     * @returns What undoes this installation.
+     */
+    const installObserver = (): (() => void) => {
+      if (typeof window === 'undefined') return () => {}
+      let frame = 0
+      let resized = true
+      const read = (): void => {
+        frame = 0
+        if (resized) {
+          resized = false
+          if (hasNotes.value) alignGutter()
+        }
+        readRow()
+      }
+      const schedule = (): void => {
+        if (!frame) frame = window.requestAnimationFrame(read)
+      }
+      const onResize = (): void => {
+        resized = true
+        schedule()
+      }
+      read()
+      window.addEventListener('scroll', schedule, { capture: true, passive: true })
+      window.addEventListener('resize', onResize)
+      return () => {
+        window.removeEventListener('scroll', schedule, true)
+        window.removeEventListener('resize', onResize)
+        if (frame) window.cancelAnimationFrame(frame)
+      }
     }
-    let uninstallOffsets: (() => void) | null = null
+    let uninstallObserver: (() => void) | null = null
     onMounted(() => {
-      uninstallOffsets = installOffsets()
+      uninstallObserver = installObserver()
     })
     watch(
-      [hasNotes, rows],
+      [hasNotes, rows, firstWithNotes],
       () => {
-        uninstallOffsets?.()
-        uninstallOffsets = installOffsets()
+        uninstallObserver?.()
+        uninstallObserver = installObserver()
       },
       { flush: 'post' },
     )
-    onUnmounted(() => {
-      uninstallReading?.()
-      uninstallOffsets?.()
-    })
+    onUnmounted(() => uninstallObserver?.())
 
     // Kinds that reach the panel only through a block's pin (notes about one paragraph).
     const tapOnly = computed(
@@ -273,8 +340,11 @@ export const MarginNotes = defineComponent({
             key: kind.id,
             label: kind.label,
             checked: shown.value.includes(kind.id),
-            onChange: (event: Event) =>
-              setShown(kind.id, (event.target as HTMLInputElement).checked),
+            onChange: ({ target }: Event) => {
+              if (target && 'checked' in target && typeof target.checked === 'boolean') {
+                setShown(kind.id, target.checked)
+              }
+            },
             className: placement === 'bar' ? cm.touchTarget : cm.touchTargetCompact,
             'data-mol-id': `margin-notes-switch-${placement}-${kind.id}`,
           }),
@@ -300,8 +370,12 @@ export const MarginNotes = defineComponent({
           'data-note-kind': note.kind,
           'data-note-emphasis': emphasised ? 'true' : undefined,
           'data-mol-id': `margin-note-${where}-${note.id}`,
-          onMouseenter: where === 'gutter' ? () => (activeNote.value = note.id) : undefined,
-          onMouseleave: where === 'gutter' ? () => (activeNote.value = null) : undefined,
+          ...(where === 'gutter'
+            ? hoverHandlers(
+                () => (activeNote.value = note.id),
+                () => (activeNote.value = null),
+              )
+            : {}),
           onFocusin: where === 'gutter' ? () => (activeNote.value = note.id) : undefined,
           onFocusout: where === 'gutter' ? () => (activeNote.value = null) : undefined,
           class: cm.cn(
@@ -317,12 +391,15 @@ export const MarginNotes = defineComponent({
     }
 
     /**
-     * The outer wrapper's inline style (React's `containerStyle`).
+     * The outer wrapper's inline style: React's `containerStyle`, which takes
+     * the element's `webStyle` too (the web-only paint, after `style`, whose
+     * `coverImage` is painted as the React element paints it).
      *
      * @returns The style declarations.
      */
     const containerStyle = (): Record<string, string> => ({
-      ...(reactStyle(props.style) ?? {}),
+      ...(reactStyle(elementStyle(props.style)) ?? {}),
+      ...(reactStyle(props.webStyle) ?? {}),
       maxWidth: hasNotes.value
         ? `calc(${props.measure} + ${props.gutterWidth} + 4rem)`
         : props.measure,
@@ -374,14 +451,20 @@ export const MarginNotes = defineComponent({
                         'div',
                         {
                           key: block.id,
+                          ref: (el) => {
+                            if (el) blockRefs.set(block.id, el as HTMLElement)
+                            else blockRefs.delete(block.id)
+                          },
                           id: block.id,
                           'data-mol-id': `margin-notes-block-${block.id}`,
                           'data-block-marked': block.marked ? 'true' : undefined,
                           'data-block-pinned': pinnedBlock.value === block.id ? 'true' : undefined,
-                          onMouseenter: interactive
-                            ? () => (activeBlock.value = block.id)
-                            : undefined,
-                          onMouseleave: interactive ? () => (activeBlock.value = null) : undefined,
+                          ...(interactive
+                            ? hoverHandlers(
+                                () => (activeBlock.value = block.id),
+                                () => (activeBlock.value = null),
+                              )
+                            : {}),
                           onFocusin: interactive ? () => (activeBlock.value = block.id) : undefined,
                           onFocusout: interactive ? () => (activeBlock.value = null) : undefined,
                           class: cm.cn(cm.position('relative'), tinted && cm.bgPrimarySubtle),

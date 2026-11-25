@@ -12,8 +12,9 @@
   import { getClassMap } from '@molecule/app-ui'
   import { Icon, Switch } from '@molecule/app-ui-svelte'
 
+  import { hoverChanged } from './hover.js'
   import { buildRows, defaultShownKinds } from './rows.js'
-  import { styleString } from './style.js'
+  import { elementStyle, styleString } from './style.js'
   import type { MarginNote, MarginNotesProps } from './types.js'
 
   /** Where a phone reader's "current section" is read: this fraction down the viewport. */
@@ -30,6 +31,7 @@
     onShownKindsChange,
     className,
     style,
+    webStyle,
     ...rest
   }: MarginNotesProps = $props()
 
@@ -86,6 +88,10 @@
   let readingRow = $state<string | null>(firstWithNotes)
   let pinnedBlock = $state<string | null>(null)
   const rowRefs: Record<string, HTMLElement> = {}
+  // Each block registers the element this component rendered for it: two
+  // documents on a page can repeat block ids, and a lookup by id in the whole
+  // document answers with the first one's.
+  const blockRefs: Record<string, HTMLElement> = {}
 
   /**
    * Tracks a row element for measurement, and drops it when the row goes.
@@ -99,57 +105,91 @@
     return { destroy: () => delete rowRefs[id] }
   }
 
-  // The section being read follows scroll and resize, exactly as React's effect.
+  /**
+   * Tracks a block element for measurement, and drops it when the block goes.
+   *
+   * @param node - The block element.
+   * @param id - The block's id.
+   * @returns The action's lifecycle hooks.
+   */
+  function trackBlock(node: HTMLElement, id: string): { destroy: () => void } {
+    blockRefs[id] = node
+    return { destroy: () => delete blockRefs[id] }
+  }
+
+  /**
+   * Reads the section being read: the last noted row whose top is at or above
+   * the reading line.
+   */
+  function readRow(): void {
+    if (!hasNotes) return
+    const line = window.innerHeight * READING_LINE
+    let current: string | null = null
+    for (const row of rows) {
+      const el = rowRefs[row.id]
+      if (!el) continue
+      if (el.getBoundingClientRect().top > line) break
+      if (row.noteIds.length > 0) current = row.id
+    }
+    readingRow = current ?? firstWithNotes
+  }
+
+  // A row that opens on a heading (or any block with a top margin) starts its
+  // text below the row's top; push the notes down by the same distance so a
+  // note lines up with the first line it covers, not the margin above it.
+  let noteOffsets = $state<Record<string, number>>({})
+
+  /**
+   * Pushes each row's notes down to the first line of the block the row opens
+   * with, the block this component registered (React's `alignGutter`).
+   */
+  function alignGutter(): void {
+    const next: Record<string, number> = {}
+    for (const row of rows) {
+      if (row.notes.length === 0) continue
+      const rowEl = rowRefs[row.id]
+      const blockEl = blockRefs[row.blocks[0].id]
+      const first = blockEl?.firstElementChild ?? blockEl
+      if (!rowEl || !first) continue
+      const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
+      const offset = Math.max(0, Math.round(top))
+      if (offset) next[row.id] = offset
+    }
+    if (JSON.stringify(noteOffsets) !== JSON.stringify(next)) noteOffsets = next
+  }
+
+  // The section being read follows every scroll in the document, once per
+  // animation frame (a nested scroller's included, so the bar follows the reader
+  // inside one), and the frame after a resize also realigns the notes, since
+  // the viewport's size is what a note was aligned to. Exactly as React's
+  // `useReadingPosition` does.
   $effect(() => {
-    if (!hasNotes || typeof window === 'undefined') return
+    if (typeof window === 'undefined') return
     let frame = 0
+    let resized = true
     const read = (): void => {
       frame = 0
-      const line = window.innerHeight * READING_LINE
-      let current: string | null = null
-      for (const row of rows) {
-        const el = rowRefs[row.id]
-        if (!el) continue
-        if (el.getBoundingClientRect().top > line) break
-        if (row.noteIds.length > 0) current = row.id
+      if (resized) {
+        resized = false
+        if (hasNotes) alignGutter()
       }
-      readingRow = current ?? firstWithNotes
+      readRow()
     }
-    const onScroll = (): void => {
+    const schedule = (): void => {
       if (!frame) frame = window.requestAnimationFrame(read)
     }
+    const onResize = (): void => {
+      resized = true
+      schedule()
+    }
     read()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('scroll', schedule, { capture: true, passive: true })
+    window.addEventListener('resize', onResize)
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('scroll', schedule, true)
+      window.removeEventListener('resize', onResize)
       if (frame) window.cancelAnimationFrame(frame)
     }
-  })
-
-  // A row that opens on a heading starts its text below the row's top; push
-  // the notes down by the same distance (React's layout effect).
-  let noteOffsets = $state<Record<string, number>>({})
-  $effect(() => {
-    if (!hasNotes) return
-    const measureOffsets = (): void => {
-      const next: Record<string, number> = {}
-      for (const row of rows) {
-        if (row.notes.length === 0) continue
-        const rowEl = rowRefs[row.id]
-        const blockEl = document.getElementById(row.blocks[0].id)
-        const first = blockEl?.firstElementChild ?? blockEl
-        if (!rowEl || !first) continue
-        const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
-        const offset = Math.max(0, Math.round(top))
-        if (offset) next[row.id] = offset
-      }
-      if (JSON.stringify(noteOffsets) !== JSON.stringify(next)) noteOffsets = next
-    }
-    measureOffsets()
-    window.addEventListener('resize', measureOffsets)
-    return () => window.removeEventListener('resize', measureOffsets)
   })
 
   // Kinds that reach the panel only through a block's pin (notes about one paragraph).
@@ -173,13 +213,44 @@
   )
 
   /**
-   * The outer wrapper's inline style (React's `containerStyle`).
+   * Moves a gutter note's hover when the pointer or the mouse event reporting it
+   * is a real hover (see `hoverChanged`).
+   *
+   * @param note - The note.
+   * @param entered - Whether this is an entry.
+   * @returns The event handler.
+   */
+  function noteHover(note: MarginNote, entered: boolean): (event: Event) => void {
+    return (event) => {
+      if (hoverChanged(event, entered)) activeNote = entered ? note.id : null
+    }
+  }
+
+  /**
+   * Moves a block's hover when the pointer or the mouse event reporting it is a
+   * real hover (see `hoverChanged`).
+   *
+   * @param id - The block's id.
+   * @param entered - Whether this is an entry.
+   * @returns The event handler.
+   */
+  function blockHover(id: string, entered: boolean): (event: Event) => void {
+    return (event) => {
+      if (hoverChanged(event, entered)) activeBlock = entered ? id : null
+    }
+  }
+
+  /**
+   * The outer wrapper's inline style: React's `containerStyle`, which takes
+   * the element's `webStyle` too (the web-only paint, after `style`, whose
+   * `coverImage` is painted as the React element paints it).
    *
    * @returns The `style` attribute text.
    */
   const containerStyle = $derived(
     styleString({
-      ...style,
+      ...elementStyle(style ?? {}),
+      ...webStyle,
       maxWidth: hasNotes ? `calc(${measure} + ${gutterWidth} + 4rem)` : measure,
     }),
   )
@@ -197,7 +268,11 @@
         <Switch
           label={kind.label}
           checked={shown.includes(kind.id)}
-          onChange={(event) => setShown(kind.id, (event.target as HTMLInputElement).checked)}
+          onChange={({ target }) => {
+            if (target && 'checked' in target && typeof target.checked === 'boolean') {
+              setShown(kind.id, target.checked)
+            }
+          }}
           className={placement === 'bar' ? cm.touchTarget : cm.touchTargetCompact}
           data-mol-id={`margin-notes-switch-${placement}-${kind.id}`}
         />
@@ -216,16 +291,10 @@
       ? 'true'
       : undefined}
     data-mol-id={`margin-note-${where}-${note.id}`}
-    onmouseenter={where === 'gutter'
-      ? () => {
-          activeNote = note.id
-        }
-      : undefined}
-    onmouseleave={where === 'gutter'
-      ? () => {
-          activeNote = null
-        }
-      : undefined}
+    onpointerenter={where === 'gutter' ? noteHover(note, true) : undefined}
+    onpointerleave={where === 'gutter' ? noteHover(note, false) : undefined}
+    onmouseenter={where === 'gutter' ? noteHover(note, true) : undefined}
+    onmouseleave={where === 'gutter' ? noteHover(note, false) : undefined}
     onfocusin={where === 'gutter'
       ? () => {
           activeNote = note.id
@@ -271,20 +340,15 @@
             {@const tinted = !!activeNote && ids.includes(activeNote)}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
+              use:trackBlock={block.id}
               id={block.id}
               data-mol-id={`margin-notes-block-${block.id}`}
               data-block-marked={block.marked ? 'true' : undefined}
               data-block-pinned={pinnedBlock === block.id ? 'true' : undefined}
-              onmouseenter={interactive
-                ? () => {
-                    activeBlock = block.id
-                  }
-                : undefined}
-              onmouseleave={interactive
-                ? () => {
-                    activeBlock = null
-                  }
-                : undefined}
+              onpointerenter={interactive ? blockHover(block.id, true) : undefined}
+              onpointerleave={interactive ? blockHover(block.id, false) : undefined}
+              onmouseenter={interactive ? blockHover(block.id, true) : undefined}
+              onmouseleave={interactive ? blockHover(block.id, false) : undefined}
               onfocusin={interactive
                 ? () => {
                     activeBlock = block.id

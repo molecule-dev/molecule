@@ -77,6 +77,27 @@ export function makeDoc(): {
   }
 }
 
+/**
+ * A document of two sections that each open on a heading: a later noted section
+ * for the phone panel to reach, and rows whose text starts below the row's top.
+ *
+ * @returns Fresh blocks and notes.
+ */
+export function makeSections(): { blocks: MarginNotesBlock[]; notes: MarginNote[] } {
+  return {
+    blocks: [
+      { id: 'h1', content: raw('<h2>First section</h2>'), noteIds: ['s1'] },
+      { id: 'a1', content: raw('<p>First body.</p>'), noteIds: ['s1'] },
+      { id: 'h2', content: raw('<h2>Second section</h2>'), noteIds: ['s2'] },
+      { id: 'b1', content: raw('<p>Second body.</p>'), noteIds: ['s2'], marked: true },
+    ],
+    notes: [
+      { id: 's1', kind: 'summary', content: raw('<p>FIRST-SUMMARY</p>') },
+      { id: 's2', kind: 'summary', content: raw('<p>SECOND-SUMMARY</p>') },
+    ],
+  }
+}
+
 /** The teardowns of the components the running test mounted. */
 const mounted: Array<() => void> = []
 
@@ -90,15 +111,16 @@ export function disposeAll(): void {
  * Mounts `<MarginNotes>` with the given props.
  *
  * @param props - The props.
+ * @param target - The element to mount into (a fresh one appended to the body by default).
  * @returns The container element.
  */
-export function mountNotes(props: MarginNotesProps): HTMLElement {
-  const target = document.createElement('div')
-  document.body.appendChild(target)
-  const component = mount(MarginNotes, { target, props })
+export function mountNotes(props: MarginNotesProps, target?: HTMLElement): HTMLElement {
+  const host = target ?? document.createElement('div')
+  if (!target) document.body.appendChild(host)
+  const component = mount(MarginNotes, { target: host, props })
   mounted.push(() => unmount(component))
   flushSync()
-  return target
+  return host
 }
 
 /**
@@ -126,6 +148,18 @@ export function settle(): void {
 export function byMol(id: string): HTMLElement {
   const el = document.querySelector<HTMLElement>(`[data-mol-id="${id}"]`)
   if (!el) throw new Error(`no ${id}`)
+  return el
+}
+
+/**
+ * The element carrying `data-testid="<id>"`.
+ *
+ * @param id - The `data-testid` value.
+ * @returns The element.
+ */
+export function byTestId(id: string): HTMLElement {
+  const el = document.querySelector<HTMLElement>(`[data-testid="${id}"]`)
+  if (!el) throw new Error(`no test id ${id}`)
   return el
 }
 

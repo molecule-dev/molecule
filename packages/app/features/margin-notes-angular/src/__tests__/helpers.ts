@@ -63,12 +63,51 @@ export function makeDoc(): {
   }
 }
 
+/**
+ * A document of two sections that each open on a heading: a later noted section
+ * for the phone panel to reach, and rows whose text starts below the row's top.
+ *
+ * @returns Fresh blocks and notes.
+ */
+export async function makeSections(): Promise<{
+  blocks: MarginNotesBlock[]
+  notes: MarginNote[]
+}> {
+  const [h1, a1, h2, b1] = await Promise.all(
+    [
+      '<h2>First section</h2>',
+      '<p>First body.</p>',
+      '<h2>Second section</h2>',
+      '<p>Second body.</p>',
+    ].map((html) => makeTemplate(html)),
+  )
+  return {
+    blocks: [
+      { id: 'h1', content: h1, noteIds: ['s1'] },
+      { id: 'a1', content: a1, noteIds: ['s1'] },
+      { id: 'h2', content: h2, noteIds: ['s2'] },
+      { id: 'b1', content: b1, noteIds: ['s2'], marked: true },
+    ],
+    notes: [
+      { id: 's1', kind: 'summary', content: 'FIRST-SUMMARY' },
+      { id: 's2', kind: 'summary', content: 'SECOND-SUMMARY' },
+    ],
+  }
+}
+
 /** A mounted component: the host element and how to flush and tear it down. */
 export interface Mounted {
   /** The host element the JIT wrapper rendered into. */
   readonly host: HTMLElement
   /** Runs change detection and waits for it. */
   flush(): Promise<void>
+  /**
+   * Binds new props, the way a parent that re-renders does, and runs change
+   * detection.
+   *
+   * @param props - The props to replace.
+   */
+  set(props: Record<string, unknown>): Promise<void>
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -93,6 +132,8 @@ const notesTemplate = `<div mol-margin-notes
   [shownKinds]="p['shownKinds']"
   [onShownKindsChange]="p['onShownKindsChange']"
   [className]="p['className']"
+  [style]="p['style']"
+  [webStyle]="p['webStyle']"
 ></div>`
 
 /**
@@ -131,6 +172,12 @@ export async function mountNotes(
   const m: Mounted = {
     host,
     flush: async () => {
+      appRef.tick()
+      await Promise.resolve()
+    },
+    set: async (props: Record<string, unknown>) => {
+      ref.instance.p = { ...ref.instance.p, ...props }
+      ref.changeDetectorRef.markForCheck()
       appRef.tick()
       await Promise.resolve()
     },
@@ -215,6 +262,18 @@ export async function makeTemplate(html: string): Promise<TemplateRef<unknown>> 
 export function byMol(id: string): HTMLElement {
   const el = document.querySelector<HTMLElement>(`[data-mol-id="${id}"]`)
   if (!el) throw new Error(`no ${id}`)
+  return el
+}
+
+/**
+ * The element carrying `data-testid="<id>"`.
+ *
+ * @param id - The `data-testid` value.
+ * @returns The element.
+ */
+export function byTestId(id: string): HTMLElement {
+  const el = document.querySelector<HTMLElement>(`[data-testid="${id}"]`)
+  if (!el) throw new Error(`no test id ${id}`)
   return el
 }
 

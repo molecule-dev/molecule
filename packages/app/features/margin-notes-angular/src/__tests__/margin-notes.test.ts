@@ -13,6 +13,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import {
   byMol,
+  byTestId,
   click,
   disposeAll,
   enter,
@@ -21,13 +22,196 @@ import {
   installBonds,
   leave,
   makeDoc,
+  makeSections,
+  makeTemplate,
   mountNotes,
 } from './helpers.js'
+
+/** The notes column of a row: the element React's own test reads the offset from. */
+const gutterOf = (rowId: string): HTMLElement =>
+  byMol(`margin-notes-row-${rowId}`).querySelector<HTMLElement>('[role="complementary"]')!
 
 describe('<MarginNotes>', () => {
   beforeAll(installBonds)
 
   afterEach(disposeAll)
+
+  it('aligns each gutter to the content in its own registered block when IDs repeat', async () => {
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      const top = this.tagName === 'P' ? (this.textContent === 'First heading' ? 32 : 56) : 12
+      return new DOMRect(0, top, 200, 20)
+    })
+    const notes = [{ id: 'shared-note', kind: 'summary', content: 'Side note' }]
+    const [first, second] = await Promise.all(
+      ['First heading', 'Second heading'].map((heading) => makeTemplate(`<p>${heading}</p>`)),
+    )
+    const block = (content: typeof first) => ({ id: 'heading', content, noteIds: ['shared-note'] })
+    try {
+      const firstDocument = await mountNotes({ blocks: [block(first)], notes })
+      const secondDocument = await mountNotes({ blocks: [block(second)], notes })
+      firstDocument.host.dataset.testid = 'first-document'
+      secondDocument.host.dataset.testid = 'second-document'
+      const offset = (documentId: string) =>
+        byTestId(documentId).querySelector<HTMLElement>('[role="complementary"]')?.style.paddingTop
+      expect(offset('first-document')).toBe('20px')
+      expect(offset('second-document')).toBe('44px')
+    } finally {
+      rect.mockRestore()
+    }
+  })
+
+  it('the section being read follows a scroll inside a nested scroller', async () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    let scrolled = false
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      const row = this.getAttribute('data-mol-id')?.startsWith('margin-notes-row-')
+      return new DOMRect(0, row && scrolled ? 10 : 1000, 200, 20)
+    })
+    try {
+      const m = await mountNotes(await makeSections())
+      expect(byMol('margin-note-panel-s1').hidden).toBe(false)
+      scrolled = true
+      // A scroll event does not bubble: only a listener on the capture path sees a scroller's.
+      m.host.dispatchEvent(new Event('scroll'))
+      await m.flush()
+      expect(document.querySelector('[data-mol-id="margin-note-panel-s2"]')).toBeNull()
+      vi.advanceTimersToNextFrame()
+      await m.flush()
+      expect(document.querySelector('[data-mol-id="margin-note-panel-s1"]')).toBeNull()
+      expect(byMol('margin-note-panel-s2').hidden).toBe(false)
+    } finally {
+      rect.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('a resize realigns the notes on the next animation frame', async () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    let headingTop = 32
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      return new DOMRect(0, this.tagName === 'H2' ? headingTop : 12, 200, 20)
+    })
+    try {
+      const m = await mountNotes(await makeSections())
+      expect(gutterOf('h1').style.paddingTop).toBe('20px')
+      headingTop = 56
+      window.dispatchEvent(new Event('resize'))
+      await m.flush()
+      expect(gutterOf('h1').style.paddingTop).toBe('20px')
+      vi.advanceTimersToNextFrame()
+      await m.flush()
+      expect(gutterOf('h1').style.paddingTop).toBe('44px')
+    } finally {
+      rect.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('only a new document or a resize realigns the notes', async () => {
+    let headingTop = 32
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    rect.mockImplementation(function (this: HTMLElement) {
+      return new DOMRect(0, this.tagName === 'H2' ? headingTop : 12, 200, 20)
+    })
+    try {
+      const sections = await makeSections()
+      const m = await mountNotes(sections)
+      expect(gutterOf('h1').style.paddingTop).toBe('20px')
+      // A hover re-renders the emphasis; it does not move a note.
+      headingTop = 56
+      enter(byMol('margin-notes-block-b1'))
+      await m.flush()
+      expect(gutterOf('h1').style.paddingTop).toBe('20px')
+      // A new document does.
+      await m.set({ blocks: [...sections.blocks], notes: [...sections.notes] })
+      expect(gutterOf('h1').style.paddingTop).toBe('44px')
+    } finally {
+      rect.mockRestore()
+    }
+  })
+
+  it('a touch does not hover: a tap on a block or a note leaves the emphasis alone', async () => {
+    const m = await mountNotes(makeDoc())
+    const block = byMol('margin-notes-block-p2')
+    // A tap enters and leaves as a touch pointer, then as the mouse event the browser makes of it.
+    block.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }))
+    block.dispatchEvent(new MouseEvent('mouseenter'))
+    await m.flush()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBeUndefined()
+    block.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'touch' }))
+    block.dispatchEvent(new MouseEvent('mouseleave'))
+    await m.flush()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBeUndefined()
+
+    const note = byMol('margin-note-gutter-s1')
+    note.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }))
+    note.dispatchEvent(new MouseEvent('mouseenter'))
+    await m.flush()
+    expect(byMol('margin-notes-block-p1').className).not.toMatch(/bg-primary\/10/)
+  })
+
+  it('a pointer entering or leaving drives the hover relationship too', async () => {
+    const m = await mountNotes(makeDoc())
+    byMol('margin-notes-block-p2').dispatchEvent(
+      new PointerEvent('pointerenter', { pointerType: 'mouse' }),
+    )
+    await m.flush()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBe('true')
+    byMol('margin-notes-block-p2').dispatchEvent(
+      new PointerEvent('pointerleave', { pointerType: 'mouse' }),
+    )
+    await m.flush()
+    expect(byMol('margin-note-gutter-q1').dataset.noteEmphasis).toBeUndefined()
+
+    byMol('margin-note-gutter-s1').dispatchEvent(
+      new PointerEvent('pointerenter', { pointerType: 'pen' }),
+    )
+    await m.flush()
+    expect(byMol('margin-notes-block-p1').className).toMatch(/bg-primary\/10/)
+  })
+
+  it('a webStyle paints the outer wrapper after its style', async () => {
+    await mountNotes({
+      ...makeDoc(),
+      style: { width: '50%' },
+      webStyle: { borderColor: 'red', maxWidth: '10px' },
+    })
+    await mountNotes(makeDoc())
+    const roots = document.querySelectorAll<HTMLElement>('[data-mol-id="margin-notes"]')
+    const [styled, plain] = roots
+    expect(styled.style.width).toBe('50%')
+    expect(styled.style.borderColor).toBe('red')
+    expect(plain.style.borderColor).toBe('')
+    // The measure the layout computes still wins, as it does over `style`.
+    expect(styled.style.maxWidth).toBe(plain.style.maxWidth)
+    expect(styled.style.maxWidth).not.toBe('10px')
+    expect(styled.hasAttribute('webstyle')).toBe(false)
+  })
+
+  it('a coverImage in the style paints the image behind the wrapper', async () => {
+    await mountNotes({
+      ...makeDoc(),
+      style: { width: '50%', coverImage: '/cover.png' },
+      webStyle: { borderColor: 'red' },
+    })
+    await mountNotes({ ...makeDoc(), style: { width: '50%', coverImage: '' } })
+    const roots = document.querySelectorAll<HTMLElement>('[data-mol-id="margin-notes"]')
+    const [image, empty] = roots
+    // Angular writes a style map in its own order, so the declarations are read
+    // one by one; none of them is set twice, so the order paints nothing.
+    expect(image.style.backgroundImage).toBe('url("/cover.png")')
+    expect(image.style.backgroundSize).toBe('cover')
+    expect(image.style.backgroundPosition).toMatch(/^center( center)?$/)
+    expect(image.style.width).toBe('50%')
+    expect(image.style.borderColor).toBe('red')
+    expect(image.style.maxWidth).toBe(empty.style.maxWidth)
+    // An empty URI paints no image, and still sizes and centres the background.
+    expect(empty.style.backgroundImage).toBe('')
+    expect(empty.style.backgroundSize).toBe('cover')
+  })
 
   it('a switch hides and restores its kind, in the gutter and the phone panel', async () => {
     const m = await mountNotes(makeDoc())

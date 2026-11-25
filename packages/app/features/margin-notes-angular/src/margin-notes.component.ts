@@ -10,9 +10,11 @@ import {
   Component,
   ElementRef,
   inject,
+  type OnChanges,
   type OnDestroy,
   type OnInit,
   signal,
+  type SimpleChanges,
   type TemplateRef,
 } from '@angular/core'
 
@@ -21,6 +23,7 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { asTemplate, Icon, styleText, Switch } from '@molecule/app-ui-angular'
 
+import { hoverChanged } from './hover.js'
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNotesBlock, MarginNotesProps, MarginNotesRow } from './types.js'
 
@@ -41,6 +44,33 @@ type SwitchPlacement = 'side' | 'bar'
  */
 const textOf = (value: unknown): string | null =>
   typeof value === 'string' || typeof value === 'number' ? String(value) : null
+
+/** Escapes special characters for a double-quoted CSS string (the React element's rule). */
+const escapeCssString = (value: string): string =>
+  value.replace(/["\\\n\r\f]/g, (character) => `\\${character.charCodeAt(0).toString(16)} `)
+
+/**
+ * A React element's `style` with its `coverImage` turned into the background
+ * declarations the element paints: the image behind the contents, centred and
+ * sized to cover the box. An empty URI paints none.
+ *
+ * @param style - The React-shaped style object.
+ * @returns The same declarations, `coverImage` replaced where it stood.
+ */
+const elementStyle = (
+  style: Record<string, string | number | undefined>,
+): Record<string, string | number | undefined> =>
+  Object.fromEntries(
+    Object.entries(style).flatMap(([name, value]): [string, string | number | undefined][] =>
+      name === 'coverImage'
+        ? [
+            ['backgroundImage', value ? `url("${escapeCssString(String(value))}")` : undefined],
+            ['backgroundSize', 'cover'],
+            ['backgroundPosition', 'center'],
+          ]
+        : [[name, value]],
+    ),
+  )
 
 /**
  * Long-form text with notes beside each paragraph.
@@ -75,6 +105,7 @@ const textOf = (value: unknown): string | null =>
     'onShownKindsChange',
     'className',
     'style',
+    'webStyle',
   ],
   host: {
     '[class]': 'classes()',
@@ -82,9 +113,9 @@ const textOf = (value: unknown): string | null =>
     'data-mol-id': 'margin-notes',
   },
   // prettier-ignore
-  template: `@if (hasNotes() && kindsCount() > 0) {<div [class]="sideSwitchesClasses()"><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'side' }"></ng-container></div>}<div [class]="textClasses()">@for (row of rows(); track row.id) {<div [class]="rowClasses()" [attr.data-mol-id]="'margin-notes-row-' + row.id"><div [class]="cm().flex1" [style]="blockColumnStyle()">@for (block of row.blocks; track block.id) {<div [attr.id]="block.id" [attr.data-mol-id]="'margin-notes-block-' + block.id" [attr.data-block-marked]="block.marked ? 'true' : null" [attr.data-block-pinned]="pinnedBlock() === block.id ? 'true' : null" (mouseenter)="enterBlock(block)" (mouseleave)="leaveBlock()" (focusin)="enterBlock(block)" (focusout)="leaveBlock()" [class]="blockClasses(block)">@if (block.marked) {<span [attr.role]="markNamed() ? 'img' : null" [attr.aria-label]="markNamed() ? markLabel : null" [attr.aria-hidden]="markNamed() ? null : 'true'" [attr.data-mol-id]="'margin-notes-mark-' + block.id" [class]="markClasses()" [style]="markStyle()"></span>}@if (templateOf(block.content); as contentTpl) {<ng-container [ngTemplateOutlet]="contentTpl"></ng-container>} @else if (textOf(block.content) !== null) {{{ textOf(block.content) }}}@if (isInteractive(block)) {<div [class]="pinRowClasses()"><button type="button" [attr.aria-pressed]="pinnedBlock() === block.id ? 'true' : 'false'" [attr.aria-label]="pinLabel()" [attr.data-mol-id]="'margin-notes-pin-' + block.id" (click)="togglePin(block.id)" [class]="pinButtonClasses()"><svg mol-icon-root [name]="'pin'" [size]="16" [ariaHidden]="'true'"></svg></button></div>}</div>}</div>@if (hasNotes()) {<div [class]="gutterClasses()" [style]="gutterStyle(row)" [attr.aria-label]="notesLabel()" role="complementary">@for (note of row.notes; track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'gutter' }"></ng-container>}</div>}</div>}</div>@if (hasNotes()) {<div [class]="cm().hiddenFrom('md')" [style]="spacerStyle()" aria-hidden="true"></div><div [class]="barClasses()" [style]="barStyle()" data-mol-id="margin-notes-bar"><div role="region" aria-live="polite" [attr.aria-label]="panelLabel()" [style]="panelStyle()" data-mol-id="margin-notes-panel">@for (note of panelNotes(); track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'panel' }"></ng-container>}@if (pinnedBlock()) {<button type="button" (click)="unpin()" [class]="dismissClasses()" data-mol-id="margin-notes-dismiss">{{ dismissLabel() }}</button>}</div><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'bar' }"></ng-container></div>}<ng-template #switchesTpl let-placement="placement">@if (kindsCount() > 0) {<div role="group" [attr.aria-label]="togglesLabel()" [class]="switchesClasses(placement)" [attr.data-mol-id]="'margin-notes-switches-' + placement">@for (kind of kinds; track kind.id) {<mol-switch [label]="kind.label" [checked]="isKindShown(kind.id)" (change)="onSwitchChange(kind.id, $event)" [className]="placement === 'bar' ? cm().touchTarget : cm().touchTargetCompact" [attr.data-mol-id]="'margin-notes-switch-' + placement + '-' + kind.id"></mol-switch>}</div>}</ng-template><ng-template #noteTpl let-note="note" let-where="where"><aside [attr.hidden]="hiddenFor(note, where)" [attr.tabindex]="where === 'gutter' ? 0 : -1" [attr.data-note-kind]="note.kind" [attr.data-note-emphasis]="isEmphasised(note) ? 'true' : null" [attr.data-mol-id]="'margin-note-' + where + '-' + note.id" (mouseenter)="enterNote(note, where)" (mouseleave)="leaveNote(where)" (focusin)="enterNote(note, where)" (focusout)="leaveNote(where)" [class]="noteClasses(note)">@if (templateOf(note.content); as noteTplContent) {<ng-container [ngTemplateOutlet]="noteTplContent"></ng-container>} @else if (textOf(note.content) !== null) {{{ textOf(note.content) }}}</aside></ng-template>`,
+  template: `@if (hasNotes() && kindsCount() > 0) {<div [class]="sideSwitchesClasses()"><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'side' }"></ng-container></div>}<div [class]="textClasses()">@for (row of rows(); track row.id) {<div [class]="rowClasses()" [attr.data-mol-id]="'margin-notes-row-' + row.id"><div [class]="cm().flex1" [style]="blockColumnStyle()">@for (block of row.blocks; track block.id) {<div [attr.id]="block.id" [attr.data-mol-id]="'margin-notes-block-' + block.id" [attr.data-block-marked]="block.marked ? 'true' : null" [attr.data-block-pinned]="pinnedBlock() === block.id ? 'true' : null" (pointerenter)="blockHover($event, block, true)" (pointerleave)="blockHover($event, block, false)" (mouseenter)="blockHover($event, block, true)" (mouseleave)="blockHover($event, block, false)" (focusin)="focusBlock(block)" (focusout)="blurBlock()" [class]="blockClasses(block)">@if (block.marked) {<span [attr.role]="markNamed() ? 'img' : null" [attr.aria-label]="markNamed() ? markLabel : null" [attr.aria-hidden]="markNamed() ? null : 'true'" [attr.data-mol-id]="'margin-notes-mark-' + block.id" [class]="markClasses()" [style]="markStyle()"></span>}@if (templateOf(block.content); as contentTpl) {<ng-container [ngTemplateOutlet]="contentTpl"></ng-container>} @else if (textOf(block.content) !== null) {{{ textOf(block.content) }}}@if (isInteractive(block)) {<div [class]="pinRowClasses()"><button type="button" [attr.aria-pressed]="pinnedBlock() === block.id ? 'true' : 'false'" [attr.aria-label]="pinLabel()" [attr.data-mol-id]="'margin-notes-pin-' + block.id" (click)="togglePin(block.id)" [class]="pinButtonClasses()"><svg mol-icon-root [name]="'pin'" [size]="16" [ariaHidden]="'true'"></svg></button></div>}</div>}</div>@if (hasNotes()) {<div [class]="gutterClasses()" [style]="gutterStyle(row)" [attr.aria-label]="notesLabel()" role="complementary">@for (note of row.notes; track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'gutter' }"></ng-container>}</div>}</div>}</div>@if (hasNotes()) {<div [class]="cm().hiddenFrom('md')" [style]="spacerStyle()" aria-hidden="true"></div><div [class]="barClasses()" [style]="barStyle()" data-mol-id="margin-notes-bar"><div role="region" aria-live="polite" [attr.aria-label]="panelLabel()" [style]="panelStyle()" data-mol-id="margin-notes-panel">@for (note of panelNotes(); track note.id) {<ng-container [ngTemplateOutlet]="noteTpl" [ngTemplateOutletContext]="{ note: note, where: 'panel' }"></ng-container>}@if (pinnedBlock()) {<button type="button" (click)="unpin()" [class]="dismissClasses()" data-mol-id="margin-notes-dismiss">{{ dismissLabel() }}</button>}</div><ng-container [ngTemplateOutlet]="switchesTpl" [ngTemplateOutletContext]="{ placement: 'bar' }"></ng-container></div>}<ng-template #switchesTpl let-placement="placement">@if (kindsCount() > 0) {<div role="group" [attr.aria-label]="togglesLabel()" [class]="switchesClasses(placement)" [attr.data-mol-id]="'margin-notes-switches-' + placement">@for (kind of kinds; track kind.id) {<mol-switch [label]="kind.label" [checked]="isKindShown(kind.id)" (change)="onSwitchChange(kind.id, $event)" [className]="placement === 'bar' ? cm().touchTarget : cm().touchTargetCompact" [attr.data-mol-id]="'margin-notes-switch-' + placement + '-' + kind.id"></mol-switch>}</div>}</ng-template><ng-template #noteTpl let-note="note" let-where="where"><aside [attr.hidden]="hiddenFor(note, where)" [attr.tabindex]="where === 'gutter' ? 0 : -1" [attr.data-note-kind]="note.kind" [attr.data-note-emphasis]="isEmphasised(note) ? 'true' : null" [attr.data-mol-id]="'margin-note-' + where + '-' + note.id" (pointerenter)="noteHover($event, note, where, true)" (pointerleave)="noteHover($event, note, where, false)" (mouseenter)="noteHover($event, note, where, true)" (mouseleave)="noteHover($event, note, where, false)" (focusin)="focusNote(note, where)" (focusout)="blurNote()" [class]="noteClasses(note)">@if (templateOf(note.content); as noteTplContent) {<ng-container [ngTemplateOutlet]="noteTplContent"></ng-container>} @else if (textOf(note.content) !== null) {{{ textOf(note.content) }}}</aside></ng-template>`,
 })
-export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
+export class MarginNotes implements OnChanges, OnInit, AfterViewInit, OnDestroy {
   /** The text, in reading order. */
   blocks: MarginNotesBlock[] = []
   /** Every note the blocks refer to. */
@@ -107,8 +138,17 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
   onShownKindsChange?: (shown: string[]) => void
   /** Extra classes on the outer wrapper. */
   className?: string
-  /** Inline style for the outer wrapper (React's camelCase style object). */
+  /**
+   * Inline style for the outer wrapper (React's camelCase style object). Its
+   * `coverImage` (an image URI) paints the image behind the wrapper, centred and
+   * sized to cover it.
+   */
   style?: Record<string, string | number | undefined>
+  /**
+   * Web-only inline style for the outer wrapper (React's `webStyle`), applied
+   * after `style`. The notes layout's own max width still wins.
+   */
+  webStyle?: Record<string, string | number | undefined>
 
   /**
    * Reactive translation, read in the injection context. Its `t` reads the
@@ -117,8 +157,24 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
   private readonly i18n = useTranslation()
   /** The component host (React's root element). */
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
-  /** Bumped by scroll and resize, so the panel and offsets re-render. */
+  /** Bumped when the blocks or the notes change: a new document is read and aligned afresh. */
+  private readonly documentTick = signal(0)
+  /** Bumped once per animation frame in which the document scrolled or the viewport was resized. */
   private readonly scrollTick = signal(0)
+  /** Bumped once per animation frame that followed a resize, which also realigns the notes. */
+  private readonly resizeTick = signal(0)
+  /** The frame a queued read of the viewport waits for, or 0 when none is queued. */
+  private frame = 0
+  /** Whether the viewport was resized since the last read. */
+  private resized = false
+  /**
+   * Each row's note offset with the document and the viewport size it was
+   * measured for, by row id.
+   */
+  private readonly offsets = new Map<
+    string,
+    { document: number; resize: number; offset: number | undefined }
+  >()
 
   /** The reader's own switch state (React's `useState(() => defaultShownKinds(kinds))`). */
   private readonly ownShown = signal<string[]>([])
@@ -134,22 +190,55 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
     this.ownShown.set(defaultShownKinds(this.kinds ?? []))
   }
 
-  /** Follows the reader's scroll and viewport changes. */
+  /**
+   * Reads and aligns a new document, as React's observer does when its rows
+   * change (its effect depends on them).
+   * @param changes - The changed inputs.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('blocks' in changes || 'notes' in changes) this.documentTick.update((value) => value + 1)
+  }
+
+  /**
+   * Follows every scroll in the document, a nested scroller's included, and
+   * every resize.
+   */
   ngAfterViewInit(): void {
     if (typeof window === 'undefined') return
-    window.addEventListener('scroll', this.onScroll, { passive: true })
-    window.addEventListener('resize', this.onScroll)
+    window.addEventListener('scroll', this.onScroll, { capture: true, passive: true })
+    window.addEventListener('resize', this.onResize)
   }
 
-  /** Removes the listeners. */
+  /** Removes the listeners and the queued read. */
   ngOnDestroy(): void {
     if (typeof window === 'undefined') return
-    window.removeEventListener('scroll', this.onScroll)
-    window.removeEventListener('resize', this.onScroll)
+    window.removeEventListener('scroll', this.onScroll, true)
+    window.removeEventListener('resize', this.onResize)
+    if (this.frame) window.cancelAnimationFrame(this.frame)
   }
 
-  /** Schedules a re-render after a scroll or resize. */
+  /** Queues one read of the viewport, so a frame of scroll events is read once. */
   private readonly onScroll = (): void => {
+    if (!this.frame) this.frame = window.requestAnimationFrame(this.readViewport)
+  }
+
+  /** Queues the read of a resize, which realigns the notes too. */
+  private readonly onResize = (): void => {
+    this.resized = true
+    this.onScroll()
+  }
+
+  /**
+   * Reads the viewport for its frame, exactly as React's `useReadingPosition`
+   * does: a resize realigns the notes (the viewport's size is what a note was
+   * aligned to), and a scroll or a resize re-reads the section being read.
+   */
+  private readonly readViewport = (): void => {
+    this.frame = 0
+    if (this.resized) {
+      this.resized = false
+      this.resizeTick.update((value) => value + 1)
+    }
     this.scrollTick.update((value) => value + 1)
   }
 
@@ -290,7 +379,10 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
    * @param event - The event.
    */
   onSwitchChange(kind: string, event: Event): void {
-    this.setShown(kind, (event.target as HTMLInputElement).checked)
+    const target = event.target
+    if (target && 'checked' in target && typeof target.checked === 'boolean') {
+      this.setShown(kind, target.checked)
+    }
   }
 
   /**
@@ -304,41 +396,74 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Marks a block as hovered/focused when it has notes.
-   *
+   * Marks a block as hovered, or clears it, when it has notes and the pointer or
+   * mouse event reporting the move is a real hover (see `hoverChanged`).
+   * @param event - The enter or the leave.
+   * @param block - The block.
+   * @param entered - Whether it is an entry.
+   */
+  blockHover(event: Event, block: MarginNotesBlock, entered: boolean): void {
+    if (!this.isInteractive(block) || !hoverChanged(event, entered)) return
+    this.activeBlock.set(entered ? block.id : null)
+  }
+
+  /**
+   * Marks a block as focused when it has notes.
    * @param block - The block.
    */
-  enterBlock(block: MarginNotesBlock): void {
+  focusBlock(block: MarginNotesBlock): void {
     if (!this.isInteractive(block)) return
     this.activeBlock.set(block.id)
   }
 
-  /** Clears the hovered/focused block. */
-  leaveBlock(): void {
+  /** Clears the hovered or focused block. */
+  blurBlock(): void {
     this.activeBlock.set(null)
   }
 
   /**
-   * Marks a gutter note as hovered/focused (the phone panel never does).
+   * Marks a gutter note as hovered, or clears it, when the pointer or mouse
+   * event reporting the move is a real hover (the phone panel never does).
+   * @param event - The enter or the leave.
+   * @param note - The note.
+   * @param where - Which surface renders it.
+   * @param entered - Whether it is an entry.
+   */
+  noteHover(event: Event, note: MarginNote, where: NotePlacement, entered: boolean): void {
+    if (where !== 'gutter' || !hoverChanged(event, entered)) return
+    this.activeNote.set(entered ? note.id : null)
+  }
+
+  /**
+   * Marks a gutter note as focused (the phone panel never does).
    * @param note - The note.
    * @param where - Which surface renders it.
    */
-  enterNote(note: MarginNote, where: NotePlacement): void {
+  focusNote(note: MarginNote, where: NotePlacement): void {
     if (where !== 'gutter') return
     this.activeNote.set(note.id)
   }
 
-  /**
-   * Clears the hovered/focused note.
-   * @param where - Which surface rendered it.
-   */
-  leaveNote(where: NotePlacement): void {
-    if (where !== 'gutter') return
+  /** Clears the hovered or focused note. */
+  blurNote(): void {
     this.activeNote.set(null)
   }
 
   /**
-   * The block wrapping element, found inside this component's host.
+   * The block wrapping element this component rendered, found inside its host.
+   * Two documents on a page can repeat block ids, and a lookup by id in the whole
+   * document answers with the first one's.
+   * @param id - The block id.
+   * @returns The element, or null.
+   */
+  private blockElement(id: string): HTMLElement | null {
+    return this.host.nativeElement.querySelector<HTMLElement>(
+      `[data-mol-id="margin-notes-block-${id}"]`,
+    )
+  }
+
+  /**
+   * The row element, found inside this component's host.
    * @param id - The row id.
    * @returns The element, or null.
    */
@@ -358,11 +483,12 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * The section being read: the last noted row whose top is at or above the
-   * reading line, as React's effect computes it from the row geometry.
+   * reading line, as React computes it from the row geometry.
    * @returns The row id.
    */
   readingRow(): string | null {
     void this.scrollTick()
+    void this.documentTick()
     if (!this.hasNotes() || typeof window === 'undefined') return this.firstWithNotes()
     const line = window.innerHeight * READING_LINE
     let current: string | null = null
@@ -481,24 +607,39 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * The offsets that push each row's notes down to its first line.
-   * @returns Offsets by row id.
+   * How far a row's notes sit below the row's top, so the first note lines up
+   * with the first line of the block the row opens with: the block this
+   * component rendered (React's `alignGutter`). Measured when the row renders
+   * for a new document or after a resize, as React measures then, and kept
+   * until the next one.
+   * @param row - The row.
+   * @returns The offset in pixels, or undefined when the notes need none.
    */
-  private noteOffsets(): Record<string, number> {
-    void this.scrollTick()
-    const next: Record<string, number> = {}
-    if (!this.hasNotes()) return next
-    for (const row of this.rows()) {
-      if (row.notes.length === 0) continue
-      const rowEl = this.rowElement(row.id)
-      const blockEl = document.getElementById(row.blocks[0].id)
-      const first = blockEl?.firstElementChild ?? blockEl
-      if (!rowEl || !first) continue
-      const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
-      const offset = Math.max(0, Math.round(top))
-      if (offset) next[row.id] = offset
-    }
-    return next
+  private noteOffset(row: MarginNotesRow): number | undefined {
+    const document = this.documentTick()
+    const resize = this.resizeTick()
+    const known = this.offsets.get(row.id)
+    if (known && known.document === document && known.resize === resize) return known.offset
+    const offset = this.measureOffset(row)
+    this.offsets.set(row.id, { document, resize, offset })
+    return offset
+  }
+
+  /**
+   * Measures one row's note offset: its own registered block's first line
+   * against the row's top.
+   * @param row - The row.
+   * @returns The offset in pixels, or undefined when the notes need none.
+   */
+  private measureOffset(row: MarginNotesRow): number | undefined {
+    if (row.notes.length === 0 || !this.hasNotes()) return undefined
+    const rowEl = this.rowElement(row.id)
+    const blockEl = this.blockElement(row.blocks[0].id)
+    const first = blockEl?.firstElementChild ?? blockEl
+    if (!rowEl || !first) return undefined
+    const top = first.getBoundingClientRect().top - rowEl.getBoundingClientRect().top
+    const offset = Math.max(0, Math.round(top))
+    return offset || undefined
   }
 
   /**
@@ -521,13 +662,19 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * The host's inline style (React's `containerStyle`): the caller's React-shaped
-   * `style` prop merged with the computed max width, as a style map Angular
-   * applies through the CSSOM (so `calc(38rem + 18rem + 4rem)` serializes as
-   * `calc(60rem)`, exactly as React's style object does).
+   * `style` prop (its `coverImage` painted as the React element paints it), then
+   * the element's `webStyle` (the web-only paint), then the computed max width,
+   * as a style map Angular applies through the CSSOM (so
+   * `calc(38rem + 18rem + 4rem)` serializes as `calc(60rem)`, exactly as React's
+   * style object does).
    * @returns The style map.
    */
   hostStyleMap(): Record<string, string> {
-    const merged = { ...(this.style ?? {}), maxWidth: this.maxWidth() }
+    const merged = {
+      ...elementStyle(this.style ?? {}),
+      ...this.webStyle,
+      maxWidth: this.maxWidth(),
+    }
     const map: Record<string, string> = {}
     for (const [key, value] of Object.entries(merged)) {
       const text = styleText({ [key]: value })
@@ -643,7 +790,7 @@ export class MarginNotes implements OnInit, AfterViewInit, OnDestroy {
     return styleText({
       width: this.gutterWidth ?? '18rem',
       flexShrink: 0,
-      paddingTop: this.noteOffsets()[row.id],
+      paddingTop: this.noteOffset(row),
     })
   }
 

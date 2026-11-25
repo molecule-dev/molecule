@@ -85,8 +85,17 @@ export interface MarginNotesProps {
   onShownKindsChange?: (shown: string[]) => void
   /** Extra classes on the outer wrapper. */
   className?: string
-  /** Inline style for the outer wrapper (React's camelCase style object). */
+  /**
+   * Inline style for the outer wrapper (React's camelCase style object). Its
+   * `coverImage` (an image URI) paints the image behind the wrapper, centred and
+   * sized to cover it.
+   */
   style?: Record<string, string | number>
+  /**
+   * Web-only inline style for the outer wrapper (React's `webStyle`), applied
+   * after `style`. The notes layout's own max width still wins.
+   */
+  webStyle?: Record<string, string | number | undefined>
 }
 
 /** One row of the layout: a run of blocks and the notes shown beside it. */
