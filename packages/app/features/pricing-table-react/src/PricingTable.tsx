@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
+import { Anchor, Box, TableBox, TableCell, Text } from '@molecule/app-ui-react/elements'
 
 /** Describes a single plan column in the pricing table. */
 export interface PricingPlan {
@@ -55,13 +56,22 @@ export function PricingTable({ plans, features, className }: PricingTableProps):
   const cm = getClassMap()
   const cols = plans.length
   return (
-    <div className={cm.cn(cm.stack(0 as const), className)} style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
-        <thead>
-          <tr>
-            <th style={{ minWidth: 160, textAlign: 'left' }}> </th>
+    <Box
+      as="div"
+      className={cm.cn(cm.stack(0 as const), className)}
+      webStyle={{ overflowX: 'auto' }}
+    >
+      <TableBox
+        as="table"
+        webStyle={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}
+      >
+        <TableBox as="thead">
+          <TableBox as="tr">
+            <TableCell as="th" webStyle={{ minWidth: 160, textAlign: 'left' }}>
+              {' '}
+            </TableCell>
             {plans.map((p) => (
-              <th key={p.id} style={{ verticalAlign: 'top', padding: 12 }}>
+              <TableCell key={p.id} as="th" webStyle={{ verticalAlign: 'top', padding: 12 }}>
                 <Card
                   style={
                     p.recommended
@@ -69,22 +79,32 @@ export function PricingTable({ plans, features, className }: PricingTableProps):
                       : undefined
                   }
                 >
-                  <div className={cm.stack(2)}>
-                    <h3 className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{p.name}</h3>
-                    {p.description && <p className={cm.textSize('sm')}>{p.description}</p>}
-                    <div className={cm.flex({ align: 'baseline', gap: 'xs' })}>
-                      <span className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
+                  <Box as="div" className={cm.stack(2)}>
+                    <Text as="h3" className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+                      {p.name}
+                    </Text>
+                    {p.description && (
+                      <Text as="p" className={cm.textSize('sm')}>
+                        {p.description}
+                      </Text>
+                    )}
+                    <Box as="div" className={cm.flex({ align: 'baseline', gap: 'xs' })}>
+                      <Text as="span" className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
                         {p.price}
-                      </span>
-                      {p.interval && <span className={cm.textSize('xs')}>{p.interval}</span>}
-                    </div>
+                      </Text>
+                      {p.interval && (
+                        <Text as="span" className={cm.textSize('xs')}>
+                          {p.interval}
+                        </Text>
+                      )}
+                    </Box>
                     {p.cta &&
                       (p.cta.href ? (
-                        <a href={p.cta.href}>
+                        <Anchor href={p.cta.href}>
                           <Button variant="solid" color={p.recommended ? 'primary' : 'secondary'}>
                             {p.cta.label}
                           </Button>
-                        </a>
+                        </Anchor>
                       ) : (
                         <Button
                           variant="solid"
@@ -94,38 +114,46 @@ export function PricingTable({ plans, features, className }: PricingTableProps):
                           {p.cta.label}
                         </Button>
                       ))}
-                  </div>
+                  </Box>
                 </Card>
-              </th>
+              </TableCell>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableBox>
+        </TableBox>
+        <TableBox as="tbody">
           {features.map((f, i) => (
             <Fragment key={i}>
               {f.groupHeading && (
-                <tr key={`g-${i}`}>
-                  <th colSpan={cols + 1} style={{ textAlign: 'left', padding: '12px 8px' }}>
-                    <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+                <TableBox as="tr" key={`g-${i}`}>
+                  <TableCell
+                    as="th"
+                    colSpan={cols + 1}
+                    webStyle={{ textAlign: 'left', padding: '12px 8px' }}
+                  >
+                    <Text as="span" className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
                       {f.groupHeading}
-                    </span>
-                  </th>
-                </tr>
+                    </Text>
+                  </TableCell>
+                </TableBox>
               )}
-              <tr key={`r-${i}`}>
-                <td style={{ padding: '8px', textAlign: 'left' }}>
-                  <span className={cm.textSize('sm')}>{f.label}</span>
-                </td>
+              <TableBox as="tr" key={`r-${i}`}>
+                <TableCell as="td" webStyle={{ padding: '8px', textAlign: 'left' }}>
+                  <Text as="span" className={cm.textSize('sm')}>
+                    {f.label}
+                  </Text>
+                </TableCell>
                 {plans.map((p) => (
-                  <td key={p.id} style={{ padding: '8px', textAlign: 'center' }}>
-                    <span className={cm.textSize('sm')}>{renderValue(f.values[p.id])}</span>
-                  </td>
+                  <TableCell key={p.id} as="td" webStyle={{ padding: '8px', textAlign: 'center' }}>
+                    <Text as="span" className={cm.textSize('sm')}>
+                      {renderValue(f.values[p.id])}
+                    </Text>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableBox>
             </Fragment>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBox>
+      </TableBox>
+    </Box>
   )
 }

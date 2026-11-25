@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Circle, G, Svg } from '@molecule/app-ui-react/elements'
 
 /** Single ring entry — value/max plus the colored accent and an optional label. */
 export interface ProgressRing {
@@ -110,7 +111,7 @@ export function ProgressRings({
     )
 
   return (
-    <svg
+    <Svg
       className={cm.cn(className)}
       data-mol-id={dataMolId ?? 'progress-rings'}
       role="img"
@@ -132,8 +133,8 @@ export function ProgressRings({
           ring.label ??
           t('progressRings.ring', { index: i + 1 }, { defaultValue: 'Ring {{index}}' })
         return (
-          <g key={i} role="img" aria-label={perRingLabel}>
-            <circle
+          <G key={i} role="img" aria-label={perRingLabel}>
+            <Circle
               cx={center}
               cy={center}
               r={radius}
@@ -142,7 +143,7 @@ export function ProgressRings({
               strokeOpacity={0.18}
               strokeWidth={strokeWidth}
             />
-            <circle
+            <Circle
               cx={center}
               cy={center}
               r={radius}
@@ -153,9 +154,9 @@ export function ProgressRings({
               strokeDasharray={`${filledLength} ${circumference}`}
               transform={`rotate(-90 ${center} ${center})`}
             />
-          </g>
+          </G>
         )
       })}
-    </svg>
+    </Svg>
   )
 }

@@ -1,10 +1,11 @@
-import type { CSSProperties, JSX } from 'react'
+import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
+import { type BoxStyle, getClassMap, type WebStyle } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import { Box, CheckField, RangeField, Text, TextField } from '@molecule/app-ui-react/elements'
 
 import {
   clampLength,
@@ -151,7 +152,7 @@ export function PasswordGenerator({
   // Inline styles only for things ClassMap can't express: the bare
   // monospace + word-break for the password readout, and the slider's
   // full-width track. Everything else uses cm.* classes.
-  const passwordStyle: CSSProperties = useMemo(
+  const passwordStyle: WebStyle = useMemo(
     () => ({
       fontFamily:
         'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
@@ -160,7 +161,8 @@ export function PasswordGenerator({
     }),
     [],
   )
-  const sliderStyle: CSSProperties = useMemo(() => ({ width: '100%' }), [])
+  // The slider's full width is layout both renderers apply (a percentage of its parent).
+  const sliderStyle = useMemo<BoxStyle>(() => ({ width: '100%' }), [])
 
   const charsetToggles: Array<{
     key: keyof PasswordCharsetOptions
@@ -200,25 +202,27 @@ export function PasswordGenerator({
   ]
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.stack(2 as const), className)}
       data-mol-id={dataMolId}
       data-mol-component="password-generator"
     >
       {/* Generated password readout + copy button */}
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-        <input
+      <Box as="div" className={cm.flex({ align: 'center', gap: 'sm' })}>
+        <TextField
+          as="input"
           type="text"
           readOnly
           value={password}
-          onFocus={(e) => (e.target as HTMLInputElement).select()}
+          selectTextOnFocus
           aria-label={
             ariaLabel ??
             t('password-generator.readoutLabel', {}, { defaultValue: 'Generated password' })
           }
           data-mol-id="password-readout"
           className={cm.cn(cm.input(), cm.flex1)}
-          style={passwordStyle}
+          webStyle={passwordStyle}
         />
         <Button variant="solid" size="sm" onClick={copyNow} data-mol-id="password-copy">
           {copied
@@ -228,50 +232,52 @@ export function PasswordGenerator({
         <Button variant="outline" size="sm" onClick={regenerate} data-mol-id="password-regenerate">
           {t('password-generator.regenerate', {}, { defaultValue: 'Regenerate' })}
         </Button>
-      </div>
+      </Box>
 
       {/* Length slider */}
-      <div className={cm.stack(1 as const)}>
-        <label
+      <Box as="div" className={cm.stack(1 as const)}>
+        <Text
+          as="label"
           htmlFor="password-generator-length"
           className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
         >
           {t('password-generator.length', { length }, { defaultValue: 'Length: {{length}}' })}
-        </label>
-        <input
+        </Text>
+        <RangeField
           id="password-generator-length"
-          type="range"
           min={MIN_LENGTH}
           max={MAX_LENGTH}
           step={1}
           value={length}
-          onChange={(e) => updateLength(Number((e.target as HTMLInputElement).value))}
+          onValueChange={updateLength}
           aria-label={t('password-generator.lengthLabel', {}, { defaultValue: 'Password length' })}
           data-mol-id="password-length"
           style={sliderStyle}
         />
-      </div>
+      </Box>
 
       {/* Charset toggles */}
-      <div className={cm.flex({ direction: 'col', gap: 'xs' })}>
+      <Box as="div" className={cm.flex({ direction: 'col', gap: 'xs' })}>
         {charsetToggles.map(({ key, labelKey, defaultLabel }) => (
-          <label
+          <Box
+            as="label"
             key={key}
             className={cm.flex({ align: 'center', gap: 'sm' })}
             data-mol-id={`password-toggle-${key}`}
           >
-            <input
+            <CheckField
+              as="input"
               type="checkbox"
               checked={charset[key]}
-              onChange={(e) => updateCharset(key, (e.target as HTMLInputElement).checked)}
+              onCheckedChange={(value) => updateCharset(key, value)}
               aria-label={t(labelKey, {}, { defaultValue: defaultLabel })}
             />
-            <span className={cm.textSize('sm')}>
+            <Text as="span" className={cm.textSize('sm')}>
               {t(labelKey, {}, { defaultValue: defaultLabel })}
-            </span>
-          </label>
+            </Text>
+          </Box>
         ))}
-      </div>
+      </Box>
 
       {/* Pick button — only renders if onPick was supplied */}
       {onPick && (
@@ -279,6 +285,6 @@ export function PasswordGenerator({
           {t('password-generator.pick', {}, { defaultValue: 'Use this password' })}
         </Button>
       )}
-    </div>
+    </Box>
   )
 }

@@ -13,6 +13,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Box, Pressable, TableBox, TableCell, Text } from '@molecule/app-ui-react/elements'
 
 import type { CategoryStyle, TransactionRowData } from './types.js'
 
@@ -117,33 +118,40 @@ export function TransactionsTable({
 
   if (loading) {
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(cm.transactionsTableShell, cm.sp('p', 6), className)}
         data-mol-id="transactions-table-loading"
       >
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
+          <Box
+            as="div"
             key={i}
             aria-hidden="true"
             className={cm.cn(cm.transactionsTableSkeletonRow, cm.sp('mb', 3))}
           />
         ))}
-      </div>
+      </Box>
     )
   }
 
   if (error) {
     return (
-      <div
+      <Box
+        as="div"
         role="alert"
         className={cm.cn(cm.transactionsTableShell, cm.sp('p', 10), cm.textCenter, className)}
         data-mol-id="transactions-table-error"
       >
-        <p className={cm.cn(cm.transactionsTableTertiaryText, cm.textSize('sm'), cm.sp('mb', 3))}>
+        <Text
+          as="p"
+          className={cm.cn(cm.transactionsTableTertiaryText, cm.textSize('sm'), cm.sp('mb', 3))}
+        >
           {error}
-        </p>
+        </Text>
         {onRetry ? (
-          <button
+          <Pressable
+            as="button"
             type="button"
             data-mol-id="transactions-table-retry"
             onClick={onRetry}
@@ -154,15 +162,16 @@ export function TransactionsTable({
           >
             {retryLabel ??
               t('transactionsTable.label.retry', undefined, { defaultValue: 'Try again' })}
-          </button>
+          </Pressable>
         ) : null}
-      </div>
+      </Box>
     )
   }
 
   if (transactions.length === 0 && emptyState) {
     return (
-      <div
+      <Box
+        as="div"
         className={cm.cn(
           cm.transactionsTableShell,
           cm.sp('p', 12),
@@ -173,16 +182,16 @@ export function TransactionsTable({
         data-mol-id="transactions-table-empty"
       >
         {emptyState}
-      </div>
+      </Box>
     )
   }
 
   return (
-    <div className={cm.cn(cm.transactionsTableShell, className)}>
-      <div className={cm.cn(cm.transactionsTableScroller)}>
-        <table className={cm.cn(cm.w('full'), cm.transactionsTableTable)}>
-          <thead>
-            <tr className={cm.cn(cm.transactionsTableHeadRow)}>
+    <Box as="div" className={cm.cn(cm.transactionsTableShell, className)}>
+      <Box as="div" className={cm.cn(cm.transactionsTableScroller)}>
+        <TableBox as="table" className={cm.cn(cm.w('full'), cm.transactionsTableTable)}>
+          <TableBox as="thead">
+            <TableBox as="tr" className={cm.cn(cm.transactionsTableHeadRow)}>
               {(
                 [
                   {
@@ -226,7 +235,8 @@ export function TransactionsTable({
                   },
                 ] as const
               ).map((h) => (
-                <th
+                <TableCell
+                  as="th"
                   key={h.key}
                   className={cm.cn(
                     cm.sp('px', 6),
@@ -238,11 +248,11 @@ export function TransactionsTable({
                   )}
                 >
                   {h.label}
-                </th>
+                </TableCell>
               ))}
-            </tr>
-          </thead>
-          <tbody className={cm.cn(cm.transactionsTableBody)}>
+            </TableBox>
+          </TableBox>
+          <TableBox as="tbody" className={cm.cn(cm.transactionsTableBody)}>
             {transactions.map((tx) => {
               const catKey = tx.categoryKey.toLowerCase()
               // A caller-supplied style is the caller's colour data, applied
@@ -253,13 +263,15 @@ export function TransactionsTable({
               const neutralChip = !catStyle
               const isIncome = tx.isIncome ?? tx.amount >= 0
               return (
-                <tr
+                <TableBox
+                  as="tr"
                   key={tx.id}
                   data-mol-id="transactions-table-row"
                   className={cm.cn(onRowClick ? cm.cursorPointer : '', cm.transactionsTableRow)}
                   onClick={onRowClick ? () => onRowClick(tx) : undefined}
                 >
-                  <td
+                  <TableCell
+                    as="td"
                     className={cm.cn(
                       cm.sp('px', 6),
                       cm.sp('py', 5),
@@ -268,15 +280,19 @@ export function TransactionsTable({
                     )}
                   >
                     {dateFormatter(tx.date)}
-                  </td>
-                  <td className={cm.cn(cm.sp('px', 6), cm.sp('py', 5))}>
-                    <div
+                  </TableCell>
+                  <TableCell as="td" className={cm.cn(cm.sp('px', 6), cm.sp('py', 5))}>
+                    <Box
+                      as="div"
                       className={cm.cn(
                         cm.flex({ align: 'center' }),
                         cm.transactionsTableDescriptionRow,
                       )}
                     >
-                      <div
+                      {/* The tile's fill is layout-neutral (`style`, drawn on every renderer);
+                          its glyph colour is paint only the web inherits (`webStyle`). */}
+                      <Box
+                        as="div"
                         className={cm.cn(
                           cm.w(10),
                           cm.h(10),
@@ -284,26 +300,25 @@ export function TransactionsTable({
                           cm.flex({ align: 'center', justify: 'center' }),
                           neutralChip && [cm.surfaceSecondary, cm.textMuted],
                         )}
-                        style={
-                          catStyle
-                            ? { backgroundColor: catStyle.bg, color: catStyle.color }
-                            : undefined
-                        }
+                        style={catStyle ? { backgroundColor: catStyle.bg } : undefined}
+                        webStyle={catStyle ? { color: catStyle.color } : undefined}
                       >
                         {/* The ligature name is font data, not text; the chip names the category. */}
-                        <span aria-hidden="true" className={cm.iconGlyphFont}>
+                        <Text as="span" aria-hidden="true" className={cm.iconGlyphFont}>
                           {catStyle?.icon ?? NEUTRAL_ICON}
-                        </span>
-                      </div>
-                      <span
+                        </Text>
+                      </Box>
+                      <Text
+                        as="span"
                         className={cm.cn(cm.fontWeight('bold'), cm.transactionsTableDescription)}
                       >
                         {tx.description}
-                      </span>
-                    </div>
-                  </td>
-                  <td className={cm.cn(cm.sp('px', 6), cm.sp('py', 5))}>
-                    <span
+                      </Text>
+                    </Box>
+                  </TableCell>
+                  <TableCell as="td" className={cm.cn(cm.sp('px', 6), cm.sp('py', 5))}>
+                    <Text
+                      as="span"
                       className={cm.cn(
                         cm.sp('px', 3),
                         cm.sp('py', 1),
@@ -319,9 +334,10 @@ export function TransactionsTable({
                       }
                     >
                       {tx.categoryLabel}
-                    </span>
-                  </td>
-                  <td
+                    </Text>
+                  </TableCell>
+                  <TableCell
+                    as="td"
                     className={cm.cn(
                       cm.sp('px', 6),
                       cm.sp('py', 5),
@@ -330,8 +346,9 @@ export function TransactionsTable({
                     )}
                   >
                     {tx.account}
-                  </td>
-                  <td
+                  </TableCell>
+                  <TableCell
+                    as="td"
                     className={cm.cn(
                       cm.sp('px', 6),
                       cm.sp('py', 5),
@@ -343,15 +360,15 @@ export function TransactionsTable({
                   >
                     {isIncome ? '+' : '-'}
                     {amountFormatter(tx.amount)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableBox>
               )
             })}
-          </tbody>
-        </table>
+          </TableBox>
+        </TableBox>
         {footer ?? null}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
