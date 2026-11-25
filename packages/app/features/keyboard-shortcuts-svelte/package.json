@@ -61,7 +61,7 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-keyboard-shortcuts": "1.0.3",
-    "@molecule/app-svelte": "3.15.0",
+    "@molecule/app-svelte": "3.15.1",
     "@molecule/app-ui": "1.7.0",
     "@molecule/app-ui-svelte": "1.4.4",
     "@sveltejs/vite-plugin-svelte": "7.1.2",

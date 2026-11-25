@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.15.1
+
+### Patch Changes
+
+- The `useLinkRouter` example is a Svelte 5 component that compiles as written.
+
 ## 3.15.0
 
 ### Minor Changes
