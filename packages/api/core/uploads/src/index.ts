@@ -84,6 +84,11 @@
  *   if (!stream) return res.status(404).end()
  *   await sendUpload(res, stream, { filename: row.name }) // a download; { inline: true, type } shows an image
  * })
+ *
+ * // Try it with the server running (curl builds the multipart body; add your auth header). A .txt
+ * // file goes up as text/plain, which `types` allows:
+ * //   echo hi > /tmp/a.txt && curl -sS -F file=@/tmp/a.txt localhost:$PORT/files   → {"id":"<id>"}
+ * //   curl -sS localhost:$PORT/files/<id>                                          → hi
  * ```
  *
  * @e2e
