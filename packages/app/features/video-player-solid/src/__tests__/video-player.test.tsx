@@ -18,7 +18,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -50,7 +51,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 
 // Mirror the real Button: consume variant/size, forward everything else
 // (aria-label, onClick, …) onto the <button> like `{...rest}`.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: { children?: JSX.Element; onClick?: () => void; 'aria-label'?: string }) => (
     <button data-button="" onClick={() => props.onClick?.()} aria-label={props['aria-label']}>
       {props.children}

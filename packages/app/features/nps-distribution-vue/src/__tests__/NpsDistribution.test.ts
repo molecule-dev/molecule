@@ -14,7 +14,8 @@ import { createApp, defineComponent, h } from 'vue'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can mount without a real bond — the same approach the
 // React tests' real Tailwind setup avoids asserting on.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

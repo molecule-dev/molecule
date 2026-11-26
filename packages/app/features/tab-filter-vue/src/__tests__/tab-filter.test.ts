@@ -14,7 +14,8 @@ import { createApp, defineComponent, h } from 'vue'
 
 import type { TabFilterProps } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

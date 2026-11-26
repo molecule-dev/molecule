@@ -8,7 +8,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockTrack = vi.fn().mockResolvedValue(undefined)
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAnalytics: () => ({
     identify: vi.fn().mockResolvedValue(undefined),
     track: mockTrack,

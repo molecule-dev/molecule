@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -61,7 +62,8 @@ interface FieldProps {
 // the `value` prop onto the element's value property (Solid's `value` DOM
 // property), so the test reads what a user would see; `onInput` is the native
 // event React's and the bond's `onChange` report.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: { children?: JSX.Element }) => <button data-button="">{props.children}</button>,
   Input: (props: FieldProps) => (
     <input

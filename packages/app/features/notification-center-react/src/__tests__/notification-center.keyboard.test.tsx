@@ -13,7 +13,8 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -41,7 +42,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: Record<string, unknown> & { children?: ReactNode }) => (
     <button data-button="" data-mol-id={props['data-mol-id']}>
       {props.children}

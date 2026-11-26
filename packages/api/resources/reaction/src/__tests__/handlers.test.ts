@@ -6,7 +6,8 @@ const { mockCreate, mockFindOne, mockFindMany, mockCount, mockDeleteMany } = vi.
   mockDeleteMany: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findOne: mockFindOne,
   findMany: mockFindMany,
@@ -14,11 +15,13 @@ vi.mock('@molecule/api-database', () => ({
   deleteMany: mockDeleteMany,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((key: string) => key),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     debug: vi.fn(),
     error: vi.fn(),

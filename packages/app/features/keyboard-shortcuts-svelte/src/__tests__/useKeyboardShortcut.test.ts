@@ -11,7 +11,10 @@ import { writable } from 'svelte/store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockGetProvider } = vi.hoisted(() => ({ mockGetProvider: vi.fn() }))
-vi.mock('@molecule/app-keyboard-shortcuts', () => ({ getProvider: mockGetProvider }))
+vi.mock('@molecule/app-keyboard-shortcuts', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getProvider: mockGetProvider,
+}))
 
 import { expandKeys, useKeyboardShortcut } from '../useKeyboardShortcut.js'
 import HookProbe from './HookProbe.svelte'

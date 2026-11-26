@@ -18,7 +18,8 @@ import { en as settingsActionsBarEn } from '@molecule/app-locales-settings-actio
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `surface`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -57,9 +58,9 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
 // `Button` is the only UI component dependency — stub it to an inspectable
 // `<button>` carrying `data-button` and the disabled state, as the React
 // tests do.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/ButtonStub.svelte')
-  return { Button }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button }
 })
 
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'

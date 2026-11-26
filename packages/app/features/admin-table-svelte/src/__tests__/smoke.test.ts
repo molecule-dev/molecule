@@ -10,7 +10,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 // The UI packages read the ClassMap at module scope, so a stand-in is needed
 // before the package is imported — the same Proxy the React smoke test uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

@@ -12,7 +12,8 @@ const mockSubscribe = vi.fn()
 const mockOnReady = vi.fn().mockReturnValue(() => {})
 const mockDestroy = vi.fn()
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createCapacitorApp: vi.fn(() => ({
     initialize: mockInitialize,
     isReady: mockIsReady,

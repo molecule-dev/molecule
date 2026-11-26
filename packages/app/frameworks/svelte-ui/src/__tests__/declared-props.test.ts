@@ -57,7 +57,8 @@ vi.mock('@molecule/app-svelte', async () => {
   }
 })
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

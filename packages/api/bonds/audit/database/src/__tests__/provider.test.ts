@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuditRecord, PaginatedResult } from '@molecule/api-audit'
 
-vi.mock('@molecule/api-database', () => {
+vi.mock('@molecule/api-database', async (importOriginal) => {
   const store = {
     create: vi.fn().mockResolvedValue({ data: null, affected: 1 }),
     findMany: vi.fn().mockResolvedValue([]),
     count: vi.fn().mockResolvedValue(0),
   }
-  return store
+  return { ...(await importOriginal<Record<string, unknown>>()), ...(await store) }
 })
 
 import * as db from '@molecule/api-database'

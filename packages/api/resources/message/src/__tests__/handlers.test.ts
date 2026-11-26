@@ -20,7 +20,8 @@ const {
   mockHasRealtimeProvider: vi.fn(() => false),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findById: mockFindById,
   findOne: mockFindOne,
@@ -29,19 +30,22 @@ vi.mock('@molecule/api-database', () => ({
   updateById: mockUpdateById,
 }))
 
-vi.mock('@molecule/api-realtime', () => ({
+vi.mock('@molecule/api-realtime', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   broadcast: mockBroadcast,
   hasProvider: mockHasRealtimeProvider,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
   ),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: { debug: vi.fn(), error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }))
 

@@ -31,7 +31,8 @@ import type { IconData, IconName } from '@molecule/app-icons'
 
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn(),
 }))
 

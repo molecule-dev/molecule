@@ -23,7 +23,8 @@ const mockLocation = { pathname: '/dashboard', search: '', hash: '', key: 'key-0
 let matches = false
 const changeListeners = new Set<(e: { matches: boolean }) => void>()
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the shell CALLS (resolvers with options) vs plain string tokens.
     const callable = new Set(['flex', 'minH', 'sp', 'h', 'w', 'maxW', 'position', 'stack'])
@@ -57,7 +58,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: () => ({ viewBox: '0 0 20 20', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
 

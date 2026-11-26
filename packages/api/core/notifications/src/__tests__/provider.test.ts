@@ -7,7 +7,8 @@ const { registry } = vi.hoisted(() => {
   return { registry }
 })
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   bond: vi.fn((type: string, name: string, provider: unknown) => {
     if (!registry.has(type)) registry.set(type, new Map())
     registry.get(type)!.set(name, provider)
@@ -21,7 +22,8 @@ vi.mock('@molecule/api-bond', () => ({
   getLogger: vi.fn(() => ({ warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() })),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((_key: string, _values?: unknown, opts?: { defaultValue?: string }) => {
     return opts?.defaultValue ?? _key
   }),

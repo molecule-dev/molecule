@@ -1,4 +1,5 @@
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Mirror the real t(): the defaultValue (or key) is returned with {{name}}
   // placeholders interpolated from the values argument, so assertions on the
   // thrown/validated English text see what a user would see.

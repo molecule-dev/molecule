@@ -19,7 +19,8 @@ const { hooks } = vi.hoisted(() => ({
   hooks: [] as Array<(server: unknown) => unknown>,
 }))
 
-vi.mock('@molecule/api-server-default-express', () => ({
+vi.mock('@molecule/api-server-default-express', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   registerServerCreatedHook: (hook: (server: unknown) => unknown) => {
     hooks.push(hook)
   },

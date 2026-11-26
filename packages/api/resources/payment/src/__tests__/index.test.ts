@@ -5,12 +5,14 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Mock @molecule/api-database
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   query: vi.fn(),
 }))
 
 // Mock @molecule/api-bond (recordService uses getLogger and getAnalytics from api-bond)
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAnalytics: () => ({
     identify: vi.fn().mockResolvedValue(undefined),
     track: vi.fn().mockResolvedValue(undefined),

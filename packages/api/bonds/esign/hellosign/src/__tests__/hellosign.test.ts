@@ -8,7 +8,8 @@ import { createHmac } from 'node:crypto'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     error: vi.fn(),
     warn: vi.fn(),
@@ -17,7 +18,9 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-esign', () => ({}))
+vi.mock('@molecule/api-esign', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 const TEST_KEY = 'test-hello-sign-api-key'
 

@@ -48,27 +48,32 @@ const {
   }
 })
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAnalytics: mockGetAnalytics,
   getLogger: mockGetLogger,
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   findById: mockFindById,
   updateById: mockUpdateById,
   updateMany: mockUpdateMany,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: mockT,
 }))
 
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGetConfig,
 }))
 
 // The handler imports this dynamically and uses generateSecret/getUrls/verify.
-vi.mock('@molecule/api-two-factor', () => ({
+vi.mock('@molecule/api-two-factor', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   generateSecret: vi.fn(() => 'PENDING-SECRET'),
   getUrls: vi.fn(async () => ({
     otpauth: 'otpauth://mock',

@@ -28,7 +28,8 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -60,9 +61,10 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 
 // The copy/regenerate button marker the React tests mock
 // `@molecule/app-ui-react` with: a plain button carrying its `data-mol-id`.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
@@ -80,7 +82,8 @@ vi.mock('@molecule/app-ui-angular', async () => {
   }
 })
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

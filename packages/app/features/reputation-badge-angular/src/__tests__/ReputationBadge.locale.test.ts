@@ -42,7 +42,8 @@ interface Recorded {
 
 const mockI18n = { literalMarkers: true, calls: [] as Recorded[] }
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 
@@ -63,9 +64,10 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component: Cmp } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Badge: Cmp({
       selector: 'span[mol-badge]',
       standalone: true,

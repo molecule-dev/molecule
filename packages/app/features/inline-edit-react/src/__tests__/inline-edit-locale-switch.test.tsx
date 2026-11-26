@@ -22,7 +22,8 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { InlineEditProps } from '../InlineEdit.js'
 
 // Class tokens echo their own name, so a class assertion names the token.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -39,7 +40,8 @@ vi.mock('@molecule/app-ui', () => ({
       },
     ),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children }: { children?: React.ReactNode }) =>
     createElement('button', { 'data-button': '' }, children),
   Input: ({ 'aria-label': label }: { 'aria-label'?: string }) =>

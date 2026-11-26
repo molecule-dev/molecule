@@ -21,10 +21,12 @@ vi.mock('@aws-sdk/client-textract', () => ({
     return { input, type: 'DetectDocumentTextCommand' }
   }),
 }))
-vi.mock('@molecule/api-analytics', () => ({
+vi.mock('@molecule/api-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   trackBondFailure: (...args: unknown[]) => mockTrackBondFailure(...args),
 }))
-vi.mock('@molecule/api-proxy-agent', () => ({
+vi.mock('@molecule/api-proxy-agent', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProxyAgents: vi.fn(() => undefined),
 }))
 

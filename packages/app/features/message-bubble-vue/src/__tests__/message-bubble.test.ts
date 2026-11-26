@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -51,9 +52,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 
 // The three `@molecule/app-ui-vue` components the package renders, stubbed to
 // inspectable native elements — the same markers the React suite's stubs emit.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Avatar: defineComponent({
       name: 'Avatar',
       props: { src: String, alt: String, name: String, size: [String, Number] },

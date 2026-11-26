@@ -21,7 +21,8 @@ import { setMoleculeContext } from '@molecule/app-svelte'
 import PasswordGenerator from '../PasswordGenerator.svelte'
 import { createPropBag } from './prop-bag.svelte.js'
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

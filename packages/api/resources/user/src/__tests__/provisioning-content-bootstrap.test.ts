@@ -64,14 +64,16 @@ const {
   mockWithTransaction: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   getAll: vi.fn(() => []),
   getAnalytics: mockGetAnalytics,
   getLogger: mockGetLogger,
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockStoreCreate,
   findById: mockFindById,
   findOne: mockFindOne,
@@ -86,11 +88,29 @@ vi.mock('@molecule/api-database', () => ({
   withTransaction: mockWithTransaction,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({ t: mockT }))
-vi.mock('@molecule/api-password', () => ({ compare: mockCompare, hash: mockHash }))
-vi.mock('@molecule/api-jwt', () => ({ sign: mockSign, decode: vi.fn(), verify: vi.fn() }))
-vi.mock('@molecule/api-config', () => ({ get: mockGetConfig }))
-vi.mock('@molecule/api-two-factor', () => ({ verify: vi.fn() }))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: mockT,
+}))
+vi.mock('@molecule/api-password', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  compare: mockCompare,
+  hash: mockHash,
+}))
+vi.mock('@molecule/api-jwt', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  sign: mockSign,
+  decode: vi.fn(),
+  verify: vi.fn(),
+}))
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  get: mockGetConfig,
+}))
+vi.mock('@molecule/api-two-factor', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  verify: vi.fn(),
+}))
 vi.mock('uuid', () => ({
   v4: () => {
     uuidState.n += 1

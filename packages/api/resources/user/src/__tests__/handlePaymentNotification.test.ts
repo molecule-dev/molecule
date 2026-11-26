@@ -20,13 +20,15 @@ const { mockGet, mockGetAnalytics, mockGetLogger, mockUpdateFn } = vi.hoisted(()
   mockUpdateFn: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   getAnalytics: mockGetAnalytics,
   getLogger: mockGetLogger,
 }))
 
-vi.mock('@molecule/api-resource', () => ({
+vi.mock('@molecule/api-resource', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   update: vi.fn(() => mockUpdateFn),
 }))
 

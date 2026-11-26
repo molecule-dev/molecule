@@ -18,14 +18,18 @@ const { mockRequire, mockGetAnalytics, mockGetLogger, mockT } = vi.hoisted(() =>
   }
 })
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: vi.fn(),
   require: mockRequire,
   getAnalytics: mockGetAnalytics,
   getLogger: mockGetLogger,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({ t: mockT }))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: mockT,
+}))
 
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { configNotConfiguredError } from '@molecule/api-secrets'

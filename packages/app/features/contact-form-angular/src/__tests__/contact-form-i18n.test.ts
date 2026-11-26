@@ -26,7 +26,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -57,10 +58,11 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // `data-button` button, a `data-input` field and a `data-textarea` field, each
 // carrying the `aria-label` bound on the host element — the same host-to-inner
 // move the real field components run on every check.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, ElementRef, inject } = await import('@angular/core')
   const { useTranslation } = await import('@molecule/app-angular')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',

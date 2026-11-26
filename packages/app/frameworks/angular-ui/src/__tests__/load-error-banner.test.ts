@@ -31,7 +31,8 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the banner templates CALL as functions; every other token must be
     // a plain string — Angular's class binding rejects function values.
@@ -61,7 +62,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

@@ -13,7 +13,8 @@
 import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { type App, createApp, h, nextTick, ref } from 'vue'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

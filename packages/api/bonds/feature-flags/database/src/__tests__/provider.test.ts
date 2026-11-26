@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: vi.fn().mockResolvedValue({ data: null, affected: 1 }),
   findMany: vi.fn().mockResolvedValue([]),
   updateById: vi.fn().mockResolvedValue({ data: null, affected: 1 }),

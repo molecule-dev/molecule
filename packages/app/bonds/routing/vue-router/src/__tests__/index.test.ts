@@ -12,7 +12,10 @@ vi.mock('vue-router', async () => {
 
 // The REAL @molecule/app-routing: the bond builds on its createHistoryRouter /
 // createBrowserRouter, and the no-vue-router fallback IS the core browser router.
-vi.mock('@molecule/app-routing', async () => await vi.importActual('@molecule/app-routing'))
+vi.mock('@molecule/app-routing', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  ...(await await vi.importActual('@molecule/app-routing')),
+}))
 
 import { createApp } from 'vue'
 import {

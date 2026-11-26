@@ -17,7 +17,10 @@ const { mockDecodeAndVerifyJWS, mockLogger } = vi.hoisted(() => ({
 }))
 
 vi.mock('../jws.js', () => ({ decodeAndVerifyJWS: mockDecodeAndVerifyJWS }))
-vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => mockLogger,
+}))
 
 const { parseV2Notification } = await import('../notificationV2.js')
 

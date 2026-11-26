@@ -24,7 +24,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Class tokens echo their own name (methods when called, the token itself for
 // the ClassMap's string fields) — the same mock the other Angular tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

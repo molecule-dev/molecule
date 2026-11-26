@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so no real bond is needed — the same mock the other port tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

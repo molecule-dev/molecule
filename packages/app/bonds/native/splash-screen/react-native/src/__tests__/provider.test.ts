@@ -4,14 +4,16 @@
  * @module
  */
 
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (_key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
   ),
 }))
 
-vi.mock('@molecule/app-logger', () => ({
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: vi.fn(() => ({
     trace: vi.fn(),
     debug: vi.fn(),
@@ -31,7 +33,9 @@ vi.mock('expo-splash-screen', () => ({
   hideAsync: mockHideAsync,
 }))
 
-vi.mock('@molecule/app-splash-screen', () => ({}))
+vi.mock('@molecule/app-splash-screen', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

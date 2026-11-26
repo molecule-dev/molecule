@@ -30,7 +30,7 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // without a real bond — the same mock the React tests use. The ClassMap
 // members whose value is a class string (the rest are methods, which the
 // proxy answers as functions) render as they do under the bonded ClassMap.
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   const tokens = new Set([
     'bgPrimaryContainer',
     'iconGlyphFont',
@@ -57,7 +57,10 @@ vi.mock('@molecule/app-ui', () => {
       return (..._args: unknown[]) => token
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
 // The router markers the React tests mock `react-router` with, plus a

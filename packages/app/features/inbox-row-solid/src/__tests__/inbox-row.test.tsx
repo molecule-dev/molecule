@@ -16,7 +16,8 @@ import type { InboxRowProps } from '../types.js'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -48,7 +49,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 
 // The Avatar marker the React tests mock `@molecule/app-ui-react` with: an
 // image carrying the src and the accessible name it received.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Avatar: (props: { src?: string; alt?: string; name?: string }) => {
     const img = document.createElement('img')
     img.setAttribute('data-avatar', props.src ?? '')

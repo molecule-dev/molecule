@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use. `grid` resolves `cols` to its
 // `grid-cols-N` class, mirroring the Tailwind bond's CVA.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

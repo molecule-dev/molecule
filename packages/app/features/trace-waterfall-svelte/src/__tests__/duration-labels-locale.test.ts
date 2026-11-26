@@ -14,7 +14,8 @@
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

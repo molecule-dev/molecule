@@ -3,7 +3,8 @@ const { mockHasProvider, mockCan } = vi.hoisted(() => ({
   mockCan: vi.fn(),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
@@ -11,11 +12,13 @@ vi.mock('@molecule/api-i18n', () => ({
   registerLocaleModule: vi.fn(),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: { debug: vi.fn(), error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }))
 
-vi.mock('@molecule/api-permissions', () => ({
+vi.mock('@molecule/api-permissions', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hasProvider: mockHasProvider,
   can: mockCan,
 }))

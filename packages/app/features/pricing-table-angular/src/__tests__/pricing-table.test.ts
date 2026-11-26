@@ -24,7 +24,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token, so tests
 // can assert which cm.* member was applied without a real bond — the same mock
 // the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,9 +47,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The same UI markers the React tests mock `@molecule/app-ui-react` with: a
 // `data-button` button and a `data-card` div carrying the style it received.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',

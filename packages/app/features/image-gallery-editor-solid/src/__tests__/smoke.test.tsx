@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // cm mock: every token resolves to its OWN NAME, so the rendered markup lets us
 // assert both (a) real `cm.*` tokens are used and (b) NO raw Tailwind / M3
 // literal survived — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -35,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
 // glyphs, not a raw font ligature span. ConfirmDialog shows its title while
 // open. (The mocked cm values are functions, so a function class token is
 // called, the way the mock's own `cn` unwraps one.)
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: (props: { name: string; className?: unknown }) => {
     const className = typeof props.className === 'function' ? props.className() : props.className
     return <i data-icon={props.name} class={className} />

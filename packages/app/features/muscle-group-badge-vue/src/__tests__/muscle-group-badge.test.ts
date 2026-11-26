@@ -14,7 +14,8 @@ import { createApp, defineComponent, h, nextTick, reactive, type VNode } from 'v
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

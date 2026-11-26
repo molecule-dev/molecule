@@ -27,13 +27,14 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
       options?.defaultValue ?? key,
   }),
 }))
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy({} as Record<string, unknown>, {
       get: () => () => '',
     }),
 }))
-vi.mock('@molecule/app-ui-vue', () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const slot = (tag: string) =>
     defineComponent({
       setup:
@@ -42,6 +43,7 @@ vi.mock('@molecule/app-ui-vue', () => {
           h(tag, slots.default?.()),
     })
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Alert: slot('div'),
     Button: slot('button'),
     Flex: slot('div'),

@@ -16,7 +16,8 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -37,7 +38,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The Card marker the React tests mock `@molecule/app-ui-react` with.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: (props: { children?: JSX.Element; className?: string }) => (
     <div data-card="" class={props.className}>
       {props.children}

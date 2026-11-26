@@ -13,7 +13,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can mount without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

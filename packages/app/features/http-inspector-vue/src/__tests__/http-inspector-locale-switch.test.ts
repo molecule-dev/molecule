@@ -18,7 +18,8 @@ import { createApp, defineComponent, h, nextTick, type PropType } from 'vue'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -38,7 +39,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   const button = defineComponent({
     name: 'MockButton',
@@ -100,7 +101,13 @@ vi.mock('@molecule/app-ui-vue', async () => {
         })
     },
   })
-  return { Button: button, Input: input, Select: select, Textarea: textarea }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Button: button,
+    Input: input,
+    Select: select,
+    Textarea: textarea,
+  }
 })
 
 const { HttpInspector } = await import('../HttpInspector.js')

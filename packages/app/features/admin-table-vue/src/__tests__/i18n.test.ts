@@ -14,7 +14,8 @@ import { createApp, defineComponent, h, nextTick, type Ref } from 'vue'
 
 // Class tokens echo their own name (methods when called, the token itself for
 // the ClassMap's string fields) — the same mock the other Vue tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -38,9 +39,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Forward onClick + pass-through attrs onto a native <button>, so the
 // trigger's aria-* is assertable.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: defineComponent({
       name: 'MButton',
       inheritAttrs: false,

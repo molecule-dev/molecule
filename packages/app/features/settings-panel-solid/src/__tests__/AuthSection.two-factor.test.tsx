@@ -29,14 +29,16 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
       options?.defaultValue ?? key,
   }),
 }))
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   molIdProps: (id: string) => ({ 'data-mol-id': id }),
   getClassMap: () =>
     new Proxy({} as Record<string, unknown>, {
       get: () => () => '',
     }),
 }))
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Alert: (props: { children?: JSX.Element }) => <div role="alert">{props.children}</div>,
   Button: (props: { children?: JSX.Element; onClick?: () => void }) => (
     <button type="button" onClick={() => props.onClick?.()}>

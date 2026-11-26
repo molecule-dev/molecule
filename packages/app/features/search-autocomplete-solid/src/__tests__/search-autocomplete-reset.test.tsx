@@ -16,7 +16,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { SuggestionItem } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -47,7 +48,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 // Forward every prop (role, aria-*, value, onChange…) to a real <input> so the
 // typed text reaches the component's change handler, exactly like the React
 // suite's `input` mock.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Input: (props: {
     value?: string
     role?: 'combobox'

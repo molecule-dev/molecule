@@ -8,7 +8,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Shipment, ShippingRate } from '@molecule/api-shipping'
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     info: vi.fn(),
     warn: vi.fn(),
@@ -17,7 +18,9 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-shipping', () => ({}))
+vi.mock('@molecule/api-shipping', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 const validShipment: Shipment = {
   from: {

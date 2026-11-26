@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `stack`), so tests can assert which cm.* call was applied without a real
 // bond — the same mock the React tests use. `cn(...)` joins tokens, calling any
 // function-valued args first (so a bare `cm.flex1` behaves like React's).
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -36,9 +37,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `Card` is the only `@molecule/app-ui-vue` dependency — stub it to a
 // <div data-card> that forwards className + children, like React's stub.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Card: defineComponent({
       name: 'MockCard',
       props: { className: String },

@@ -22,7 +22,8 @@ const { classCalls } = vi.hoisted(() => ({
 // A permissive ClassMap proxy that records each method call and echoes the
 // member back as its token — the same mock the React suite uses, plus the
 // record that stands in for the React suite's UI-component mocks.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

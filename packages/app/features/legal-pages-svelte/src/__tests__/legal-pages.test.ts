@@ -23,7 +23,8 @@ const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
 // for method-style props (`cm.stack(4)`) and usable bare (`cm.prose`). `cn`
 // joins tokens exactly as the real ClassMap does. The same mock the React
 // tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -70,12 +71,12 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/Button.svelte')
   const { default: Flex } = await import('./stubs/Flex.svelte')
   const { default: Modal } = await import('./stubs/Modal.svelte')
   const { default: Spinner } = await import('./stubs/Spinner.svelte')
-  return { Button, Flex, Modal, Spinner }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Flex, Modal, Spinner }
 })
 
 const { default: LegalContentPage } = await import('../LegalContentPage.svelte')

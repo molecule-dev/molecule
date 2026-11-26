@@ -23,7 +23,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

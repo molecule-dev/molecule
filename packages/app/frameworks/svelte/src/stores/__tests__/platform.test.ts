@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createPlatformStores } from '../platform.js'
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getPlatformInfo: vi.fn(),
   isPlatform: vi.fn(),
 }))

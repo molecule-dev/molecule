@@ -5,12 +5,14 @@ const { mockHasAI, mockRequireAI, mockChat, mockHttpRequest } = vi.hoisted(() =>
   mockHttpRequest: vi.fn(),
 }))
 
-vi.mock('@molecule/api-ai', () => ({
+vi.mock('@molecule/api-ai', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hasProvider: mockHasAI,
   requireProvider: mockRequireAI,
 }))
 
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   request: mockHttpRequest,
 }))
 

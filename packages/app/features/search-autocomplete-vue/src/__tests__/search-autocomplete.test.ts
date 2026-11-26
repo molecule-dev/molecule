@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Proxy ClassMap echoing each accessed member back as its token, exactly like
 // the React suite's mock, so tests assert which cm.* token was applied without
 // a real styling bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -43,9 +44,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 
 // The `data-input` marker the React suite mocks `@molecule/app-ui-react` with —
 // plus the a11y attributes the closed-state test asserts on.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Input: defineComponent({
       name: 'Input',
       inheritAttrs: false,

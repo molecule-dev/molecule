@@ -16,7 +16,8 @@ import type { HttpInspectorProps } from '../types.js'
 // A ClassMap proxy echoing each accessed member back as its token, so tests can
 // assert which cm.* class was applied without a real bond — the same mock the
 // React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -49,7 +50,7 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 }))
 
 // The UI markers the React tests mock `@molecule/app-ui-react` with.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   const button = defineComponent({
     name: 'MockButton',
@@ -101,7 +102,13 @@ vi.mock('@molecule/app-ui-vue', async () => {
       return () => h('textarea', { 'data-textarea': '', value: props.value, readOnly: true })
     },
   })
-  return { Button: button, Input: input, Select: select, Textarea: textarea }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Button: button,
+    Input: input,
+    Select: select,
+    Textarea: textarea,
+  }
 })
 
 const { HttpInspector } = await import('../HttpInspector.js')

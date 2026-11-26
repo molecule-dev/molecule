@@ -22,7 +22,8 @@ import { createMemoryRouter } from '@molecule/app-routing'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
 // Class tokens echo their own name — the same mock the other tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

@@ -13,7 +13,8 @@ vi.mock('@molecule/app-i18n', async (importOriginal) => ({
 
 // Minimal @molecule/app-routing bond so navigate() delegates to whatever is bonded.
 let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
-vi.mock('@molecule/app-routing', () => ({
+vi.mock('@molecule/app-routing', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
     bonded = router
   }),

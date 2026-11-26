@@ -4,15 +4,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock peer dependencies
 // -------------------------------------------------------------------
 
-vi.mock('@molecule/app-storage', () => ({}))
+vi.mock('@molecule/app-storage', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 // Mirrors the real provider: a default's {{name}} placeholders are filled from the values.
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
     (opts?.defaultValue ?? key).replace(/\{\{(\w+)\}\}/g, (match, name: string) =>
       values && name in values ? String(values[name]) : match,
     ),
 }))
-vi.mock('@molecule/app-logger', () => ({
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     warn: vi.fn(),
     error: vi.fn(),

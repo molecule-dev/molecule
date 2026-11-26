@@ -26,7 +26,8 @@ function store<T>(value: T): { subscribe(fn: (v: T) => void): () => void } {
 }
 
 // Class tokens echo their own name — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_target, prop) {
@@ -42,7 +43,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 // The icon marker renders nothing: this test reads text, not glyphs.
-vi.mock('@molecule/app-ui-svelte', () => ({
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: () => ({}),
 }))
 // A `t` that marks every key, so a default that bypassed t() renders as

@@ -7,7 +7,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // It also returns neither a clone URL nor a full name, so both are derived.
 
 const http = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock('@molecule/api-http', () => http)
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  ...(await http),
+}))
 
 const { provider } = await import('../provider.js')
 

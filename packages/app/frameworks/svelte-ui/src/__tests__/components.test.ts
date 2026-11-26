@@ -20,7 +20,8 @@ import { describe, expect, it, vi } from 'vitest'
 // getClassMap() → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields a callable that stringifies to its key, so both `cm.button({...})`
 // and bare `getClassMap().alertDismiss` module-level consts resolve.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -42,7 +43,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { ReputationLevel } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 
@@ -33,7 +34,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Badge: (props: { children?: JSX.Element; color?: string }) => (
     <span data-testid="badge" data-color={props.color}>
       {props.children}

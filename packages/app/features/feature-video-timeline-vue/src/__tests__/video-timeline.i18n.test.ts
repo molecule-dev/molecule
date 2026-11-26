@@ -15,7 +15,8 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

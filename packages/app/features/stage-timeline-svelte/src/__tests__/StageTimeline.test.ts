@@ -10,7 +10,8 @@
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
     textSize: () => 'text',

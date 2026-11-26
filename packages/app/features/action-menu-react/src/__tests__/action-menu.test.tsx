@@ -7,7 +7,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A Proxy ClassMap that echoes each accessed member name back as its token, so
 // tests can assert *which* cm.* member a class came from (e.g. `textError`,
 // `borderAll`) without depending on the Tailwind bond's concrete strings.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -29,7 +30,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Mock Button forwards onClick (so the popover can be opened) and every
 // pass-through attribute (aria-*, data-mol-id) onto a native <button>.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     onClick,

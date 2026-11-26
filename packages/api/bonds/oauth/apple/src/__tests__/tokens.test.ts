@@ -1,6 +1,7 @@
 const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn() }))
 
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   post: mockPost,
 }))
 

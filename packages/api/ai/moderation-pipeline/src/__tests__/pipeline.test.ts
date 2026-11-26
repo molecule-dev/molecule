@@ -11,15 +11,18 @@ const { mockCreate, mockRequireAI, mockChat, mockLogger } = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
 }))
 
-vi.mock('@molecule/api-ai', () => ({
+vi.mock('@molecule/api-ai', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   requireProvider: mockRequireAI,
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: mockLogger,
 }))
 

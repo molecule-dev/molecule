@@ -3,7 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -33,7 +34,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 
 const buttonCalls: Array<Record<string, unknown>> = []
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: Record<string, unknown> & { children?: ReactNode }) => {
     buttonCalls.push(props)
     return createElement(

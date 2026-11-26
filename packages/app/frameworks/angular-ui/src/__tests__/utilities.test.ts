@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 // The mock stands in for the bonded icon set: names are real `IconName`s (the
 // type `getIconSvg` accepts), and only the outlined names carry stroke data.
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => {
     if (name === 'info-circle') {
       return {

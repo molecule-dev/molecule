@@ -28,7 +28,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // A ClassMap proxy: `cn(...)` joins tokens (calling function-valued args
 // first) and `badge({ variant })` maps to a real `bg-<color>` utility — the
 // same mock the React suite installs.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

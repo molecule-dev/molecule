@@ -16,8 +16,12 @@ const { mockLogger } = vi.hoisted(() => ({
   mockLogger: { trace: vi.fn(), debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }))
 
-vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => mockLogger,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue,
 }))
 

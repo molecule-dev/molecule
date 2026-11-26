@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockDebug = vi.hoisted(() => vi.fn())
-vi.mock('@molecule/app-logger', () => ({
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     debug: mockDebug,
     info: vi.fn(),

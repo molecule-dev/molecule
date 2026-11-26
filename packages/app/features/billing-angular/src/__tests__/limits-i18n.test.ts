@@ -29,7 +29,8 @@ const state = vi.hoisted(() => ({ limits: {} as Record<string, unknown> }))
 // members the component calls return the token from a function; every other
 // member IS the token string, because Angular's `[class]` bindings reject a
 // function where the real ClassMap carries a plain class token.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const called = ['cn', 'maxW', 'sp', 'flex', 'card', 'button', 'stack', 'textSize', 'fontWeight']
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -56,9 +57,10 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 }))
 
 // The icon marker, so the row keeps its check glyph without the icon set.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Icon: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',

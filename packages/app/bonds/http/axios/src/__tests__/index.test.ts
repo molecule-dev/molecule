@@ -63,7 +63,7 @@ vi.mock('axios', async () => ({
   },
 }))
 
-vi.mock('@molecule/app-http', async () => {
+vi.mock('@molecule/app-http', async (importOriginal) => {
   const { isIdempotentRequest } = await vi.importActual<typeof HttpModule>('@molecule/app-http')
   class HttpError extends Error {
     status: number
@@ -89,6 +89,7 @@ vi.mock('@molecule/app-http', async () => {
     }
   }
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     isIdempotentRequest,
     HttpError,
     awaitAuthGate: mockAwaitAuthGate,

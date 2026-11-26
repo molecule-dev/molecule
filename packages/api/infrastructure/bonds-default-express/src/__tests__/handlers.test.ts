@@ -12,16 +12,19 @@ import {
   validationError,
 } from '../handlers.js'
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   findById: vi.fn(),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, _vars: unknown, opts: { defaultValue?: string } = {}) =>
     opts.defaultValue ?? _key,
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: { error: vi.fn() },
 }))
 

@@ -16,11 +16,15 @@ import { createApp, defineComponent, h, nextTick } from 'vue'
 import type { EmbedSnippetProps } from '../types.js'
 
 // The clipboard core, mocked so a copy succeeds without a browser clipboard.
-vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -44,7 +48,8 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 }))
 
 // The button marker, carrying the id and the click the component binds.
-vi.mock('@molecule/app-ui-vue', () => ({
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: defineComponent({
     name: 'MockButton',
     inheritAttrs: false,

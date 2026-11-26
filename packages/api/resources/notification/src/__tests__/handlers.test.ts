@@ -12,7 +12,8 @@ const mockDeleteNotification = vi.fn()
 const mockGetPreferences = vi.fn()
 const mockSetPreferences = vi.fn()
 
-vi.mock('@molecule/api-notification-center', () => ({
+vi.mock('@molecule/api-notification-center', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAll: mockGetAll,
   getUnreadCount: mockGetUnreadCount,
   markRead: mockMarkRead,

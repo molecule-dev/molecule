@@ -6,7 +6,9 @@ import { I18nError } from '@molecule/app-i18n'
 // Mock @molecule/app-storage to provide the StorageProvider type
 // -------------------------------------------------------------------
 
-vi.mock('@molecule/app-storage', () => ({}))
+vi.mock('@molecule/app-storage', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 import {
   createLocalStorageProvider,

@@ -8,7 +8,8 @@ import { type DragDropRenderer, DragDropRendererProvider } from '@molecule/app-d
 
 import { KanbanBoard } from '../KanbanBoard.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...parts: string[]) => parts.filter(Boolean).join(' '),
     flex: () => '',
@@ -20,7 +21,8 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 

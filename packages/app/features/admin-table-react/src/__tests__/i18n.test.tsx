@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Class tokens echo their own name (methods when called, the token itself for
 // the ClassMap's string fields) — the same mock the other tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -37,7 +38,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Forward onClick + pass-through attrs onto a native <button>, so the
 // trigger's aria-* is assertable.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     onClick,

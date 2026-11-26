@@ -22,7 +22,8 @@ const {
   mockCan: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findOne: mockFindOne,
   findMany: mockFindMany,
@@ -33,19 +34,22 @@ vi.mock('@molecule/api-database', () => ({
   query: mockQuery,
 }))
 
-vi.mock('@molecule/api-permissions', () => ({
+vi.mock('@molecule/api-permissions', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hasProvider: mockHasProvider,
   can: mockCan,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (key: string, _values?: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
   ),
   registerLocaleModule: vi.fn(),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     debug: vi.fn(),
     error: vi.fn(),
@@ -53,7 +57,9 @@ vi.mock('@molecule/api-logger', () => ({
   },
 }))
 
-vi.mock('@molecule/api-locales-tag', () => ({}))
+vi.mock('@molecule/api-locales-tag', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

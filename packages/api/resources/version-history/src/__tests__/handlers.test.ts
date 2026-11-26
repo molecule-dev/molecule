@@ -32,11 +32,13 @@ vi.mock('../registry.js', () => ({
   getOwnershipResolver: mockGetOwnershipResolver,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((key: string) => key),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     debug: vi.fn(),
     error: vi.fn(),

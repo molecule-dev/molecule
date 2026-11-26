@@ -28,9 +28,16 @@ const { mockHasProvider, mockConfigure, mockConsume, mockWarn, mockError, mockGe
     }
   })
 
-vi.mock('@molecule/api-bond', () => ({ getLogger: mockGetLogger }))
-vi.mock('@molecule/api-i18n', () => ({ t: mockT }))
-vi.mock('@molecule/api-rate-limit', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: mockGetLogger,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: mockT,
+}))
+vi.mock('@molecule/api-rate-limit', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hasProvider: mockHasProvider,
   configure: mockConfigure,
   consume: mockConsume,

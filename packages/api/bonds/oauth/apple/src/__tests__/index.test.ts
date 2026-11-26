@@ -19,12 +19,14 @@ const mockPost = vi.fn()
 const mockLoggerError = vi.fn()
 const mockLoggerWarn = vi.fn()
 
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   post: mockPost,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
@@ -33,7 +35,9 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-oauth', () => ({}))
+vi.mock('@molecule/api-oauth', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 const TEAM_ID = 'TEAM123456'
 const CLIENT_ID = 'com.example.app'

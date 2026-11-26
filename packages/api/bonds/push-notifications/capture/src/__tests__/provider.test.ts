@@ -10,7 +10,8 @@ import type {
 
 const record = vi.fn<(event: ActivityEvent) => Promise<void>>(() => Promise.resolve())
 
-vi.mock('@molecule/api-activity', () => ({
+vi.mock('@molecule/api-activity', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   record: (event: ActivityEvent) => record(event),
 }))
 

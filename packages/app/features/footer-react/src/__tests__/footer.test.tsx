@@ -3,7 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,13 +47,15 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   useVersion: () => ({ state: { version: '2.0.0' } }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: ({ name }: { name?: string }) => createElement('span', { 'data-icon': name }),
   Modal: ({ open, children }: { open: boolean; children?: ReactNode }) =>
     open ? createElement('div', { 'data-modal': '' }, children) : null,
 }))
 
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({ to, children, ...props }: ComponentProps<'a'> & { to: string }) =>
     createElement('a', { ...props, href: to, 'data-link': '' }, children),
 }))

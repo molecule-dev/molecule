@@ -2,7 +2,8 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { createElement } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -16,7 +17,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // Render router links as plain anchors so nothing needs a real router.
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({
     children,
     to,

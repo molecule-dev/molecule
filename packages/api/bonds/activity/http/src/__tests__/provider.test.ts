@@ -4,7 +4,8 @@ import type { ActivityEvent } from '@molecule/api-activity'
 
 const warn = vi.fn()
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     trace: vi.fn(),
     debug: vi.fn(),

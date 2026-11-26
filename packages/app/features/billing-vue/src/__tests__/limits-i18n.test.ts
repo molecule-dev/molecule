@@ -17,7 +17,8 @@ const state = vi.hoisted(() => ({ limits: {} as Record<string, unknown> }))
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_target, prop) {
@@ -42,7 +43,8 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 }))
 
 // The icon marker, so the row keeps its check glyph.
-vi.mock('@molecule/app-ui-vue', () => ({
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: defineComponent({
     name: 'MockIcon',
     inheritAttrs: false,

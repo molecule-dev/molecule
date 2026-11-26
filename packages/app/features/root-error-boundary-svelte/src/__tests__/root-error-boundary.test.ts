@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type * as AppLogger from '@molecule/app-logger'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

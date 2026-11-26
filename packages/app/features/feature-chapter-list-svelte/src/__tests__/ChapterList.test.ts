@@ -12,7 +12,8 @@
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 

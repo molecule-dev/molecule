@@ -6,7 +6,8 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 import { ReorderableList } from '../ReorderableList.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...parts: string[]) => parts.filter(Boolean).join(' '),
     flex: () => '',

@@ -6,7 +6,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // basic-auth username, and 404-means-absent versus 404-means-broken.
 
 const http = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock('@molecule/api-http', () => http)
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  ...(await http),
+}))
 
 const { provider } = await import('../provider.js')
 

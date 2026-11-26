@@ -12,7 +12,8 @@ import {
 } from '../createRequestHandler.js'
 
 // Mock logger
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     trace: vi.fn(),
     debug: vi.fn(),

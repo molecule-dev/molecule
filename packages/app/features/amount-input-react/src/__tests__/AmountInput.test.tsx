@@ -5,7 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -25,7 +26,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children }: { children?: ReactNode }) => createElement('button', null, children),
 }))
 

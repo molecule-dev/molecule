@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins tokens, calling function-valued
 // args first — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -36,11 +37,11 @@ vi.mock('@molecule/app-ui', () => ({
 // data-mol-id + className — the same markers the React suite's
 // `@molecule/app-ui-react` stubs render. The stub ConfirmDialog is the
 // sentinel for the re-export identity test.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/ButtonStub.svelte')
   const { default: Card } = await import('./stubs/CardStub.svelte')
   const { default: ConfirmDialog } = await import('./stubs/ConfirmDialogStub.svelte')
-  return { Button, Card, ConfirmDialog }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Card, ConfirmDialog }
 })
 
 import { createRawSnippet, flushSync, mount, unmount } from 'svelte'

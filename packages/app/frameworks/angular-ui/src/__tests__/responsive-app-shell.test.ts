@@ -48,7 +48,7 @@ import {
 let matches = false
 const changeListeners = new Set<(event: { matches: boolean }) => void>()
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   /**
    * The ClassMap stand-in: tokens the shell CALLS resolve to functions, every
    * other token to its own name.
@@ -73,7 +73,7 @@ vi.mock('@molecule/app-ui', () => {
     }
     return new Proxy({}, handler)
   }
-  return { getClassMap }
+  return { ...(await importOriginal<Record<string, unknown>>()), getClassMap }
 })
 
 vi.mock('@molecule/app-angular', async (importOriginal) => {
@@ -88,7 +88,8 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: () => ({ viewBox: '0 0 20 20', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
 

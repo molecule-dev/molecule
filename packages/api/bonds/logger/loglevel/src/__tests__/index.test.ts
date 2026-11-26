@@ -41,7 +41,8 @@ vi.mock('loglevel', () => ({
   },
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Type exports only, no runtime values needed
 }))
 

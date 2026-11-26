@@ -29,7 +29,10 @@ const { mockPage } = vi.hoisted(() => ({
   mockPage: vi.fn(),
 }))
 
-vi.mock('@molecule/app-analytics', () => ({ page: mockPage }))
+vi.mock('@molecule/app-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  page: mockPage,
+}))
 
 import { provideDomPlacement, provideRouter } from '@molecule/app-angular'
 import { createMemoryRouter, type Router } from '@molecule/app-routing'

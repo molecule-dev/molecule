@@ -18,7 +18,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -35,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
       },
     ),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children, disabled }: { children?: React.ReactNode; disabled?: boolean }) =>
     createElement('button', { 'data-button': '', disabled }, children),
   Input: ({

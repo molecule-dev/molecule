@@ -10,7 +10,8 @@ const { mockDeleteById, mockDeleteMany } = vi.hoisted(() => ({
   mockDeleteMany: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: vi.fn(),
   deleteById: mockDeleteById,
   deleteMany: mockDeleteMany,
@@ -20,12 +21,16 @@ vi.mock('@molecule/api-database', () => ({
   updateById: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({ error: vi.fn(), debug: vi.fn() }),
   getAnalytics: () => ({ track: vi.fn().mockResolvedValue(undefined) }),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({ t: (key: string) => key }))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: (key: string) => key,
+}))
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

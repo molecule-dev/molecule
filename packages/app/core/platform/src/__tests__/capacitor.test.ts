@@ -102,8 +102,10 @@ describe('createCapacitorApp', () => {
   it('handles push init failure gracefully', async () => {
     // vi.doMock (not vi.mock) — applies only after this point and is NOT
     // hoisted, so it doesn't bleed into other tests in the file.
-    vi.doMock('@molecule/app-push', () => {
+    vi.doMock('@molecule/app-push', async (importOriginal) => {
       throw new Error('Module not found')
+
+      return { ...(await importOriginal<Record<string, unknown>>()) }
     })
 
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})

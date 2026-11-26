@@ -7,7 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { copyTextWithFallback } from '@molecule/app-clipboard'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -35,12 +36,14 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) =>
     createElement('button', { 'data-button': '', type: 'button', onClick }, children),
 }))
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

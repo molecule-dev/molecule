@@ -3,7 +3,8 @@ const { mockGetAll, mockGet } = vi.hoisted(() => ({
   mockGet: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAll: mockGetAll,
   // `t()` (api-i18n) resolves the i18n provider via `get`; undefined → defaultValue fallback.
   get: mockGet,

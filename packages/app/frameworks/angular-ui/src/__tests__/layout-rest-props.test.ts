@@ -29,7 +29,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the layout templates CALL as functions; every other token must be
     // a plain string — Angular's class binding rejects function values.

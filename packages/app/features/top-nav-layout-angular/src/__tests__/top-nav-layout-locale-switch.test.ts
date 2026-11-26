@@ -29,7 +29,7 @@ import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   // The ClassMap members whose value is a class string (the rest are methods,
   // which the proxy answers as functions), so a token used as a class value
   // renders as it does under the bonded ClassMap.
@@ -59,7 +59,10 @@ vi.mock('@molecule/app-ui', () => {
       return (..._args: unknown[]) => token
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
 // Only the router is mocked; the real `useTranslation` hook drives the switch,

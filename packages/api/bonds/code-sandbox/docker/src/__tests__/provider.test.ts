@@ -21,11 +21,13 @@ import type { DockerConfig } from '../types.js'
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => mockLogger,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Mirror the real t(): the defaultValue (or key) is returned with {{name}}
   // placeholders interpolated from the values argument, so assertions on the
   // thrown English text see what a user would see.

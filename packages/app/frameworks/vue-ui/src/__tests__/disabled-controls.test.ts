@@ -23,7 +23,8 @@ vi.mock('@molecule/app-vue', async () => ({
   useLocation: () => location,
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -43,7 +44,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: () => ({ paths: [{ d: 'M0 0' }], viewBox: '0 0 16 16' }),
 }))
 

@@ -62,7 +62,8 @@ const platform = vi.hoisted(() => {
   }
 })
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createCapacitorApp: () => ({
     initialize: platform.initialize,
     isReady: platform.isReady,

@@ -25,7 +25,8 @@ const {
   mockUpdateById: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   count: mockCount,
   create: mockCreate,
   deleteById: mockDeleteById,

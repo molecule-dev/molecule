@@ -29,7 +29,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `textSize`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -61,9 +62,10 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // `data-select` element carrying the value it received. The SortPicker writes
 // the accessible name onto that native select, which the real Angular Select
 // is (its host is the wrapper React renders).
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component: NgComponent } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Select: NgComponent({
       selector: 'div[mol-select]',
       standalone: true,

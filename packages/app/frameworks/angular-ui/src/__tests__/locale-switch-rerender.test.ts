@@ -33,7 +33,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider, LocaleConfig } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // `cn` and the variant factories the components CALL as functions must be
     // functions; every other token is a plain string — what Angular's

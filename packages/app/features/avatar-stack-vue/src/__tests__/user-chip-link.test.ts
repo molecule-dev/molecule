@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `getClassMap()` → a Proxy: every access yields its key as a token — callable
 // for method-style props (`cm.sp('ml', 2)`) and also usable bare (`cm.flex1`).
 // `cn(...)` joins tokens, calling any function-valued args first.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -35,9 +36,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `Avatar` is the only `@molecule/app-ui-vue` dependency — stub it to an
 // inspectable <img> carrying the supplied src + name, as the React tests do.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Avatar: defineComponent({
       name: 'Avatar',
       props: { src: String, alt: String, name: String, size: String },

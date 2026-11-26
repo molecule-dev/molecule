@@ -36,7 +36,8 @@ import { provideDomPlacement, useForm } from '@molecule/app-angular'
 import { createFetchClient } from '@molecule/app-http'
 import type { FormProps } from '@molecule/app-ui'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Only `cn` is CALLED; the class tokens are plain strings — what Angular's
     // class binding requires.

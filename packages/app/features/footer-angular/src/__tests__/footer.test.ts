@@ -30,7 +30,8 @@ import { createMemoryRouter, type Router } from '@molecule/app-routing'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `footerBar`),
 // so tests can assert which cm.* class was applied without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -53,9 +54,10 @@ vi.mock('@molecule/app-ui', () => ({
 // The UI components AppFooter composes, each rendering one marked element —
 // the same observable contracts the React suite's mocks have (Icon →
 // `data-icon`; Modal → a `data-modal` div only while open).
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Icon: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'svg[mol-icon-root]',

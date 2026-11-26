@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createJWTAuthClient } from '../client.js'
 
 const { warn } = vi.hoisted(() => ({ warn: vi.fn() }))
-vi.mock('@molecule/app-logger', () => ({
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({ warn, debug: vi.fn(), error: vi.fn() }),
 }))
 

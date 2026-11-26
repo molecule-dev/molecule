@@ -22,7 +22,8 @@ const {
   mockOnMessage: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findOne: mockFindOne,
   findMany: mockFindMany,
@@ -30,7 +31,8 @@ vi.mock('@molecule/api-database', () => ({
   deleteMany: mockDeleteMany,
 }))
 
-vi.mock('@molecule/api-realtime', () => ({
+vi.mock('@molecule/api-realtime', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   broadcast: mockBroadcast,
   onMessage: mockOnMessage,
 }))

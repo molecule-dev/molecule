@@ -17,11 +17,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { EmbedSnippetProps } from '../types.js'
 
 // The clipboard core, mocked so a copy succeeds without a browser clipboard.
-vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -45,7 +49,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 }))
 
 // The button marker, carrying the id and the click the component binds.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: { children?: JSX.Element; onClick?: () => void; 'data-mol-id'?: string }) => (
     <button data-mol-id={props['data-mol-id']} onClick={props.onClick} type="button">
       {props.children}

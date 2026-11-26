@@ -26,7 +26,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 import type { BillingStatus } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Properties are the ClassMap's class tokens (a string, as a real bond
     // returns them); methods return a token string too.

@@ -17,10 +17,15 @@ vi.mock('@molecule/app-i18n', async (importOriginal) => ({
 }))
 
 // Mock @molecule/app-routing since it's a peer dependency
-vi.mock('@molecule/app-routing', () => ({}))
+vi.mock('@molecule/app-routing', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 const logged = vi.hoisted(() => ({ error: vi.fn() }))
-vi.mock('@molecule/app-logger', () => ({ getLogger: () => logged }))
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => logged,
+}))
 
 import type { NavigationGuard, RouteDefinition } from '../index.js'
 import {

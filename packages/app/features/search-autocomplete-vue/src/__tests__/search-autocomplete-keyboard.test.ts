@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token, exactly like
 // the React suite's mock.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -44,9 +45,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 // Forward every prop (onKeyDown, onFocus, onChange, role, aria-*, value…) to a
 // real <input> so the keyboard and ARIA wiring is testable end-to-end, exactly
 // like the React suite's `input` mock.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Input: defineComponent({
       name: 'Input',
       inheritAttrs: false,

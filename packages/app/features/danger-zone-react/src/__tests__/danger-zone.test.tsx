@@ -5,7 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins tokens, calling function-valued
 // args first.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -36,7 +37,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 
 // app-ui-react stubs: Button forwards disabled + color, Card forwards
 // data-mol-id + className, Modal gates its children on `open`.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     disabled,

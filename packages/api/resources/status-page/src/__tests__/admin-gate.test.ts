@@ -8,31 +8,37 @@ const { mockCreate, mockFindById, mockUpdateById, mockDeleteById, mockHasProvide
     mockCan: vi.fn(),
   }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findById: mockFindById,
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
 }))
 
-vi.mock('@molecule/api-permissions', () => ({
+vi.mock('@molecule/api-permissions', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hasProvider: mockHasProvider,
   can: mockCan,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({ debug: vi.fn(), error: vi.fn(), warn: vi.fn(), info: vi.fn() }),
   getAnalytics: () => ({ track: vi.fn().mockResolvedValue(undefined) }),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (key: string, _values?: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
   ),
   registerLocaleModule: vi.fn(),
 }))
 
-vi.mock('@molecule/api-locales-status-page', () => ({}))
+vi.mock('@molecule/api-locales-status-page', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

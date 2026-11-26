@@ -4,9 +4,10 @@
  * @module
  */
 
-vi.mock('@molecule/api-bond', () => {
+vi.mock('@molecule/api-bond', async (importOriginal) => {
   let store: Record<string, unknown> = {}
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     bond: vi.fn((type: string, provider: unknown) => {
       store[type] = provider
     }),
@@ -22,7 +23,8 @@ vi.mock('@molecule/api-bond', () => {
   }
 })
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((_key: string, _values?: unknown, options?: { defaultValue?: string }) => {
     return options?.defaultValue ?? _key
   }),

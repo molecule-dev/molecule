@@ -32,7 +32,10 @@ vi.mock('../webhook.js', () => ({
   parseWebhookEvent: mockParseWebhookEvent,
 }))
 
-vi.mock('@molecule/api-config', () => ({ get: mockGetConfig }))
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  get: mockGetConfig,
+}))
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

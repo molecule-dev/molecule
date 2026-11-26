@@ -4,9 +4,10 @@
  * @module
  */
 
-vi.mock('@molecule/api-bond', () => {
+vi.mock('@molecule/api-bond', async (importOriginal) => {
   let store: Record<string, Map<string, unknown>> = {}
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     bond: vi.fn((type: string, nameOrProvider: unknown, provider?: unknown) => {
       // Named multi-provider only path is exercised by this core.
       if (typeof nameOrProvider === 'string' && provider !== undefined) {
@@ -37,7 +38,8 @@ vi.mock('@molecule/api-bond', () => {
   }
 })
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) => {
     const text = options?.defaultValue ?? key
     // Mirror the real t(): placeholders in the default resolve from `values`.

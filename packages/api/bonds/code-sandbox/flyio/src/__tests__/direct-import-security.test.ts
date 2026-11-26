@@ -4,7 +4,10 @@ import type { Sandbox } from '@molecule/api-code-sandbox'
 
 import { createFetchDouble, createStoreDouble, mockLogger } from './helpers.js'
 
-vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => mockLogger,
+}))
 
 const { FlyApiClient } = await import('../api.js')
 const { createProvider } = await import('../provider.js')

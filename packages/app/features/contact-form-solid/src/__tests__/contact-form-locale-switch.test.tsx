@@ -21,7 +21,8 @@ import type { ButtonElementProps } from '@molecule/app-ui'
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -41,7 +42,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: {
     children?: JSX.Element
     disabled?: boolean

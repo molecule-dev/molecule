@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `useOAuth` is hoisted so tests can vary the provider list.
 const { mockUseOAuth } = vi.hoisted(() => ({ mockUseOAuth: vi.fn() }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     textError: 'cm-textError',
     oauthButtonGroup: 'cm-oauthButtonGroup',
@@ -38,9 +39,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   useOAuth: mockUseOAuth,
 }))
 
-vi.mock('@molecule/app-oauth-logos-vue', async () => {
+vi.mock('@molecule/app-oauth-logos-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     OAuthProviderLogo: defineComponent({
       name: 'OAuthProviderLogo',
       props: { provider: { type: String, required: true } },

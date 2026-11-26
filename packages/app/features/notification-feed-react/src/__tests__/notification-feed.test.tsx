@@ -3,7 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -23,7 +24,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to, 'data-link': '' }, children),
 }))

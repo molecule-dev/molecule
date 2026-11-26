@@ -20,7 +20,10 @@ import { setMoleculeContext } from '@molecule/app-svelte'
 import EmbedSnippet from '../EmbedSnippet.svelte'
 import Host from './fixtures/ContextHost.svelte'
 
-vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
 // Translations the bonded i18n provider would supply: each key maps to a marked
 // string, so a default that bypassed t() would show up as plain English.

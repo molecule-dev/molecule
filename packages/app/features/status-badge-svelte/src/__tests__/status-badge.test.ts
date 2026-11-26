@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy: `cn(...)` joins tokens (calling function-valued args
 // first) and `badge({ variant })` maps to a real `bg-<color>` utility — the
 // same mock the React suite installs.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -37,9 +38,9 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The `<Badge>` marker the React suite mocks `@molecule/app-ui-react` with.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Badge } = await import('./stubs/BadgeStub.svelte')
-  return { Badge }
+  return { ...(await importOriginal<Record<string, unknown>>()), Badge }
 })
 
 import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'

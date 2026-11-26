@@ -13,14 +13,13 @@ const transportMock: EmailTransport = {
   sendMail: sendMailMock,
 }
 
-vi.mock('@molecule/api-emails', () => {
-  return {
-    getTransport: () => transportMock,
-  }
+vi.mock('@molecule/api-emails', async (importOriginal) => {
+  return { ...(await importOriginal<Record<string, unknown>>()), getTransport: () => transportMock }
 })
 
-vi.mock('@molecule/api-i18n', () => {
+vi.mock('@molecule/api-i18n', async (importOriginal) => {
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     t: vi.fn(
       (_key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) => {
         const template = options?.defaultValue ?? _key

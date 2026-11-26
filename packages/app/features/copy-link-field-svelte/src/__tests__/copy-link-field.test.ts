@@ -14,7 +14,8 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import CopyLinkField from '../CopyLinkField.svelte'
 import type { CopyLinkFieldProps } from '../types.js'
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

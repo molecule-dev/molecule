@@ -12,7 +12,8 @@ import { isVNode, type VNode } from 'vue'
 
 import type { IconData } from '@molecule/app-icons'
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn(),
 }))
 

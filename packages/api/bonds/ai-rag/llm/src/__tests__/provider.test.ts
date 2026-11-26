@@ -9,7 +9,8 @@ import { provider } from '../provider.js'
 
 // Mock the retrieval layer so these tests are deterministic and need no
 // embeddings / vector-store bonds — RAG's own contract is the composition.
-vi.mock('@molecule/api-semantic-search', () => ({
+vi.mock('@molecule/api-semantic-search', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   indexDocuments: vi.fn(),
   search: vi.fn(),
   removeDocuments: vi.fn(),

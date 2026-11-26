@@ -11,12 +11,14 @@ const mockPost = vi.fn()
 const mockGet = vi.fn()
 const mockLoggerError = vi.fn()
 
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   post: mockPost,
   get: mockGet,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
@@ -25,7 +27,8 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-oauth', () => ({
+vi.mock('@molecule/api-oauth', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Type exports only, no runtime values needed
 }))
 

@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 const state = vi.hoisted(() => ({ limits: {} as Record<string, unknown> }))
 
 // Class tokens echo their own name; Icon records its glyph.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -29,7 +30,8 @@ vi.mock('@molecule/app-ui', () => ({
       },
     ),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: ({ name }: { name: string }) => createElement('i', { 'data-icon': name }),
 }))
 // A `t` that marks every key, so a default that bypassed t() renders as

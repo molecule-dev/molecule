@@ -6,8 +6,12 @@ import { encodePrivateRoutes } from '../flycast.js'
 import type { FlyioConfig } from '../types.js'
 import { createFetchDouble, mockLogger } from './helpers.js'
 
-vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => mockLogger,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
     opts?.defaultValue ?? key,
 }))

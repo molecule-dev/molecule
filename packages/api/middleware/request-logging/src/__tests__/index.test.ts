@@ -8,7 +8,8 @@ const { mockInfo, mockWarn, mockError } = vi.hoisted(() => ({
   mockError: vi.fn(),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     trace: vi.fn(),
     debug: vi.fn(),

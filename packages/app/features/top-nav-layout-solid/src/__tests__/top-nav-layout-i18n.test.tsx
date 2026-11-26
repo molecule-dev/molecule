@@ -17,7 +17,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `topNavLayoutRoot`), so tests can assert which cm.* class was applied
 // without a real bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_t, prop) {
       if (prop === 'cn') {
@@ -32,7 +32,10 @@ vi.mock('@molecule/app-ui', () => {
       return (..._args: unknown[]) => token
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
 // The router markers the React tests mock `react-router` with, plus a

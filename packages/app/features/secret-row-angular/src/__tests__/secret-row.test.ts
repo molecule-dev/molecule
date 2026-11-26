@@ -30,7 +30,8 @@ import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molec
 // React tests use, extended so `cm.button(…)` echoes its variant/color/size
 // arguments. (Members are explicit because a Proxy's function-for-every-token
 // shape breaks Angular's classMap binding, which rejects function values.)
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     flex: (args: Record<string, unknown>) =>
       `flex-${args.align ?? ''}-${args.justify ?? ''}-${args.gap ?? ''}${args.wrap ? `-wrap` : ''}`,
@@ -62,7 +63,8 @@ setI18nProvider(
   ]),
 )
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

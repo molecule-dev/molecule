@@ -15,7 +15,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { RelatedItemsCardProps } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -35,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: (props: { children?: JSX.Element; className?: string; 'data-mol-id'?: string }) => (
     <div data-card="" data-mol-id={props['data-mol-id']} class={props.className}>
       {props.children}

@@ -28,7 +28,8 @@ import type { RevenueCatSubscriber, RevenueCatSubscription } from '../types.js'
 // default value (fail-closed: REVENUECAT_ALLOW_SANDBOX defaults to 'false'),
 // mirroring an env with neither set.
 const { mockGetConfig } = vi.hoisted(() => ({ mockGetConfig: vi.fn() }))
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGetConfig,
 }))
 

@@ -9,7 +9,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `textError`) independent of the Tailwind bond's real strings. A raw literal
 // the component still hardcodes would flow through `cn` unchanged and be caught
 // by the negative sweeps.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -31,7 +32,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Forward onClick + pass-through attrs onto a native <button> so the kebab
 // popover can be opened and its data-mol-id / aria-* asserted.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     onClick,

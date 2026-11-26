@@ -18,13 +18,15 @@
  *   `.experiments/x0/live/main-thinking-replay-repair.findings.md`).
  */
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((_key: string, _values?: unknown, options?: { defaultValue?: string }) => {
     return options?.defaultValue ?? _key
   }),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     info: vi.fn(),
     warn: vi.fn(),

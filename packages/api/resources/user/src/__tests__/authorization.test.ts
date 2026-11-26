@@ -20,17 +20,20 @@ const { mockSign, mockVerify, mockDecode, mockGetConfig, mockGet, mockLogger } =
   mockLogger: { error: vi.fn(), warn: vi.fn() },
 }))
 
-vi.mock('@molecule/api-jwt', () => ({
+vi.mock('@molecule/api-jwt', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   sign: mockSign,
   verify: mockVerify,
   decode: mockDecode,
 }))
 
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGetConfig,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   getLogger: () => mockLogger,
 }))

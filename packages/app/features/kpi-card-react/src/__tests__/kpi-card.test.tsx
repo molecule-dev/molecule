@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from 'vitest'
 // `getClassMap()` → a Proxy where `cn(...)` joins truthy strings and every other
 // access (method or token) yields a string token, so emitted classNames are
 // inspectable without a wired ClassMap bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -30,7 +31,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `<Card>` → a plain <div> that forwards className + data-mol-id + children, so
 // KpiCard's wrapper is assertable.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: ({
     children,
     className,

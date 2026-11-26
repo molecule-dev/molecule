@@ -1,10 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // The bond takes only types from its peer, so an empty module stands in for it.
-vi.mock('@molecule/app-routing', () => ({}))
+vi.mock('@molecule/app-routing', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 const logged = vi.hoisted(() => ({ error: vi.fn() }))
-vi.mock('@molecule/app-logger', () => ({ getLogger: () => logged }))
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => logged,
+}))
 
 import type { Router } from '../index.js'
 import { createReactNavigationRouter } from '../index.js'

@@ -24,7 +24,10 @@ import {
   type SpreadsheetSelection,
 } from '../index.js'
 
-vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
 /**
  * Build a UIClassMap stub via Proxy: `cn(...)` joins truthy strings,

@@ -14,7 +14,8 @@ import { createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
     flex: () => 'flex',
@@ -35,13 +36,15 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 
 // A plain button carrying its `data-mol-id`, the same observable contract the
 // React tests' Button mock has.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: {
     variant?: string
     size?: string

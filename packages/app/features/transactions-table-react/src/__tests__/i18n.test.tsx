@@ -17,7 +17,8 @@ import type { TransactionRowData } from '../types.js'
 
 // Class tokens echo their own name (methods when called, the token itself for
 // the ClassMap's string fields).
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

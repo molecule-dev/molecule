@@ -25,7 +25,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   // Only the resolvers the component CALLS may be functions; a class binding
   // rejects a function value, so every other token is the plain string.
   const CALLABLE = new Set(['button', 'spinner', 'cn'])
@@ -42,10 +42,14 @@ vi.mock('@molecule/app-ui', () => {
       return String(prop)
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

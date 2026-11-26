@@ -25,7 +25,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // bond — the same mock the React tests use. (Members are explicit because a
 // Proxy's function-for-every-token shape breaks Angular's classMap binding,
 // which rejects function values.)
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     flex: () => 'flex',
     tabsTrigger: (args: Record<string, unknown>) => `tabsTrigger-${args.variant}`,

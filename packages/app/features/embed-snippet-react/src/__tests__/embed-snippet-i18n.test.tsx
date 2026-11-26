@@ -14,9 +14,13 @@ import { act, fireEvent, render } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -40,7 +44,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 }))
 
 // The button marker, carrying the id and the click the component binds.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: { children?: ReactNode; onClick?: () => void; 'data-mol-id'?: string }) =>
     createElement(
       'button',

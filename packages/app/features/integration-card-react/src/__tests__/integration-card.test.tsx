@@ -18,7 +18,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -38,7 +39,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children, disabled }: { children?: ReactNode; disabled?: boolean }) =>
     createElement('button', { 'data-button': '', disabled }, children),
   Card: ({

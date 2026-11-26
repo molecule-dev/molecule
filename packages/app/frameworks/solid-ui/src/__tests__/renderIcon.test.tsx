@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { IconData, IconName } from '@molecule/app-icons'
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn(),
 }))
 

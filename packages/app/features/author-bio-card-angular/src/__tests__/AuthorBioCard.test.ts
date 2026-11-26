@@ -27,7 +27,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -50,7 +51,7 @@ vi.mock('@molecule/app-ui', () => ({
 // The UI markers the React suite mocks `@molecule/app-ui-react` with: an Avatar
 // carrying the src/name/size it received, and a Button carrying its variant and
 // its pass-through attributes.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   const MockAvatar = Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -133,7 +134,11 @@ vi.mock('@molecule/app-ui-angular', async () => {
       type: 'button' | 'submit' | 'reset' = 'button'
     },
   )
-  return { Avatar: MockAvatar, Button: MockButton }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Avatar: MockAvatar,
+    Button: MockButton,
+  }
 })
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'

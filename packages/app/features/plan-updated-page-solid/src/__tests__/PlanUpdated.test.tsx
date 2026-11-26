@@ -20,7 +20,8 @@ const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `page`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -53,7 +54,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
   Link: (props: { to: string; children?: JSX.Element }) => <a href={props.to}>{props.children}</a>,
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: { children?: JSX.Element } & Record<string, unknown>) => {
     const { children, ...rest } = props
     return (

@@ -11,9 +11,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockFindMany } = vi.hoisted(() => ({ mockFindMany: vi.fn() }))
 
-vi.mock('@molecule/api-database', () => ({ findMany: mockFindMany }))
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  findMany: mockFindMany,
+}))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((key: string) => key),
 }))
 

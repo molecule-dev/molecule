@@ -12,7 +12,8 @@ import { render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 
@@ -31,7 +32,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Badge: ({ children, color }: { children: ReactNode; color?: string }) => (
     <span data-testid="badge" data-color={color}>
       {children}

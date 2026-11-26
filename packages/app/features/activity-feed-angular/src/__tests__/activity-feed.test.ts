@@ -28,7 +28,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -51,9 +52,10 @@ vi.mock('@molecule/app-ui', () => ({
 // `Avatar` is the only `@molecule/app-ui-angular` component dependency — stub it
 // to an inspectable `<img>`-bearing div carrying the supplied src, the same
 // marker the React suite's `@molecule/app-ui-react` stub renders.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Avatar: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-avatar]',

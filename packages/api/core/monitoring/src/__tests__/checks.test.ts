@@ -10,14 +10,16 @@ const mockGet = vi.fn()
 const mockIsBonded = vi.fn()
 const mockRequire = vi.fn()
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   bond: mockBond,
   get: mockGet,
   isBonded: mockIsBonded,
   require: mockRequire,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
     let result = opts?.defaultValue ?? _key
     if (values) {
@@ -40,14 +42,16 @@ describe('health check factories', () => {
     vi.resetModules()
 
     // Re-register mocks after resetModules
-    vi.doMock('@molecule/api-bond', () => ({
+    vi.doMock('@molecule/api-bond', async (importOriginal) => ({
+      ...(await importOriginal<Record<string, unknown>>()),
       bond: mockBond,
       get: mockGet,
       isBonded: mockIsBonded,
       require: mockRequire,
     }))
 
-    vi.doMock('@molecule/api-i18n', () => ({
+    vi.doMock('@molecule/api-i18n', async (importOriginal) => ({
+      ...(await importOriginal<Record<string, unknown>>()),
       t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
         let result = opts?.defaultValue ?? _key
         if (values) {

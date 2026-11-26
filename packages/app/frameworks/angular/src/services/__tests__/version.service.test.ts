@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createVersionService } from '../version.service.js'
 
-vi.mock('@molecule/app-version', () => ({
+vi.mock('@molecule/app-version', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

@@ -1,10 +1,11 @@
-vi.mock('@molecule/api-bond', () => {
+vi.mock('@molecule/api-bond', async (importOriginal) => {
   // Mirrors the real bond registry's singleton + named forms: a name maps to a
   // distinct `type:name` slot, exactly like bondNamed/getNamed/requireNamed.
   let store: Record<string, unknown> = {}
   const slot = (type: string, name?: string): string =>
     name !== undefined ? `${type}:${name}` : type
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     bond: vi.fn((type: string, nameOrProvider: unknown, provider?: unknown) => {
       if (typeof nameOrProvider === 'string' && provider !== undefined) {
         store[slot(type, nameOrProvider)] = provider
@@ -26,7 +27,8 @@ vi.mock('@molecule/api-bond', () => {
   }
 })
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((_key: string, _values?: unknown, options?: { defaultValue?: string }) => {
     return options?.defaultValue ?? _key
   }),

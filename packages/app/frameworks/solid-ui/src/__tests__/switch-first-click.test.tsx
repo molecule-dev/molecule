@@ -20,7 +20,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChangeEventHandler, MouseEventHandler } from '@molecule/app-ui'
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   const FUNCTIONS = new Set(['switchBase', 'switchThumb'])
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_target, prop) {
@@ -31,7 +31,10 @@ vi.mock('@molecule/app-ui', () => {
       return String(prop)
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
 const { Switch } = await import('../components/Switch.jsx')

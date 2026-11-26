@@ -74,7 +74,8 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

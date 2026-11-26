@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // The same ClassMap proxy the React suite uses: each accessed member echoes its
 // token back, so the component needs no real styling bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -31,7 +32,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // Render router links as plain anchors so nothing needs a real router.
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({
     children,
     to,

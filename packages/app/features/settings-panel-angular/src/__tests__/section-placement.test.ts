@@ -22,7 +22,8 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // The ClassMap token proxy the package's other unit tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const callable = new Set(['sp', 'stack', 'textSize', 'fontWeight', 'maxW', 'flex'])
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -45,7 +46,7 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The UI components the sections compose, as passthrough elements.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, EventEmitter } = await import('@angular/core')
   const stub = (selector: string, inputs: string[], outputs: string[] = []): unknown =>
     Component({
@@ -61,6 +62,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       },
     )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Alert: stub('div[mol-alert]', ['status', 'className']),
     Button: stub('button[mol-button]', [
       'variant',

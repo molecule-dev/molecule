@@ -6,7 +6,8 @@ import { defineComponent, effectScope, h, nextTick, ref } from 'vue'
 import type { UsePlatformResult } from '../usePlatform.js'
 import { usePlatform } from '../usePlatform.js'
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   platform: vi.fn(),
   isPlatform: vi.fn(),
 }))

@@ -16,7 +16,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // real `@molecule/app-ui-tailwind` resolvers for `fontWeight` / `textSize`
 // (so the emphasis assertions can only pass when the weight is derived from
 // the argument) — the same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

@@ -2,9 +2,10 @@
  * Tests for the external-auth core: bond accessor + `verifyUserToken`
  * delegate. `@molecule/api-bond` is mocked with an in-memory store.
  */
-vi.mock('@molecule/api-bond', () => {
+vi.mock('@molecule/api-bond', async (importOriginal) => {
   let store: Record<string, unknown> = {}
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     bond: vi.fn((type: string, provider: unknown) => {
       store[type] = provider
     }),

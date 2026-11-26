@@ -20,7 +20,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { InlineEditProps } from '../InlineEdit.js'
 
 // Class tokens echo their own name, so a class assertion names the token.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -43,7 +44,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children }: { children?: ReactNode }) =>
     createElement('button', { 'data-button': '' }, children),
   Input: ({ 'aria-label': label }: { 'aria-label'?: string }) =>

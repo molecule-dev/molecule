@@ -10,7 +10,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h, nextTick, reactive, ref } from 'vue'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
     flex: () => 'flex',

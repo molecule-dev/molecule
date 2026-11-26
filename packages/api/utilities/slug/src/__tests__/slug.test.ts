@@ -4,7 +4,10 @@ import ts from 'typescript'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { findOne } = vi.hoisted(() => ({ findOne: vi.fn() }))
-vi.mock('@molecule/api-database', () => ({ findOne }))
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  findOne,
+}))
 
 import { slugify, uniqueSlug, uniqueSlugInTable } from '../index.js'
 

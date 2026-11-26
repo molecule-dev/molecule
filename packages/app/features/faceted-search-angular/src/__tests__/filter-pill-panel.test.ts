@@ -21,7 +21,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // Class tokens echo their own name, so the pill renders without a bonded ClassMap; the panel is
 // found by its place (the root's second child, after the trigger).
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

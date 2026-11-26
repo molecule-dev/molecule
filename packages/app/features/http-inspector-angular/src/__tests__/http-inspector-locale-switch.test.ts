@@ -28,7 +28,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -52,9 +53,10 @@ vi.mock('@molecule/app-ui', () => ({
 // attributes the component writes on each host (`translate`, the bound
 // aria-labels) stay on the host here, the way Angular renders host
 // attributes; the real components move them onto the native element.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',

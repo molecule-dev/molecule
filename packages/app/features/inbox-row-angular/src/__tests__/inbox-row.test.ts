@@ -27,7 +27,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `cursorPointer`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -50,7 +51,7 @@ vi.mock('@molecule/app-ui', () => ({
 // The Avatar marker the React tests mock `@molecule/app-ui-react` with: an
 // element carrying the src and the accessible name it received. `asTemplate`
 // keeps its real behavior (the component renders node props through it).
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, TemplateRef } = await import('@angular/core')
   const MockAvatar = Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -84,6 +85,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Avatar: MockAvatar,
     asTemplate: (value: unknown) => (value instanceof TemplateRef ? value : null),
   }

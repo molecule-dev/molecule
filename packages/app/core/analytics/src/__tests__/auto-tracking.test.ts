@@ -11,7 +11,8 @@ const { mockTrack, mockIdentify, mockPage, mockReset } = vi.hoisted(() => ({
   mockReset: vi.fn().mockResolvedValue(undefined),
 }))
 
-vi.mock('@molecule/app-bond', () => ({
+vi.mock('@molecule/app-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   bond: vi.fn(),
   get: vi.fn(() => ({
     identify: mockIdentify,

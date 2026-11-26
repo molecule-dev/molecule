@@ -14,8 +14,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createFetchDouble, mockLogger } from './helpers.js'
 
-vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => mockLogger,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Mirror the real t(): the defaultValue (or key) is returned with {{name}}
   // placeholders interpolated from the values argument, so assertions on the
   // thrown English text see what a user would see.

@@ -15,7 +15,8 @@ import { createApp, defineComponent, h, nextTick, type VNodeChild } from 'vue'
 // test can assert *which* cm.* member produced a class (e.g. `card`, `surface`,
 // `textError`) independent of the Tailwind bond's real strings — the same mock
 // the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -37,9 +38,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Forward onClick + pass-through attrs onto a native <button> so the kebab
 // popover can be opened and its data-mol-id / aria-* asserted.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: defineComponent({
       name: 'MButton',
       inheritAttrs: false,

@@ -13,7 +13,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { PlatformInfo } from '@molecule/app-platform'
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   platform: vi.fn(),
   isPlatform: vi.fn(),
 }))

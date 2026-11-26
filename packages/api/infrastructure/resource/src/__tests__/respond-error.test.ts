@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // respond-error.ts calls getLogger() at module load — stub it to a noop logger.
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     warn: vi.fn(),
     error: vi.fn(),

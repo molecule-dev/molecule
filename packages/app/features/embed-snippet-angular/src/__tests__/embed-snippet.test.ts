@@ -29,7 +29,10 @@ import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { EmbedSnippet } from '../embed-snippet.component.js'
 import type { EmbedSnippetValues } from '../types.js'
 
-vi.mock('@molecule/app-clipboard', () => ({ copyTextWithFallback: vi.fn(async () => true) }))
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
 const TEMPLATE =
   '<iframe src="https://example.com/embed" width="{{width}}" height="{{height}}" data-theme="{{theme}}" />'

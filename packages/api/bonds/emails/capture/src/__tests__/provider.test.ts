@@ -5,7 +5,8 @@ import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/ap
 
 const record = vi.fn<(event: ActivityEvent) => Promise<void>>()
 
-vi.mock('@molecule/api-activity', () => ({
+vi.mock('@molecule/api-activity', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   record: (event: ActivityEvent) => record(event),
 }))
 

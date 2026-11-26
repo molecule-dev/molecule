@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ConfirmDialog } from '../components/ConfirmDialog.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const CALLABLE = new Set(['modal', 'stack', 'flex', 'sp', 'textSize', 'fontWeight', 'button'])
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -43,7 +44,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: () => ({ viewBox: '0 0 20 20', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
 

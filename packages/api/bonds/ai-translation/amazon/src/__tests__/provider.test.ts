@@ -24,10 +24,12 @@ vi.mock('@aws-sdk/client-translate', () => ({
     return { input, type: 'ListLanguagesCommand' }
   }),
 }))
-vi.mock('@molecule/api-analytics', () => ({
+vi.mock('@molecule/api-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   trackBondFailure: (...args: unknown[]) => mockTrackBondFailure(...args),
 }))
-vi.mock('@molecule/api-proxy-agent', () => ({
+vi.mock('@molecule/api-proxy-agent', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProxyAgents: vi.fn(() => undefined),
 }))
 

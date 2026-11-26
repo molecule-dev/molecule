@@ -19,7 +19,10 @@ vi.mock('@molecule/app-ui', async (load) => ({
     toastContainer: () => 'toast-stack',
   }),
 }))
-vi.mock('@molecule/app-icons', () => ({ getIcon: () => ({ paths: [{ d: 'M0 0' }] }) }))
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getIcon: () => ({ paths: [{ d: 'M0 0' }] }),
+}))
 vi.mock('@molecule/app-react', async (load) => ({
   ...(await load<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => key }),

@@ -23,11 +23,20 @@ vi.mock('vue', () => ({
 }))
 
 // Mock molecule packages
-vi.mock('@molecule/app-state', () => ({}))
-vi.mock('@molecule/app-auth', () => ({}))
-vi.mock('@molecule/app-theme', () => ({}))
-vi.mock('@molecule/app-routing', () => ({}))
+vi.mock('@molecule/app-state', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-auth', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-theme', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-routing', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // The real I18nError: useRouterInstance throws one.
   I18nError: (await importOriginal<typeof I18n>()).I18nError,
   t: vi.fn(
@@ -35,11 +44,21 @@ vi.mock('@molecule/app-i18n', async (importOriginal) => ({
       options?.defaultValue ?? key,
   ),
 }))
-vi.mock('@molecule/app-http', () => ({}))
-vi.mock('@molecule/app-storage', () => ({}))
-vi.mock('@molecule/app-logger', () => ({}))
-vi.mock('@molecule/app-forms', () => ({}))
-vi.mock('@molecule/app-ui', () => ({}))
+vi.mock('@molecule/app-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-storage', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-forms', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 import {
   useLocation,

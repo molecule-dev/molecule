@@ -18,7 +18,8 @@ const {
   mockUpdateMany: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   count: mockCount,
   create: mockCreate,
   deleteById: mockDeleteById,
@@ -29,13 +30,15 @@ vi.mock('@molecule/api-database', () => ({
   updateMany: mockUpdateMany,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (key: string, _values?: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
   ),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     debug: vi.fn(),
     error: vi.fn(),

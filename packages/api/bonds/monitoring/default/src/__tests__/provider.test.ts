@@ -1,4 +1,5 @@
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) => {
     let text = options?.defaultValue ?? key
     if (values) {

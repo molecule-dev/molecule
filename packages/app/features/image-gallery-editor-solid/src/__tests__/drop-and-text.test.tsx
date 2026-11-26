@@ -11,7 +11,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Class tokens echo their own name; Icon records its glyph; ConfirmDialog shows
 // its title and description while open — the same mocks the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -28,7 +29,8 @@ vi.mock('@molecule/app-ui', () => ({
       },
     ),
 }))
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: (props: { name: string; className?: unknown }) => {
     const className = typeof props.className === 'function' ? props.className() : props.className
     return <i data-icon={props.name} class={className} />

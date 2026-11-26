@@ -3,7 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -53,7 +54,8 @@ interface CapturedSelectProps {
 }
 let lastSelectProps: CapturedSelectProps | null = null
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     disabled,

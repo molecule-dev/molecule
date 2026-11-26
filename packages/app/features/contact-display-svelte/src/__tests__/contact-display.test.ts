@@ -23,7 +23,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // bond — the same mock the React tests use. `flex` encodes its direction so
 // the tests can distinguish the card (column) layout from the row/compact
 // (row) layouts.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -47,9 +48,9 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Avatar } = await import('./stubs/AvatarStub.svelte')
-  return { Avatar }
+  return { ...(await importOriginal<Record<string, unknown>>()), Avatar }
 })
 
 import ContactDisplay from '../ContactDisplay.svelte'

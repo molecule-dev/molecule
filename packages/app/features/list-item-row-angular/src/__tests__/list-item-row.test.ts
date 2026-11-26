@@ -33,7 +33,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // real bond — the same mock the React tests use. Angular's `[class]` binding
 // takes a plain string, so the icon-wrapper members (used as values, not
 // called) resolve to their token string instead of a callable.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

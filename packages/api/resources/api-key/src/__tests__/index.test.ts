@@ -4,7 +4,8 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: vi.fn(),
   findById: vi.fn(),
   findOne: vi.fn(),

@@ -32,7 +32,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // without a real bond — the same mock the Angular unit tests use. (Members are
 // explicit because a Proxy's function-for-every-token shape breaks Angular's
 // classMap binding, which rejects function values.)
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...cls: unknown[]) =>
       cls

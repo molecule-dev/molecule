@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createCapacitorAppStore } from '../capacitor-app.js'
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createCapacitorApp: vi.fn(),
 }))
 

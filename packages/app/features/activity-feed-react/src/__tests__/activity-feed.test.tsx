@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields its key as a string token, so emitted classNames are inspectable.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -25,7 +26,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `Avatar` is the only `@molecule/app-ui-react` dependency — stub it to an
 // inspectable <img data-avatar> carrying the supplied src.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Avatar: ({ src }: { src?: string }) => createElement('img', { 'data-avatar': src ?? '' }),
 }))
 

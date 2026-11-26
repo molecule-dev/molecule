@@ -12,7 +12,8 @@ import { describe, expect, it, vi } from 'vitest'
 import type { MoleculeRequest, MoleculeResponse } from '../http-types.js'
 import { getParamId, getUserId, idParamSchema, requireUser } from '../route-helpers.js'
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, _values: unknown, options?: { defaultValue?: string }) =>
     options?.defaultValue ?? '',
 }))

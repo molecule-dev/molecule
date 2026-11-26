@@ -13,13 +13,20 @@ const { mockDeleteById, mockGet, mockTrack, mockInvalidateDevices } = vi.hoisted
   mockInvalidateDevices: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   getAnalytics: () => ({ track: mockTrack }),
   getLogger: () => ({ error: vi.fn(), warn: vi.fn(), info: vi.fn() }),
 }))
-vi.mock('@molecule/api-database', () => ({ deleteById: mockDeleteById }))
-vi.mock('@molecule/api-i18n', () => ({ t: (key: string) => key }))
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  deleteById: mockDeleteById,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: (key: string) => key,
+}))
 vi.mock('../authorization.js', () => ({
   invalidateAllDeviceExistsCache: mockInvalidateDevices,
 }))

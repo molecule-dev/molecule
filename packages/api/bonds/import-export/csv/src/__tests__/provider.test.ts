@@ -5,7 +5,8 @@ import type { ImportExportProvider } from '@molecule/api-import-export'
 const mockCreate = vi.fn().mockResolvedValue({ data: {}, affected: 1 })
 const mockFindMany = vi.fn().mockResolvedValue([])
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: (...args: unknown[]) => mockCreate(...args),
   findMany: (...args: unknown[]) => mockFindMany(...args),
 }))

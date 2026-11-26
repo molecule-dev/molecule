@@ -16,7 +16,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Stub the wired classmap so getClassMap() returns deterministic strings
 // without requiring the full @molecule/app-ui-tailwind bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     oauthButtonGroup: 'cm-oauthButtonGroup',
     oauthButton: 'cm-oauthButton',

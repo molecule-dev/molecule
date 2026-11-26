@@ -12,7 +12,8 @@ const { mockGetProvider } = vi.hoisted(() => ({
   mockGetProvider: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findOne: mockFindOne,
   findMany: mockFindMany,
@@ -20,15 +21,18 @@ vi.mock('@molecule/api-database', () => ({
   deleteById: mockDeleteById,
 }))
 
-vi.mock('@molecule/api-ai', () => ({
+vi.mock('@molecule/api-ai', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: mockGetProvider,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn((key: string) => key),
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     debug: vi.fn(),
     error: vi.fn(),
@@ -36,7 +40,8 @@ vi.mock('@molecule/api-logger', () => ({
   },
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAnalytics: () => ({
     identify: vi.fn().mockResolvedValue(undefined),
     track: vi.fn().mockResolvedValue(undefined),

@@ -31,7 +31,8 @@ function httpResponse<T>(data: T): HttpResponse<T> {
 }
 
 // Mock @molecule/api-http
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   post: vi.fn(),
 }))
 
@@ -40,7 +41,8 @@ vi.mock('@molecule/api-http', () => ({
 // APPLE_ALLOW_SANDBOX_RECEIPTS defaults to 'false'), mirroring an env with the
 // flag unset.
 const { mockGetConfig } = vi.hoisted(() => ({ mockGetConfig: vi.fn() }))
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGetConfig,
 }))
 

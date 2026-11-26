@@ -20,7 +20,8 @@ import {
 // Mock @molecule/api-config so the sandbox flag and the replay tolerance are
 // controllable. Default: return the given default (fail-closed).
 const { mockGetConfig } = vi.hoisted(() => ({ mockGetConfig: vi.fn() }))
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGetConfig,
 }))
 

@@ -29,7 +29,8 @@ vi.mock('@aws-sdk/credential-provider-node', () => ({
   defaultProvider: vi.fn(),
 }))
 
-vi.mock('@molecule/api-emails', () => ({
+vi.mock('@molecule/api-emails', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Type exports only, no runtime values needed
 }))
 

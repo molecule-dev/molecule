@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { VersionEvent, VersionProvider, VersionState } from '@molecule/app-version'
 
-vi.mock('@molecule/app-version', () => ({
+vi.mock('@molecule/app-version', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

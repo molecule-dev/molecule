@@ -16,7 +16,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // the same mock the React suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -43,7 +44,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: {
     children?: JSX.Element
     disabled?: boolean

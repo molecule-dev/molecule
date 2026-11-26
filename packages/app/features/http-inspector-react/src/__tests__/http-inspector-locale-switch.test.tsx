@@ -19,7 +19,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -41,7 +42,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The markers the main suite renders, carrying every attribute the component
 // passes (the real components spread rest props onto the native element).
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children, disabled }: { children?: ReactNode; disabled?: boolean }) =>
     createElement('button', { 'data-button': '', disabled }, children),
   Input: (props: {

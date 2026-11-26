@@ -12,7 +12,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token, so no real
 // style bond is needed — the same mock the React suite installs.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy({} as Record<string, unknown>, {
       get: (_target, key) =>

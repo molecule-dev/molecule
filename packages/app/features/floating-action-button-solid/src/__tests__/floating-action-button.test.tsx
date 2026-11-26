@@ -17,7 +17,8 @@ import { createMemoryRouter } from '@molecule/app-routing'
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* call was applied without a real bond — the same mock the
 // React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

@@ -10,13 +10,15 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
-vi.mock('@molecule/app-push', () => ({
+vi.mock('@molecule/app-push', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(() => ({
     checkPermission: vi.fn().mockResolvedValue('granted'),
   })),
 }))
 
-vi.mock('@molecule/app-logger', () => ({
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: vi.fn(() => ({ warn: vi.fn() })),
 }))
 

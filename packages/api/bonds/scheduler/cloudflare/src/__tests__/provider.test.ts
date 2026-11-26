@@ -15,7 +15,10 @@ const logger = vi.hoisted(() => ({
   error: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({ getLogger: () => logger }))
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getLogger: () => logger,
+}))
 
 const task = (name: string, handler: () => Promise<void>, intervalMs = 60_000) => ({
   name,

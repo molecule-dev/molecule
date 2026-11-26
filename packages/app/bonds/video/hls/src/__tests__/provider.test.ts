@@ -45,7 +45,10 @@ const hoisted = vi.hoisted(() => {
   return { video, nativePlayer, createNativePlayer, hlsInstance, Hls }
 })
 
-vi.mock('@molecule/app-video', () => ({ createNativePlayer: hoisted.createNativePlayer }))
+vi.mock('@molecule/app-video', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  createNativePlayer: hoisted.createNativePlayer,
+}))
 vi.mock('hls.js', () => ({ default: hoisted.Hls }))
 
 const { provider, createHlsPlayer } = await import('../provider.js')

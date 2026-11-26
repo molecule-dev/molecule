@@ -34,7 +34,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // `sectionHeading`), so tests can assert markup without a real bond. Members
 // the ClassMap API exposes as functions return the token string when called;
 // everything else IS the token string (a `[class]` binding needs a string).
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const callable = new Set(['sp', 'stack', 'textSize', 'fontWeight', 'maxW'])
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -58,9 +59,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The UI components the section composes, as passthrough elements — the same
 // observable contracts the React suite's mocks have.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, ElementRef, EventEmitter, viewChild } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Flex: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-flex]',

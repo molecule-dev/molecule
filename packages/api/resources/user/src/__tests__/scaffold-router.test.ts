@@ -9,7 +9,10 @@ import { createRequestHandlerMap, routes } from '../index.js'
 import * as featureRouters from '../scaffold-router.js'
 import router from '../scaffold-router.js'
 
-vi.mock('@molecule/api-resource-user', () => import('../index.js'))
+vi.mock('@molecule/api-resource-user', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  ...(await import('../index.js')),
+}))
 
 let server: Server
 let origin: string

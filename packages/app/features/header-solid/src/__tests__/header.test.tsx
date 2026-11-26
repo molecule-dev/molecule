@@ -13,7 +13,8 @@ type ThemeProvider = ReturnType<typeof SolidBinding.getThemeProvider>
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `headerBar`), so tests can assert which cm.* call was applied without a
 // real bond — the same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -33,7 +34,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Flex: (props: { children?: JSX.Element }) => <div data-flex="">{props.children}</div>,
   ThemeToggle: () => <button type="button" data-theme-toggle="" />,
   // UserMenu takes its settings panel as CHILDREN (the real API) — render them

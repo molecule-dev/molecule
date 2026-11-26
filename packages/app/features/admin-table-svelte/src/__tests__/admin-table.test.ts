@@ -15,7 +15,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // test can assert *which* cm.* member produced a class (e.g. `card`, `surface`,
 // `textError`) independent of the Tailwind bond's real strings — the same mock
 // the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

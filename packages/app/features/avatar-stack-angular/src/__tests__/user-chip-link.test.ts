@@ -27,7 +27,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

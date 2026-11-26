@@ -39,20 +39,24 @@ vi.mock('@molecule/api-database', async (original) => ({
   updateById: async () => ({ affected: 1 }),
   updateMany: async () => ({ affected: 1 }),
 }))
-vi.mock('@molecule/api-password', () => ({
+vi.mock('@molecule/api-password', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hash: async (p: string) => createHash('sha256').update(p).digest('hex'),
   compare: async (p: string, h: string) => createHash('sha256').update(p).digest('hex') === h,
 }))
-vi.mock('@molecule/api-jwt', () => ({
+vi.mock('@molecule/api-jwt', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   sign: (session: unknown) => JSON.stringify(session),
   decode: () => null,
   verify: () => null,
 }))
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: (key: string, fallback?: unknown) =>
     key === 'AUTH_SCHEME' ? 'Token' : key === 'NODE_ENV' ? 'test' : fallback,
 }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, values?: Record<string, string>, options?: { defaultValue?: string }) =>
     options?.defaultValue?.replace(/\{\{(\w+)\}\}/g, (_, name: string) => values?.[name] ?? '') ??
     key,

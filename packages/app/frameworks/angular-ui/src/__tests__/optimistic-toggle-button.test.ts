@@ -29,7 +29,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     // Tokens the button templates CALL; every other token is read as a plain
     // string by the `[class]` bindings.

@@ -30,7 +30,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `uppercase`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -74,7 +75,8 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // contract — the rest attribute (`aria-label`) the real components move onto
 // the native field with `moveRestAttributes`, and the change outputs — so the
 // bar's own wiring is what the assertions exercise.
-vi.mock('@molecule/app-ui-angular', () => ({
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: Component({
     changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'button[mol-button]',

@@ -7,7 +7,8 @@ import { ListingCard } from '../ListingCard.js'
 import { ListingCardBody } from '../ListingCardBody.js'
 import { ListingGrid } from '../ListingGrid.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

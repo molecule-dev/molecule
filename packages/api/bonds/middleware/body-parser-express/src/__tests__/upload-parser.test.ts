@@ -14,7 +14,8 @@ import { connect } from 'node:net'
 import express from 'express'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue,
 }))
 

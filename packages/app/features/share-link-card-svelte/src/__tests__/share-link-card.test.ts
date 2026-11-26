@@ -14,7 +14,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setMoleculeContext } from '@molecule/app-svelte'
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

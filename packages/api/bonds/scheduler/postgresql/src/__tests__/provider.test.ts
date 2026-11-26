@@ -6,7 +6,8 @@ const mockLogger = {
   trace: vi.fn(),
 }
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: vi.fn(() => mockLogger),
 }))
 

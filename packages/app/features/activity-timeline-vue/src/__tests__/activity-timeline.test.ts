@@ -15,7 +15,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `bgBorder`, `textMuted`) without depending on the Tailwind bond's concrete
 // strings. Any raw literal a component still hardcodes would pass straight
 // through `cn` unchanged and show up verbatim — which the negative sweeps catch.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

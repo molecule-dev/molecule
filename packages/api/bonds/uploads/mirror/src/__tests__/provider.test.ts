@@ -3,7 +3,8 @@ import { PassThrough, Readable, Writable } from 'node:stream'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const trackBondFailure = vi.fn()
-vi.mock('@molecule/api-analytics', () => ({
+vi.mock('@molecule/api-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   trackBondFailure: (...args: unknown[]) => trackBondFailure(...args),
 }))
 

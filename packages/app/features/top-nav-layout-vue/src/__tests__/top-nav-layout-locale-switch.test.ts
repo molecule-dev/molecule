@@ -18,7 +18,7 @@ import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type * as VueBinding from '@molecule/app-vue'
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_t, prop) {
       if (prop === 'cn') {
@@ -33,7 +33,10 @@ vi.mock('@molecule/app-ui', () => {
       return (..._args: unknown[]) => token
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
 // Only the router is mocked; the real `useTranslation` composable drives the

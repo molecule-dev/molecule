@@ -17,7 +17,8 @@ const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
 // for method-style props (`cm.stack(4)`) and also usable bare (`cm.prose`).
 // `cn(...)` joins tokens, calling any function-valued args first so bare
 // property tokens survive.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -53,7 +54,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     onClick: _onClick,
@@ -71,7 +73,8 @@ vi.mock('@molecule/app-ui-react', () => ({
     createElement('div', { 'data-modal': '' }, children),
 }))
 
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to }, children),
 }))

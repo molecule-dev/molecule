@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { Badge, BadgeShelfProps } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 

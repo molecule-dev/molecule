@@ -11,7 +11,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Same cm / Icon / ConfirmDialog mocks as smoke.test.ts: class tokens echo
 // their own name, Icon records its glyph, ConfirmDialog renders only when open.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -29,10 +30,10 @@ vi.mock('@molecule/app-ui', () => ({
     return new Proxy({}, handler)
   },
 }))
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Icon } = await import('./stubs/IconStub.svelte')
   const { default: ConfirmDialog } = await import('./stubs/ConfirmDialogStub.svelte')
-  return { Icon, ConfirmDialog }
+  return { ...(await importOriginal<Record<string, unknown>>()), Icon, ConfirmDialog }
 })
 // The bonded i18n provider is not mounted here; `t()` falls back to its English
 // defaultValue, which is what the accessible-name assertions read.

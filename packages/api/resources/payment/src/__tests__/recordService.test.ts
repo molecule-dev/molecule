@@ -21,7 +21,8 @@ const { mockCreate, mockFindOne, mockFindMany, mockDeleteMany, mockQuery, mockLo
   }),
 )
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findOne: mockFindOne,
   findMany: mockFindMany,
@@ -29,7 +30,8 @@ vi.mock('@molecule/api-database', () => ({
   query: mockQuery,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getAnalytics: () => ({
     identify: vi.fn().mockResolvedValue(undefined),
     track: vi.fn().mockResolvedValue(undefined),

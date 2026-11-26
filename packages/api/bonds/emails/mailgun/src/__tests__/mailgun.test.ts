@@ -22,7 +22,8 @@ vi.mock('nodemailer-mailgun-transport', () => ({
   default: vi.fn((config) => config),
 }))
 
-vi.mock('@molecule/api-emails', () => ({
+vi.mock('@molecule/api-emails', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Type exports only, no runtime values needed
 }))
 

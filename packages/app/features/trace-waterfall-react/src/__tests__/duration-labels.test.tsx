@@ -21,7 +21,8 @@ import type { TraceWaterfallProps } from '../TraceWaterfall.js'
 import type { Span } from '../types.js'
 
 // Class tokens echo their own name.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

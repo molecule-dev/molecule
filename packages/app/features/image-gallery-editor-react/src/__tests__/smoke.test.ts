@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from 'vitest'
 // literal (`hidden`, `bg-surface-container-low`, `col-span-8`, `tracking-widest`,
 // …) survived the migration — those never generate without an @source scan of
 // this package and were the root cause of the visible raw file input.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -28,7 +29,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Icon mock: record the glyph name — proves the editor renders real SVG <Icon>
 // glyphs, not a raw `material-symbols-outlined` font ligature span.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: ({ name, className }: { name: string; className?: string }) =>
     createElement('i', { 'data-icon': name, className }),
   ConfirmDialog: ({ open, title }: { open: boolean; title?: string }) =>

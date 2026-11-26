@@ -11,7 +11,8 @@ const { mockWarn, mockError } = vi.hoisted(() => ({
   mockError: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({ info: vi.fn(), warn: mockWarn, error: mockError }),
 }))
 

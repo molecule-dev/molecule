@@ -38,7 +38,8 @@ vi.mock('@aws-sdk/lib-storage', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-analytics', () => ({
+vi.mock('@molecule/api-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   trackBondFailure: (...args: unknown[]) => mockTrackBondFailure(...args),
 }))
 

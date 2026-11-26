@@ -6,7 +6,8 @@ import type { VersionState } from '@molecule/app-version'
 import type { UseVersionResult } from '../useVersion.js'
 import { useVersion } from '../useVersion.js'
 
-vi.mock('@molecule/app-version', () => ({
+vi.mock('@molecule/app-version', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

@@ -24,7 +24,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (members the
 // ClassMap API exposes as functions return the token when called).
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const callable = new Set(['sp', 'stack', 'textSize', 'fontWeight', 'maxW'])
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -47,9 +48,10 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // The UI components the section composes, as passthrough elements.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, ElementRef, EventEmitter, viewChild } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Flex: Component({
       selector: 'div[mol-flex]',
       standalone: true,

@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Stub the wired classmap so getClassMap() returns deterministic strings
 // without requiring the full @molecule/app-ui-tailwind bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     oauthButtonGroup: 'cm-oauthButtonGroup',
     oauthButton: 'cm-oauthButton',
@@ -57,7 +58,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 }))
 
 // Stub the canonical logos so the row's own markup is what's asserted.
-vi.mock('@molecule/app-oauth-logos-solid', () => ({
+vi.mock('@molecule/app-oauth-logos-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthProviderLogo: (props: { provider: string }) => (
     <svg data-logo="" data-provider={props.provider} />
   ),

@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createDeviceService } from '../device.service.js'
 
-vi.mock('@molecule/app-device', () => ({
+vi.mock('@molecule/app-device', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

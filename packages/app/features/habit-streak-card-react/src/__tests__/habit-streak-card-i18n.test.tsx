@@ -5,7 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 // Class tokens echo their own name; `cn` joins the strings it is given — the
 // same mock the main suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -30,7 +31,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: ({ children, className }: { children?: ReactNode; className?: string }) =>
     createElement('div', { 'data-card': '', className }, children),
 }))

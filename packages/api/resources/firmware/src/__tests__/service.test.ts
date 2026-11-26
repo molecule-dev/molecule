@@ -8,14 +8,16 @@ const { mockCreate, mockFindById, mockFindMany, mockUpdateById, mockBroadcast } 
   }),
 )
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findById: mockFindById,
   findMany: mockFindMany,
   updateById: mockUpdateById,
 }))
 
-vi.mock('@molecule/api-realtime', () => ({
+vi.mock('@molecule/api-realtime', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   broadcast: mockBroadcast,
 }))
 

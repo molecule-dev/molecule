@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // cm mock: every token resolves to its OWN NAME, so the rendered markup lets us
 // assert both (a) real `cm.*` tokens are used and (b) NO raw Tailwind / M3
 // literal survived — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -35,7 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 // glyphs, not a raw font ligature span. ConfirmDialog shows its title while
 // open. (The mocked cm values are functions, so a function class token is
 // called, the way the mock's own `cn` unwraps one.)
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   const Icon = defineComponent({
     props: {
@@ -56,7 +57,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
       return () => (props.open ? h('div', { 'data-confirm-dialog': '' }, props.title) : null)
     },
   })
-  return { Icon, ConfirmDialog }
+  return { ...(await importOriginal<Record<string, unknown>>()), Icon, ConfirmDialog }
 })
 
 // Translations the bonded i18n provider would supply: each key maps to a

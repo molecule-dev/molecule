@@ -3,7 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Class tokens echo their own name, so the component renders without a bonded
 // ClassMap; the glyphs' aria-hidden attribute is what these tests assert.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

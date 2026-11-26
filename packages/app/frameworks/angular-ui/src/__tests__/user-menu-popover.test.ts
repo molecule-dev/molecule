@@ -60,7 +60,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   /**
    * The ClassMap stand-in: tokens the templates CALL resolve to functions,
    * every other token to its own name (Angular's class binding rejects
@@ -96,10 +96,11 @@ vi.mock('@molecule/app-ui', () => {
     }
     return new Proxy({}, handler)
   }
-  return { getClassMap }
+  return { ...(await importOriginal<Record<string, unknown>>()), getClassMap }
 })
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

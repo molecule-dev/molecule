@@ -13,14 +13,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockGet = vi.fn()
 
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   post: vi.fn(),
   get: mockGet,
 }))
 
-vi.mock('@molecule/api-oauth', () => ({}))
+vi.mock('@molecule/api-oauth', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     info: vi.fn(),
     warn: vi.fn(),

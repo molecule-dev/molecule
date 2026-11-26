@@ -14,7 +14,8 @@ const mockPlatformInfo: PlatformInfo = {
   userAgent: 'Mozilla/5.0',
 }
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   platform: vi.fn(() => mockPlatformInfo),
   isPlatform: vi.fn((...platforms: Platform[]) => platforms.includes('web')),
 }))

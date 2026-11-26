@@ -5,7 +5,8 @@ vi.mock('node:dns/promises', () => ({
   lookup: (host: string, options: unknown) => mockLookup(host, options),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),

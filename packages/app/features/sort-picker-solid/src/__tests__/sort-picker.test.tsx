@@ -15,7 +15,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `textSize`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -44,7 +45,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 }))
 
 // The Select marker the React tests mock `@molecule/app-ui-react` with.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Select: (props: {
     value?: string
     options?: { value: string; label: unknown }[]

@@ -17,10 +17,12 @@ const service = vi.hoisted(() => ({
   updateArticle: vi.fn(),
 }))
 vi.mock('../service.js', () => service)
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, _v: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? _key,
 }))
 

@@ -11,7 +11,8 @@ const tMock = vi.hoisted(() => ({
   calls: [] as Array<{ key: string; values: Record<string, unknown> | undefined }>,
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -47,7 +48,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Switch: ({ checked, ['aria-label']: ariaLabel }: { checked?: boolean; 'aria-label'?: string }) =>
     createElement('input', {
       type: 'checkbox',

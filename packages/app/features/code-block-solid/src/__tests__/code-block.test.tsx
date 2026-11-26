@@ -19,7 +19,8 @@ import type { CodeBlockProps } from '../types.js'
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -51,7 +52,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 
 // The copy-button marker the React tests mock `@molecule/app-ui-react` with:
 // a `data-button` element rendering its children.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: {
     variant?: string
     size?: string
@@ -64,7 +66,8 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

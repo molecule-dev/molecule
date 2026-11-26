@@ -11,7 +11,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Same cm / Icon / ConfirmDialog mocks as smoke.test.tsx: class tokens echo
 // their own name, Icon records its glyph, ConfirmDialog renders only when open.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -29,7 +30,8 @@ vi.mock('@molecule/app-ui', () => ({
     return new Proxy({}, handler)
   },
 }))
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: (props: { name: string; className?: unknown }) => {
     const className = typeof props.className === 'function' ? props.className() : props.className
     return <i data-icon={props.name} class={className} />

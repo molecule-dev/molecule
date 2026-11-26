@@ -18,7 +18,8 @@ import type { SuggestionItem } from '../types.js'
 
 // Proxy ClassMap echoing each accessed member back as its token, exactly like
 // the React suite's mock.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -50,7 +51,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 // real <input> so the keyboard and ARIA wiring is testable end-to-end, exactly
 // like the React suite's `input` mock. The mock's props type is exactly what
 // the component passes, so every value reaches the <input> without a cast.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Input: (props: {
     value?: string
     placeholder?: string

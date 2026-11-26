@@ -19,7 +19,8 @@ import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molec
 // A ClassMap proxy echoing each accessed member back as its token, so tests
 // can assert which cm.* class was applied without a real bond — the same mock
 // the React tests use, extended so `cm.button(…)` echoes its arguments.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -55,7 +56,8 @@ setI18nProvider(
   ]),
 )
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

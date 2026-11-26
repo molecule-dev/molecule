@@ -18,7 +18,8 @@ const { i18nState } = vi.hoisted(() => ({ i18nState: { dict: {} as Record<string
 // Proxy ClassMap echoing each accessed member back as its token, so tests can
 // assert which cm.* call was applied without a real bond — the same mock the
 // React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -50,10 +51,10 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
 
 // The stubs render the same `<button data-button>` / `<div data-card>` markup
 // the React suite's UI mocks produce.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/ButtonStub.svelte')
   const { default: Card } = await import('./stubs/CardStub.svelte')
-  return { Button, Card }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Card }
 })
 
 import IntegrationCard from '../IntegrationCard.svelte'

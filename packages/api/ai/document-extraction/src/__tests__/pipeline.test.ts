@@ -3,7 +3,8 @@ const { mockRequireAI, mockChat } = vi.hoisted(() => ({
   mockChat: vi.fn(),
 }))
 
-vi.mock('@molecule/api-ai', () => ({
+vi.mock('@molecule/api-ai', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   requireProvider: mockRequireAI,
 }))
 

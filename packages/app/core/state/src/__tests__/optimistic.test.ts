@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { createOptimisticValue } from '../optimistic.js'
 
 const debug = vi.hoisted(() => vi.fn())
-vi.mock('@molecule/app-logger', () => ({
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({ debug, error: vi.fn() }),
 }))
 

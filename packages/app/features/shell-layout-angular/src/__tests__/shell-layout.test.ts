@@ -25,7 +25,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `page`),
 // so tests can assert which cm.* class was applied without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -47,9 +48,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // Container renders its children inside a marked div carrying the max width —
 // the same observable contract the React suite's Container mock has.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Container: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-container]',

@@ -32,7 +32,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   // Tokens the switch template CALLS; every other token is a plain string
   // (Angular's class binding rejects function values).
   const CALLABLE = new Set(['switchBase', 'switchThumb'])
@@ -49,7 +49,10 @@ vi.mock('@molecule/app-ui', () => {
       return String(prop)
     },
   }
-  return { getClassMap: () => new Proxy({}, handler) }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    getClassMap: () => new Proxy({}, handler),
+  }
 })
 
 const { Switch } = await import('../components/switch.component.js')

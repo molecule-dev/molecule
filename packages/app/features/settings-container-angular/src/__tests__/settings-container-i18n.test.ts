@@ -26,7 +26,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the Angular suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

@@ -26,7 +26,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { SuggestionItem } from '../SearchAutocomplete.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -56,7 +57,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 
 // Forward every prop (onKeyDown, role, aria-*, value, onChange…) to a real
 // <input> so the keyboard + ARIA wiring is testable end-to-end.
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Input: (props: Record<string, unknown>) => createElement('input', props),
 }))
 

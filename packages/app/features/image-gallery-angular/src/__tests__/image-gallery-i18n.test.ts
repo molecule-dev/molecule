@@ -31,7 +31,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`) — the same mock the Angular suite uses. `grid` resolves `cols` to
 // its `grid-cols-N` class, mirroring the Tailwind bond's CVA.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

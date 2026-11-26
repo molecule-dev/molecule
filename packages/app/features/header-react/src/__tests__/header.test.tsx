@@ -5,7 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { LinkProps } from '@molecule/app-react/link'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -25,7 +26,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Flex: ({ children }: { children?: ReactNode }) =>
     createElement('div', { 'data-flex': '' }, children),
   ThemeToggle: () => createElement('button', { 'data-theme-toggle': '' }),
@@ -48,7 +50,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({ to, ...props }: LinkProps) =>
     createElement('a', { ...props, href: String(to), 'data-link': '' }),
 }))

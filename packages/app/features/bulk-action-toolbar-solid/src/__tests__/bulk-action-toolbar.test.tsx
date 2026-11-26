@@ -23,7 +23,8 @@ import type { BulkActionToolbarProps } from '../types.js'
 // `link`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use, extended so `cm.button(…)`
 // echoes its variant/color/size arguments.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

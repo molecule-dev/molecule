@@ -22,7 +22,8 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // The ClassMap token proxy the package's other unit tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const callable = new Set(['sp', 'stack', 'textSize', 'fontWeight', 'maxW', 'flex'])
     const handler: ProxyHandler<Record<string, unknown>> = {

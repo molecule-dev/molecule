@@ -28,20 +28,24 @@ vi.mock(import('@molecule/api-bond'), async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/api-entitlements', () => ({
+vi.mock('@molecule/api-entitlements', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getEffectiveTier: vi.fn(),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
     opts?.defaultValue ?? _key,
 }))
 
-vi.mock('@molecule/api-middleware-validation', () => ({
+vi.mock('@molecule/api-middleware-validation', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   validateBody: () => (_req: unknown, _res: unknown, next: () => void) => next(),
 }))
 
-vi.mock('@molecule/api-resource-payment', () => ({
+vi.mock('@molecule/api-resource-payment', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   registerPlans: registerPlansMock,
 }))
 

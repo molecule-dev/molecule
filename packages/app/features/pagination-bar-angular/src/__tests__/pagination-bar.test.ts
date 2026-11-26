@@ -24,7 +24,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,7 +47,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The chevron the real Select renders; a bond-free icon so no icon set is
 // required in a unit test.
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: () => ({ paths: [{ d: 'M0 0h1v1H0z' }], viewBox: '0 0 16 16' }),
 }))
 
@@ -69,9 +71,10 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // The Button and Select the React suite mocks: native elements that keep the
 // contract (disabled attribute; `valueChange` carries the selected value), so
 // the bar's own wiring is what the assertions exercise.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, EventEmitter } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',

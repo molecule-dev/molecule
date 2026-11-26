@@ -9,7 +9,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockGetProvider } = vi.hoisted(() => ({ mockGetProvider: vi.fn() }))
-vi.mock('@molecule/app-keyboard-shortcuts', () => ({ getProvider: mockGetProvider }))
+vi.mock('@molecule/app-keyboard-shortcuts', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getProvider: mockGetProvider,
+}))
 
 import { type App, createApp, defineComponent, h, nextTick, ref } from 'vue'
 

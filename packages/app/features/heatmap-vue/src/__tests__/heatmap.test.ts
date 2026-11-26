@@ -18,7 +18,8 @@ import type { HeatmapProps } from '../types.js'
 
 // A ClassMap proxy echoing each accessed member back as its token, so the
 // component renders without a real bond — the same stub the React suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

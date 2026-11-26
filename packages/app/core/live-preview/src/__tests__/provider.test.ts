@@ -4,13 +4,15 @@ const { mockBond, mockBondGet, mockIsBonded } = vi.hoisted(() => ({
   mockIsBonded: vi.fn(),
 }))
 
-vi.mock('@molecule/app-bond', () => ({
+vi.mock('@molecule/app-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   bond: mockBond,
   get: mockBondGet,
   isBonded: mockIsBonded,
 }))
 
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (_key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,

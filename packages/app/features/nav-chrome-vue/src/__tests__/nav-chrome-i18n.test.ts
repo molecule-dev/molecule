@@ -16,7 +16,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type Component, createApp, defineComponent, h } from 'vue'
 
 // Class tokens echo their own name, so the assertion reads the attribute alone.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

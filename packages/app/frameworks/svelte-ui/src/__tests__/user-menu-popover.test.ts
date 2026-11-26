@@ -69,7 +69,8 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => {
 
 // getClassMap() → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields a callable that stringifies to its key.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

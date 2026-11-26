@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as CacheModule from '../cache.js'
 import type { UserPlanFields } from '../types.js'
 
-vi.mock('@molecule/api-database', () => {
+vi.mock('@molecule/api-database', async (importOriginal) => {
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     findById: vi.fn<(table: string, id: string) => Promise<UserPlanFields | null>>(),
   }
 })

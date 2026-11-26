@@ -20,7 +20,8 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Each ClassMap member echoes its own name; `toast(…)` is the one these components call.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -34,7 +35,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 

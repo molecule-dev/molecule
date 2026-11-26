@@ -6,7 +6,8 @@ import { defineComponent, type EffectScope, effectScope, h, nextTick, ref, shall
 import type { UseDeviceResult } from '../useDevice.js'
 import { useDevice } from '../useDevice.js'
 
-vi.mock('@molecule/app-device', () => ({
+vi.mock('@molecule/app-device', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

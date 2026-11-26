@@ -19,7 +19,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   useVerifyPaymentReturn: mockUseVerifyPaymentReturn,
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -36,7 +37,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({
     children,
     onClick: _onClick,
@@ -51,7 +53,8 @@ vi.mock('@molecule/app-ui-react', () => ({
   Spinner: () => createElement('span', { 'data-spinner': '' }),
 }))
 
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to }, children),
 }))

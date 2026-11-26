@@ -12,7 +12,8 @@ const { catalog } = vi.hoisted(() => ({ catalog: {} as Record<string, string> })
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `prose`),
 // so tests can assert which cm.* class was applied without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -57,7 +58,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: ({ name }: { name?: string }) => createElement('span', { 'data-icon': name }),
   // Render children only when open, like the real Modal — so a closed modal has
   // no body and an opened one exposes exactly what the footer put inside it.
@@ -65,7 +67,8 @@ vi.mock('@molecule/app-ui-react', () => ({
     open ? createElement('div', { 'data-modal': '' }, children) : null,
 }))
 
-vi.mock('@molecule/app-react/link', () => ({
+vi.mock('@molecule/app-react/link', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Link: ({ to, children }: { to: string; children?: ReactNode }) =>
     createElement('a', { href: to, 'data-link': '' }, children),
 }))

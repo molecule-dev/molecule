@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mocks — keep the bond isolated from the logger + i18n runtime.
 // ---------------------------------------------------------------------------
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     info: vi.fn(),
     warn: vi.fn(),
@@ -14,7 +15,8 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
     options?.defaultValue ?? key,
 }))

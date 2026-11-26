@@ -35,7 +35,8 @@ import type * as AppUiAngular from '@molecule/app-ui-angular'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `headerBar`),
 // so tests can assert which cm.* class was applied without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -62,6 +63,7 @@ vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { ElementPropsWriter } = await importOriginal<typeof AppUiAngular>()
   const { Component, TemplateRef } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     ElementPropsWriter,
     asTemplate: (value: unknown) => (value instanceof TemplateRef ? value : null),
     cn: (...inputs: (string | undefined | null | false)[]) => inputs.filter(Boolean).join(' '),

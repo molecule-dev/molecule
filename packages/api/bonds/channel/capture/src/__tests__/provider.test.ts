@@ -6,7 +6,8 @@ import type { ChannelProvider, OutboundMessage, SendResult } from '@molecule/api
 /** Typed as the real `record(event: ActivityEvent): Promise<void>` it replaces. */
 const record = vi.fn<(event: ActivityEvent) => Promise<void>>()
 
-vi.mock('@molecule/api-activity', () => ({
+vi.mock('@molecule/api-activity', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   record: (...args: Parameters<typeof record>) => record(...args),
 }))
 

@@ -24,7 +24,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -44,7 +45,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, TemplateRef } = await import('@angular/core')
   const MockAvatar = Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -78,6 +79,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     },
   )
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Avatar: MockAvatar,
     asTemplate: (value: unknown) => (value instanceof TemplateRef ? value : null),
   }

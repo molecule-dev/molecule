@@ -29,7 +29,8 @@ import { createMemoryRouter } from '@molecule/app-routing'
 
 // The same ClassMap proxy the React tests use: each accessed member echoes its
 // token back, so the component needs no real styling bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

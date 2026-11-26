@@ -14,7 +14,8 @@ import { type App, createApp, defineComponent, h } from 'vue'
 
 import type { ProgressRingsProps } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
   }),

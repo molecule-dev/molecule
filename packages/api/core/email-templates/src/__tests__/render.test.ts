@@ -2,8 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { renderTemplate as RenderTemplateFn } from '../render.js'
 
-vi.mock('@molecule/api-i18n', () => {
+vi.mock('@molecule/api-i18n', async (importOriginal) => {
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     t: vi.fn(
       (
         _key: string,

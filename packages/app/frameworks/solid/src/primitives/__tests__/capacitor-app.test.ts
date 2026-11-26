@@ -17,7 +17,8 @@ const mockApp = {
   destroy: vi.fn(),
 }
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createCapacitorApp: () => mockApp,
 }))
 

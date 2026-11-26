@@ -4,7 +4,8 @@ const { mockFindOne, mockCreate, mockUpdateMany } = vi.hoisted(() => ({
   mockUpdateMany: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   findOne: mockFindOne,
   create: mockCreate,
   updateMany: mockUpdateMany,

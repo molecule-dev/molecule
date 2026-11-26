@@ -5,7 +5,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // `internal` value is NOT public, and project paths needing URL-encoding.
 
 const http = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock('@molecule/api-http', () => http)
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  ...(await http),
+}))
 
 const { provider } = await import('../provider.js')
 

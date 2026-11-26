@@ -1,6 +1,7 @@
-vi.mock('@molecule/api-bond', () => {
+vi.mock('@molecule/api-bond', async (importOriginal) => {
   let store: Record<string, unknown> = {}
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     bond: vi.fn((type: string, provider: unknown) => {
       store[type] = provider
     }),

@@ -8,7 +8,8 @@ const { mockCreate, mockDeleteById, mockFindById, mockFindMany, mockFindOne, moc
     mockUpdateById: vi.fn(),
   }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   deleteById: mockDeleteById,
   findById: mockFindById,

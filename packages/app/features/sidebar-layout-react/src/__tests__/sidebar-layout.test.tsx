@@ -11,7 +11,8 @@ import { createMemoryRouter } from '@molecule/app-routing'
 // the component routes styling through `cm.*` tokens — and, crucially, that NO
 // raw Tailwind/Material-3 utility string is hardcoded (a hardcoded class would
 // appear verbatim in the markup instead of as a token name).
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

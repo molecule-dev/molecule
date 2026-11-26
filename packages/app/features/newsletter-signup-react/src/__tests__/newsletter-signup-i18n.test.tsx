@@ -13,7 +13,8 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -30,7 +31,8 @@ vi.mock('@molecule/app-ui', () => ({
       },
     ),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: ({ children, disabled }: { children?: React.ReactNode; disabled?: boolean }) =>
     createElement('button', { 'data-button': '', disabled }, children),
   Input: ({

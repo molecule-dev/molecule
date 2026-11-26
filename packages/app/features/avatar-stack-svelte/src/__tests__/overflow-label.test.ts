@@ -12,7 +12,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins tokens, calling function-valued
 // args first — the same mock avatar-stack.test.ts uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -34,9 +35,9 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `Avatar` is the only `@molecule/app-ui-svelte` dependency — the same stub
 // avatar-stack.test.ts uses.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Avatar } = await import('./stubs/AvatarStub.svelte')
-  return { Avatar }
+  return { ...(await importOriginal<Record<string, unknown>>()), Avatar }
 })
 
 import { flushSync, mount, unmount } from 'svelte'

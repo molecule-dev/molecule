@@ -17,7 +17,8 @@ import type { HttpInspectorProps } from '../types.js'
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,7 +47,7 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 
 // The UI markers, forwarding the attributes this suite asserts on:
 // aria-label, placeholder and translate.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   const button = defineComponent({
     name: 'MockButton',
@@ -108,7 +109,13 @@ vi.mock('@molecule/app-ui-vue', async () => {
         })
     },
   })
-  return { Button: button, Input: input, Select: select, Textarea: textarea }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Button: button,
+    Input: input,
+    Select: select,
+    Textarea: textarea,
+  }
 })
 
 const { HttpInspector } = await import('../HttpInspector.js')

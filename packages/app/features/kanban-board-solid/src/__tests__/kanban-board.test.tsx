@@ -15,7 +15,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* call was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -37,7 +38,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `Card` is the only `@molecule/app-ui-solid` dependency — stub it to a
 // <div data-card> that forwards className + children, like React's stub.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: (props: { children?: JSX.Element; className?: string }) => (
     <div data-card="" class={props.className}>
       {props.children}

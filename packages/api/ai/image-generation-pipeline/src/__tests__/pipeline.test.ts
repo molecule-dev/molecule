@@ -7,11 +7,13 @@ const { mockGetImageProvider, mockGetAIProvider, mockGetAIProviderByName, mockGe
     mockChat: vi.fn(),
   }))
 
-vi.mock('@molecule/api-ai-image-generation', () => ({
+vi.mock('@molecule/api-ai-image-generation', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: mockGetImageProvider,
 }))
 
-vi.mock('@molecule/api-ai', () => ({
+vi.mock('@molecule/api-ai', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: mockGetAIProvider,
   getProviderByName: mockGetAIProviderByName,
 }))

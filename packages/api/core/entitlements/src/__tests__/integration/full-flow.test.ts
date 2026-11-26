@@ -47,8 +47,9 @@ type UserRow = {
 
 const userStore = new Map<string, UserRow>()
 
-vi.mock('@molecule/api-database', () => {
+vi.mock('@molecule/api-database', async (importOriginal) => {
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     findById: vi.fn(async <T>(_table: string, id: string): Promise<T | null> => {
       const row = userStore.get(id)
       return (row ?? null) as T | null

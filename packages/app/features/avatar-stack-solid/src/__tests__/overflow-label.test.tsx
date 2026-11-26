@@ -13,7 +13,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock avatar-stack.test.tsx uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -35,7 +36,8 @@ vi.mock('@molecule/app-ui', () => ({
 
 // `Avatar` is the only `@molecule/app-ui-solid` dependency — the same stub
 // avatar-stack.test.tsx uses.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Avatar: (props: { src?: string; name?: string }) => (
     <img data-avatar={props.src ?? ''} data-avatar-name={props.name ?? ''} />
   ),

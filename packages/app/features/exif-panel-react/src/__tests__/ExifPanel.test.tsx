@@ -12,9 +12,10 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 // The map link is the element `Link`, whose anchor is `@molecule/app-react/link` and renders only
 // inside a mounted router. This file mounts none, so the anchor is drawn plain with what the
 // element passes it; the conformance golden test renders the real one.
-vi.mock('@molecule/app-react/link', async () => {
+vi.mock('@molecule/app-react/link', async (importOriginal) => {
   const { createElement } = await import('react')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Link: ({
       to,
       children,

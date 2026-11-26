@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // The same ClassMap mock the React tests use: enough of the map for the
 // component's class composition, without a real bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
     flex: () => 'flex',

@@ -20,7 +20,8 @@ const {
   mockHasEncryption: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   deleteById: mockDeleteById,
   findById: mockFindById,
@@ -29,7 +30,8 @@ vi.mock('@molecule/api-database', () => ({
   updateById: mockUpdateById,
 }))
 
-vi.mock('@molecule/api-encryption', () => ({
+vi.mock('@molecule/api-encryption', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   encrypt: mockEncrypt,
   decrypt: mockDecrypt,
   hasProvider: mockHasEncryption,

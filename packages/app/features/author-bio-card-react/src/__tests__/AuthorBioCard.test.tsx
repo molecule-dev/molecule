@@ -17,7 +17,8 @@ const { tOverride } = vi.hoisted(() => ({
   tOverride: { current: null as null | ((key: string) => string) },
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 
@@ -41,7 +42,8 @@ afterEach(() => {
   tOverride.current = null
 })
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Avatar: ({ src, name, size }: { src?: string; name?: string; size?: string }) => (
     <span data-testid="avatar" data-name={name} data-src={src} data-size={size} />
   ),

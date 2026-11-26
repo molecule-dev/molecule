@@ -20,15 +20,18 @@ const {
   mockVectorDelete: vi.fn(),
 }))
 
-vi.mock('@molecule/api-ai', () => ({
+vi.mock('@molecule/api-ai', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   requireProvider: mockRequireAI,
 }))
 
-vi.mock('@molecule/api-ai-embeddings', () => ({
+vi.mock('@molecule/api-ai-embeddings', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   requireProvider: mockRequireEmbeddings,
 }))
 
-vi.mock('@molecule/api-ai-vector-store', () => ({
+vi.mock('@molecule/api-ai-vector-store', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   requireProvider: mockRequireVectors,
 }))
 

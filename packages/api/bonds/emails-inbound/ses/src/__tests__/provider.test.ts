@@ -18,7 +18,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockSendMail = vi.fn()
 
-vi.mock('@molecule/api-emails', () => ({
+vi.mock('@molecule/api-emails', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   sendMail: (msg: unknown) => mockSendMail(msg),
 }))
 

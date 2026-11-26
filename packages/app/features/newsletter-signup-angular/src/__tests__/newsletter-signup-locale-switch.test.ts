@@ -29,7 +29,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -51,9 +52,10 @@ vi.mock('@molecule/app-ui', () => ({
 
 // The UI markers the React suite mocks `@molecule/app-ui-react` with: a
 // `data-button` button and a `data-input` field carrying the same attributes.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, inject, ElementRef } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',

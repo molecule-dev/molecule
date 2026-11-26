@@ -20,15 +20,18 @@ const { calls, pgliteMigrator } = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   bond: (...args: unknown[]) => calls.bond.push(args),
   getLogger: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }),
 }))
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   setPool: (p: unknown) => calls.setPool.push(p),
   setStore: (s: unknown) => calls.setStore.push(s),
 }))
-vi.mock('@molecule/api-database-pglite', () => ({
+vi.mock('@molecule/api-database-pglite', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   pool: { kind: 'pglite-pool' },
   store: { kind: 'pglite-store' },
   createMigrator: (dir: string) => {
@@ -36,58 +39,140 @@ vi.mock('@molecule/api-database-pglite', () => ({
     return pgliteMigrator.run
   },
 }))
-vi.mock('@molecule/api-payments-capture', () => ({ provider: { kind: 'payments-capture' } }))
-vi.mock('@molecule/api-emails', () => ({
+vi.mock('@molecule/api-payments-capture', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: { kind: 'payments-capture' },
+}))
+vi.mock('@molecule/api-emails', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   setTransport: (p: unknown) => calls.emails.push(p),
 }))
-vi.mock('@molecule/api-emails-capture', () => ({ provider: { kind: 'emails-capture' } }))
-vi.mock('@molecule/api-emails-mailgun', () => ({ provider: { kind: 'emails-mailgun' } }))
+vi.mock('@molecule/api-emails-capture', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: { kind: 'emails-capture' },
+}))
+vi.mock('@molecule/api-emails-mailgun', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: { kind: 'emails-mailgun' },
+}))
 
 // The setup module imports many other providers at load time; stub the rest.
-vi.mock('@molecule/api-config', () => ({ setProvider: vi.fn() }))
-vi.mock('@molecule/api-config-env', () => ({ provider: {} }))
-vi.mock('@molecule/api-database-postgresql', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-config-env', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-database-postgresql', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   pool: { kind: 'pg-pool' },
   store: { kind: 'pg-store' },
   createMigrator: vi.fn(),
 }))
-vi.mock('@molecule/api-jwt', () => ({ setProvider: vi.fn() }))
-vi.mock('@molecule/api-jwt-jsonwebtoken', () => ({ provider: {} }))
-vi.mock('@molecule/api-middleware-body-parser', () => ({
+vi.mock('@molecule/api-jwt', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-jwt-jsonwebtoken', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-middleware-body-parser', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   setBodyParser: vi.fn(),
   setJsonParserFactory: vi.fn(),
   setUploadParserFactory: vi.fn(),
 }))
-vi.mock('@molecule/api-middleware-body-parser-express', () => ({
+vi.mock('@molecule/api-middleware-body-parser-express', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   jsonParserFactory: vi.fn(),
   provider: {},
   uploadParserFactory: vi.fn(),
 }))
-vi.mock('@molecule/api-middleware-cookie-parser', () => ({
+vi.mock('@molecule/api-middleware-cookie-parser', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   setCookieParser: vi.fn(),
   setCookieParserFactory: vi.fn(),
 }))
-vi.mock('@molecule/api-middleware-cookie-parser-express', () => ({
+vi.mock('@molecule/api-middleware-cookie-parser-express', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   cookieParserFactory: vi.fn(),
   provider: {},
 }))
-vi.mock('@molecule/api-middleware-cors', () => ({ setCors: vi.fn(), setCorsFactory: vi.fn() }))
-vi.mock('@molecule/api-middleware-cors-express', () => ({ corsFactory: vi.fn(), provider: {} }))
-vi.mock('@molecule/api-password', () => ({ setProvider: vi.fn() }))
-vi.mock('@molecule/api-password-bcrypt', () => ({ provider: {} }))
-vi.mock('@molecule/api-payments-stripe', () => ({ paymentProvider: { kind: 'payments-stripe' } }))
-vi.mock('@molecule/api-resource-device', () => ({ deviceService: {} }))
-vi.mock('@molecule/api-resource-payment', () => ({ paymentRecordService: {}, planService: {} }))
-vi.mock('@molecule/api-search', () => ({ setProvider: vi.fn() }))
-vi.mock('@molecule/api-search-meilisearch', () => ({ provider: {} }))
-vi.mock('@molecule/api-search-postgres', () => ({ provider: {} }))
-vi.mock('@molecule/api-secrets', () => ({ registerSecrets: vi.fn(), setProvider: vi.fn() }))
-vi.mock('@molecule/api-secrets-env', () => ({ provider: {} }))
-vi.mock('@molecule/api-two-factor', () => ({ setProvider: vi.fn() }))
-vi.mock('@molecule/api-two-factor-otplib', () => ({ provider: {} }))
-vi.mock('@molecule/api-uploads', () => ({ setProvider: vi.fn() }))
-vi.mock('@molecule/api-uploads-filesystem', () => ({ provider: {} }))
-vi.mock('@molecule/api-uploads-s3', () => ({ provider: {} }))
+vi.mock('@molecule/api-middleware-cors', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setCors: vi.fn(),
+  setCorsFactory: vi.fn(),
+}))
+vi.mock('@molecule/api-middleware-cors-express', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  corsFactory: vi.fn(),
+  provider: {},
+}))
+vi.mock('@molecule/api-password', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-password-bcrypt', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-payments-stripe', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  paymentProvider: { kind: 'payments-stripe' },
+}))
+vi.mock('@molecule/api-resource-device', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  deviceService: {},
+}))
+vi.mock('@molecule/api-resource-payment', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  paymentRecordService: {},
+  planService: {},
+}))
+vi.mock('@molecule/api-search', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-search-meilisearch', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-search-postgres', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-secrets', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  registerSecrets: vi.fn(),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-secrets-env', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-two-factor', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-two-factor-otplib', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-uploads', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  setProvider: vi.fn(),
+}))
+vi.mock('@molecule/api-uploads-filesystem', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
+vi.mock('@molecule/api-uploads-s3', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  provider: {},
+}))
 
 import { createMigratorPglite } from '../migrate.js'
 import * as setup from '../setup.js'

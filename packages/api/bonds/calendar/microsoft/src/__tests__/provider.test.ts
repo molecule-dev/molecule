@@ -4,14 +4,16 @@
  * @module
  */
 
-vi.mock('@molecule/api-http', () => ({
+vi.mock('@molecule/api-http', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: vi.fn(),
   post: vi.fn(),
   patch: vi.fn(),
   del: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),

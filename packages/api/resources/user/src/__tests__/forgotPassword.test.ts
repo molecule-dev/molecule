@@ -18,14 +18,23 @@ const { mockGet, mockFindOne, mockUpdateById, mockGetConfig, mockSendMail } = vi
   mockSendMail: vi.fn(),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   getAnalytics: () => ({ track: () => ({ catch: () => undefined }) }),
   getLogger: () => ({ error: vi.fn(), warn: vi.fn(), info: vi.fn() }),
 }))
-vi.mock('@molecule/api-config', () => ({ get: mockGetConfig }))
-vi.mock('@molecule/api-database', () => ({ findOne: mockFindOne, updateById: mockUpdateById }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  get: mockGetConfig,
+}))
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  findOne: mockFindOne,
+  updateById: mockUpdateById,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, values?: Record<string, unknown>) =>
     values ? `${key} ${JSON.stringify(values)}` : key,
 }))

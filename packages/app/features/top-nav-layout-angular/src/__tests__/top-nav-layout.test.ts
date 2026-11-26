@@ -32,7 +32,7 @@ const locationState = vi.hoisted(() => ({ pathname: '/' }))
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `topNavLayoutRoot`), so tests can assert which cm.* class was applied
 // without a real bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   // The ClassMap members whose value is a class string (the rest are methods,
   // which the proxy answers as functions), so a token used as a class value
   // renders as it does under the bonded ClassMap.
@@ -48,6 +48,7 @@ vi.mock('@molecule/app-ui', () => {
     'topNavLayoutRoot',
   ])
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     getClassMap: () => {
       const handler: ProxyHandler<Record<string, unknown>> = {
         get(_t, prop) {

@@ -48,7 +48,8 @@ vi.mock('busboy', () => ({
   default: mockBusboy,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => ({
     error: vi.fn(),
     warn: vi.fn(),
@@ -57,7 +58,8 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, _values: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
 }))
 

@@ -13,9 +13,18 @@ const { mockGet, mockGetConfig, mockT } = vi.hoisted(() => ({
   mockT: vi.fn((key: string) => key),
 }))
 
-vi.mock('@molecule/api-bond', () => ({ get: mockGet }))
-vi.mock('@molecule/api-config', () => ({ get: mockGetConfig }))
-vi.mock('@molecule/api-i18n', () => ({ t: mockT }))
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  get: mockGet,
+}))
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  get: mockGetConfig,
+}))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: mockT,
+}))
 
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 

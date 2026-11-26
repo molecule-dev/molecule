@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: vi.fn(),
   deleteById: vi.fn(),
   findById: vi.fn(),
@@ -9,16 +10,19 @@ vi.mock('@molecule/api-database', () => ({
   updateById: vi.fn(),
   count: vi.fn(),
 }))
-vi.mock('@molecule/api-resource', () => ({
+vi.mock('@molecule/api-resource', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getUserId: vi.fn(),
   requireUser: vi.fn(),
   getParamId: vi.fn(),
   idParamSchema: { parse: vi.fn() },
 }))
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (_k: string, _v: unknown, opts: { defaultValue?: string }) => opts?.defaultValue ?? '',
 }))
-vi.mock('@molecule/api-middleware-validation', () => ({
+vi.mock('@molecule/api-middleware-validation', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   validateBody: () => (_req: unknown, _res: unknown, next: () => void) => next(),
   validateQuery: () => (_req: unknown, _res: unknown, next: () => void) => next(),
   validateParams: () => (_req: unknown, _res: unknown, next: () => void) => next(),

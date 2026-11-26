@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // simulate SPA navigation, then re-render.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

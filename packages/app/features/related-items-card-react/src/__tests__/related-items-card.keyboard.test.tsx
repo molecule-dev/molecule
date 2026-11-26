@@ -12,7 +12,8 @@ import { act, createElement, type ReactElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop): (...args: unknown[]) => string {
@@ -36,7 +37,8 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Card: ({ children, className }: { children?: ReactNode; className?: string }) =>
     createElement('div', { 'data-card': '', className }, children),
 }))

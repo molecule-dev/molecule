@@ -37,7 +37,8 @@ const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
 // for method-style props (`cm.stack(4)`) and usable bare (`cm.prose`). `cn`
 // joins tokens exactly as the real ClassMap does. The same mock the React
 // tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -101,7 +102,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, EventEmitter } = await import('@angular/core')
   const Button = Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -143,7 +144,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
       readonly close = new EventEmitter<unknown>()
     },
   )
-  return { Button, Flex, Spinner, Modal }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Flex, Spinner, Modal }
 })
 
 const { ContentPageShell } = await import('../content-page-shell.component.js')

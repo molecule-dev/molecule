@@ -54,7 +54,8 @@ vi.mock('pino', () => ({
   default: mockPino,
 }))
 
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Type exports only, no runtime values needed
 }))
 

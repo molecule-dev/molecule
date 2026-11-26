@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { ReputationBadgeProps, ReputationLevel } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 
@@ -32,7 +33,8 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-svelte', async () => ({
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Badge: (await import('./ui-badge-stub.svelte')).default,
 }))
 

@@ -18,7 +18,8 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import SocialShareButtons from '../SocialShareButtons.svelte'
 import type { SocialShareButtonsProps } from '../types.js'
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

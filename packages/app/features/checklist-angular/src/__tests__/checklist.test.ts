@@ -28,7 +28,7 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // bond — the same tokens the React tests' proxy produces. Angular binds
 // static tokens and method results to `[class]`, so the tokens are strings
 // here (Angular's class binding rejects a function).
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   const cn = (...cls: unknown[]): string =>
     cls
       .flat(Infinity)
@@ -36,6 +36,7 @@ vi.mock('@molecule/app-ui', () => {
       .filter((c) => typeof c === 'string' && c.length > 0)
       .join(' ')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     getClassMap: () => ({
       cn,
       stack: () => 'stack',
@@ -54,9 +55,10 @@ vi.mock('@molecule/app-ui', () => {
 
 // The Checkbox marker the React tests mock `@molecule/app-ui-react` with: an
 // input carrying `data-checkbox`.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Checkbox: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'div[mol-checkbox]',

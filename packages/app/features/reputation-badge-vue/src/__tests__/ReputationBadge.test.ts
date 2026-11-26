@@ -10,7 +10,8 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => buildStubClassMap(),
 }))
 
@@ -29,10 +30,11 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   const { getClassMap } = await import('@molecule/app-ui')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Badge: defineComponent({
       name: 'Badge',
       props: { color: String },

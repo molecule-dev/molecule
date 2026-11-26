@@ -11,7 +11,8 @@ import { describe, expect, it, vi } from 'vitest'
 // `useOAuth` is hoisted so tests can vary the provider list.
 const { mockUseOAuth } = vi.hoisted(() => ({ mockUseOAuth: vi.fn() }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -43,7 +44,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   useOAuth: mockUseOAuth,
 }))
 
-vi.mock('@molecule/app-oauth-logos-react', () => ({
+vi.mock('@molecule/app-oauth-logos-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthProviderLogo: ({ provider }: { provider: string }) =>
     createElement('svg', { 'data-logo': '', 'data-provider': provider }),
 }))

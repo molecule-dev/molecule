@@ -21,7 +21,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => {
     }),
   }
 })
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
     sp: () => '',
     cn: (...parts: string[]) => parts.join(' '),
@@ -32,7 +33,8 @@ vi.mock('@molecule/app-ui', () => ({
     textError: '',
   }),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Flex: (props: React.HTMLAttributes<HTMLDivElement>) => <div {...props} />,
   Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => <input {...props} />,
   Spinner: () => <output aria-label="Saving" />,

@@ -28,7 +28,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // tests can assert *which* cm.* member a class came from (e.g. `textError`,
 // `borderAll`) without depending on the Tailwind bond's concrete strings — the
 // same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -51,9 +52,10 @@ vi.mock('@molecule/app-ui', () => ({
 // A Button marker that shows the popover can be opened: the host IS a native
 // <button> (as `button[mol-button]` is), so its click and every pass-through
 // attribute behave as the React suite's Button mock does.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',

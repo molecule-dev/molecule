@@ -12,7 +12,8 @@ import type {
   TokenChangeListener,
 } from '@molecule/app-push'
 
-vi.mock('@molecule/app-push', () => ({
+vi.mock('@molecule/app-push', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

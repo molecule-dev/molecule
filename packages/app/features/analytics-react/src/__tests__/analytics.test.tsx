@@ -9,7 +9,10 @@ const { mockPage, mockUseLocation } = vi.hoisted(() => ({
   mockUseLocation: vi.fn(),
 }))
 
-vi.mock('@molecule/app-analytics', () => ({ page: mockPage }))
+vi.mock('@molecule/app-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  page: mockPage,
+}))
 vi.mock('@molecule/app-react', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useLocation: mockUseLocation,

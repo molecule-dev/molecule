@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Component, createApp, defineComponent, h } from 'vue'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins truthy strings.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

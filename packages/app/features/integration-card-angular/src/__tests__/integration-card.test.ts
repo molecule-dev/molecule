@@ -32,7 +32,8 @@ const { i18nState } = vi.hoisted(() => ({ i18nState: { dict: {} as Record<string
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `shrink0`), so tests can assert which cm.* class was applied without a real
 // bond.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -64,9 +65,10 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 
 // The UI mocks render the same `<button data-button>` the React suite installs
 // for `@molecule/app-ui-react`, plus React's inline-style serialization.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     styleText: (style?: Record<string, unknown>): string | null => {
       if (!style) return null
       const parts = Object.entries(style)

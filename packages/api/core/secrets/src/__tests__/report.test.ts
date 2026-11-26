@@ -3,7 +3,8 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   bond: vi.fn(),
   get: vi.fn(() => null),
   isBonded: vi.fn(() => false),

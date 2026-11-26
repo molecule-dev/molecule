@@ -6,8 +6,9 @@ import type * as ProviderModule from '../provider.js'
 import type * as RegistryModule from '../registry.js'
 import type { UserPlanFields } from '../types.js'
 
-vi.mock('@molecule/api-database', () => {
+vi.mock('@molecule/api-database', async (importOriginal) => {
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     findById: vi.fn<(table: string, id: string) => Promise<UserPlanFields | null>>(),
   }
 })

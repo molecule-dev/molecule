@@ -6,7 +6,8 @@ import type { DatabaseReportProvider, ReportDelivery, StoredSchedule } from '../
 
 const mockQuery = vi.fn().mockResolvedValue({ rows: [] })
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   query: (...args: unknown[]) => mockQuery(...args),
 }))
 

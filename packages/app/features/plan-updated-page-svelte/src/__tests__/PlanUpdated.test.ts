@@ -20,7 +20,8 @@ const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `page`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -41,7 +42,8 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // A bonded glyph, so the real `Icon` renders an `<svg>` without warning.
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: () => ({ paths: [{ d: 'M0 0h1v1H0z' }], viewBox: '0 0 20 20' }),
 }))
 

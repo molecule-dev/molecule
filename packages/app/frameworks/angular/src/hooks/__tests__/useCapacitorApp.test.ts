@@ -62,7 +62,8 @@ const createMockApp = () => {
 
 let mockApp: ReturnType<typeof createMockApp>
 
-vi.mock('@molecule/app-platform', () => ({
+vi.mock('@molecule/app-platform', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createCapacitorApp: vi.fn(() => mockApp),
 }))
 

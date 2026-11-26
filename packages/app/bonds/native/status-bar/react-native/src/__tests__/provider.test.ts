@@ -4,7 +4,8 @@
  * @module
  */
 
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: vi.fn(
     (_key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
@@ -32,7 +33,9 @@ vi.mock('react-native', () => ({
   Platform: mockPlatform,
 }))
 
-vi.mock('@molecule/app-status-bar', () => ({}))
+vi.mock('@molecule/app-status-bar', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

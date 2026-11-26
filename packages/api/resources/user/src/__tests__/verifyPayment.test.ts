@@ -21,16 +21,21 @@ const { mockGet, mockRequire, mockGetAnalytics, mockGetLogger, mockT, mockUpdate
   }),
 )
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   require: mockRequire,
   getAnalytics: mockGetAnalytics,
   getLogger: mockGetLogger,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({ t: mockT }))
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  t: mockT,
+}))
 
-vi.mock('@molecule/api-resource', () => ({
+vi.mock('@molecule/api-resource', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   update: vi.fn(() => mockUpdateFn),
 }))
 

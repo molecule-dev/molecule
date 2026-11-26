@@ -23,7 +23,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryRouter } from '@molecule/app-routing'
 
 // The same ClassMap token proxy the package's other unit tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

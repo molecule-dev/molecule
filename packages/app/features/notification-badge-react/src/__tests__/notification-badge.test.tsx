@@ -6,7 +6,8 @@ import type { NotificationWrapperProps } from '../NotificationWrapper.js'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields its key as a string token, so emitted classNames are inspectable.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

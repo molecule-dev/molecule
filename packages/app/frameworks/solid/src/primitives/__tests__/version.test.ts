@@ -20,7 +20,8 @@ const mockProvider = {
   destroy: vi.fn(),
 }
 
-vi.mock('@molecule/app-version', () => ({
+vi.mock('@molecule/app-version', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: () => mockProvider,
 }))
 

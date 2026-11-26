@@ -19,7 +19,8 @@ const mockQuery = vi
   .fn<(text: string, values: unknown[]) => Promise<MockQueryResult>>()
   .mockResolvedValue({ rows: [] })
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   query: (text: string, values: unknown[]) => mockQuery(text, values),
 }))
 

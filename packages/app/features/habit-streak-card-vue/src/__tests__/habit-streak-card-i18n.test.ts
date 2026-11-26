@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token — the same
 // mock the React suite uses.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -40,9 +41,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   useTranslation: () => ({ t: (key: string) => `«${key}»` }),
 }))
 
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Card: defineComponent({
       name: 'Card',
       props: { className: String },

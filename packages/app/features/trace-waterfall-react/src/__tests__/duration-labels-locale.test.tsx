@@ -21,7 +21,8 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { TraceWaterfallProps } from '../TraceWaterfall.js'
 import type { Span } from '../types.js'
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

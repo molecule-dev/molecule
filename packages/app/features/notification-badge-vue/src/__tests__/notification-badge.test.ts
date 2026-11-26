@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // `getClassMap()` → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields its key as a string token, so emitted classNames are inspectable —
 // the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

@@ -13,7 +13,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,9 +47,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 // The markers the React tests mock `@molecule/app-ui-react` with: a
 // `data-card` div carrying its className and data-mol-id, a `data-button`
 // button, and a `data-switch` checkbox.
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: defineComponent({
       name: 'Button',
       props: { variant: String, size: String, onClick: { type: Function, default: undefined } },
@@ -96,7 +98,8 @@ vi.mock('@molecule/app-ui-vue', async () => {
 
 import { createApp, defineComponent, h, nextTick, type VNodeChild } from 'vue'
 
-vi.mock('@molecule/app-clipboard', () => ({
+vi.mock('@molecule/app-clipboard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   copyTextWithFallback: vi.fn(async () => true),
 }))
 

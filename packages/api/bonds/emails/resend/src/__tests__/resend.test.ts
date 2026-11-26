@@ -9,7 +9,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock the global fetch the transport uses (no SDK — the bond is dependency-free).
 const mockFetch = vi.fn<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
 
-vi.mock('@molecule/api-emails', () => ({}))
+vi.mock('@molecule/api-emails', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 /**
  * Builds a JSON `Response` the way Resend answers.

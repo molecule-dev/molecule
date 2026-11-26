@@ -10,7 +10,8 @@ import type {
   ScreenInfo,
 } from '@molecule/app-device'
 
-vi.mock('@molecule/app-device', () => ({
+vi.mock('@molecule/app-device', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

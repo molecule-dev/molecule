@@ -24,7 +24,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // Same cm / Icon / ConfirmDialog mocks as smoke.test.ts: class tokens echo
 // their own name, Icon records its glyph, ConfirmDialog renders only when open.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {

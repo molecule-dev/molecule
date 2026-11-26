@@ -31,7 +31,8 @@ const {
   }
 })
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   deleteById: mockDeleteById,
   deleteMany: mockDeleteMany,
@@ -41,7 +42,8 @@ vi.mock('@molecule/api-database', () => ({
   updateById: mockUpdateById,
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: mockGetLogger,
   getAnalytics: mockGetAnalytics,
 }))

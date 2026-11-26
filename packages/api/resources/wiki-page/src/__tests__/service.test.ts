@@ -20,7 +20,8 @@ const {
   mockIndex: vi.fn(),
 }))
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   count: mockCount,
   create: mockCreate,
   deleteById: mockDeleteById,
@@ -30,7 +31,8 @@ vi.mock('@molecule/api-database', () => ({
   updateById: mockUpdateById,
 }))
 
-vi.mock('@molecule/api-search', () => ({
+vi.mock('@molecule/api-search', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   hasProvider: mockHasSearch,
   index: mockIndex,
 }))

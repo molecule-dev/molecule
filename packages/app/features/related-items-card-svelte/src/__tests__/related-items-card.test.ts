@@ -12,7 +12,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins tokens, calling function-valued
 // args first — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -34,9 +35,9 @@ vi.mock('@molecule/app-ui', () => ({
 
 // app-ui-svelte's Card, stubbed with the `data-card` marker the React suite's
 // `@molecule/app-ui-react` stub renders.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Card } = await import('./stubs/CardStub.svelte')
-  return { Card }
+  return { ...(await importOriginal<Record<string, unknown>>()), Card }
 })
 
 import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'

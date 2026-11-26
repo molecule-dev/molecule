@@ -24,7 +24,8 @@ import { provideDomPlacement } from '@molecule/app-angular'
 
 // Class tokens echo their own name; Icon records its glyph; ConfirmDialog shows
 // its title and description while open — the same mocks the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},

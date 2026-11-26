@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createPushStores } from '../push.js'
 
-vi.mock('@molecule/app-push', () => ({
+vi.mock('@molecule/app-push', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: vi.fn(),
 }))
 

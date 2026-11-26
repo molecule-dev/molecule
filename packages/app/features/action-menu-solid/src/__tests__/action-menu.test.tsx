@@ -18,7 +18,8 @@ import type { ActionMenuProps } from '../types.js'
 // tests can assert *which* cm.* member a class came from (e.g. `textError`,
 // `borderAll`) without depending on the Tailwind bond's concrete strings — the
 // same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -41,7 +42,8 @@ vi.mock('@molecule/app-ui', () => ({
 // A Button marker that shows the popover can be opened: it forwards the click
 // and every pass-through attribute (aria-*, data-mol-id) onto a native
 // <button>, as the React suite's Button mock does.
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Button: (props: {
     children?: JSX.Element
     onClick?: () => void

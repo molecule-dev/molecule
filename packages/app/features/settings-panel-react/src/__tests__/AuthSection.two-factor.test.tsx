@@ -22,13 +22,15 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
       options?.defaultValue ?? key,
   }),
 }))
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy({} as Record<string, unknown>, {
       get: (_target, prop) => (prop === 'cn' ? () => '' : () => ''),
     }),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Alert: ({ children }: { children?: ReactNode }) => <div role="alert">{children}</div>,
   Button: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) => (
     <button type="button" onClick={onClick}>

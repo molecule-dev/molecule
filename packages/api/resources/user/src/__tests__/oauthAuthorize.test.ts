@@ -18,7 +18,8 @@ const { mockGet, mockGetConfig, mockT } = vi.hoisted(() => ({
   mockT: vi.fn((key: string) => key),
 }))
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGet,
   getAnalytics: vi.fn(() => ({
     track: vi.fn(() => ({ catch: vi.fn() })),
@@ -32,17 +33,20 @@ vi.mock('@molecule/api-bond', () => ({
   })),
 }))
 
-vi.mock('@molecule/api-config', () => ({
+vi.mock('@molecule/api-config', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   get: mockGetConfig,
 }))
 
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: mockT,
 }))
 
 // authorization.ts (imported transitively) pulls in api-jwt at module scope;
 // mock it the same way handlers.test.ts does so the import stays inert.
-vi.mock('@molecule/api-jwt', () => ({
+vi.mock('@molecule/api-jwt', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   sign: vi.fn(() => 'mock-jwt-token'),
   decode: vi.fn(),
   verify: vi.fn(),
