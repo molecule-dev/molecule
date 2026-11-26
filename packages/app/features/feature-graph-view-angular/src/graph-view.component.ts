@@ -153,9 +153,8 @@ interface RenderableEdge {
                     [attr.opacity]="isSelected(node) ? 1 : 0.75"
                     [style.pointer-events]="'none'"
                     [style.user-select]="'none'"
-                  >
-                    {{ node.label }}
-                  </text>
+                    [textContent]="node.label"
+                  ></text>
                 </g>
               }
             </g>
