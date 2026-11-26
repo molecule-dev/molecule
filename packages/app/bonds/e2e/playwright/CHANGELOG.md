@@ -1,5 +1,11 @@
 # @molecule/app-e2e-playwright
 
+## 1.1.1
+
+### Patch Changes
+
+- Checks a read-only browser cache for the requested browser instead of running an installer that cannot lock it.
+
 ## 1.1.0
 
 ### Minor Changes

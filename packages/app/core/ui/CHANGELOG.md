@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.14.0
+
+### Minor Changes
+
+- Support separate file browse triggers and configurable browser drop behavior.
+
 ## 1.13.0
 
 ### Minor Changes

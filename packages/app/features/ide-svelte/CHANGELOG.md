@@ -1,5 +1,11 @@
 # @molecule/app-ide-svelte
 
+## 2.0.5
+
+### Patch Changes
+
+- Restore readable spacing before dirty tab markers and verification advisories.
+
 ## 2.0.4
 
 ### Patch Changes

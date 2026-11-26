@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.12.0
+
+### Minor Changes
+
+- Support a hidden file picker shared by multiple browse buttons and a configurable browser drop target.
+
 ## 4.11.0
 
 ### Minor Changes

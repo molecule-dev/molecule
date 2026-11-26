@@ -1,5 +1,11 @@
 # @molecule/app-ui-solid
 
+## 1.10.0
+
+### Minor Changes
+
+- Open the file chooser from a separate button by calling `pick()` on the handle passed to FileField's `ref`.
+
 ## 1.9.0
 
 ### Minor Changes

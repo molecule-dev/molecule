@@ -167,7 +167,7 @@
     "@molecule/app-storage-localstorage": "1.1.2",
     "@molecule/app-theme": "1.0.4",
     "@molecule/app-theme-css-variables": "1.0.6",
-    "@molecule/app-ui": "1.13.0",
+    "@molecule/app-ui": "1.14.0",
     "@molecule/app-ui-tailwind": "1.5.1",
     "@molecule/app-video-hls": "1.0.3",
     "@molecule/app-virtual-scroll": "1.0.4",

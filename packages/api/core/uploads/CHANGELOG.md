@@ -1,5 +1,11 @@
 # @molecule/api-uploads
 
+## 1.4.1
+
+### Patch Changes
+
+- End the Quick Start with a curl upload and download that checks the route.
+
 ## 1.4.0
 
 ### Minor Changes

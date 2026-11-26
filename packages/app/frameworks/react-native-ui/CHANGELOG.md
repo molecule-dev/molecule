@@ -1,5 +1,11 @@
 # @molecule/app-ui-react-native
 
+## 2.0.1
+
+### Patch Changes
+
+- Publish without an `./elements` entry point, since the package does not ship native elements yet.
+
 ## 2.0.0
 
 ### Major Changes

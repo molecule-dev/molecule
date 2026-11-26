@@ -1,5 +1,11 @@
 # @molecule/app-embeddable-chat-widget-angular
 
+## 1.1.2
+
+### Patch Changes
+
+- Keep a line of space in the reply bubble while embedded chat waits for its first text.
+
 ## 1.1.1
 
 ### Patch Changes

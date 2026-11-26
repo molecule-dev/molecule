@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.9.0
+
+### Minor Changes
+
+- Open the file chooser from a separate button by calling `pick()` on FileField's template ref.
+
 ## 1.8.0
 
 ### Minor Changes

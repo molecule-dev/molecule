@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.11.0
+
+### Minor Changes
+
+- Open the file chooser from a separate button by calling `pick()` on the FileField instance returned by a view query.
+
 ## 1.10.0
 
 ### Minor Changes

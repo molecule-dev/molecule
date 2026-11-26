@@ -1,5 +1,11 @@
 # @molecule/app-survey-question-react
 
+## 5.0.0
+
+### Major Changes
+
+- Return portable `PickedFile` batches for file-upload answers and type unanswered optional submissions as `undefined`.
+
 ## 4.0.1
 
 ### Patch Changes

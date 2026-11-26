@@ -1,5 +1,11 @@
 # @molecule/app-feature-audio-effects-rack-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- Restore the Add effect placeholder after an invalid selection.
+
 ## 1.1.0
 
 ### Minor Changes

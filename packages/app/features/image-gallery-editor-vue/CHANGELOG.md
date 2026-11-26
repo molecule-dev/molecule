@@ -1,5 +1,11 @@
 # @molecule/app-image-gallery-editor-vue
 
+## 2.0.0
+
+### Major Changes
+
+- The gallery passes `readonly PickedFile[]` to `onPickFiles` and automatically releases its local previews.
+
 ## 1.1.1
 
 ### Patch Changes

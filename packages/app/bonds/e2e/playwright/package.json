@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-e2e-playwright",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Real Playwright browsers for the e2e bond — the user's machine and CI",
   "type": "module",
   "main": "dist/index.js",

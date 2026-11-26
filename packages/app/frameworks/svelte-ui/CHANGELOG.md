@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.10.0
+
+### Minor Changes
+
+- Open the file chooser from a separate button by calling `pick()` on the FileField instance bound with `bind:this`.
+
 ## 1.9.0
 
 ### Minor Changes

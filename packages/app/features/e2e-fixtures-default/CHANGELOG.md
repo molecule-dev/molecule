@@ -1,5 +1,12 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-e2e-playwright@1.1.1
+
 ## 1.2.7
 
 ### Patch Changes

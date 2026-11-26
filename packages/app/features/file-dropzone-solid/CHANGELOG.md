@@ -1,5 +1,11 @@
 # @molecule/app-file-dropzone-solid
 
+## 2.0.0
+
+### Major Changes
+
+- File selection and rejection callbacks now receive `readonly PickedFile[]` for portable uploads.
+
 ## 1.1.2
 
 ### Patch Changes

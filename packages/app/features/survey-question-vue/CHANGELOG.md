@@ -1,5 +1,11 @@
 # @molecule/app-survey-question-vue
 
+## 2.0.0
+
+### Major Changes
+
+- File-upload answers now use `readonly PickedFile[]`, and optional unanswered questions submit `undefined`.
+
 ## 1.1.0
 
 ### Minor Changes
