@@ -286,7 +286,11 @@ export async function runPool(count, limit, task, stop = () => false) {
  * tests failed in the release's CI scope, "Failed to load tsconfig '$app/tsconfig'", while each
  * passed in the package). Imported into a group config as inline projects, the same kit projects
  * still failed (the hash-routing app's pages did not render), and they pass whenever Vitest loads
- * the file itself. So each such config is a group of its own, run with `--config` set to it.
+ * the file itself. So each such config is a group of its own, run with `--config` set to it and
+ * from its own directory: Vitest resolves a project's relative `include` and `exclude` against the
+ * directory it starts in, so started at the repository root a kit's `exclude` of its SSR test
+ * matched nothing and the test ran in the browser project (2026-11-26, app-ui-solid in CI:
+ * "window is not defined").
  *
  * A config is imported only when its text names `projects`, which every such config must;
  * one exported as a function is read as declaring none.
@@ -345,9 +349,9 @@ export async function runGrouped(args, options = {}) {
     failFast = process.env.MOL_VITEST_FAIL_FAST === '1',
     testTimeout = process.env.MOL_VITEST_TEST_TIMEOUT_MS,
     priority = JSON.parse(process.env.MOL_VITEST_PRIORITY || '[]'),
-    run = (vitestArgs, { output } = {}) =>
+    run = (vitestArgs, { output, cwd = root } = {}) =>
       runVitest(vitestArgs, {
-        cwd: root,
+        cwd,
         createRoot: () => createRunRoot({ base }),
         spawnImpl: output ? spawnTo(output) : spawn,
       }),
@@ -437,7 +441,7 @@ export async function runGrouped(args, options = {}) {
             ...reporters,
             ...filters,
           ],
-          { output },
+          { output, cwd: ownsRun(group[0]) ? dirname(config) : root },
         )
         if (output)
           for (const stream of ['stdout', 'stderr'])

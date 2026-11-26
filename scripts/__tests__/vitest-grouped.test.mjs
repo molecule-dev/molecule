@@ -37,7 +37,7 @@ const fixtures = []
  * seventh package's config declares two projects of its own (`one`, `two`), each with its own
  * `dir` and provided value, as the SvelteKit routing bond's three kit apps do.
  */
-function fixture({ red = [], slow = [], timed = {}, nested = false } = {}) {
+function fixture({ red = [], slow = [], timed = {}, nested = false, split = false } = {}) {
   fs.mkdirSync(scratch, { recursive: true })
   const dir = fs.mkdtempSync(path.join(scratch, 'repo-'))
   fixtures.push(dir)
@@ -90,6 +90,19 @@ function fixture({ red = [], slow = [], timed = {}, nested = false } = {}) {
       'packages/api/core/nested/src/__tests__/cases/flavor.test.ts',
       "import {inject,it,expect} from 'vitest';it('nested flavor',()=>{const flavor=inject('flavor');expect(['one','two']).toContain(flavor);})\n",
     )
+  }
+  if (split) {
+    // Shaped like the web kits' SSR split: the main project keeps Vitest's default include and
+    // excludes one file by a path relative to the package, which a project of its own includes.
+    write(
+      'packages/api/core/split/vitest.config.ts',
+      "import {defineConfig} from 'vitest/config';const only='src/__tests__/only.test.ts';export default defineConfig({test:{projects:[{test:{name:'split-main',exclude:['**/node_modules/**',only],provide:{flavor:'main'},environment:'node'}},{test:{name:'split-only',include:[only],provide:{flavor:'only'},environment:'node'}}]}})\n",
+    )
+    for (const flavor of ['main', 'only'])
+      write(
+        `packages/api/core/split/src/__tests__/${flavor}.test.ts`,
+        `import {inject,it,expect} from 'vitest';it('split ${flavor}',()=>expect(inject('flavor')).toBe('${flavor}'))\n`,
+      )
   }
   fs.mkdirSync(path.join(dir, 'tmp'))
   fs.symlinkSync(path.dirname(path.dirname(vitestBin(ROOT))), path.join(dir, 'node_modules'), 'dir')
@@ -348,6 +361,19 @@ describe('grouped Vitest runs', () => {
     expect(events(result).filter((event) => !event.exit)).toHaveLength(2)
     expect(out).toMatch(/Test Files {2}2 passed \(2\)/)
     expect(out).toMatch(/Test Files {2}1 passed \(1\)/)
+  })
+
+  it('runs a config that declares projects of its own from its own directory', () => {
+    // 2026-11-26: run from the repository root, the kit configs' relative patterns matched
+    // nothing, so solid-ui's SSR test ran in its browser project and failed in CI
+    // ("window is not defined"); every such pattern is relative to the package, as Vitest
+    // reads it when started there.
+    const { run } = fixture({ split: true })
+    const result = run(['packages/api/core/split'])
+    const out = result.stdout + result.stderr
+    expect(result.status, out).toBe(0)
+    // Each file checks the project it ran in; run in the wrong one, it fails.
+    expect(out).toMatch(/Test Files {2}2 passed \(2\)/)
   })
 
   it('runs Vitest unchanged when a filter names no project path', () => {
