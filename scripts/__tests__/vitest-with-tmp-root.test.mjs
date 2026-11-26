@@ -54,7 +54,9 @@ describe('the wiring', () => {
     expect(grouped).toContain(
       "import { createRunRoot, runVitest } from './vitest-with-tmp-root.mjs'",
     )
-    expect(grouped).toMatch(/runVitest\(vitestArgs, \{\s*cwd: root,\s*createRoot: /)
+    // The working directory is the group's own (a config that declares projects runs from its
+    // directory, see vitest-grouped.test.mjs); the confined root is what this wiring guarantees.
+    expect(grouped).toMatch(/runVitest\(vitestArgs, \{\s*cwd,\s*createRoot: /)
   })
 
   it('resolves a real Vitest entry for this repo', () => {
