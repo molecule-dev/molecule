@@ -211,6 +211,15 @@ export const fileDropzoneFeature: FeatureCases = {
           ],
         },
         {
+          name: 'choosing the same file again delivers it again',
+          recordFileMetadata: true,
+          callbacks: ['onFiles', 'onRejected'],
+          interactions: [
+            { type: 'chooseFiles', selector: 'input[type="file"]', files: [pdf] },
+            { type: 'chooseFiles', selector: 'input[type="file"]', files: [pdf] },
+          ],
+        },
+        {
           name: 'prop changes toggle disabled and accept',
           recordFileMetadata: true,
           props: { disabled: true },
