@@ -16,6 +16,9 @@ const txt = { name: 'notes.txt', type: 'text/plain', content: 'notes' }
 /** The file selection element's reference DOM and callback behavior. */
 export const fileField: UIComponentCases = {
   component: 'FileField',
+  handle: {
+    pick: { observeEvent: 'click', repeatWithProps: [{ disabled: true }, { disabled: false }] },
+  },
   cases: [
     {
       name: 'browse delivers both files in selection order',

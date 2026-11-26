@@ -211,12 +211,12 @@ async function runReactCase(
       ]),
     )
   // A ref case hands the component a ref, as a caller does (`ref={r}`).
-  const refObject = createRef<Element>()
+  const refObject = createRef<unknown>()
   let props: Record<string, unknown> = {
     ...reactProps(testCase.props ?? {}),
     ...slotProps(lists.slots),
     ...callbacks,
-    ...(testCase.ref ? { ref: refObject } : {}),
+    ...(testCase.ref || testCase.handle ? { ref: refObject } : {}),
   }
 
   // The case's memory router, as the port adapters mount it: app-react's `RouterProvider` over
@@ -285,7 +285,8 @@ async function runReactCase(
             return `${pathname}${search}`
           },
           locationState: () => router.getLocation().state,
-          refElement: () => refObject.current,
+          refElement: () => (refObject.current instanceof Element ? refObject.current : null),
+          refHandle: () => refObject.current,
           navigate: (to) => {
             router.navigate(to)
           },

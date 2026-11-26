@@ -537,6 +537,8 @@ export interface MountedCase {
    * {@link UICase.ref}). Required by a case that sets `ref`.
    */
   refElement?(): Element | null
+  /** The component's public handle through the kit's own ref API (see {@link UICase.handle}). */
+  refHandle?(): unknown
 }
 
 /**
@@ -700,6 +702,7 @@ async function tearDownCase(
 const CASE_FIELDS: FieldsOf<UICase> = {
   name: 'required',
   ref: 'optional',
+  handle: 'optional',
   props: 'optional',
   children: 'optional',
   slots: 'optional',
@@ -745,6 +748,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   children: { children: 'optional', slots: 'optional' },
   settle: { callback: 'required', value: 'optional', error: 'optional' },
   invoke: { callback: 'required', path: 'required', args: 'optional' },
+  invokeHandle: { method: 'required', args: 'optional', observeEvent: 'optional' },
   navigate: { to: 'required' },
   lifetime: { name: 'required' },
   event: { selector: 'required', event: 'required', bubbles: 'optional' },
@@ -808,6 +812,41 @@ const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'localStorage',
   'remount',
 ])
+
+/**
+ * Calls a method as a caller holding the component ref would. If an event is observed, record
+ * every target so targeting the wrong element or firing twice produces a different snapshot.
+ *
+ * @param step - The method, arguments and event to observe.
+ * @param mounted - The adapter's mounted component.
+ * @param caseName - The case reporting a missing method.
+ * @returns The event targets for the snapshot, if requested.
+ */
+async function invokeHandle(
+  { method, args, observeEvent }: Extract<Interaction, { type: 'invokeHandle' }>,
+  mounted: MountedCase,
+  caseName: string,
+): Promise<string | undefined> {
+  const handle = mounted.refHandle?.()
+  const callable: unknown =
+    (typeof handle === 'object' && handle !== null) || typeof handle === 'function'
+      ? Reflect.get(handle, method)
+      : undefined
+  if (typeof callable !== 'function')
+    throw new Error(`conformance: "${caseName}" needs the component ref to expose ${method}()`)
+
+  const targets: string[] = []
+  const capture = (event: Event): void => {
+    if (event.target instanceof Element) targets.push(elementPath(event.target))
+  }
+  if (observeEvent) document.addEventListener(observeEvent, capture, true)
+  try {
+    await Reflect.apply(callable, handle, args ?? [])
+  } finally {
+    if (observeEvent) document.removeEventListener(observeEvent, capture, true)
+  }
+  if (observeEvent) return `@handle ${method} ${observeEvent}: ${targets.join(', ') || 'none'}`
+}
 
 const runStep = async (
   step: Interaction,
@@ -877,6 +916,7 @@ const runStep = async (
       if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
       else if (step.type === 'invoke')
         await recorder.invoke(step.callback, step.path, step.args ?? [])
+      else if (step.type === 'invokeHandle') note = await invokeHandle(step, mounted, caseName)
       else if (step.type === 'fetch') page.answerFetch()
       else if (step.type === 'navigate') mounted.navigate(step.to)
       else if (step.type === 'lifetime') changeLifetimes(step.name)

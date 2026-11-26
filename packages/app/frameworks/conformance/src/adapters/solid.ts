@@ -460,7 +460,7 @@ export function createSolidAdapter({
             const mountPoint = document.createElement('div')
             mountPoint.setAttribute('data-parity-unwrap', '')
             // A ref case hands the component a ref callback, as a caller's `ref={el}` compiles to.
-            let refElement: Element | null = null
+            let refValue: unknown = null
             container.appendChild(mountPoint)
             const show = (): (() => void) =>
               renderDisposably(
@@ -488,9 +488,9 @@ export function createSolidAdapter({
                           get: () => listValue(changing.children, (from) => from.children),
                         })
                       }
-                      if (testCase.ref) {
-                        merged.ref = (el: unknown): void => {
-                          refElement = el instanceof Element ? el : null
+                      if (testCase.ref || testCase.handle) {
+                        merged.ref = (value: unknown): void => {
+                          refValue = value
                         }
                       }
                       return createComponent(RouterProvider, {
@@ -531,9 +531,11 @@ export function createSolidAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
-              refElement: () => refElement,
+              refElement: () => (refValue instanceof Element ? refValue : null),
+              refHandle: () => refValue,
               unmount: async () => {
                 dispose()
+                refValue = null
               },
               // The same mount point, so the component sits where it did before.
               remount: async () => {

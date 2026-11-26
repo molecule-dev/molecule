@@ -4,15 +4,16 @@
  * @module
  */
 
-import { type ComponentObjectPropsOptions, defineComponent, h, shallowRef } from 'vue'
+import { type ComponentObjectPropsOptions, defineComponent, h, shallowRef, type VNode } from 'vue'
 
 import { createBrowserFileInput, fromBrowserFile, type PickedFile } from '@molecule/app-filesystem'
-import type { FileFieldProps } from '@molecule/app-ui'
+import type { FileFieldHandle, FileFieldProps } from '@molecule/app-ui'
 
-/** Renders one focusable target and emits portable file selections. */
+/** Renders a browse target and exposes `pick()` through the caller's template ref. */
 export const FileField = defineComponent({
   name: 'FileField',
   inheritAttrs: false,
+  expose: ['pick'],
   props: {
     accept: String,
     className: String,
@@ -40,7 +41,9 @@ export const FileField = defineComponent({
       fromBrowserFile,
     )
 
-    return () =>
+    const pick: FileFieldHandle['pick'] = () =>
+      handlers.onClick({ target: null, defaultPrevented: false })
+    const renderField = (): VNode =>
       h(
         'div',
         {
@@ -68,5 +71,9 @@ export const FileField = defineComponent({
           slots.default?.(),
         ],
       )
+    return { pick, renderField }
+  },
+  render() {
+    return this.renderField()
   },
 })

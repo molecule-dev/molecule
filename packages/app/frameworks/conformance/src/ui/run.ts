@@ -30,6 +30,7 @@ import type {
   DeclaredProps,
   ElementRefCase,
   FrameworkAdapter,
+  Interaction,
   UICase,
   UIComponentCases,
 } from './spec.js'
@@ -163,6 +164,34 @@ export const withRef = (family: UIComponentCases): UIComponentCases => {
 }
 
 /**
+ * Derives one case per public handle method and calls it again after each declared props update.
+ *
+ * @param family - One component's cases.
+ * @returns The family with the handle cases added.
+ */
+export const withHandle = (family: UIComponentCases): UIComponentCases => {
+  if (!family.handle) return family
+  const methods = Object.entries(family.handle)
+  if (!methods.length) throw new Error(`${family.component}: name at least one handle method`)
+  const added = methods.map(
+    ([method, { caseName, args, observeEvent, repeatWithProps }]): UICase => {
+      const base = caseName ? family.cases.find((c) => c.name === caseName) : family.cases[0]
+      if (!base) throw new Error(`${family.component}: handle case "${caseName}" not found`)
+      const invoke: Interaction = { type: 'invokeHandle', method, args, observeEvent }
+      const interactions: Interaction[] = [invoke]
+      for (const props of repeatWithProps ?? []) interactions.push({ type: 'props', props }, invoke)
+      return {
+        ...base,
+        name: `calls ${method}() through a caller's handle`,
+        handle: true,
+        interactions,
+      }
+    },
+  )
+  return { ...family, cases: [...family.cases, ...added] }
+}
+
+/**
  * The family, after checking that no case names a goldens group: the UI kit's goldens are one
  * file, so a group would store nothing anywhere ({@link UICase.goldensGroup}).
  *
@@ -181,7 +210,7 @@ export const withoutGoldensGroups = (family: UIComponentCases): UIComponentCases
 
 /**
  * Every case family, in a stable order, each with its derived cases: locale switch, keyed lists,
- * declared props, ref, and children changes.
+ * declared props, ref, children changes, and imperative handles.
  */
 export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UIComponentCases[])
   .sort((a, b) => a.component.localeCompare(b.component))
@@ -191,6 +220,7 @@ export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UI
   .map(withDeclaredProps)
   .map(withRef)
   .map(withChildSteps)
+  .map(withHandle)
 
 /** The React reference results every framework must reproduce. */
 export const uiGoldens: UIGoldens = goldensJson

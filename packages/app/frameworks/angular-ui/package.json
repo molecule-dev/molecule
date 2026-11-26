@@ -50,7 +50,7 @@
     "@molecule/app-filesystem": "^1.1.0",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-icons": "^1.0.1",
-    "@molecule/app-ui": "^1.12.0"
+    "@molecule/app-ui": "^1.14.0"
   },
   "devDependencies": {
     "@angular/common": "22.2.3",

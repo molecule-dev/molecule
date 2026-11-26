@@ -5,7 +5,9 @@
   import type { Snippet } from 'svelte'
 
   import { createBrowserFileInput, fromBrowserFile } from '@molecule/app-filesystem'
-  import type { FileFieldProps } from '@molecule/app-ui'
+  import type { FileFieldHandle, FileFieldProps } from '@molecule/app-ui'
+
+  import { reactStyleText } from '../style.js'
 
   let {
     accept,
@@ -18,6 +20,8 @@
     onRejected,
     onValueChange,
     role,
+    style,
+    webStyle,
     ...attrs
   }: FileFieldProps<Snippet> = $props()
   let input = $state<HTMLInputElement>()
@@ -35,6 +39,10 @@
     }),
     fromBrowserFile,
   )
+
+  /** Opens the chooser through the component instance obtained with `bind:this`. */
+  export const pick: FileFieldHandle['pick'] = () =>
+    handlers.onClick({ target: null, defaultPrevented: false })
 </script>
 
 <div
@@ -43,6 +51,7 @@
   {...attrs}
   {...roleOverride}
   class={className}
+  style={reactStyleText({ ...style, ...webStyle })}
   tabindex={disabled ? -1 : 0}
   aria-disabled={disabled}
   onclick={handlers.onClick}

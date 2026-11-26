@@ -15,7 +15,7 @@ import {
 } from '@angular/core'
 
 import { createBrowserFileInput, fromBrowserFile, type PickedFile } from '@molecule/app-filesystem'
-import type { FileFieldProps } from '@molecule/app-ui'
+import type { FileFieldHandle, FileFieldProps } from '@molecule/app-ui'
 
 /** Renders one focusable target and emits portable file selections. */
 @Component({
@@ -42,7 +42,7 @@ import type { FileFieldProps } from '@molecule/app-ui'
       (change)="handlers.onChange()"
     /><ng-content />`,
 })
-export class FileField {
+export class FileField implements FileFieldHandle {
   /** Comma-separated accepted types and extensions. */
   @Input() accept?: string
   /** ClassMap classes for the host. */
@@ -78,6 +78,11 @@ export class FileField {
     }),
     fromBrowserFile,
   )
+
+  /** Opens the chooser when called on the field instance from a view query. */
+  pick(): void {
+    this.handlers.onClick({ target: null, defaultPrevented: false })
+  }
 
   /**
    * Enables dropping on the host when the field is enabled.

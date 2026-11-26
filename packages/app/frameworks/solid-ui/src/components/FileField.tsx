@@ -4,18 +4,22 @@
  * @module
  */
 
-import { type JSX, splitProps } from 'solid-js'
+import { type JSX, type Ref, splitProps } from 'solid-js'
 
 import { createBrowserFileInput, fromBrowserFile } from '@molecule/app-filesystem'
-import type { FileFieldProps } from '@molecule/app-ui'
+import type { FileFieldHandle, FileFieldProps } from '@molecule/app-ui'
+
+import { toStyleProps } from '../style.js'
 
 /**
- * Renders one focusable target and delivers portable file selections.
+ * Renders a browse target and passes the chooser handle to the caller's `ref`.
  *
  * @param props - The field props.
  * @returns The rendered field.
  */
-export function FileField(props: FileFieldProps<JSX.Element>): JSX.Element {
+export function FileField(
+  props: FileFieldProps<JSX.Element> & { ref?: Ref<FileFieldHandle> },
+): JSX.Element {
   const [field, attrs] = splitProps(props, [
     'accept',
     'children',
@@ -26,7 +30,10 @@ export function FileField(props: FileFieldProps<JSX.Element>): JSX.Element {
     'onPickError',
     'onRejected',
     'onValueChange',
+    'ref',
     'role',
+    'style',
+    'webStyle',
   ])
   let input: HTMLInputElement | undefined
   const handlers = createBrowserFileInput(
@@ -42,6 +49,9 @@ export function FileField(props: FileFieldProps<JSX.Element>): JSX.Element {
     }),
     fromBrowserFile,
   )
+  const handle: FileFieldHandle = {
+    pick: () => handlers.onClick({ target: null, defaultPrevented: false }),
+  }
 
   return (
     <div
@@ -49,6 +59,7 @@ export function FileField(props: FileFieldProps<JSX.Element>): JSX.Element {
       {...attrs}
       {...{ 'attr:role': field.role ?? 'button' }}
       class={field.className}
+      style={toStyleProps({ ...field.style, ...field.webStyle })}
       tabIndex={field.disabled ? -1 : 0}
       aria-disabled={field.disabled}
       onClick={handlers.onClick}
@@ -59,6 +70,7 @@ export function FileField(props: FileFieldProps<JSX.Element>): JSX.Element {
       <input
         ref={(element) => {
           input = element
+          if (typeof field.ref === 'function') field.ref(handle)
         }}
         type="file"
         hidden

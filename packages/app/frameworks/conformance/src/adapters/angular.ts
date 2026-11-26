@@ -842,7 +842,7 @@ export function createAngularAdapter({
         built,
         'static',
         laterProps,
-        testCase.ref ? 'parityRef' : undefined,
+        testCase.ref || testCase.handle ? 'parityRef' : undefined,
         blocks,
       )
       const templates = [...built.templates.values()].sort((a, b) => a.id - b.id)
@@ -929,10 +929,9 @@ export function createAngularAdapter({
         template: text(testCase.context?.routedPage ?? ''),
       })(class ConformanceRoutedPage {})
 
-      // A ref case reads the component instance its template variable names (a caller's `#ref` or
-      // `viewChild`), then that instance's `element()`. The query is registered the way the decorator
-      // registers it, before the host is first compiled: JIT ignores `queries` in `Component()` metadata.
-      if (testCase.ref) ViewChild('parityRef')(host.prototype, 'parityRef')
+      // Read the public component instance through the caller's view query. The query is registered
+      // as the decorator registers it: JIT ignores `queries` in `Component()` metadata.
+      if (testCase.ref || testCase.handle) ViewChild('parityRef')(host.prototype, 'parityRef')
       let stepProps = 0
       let stepChildren = 0
       try {
@@ -1039,6 +1038,7 @@ export function createAngularAdapter({
                 router.navigate(to)
               },
               refElement: () => refElementOf(ref.instance.parityRef),
+              refHandle: () => ref.instance.parityRef,
               // A page leaving destroys its component; the application and its
               // environment injector live on, so a hook bound to them (instead of
               // the component's own injector) still runs after an `unmount` step.

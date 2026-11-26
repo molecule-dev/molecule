@@ -304,7 +304,7 @@ export function createVueAdapter({
       /** The case component with its props, slots and listeners — what the mount wrapper hosts. */
       // A ref case puts a template ref on the component, as a caller does; the element is its `$el`.
       const componentRef = shallowRef<unknown>(null)
-      const refProp = testCase.ref ? { ref: componentRef } : {}
+      const refProp = testCase.ref || testCase.handle ? { ref: componentRef } : {}
       // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
       // with no matched child), provided as a routing bond provides one.
       const routedPage = testCase.context?.routedPage
@@ -402,6 +402,7 @@ export function createVueAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
+              refHandle: () => componentRef.value,
               refElement: () => {
                 const instance = componentRef.value
                 const element: unknown =

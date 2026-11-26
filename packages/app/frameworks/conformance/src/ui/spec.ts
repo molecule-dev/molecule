@@ -328,6 +328,8 @@ export type Interaction =
    * returns. A component that re-registers a function on each change hands the newest one.
    */
   | { type: 'invoke'; callback: string; path: (string | number)[]; args?: unknown[] }
+  /** Calls a method through the component's public handle, awaiting what it returns. */
+  | { type: 'invokeHandle'; method: string; args?: unknown[]; observeEvent?: string }
   /** Navigates the router the component sees (as a link elsewhere in the app would). */
   | { type: 'navigate'; to: string }
   /**
@@ -620,6 +622,8 @@ export interface UICase {
    * element is not rendered. Derived by {@link UIComponentCases.ref}; a case rarely sets it itself.
    */
   ref?: true
+  /** Capture the public instance for `invokeHandle` steps, as derived by {@link UIComponentCases.handle}. */
+  handle?: true
   /** Neutral props. Callback props are listed in {@link UICase.callbacks}, not here. */
   props?: Record<string, unknown>
   /** Default children. */
@@ -755,9 +759,11 @@ export interface UIComponentCases {
    * one case from the named case (default: the first) that reads it after mount and after every
    * step ({@link UICase.ref}); name a case that opens the element when it is not rendered at
    * first (a Tooltip, Dropdown or Modal). A framework that hands over another element, or none,
-   * fails. Every family whose React export is a `forwardRef` component names this.
+   * fails. A family whose React export uses `forwardRef` declares either this or `handle`.
    */
   ref?: ElementRefCase
+  /** The public handle methods to test, one derived case per method. */
+  handle?: Readonly<Record<string, HandleMethodCase>>
   /**
    * Lists the component consumes item by item (it counts, slices or wraps each child, as React's
    * `children.length`, `children.slice` or `Children.map` do), each with the reason. A
@@ -774,6 +780,18 @@ export interface UIComponentCases {
 export interface ElementRefCase {
   /** The case to derive from (default: the family's first case). */
   caseName?: string
+}
+
+/** How to exercise a method of a component's imperative handle. */
+export interface HandleMethodCase {
+  /** The base render (default: the family's first case). Its interactions are replaced. */
+  caseName?: string
+  /** Positional arguments to pass to the method. */
+  args?: unknown[]
+  /** DOM event whose targets are recorded during the call. Use for effects the DOM tree cannot show. */
+  observeEvent?: string
+  /** Each props update to apply and then call the method again, in order. */
+  repeatWithProps?: Record<string, unknown>[]
 }
 
 /** Which declared props a family's derived case adds; see {@link UIComponentCases.declaredProps}. */

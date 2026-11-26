@@ -281,6 +281,12 @@ rendered or calls a callback. Then `RECORD_GOLDENS=1 npx vitest run` here, and r
 package's conformance test: a new mismatch is either fixed in that package or added to its
 `known-gaps.json`.
 
+A family whose React component uses `forwardRef` declares `ref` for a DOM element or `handle`
+for an imperative API. List each handle method by name. Its derived case calls the method through
+each framework's public ref API and compares the resulting DOM and callback calls. Use
+`observeEvent` to also record which elements receive a DOM event during the call, and
+`repeatWithProps` to check the same method after the caller updates its props.
+
 ## Framework bindings
 
 The same contract holds the framework bindings (`@molecule/app-vue`, `-solid`, `-svelte`,

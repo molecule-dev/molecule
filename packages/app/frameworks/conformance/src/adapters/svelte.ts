@@ -151,6 +151,12 @@ export function createSvelteAdapter({
             refElement = el instanceof Element ? el : null
           }
         : undefined
+      let refHandle: unknown = null
+      const captureHandle = testCase.handle
+        ? (instance: unknown): void => {
+            refHandle = instance
+          }
+        : undefined
 
       try {
         return await runSteps(
@@ -177,6 +183,7 @@ export function createSvelteAdapter({
                   live,
                   itemsProp: listChildren?.[component],
                   captureRef,
+                  captureHandle,
                   firstRender,
                 },
               })
@@ -214,6 +221,7 @@ export function createSvelteAdapter({
                 router.navigate(to)
               },
               refElement: () => refElement,
+              refHandle: () => refHandle,
               unmount: async () => {
                 await unmount(instance)
                 // The binding's same-turn handoff lanes (`useForm`/`useHttp`)

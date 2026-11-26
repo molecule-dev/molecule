@@ -4556,6 +4556,17 @@
       ]
      }
     ]
+   },
+   "calls pick() through a caller's handle": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@handle pick click: body>div:0>input:0",
+     "<div aria-disabled=\"true\" aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"-1\">\n<input accept=\"image/*,.pdf\" disabled hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"-1\">\n<input accept=\"image/*,.pdf\" disabled hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@handle pick click: none",
+     "<div aria-disabled=\"false\" aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /",
+     "<div aria-disabled=\"false\" aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@handle pick click: body>div:0>input:0"
+    ],
+    "calls": []
    }
   },
   "FloatingInput": {

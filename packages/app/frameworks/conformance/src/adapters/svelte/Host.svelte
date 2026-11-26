@@ -32,6 +32,7 @@
     live,
     itemsProp,
     captureRef,
+    captureHandle,
     firstRender,
   }: {
     component: Component<Record<string, unknown>>
@@ -60,6 +61,8 @@
     itemsProp?: string | SvelteListChildren
     /** Set for a ref case: receives what the component's bindable `ref` prop holds (`bind:ref`). */
     captureRef?: (el: unknown) => void
+    /** Set for a handle case: receives the component's public instance (`bind:this`). */
+    captureHandle?: (instance: unknown) => void
     /**
      * Set while the adapter first mounts the case: an error the component throws then is held
      * here instead of escaping `mount` half-way, which would leave the tree it had set up
@@ -83,6 +86,11 @@
   const setBoundRef = (el: unknown): void => {
     boundRef = el
     captureRef?.(el)
+  }
+  let boundHandle = $state.raw<unknown>(null)
+  const setBoundHandle = (instance: unknown): void => {
+    boundHandle = instance
+    captureHandle?.(instance)
   }
 
   // The case's services, the binding's context setter and the callback spy are
@@ -193,6 +201,8 @@
       <!-- Only a ref case binds `ref`: binding a prop a component does not declare bindable throws. -->
       {#if captureRef}
         <Target {...shown} {...nodeProps} bind:ref={() => boundRef, setBoundRef} />
+      {:else if captureHandle}
+        <Target {...shown} {...nodeProps} bind:this={() => boundHandle, setBoundHandle} />
       {:else}
         <Target {...shown} {...nodeProps} />
       {/if}
