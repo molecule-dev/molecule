@@ -15,10 +15,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./elements": {
-      "types": "./dist/elements/index.d.ts",
-      "import": "./dist/elements/index.js"
     }
   },
   "files": [
