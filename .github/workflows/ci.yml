@@ -159,6 +159,10 @@ jobs:
       # 193 packages shipped dist/__tests__/*.test.js until 2026-11-16, and the
       # pre-commit changeset gate treats every __tests__ change as unpublished.
       - run: npm run check:published-tests
+      # Every main, types and exports target of a publishable package has a source in the tree
+      # that builds it; the publisher refused @molecule/app-ui-react-native 2.0.0 for an
+      # ./elements entry with no src/elements at the end of a four-hour publish (2026-11-26).
+      - run: npm run check:entry-sources
       # A version the push raises ships with its CHANGELOG.md section. The pre-commit hook judges
       # each commit; this judges the pushed range, which a commit made with --no-verify is in too.
       - run: npm run check:version-changelogs -- --base=ci

@@ -151,6 +151,10 @@ fi
 # - check-published-tests: no publishable package's build puts src/**/__tests__ in its
 #   tarball (precommit-changeset.mjs above counts on it). 193 packages whose tsconfig
 #   lacked the exclude shipped dist/__tests__/*.test.js to npm until 2026-11-16.
+# - check-entry-sources: every main, types and exports target of a publishable package has a
+#   source in the tree that builds it. @molecule/app-ui-react-native 2.0.0 named a ./elements
+#   entry with no src/elements, and the publisher refused it at the end of a four-hour publish
+#   (2026-11-26).
 # - check-framework-conformance: every Vue, Svelte, Solid and Angular port of a React
 #   package or bond carries each of its React test titles, and the parity ledgers and
 #   known-gaps files hold no entry the commit's parent lacks. Only the scripts suite ran
@@ -189,6 +193,7 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-intrinsic-jsx.mjs" \
     "scripts/check-feature-modals.mjs" \
     "scripts/check-published-tests.mjs" \
+    "scripts/check-entry-sources.mjs" \
     "scripts/check-undeclared-imports.mjs" \
     "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}" \
     "scripts/check-golden-rules.mjs --base=${DIFF_BASE:-HEAD}" \
