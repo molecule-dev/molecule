@@ -11,8 +11,9 @@ import React, { useState } from 'react'
 import { FlatList, Modal as RNModal, Pressable, Text, View } from 'react-native'
 
 import { useTranslation } from '@molecule/app-react'
-import type { SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { SelectProps } from '../types.js'
 
 /**
  * Renders a Select component.
@@ -20,7 +21,7 @@ import { getClassMap } from '@molecule/app-ui'
  * @param root0.label - Select label text.
  * @param root0.options - Select options array.
  * @param root0.value - Selected value.
- * @param root0.onChange - Change handler.
+ * @param root0.onValueChange - Receives the selected value.
  * @param root0.placeholder - Placeholder text.
  * @param root0.error - Error message.
  * @param root0.hint - Hint text.
@@ -35,7 +36,7 @@ export const Select: React.FC<SelectProps> = ({
   label,
   options = [],
   value,
-  onChange,
+  onValueChange,
   placeholder,
   error,
   hint,
@@ -106,11 +107,10 @@ export const Select: React.FC<SelectProps> = ({
                   <Pressable
                     className={cm.cn(cm.dropdownItem, isSelected && cm.textPrimary)}
                     onPress={() => {
-                      if (onChange) {
-                        onChange({ target: { value: optValue } } as unknown as Event)
-                      }
+                      onValueChange?.(optValue)
                       setIsOpen(false)
                     }}
+                    disabled={disabled || (typeof item !== 'string' && item.disabled)}
                   >
                     <Text>{optLabel}</Text>
                   </Pressable>

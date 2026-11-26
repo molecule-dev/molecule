@@ -28,6 +28,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
       testId,
       disabled,
       onChange,
+      onCheckedChange,
       onClick,
       value,
       ...rest
@@ -64,6 +65,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           className={cm.srOnly}
           nativeChangeEvent
           onChange={onChange}
+          onCheckedChange={onCheckedChange}
         />
         <Box as="label" className={cm.cn(cm.controlLabel, disabled && cm.controlDisabled)}>
           <Pressable

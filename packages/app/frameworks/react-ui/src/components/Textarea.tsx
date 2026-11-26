@@ -37,6 +37,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       id,
       rows,
       onChange,
+      onValueChange,
       onFocus,
       onBlur,
       ...rest
@@ -84,6 +85,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           autoGrow={autoResize ? { minRows, maxRows } : undefined}
           data-testid={testId}
           onChange={onChange}
+          onValueChange={onValueChange}
           onFocus={onFocus}
           onBlur={onBlur}
           {...rootProps(rest)}

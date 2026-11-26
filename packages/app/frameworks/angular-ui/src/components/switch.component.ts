@@ -118,6 +118,8 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
 
   /** The genuine native `change` event of the hidden checkbox. */
   @Output() readonly change = new EventEmitter<Event>()
+  /** Fires with the new checked state. */
+  @Output() readonly checkedChange = new EventEmitter<boolean>()
 
   /** The hidden native checkbox. */
   @ViewChild('hiddenInput') hiddenInput?: ElementRef<HTMLInputElement>
@@ -233,8 +235,10 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
    */
   handleChange(event: Event): void {
     event.stopPropagation()
-    this.change.emit(event)
     const input = this.hiddenInput?.nativeElement
+    const next = input?.checked
+    this.change.emit(event)
+    if (next !== undefined) this.checkedChange.emit(next)
     if (input) input.checked = !!this.checked
   }
 

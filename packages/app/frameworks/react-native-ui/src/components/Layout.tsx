@@ -7,8 +7,10 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
+import type { ContainerProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { FlexProps } from '../types.js'
 
 /**
  * Renders a Container component.
@@ -55,7 +57,7 @@ export const Container: React.FC<ContainerProps> = ({
  * @param root0.className - CSS class name override.
  * @param root0.style - Inline style object.
  * @param root0.testId - Test identifier.
- * @param root0.onClick - Click handler.
+ * @param root0.onClick - Called on touch release.
  * @returns The rendered Flex element.
  */
 export const Flex: React.FC<FlexProps> = ({
@@ -101,7 +103,7 @@ export const Flex: React.FC<FlexProps> = ({
       className={flexClasses}
       style={style as object}
       testID={testId}
-      {...(onClick ? { onTouchEnd: onClick as unknown as () => void } : {})}
+      onTouchEnd={onClick ? () => onClick() : undefined}
     >
       {children as React.ReactNode}
     </View>

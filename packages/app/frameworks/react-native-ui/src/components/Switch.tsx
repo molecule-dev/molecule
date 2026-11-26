@@ -7,15 +7,16 @@
 import React from 'react'
 import { Switch as RNSwitch, Text, View } from 'react-native'
 
-import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { SwitchProps } from '../types.js'
 
 /**
  * Renders a Switch component.
  * @param root0 - Component props.
  * @param root0.label - Switch label text.
  * @param root0.checked - Whether checked.
- * @param root0.onChange - Change handler.
+ * @param root0.onCheckedChange - Receives the new checked state.
  * @param root0.size - Switch size (unused in RN).
  * @param root0.disabled - Whether disabled.
  * @param root0.className - CSS class name override.
@@ -25,7 +26,7 @@ import { getClassMap } from '@molecule/app-ui'
 export const Switch: React.FC<SwitchProps> = ({
   label,
   checked,
-  onChange,
+  onCheckedChange,
   size: _size = 'md',
   disabled,
   className,
@@ -37,11 +38,7 @@ export const Switch: React.FC<SwitchProps> = ({
     <View className={cm.cn(cm.controlLabel, className)} testID={testId}>
       <RNSwitch
         value={!!checked}
-        onValueChange={(value) => {
-          if (onChange) {
-            onChange({ target: { checked: value } } as unknown as Event)
-          }
-        }}
+        onValueChange={onCheckedChange}
         disabled={disabled}
         accessibilityRole="switch"
         accessibilityState={{ checked: !!checked, disabled }}

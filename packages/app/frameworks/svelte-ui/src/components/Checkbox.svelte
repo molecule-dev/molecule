@@ -28,6 +28,7 @@
     name,
     id,
     onChange,
+    onCheckedChange,
     ...rest
   }: CheckboxProps = $props()
 
@@ -49,8 +50,10 @@
   // React restores a controlled input's checked state after the change, and
   // its onChange for checkbox/radio inputs fires on the CLICK event (React's
   // own change-event polyfill for those input types).
-  const handleChange = (event: MouseEvent): void => {
+  const handleChange = (event: MouseEvent & { currentTarget: HTMLInputElement }): void => {
+    const next = event.currentTarget.checked
     onChange?.(event)
+    onCheckedChange?.(next)
     if (checked !== undefined && ref) ref.checked = !!checked
   }
 </script>

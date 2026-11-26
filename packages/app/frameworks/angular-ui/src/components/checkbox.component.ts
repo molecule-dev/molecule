@@ -143,6 +143,8 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
 
   /** The genuine native `change` event. */
   @Output() readonly change = new EventEmitter<Event>()
+  /** Fires with the new checked state. */
+  @Output() readonly checkedChange = new EventEmitter<boolean>()
 
   /** The native input (React's `...rest` spread target). */
   private input?: ElementRef<HTMLInputElement>
@@ -260,7 +262,7 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
   handleClick(event: MouseEvent): void {
     this.onClick?.(event)
     this.justClicked = true
-    this.change.emit(event)
+    this.emitChange(event)
     queueMicrotask(() => (this.justClicked = false))
   }
 
@@ -275,11 +277,18 @@ export class Checkbox implements AfterViewChecked, HasElement<HTMLInputElement> 
    */
   handleChange(event: Event): void {
     event.stopPropagation()
-    if (!this.justClicked) this.change.emit(event)
+    if (!this.justClicked) this.emitChange(event)
     if (this.checked !== undefined && this.input) this.input.nativeElement.checked = !!this.checked
   }
 
   private justClicked = false
+
+  /** Reports the checkbox change and its new checked state. */
+  private emitChange(event: Event): void {
+    const next = this.input?.nativeElement.checked
+    this.change.emit(event)
+    if (next !== undefined) this.checkedChange.emit(next)
+  }
 
   /**
    * Applies the indeterminate DOM flag (a property, not an attribute).

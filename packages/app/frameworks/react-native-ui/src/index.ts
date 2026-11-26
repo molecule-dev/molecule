@@ -8,7 +8,7 @@
  * FormField, Grid, Input, Label, Modal, Pagination, Progress, RadioGroup,
  * Select, Separator, Skeleton, Spacer, Spinner, Switch, Table, Tabs,
  * Textarea, Toast (+ ToastProvider / ToastContainer / useToast), Tooltip.
- * Prop types are re-exported from `@molecule/app-ui`. Web-only extras (Icon,
+ * Prop types build on `@molecule/app-ui`. Web-only extras (Icon,
  * UserMenu, ThemeToggle, PageHeader, …) live in `@molecule/app-ui-react` and
  * are NOT available here.
  *
@@ -39,8 +39,9 @@
  *   babel preset + Tailwind config are wired into the app AND `setClassMap(classMap)` from
  *   `@molecule/app-ui-nativewind` has run. Missing either half renders the whole UI unstyled
  *   with NO error. `getClassMap()` itself throws until `setClassMap` is called.
- * - Event props follow the shared `@molecule/app-ui` interfaces (`onClick`, not `onPress`) so
- *   components stay swappable with the web implementations.
+ * - Fields report text and choices with `onValueChange` and checked state with
+ *   `onCheckedChange`. Use eventless `onClick`, `onFocus`, `onBlur` and `onClear` callbacks
+ *   to share handlers with the web kits.
  * - Toasts need `ToastProvider` mounted at the root; `useToast()` throws outside it.
  *
  * @module
@@ -90,31 +91,23 @@ export {
   Tooltip,
   useToast,
 } from './components/index.js'
-
-// Re-export all UI prop types from @molecule/app-ui
+export type * from './types.js'
 export type {
   AccordionProps,
   AlertProps,
   AvatarProps,
   BadgeProps,
   BaseProps,
-  ButtonProps,
-  CardProps,
-  CheckboxProps,
   DropdownProps,
   FormFieldProps,
   FormProps,
-  InputProps,
   ModalProps,
   PaginationProps,
   RadioGroupProps,
-  SelectProps,
   SkeletonProps,
   SpinnerProps,
-  SwitchProps,
   TableProps,
   TabsProps,
-  TextareaProps,
   ToastProps,
   TooltipProps,
 } from '@molecule/app-ui'

@@ -8,8 +8,9 @@ import React from 'react'
 import { Pressable, Text, View } from 'react-native'
 
 import { useTranslation } from '@molecule/app-react'
-import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { CheckboxProps } from '../types.js'
 
 /**
  * Renders a Checkbox component.
@@ -17,7 +18,7 @@ import { getClassMap } from '@molecule/app-ui'
  * @param root0.label - Checkbox label text.
  * @param root0.checked - Whether checked.
  * @param root0.indeterminate - Whether indeterminate.
- * @param root0.onChange - Change handler.
+ * @param root0.onCheckedChange - Receives the new checked state.
  * @param root0.error - Error message.
  * @param root0.disabled - Whether disabled.
  * @param root0.className - CSS class name override.
@@ -28,7 +29,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   label,
   checked,
   indeterminate,
-  onChange,
+  onCheckedChange,
   error,
   disabled,
   className,
@@ -42,11 +43,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     <Pressable
       className={cm.controlLabel}
       onPress={() => {
-        if (!disabled && onChange) {
-          onChange({
-            target: { checked: !checked },
-          } as unknown as Event)
-        }
+        if (!disabled) onCheckedChange?.(!checked)
       }}
       disabled={disabled}
       testID={testId}

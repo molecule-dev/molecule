@@ -32,6 +32,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       id,
       value,
       onChange,
+      onCheckedChange,
       ...rest
     },
     ref,
@@ -67,6 +68,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             webStyle={style}
             data-testid={testId}
             onChange={onChange}
+            onCheckedChange={onCheckedChange}
             {...rootProps(rest)}
           />
           {!!label && (

@@ -7,8 +7,9 @@
 import React, { forwardRef } from 'react'
 import { Text, TextInput, View } from 'react-native'
 
-import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { TextareaProps } from '../types.js'
 
 /**
  * Multi-line text input component.
@@ -26,7 +27,7 @@ export const Textarea = forwardRef<TextInput, TextareaProps>(
       disabled,
       placeholder,
       value,
-      onChange,
+      onValueChange,
       onFocus,
       onBlur,
       required,
@@ -50,17 +51,13 @@ export const Textarea = forwardRef<TextInput, TextareaProps>(
           testID={testId}
           editable={!disabled}
           placeholder={placeholder}
-          value={value as string | undefined}
+          value={value}
           multiline
           numberOfLines={rows}
           textAlignVertical="top"
-          onChangeText={(text) => {
-            if (onChange) {
-              onChange({ target: { value: text } } as unknown as Event)
-            }
-          }}
-          onFocus={onFocus as unknown as () => void}
-          onBlur={onBlur as unknown as () => void}
+          onChangeText={onValueChange}
+          onFocus={onFocus ? () => onFocus() : undefined}
+          onBlur={onBlur ? () => onBlur() : undefined}
           accessibilityLabel={typeof label === 'string' ? label : undefined}
         />
         {!!error && typeof error === 'string' && <Text className={cm.formError}>{error}</Text>}

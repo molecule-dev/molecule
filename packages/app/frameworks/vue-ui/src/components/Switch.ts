@@ -56,7 +56,7 @@ export const Switch = defineComponent({
       default: false,
     },
   },
-  emits: ['change', 'click'],
+  emits: { change: null, click: null, checkedChange: (_checked: boolean) => true },
   setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
     // The visible `role="switch"` button is React's `forwardRef` target; the
@@ -80,7 +80,11 @@ export const Switch = defineComponent({
     // Attached ONCE, at mount, reading the current listeners through the
     // stable `emit`. React attaches the native `change` listener in a layout
     // effect — before the browser can deliver a click.
-    const onHiddenChange = (event: Event): void => emit('change', event)
+    const onHiddenChange = (event: Event): void => {
+      const next = hiddenInputRef.value?.checked
+      emit('change', event)
+      if (next !== undefined) emit('checkedChange', next)
+    }
     onMounted(() => {
       const input = hiddenInputRef.value
       if (!input) return

@@ -157,6 +157,8 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
 
   /** Fires the raw `input` event (React's textarea onChange). */
   @Output() readonly change = new EventEmitter<Event>()
+  /** Fires with the edited text. */
+  @Output() readonly valueChange = new EventEmitter<string>()
 
   /** The native textarea (React's `...rest` spread target). */
   private textareaEl?: ElementRef<HTMLTextAreaElement>
@@ -292,6 +294,7 @@ export class Textarea implements AfterViewInit, AfterViewChecked, HasElement<HTM
     event.stopPropagation()
     this.change.emit(event)
     const textarea = this.textareaEl?.nativeElement
+    if (textarea) this.valueChange.emit(textarea.value)
     if (this.value !== undefined && textarea && textarea.value !== this.value)
       textarea.value = this.value
     this.resize()

@@ -20,10 +20,14 @@ import type { Attachment } from 'svelte/attachments'
 
 import type { IconName } from '@molecule/app-icons'
 import type {
+  CheckboxProps as KitCheckboxProps,
   ColorVariant,
+  InputProps as KitInputProps,
   KeyboardEventHandler,
   OverlayTarget,
   Size,
+  SwitchProps as KitSwitchProps,
+  TextareaProps as KitTextareaProps,
   ToastPosition,
   TooltipPlacement,
 } from '@molecule/app-ui'
@@ -338,7 +342,8 @@ export interface CardTitleProps extends WithElementRef<object, HTMLHeadingElemen
 /**
  * Props for {@link Checkbox}. The ref element is the native checkbox input, not its label wrapper.
  */
-export interface CheckboxProps extends WithElementRef<object, HTMLInputElement> {
+export interface CheckboxProps
+  extends WithElementRef<object, HTMLInputElement>, Pick<KitCheckboxProps, 'onCheckedChange'> {
   /** Label content. */
   label?: string | Snippet
   /** Controlled checked state. */
@@ -702,7 +707,8 @@ export interface IconGlyphProps {
 /**
  * Props for {@link Input}. The ref element is the native input, not its label wrapper.
  */
-export interface InputProps extends WithElementRef<object, HTMLInputElement> {
+export interface InputProps
+  extends WithElementRef<object, HTMLInputElement>, Pick<KitInputProps, 'onValueChange'> {
   /** Input type. */
   type?: string
   /** Control size. */
@@ -1362,7 +1368,8 @@ export interface SpinnerProps extends WithElementRef<object, HTMLDivElement> {
 /**
  * Props for {@link Switch}. The ref element is the role="switch" button.
  */
-export interface SwitchProps extends WithElementRef<object, HTMLButtonElement> {
+export interface SwitchProps
+  extends WithElementRef<object, HTMLButtonElement>, Pick<KitSwitchProps, 'onCheckedChange'> {
   /** Label content. */
   label?: string | Snippet
   /** Controlled checked state. */
@@ -1494,7 +1501,8 @@ export interface TabsProps extends WithElementRef<object, HTMLDivElement> {
 /**
  * Props for {@link Textarea}. The ref element is the native textarea, not its label wrapper.
  */
-export interface TextareaProps extends WithElementRef<object, HTMLTextAreaElement> {
+export interface TextareaProps
+  extends WithElementRef<object, HTMLTextAreaElement>, Pick<KitTextareaProps, 'onValueChange'> {
   /** Control size. */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   /** Visible label. */

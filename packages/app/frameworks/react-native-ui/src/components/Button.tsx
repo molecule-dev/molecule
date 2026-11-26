@@ -7,8 +7,9 @@
 import React from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 
-import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { ButtonProps } from '../types.js'
 
 /**
  * Renders a Button component.
@@ -25,7 +26,7 @@ import { getClassMap } from '@molecule/app-ui'
  * @param root0.className - CSS class name override.
  * @param root0.testId - Test identifier.
  * @param root0.disabled - Whether disabled.
- * @param root0.onClick - Click handler.
+ * @param root0.onClick - Called when the button is pressed.
  * @returns The rendered Button element.
  */
 export const Button: React.FC<ButtonProps> = ({
@@ -50,7 +51,7 @@ export const Button: React.FC<ButtonProps> = ({
     <Pressable
       className={classes}
       disabled={disabled || loading}
-      onPress={onClick as unknown as () => void}
+      onPress={onClick ? () => onClick() : undefined}
       testID={testId}
       accessibilityRole="button"
       accessibilityState={{ disabled: disabled || loading, busy: loading }}

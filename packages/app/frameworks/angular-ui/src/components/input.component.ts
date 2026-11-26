@@ -128,7 +128,8 @@ import { styleText } from '../utilities/style.js'
         @if (clearable && value) {
           <button
             type="button"
-            (click)="clear.emit($event)"
+            [disabled]="disabled"
+            (click)="handleClear($event)"
             [class]="cm().inputClearButton"
             [attr.aria-label]="clearText()"
           >
@@ -207,6 +208,8 @@ export class Input implements AfterViewChecked, HasElement<HTMLInputElement> {
 
   /** Fires the raw `input` event (React's text-input onChange). */
   @Output() readonly change = new EventEmitter<Event>()
+  /** Fires with the edited text or an empty string when the clear button is clicked. */
+  @Output() readonly valueChange = new EventEmitter<string>()
   /** Fires the clear button's click event. */
   @Output() readonly clear = new EventEmitter<Event>()
 
@@ -370,8 +373,19 @@ export class Input implements AfterViewChecked, HasElement<HTMLInputElement> {
     event.stopPropagation()
     this.change.emit(event)
     const input = this.inputEl?.nativeElement
+    if (input) this.valueChange.emit(input.value)
     if (this.value !== undefined && input && input.value !== String(this.value))
       input.value = String(this.value)
+  }
+
+  /**
+   * Reports the clear action and the empty value.
+   *
+   * @param event - The clear button's click event.
+   */
+  handleClear(event: MouseEvent): void {
+    this.clear.emit(event)
+    this.valueChange.emit('')
   }
 
   /**

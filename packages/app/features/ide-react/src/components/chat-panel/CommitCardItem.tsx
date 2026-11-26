@@ -50,7 +50,7 @@ export function CommitCardItem({
   const dotColor = isRunning ? '#e8a000' : card.status === 'error' ? '#f04040' : '#4070e0'
 
   const handleRevert = useCallback(
-    async (e: React.MouseEvent) => {
+    async (e: Pick<React.SyntheticEvent, 'stopPropagation'>) => {
       e.stopPropagation()
       if (!canRevert || isReverting) return
       const hashToRevert = isReverted ? revertHash! : card.hash!
@@ -211,7 +211,7 @@ export function CommitCardItem({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
-                handleRevert(e as unknown as React.MouseEvent)
+                handleRevert(e)
               }
             }}
             onMouseEnter={(e) => {

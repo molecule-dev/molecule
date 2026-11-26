@@ -69,7 +69,13 @@ export const Input = defineComponent({
     name: String,
     id: String,
   },
-  emits: ['change', 'clear', 'focus', 'blur'],
+  emits: {
+    change: null,
+    clear: null,
+    focus: null,
+    blur: null,
+    valueChange: (_value: string) => true,
+  },
   setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
     // A column around the label, the control's row and the message, so the control's margin
@@ -121,8 +127,11 @@ export const Input = defineComponent({
         // handler returns.
         onInput: (event: Event) => {
           emit('change', event)
-          const element = event.target as HTMLInputElement | null
-          if (props.value !== undefined && element) element.value = String(props.value)
+          const input = event.target as HTMLInputElement | null
+          if (input) {
+            emit('valueChange', input.value)
+            if (props.value !== undefined) input.value = String(props.value)
+          }
         },
         // React's onFocus/onBlur use the bubbling focus events.
         onFocusin: (event: FocusEvent) => emit('focus', event),
@@ -149,7 +158,11 @@ export const Input = defineComponent({
                   'button',
                   {
                     type: 'button',
-                    onClick: (event: MouseEvent) => emit('clear', event),
+                    disabled: props.disabled,
+                    onClick: (event: MouseEvent) => {
+                      emit('clear', event)
+                      emit('valueChange', '')
+                    },
                     class: cm.inputClearButton,
                     'aria-label':
                       props.clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' }),

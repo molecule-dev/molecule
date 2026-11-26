@@ -1765,7 +1765,7 @@ export const ToolCallCard = memo(function ToolCallCard({
     onFileRevert != null
 
   const handleRevert = useCallback(
-    async (e: React.MouseEvent) => {
+    async (e: Pick<React.SyntheticEvent, 'stopPropagation'>) => {
       e.stopPropagation()
       if (!canRevert || isReverting) return
       const content = isUndone ? fileDiff!.modified : fileDiff!.original
@@ -2176,7 +2176,7 @@ export const ToolCallCard = memo(function ToolCallCard({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
-                handleRevert(e as unknown as React.MouseEvent)
+                handleRevert(e)
               }
             }}
             onMouseEnter={(e) => {

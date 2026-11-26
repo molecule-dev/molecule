@@ -231,6 +231,7 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps): J
   const wrapperSpacing: React.CSSProperties = {
     marginBottom: `${discovery ? TIMELINE_ITEM_GAP_DISCOVERY : TIMELINE_ITEM_GAP}px`,
   }
+  const blocks = msg.blocks
 
   return (
     <div style={wrapperSpacing}>
@@ -488,26 +489,27 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps): J
         </div>
       ) : (
         <div>
-          {msg.blocks && msg.blocks.length > 0 ? (
-            msg.blocks.map((block, bi) => {
-              const blockType = (block as { type: string }).type
+          {blocks && blocks.length > 0 ? (
+            blocks.map((block, bi) => {
+              const isLast = bi === blocks.length - 1
 
-              if (blockType === 'thinking') {
-                const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
+              if (block.type === 'thinking') {
                 return (
                   <ThinkingBlock
                     key={bi}
-                    content={(block as { type: string; content: string }).content}
-                    durationMs={(block as { durationMs?: number }).durationMs}
-                    isStreaming={msg.isStreaming && isLastBlock}
+                    content={block.content}
+                    durationMs={
+                      'durationMs' in block && typeof block.durationMs === 'number'
+                        ? block.durationMs
+                        : undefined
+                    }
+                    isStreaming={msg.isStreaming && isLast}
                   />
                 )
               }
 
-              const isLast = bi === msg.blocks!.length - 1
-
-              if (blockType === 'text') {
-                const textContent = (block as { type: string; content: string }).content
+              if (block.type === 'text') {
+                const textContent = block.content
                 const isCompaction =
                   textContent.startsWith('**Context compacted**') ||
                   textContent.startsWith('> **Context compacted**')
@@ -617,44 +619,30 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps): J
                 )
               }
 
-              if (blockType === 'verification') {
-                const vBlock = block as unknown as {
-                  type: 'verification'
-                  status: 'ok' | 'error'
-                  output?: string
-                  workspaces: string[]
-                  categories?: string[]
-                  renderCheckUnavailable?: boolean
-                }
+              if (block.type === 'verification') {
                 return (
                   <VerificationBadge
                     key={`verification-${bi}`}
-                    status={vBlock.status}
-                    output={vBlock.output}
-                    workspaces={vBlock.workspaces}
-                    categories={vBlock.categories}
-                    renderCheckUnavailable={vBlock.renderCheckUnavailable}
+                    status={block.status}
+                    output={block.output}
+                    workspaces={block.workspaces}
+                    categories={block.categories}
+                    renderCheckUnavailable={block.renderCheckUnavailable}
                   />
                 )
               }
 
-              if (blockType === 'resource_limit') {
-                const rlBlock = block as unknown as {
-                  type: 'resource_limit'
-                  message: string
-                }
+              if (block.type === 'resource_limit') {
                 return (
                   <ResourceLimitBanner
                     key={`resource-limit-${bi}`}
-                    message={rlBlock.message}
+                    message={block.message}
                     action={buildUpgradeCta?.({})}
                   />
                 )
               }
 
-              const tc = msg.toolCalls?.find(
-                (c) => c.id === (block as { type: string; id: string }).id,
-              )
+              const tc = msg.toolCalls?.find((c) => c.id === block.id)
               if (!tc) return null
               return (
                 <div key={tc.id} style={{ marginTop: '4px' }}>

@@ -38,6 +38,7 @@ export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaEleme
     'id',
     'rows',
     'onChange',
+    'onValueChange',
     'onFocus',
     'onBlur',
   ])
@@ -59,6 +60,7 @@ export const Textarea = withDisplayName<WithRef<TextareaProps, HTMLTextAreaEleme
   // not adopt the typed one.
   const handleInput = (event: Event & { target: HTMLTextAreaElement }): void => {
     local.onChange?.(event)
+    local.onValueChange?.(event.target.value)
     if (local.value !== undefined) event.target.value = String(local.value)
   }
 

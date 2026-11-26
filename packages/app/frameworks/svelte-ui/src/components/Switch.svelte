@@ -23,6 +23,7 @@
     testId,
     disabled,
     onChange,
+    onCheckedChange,
     onClick,
     ...rest
   }: SwitchProps = $props()
@@ -55,7 +56,11 @@
   aria-hidden="true"
   tabindex="-1"
   class={cm.srOnly}
-  onchange={(event) => onChange?.(event)}
+  onchange={(event) => {
+    const next = event.currentTarget.checked
+    onChange?.(event)
+    onCheckedChange?.(next)
+  }}
 />
 <label class={cm.cn(cm.controlLabel, disabled && cm.controlDisabled)}>
   <button

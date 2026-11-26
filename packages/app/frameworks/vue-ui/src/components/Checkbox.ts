@@ -53,7 +53,7 @@ export const Checkbox = defineComponent({
     name: String,
     id: String,
   },
-  emits: ['change', 'click'],
+  emits: { change: null, click: null, checkedChange: (_checked: boolean) => true },
   setup(props, { attrs, slots, emit, expose }) {
     const cm = getClassMap()
     // Allocated once per instance, like React's `useId()`; it only backs
@@ -122,9 +122,11 @@ export const Checkbox = defineComponent({
         // controlled input's `checked` right after the handler returns.
         onClick: (event: MouseEvent) => {
           emit('click', event)
+          const input = event.target as HTMLInputElement | null
+          const next = input?.checked
           emit('change', event)
-          const element = event.target as HTMLInputElement | null
-          if (props.checked !== undefined && element) element.checked = !!props.checked
+          if (next !== undefined) emit('checkedChange', next)
+          if (props.checked !== undefined && input) input.checked = !!props.checked
         },
         ...restAttrs(attrs),
       }

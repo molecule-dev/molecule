@@ -65,7 +65,7 @@ export const Textarea = defineComponent({
     id: String,
     rows: Number,
   },
-  emits: ['change', 'focus', 'blur'],
+  emits: { change: null, focus: null, blur: null, valueChange: (_value: string) => true },
   setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     // A column around the label, the control and the message, so the control's margin moves
@@ -165,8 +165,11 @@ export const Textarea = defineComponent({
         // handler returns.
         onInput: (event: Event) => {
           emit('change', event)
-          const element = event.target as HTMLTextAreaElement | null
-          if (props.value !== undefined && element) element.value = String(props.value)
+          const textarea = event.target as HTMLTextAreaElement | null
+          if (textarea) {
+            emit('valueChange', textarea.value)
+            if (props.value !== undefined) textarea.value = String(props.value)
+          }
         },
         onFocusin: (event: FocusEvent) => emit('focus', event),
         onFocusout: (event: FocusEvent) => emit('blur', event),

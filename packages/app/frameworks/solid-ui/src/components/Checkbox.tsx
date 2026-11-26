@@ -37,6 +37,7 @@ export const Checkbox = withDisplayName<WithRef<CheckboxProps, HTMLInputElement>
     'name',
     'id',
     'onChange',
+    'onCheckedChange',
     'onClick',
   ])
 
@@ -63,7 +64,9 @@ export const Checkbox = withDisplayName<WithRef<CheckboxProps, HTMLInputElement>
   // caller does not adopt the toggled one.
   const handleClick = (event: MouseEvent & { currentTarget: HTMLInputElement }): void => {
     local.onClick?.(event)
+    const next = event.currentTarget.checked
     local.onChange?.(event)
+    local.onCheckedChange?.(next)
     if (local.checked !== undefined) event.currentTarget.checked = !!local.checked
   }
 

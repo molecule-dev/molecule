@@ -8,8 +8,9 @@ import React, { forwardRef, useCallback } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
 import { useTranslation } from '@molecule/app-react'
-import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { InputProps } from '../types.js'
 
 /**
  * Text input component.
@@ -24,6 +25,8 @@ export const Input = forwardRef<TextInput, InputProps>(
       leftElement,
       rightElement,
       clearable,
+      clearLabel,
+      onClear,
       className,
       style,
       testId,
@@ -31,7 +34,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       type,
       placeholder,
       value,
-      onChange,
+      onValueChange,
       onFocus,
       onBlur,
       required,
@@ -49,11 +52,9 @@ export const Input = forwardRef<TextInput, InputProps>(
     )
 
     const handleClear = useCallback(() => {
-      if (onChange) {
-        // Simulate a change event with empty value
-        onChange({ target: { value: '' } } as unknown as Event)
-      }
-    }, [onChange])
+      onClear?.()
+      onValueChange?.('')
+    }, [onClear, onValueChange])
 
     const secureTextEntry = type === 'password'
     const keyboardType =
@@ -83,14 +84,10 @@ export const Input = forwardRef<TextInput, InputProps>(
             testID={testId}
             editable={!disabled}
             placeholder={placeholder}
-            value={value as string | undefined}
-            onChangeText={(text) => {
-              if (onChange) {
-                onChange({ target: { value: text } } as unknown as Event)
-              }
-            }}
-            onFocus={onFocus as unknown as () => void}
-            onBlur={onBlur as unknown as () => void}
+            value={value === undefined ? undefined : String(value)}
+            onChangeText={onValueChange}
+            onFocus={onFocus ? () => onFocus() : undefined}
+            onBlur={onBlur ? () => onBlur() : undefined}
             secureTextEntry={secureTextEntry}
             keyboardType={keyboardType}
             accessibilityLabel={typeof label === 'string' ? label : undefined}
@@ -99,8 +96,11 @@ export const Input = forwardRef<TextInput, InputProps>(
             <Pressable
               className={cm.inputClearButton}
               onPress={handleClear}
+              disabled={disabled}
               accessibilityRole="button"
-              accessibilityLabel={t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
+              accessibilityLabel={
+                clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })
+              }
             >
               <Text>{t('ui.icon.close', undefined, { defaultValue: '✕' })}</Text>
             </Pressable>

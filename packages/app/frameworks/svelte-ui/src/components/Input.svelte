@@ -5,6 +5,7 @@
 -->
 <script lang="ts">
   import { PresentWhileContent, useTranslation } from '@molecule/app-svelte'
+  import type { MouseEventHandler } from '@molecule/app-ui'
   import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
@@ -38,6 +39,7 @@
     name,
     id,
     onChange,
+    onValueChange,
     onFocus,
     onBlur,
     autoFocus,
@@ -85,8 +87,9 @@
     }
   })
 
-  const handleInput = (e: Event): void => {
+  const handleInput = (e: Event & { currentTarget: HTMLInputElement }): void => {
     onChange?.(e)
+    onValueChange?.(e.currentTarget.value)
     // A controlled value without a caller update keeps its prop value, exactly
     // like React's controlled-input restore.
     if (value !== undefined && ref) ref.value = value
@@ -128,7 +131,12 @@
         {#if clearable && value}
           <button
             type="button"
-            onclick={onClear}
+            {disabled}
+            onclick={(event) => {
+              const onClearClick: MouseEventHandler | undefined = onClear
+              onClearClick?.(event)
+              onValueChange?.('')
+            }}
             class={cm.inputClearButton}
             aria-label={clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
           >

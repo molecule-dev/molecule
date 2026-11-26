@@ -19,6 +19,11 @@ import type { OverlayLayerOptions, OverlayTarget } from '@molecule/app-ui'
 // so this file gives its tests room to finish.
 vi.setConfig({ testTimeout: 60_000 })
 
+/** Reads Vue's declared events in either supported declaration form. */
+function eventNames(events: readonly string[] | object | undefined): readonly string[] {
+  return Array.isArray(events) ? events : Object.keys(events ?? {})
+}
+
 // ============================================================================
 // Mock Vue
 // ============================================================================
@@ -824,10 +829,9 @@ describe('Input component', () => {
 
   it('should emit correct events', async () => {
     const { Input } = await import('../components/Input.js')
-    expect(Input.emits).toContain('change')
-    expect(Input.emits).toContain('clear')
-    expect(Input.emits).toContain('focus')
-    expect(Input.emits).toContain('blur')
+    expect(eventNames(Input.emits)).toEqual(
+      expect.arrayContaining(['change', 'clear', 'focus', 'blur', 'valueChange']),
+    )
   })
 
   it('setup should return a render function', async () => {
@@ -881,6 +885,7 @@ describe('Input component', () => {
     const event = { type: 'input', target: { value: 'typed' } }
     inputCall[1].onInput!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
+    expect(mockEmit).toHaveBeenCalledWith('valueChange', 'typed')
   })
 
   it('restores a controlled value right after the change handler', async () => {
@@ -903,6 +908,7 @@ describe('Input component', () => {
     const event = { type: 'click' }
     clearCall[1].onClick!(event)
     expect(mockEmit).toHaveBeenCalledWith('clear', event)
+    expect(mockEmit).toHaveBeenCalledWith('valueChange', '')
   })
 })
 
@@ -974,9 +980,9 @@ describe('Textarea component', () => {
 
   it('should emit correct events', async () => {
     const { Textarea } = await import('../components/Textarea.js')
-    expect(Textarea.emits).toContain('change')
-    expect(Textarea.emits).toContain('focus')
-    expect(Textarea.emits).toContain('blur')
+    expect(eventNames(Textarea.emits)).toEqual(
+      expect.arrayContaining(['change', 'focus', 'blur', 'valueChange']),
+    )
   })
 
   it('renders the textarea with the rows fallback to minRows', async () => {
@@ -993,6 +999,7 @@ describe('Textarea component', () => {
     const event = { type: 'input', target: { value: 'edited' } }
     textareaCall[1].onInput!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
+    expect(mockEmit).toHaveBeenCalledWith('valueChange', 'edited')
   })
 })
 
@@ -1340,7 +1347,7 @@ describe('Checkbox component', () => {
 
   it('should emit change', async () => {
     const { Checkbox } = await import('../components/Checkbox.js')
-    expect(Checkbox.emits).toContain('change')
+    expect(eventNames(Checkbox.emits)).toEqual(expect.arrayContaining(['change', 'checkedChange']))
   })
 
   it('renders the checkbox inside the control label', async () => {
@@ -1369,6 +1376,7 @@ describe('Checkbox component', () => {
     const event = { type: 'click', target: { checked: true } }
     inputCall[1].onClick!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
+    expect(mockEmit).toHaveBeenCalledWith('checkedChange', true)
   })
 
   it('restores a controlled checked right after the change handler', async () => {
@@ -1584,8 +1592,9 @@ describe('Switch component', () => {
 
   it('should emit change and click', async () => {
     const { Switch } = await import('../components/Switch.js')
-    expect(Switch.emits).toContain('change')
-    expect(Switch.emits).toContain('click')
+    expect(eventNames(Switch.emits)).toEqual(
+      expect.arrayContaining(['change', 'click', 'checkedChange']),
+    )
   })
 
   it('setup should return render function that creates a switch button', async () => {

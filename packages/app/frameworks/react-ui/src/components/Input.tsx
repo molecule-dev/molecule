@@ -8,7 +8,7 @@ import React, { forwardRef, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
-import type { InputProps } from '@molecule/app-ui'
+import type { InputProps, MouseEventHandler } from '@molecule/app-ui'
 import { fieldLayout, getClassMap } from '@molecule/app-ui'
 import { Box, Pressable, Text, TextField } from '@molecule/app-ui-react/elements'
 
@@ -43,6 +43,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       name,
       id,
       onChange,
+      onValueChange,
       onFocus,
       onBlur,
       ...rest
@@ -103,6 +104,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             webStyle={style}
             data-testid={testId}
             onChange={onChange}
+            onValueChange={onValueChange}
             onFocus={onFocus}
             onBlur={onBlur}
             {...rootProps(rest)}
@@ -113,7 +115,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 <Pressable
                   as="button"
                   type="button"
-                  onClick={onClear}
+                  disabled={disabled}
+                  onClick={(event) => {
+                    const onClearClick: MouseEventHandler | undefined = onClear
+                    onClearClick?.(event)
+                    onValueChange?.('')
+                  }}
                   className={cm.inputClearButton}
                   aria-label={
                     clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })

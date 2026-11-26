@@ -7,6 +7,7 @@
 import { createUniqueId, Show, splitProps } from 'solid-js'
 
 import { ResolveNode, useTranslation } from '@molecule/app-solid'
+import type { MouseEventHandler } from '@molecule/app-ui'
 import { fieldLayout, getClassMap } from '@molecule/app-ui'
 
 import type { InputProps } from '../types.js'
@@ -43,6 +44,7 @@ export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((pro
     'name',
     'id',
     'onChange',
+    'onValueChange',
     'onFocus',
     'onBlur',
   ])
@@ -63,6 +65,7 @@ export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((pro
   // caller does not adopt the typed one.
   const handleInput = (event: Event & { target: HTMLInputElement }): void => {
     local.onChange?.(event)
+    local.onValueChange?.(event.target.value)
     if (local.value !== undefined) event.target.value = String(local.value)
   }
 
@@ -134,7 +137,12 @@ export const Input = withDisplayName<WithRef<InputProps, HTMLInputElement>>((pro
                       >
                         <button
                           type="button"
-                          onClick={local.onClear}
+                          disabled={local.disabled}
+                          onClick={(event) => {
+                            const onClearClick: MouseEventHandler | undefined = local.onClear
+                            onClearClick?.(event)
+                            local.onValueChange?.('')
+                          }}
                           class={cm.inputClearButton}
                           aria-label={
                             local.clearLabel ??

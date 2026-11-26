@@ -31,6 +31,7 @@
     id,
     rows,
     onChange,
+    onValueChange,
     onFocus,
     onBlur,
     ...rest
@@ -75,8 +76,9 @@
 
   const shownValue = $derived(value !== undefined ? value : (defaultValue ?? undefined))
 
-  const handleChange = (e: Event): void => {
+  const handleChange = (e: Event & { currentTarget: HTMLTextAreaElement }): void => {
     onChange?.(e)
+    onValueChange?.(e.currentTarget.value)
     // Controlled value without a caller update keeps its prop value.
     if (value !== undefined && ref) ref.value = value
   }

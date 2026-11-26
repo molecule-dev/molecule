@@ -7,8 +7,9 @@
 import React from 'react'
 import { Pressable, Text, View } from 'react-native'
 
-import type { CardProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { CardProps } from '../types.js'
 
 /**
  * Renders a Card component.
@@ -20,7 +21,8 @@ import { getClassMap } from '@molecule/app-ui'
  * @param root0.className - CSS class name override.
  * @param root0.style - Inline style object.
  * @param root0.testId - Test identifier.
- * @param root0.onClick - Click handler.
+ * @param root0.onClick - Called when the card is pressed.
+ * @param root0.disabled - Whether the card is disabled.
  * @returns The rendered Card element.
  */
 export const Card: React.FC<CardProps> = ({
@@ -32,6 +34,7 @@ export const Card: React.FC<CardProps> = ({
   style,
   testId,
   onClick,
+  disabled,
 }) => {
   const cm = getClassMap()
   const classes = cm.cn(
@@ -48,8 +51,14 @@ export const Card: React.FC<CardProps> = ({
       className={classes}
       style={style as object}
       testID={testId}
-      {...(onClick ? { onPress: onClick as unknown as () => void } : {})}
-      {...(onClick ? { accessibilityRole: 'button' as const } : {})}
+      {...(onClick
+        ? {
+            onPress: () => onClick(),
+            disabled,
+            accessibilityRole: 'button' as const,
+            accessibilityState: { disabled },
+          }
+        : {})}
     >
       {children as React.ReactNode}
     </Wrapper>

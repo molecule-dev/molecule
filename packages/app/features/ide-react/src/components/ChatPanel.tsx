@@ -1207,9 +1207,7 @@ function ChatInner({
   // The browser's Web Speech constructor, looked up once on mount.
   const [speechCtor] = useState<SpeechRecognitionConstructor | undefined>(() =>
     typeof window !== 'undefined'
-      ? (((window as unknown as Record<string, unknown>).SpeechRecognition ??
-          (window as unknown as Record<string, unknown>).webkitSpeechRecognition) as
-          SpeechRecognitionConstructor | undefined)
+      ? (window.SpeechRecognition ?? window.webkitSpeechRecognition)
       : undefined,
   )
   const [isListening, setIsListening] = useState(false)

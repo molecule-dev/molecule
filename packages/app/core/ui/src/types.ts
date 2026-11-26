@@ -13,9 +13,11 @@
  */
 
 import type {
+  CheckFieldProps,
   DotPulseMotion,
   ElementProps,
   ElementRole,
+  TextFieldProps,
   UIClassMapNativeSplit,
 } from './elements.js'
 import type { OverlayTarget } from './overlay.js'
@@ -39,8 +41,8 @@ export interface CSSProperties {
 export type Children = unknown
 
 /**
- * The event a UI kit hands a component's handler: the members that behave the same on every kit. React's kit
- * passes React's event (so `stopPropagation()` stops React parent handlers), the other kits pass the DOM event;
+ * The event a web UI kit hands a component's handler: the members shared by the web kits. React's kit
+ * passes React's event (so `stopPropagation()` stops React parent handlers), the other web kits pass the DOM event;
  * both satisfy this type. A handler that needs a member only one of them has (`nativeEvent`, `composedPath()`,
  * `isComposing`) takes the component's ref element (see {@link BaseProps}) and listens on it.
  *
@@ -238,6 +240,7 @@ export interface InputElementProps extends HTMLElementProps {
   maxLength?: number
   minLength?: number
   pattern?: string
+  /** Web change event. Prefer the control's value callback for shared web and native code. */
   onChange?: ChangeEventHandler
   onInput?: FormEventHandler
 }
@@ -273,6 +276,7 @@ export interface TextareaElementProps extends HTMLElementProps {
   maxLength?: number
   minLength?: number
   wrap?: 'hard' | 'soft' | 'off'
+  /** Web change event. {@link TextareaProps.onValueChange} also works on native. */
   onChange?: ChangeEventHandler
   onInput?: FormEventHandler
 }
@@ -285,6 +289,7 @@ export interface SelectElementProps extends HTMLElementProps {
   required?: boolean
   autoFocus?: boolean
   multiple?: boolean
+  /** Web change event. {@link SelectProps.onValueChange} also works on native. */
   onChange?: ChangeEventHandler
 }
 
@@ -400,7 +405,7 @@ export type InputType =
  *
  * Ref element: the native `<input>`.
  */
-export interface InputProps extends InputElementProps {
+export interface InputProps extends InputElementProps, Pick<TextFieldProps, 'onValueChange'> {
   /**
    * Input type.
    */
@@ -485,7 +490,7 @@ export interface FloatingInputProps extends InputElementProps {
  *
  * Ref element: the native `<textarea>`.
  */
-export interface TextareaProps extends TextareaElementProps {
+export interface TextareaProps extends TextareaElementProps, Pick<TextFieldProps, 'onValueChange'> {
   /**
    * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
    * `size` as a neighboring Input for identical font sizes.
@@ -569,7 +574,7 @@ export interface SelectProps<T = string> extends SelectElementProps {
   value?: T
 
   /**
-   * Change handler (with typed value).
+   * Called with the selected value on web and native.
    */
   onValueChange?: (value: T) => void
 
@@ -613,7 +618,7 @@ export interface SelectProps<T = string> extends SelectElementProps {
  *
  * Ref element: the native `<input type="checkbox">`.
  */
-export interface CheckboxProps extends InputElementProps {
+export interface CheckboxProps extends InputElementProps, Pick<CheckFieldProps, 'onCheckedChange'> {
   /**
    * Checkbox label.
    */
@@ -723,7 +728,7 @@ export interface RadioGroupProps<T = string> extends BaseProps {
  *
  * Ref element: the `role="switch"` button.
  */
-export interface SwitchProps extends InputElementProps {
+export interface SwitchProps extends InputElementProps, Pick<CheckFieldProps, 'onCheckedChange'> {
   /**
    * Switch label.
    */

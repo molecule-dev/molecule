@@ -46,6 +46,7 @@ export const Switch = withDisplayName<WithRef<SwitchProps, HTMLButtonElement>>((
     'testId',
     'disabled',
     'onChange',
+    'onCheckedChange',
     'onClick',
   ])
 
@@ -64,7 +65,9 @@ export const Switch = withDisplayName<WithRef<SwitchProps, HTMLButtonElement>>((
     if (!input) return
     reflectCheckedAtCreation(input, !!local.checked)
     const listener = (event: Event): void => {
+      const next = input.checked
       local.onChange?.(event)
+      local.onCheckedChange?.(next)
       input.checked = !!local.checked
     }
     input.addEventListener('change', listener)
