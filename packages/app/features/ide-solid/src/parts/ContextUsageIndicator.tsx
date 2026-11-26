@@ -44,7 +44,7 @@ import { formatTokenCount } from '@molecule/app-ai-models'
 import { contextCategoryLabel, mergeContextHistory } from '@molecule/app-ide-panel-logic/panels'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
-import { Modal, Progress, Tooltip } from '@molecule/app-ui-solid'
+import { Modal, Progress, Tooltip, toStyleProps } from '@molecule/app-ui-solid'
 
 import { ContextSessionUsage, useContextSessionUsage } from './ContextSessionUsage.jsx'
 
@@ -119,29 +119,6 @@ const TOOLTIP_STYLE = {
   'max-width': 'calc(100vw - 32px)',
   'white-space': 'normal',
 } as const
-
-/**
- * Serializes a ClassMap compound-spacing style object (`cm.sp({ p: 4 })`,
- * camelCase longhands) into Solid's style form: four equal sides collapse into
- * the shorthand the DOM records (`padding: 1rem`, what React's style object
- * serializes to), anything else becomes kebab-case longhands.
- *
- * @param record - The ClassMap spacing record.
- * @returns The kebab-case style record with the equal-side shorthand.
- */
-function spacingStyle(record: Record<string, string>): Record<string, string> {
-  const { paddingTop, paddingBottom, paddingLeft, paddingRight, ...rest } = record
-  if (
-    paddingTop !== undefined &&
-    paddingTop === paddingBottom &&
-    paddingTop === paddingLeft &&
-    paddingTop === paddingRight
-  ) {
-    return { ...rest, padding: paddingTop }
-  }
-  const kebab = (key: string): string => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
-  return Object.fromEntries(Object.entries(record).map(([key, value]) => [kebab(key), value]))
-}
 
 /**
  * The stateful view for one conversation: owns the hover preview and the
@@ -568,7 +545,7 @@ function ContextUsageView(props: ContextUsageIndicatorProps): JSX.Element {
   /** The modal's body: created once, its labels update in place. */
   const modalBody = (): JSX.Element => (
     <div class={cm.flex({ direction: 'col', gap: 'lg' })}>
-      <section class={cm.card({ variant: 'outline' })} style={spacingStyle(cm.sp({ p: 4 }))}>
+      <section class={cm.card({ variant: 'outline' })} style={toStyleProps(cm.sp({ p: 4 }))}>
         {contextSummary()}
         <div class={cm.borderT} style={{ 'margin-top': '16px', 'padding-top': '16px' }}>
           {sessionRows()}
