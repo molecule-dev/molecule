@@ -25,9 +25,11 @@ const CURL_TYPES: Record<string, string> = {
 }
 
 describe('the Quick Start', () => {
-  it('ends with a curl upload and download', () => {
-    expect(example).toMatch(/curl -sS -F file=@\S+ localhost:\$PORT\/files/)
-    expect(example).toMatch(/curl -sS localhost:\$PORT\/files\/<id>/)
+  it('ends with one curl upload and a download of the id it returned', () => {
+    // One upload, its id kept for the download: no second upload just to read the id.
+    expect(example.match(/curl -fsS -F file=@/g)).toHaveLength(1)
+    expect(example).toMatch(/id=\$\(curl -fsS -F file=@\S+ localhost:\$PORT\/files \| node -pe/)
+    expect(example).toMatch(/curl -fsS localhost:\$PORT\/files\/\$id/)
   })
 
   it('uploads a file of a type its route accepts', () => {

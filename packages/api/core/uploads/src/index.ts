@@ -87,8 +87,9 @@
  *
  * // Try it with the server running (curl builds the multipart body; add your auth header). A .txt
  * // file goes up as text/plain, which `types` allows:
- * //   echo hi > /tmp/a.txt && curl -sS -F file=@/tmp/a.txt localhost:$PORT/files   → {"id":"<id>"}
- * //   curl -sS localhost:$PORT/files/<id>                                          → hi
+ * //   echo hi > /tmp/a.txt
+ * //   id=$(curl -fsS -F file=@/tmp/a.txt localhost:$PORT/files | node -pe 'JSON.parse(fs.readFileSync(0)).id')
+ * //   curl -fsS localhost:$PORT/files/$id   → hi
  * ```
  *
  * @e2e
