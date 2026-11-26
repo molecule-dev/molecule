@@ -69,9 +69,8 @@ const DEFAULT_PALETTE = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#f59e0b'] 
       [attr.tabindex]="tabIndex()"
       [style.cursor]="onWordClick ? 'pointer' : null"
       (click)="clickWord(p)"
-    >
-      {{ p.word.text }}
-    </svg:text>
+      [textContent]="p.word.text"
+    ></svg:text>
   }`,
 })
 export class WordCloud {
