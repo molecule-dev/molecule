@@ -11,9 +11,9 @@
  * The Molecule suite installs the managed browser it needs on first use,
  * then Playwright's own fixtures launch it. Set `MOL_E2E_SKIP_BROWSER_INSTALL=1`
  * if you provision browsers yourself. On a read-only browser cache (a mount
- * shared into a container) it runs no installer, which could never take its
- * lock there: it checks the cache already holds the browser and otherwise
- * fails at once, naming what is missing.
+ * shared into a container), setup checks the required downloads and fails at
+ * once if any are missing. Playwright checks FFmpeg when recording video and
+ * validates host libraries when launching a browser.
  *
  * @example
  * ```ts

@@ -10,7 +10,7 @@ import { constants } from 'node:fs'
 import { access, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { homedir, hostname, tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import process from 'node:process'
 import { setTimeout } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
@@ -18,6 +18,7 @@ import { stripVTControlCharacters } from 'node:util'
 const INSTALL_TIMEOUT_MS = 240_000
 const RESULT_WAIT_MS = INSTALL_TIMEOUT_MS + 10_000
 const LIST_TIMEOUT_MS = 30_000
+const INSPECTION_OPTIONS = new Set(['--dry-run', '--list', '--help', '-h'])
 
 /**
  * The file Playwright writes into a browser's install location once the browser is complete
@@ -104,31 +105,45 @@ async function readOnlyCache(cache: string): Promise<boolean> {
     await access(cache, constants.W_OK)
     return false
   } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code
+    const code = error instanceof Error && 'code' in error ? error.code : undefined
     if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') return true
     if (code === 'ENOENT') return false
     throw error
   }
 }
 
-/** The install locations `playwright install --dry-run` lists for the same arguments. */
+/** The locations `playwright install --dry-run` lists for the requested targets. */
 function installLocations(
   command: string[],
   cwd: string,
   env: NodeJS.ProcessEnv,
 ): Promise<string[]> {
-  const args = [command[1], 'install', '--dry-run', ...command.slice(3)]
+  // The --with-deps simulation can exit nonzero even when the browsers can launch.
+  const installArgs = command.slice(3)
+  const endOfOptions = installArgs.indexOf('--')
+  const browserArgs = installArgs.filter(
+    (arg, index) => arg !== '--with-deps' || (endOfOptions >= 0 && index > endOfOptions),
+  )
+  const args = [command[1], 'install', '--dry-run', ...browserArgs]
   return new Promise((resolveResult, reject) => {
     execFile(
       command[0],
       args,
       { cwd, env, encoding: 'utf8', timeout: LIST_TIMEOUT_MS },
       (error, stdout) => {
-        if (error) reject(error)
-        else
-          resolveResult(
-            [...stdout.matchAll(/^\s*Install location:\s*(.+?)\s*$/gm)].map(([, at]) => at),
+        if (error) {
+          // Playwright also prints CLI errors (such as invalid targets) to stdout.
+          const diagnostic = stripVTControlCharacters(stdout).trim().split(/\r?\n/).at(-1)
+          reject(
+            diagnostic
+              ? new Error(`${error.message.trim()}. ${diagnostic}`, { cause: error })
+              : error,
           )
+          return
+        }
+        resolveResult(
+          [...stdout.matchAll(/^\s*Install location:\s*(.+?)\s*$/gm)].map(([, at]) => at),
+        )
       },
     )
   })
@@ -140,7 +155,7 @@ async function installed(location: string): Promise<boolean> {
     await access(join(location, INSTALLED_MARKER))
     return true
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return false
     throw error
   }
 }
@@ -149,7 +164,7 @@ async function installed(location: string): Promise<boolean> {
  * On a read-only cache, check that the requested browsers are complete instead of running an
  * installer that cannot take its lock there.
  *
- * @returns An empty string when every listed browser is complete, otherwise the diagnostic.
+ * @returns An empty string when every required download is complete, otherwise the diagnostic.
  */
 async function checkReadOnlyCache(
   command: string[],
@@ -160,7 +175,11 @@ async function checkReadOnlyCache(
   process.stdout.write(
     `Molecule browser setup: ${cache} is read-only, so checking it holds playwright ${command.slice(3).join(' ')}\n`,
   )
-  const locations = await installLocations(command, cwd, env)
+  const listsFfmpeg = command.slice(3).includes('ffmpeg')
+  // Playwright adds FFmpeg to browser targets for video recording.
+  const locations = (await installLocations(command, cwd, env)).filter(
+    (location) => listsFfmpeg || !/^ffmpeg(?:_.+_special)?-\d+$/.test(basename(location)),
+  )
   const missing: string[] = []
   for (const location of locations) if (!(await installed(location))) missing.push(location)
   if (locations.length && !missing.length) return ''
@@ -233,8 +252,9 @@ async function shareResult(key: string, run: () => Promise<string>): Promise<str
 }
 
 /**
- * Install the requested managed browser with the suite's own Playwright CLI. Workers and retries
- * under one runner share the outcome for the same cache, target and Playwright version.
+ * Prepare the requested managed browser with the suite's own Playwright CLI. On a read-only
+ * cache, check the required browser downloads. Workers and retries under one runner share the
+ * outcome for the same cache, target and Playwright version.
  *
  * @param args - The arguments after `playwright install`.
  * @param cwd - The directory containing the suite's Playwright config, or the current directory.
@@ -278,9 +298,13 @@ export async function installPlaywrightBrowser(
     const env = { ...process.env, ...(dir !== runnerCwd ? { INIT_CWD: from } : {}) }
     const run = async (): Promise<string> => {
       try {
-        const diagnostic = (await readOnlyCache(cache))
-          ? await checkReadOnlyCache(command, dir, env, cache)
-          : await runInstall(command, dir, env)
+        const endOfOptions = args.indexOf('--')
+        const options = endOfOptions < 0 ? args : args.slice(0, endOfOptions)
+        const inspectsOnly = options.some((arg) => INSPECTION_OPTIONS.has(arg))
+        const diagnostic =
+          !inspectsOnly && (await readOnlyCache(cache))
+            ? await checkReadOnlyCache(command, dir, env, cache)
+            : await runInstall(command, dir, env)
         return diagnostic ? failure(diagnostic) : ''
       } catch (error) {
         return failure(String(error))

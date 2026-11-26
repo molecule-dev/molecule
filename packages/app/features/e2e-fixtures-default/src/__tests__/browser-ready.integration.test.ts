@@ -23,6 +23,7 @@ vi.setConfig({ testTimeout: 60_000 })
 const runner = createRequire(import.meta.url).resolve('@playwright/test/cli')
 const fixtures = new URL('../../dist/index.js', import.meta.url).href
 const core = import.meta.resolve('@molecule/app-e2e')
+const installer = import.meta.resolve('@molecule/app-e2e-playwright')
 const dirs: string[] = []
 const readOnly: string[] = []
 
@@ -86,6 +87,8 @@ interface RunOptions {
   cliInProject?: boolean
   /** Make the cache read-only, holding a complete browser or one without its marker. */
   readOnlyCache?: 'complete' | 'incomplete'
+  /** Call the bond directly with arguments outside the fixture's browser selection. */
+  installArgs?: string[]
 }
 
 /** Create a suite outside the checkout and run it with a project-local recording installer. */
@@ -100,6 +103,7 @@ function run(
     externalConfig = false,
     cliInProject = false,
     readOnlyCache,
+    installArgs,
   }: RunOptions = {},
 ) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'mol-browser-ready-')))
@@ -107,17 +111,20 @@ function run(
   const invocation = externalConfig ? join(root, 'app') : root
   const dir = externalConfig ? join(root, 'suite') : root
   const eventsPath = join(dir, 'events.jsonl')
-  const cache = join(invocation, 'browser-cache')
   const playable = join(cliInProject ? invocation : dir, 'node_modules/@playwright/test')
+  const localPlaywright = join(playable, 'node_modules/playwright')
+  const localCore = join(localPlaywright, 'node_modules/playwright-core')
+  const cache =
+    env?.PLAYWRIGHT_BROWSERS_PATH === '0'
+      ? join(localCore, '.local-browsers')
+      : join(invocation, 'browser-cache')
   mkdirSync(invocation, { recursive: true })
   mkdirSync(dir, { recursive: true })
   mkdirSync(playable, { recursive: true })
   if (env?.PLAYWRIGHT_BROWSERS_PATH === '0') {
-    const playwright = join(playable, 'node_modules/playwright')
-    const core = join(playwright, 'node_modules/playwright-core')
-    mkdirSync(core, { recursive: true })
-    writeFileSync(join(playwright, 'package.json'), '{}')
-    writeFileSync(join(core, 'package.json'), '{}')
+    mkdirSync(localCore, { recursive: true })
+    writeFileSync(join(localPlaywright, 'package.json'), '{}')
+    writeFileSync(join(localCore, 'package.json'), '{}')
   }
   writeFileSync(
     join(playable, 'package.json'),
@@ -129,16 +136,41 @@ function run(
   writeFileSync(
     join(playable, 'cli.cjs'),
     `const { appendFileSync } = require('node:fs')
-    const dryRun = process.argv.includes('--dry-run')
+    const { join } = require('node:path')
+    const args = process.argv.slice(2)
+    const dryRun = args.includes('--dry-run')
+    const list = args.includes('--list')
     appendFileSync(process.env.EVENT_LOG, JSON.stringify({
-      kind: dryRun ? 'list' : 'install', args: process.argv.slice(2), cwd: process.cwd(),
+      kind: dryRun || list ? 'list' : 'install', args, cwd: process.cwd(),
       cache: process.env.PLAYWRIGHT_BROWSERS_PATH, cacheBase: process.env.INIT_CWD,
       proxy: process.env.HTTPS_PROXY,
       node: process.execPath,
     }) + '\\n')
+    if (list) {
+      if (dryRun) {
+        console.log('Error: Only one of --dry-run and --list can be specified')
+        process.exitCode = 1
+      } else {
+        console.log('Playwright version: 1.64.1')
+      }
+      return
+    }
     if (dryRun) {
-      console.log('Chrome Headless Shell (playwright chromium-headless-shell v1248)')
-      console.log('  Install location:    ' + process.env.BROWSER_LOCATION)
+      if (args.includes('unknown-browser')) {
+        console.log("Error: Invalid installation targets: 'unknown-browser'")
+        process.exitCode = 1
+        return
+      }
+      const location = (name) => console.log('  Install location:    ' + join(process.env.BROWSER_CACHE, name))
+      if (args.includes('--with-deps')) {
+        console.log('Missing system dependencies (1):\\n  fonts-test-fixture')
+        process.exitCode = 1
+      }
+      if (args.includes('chromium')) {
+        if (!args.includes('--only-shell')) location('chromium-1248')
+        if (!args.includes('--no-shell')) location('chromium_headless_shell-1248')
+      }
+      location('ffmpeg-1013')
       return
     }
     console.log('Recording download progress')
@@ -158,7 +190,12 @@ function run(
   const location = join(cache, 'chromium_headless_shell-1248')
   if (readOnlyCache) {
     mkdirSync(location, { recursive: true })
-    if (readOnlyCache === 'complete') writeFileSync(join(location, 'INSTALLATION_COMPLETE'), '')
+    if (readOnlyCache === 'complete') {
+      writeFileSync(join(location, 'INSTALLATION_COMPLETE'), '')
+      const chromium = join(cache, 'chromium-1248')
+      mkdirSync(chromium)
+      writeFileSync(join(chromium, 'INSTALLATION_COMPLETE'), '')
+    }
     chmodSync(cache, 0o555)
     readOnly.push(cache)
     // Root writes a 0555 directory, so this user could not see the cache as read-only.
@@ -166,7 +203,20 @@ function run(
   }
   const proxy = 'http://127.0.0.1:9'
   const config = externalConfig ? ['--config', join(dir, 'playwright.config.mjs')] : []
-  const result = spawnSync(process.execPath, [runner, 'test', ...config, ...filters], {
+  const command = installArgs
+    ? [
+        '--input-type=module',
+        '-e',
+        `import { installPlaywrightBrowser } from ${JSON.stringify(installer)}
+         try {
+           await installPlaywrightBrowser(${JSON.stringify(installArgs)}, ${JSON.stringify(dir)})
+         } catch (error) {
+           console.error(String(error))
+           process.exitCode = 1
+         }`,
+      ]
+    : [runner, 'test', ...config, ...filters]
+  const result = spawnSync(process.execPath, command, {
     cwd: invocation,
     env: {
       ...process.env,
@@ -182,7 +232,7 @@ function run(
       INIT_CWD: externalConfig ? '.' : undefined,
       HTTPS_PROXY: proxy,
       EVENT_LOG: eventsPath,
-      BROWSER_LOCATION: location,
+      BROWSER_CACHE: cache,
       ...env,
     },
     encoding: 'utf8',
@@ -227,7 +277,7 @@ it('installs with the suite CLI and streams progress before the inherited browse
 // Playwright's installer locks the cache first and retries for ten minutes, so on a read-only
 // cache (a host cache mounted into a container) it was killed at the 240 s limit even with the
 // browser in place (2026-11-26).
-it('checks a read-only cache that holds the browser instead of running the installer', () => {
+it('checks a read-only cache that holds the browser without FFmpeg', () => {
   const { status, events, output, cache } = run([PAGE], { readOnlyCache: 'complete' })
   expect(status, output).toBe(0)
   expect(events.map(({ kind }) => kind)).toEqual(['list', 'launch', 'page'])
@@ -245,6 +295,77 @@ it('fails at once on a read-only cache whose browser is incomplete, naming its l
     'the browser cache is read-only, so Playwright cannot install into it',
   )
   expect(errors[0]).toContain(`it lacks ${join(cache, 'chromium_headless_shell-1248')}`)
+})
+
+it('shares one read-only check of a relative cache across workers', () => {
+  const { status, events, output, invocation } = run([PAGE, PAGE], {
+    externalConfig: true,
+    readOnlyCache: 'complete',
+    workers: 2,
+  })
+  expect(status, output).toBe(0)
+  expect(events[0]).toMatchObject({ kind: 'list', cache: './browser-cache', cacheBase: invocation })
+  expect(events.filter(({ kind }) => kind === 'list')).toHaveLength(1)
+  const launches = events.filter(({ kind }) => kind === 'launch')
+  expect(new Set(launches.map(({ workerIndex }) => workerIndex)).size).toBe(2)
+  expect(events.filter(({ kind }) => kind === 'page')).toHaveLength(2)
+})
+
+it('shares a failed read-only check of the package-local cache across workers and retries', () => {
+  const { status, events, output, cache } = run([PAGE, PAGE], {
+    env: { PLAYWRIGHT_BROWSERS_PATH: '0' },
+    readOnlyCache: 'incomplete',
+    workers: 2,
+    retries: 1,
+  })
+  expect(status, output).toBe(1)
+  expect(events.map(({ kind }) => kind)).toEqual(['list'])
+  const errors = output.match(/^\s*Error: MOL_E2E_BROWSER_SETUP_FAILED[^\n]*/gm) ?? []
+  expect(errors).toHaveLength(4)
+  for (const error of errors) {
+    expect(error).toContain(`it lacks ${join(cache, 'chromium_headless_shell-1248')}.`)
+  }
+})
+
+it('requires FFmpeg when the install target explicitly requests it', () => {
+  const { status, events, output, cache } = run([], {
+    readOnlyCache: 'complete',
+    installArgs: ['ffmpeg'],
+  })
+  expect(status, output).toBe(1)
+  expect(events.map(({ args }) => args)).toEqual([['install', '--dry-run', 'ffmpeg']])
+  expect(output).toContain(`it lacks ${join(cache, 'ffmpeg-1013')}`)
+})
+
+it('checks the browsers for --with-deps without simulating system installation on a read-only cache', () => {
+  const { status, events, output } = run([], {
+    readOnlyCache: 'complete',
+    installArgs: ['--with-deps', 'chromium'],
+  })
+  expect(status, output).toBe(0)
+  expect(events.map(({ args }) => args)).toEqual([['install', '--dry-run', 'chromium']])
+})
+
+it.each([
+  { option: '--list', args: ['--list'] },
+  { option: '--dry-run', args: ['--dry-run', ...SHELL] },
+])('passes $option through on a read-only cache', ({ args }) => {
+  const { status, events, output } = run([], {
+    readOnlyCache: 'incomplete',
+    installArgs: args,
+  })
+  expect(status, output).toBe(0)
+  expect(events.map(({ args }) => args)).toEqual([['install', ...args]])
+})
+
+it('includes the CLI diagnostic when the read-only cache check cannot list the target', () => {
+  const { status, events, output } = run([], {
+    readOnlyCache: 'complete',
+    installArgs: ['unknown-browser'],
+  })
+  expect(status, output).toBe(1)
+  expect(events.map(({ kind }) => kind)).toEqual(['list'])
+  expect(output).toContain("Invalid installation targets: 'unknown-browser'")
 })
 
 it('uses the invoking project CLI when the suite has an external config', () => {
