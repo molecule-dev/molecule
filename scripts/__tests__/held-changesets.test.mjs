@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
+import process from 'node:process'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -12,6 +13,7 @@ import {
 } from '../lib/held-changesets.mjs'
 
 const GUARD = resolve(import.meta.dirname, '../check-release-changesets.sh')
+const LOCAL_GUARD = resolve(import.meta.dirname, '../check-changesets-consumed.mjs')
 const roots = []
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
@@ -83,11 +85,20 @@ describe('committed held-changeset guard', () => {
     expect(result.stderr).toContain('.changeset/café.md')
   })
 
-  it('retains the old refusal with pending changesets and no hold record', () => {
+  it('refuses pending changesets and directs both callers to the isolated version stage', () => {
     const { root } = fixture(null, { 'other.md': ['@molecule/other'] })
-    const result = guard(root)
-    expect(result.status).toBe(1)
-    expect(result.stderr).toContain('Versioning is a LOCAL step now')
+    const local = spawnSync(process.execPath, [LOCAL_GUARD], {
+      cwd: root,
+      encoding: 'utf8',
+      env: { ...process.env, MOL_CHANGESET_ROOT: root },
+    })
+    for (const result of [guard(root), local]) {
+      expect(result.status).toBe(1)
+      expect(result.stderr).toMatch(/unconsumed changeset/i)
+      expect(result.stderr).toContain('node scripts/release.mjs --only=version,publish')
+      expect(result.stderr).toContain('workspace root')
+      expect(result.stderr).not.toContain('npm run version')
+    }
   })
 
   it('passes an ordinary release with no pending changesets and no record', () => {

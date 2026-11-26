@@ -21,6 +21,7 @@
  * set: the export's own directory is no repository, and the one around it is not molecule
  * (2026-11-26: the pre-push run failed on `bad object` for main's tip).
  */
+import { Buffer } from 'node:buffer'
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import process from 'node:process'
@@ -92,7 +93,7 @@ function manifest(text) {
 export function versionsWithoutChangelog({ manifests, before, after }) {
   const missing = []
   for (const file of manifests) {
-    if (!/^packages\/.+\/package\.json$/.test(file)) continue
+    if (!/^packages\/.+\/package\.json$/s.test(file)) continue
     const [was, now] = [manifest(before(file)), manifest(after(file))]
     if (!was?.version || !now?.version || now.private || !now.name?.startsWith('@molecule/'))
       continue
@@ -132,16 +133,22 @@ function report(missing) {
 export function readRevisionFiles(cwd, specs) {
   const files = new Map()
   if (!specs.length) return files
-  const out = execFileSync('git', ['-C', cwd, 'cat-file', '--batch'], {
-    input: `${specs.join('\n')}\n`,
+  const out = execFileSync('git', ['-C', cwd, 'cat-file', '--batch', '-z'], {
+    input: `${specs.join('\0')}\0`,
     maxBuffer: 1 << 30,
   })
   let at = 0
   for (const spec of specs) {
+    // A missing response repeats the spec, which can contain a newline in its path.
+    const missing = Buffer.from(`${spec} missing\n`)
+    if (out.subarray(at, at + missing.length).equals(missing)) {
+      files.set(spec, null)
+      at += missing.length
+      continue
+    }
     const lineEnd = out.indexOf(10, at)
     const header = /^[0-9a-f]+ (\S+) (\d+)$/.exec(out.subarray(at, lineEnd).toString('utf8'))
     at = lineEnd + 1
-    // A name that resolves to nothing prints one "<name> missing" line and no body.
     if (!header) {
       files.set(spec, null)
       continue
@@ -185,8 +192,16 @@ if (isMainModule(import.meta.url)) {
   const git = (args) =>
     execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', maxBuffer: 1 << 28 })
   const changedManifests = (args) =>
-    git(['diff', '--name-only', '--no-renames', ...args, '--', ':(glob)packages/**/package.json'])
-      .split('\n')
+    git([
+      'diff',
+      '--name-only',
+      '-z',
+      '--no-renames',
+      ...args,
+      '--',
+      ':(glob)packages/**/package.json',
+    ])
+      .split('\0')
       .filter(Boolean)
   const baseArg = process.argv.find((arg) => arg.startsWith('--base='))?.slice('--base='.length)
   let missing

@@ -37,6 +37,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 export const TEST_EXCLUDE = 'src/**/__tests__/**'
 const EXCLUDES = new Set([TEST_EXCLUDE, '**/__tests__/**', '**/__tests__'])
 const TEST_FILE = /\.(test|spec)\.[cm]?[jt]sx?$/
+const BUILD_DIRS = new Set(['node_modules', 'dist', '.svelte-kit', '.turbo'])
 
 /**
  * Parse a tsconfig, which may carry comments and trailing commas.
@@ -144,7 +145,8 @@ export function findPublishedTests(root, files) {
 }
 
 /**
- * Every file under `packages/`: in a checkout the tracked ones and the untracked ones git does
+ * Every file under `packages/` outside build and install directories. In a checkout, this lists
+ * the tracked files and the untracked ones git does
  * not ignore (a new package is checked, and `--fix` reaches it, before it is staged), or every
  * file of an export (the pre-commit hook runs this from an export of the index, which has no
  * `.git`).
@@ -157,21 +159,27 @@ export function listFiles(root) {
   if (top.status === 0 && top.stdout.trim() === root)
     return execFileSync(
       'git',
-      ['ls-files', '--cached', '--others', '--exclude-standard', 'packages'],
+      ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'packages'],
       {
         cwd: root,
         encoding: 'utf8',
         maxBuffer: 1 << 28,
       },
     )
-      .split('\n')
-      .filter(Boolean)
+      .split('\0')
+      .filter(
+        (file) =>
+          file &&
+          !file
+            .split('/')
+            .slice(0, -1)
+            .some((dir) => BUILD_DIRS.has(dir)),
+      )
   const files = []
   const walk = (dir) => {
     for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
       if (entry.isDirectory()) {
-        if (!['node_modules', 'dist', '.svelte-kit', '.turbo'].includes(entry.name))
-          walk(`${dir}/${entry.name}`)
+        if (!BUILD_DIRS.has(entry.name)) walk(`${dir}/${entry.name}`)
       } else files.push(`${dir}/${entry.name}`)
     }
   }

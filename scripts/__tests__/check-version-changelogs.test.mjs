@@ -70,8 +70,10 @@ const run = (root, args, env = {}) =>
       'GITHUB_EVENT_NAME',
       'GITHUB_EVENT_BEFORE',
       'GITHUB_BASE_REF',
+      'GIT_INDEX_FILE',
       'MOL_INDEX_REPO',
       'MOL_INDEX_TIP',
+      'MOL_PRECOMMIT_BASE',
     ])
       delete clean[name]
     execFile(
@@ -119,6 +121,46 @@ describe('a raised version ships with its CHANGELOG section', () => {
     changesetVersion(root)
     git(root, 'add', '-u')
     expect((await run(root, ['--staged'], { MOL_PRECOMMIT_BASE: base })).status).toBe(1)
+  })
+
+  it('reads the same private index from its checkout and from an export naming MOL_INDEX_REPO', async () => {
+    const root = fixture()
+    const exported = join(root, 'export')
+    mkdirSync(exported)
+    const index = '.git/version-changelogs-index'
+    const gitIndex = (...args) =>
+      execFileSync('git', ['-C', root, ...args], {
+        env: { ...process.env, GIT_INDEX_FILE: index },
+      })
+    gitIndex('read-tree', 'HEAD')
+    changesetVersion(root)
+    git(root, 'add', '.')
+    gitIndex('add', `${PKG}/package.json`)
+    const local = await run(root, ['--staged'], { GIT_INDEX_FILE: index })
+    const env = { MOL_INDEX_REPO: root, GIT_INDEX_FILE: index, MOL_INDEX_TIP: 'no-such-tip' }
+    expect(local.status).toBe(1)
+    expect(local.stderr).toContain('has no `## 1.1.0` section')
+    expect(await run(exported, ['--staged'], env)).toEqual(local)
+    expect((await run(root, ['--staged'])).status).toBe(0)
+    gitIndex('add', `${PKG}/CHANGELOG.md`)
+    expect((await run(exported, ['--staged'], env)).status).toBe(0)
+  })
+
+  it('finds a version bump in a path Git would quote without NUL delimiters', async () => {
+    const root = fixture()
+    const dir = 'packages/api/core/módulo\nfixture'
+    git(root, 'config', 'core.quotePath', 'true')
+    write(root, `${dir}/package.json`, thing('1.0.0', { name: '@molecule/api-module' }))
+    git(root, 'add', dir)
+    git(root, 'commit', '-qm', 'add module')
+    write(root, `${dir}/package.json`, thing('1.1.0', { name: '@molecule/api-module' }))
+    git(root, 'add', dir)
+    const refused = await run(root, ['--staged'])
+    expect(refused.status).toBe(1)
+    expect(refused.stderr).toContain(`${dir}/CHANGELOG.md has no \`## 1.1.0\` section`)
+    write(root, `${dir}/CHANGELOG.md`, CHANGELOG)
+    git(root, 'add', dir)
+    expect((await run(root, ['--staged'])).status).toBe(0)
   })
 
   it('does not judge a lowered version, a new package, a private package or a manifest edit', () => {
@@ -244,12 +286,14 @@ describe('a raised version ships with its CHANGELOG section', () => {
       `HEAD:${PKG}/package.json`,
       ':notes.md',
       'HEAD:notes.md',
+      ':missing\nname',
       `HEAD:${PKG}`,
       ':notes.md',
     ])
     expect(JSON.parse(files.get(`HEAD:${PKG}/package.json`)).version).toBe('1.0.0')
     expect(files.get(':notes.md')).toBe('Grüße — ✓\n')
     expect(files.get('HEAD:notes.md')).toBeNull()
+    expect(files.get(':missing\nname')).toBeNull()
     expect(files.get(`HEAD:${PKG}`)).toBeNull()
   })
 

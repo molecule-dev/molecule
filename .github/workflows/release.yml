@@ -173,26 +173,10 @@ jobs:
         if: ${{ inputs.trust_otp != '' }}
         run: node scripts/trust-new-packages.mjs --ci --otp=${{ inputs.trust_otp }}
 
-      # ---- 2. Version: consume changesets, commit STRAIGHT to main ----------
-      # `npm run version` = `changeset version` (bumps package.jsons, writes the
-      # public CHANGELOG.md files) + a lockfile-only install, so the commit is
-      # consistent and the pre-commit lockfile check passes on its merits.
-      # The pre-push trust guard detects the hookless terminal and exits 0
-      # (scripts/trust-new-packages.mjs — fixed 2026-08-07 after it killed the
-      # changesets action's own push from inside this workflow).
-      #
-      # Skipped when no changesets are pending: that is the RESUME case — a
-      # previous run versioned but its publish died; re-dispatching publishes
-      # whatever the registry is missing without minting new versions.
-      # ---- 2. Guard: versioning is done LOCALLY, not by this workflow --------
-      # This workflow does NOT bump versions and makes NO commits — the bot never
-      # writes to the repo. Versioning happens in the SAME commit as the change:
-      # run `npm run version` locally (consumes changesets, bumps package.json,
-      # writes CHANGELOG.md, updates the lockfile), commit it, push, THEN trigger
-      # this workflow, which only PUBLISHES what package.json declares and npm is
-      # missing. A leftover changeset file means someone forgot to version
-      # locally — publishing now would be a silent no-op (versions still match
-      # npm), so fail loudly with the fix instead.
+      # ---- 2. Guard the committed version before publishing -----------------
+      # The workspace's release.mjs consumes committed changesets in an isolated
+      # export and commits the versions, changelogs and lockfile together. The
+      # publish stage verifies CI and dispatches this workflow for that commit.
       # ---- 2a. Guard — every package carries what npm will demand ----------
       # Provenance verifies `repository`; the tarball needs LICENSE, license,
       # homepage, README.md; every source file must parse before it can build.
@@ -234,7 +218,7 @@ jobs:
             echo "::error::CI has not passed for ${GITHUB_SHA}." >&2
             echo "  Publishing installs these packages into every sandbox, scaffolded app" >&2
             echo "  and molecule-dev deploy, so it requires a green CI run for THIS commit." >&2
-            echo "  Run the CI workflow on this ref, then re-dispatch Release." >&2
+            echo "  Once CI is green, run node scripts/release.mjs --only=publish from the workspace root." >&2
             exit 1
           fi
           echo "CI passed for ${GITHUB_SHA} — proceeding to publish."

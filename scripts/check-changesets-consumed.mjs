@@ -27,6 +27,7 @@ import {
 
 const ROOT = process.env.MOL_CHANGESET_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), '..')
 const WORKFLOW = process.argv.includes('--release-workflow')
+const RESUME = '  Run `node scripts/release.mjs --only=version,publish` from the workspace root.'
 const require = createRequire(import.meta.url)
 // Use the parser shipped with the declared Changesets CLI rather than a second
 // YAML implementation with different frontmatter rules.
@@ -68,24 +69,22 @@ if (audit.unheld.length || audit.problems.length) {
       for (const problem of audit.problems) console.error(`  ${problem}`)
       console.error('  Only changesets whose packages are all held may remain unpublished.')
     } else {
-      console.error('::error::Unconsumed changeset(s) present. Versioning is a LOCAL step now:')
-      console.error('  1. npm run version   # bump + CHANGELOG + consume changesets + lockfile')
-      console.error('  2. commit and push the result')
-      console.error('  3. re-trigger Release (it publishes; it does not version)')
+      console.error('::error::Unconsumed changeset(s) present in the committed tree.')
+      for (const file of audit.unheld) console.error(`  ${file}`)
+      for (const problem of audit.problems) console.error(`  ${problem}`)
+      console.error(RESUME)
     }
   } else {
     console.error(
       record
         ? `✗ ${audit.unheld.length} unconsumed changeset(s) outside ${HELD_CHANGESETS_FILE}:`
-        : `✗ ${pending.length} unconsumed changeset(s) — version locally before pushing:`,
+        : `✗ ${pending.length} unconsumed changeset(s) in the committed tree:`,
     )
     for (const file of audit.unheld) console.error(`    ${file}`)
     for (const problem of audit.problems) console.error(`    ${problem}`)
-    console.error(
-      `\n  npm run version   # bump package.json + CHANGELOG, consume the changeset, refresh the lockfile\n  then commit the result with the change.` +
-        `\n  npm run version consumes every changeset in .changeset/, committed or not: first move` +
-        `\n  aside any uncommitted changeset that is not part of this release.`,
-    )
+    if (audit.problems.length)
+      console.error('\n  Correct the listed changeset or hold record errors before resuming.')
+    console.error(`\n${RESUME}`)
   }
   process.exit(1)
 }
