@@ -253,11 +253,14 @@ describe('a raised version ships with its CHANGELOG section', () => {
   })
 
   it('known-bad: refuses molecule 923334bb5d itself, for its three document-text packages', () => {
+    // The release runs this suite from an export of the commit it pushes, which has no .git;
+    // MOL_INDEX_REPO names the checkout whose history it came from.
+    const history = process.env.MOL_INDEX_REPO || MOLECULE
     const manifests = execFileSync(
       'git',
       [
         '-C',
-        MOLECULE,
+        history,
         'diff-tree',
         '-r',
         '--no-commit-id',
@@ -270,7 +273,7 @@ describe('a raised version ships with its CHANGELOG section', () => {
       .split('\n')
       .filter((file) => file.endsWith('/package.json'))
     expect(manifests.length).toBeGreaterThan(3)
-    const missing = judgeChange(MOLECULE, manifests, '923334bb5d^', '923334bb5d')
+    const missing = judgeChange(history, manifests, '923334bb5d^', '923334bb5d')
     expect(missing.map(({ name }) => name)).toEqual([
       '@molecule/api-document-text',
       '@molecule/api-document-text-molecule',
