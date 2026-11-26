@@ -159,6 +159,11 @@ jobs:
       # 193 packages shipped dist/__tests__/*.test.js until 2026-11-16, and the
       # pre-commit changeset gate treats every __tests__ change as unpublished.
       - run: npm run check:published-tests
+      # A version the push raises ships with its CHANGELOG.md section. The pre-commit hook judges
+      # each commit; this judges the pushed range, which a commit made with --no-verify is in too.
+      - run: npm run check:version-changelogs -- --base=ci
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
       # Every Vue, Svelte, Solid and Angular port of a React package or bond carries each of
       # its React test titles. As a scripts test alone it ran only when scripts/ changed, so a
       # React test added without its ports passed the affected-test scope. --base=ci also

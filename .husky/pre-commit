@@ -89,6 +89,11 @@ fi
 # but deleting published source also needs a changeset.
 node scripts/precommit-changeset.mjs || gate_failed precommit-changeset
 
+# A raised version ships with its CHANGELOG.md section. A commit of tracked files only takes the
+# bump `changeset version` made and leaves the CHANGELOG.md it created behind (2026-11-26:
+# 923334bb5d raised three packages without theirs, and the next release conflicted with the copy).
+node scripts/check-version-changelogs.mjs --staged || gate_failed check-version-changelogs
+
 # Every relative import in this commit must name a file the commit carries. A file
 # git ignores or never tracked still resolves in this checkout, so local builds and
 # tests pass while CI and every consumer fail (2026-11-13: app-ui-svelte imported an
