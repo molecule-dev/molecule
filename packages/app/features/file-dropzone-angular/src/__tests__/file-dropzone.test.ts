@@ -193,6 +193,34 @@ describe('FileDropzone (keyboard activation)', () => {
     expect(zone.getAttribute('tabindex')).toBe('0')
   })
 
+  it('rejects one byte and delivers an empty file when maxSize is zero', async () => {
+    const onFiles = vi.fn()
+    const onRejected = vi.fn()
+    const { zone } = await mountZone({ onFiles, onRejected, maxSize: 0 })
+    const one = new File(['x'], 'one.txt', { type: 'text/plain' })
+    const empty = new File([], 'empty.txt', { type: 'text/plain' })
+    const drop = new Event('drop', { bubbles: true, cancelable: true })
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [one, empty] } })
+
+    zone.dispatchEvent(drop)
+
+    expect(onFiles).toHaveBeenCalledExactlyOnceWith([empty])
+    expect(onFiles.mock.calls[0][0][0]).toBe(empty)
+    expect(onRejected).toHaveBeenCalledExactlyOnceWith([one])
+    expect(onRejected.mock.calls[0][0][0]).toBe(one)
+  })
+
+  it('opens the chooser once when the input click bubbles back to the target', async () => {
+    const { zone, input } = await mountZone({ onFiles: () => {} })
+    const click = vi.spyOn(input, 'click')
+    try {
+      zone.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+      expect(click).toHaveBeenCalledTimes(1)
+    } finally {
+      click.mockRestore()
+    }
+  })
+
   it('opens the file dialog when Enter is pressed (and prevents default)', async () => {
     const { zone, input } = await mountZone()
     const clickSpy = vi.spyOn(input, 'click').mockImplementation(() => {})

@@ -28,7 +28,7 @@ interface RecordedRequest {
   method: string
   url: string
   headers: Record<string, string | string[] | undefined>
-  body: string
+  body: Uint8Array<ArrayBuffer>
 }
 
 let server: Server
@@ -47,7 +47,7 @@ beforeAll(async () => {
         method: req.method ?? '',
         url: req.url ?? '',
         headers: req.headers,
-        body: Buffer.concat(chunks).toString('utf8'),
+        body: Buffer.concat(chunks),
       })
 
       const respond = (status: number, payload: string): void => {
@@ -109,6 +109,98 @@ beforeEach(() => {
 })
 
 describe('@molecule/app-file-upload-filepond × REAL http + fetch', () => {
+  it('sends the binary selection through fetch and a queued retry alongside a legacy File', async () => {
+    const bytes = Uint8Array.of(0, 255, 13, 10)
+    const probe = new File([bytes], 'probe.bin', { type: 'application/octet-stream' })
+    const legacy = new File([bytes], 'legacy.bin', { type: 'application/octet-stream' })
+    const selection = {
+      name: probe.name,
+      type: probe.type,
+      size: probe.size,
+      arrayBuffer: () => probe.arrayBuffer(),
+      appendTo: (form: FormData, field: string) => form.append(field, probe),
+    }
+
+    const form = new FormData()
+    selection.appendTo(form, 'attachment')
+    const direct = await fetch(`${baseUrl}/upload`, { method: 'POST', body: form })
+    expect(direct.ok).toBe(true)
+    await direct.text()
+
+    const uploader = provider.createUploader({
+      destination: { url: `${baseUrl}/fail-once`, fieldName: 'attachment' },
+      maxConcurrent: 1,
+    })
+    const [queued] = uploader.addFiles([selection])
+    const [original] = uploader.addFiles([legacy])
+    expect(original.source).toBe(legacy)
+    expect(queued.status).toBe('idle')
+    uploader.upload()
+    await vi.waitFor(() => {
+      expect(queued.status).toBe('error')
+      expect(original.status).toBe('complete')
+    })
+    uploader.retry(queued.id)
+    expect(queued.status).toBe('idle')
+    uploader.upload()
+    await vi.waitFor(() => expect(queued.status).toBe('complete'))
+
+    expect(requests).toHaveLength(4)
+    for (const [index, request] of requests.entries()) {
+      const contentType = request.headers['content-type']
+      const body = await new Response(request.body, {
+        headers: { 'content-type': String(contentType) },
+      }).formData()
+      expect(Array.from(body.keys())).toEqual(['attachment'])
+      const part = body.get('attachment')
+      expect(part).toBeInstanceOf(File)
+      if (!(part instanceof File)) throw new Error('Receiver did not get a binary part')
+      expect(part.name).toBe(index === 2 ? 'legacy.bin' : 'probe.bin')
+      expect(part.type).toBe('application/octet-stream')
+      expect(new Uint8Array(await part.arrayBuffer())).toEqual(bytes)
+    }
+  })
+
+  it('previews the original image part supplied by a portable selection', async () => {
+    const image = new File(['png'], 'photo.png', { type: 'image/png' })
+    const read = vi.fn<(file: Blob) => void>()
+    const preview = 'data:image/png;base64,cG5n'
+    class PreviewReader {
+      result = preview
+      onload?: () => void
+
+      readAsDataURL(file: Blob): void {
+        read(file)
+        this.onload?.()
+      }
+    }
+    vi.stubGlobal('FileReader', PreviewReader)
+
+    try {
+      const appendTo = vi.fn((form: FormData, field: string) => form.append(field, image))
+      const uploader = provider.createUploader({
+        destination: { url: `${baseUrl}/upload` },
+        imagePreview: true,
+      })
+      const [queued] = uploader.addFiles([
+        {
+          name: image.name,
+          type: image.type,
+          size: image.size,
+          arrayBuffer: () => image.arrayBuffer(),
+          appendTo,
+        },
+      ])
+
+      await vi.waitFor(() => expect(queued.preview).toBe(preview))
+      expect(appendTo).toHaveBeenCalledTimes(1)
+      expect(read).toHaveBeenCalledTimes(1)
+      expect(read.mock.calls[0][0]).toBe(image)
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('full lifecycle: queue → real multipart POST → server sees field/filename/bytes/headers/extra data → parseResponse → complete', async () => {
     const onComplete = vi.fn()
     const onError = vi.fn()
@@ -144,11 +236,12 @@ describe('@molecule/app-file-upload-filepond × REAL http + fetch', () => {
     expect(received.method).toBe('POST')
     expect(received.headers.authorization).toBe('Bearer test-token')
     expect(String(received.headers['content-type'])).toContain('multipart/form-data')
-    expect(received.body).toContain('name="document"')
-    expect(received.body).toContain('filename="hello.txt"')
-    expect(received.body).toContain('hello world')
-    expect(received.body).toContain('name="folder"')
-    expect(received.body).toContain('docs')
+    const textBody = new TextDecoder().decode(received.body)
+    expect(textBody).toContain('name="document"')
+    expect(textBody).toContain('filename="hello.txt"')
+    expect(textBody).toContain('hello world')
+    expect(textBody).toContain('name="folder"')
+    expect(textBody).toContain('docs')
   })
 
   it('CONSUMER PROPERTY: the default config (timeout 0 = none) survives a slow-but-legitimate server response', async () => {

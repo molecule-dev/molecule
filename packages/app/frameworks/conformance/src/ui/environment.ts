@@ -441,6 +441,41 @@ export function performDomInteraction(step: Interaction): string | undefined {
       el.dispatchEvent(new Event('change', { bubbles: true }))
       return
     }
+    case 'chooseFiles': {
+      const input = query(step.selector)
+      if (!(input instanceof HTMLInputElement) || input.type !== 'file')
+        throw new Error(`chooseFiles: "${step.selector}" must match a file input`)
+
+      // jsdom does not expose DataTransfer or a constructor for FileList. Populate the
+      // mounted input with real File objects and observe the browser's clearing behavior.
+      const files = createTransferData(step.files, {}).files
+      const empty = input.files
+      const filesDescriptor = Object.getOwnPropertyDescriptor(input, 'files')
+      const valueDescriptor = Object.getOwnPropertyDescriptor(input, 'value')
+      let value = files[0] ? `C:\\fakepath\\${files[0].name}` : ''
+      Object.defineProperties(input, {
+        files: { configurable: true, get: () => (value ? files : empty) },
+        value: {
+          configurable: true,
+          get: () => value,
+          set: (next: string) => {
+            if (next !== '')
+              throw new DOMException('A file input can only be cleared', 'InvalidStateError')
+            value = ''
+          },
+        },
+      })
+      try {
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        input.dispatchEvent(new Event('change', { bubbles: true }))
+        return value ? '@chooseFiles input still holds files' : '@chooseFiles input empty'
+      } finally {
+        if (filesDescriptor) Object.defineProperty(input, 'files', filesDescriptor)
+        else Reflect.deleteProperty(input, 'files')
+        if (valueDescriptor) Object.defineProperty(input, 'value', valueDescriptor)
+        else Reflect.deleteProperty(input, 'value')
+      }
+    }
     case 'check': {
       const el = query(step.selector) as HTMLInputElement
       if (el.checked !== step.checked) el.click()

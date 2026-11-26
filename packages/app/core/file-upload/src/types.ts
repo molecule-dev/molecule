@@ -7,6 +7,8 @@
  * @module
  */
 
+import type { PickedFile } from '@molecule/app-filesystem'
+
 // ---------------------------------------------------------------------------
 // File Status
 // ---------------------------------------------------------------------------
@@ -14,6 +16,9 @@
 /** Possible states of a file during the upload lifecycle. */
 export type FileUploadStatus =
   'idle' | 'preparing' | 'uploading' | 'processing' | 'complete' | 'error' | 'cancelled'
+
+/** A browser file or a portable file selection the uploader can send. */
+export type UploadSource = File | PickedFile
 
 // ---------------------------------------------------------------------------
 // File Validation
@@ -67,8 +72,10 @@ export interface UploadFile {
   error?: string
   /** URL or identifier of the uploaded file after completion. */
   result?: string
-  /** The source `File` object when available (browser environments). */
+  /** The original browser `File` passed to the uploader. */
   source?: File
+  /** The portable file passed to the uploader. */
+  pickedFile?: PickedFile
   /** Optional thumbnail/preview data URL for image files. */
   preview?: string
 }
@@ -164,10 +171,10 @@ export interface FileUploadInstance {
   /**
    * Adds files to the upload queue.
    *
-   * @param files - Files to add (browser `File` objects).
+   * @param files - Browser files or portable selections to add, in queue order.
    * @returns The `UploadFile` representations that were added (after validation).
    */
-  addFiles(files: File[]): UploadFile[]
+  addFiles(files: readonly UploadSource[]): UploadFile[]
 
   /**
    * Removes a file from the upload queue.

@@ -13,6 +13,7 @@ import {
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
+import { createBrowserFileInput, filterPickedFiles } from '@molecule/app-filesystem'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -53,7 +54,7 @@ import { getClassMap } from '@molecule/app-ui'
     '(dragover)': 'onDragOver($event)',
     '(dragleave)': 'onDragLeave()',
     '(drop)': 'onDrop($event)',
-    '(click)': 'onClick()',
+    '(click)': 'onClick($event)',
     '(keydown)': 'onKeyDown($event)',
   },
   // prettier-ignore
@@ -79,6 +80,20 @@ export class FileDropzone {
   @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>
   /** The projected-content capture (its span never renders; `placeContentBefore` stands in its place). */
   @ViewChild('contentSlot', { static: true }) private contentSlot?: ElementRef<HTMLSpanElement>
+
+  /** Shared DOM event handlers for this host and its input. */
+  protected readonly handlers = createBrowserFileInput(
+    () => this.fileInput?.nativeElement,
+    () => ({
+      accept: this.accept,
+      disabled: this.disabled,
+      maxSize: this.maxSize,
+      multiple: this.multiple,
+      onFiles: (files) => this.onFiles?.(files),
+      onRejected: this.onRejected,
+    }),
+    (file) => file,
+  )
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
@@ -183,64 +198,34 @@ export class FileDropzone {
   }
 
   /**
-   * Filters a file list into kept and rejected files, exactly as React does: a
-   * file over `maxSize` is rejected, then a file matching neither the accept
-   * extension nor the accept MIME token is rejected (`'*'` accepts everything).
+   * Filters a file list into kept and rejected files.
    *
    * @param raw - The files the user dropped or picked.
-   * @returns The kept and rejected files.
+   * @returns All the kept and rejected files.
    */
   filter(raw: FileList | File[]): { kept: File[]; rejected: File[] } {
-    const arr = Array.from(raw)
-    const kept: File[] = []
-    const rejected: File[] = []
-    for (const f of arr) {
-      if (this.maxSize && f.size > this.maxSize) {
-        rejected.push(f)
-        continue
-      }
-      // cheap accept check
-      if (this.accept) {
-        const okByExt = this.accept
-          .split(',')
-          .some(
-            (a) =>
-              a.trim() && f.name.toLowerCase().endsWith(a.trim().toLowerCase().replace(/^\./, '.')),
-          )
-        const okByMime = this.accept
-          .split(',')
-          .some(
-            (a) =>
-              a.trim() &&
-              f.type &&
-              (f.type === a.trim() ||
-                (a.trim().endsWith('/*') && f.type.startsWith(a.trim().replace('/*', '/')))),
-          )
-        if (!okByExt && !okByMime && this.accept !== '*') {
-          rejected.push(f)
-          continue
-        }
-      }
-      kept.push(f)
-    }
-    return { kept, rejected }
+    const { accepted, rejected } = filterPickedFiles(Array.from(raw), {
+      accept: this.accept,
+      maxSize: this.maxSize,
+      multiple: true,
+    })
+    return { kept: accepted, rejected }
   }
 
   /**
-   * Filters the given file list and dispatches kept/rejected files to the
-   * callbacks — only the first kept file unless `multiple` is set.
+   * Delivers accepted and rejected files to the callbacks.
    *
-   * @param list - The files from the drop or the hidden input.
+   * @param list - The files to deliver.
    */
   dispatch(list: FileList | File[]): void {
-    const { kept, rejected } = this.filter(list)
-    if (kept.length > 0) this.onFiles?.(this.multiple ? kept : [kept[0]!])
-    if (rejected.length > 0) this.onRejected?.(rejected)
+    const { accepted, rejected } = filterPickedFiles(Array.from(list), this)
+    if (accepted.length) this.onFiles?.(accepted)
+    if (rejected.length) this.onRejected?.(rejected)
   }
 
-  /** Opens the native file dialog through the hidden input. */
+  /** Opens the file dialog through the hidden input. */
   openDialog(): void {
-    this.fileInput?.nativeElement.click()
+    this.onClick()
   }
 
   /**
@@ -250,10 +235,7 @@ export class FileDropzone {
    * @param event - The native drag event.
    */
   onDragOver(event: DragEvent): void {
-    if (!this.disabled) {
-      event.preventDefault()
-      this.dragging.set(true)
-    }
+    if (this.handlers.onDragOver(event)) this.dragging.set(true)
   }
 
   /** React's `onDragLeave`: clears the highlight. */
@@ -268,38 +250,38 @@ export class FileDropzone {
    * @param event - The native drop event.
    */
   onDrop(event: DragEvent): void {
-    event.preventDefault()
     this.dragging.set(false)
-    if (!this.disabled && event.dataTransfer?.files) this.dispatch(event.dataTransfer.files)
-  }
-
-  /** React's `onClick`: opens the file dialog unless disabled. */
-  onClick(): void {
-    if (!this.disabled) this.openDialog()
+    this.handlers.onDrop(event)
   }
 
   /**
-   * React's `onKeyDown`: `role="button"` gets no native keyboard activation —
-   * Enter/Space open the file dialog and prevent their defaults (Space would
-   * otherwise scroll the page).
+   * Opens the file dialog unless the click came from the input.
+   *
+   * @param event - The native click, when called by the host.
+   */
+  onClick(event?: MouseEvent): void {
+    this.handlers.onClick(event ?? { target: null, defaultPrevented: false })
+  }
+
+  /**
+   * Opens the file dialog on Enter or Space.
    *
    * @param event - The native keyboard event.
    */
   onKeyDown(event: KeyboardEvent): void {
-    if (this.disabled) return
-    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
-      event.preventDefault()
-      this.openDialog()
-    }
+    this.handlers.onKeyDown(event)
   }
 
   /**
-   * React's hidden input `onChange`: dispatches the picked files.
+   * Delivers the input's files and clears it for the next selection.
    *
    * @param event - The native change event.
    */
   onInputChange(event: Event): void {
-    const files = (event.target as HTMLInputElement).files
-    if (files) this.dispatch(files)
+    if (event.target === this.fileInput?.nativeElement) {
+      this.handlers.onChange()
+    } else if (event.target instanceof HTMLInputElement && event.target.files) {
+      this.dispatch(event.target.files)
+    }
   }
 }

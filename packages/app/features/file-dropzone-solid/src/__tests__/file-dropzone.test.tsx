@@ -10,6 +10,8 @@
 import type { JSX } from 'solid-js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { FileDropzoneProps } from '../types.js'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `textCenter`), so tests can assert which cm.* class was applied without a
 // real bond — the same mock the React tests use.
@@ -101,7 +103,7 @@ describe('FileDropzone', () => {
 
 describe('FileDropzone (keyboard activation)', () => {
   /** Renders the dropzone and returns its interactive wrapper + hidden input. */
-  function mountZone(props: { onFiles: (files: File[]) => void; disabled?: boolean }): {
+  function mountZone(props: FileDropzoneProps): {
     zone: HTMLElement
     input: HTMLInputElement
   } {
@@ -123,6 +125,34 @@ describe('FileDropzone (keyboard activation)', () => {
     const { zone } = mountZone({ onFiles: () => {} })
     expect(zone.getAttribute('role')).toBe('button')
     expect(zone.getAttribute('tabindex')).toBe('0')
+  })
+
+  it('rejects one byte and delivers an empty file when maxSize is zero', () => {
+    const onFiles = vi.fn()
+    const onRejected = vi.fn()
+    const { zone } = mountZone({ onFiles, onRejected, maxSize: 0 })
+    const one = new File(['x'], 'one.txt', { type: 'text/plain' })
+    const empty = new File([], 'empty.txt', { type: 'text/plain' })
+    const drop = new Event('drop', { bubbles: true, cancelable: true })
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [one, empty] } })
+
+    zone.dispatchEvent(drop)
+
+    expect(onFiles).toHaveBeenCalledExactlyOnceWith([empty])
+    expect(onFiles.mock.calls[0][0][0]).toBe(empty)
+    expect(onRejected).toHaveBeenCalledExactlyOnceWith([one])
+    expect(onRejected.mock.calls[0][0][0]).toBe(one)
+  })
+
+  it('opens the chooser once when the input click bubbles back to the target', () => {
+    const { zone, input } = mountZone({ onFiles: () => {} })
+    const click = vi.spyOn(input, 'click')
+    try {
+      zone.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+      expect(click).toHaveBeenCalledTimes(1)
+    } finally {
+      click.mockRestore()
+    }
   })
 
   it('opens the file dialog when Enter is pressed (and prevents default)', () => {

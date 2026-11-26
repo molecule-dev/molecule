@@ -8,7 +8,8 @@
  * `node_modules/.cache/framework-conformance/`). Recording is the deliberate
  * step that changes the contract: every framework then has to match it.
  * `CONFORMANCE_GOLDENS_OUT=<file>` writes the recording there instead, to compare it
- * with the committed goldens before keeping it.
+ * with the committed goldens before keeping it. A recording narrowed by
+ * `CONFORMANCE_COMPONENTS` requires this file so it cannot overwrite other cases.
  *
  * While writing cases: `CONFORMANCE_COMPONENTS=Input,Select` narrows the run and
  * `CONFORMANCE_SKIP_GOLDENS=1` checks only that React renders them cleanly.
@@ -16,8 +17,8 @@
  * @module
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { existsSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import '../ui/setup.js'
@@ -54,13 +55,16 @@ const FILTER =
   process.env.CONFORMANCE_COMPONENTS?.split(',')
     .map((s) => s.trim())
     .filter(Boolean) ?? null
-if (RECORD && FILTER)
-  throw new Error('RECORD_GOLDENS records every component; unset CONFORMANCE_COMPONENTS')
 const families = uiCaseFamilies.filter((f) => !FILTER || FILTER.includes(f.component))
 const here = dirname(fileURLToPath(import.meta.url))
+const GOLDENS_FILE = join(here, '..', 'ui', 'goldens.json')
+if (RECORD && FILTER) {
+  const out = OUT && (existsSync(OUT) ? realpathSync(OUT) : resolve(OUT))
+  if (!out || out === realpathSync(GOLDENS_FILE))
+    throw new Error('Recording selected components requires a separate CONFORMANCE_GOLDENS_OUT')
+}
 // A recording reads React's UI kit from its dist/: refuse one older than its source.
 assertBuiltFromSource(['@molecule/app-ui-react'], here)
-const GOLDENS_FILE = join(here, '..', 'ui', 'goldens.json')
 const READABLE_FILE = join(
   here,
   '..',
@@ -126,8 +130,10 @@ describe('React reference renders', () => {
     )
     if (OUT) mkdirSync(dirname(OUT), { recursive: true })
     writeFileSync(OUT ?? GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
-    mkdirSync(dirname(READABLE_FILE), { recursive: true })
-    writeFileSync(READABLE_FILE, JSON.stringify(recordedReadable))
+    if (!FILTER) {
+      mkdirSync(dirname(READABLE_FILE), { recursive: true })
+      writeFileSync(READABLE_FILE, JSON.stringify(recordedReadable))
+    }
   })
 
   for (const family of families) {

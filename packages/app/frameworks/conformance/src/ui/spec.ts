@@ -292,6 +292,8 @@ export type Interaction =
     } & ClickModifiers)
   /** Sets `.value` (or `.checked` for checkbox/radio) and dispatches `input` + `change`. */
   | { type: 'input'; selector: string; value: string }
+  /** Populates a file input and dispatches bubbling `input` and `change`. */
+  | { type: 'chooseFiles'; selector: string; files: TransferFile[] }
   | { type: 'check'; selector: string; checked: boolean }
   | { type: 'submit'; selector: string }
   /** Advances fake timers by `ms` (cases that use timers set `fakeTimers: true`). */
@@ -557,7 +559,7 @@ export interface WindowContext {
   fetch?: FetchAnswer
 }
 
-/** A file a `transfer` step carries. */
+/** A file carried by a `transfer` or `chooseFiles` step. */
 export interface TransferFile {
   name: string
   /** Its MIME type (`image/png`). */
@@ -639,6 +641,8 @@ export interface UICase {
    * rejected promise, or a promise that stays pending until a `settle` step.
    */
   callbackResults?: Record<string, CallbackResult>
+  /** Records the name, MIME type and size of browser File callback arguments. */
+  recordFileMetadata?: boolean
   /** Actions to run after mount; a snapshot is compared after each one. */
   interactions?: Interaction[]
   /** App context. */

@@ -615,12 +615,33 @@ const serializeRoot = (root: Node, options: NormalizeOptions): string => {
 /**
  * Normalizes a callback argument to plain, comparable data. DOM events become
  * `{ event: type, target: tag }`; elements become their tag; functions become
- * `[function]`; everything else is cloned structurally.
+ * `[function]`; portable selections become their name, MIME type and size.
  *
  * @param value - The argument a component passed to a callback.
  * @returns A JSON-comparable representation.
  */
 export function normalizeArg(value: unknown): unknown {
+  return normalizeValue(value, false)
+}
+
+/**
+ * Normalizes a callback argument and records browser File metadata.
+ *
+ * @param value - The argument a component passed to a callback.
+ * @returns A JSON-comparable representation.
+ */
+export function normalizeFileArg(value: unknown): unknown {
+  return normalizeValue(value, true)
+}
+
+/**
+ * Converts a callback argument to comparable data for the recorder.
+ *
+ * @param value - The value to normalize.
+ * @param recordFileMetadata - Include browser File metadata in this recording.
+ * @returns A JSON-comparable representation.
+ */
+function normalizeValue(value: unknown, recordFileMetadata: boolean): unknown {
   if (value === undefined || value === null) return value ?? null
   if (typeof value === 'function') return '[function]'
   if (typeof Event !== 'undefined' && value instanceof Event) {
@@ -630,16 +651,31 @@ export function normalizeArg(value: unknown): unknown {
   if (typeof Node !== 'undefined' && value instanceof Node) {
     return `[node ${(value as Element).tagName?.toLowerCase() ?? value.nodeName}]`
   }
-  if (Array.isArray(value)) return value.map(normalizeArg)
+  if (recordFileMetadata && typeof File !== 'undefined' && value instanceof File) {
+    return { name: value.name, type: value.type, size: value.size }
+  }
+  if (Array.isArray(value)) return value.map((entry) => normalizeValue(entry, recordFileMetadata))
   if (typeof value === 'object') {
+    // PickedFile is a portable value. Record the metadata a caller receives.
+    if (
+      'appendTo' in value &&
+      typeof value.appendTo === 'function' &&
+      'arrayBuffer' in value &&
+      typeof value.arrayBuffer === 'function' &&
+      'name' in value &&
+      'type' in value &&
+      'size' in value
+    ) {
+      return { name: value.name, type: value.type, size: value.size }
+    }
     // Framework-specific synthetic events (React's SyntheticEvent) carry nativeEvent.
     const maybeEvent = value as { nativeEvent?: unknown }
     if (typeof Event !== 'undefined' && maybeEvent.nativeEvent instanceof Event) {
-      return normalizeArg(maybeEvent.nativeEvent)
+      return normalizeValue(maybeEvent.nativeEvent, recordFileMetadata)
     }
     const out: Record<string, unknown> = {}
     for (const key of Object.keys(value).sort()) {
-      out[key] = normalizeArg((value as Record<string, unknown>)[key])
+      out[key] = normalizeValue((value as Record<string, unknown>)[key], recordFileMetadata)
     }
     return out
   }

@@ -3,9 +3,8 @@
  * hidden file input, accept / max-size filtering, the keyboard activation and
  * the default or slotted copy.
  *
- * Every drop goes through the kit's `transfer` step, so the files a case
- * carries are real `File` objects built by the kit and reach `onFiles` /
- * `onRejected` exactly as a user's drop would.
+ * The kit's `transfer` and `chooseFiles` steps send real `File` objects to
+ * `onFiles` and `onRejected` through the drop target or the hidden input.
  *
  * @module
  */
@@ -87,17 +86,20 @@ export const fileDropzoneFeature: FeatureCases = {
         },
         {
           name: 'drop delivers the first accepted file',
+          recordFileMetadata: true,
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [png, pdf] }],
         },
         {
           name: 'drop with multiple delivers every accepted file',
+          recordFileMetadata: true,
           props: { multiple: true },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [png, pdf] }],
         },
         {
           name: 'drop after a drag over clears the highlight and delivers',
+          recordFileMetadata: true,
           callbacks: ['onFiles', 'onRejected'],
           interactions: [
             { type: 'transfer', selector: zone, event: 'dragover', files: [png] },
@@ -106,36 +108,59 @@ export const fileDropzoneFeature: FeatureCases = {
         },
         {
           name: 'drop rejects a file that does not match accept',
+          recordFileMetadata: true,
           props: { accept: 'image/*' },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [png, txt] }],
         },
         {
           name: 'drop rejects a file over the maximum size',
+          recordFileMetadata: true,
           props: { maxSize: 10 },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [png, big] }],
         },
         {
           name: 'a file at exactly the maximum size is kept',
+          recordFileMetadata: true,
           props: { maxSize: 3 },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [png] }],
         },
         {
+          name: 'a zero-byte maximum rejects one byte and keeps an empty file',
+          recordFileMetadata: true,
+          props: { maxSize: 0 },
+          callbacks: ['onFiles', 'onRejected'],
+          interactions: [
+            {
+              type: 'transfer',
+              selector: zone,
+              event: 'drop',
+              files: [
+                { ...txt, content: 'x' },
+                { ...pdf, content: '' },
+              ],
+            },
+          ],
+        },
+        {
           name: 'accept matches an extension',
+          recordFileMetadata: true,
           props: { accept: '.pdf' },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [pdf, png] }],
         },
         {
           name: 'accept matches an exact MIME type',
+          recordFileMetadata: true,
           props: { accept: 'application/pdf' },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [pdf, txt] }],
         },
         {
           name: 'accept star keeps every file',
+          recordFileMetadata: true,
           props: { accept: '*' },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [{ type: 'transfer', selector: zone, event: 'drop', files: [txt] }],
@@ -177,7 +202,17 @@ export const fileDropzoneFeature: FeatureCases = {
           interactions: [{ type: 'event', selector: 'input[type="file"]', event: 'change' }],
         },
         {
+          name: 'browse delivers both files in input order',
+          recordFileMetadata: true,
+          props: { multiple: true },
+          callbacks: ['onFiles', 'onRejected'],
+          interactions: [
+            { type: 'chooseFiles', selector: 'input[type="file"]', files: [png, pdf] },
+          ],
+        },
+        {
           name: 'prop changes toggle disabled and accept',
+          recordFileMetadata: true,
           props: { disabled: true },
           callbacks: ['onFiles', 'onRejected'],
           interactions: [

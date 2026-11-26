@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
-import { useCallback, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
+import { createBrowserFileInput } from '@molecule/app-filesystem'
 import { useTranslation } from '@molecule/app-react'
 import { slot } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
@@ -49,81 +50,24 @@ export function FileDropzone({
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const filter = useCallback(
-    (raw: FileList | File[]): { kept: File[]; rejected: File[] } => {
-      const arr = Array.from(raw)
-      const kept: File[] = []
-      const rejected: File[] = []
-      for (const f of arr) {
-        if (maxSize && f.size > maxSize) {
-          rejected.push(f)
-          continue
-        }
-        // cheap accept check
-        if (accept) {
-          const okByExt = accept
-            .split(',')
-            .some(
-              (a) =>
-                a.trim() &&
-                f.name.toLowerCase().endsWith(a.trim().toLowerCase().replace(/^\./, '.')),
-            )
-          const okByMime = accept
-            .split(',')
-            .some(
-              (a) =>
-                a.trim() &&
-                f.type &&
-                (f.type === a.trim() ||
-                  (a.trim().endsWith('/*') && f.type.startsWith(a.trim().replace('/*', '/')))),
-            )
-          if (!okByExt && !okByMime && accept !== '*') {
-            rejected.push(f)
-            continue
-          }
-        }
-        kept.push(f)
-      }
-      return { kept, rejected }
-    },
-    [accept, maxSize],
+  const handlers = createBrowserFileInput(
+    () => inputRef.current,
+    () => ({ accept, disabled, maxSize, multiple, onFiles, onRejected }),
+    (file) => file,
   )
-
-  /**
-   * Filters the given file list and dispatches kept/rejected files to callbacks.
-   * @param list
-   */
-  function dispatch(list: FileList | File[]): void {
-    const { kept, rejected } = filter(list)
-    if (kept.length > 0) onFiles(multiple ? kept : [kept[0]])
-    if (rejected.length > 0) onRejected?.(rejected)
-  }
 
   return (
     <div
       onDragOver={(e) => {
-        if (!disabled) {
-          e.preventDefault()
-          setDragging(true)
-        }
+        if (handlers.onDragOver(e)) setDragging(true)
       }}
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => {
-        e.preventDefault()
         setDragging(false)
-        if (!disabled && e.dataTransfer?.files) dispatch(e.dataTransfer.files)
+        handlers.onDrop(e)
       }}
-      onClick={() => !disabled && inputRef.current?.click()}
-      onKeyDown={(e) => {
-        // role="button" gets no native keyboard activation — wire Enter/Space
-        // to open the file dialog so keyboard users can browse (preventDefault
-        // stops Space from scrolling the page).
-        if (disabled) return
-        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-          e.preventDefault()
-          inputRef.current?.click()
-        }
-      }}
+      onClick={handlers.onClick}
+      onKeyDown={handlers.onKeyDown}
       data-mol-id="file-dropzone"
       role="button"
       tabIndex={0}
@@ -157,7 +101,7 @@ export function FileDropzone({
         accept={accept}
         multiple={multiple}
         disabled={disabled}
-        onChange={(e) => e.target.files && dispatch(e.target.files)}
+        onChange={handlers.onChange}
         style={{ display: 'none' }}
       />
       {children ?? (

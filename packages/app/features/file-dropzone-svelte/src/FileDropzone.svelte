@@ -6,6 +6,7 @@
   string goes through `t()` so a locale switch re-renders it.
 -->
 <script lang="ts">
+  import { createBrowserFileInput } from '@molecule/app-filesystem'
   import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -27,6 +28,11 @@
 
   let dragging = $state(false)
   let inputEl = $state<HTMLInputElement | undefined>()
+  const handlers = createBrowserFileInput(
+    () => inputEl,
+    () => ({ accept, disabled, maxSize, multiple, onFiles, onRejected }),
+    (file) => file,
+  )
 
   // Every `t(…)` runs inside a `$derived`: it reads the i18n version under the
   // hood, so this re-runs on a locale switch the way React's render-time `t`
@@ -37,67 +43,6 @@
   const acceptsLabel = $derived(
     accept ? t('fileDropzone.accepts', { accept }, { defaultValue: 'Accepts: {{accept}}' }) : '',
   )
-
-  /**
-   * Filters a file list into kept and rejected files, exactly as React does: a
-   * file over `maxSize` is rejected, then a file matching neither the accept
-   * extension nor the accept MIME token is rejected (`'*'` accepts everything).
-   *
-   * @param raw - The files the user dropped or picked.
-   * @returns The kept and rejected files.
-   */
-  function filter(raw: FileList | File[]): { kept: File[]; rejected: File[] } {
-    const arr = Array.from(raw)
-    const kept: File[] = []
-    const rejected: File[] = []
-    for (const f of arr) {
-      if (maxSize && f.size > maxSize) {
-        rejected.push(f)
-        continue
-      }
-      // cheap accept check
-      if (accept) {
-        const okByExt = accept
-          .split(',')
-          .some(
-            (a) =>
-              a.trim() && f.name.toLowerCase().endsWith(a.trim().toLowerCase().replace(/^\./, '.')),
-          )
-        const okByMime = accept
-          .split(',')
-          .some(
-            (a) =>
-              a.trim() &&
-              f.type &&
-              (f.type === a.trim() ||
-                (a.trim().endsWith('/*') && f.type.startsWith(a.trim().replace('/*', '/')))),
-          )
-        if (!okByExt && !okByMime && accept !== '*') {
-          rejected.push(f)
-          continue
-        }
-      }
-      kept.push(f)
-    }
-    return { kept, rejected }
-  }
-
-  /**
-   * Filters the given file list and dispatches kept/rejected files to the
-   * callbacks — only the first kept file unless `multiple` is set.
-   *
-   * @param list - The files from the drop or the hidden input.
-   */
-  function dispatch(list: FileList | File[]): void {
-    const { kept, rejected } = filter(list)
-    if (kept.length > 0) onFiles(multiple ? kept : [kept[0]!])
-    if (rejected.length > 0) onRejected?.(rejected)
-  }
-
-  /** Opens the native file dialog through the hidden input. */
-  function openDialog(): void {
-    inputEl?.click()
-  }
 
   /** The base (not dragging) drop-surface style — React's dashed drop region. */
   const baseStyle =
@@ -133,32 +78,17 @@
 
 <div
   ondragover={(event) => {
-    if (!disabled) {
-      event.preventDefault()
-      dragging = true
-    }
+    if (handlers.onDragOver(event)) dragging = true
   }}
   ondragleave={() => {
     dragging = false
   }}
   ondrop={(event) => {
-    event.preventDefault()
     dragging = false
-    if (!disabled && event.dataTransfer?.files) dispatch(event.dataTransfer.files)
+    handlers.onDrop(event)
   }}
-  onclick={() => {
-    if (!disabled) openDialog()
-  }}
-  onkeydown={(event) => {
-    // role="button" gets no native keyboard activation — wire Enter/Space to
-    // open the file dialog so keyboard users can browse (preventDefault stops
-    // Space from scrolling the page).
-    if (disabled) return
-    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
-      event.preventDefault()
-      openDialog()
-    }
-  }}
+  onclick={handlers.onClick}
+  onkeydown={handlers.onKeyDown}
   data-mol-id="file-dropzone"
   role="button"
   tabindex="0"
@@ -179,10 +109,7 @@
     {accept}
     {multiple}
     {disabled}
-    onchange={(event) => {
-      const files = event.currentTarget.files
-      if (files) dispatch(files)
-    }}
+    onchange={handlers.onChange}
     style="display: none"
   />
   {#if children}

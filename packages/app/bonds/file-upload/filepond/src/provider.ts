@@ -15,7 +15,9 @@ import type {
   FileValidation,
   UploadDestination,
   UploadFile,
+  UploadSource,
 } from '@molecule/app-file-upload'
+import { fromBrowserFile, type PickedFile } from '@molecule/app-filesystem'
 import { t } from '@molecule/app-i18n'
 
 import type { FilepondConfig } from './types.js'
@@ -145,14 +147,14 @@ interface UploadHandle {
  * Uploads a single file using XMLHttpRequest (browser) with progress events,
  * falling back to fetch when XMLHttpRequest is unavailable (Node/SSR).
  *
- * @param source - The File object to upload.
+ * @param source - The file selection to upload.
  * @param destination - Upload destination configuration.
  * @param onProgress - Progress callback receiving loaded and total bytes.
  * @param timeout - Request timeout in milliseconds.
  * @returns An UploadHandle with promise and abort.
  */
 function uploadTransport(
-  source: File,
+  source: PickedFile,
   destination: UploadDestination,
   onProgress: (loaded: number, total: number) => void,
   timeout: number,
@@ -161,7 +163,14 @@ function uploadTransport(
   const fieldName = destination.fieldName ?? 'file'
 
   const formData = new FormData()
-  formData.append(fieldName, source)
+  try {
+    source.appendTo(formData, fieldName)
+  } catch (error) {
+    return {
+      promise: Promise.reject(error instanceof Error ? error : new Error(String(error))),
+      abort: () => undefined,
+    }
+  }
 
   if (destination.additionalData) {
     for (const [key, value] of Object.entries(destination.additionalData)) {
@@ -352,19 +361,28 @@ function uploadWithFetch(
 /**
  * Generates a data URL preview for an image file.
  *
- * @param file - The File object.
+ * @param source - The original file selection.
  * @param maxSize - Maximum width/height in pixels.
  * @returns A promise resolving to the data URL string, or undefined.
  */
-async function generatePreview(file: File, maxSize: number): Promise<string | undefined> {
-  if (!file.type.startsWith('image/')) return undefined
-  if (typeof FileReader === 'undefined') return undefined
+async function generatePreview(source: PickedFile, maxSize: number): Promise<string | undefined> {
+  if (typeof FileReader === 'undefined' || typeof FormData.prototype.get !== 'function')
+    return undefined
+
+  const formData = new FormData()
+  source.appendTo(formData, 'file')
+  const file = formData.get('file')
+  if (file === null || typeof file === 'string') return undefined
 
   return new Promise<string | undefined>((resolve) => {
     const reader = new FileReader()
 
     reader.onload = () => {
-      const dataUrl = reader.result as string
+      const dataUrl = reader.result
+      if (typeof dataUrl !== 'string') {
+        resolve(undefined)
+        return
+      }
 
       // If no canvas available (Node), return the raw data URL
       if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') {
@@ -442,7 +460,8 @@ function createUploaderInstance(
    * @param file - The UploadFile record to upload.
    */
   function startUpload(file: UploadFile): void {
-    if (!file.source) {
+    const source = file.pickedFile ?? (file.source && fromBrowserFile(file.source))
+    if (!source) {
       const noSourceMsg = t('fileUpload.error.noSource', undefined, {
         defaultValue: 'No source file available',
       })
@@ -455,7 +474,7 @@ function createUploaderInstance(
     Object.assign(file, { status: 'uploading' as const, progress: 0 })
 
     const handle = uploadTransport(
-      file.source,
+      source,
       options.destination,
       (loaded, total) => {
         const progress = Math.round((loaded / total) * 100)
@@ -523,7 +542,7 @@ function createUploaderInstance(
   // -------------------------------------------------------------------------
 
   const instance: FileUploadInstance = {
-    addFiles(incoming: File[]): UploadFile[] {
+    addFiles(incoming: readonly UploadSource[]): UploadFile[] {
       const toProcess = allowMultiple ? incoming : incoming.slice(0, 1)
       const added: UploadFile[] = []
 
@@ -535,7 +554,7 @@ function createUploaderInstance(
           type: source.type,
           status: 'idle',
           progress: 0,
-          source,
+          ...('appendTo' in source ? { pickedFile: source } : { source }),
         }
 
         const errors = validateFile(uploadFile, options.validation, files.length)
@@ -550,11 +569,14 @@ function createUploaderInstance(
         // Generate preview asynchronously if enabled
         if (options.imagePreview && source.type.startsWith('image/')) {
           const maxSize = options.imagePreviewMaxSize ?? 200
-          void generatePreview(source, maxSize).then((preview) => {
-            if (preview) {
-              uploadFile.preview = preview
-            }
-          })
+          const selection = 'appendTo' in source ? source : fromBrowserFile(source)
+          void generatePreview(selection, maxSize)
+            .then((preview) => {
+              if (preview) uploadFile.preview = preview
+            })
+            .catch((_error: unknown) => {
+              // A preview is optional. The upload still reports any source error through onError.
+            })
         }
       }
 

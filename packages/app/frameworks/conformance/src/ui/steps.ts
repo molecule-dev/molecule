@@ -25,7 +25,7 @@ import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { elementFocusFixupMoves } from './focus-fixup.js'
 import { installCaseGlobals } from './globals.js'
 import { changeLifetimes, lifetimeLines, resetLifetimes } from './lifetime.js'
-import { normalizeArg, normalizeDom } from './normalize.js'
+import { normalizeArg, normalizeDom, normalizeFileArg } from './normalize.js'
 import {
   applyLayout,
   installAudio,
@@ -106,6 +106,8 @@ export function buildAppServices(
 /** Records calls under their React callback name. */
 export class CallRecorder {
   readonly calls: RecordedCall[] = []
+  /** Include browser File metadata in the callback snapshot. */
+  recordFileMetadata = false
   /** Each callback call's arguments as passed (`calls` holds them normalized), for `invoke` steps. */
   private readonly passed: { name: string; args: unknown[] }[] = []
   private readonly pending = new Map<
@@ -125,6 +127,15 @@ export class CallRecorder {
   ) {}
 
   /**
+   * Normalizes a recorded callback value with the case's file metadata setting.
+   * @param value - The callback value to record.
+   * @returns The normalized value.
+   */
+  private recordArg(value: unknown): unknown {
+    return this.recordFileMetadata ? normalizeFileArg(value) : this.normalize(value)
+  }
+
+  /**
    * Builds a recording function for one callback.
    *
    * @param name - The React spelling of the callback prop (`onClick`).
@@ -133,7 +144,10 @@ export class CallRecorder {
    */
   spy(name: string): (...args: unknown[]) => unknown {
     return (...args: unknown[]) => {
-      this.calls.push({ name, args: args.map((arg) => this.normalize(arg)) })
+      this.calls.push({
+        name,
+        args: args.map((arg) => this.recordArg(arg)),
+      })
       this.passed.push({ name, args })
       this.watchSignals(name, args)
       const result = this.results[name]
@@ -189,7 +203,7 @@ export class CallRecorder {
       for (const key of path.split('.')) {
         value = typeof value === 'object' && value !== null ? Reflect.get(value, key) : undefined
       }
-      values[path] = this.normalize(value)
+      values[path] = this.recordArg(value)
     }
     this.calls.push({ name: `${name} read`, args: [values] })
   }
@@ -515,6 +529,7 @@ export async function runSteps(
   deadlineMs?: number | null,
 ): Promise<CaseResult> {
   checkCaseFields(testCase)
+  recorder.recordFileMetadata = testCase.recordFileMetadata ?? false
   resetLifetimes()
   installCaseClock(testCase)
   // The case's translations first: they name the locales the case may start in.
@@ -658,6 +673,7 @@ const CASE_FIELDS: FieldsOf<UICase> = {
   slots: 'optional',
   callbacks: 'optional',
   callbackResults: 'optional',
+  recordFileMetadata: 'optional',
   interactions: 'optional',
   context: 'optional',
   fakeTimers: 'optional',
@@ -723,6 +739,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
     clientX: 'optional',
     clientY: 'optional',
   },
+  chooseFiles: { selector: 'required', files: 'required' },
   transfer: { selector: 'required', event: 'required', files: 'optional', data: 'optional' },
   message: { data: 'optional', origin: 'optional', from: 'optional' },
   localStorage: { key: 'required', value: 'required' },

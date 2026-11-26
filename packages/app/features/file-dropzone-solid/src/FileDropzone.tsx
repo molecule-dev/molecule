@@ -10,6 +10,7 @@
 
 import { type Component, createSignal, type JSX, Show } from 'solid-js'
 
+import { createBrowserFileInput } from '@molecule/app-filesystem'
 import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,67 +32,11 @@ export const FileDropzone: Component<FileDropzoneProps> = (props) => {
   const [dragging, setDragging] = createSignal(false)
   let inputEl: HTMLInputElement | undefined
 
-  /**
-   * Filters a file list into kept and rejected files, exactly as React does:
-   * a file over `maxSize` is rejected, then a file matching neither the
-   * accept extension nor the accept MIME token is rejected (`'*'` accepts
-   * everything).
-   *
-   * @param raw - The files the user dropped or picked.
-   * @returns The kept and rejected files.
-   */
-  const filter = (raw: FileList | File[]): { kept: File[]; rejected: File[] } => {
-    const arr = Array.from(raw)
-    const kept: File[] = []
-    const rejected: File[] = []
-    for (const f of arr) {
-      if (props.maxSize && f.size > props.maxSize) {
-        rejected.push(f)
-        continue
-      }
-      // cheap accept check
-      if (props.accept) {
-        const okByExt = props.accept
-          .split(',')
-          .some(
-            (a) =>
-              a.trim() && f.name.toLowerCase().endsWith(a.trim().toLowerCase().replace(/^\./, '.')),
-          )
-        const okByMime = props.accept
-          .split(',')
-          .some(
-            (a) =>
-              a.trim() &&
-              f.type &&
-              (f.type === a.trim() ||
-                (a.trim().endsWith('/*') && f.type.startsWith(a.trim().replace('/*', '/')))),
-          )
-        if (!okByExt && !okByMime && props.accept !== '*') {
-          rejected.push(f)
-          continue
-        }
-      }
-      kept.push(f)
-    }
-    return { kept, rejected }
-  }
-
-  /**
-   * Filters the given file list and dispatches kept/rejected files to the
-   * callbacks — only the first kept file unless `multiple` is set.
-   *
-   * @param list - The files from the drop or the hidden input.
-   */
-  function dispatch(list: FileList | File[]): void {
-    const { kept, rejected } = filter(list)
-    if (kept.length > 0) props.onFiles(props.multiple ? kept : [kept[0]!])
-    if (rejected.length > 0) props.onRejected?.(rejected)
-  }
-
-  /** Opens the native file dialog through the hidden input. */
-  const openDialog = (): void => {
-    inputEl?.click()
-  }
+  const handlers = createBrowserFileInput(
+    () => inputEl,
+    () => props,
+    (file) => file,
+  )
 
   /**
    * The drop surface's inline style — React's dashed drop region, whose border
@@ -142,32 +87,17 @@ export const FileDropzone: Component<FileDropzoneProps> = (props) => {
   return (
     <div
       onDragOver={(event) => {
-        if (!props.disabled) {
-          event.preventDefault()
-          setDragging(true)
-        }
+        if (handlers.onDragOver(event)) setDragging(true)
       }}
       onDragLeave={() => {
         setDragging(false)
       }}
       onDrop={(event) => {
-        event.preventDefault()
         setDragging(false)
-        if (!props.disabled && event.dataTransfer?.files) dispatch(event.dataTransfer.files)
+        handlers.onDrop(event)
       }}
-      onClick={() => {
-        if (!props.disabled) openDialog()
-      }}
-      onKeyDown={(event) => {
-        // role="button" gets no native keyboard activation — wire Enter/Space
-        // to open the file dialog so keyboard users can browse (preventDefault
-        // stops Space from scrolling the page).
-        if (props.disabled) return
-        if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
-          event.preventDefault()
-          openDialog()
-        }
-      }}
+      onClick={handlers.onClick}
+      onKeyDown={handlers.onKeyDown}
       data-mol-id="file-dropzone"
       role="button"
       tabIndex={0}
@@ -189,10 +119,7 @@ export const FileDropzone: Component<FileDropzoneProps> = (props) => {
         accept={props.accept}
         multiple={props.multiple}
         disabled={props.disabled}
-        onChange={(event) => {
-          const files = event.target.files
-          if (files) dispatch(files)
-        }}
+        onChange={handlers.onChange}
         style={{ display: 'none' }}
       />
       <ResolveNode node={props.children}>

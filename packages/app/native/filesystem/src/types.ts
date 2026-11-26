@@ -20,6 +20,35 @@ export type Directory =
  */
 export type Encoding = 'utf8' | 'ascii' | 'base64'
 
+/** A file chosen from the user's device. Its bytes are read on demand. */
+export interface PickedFile {
+  /** Display name of the original file. */
+  readonly name: string
+  /** File size in bytes. */
+  readonly size: number
+  /** MIME type, or an empty string when unknown. */
+  readonly type: string
+  /** Reads the original bytes. */
+  arrayBuffer(): Promise<ArrayBuffer>
+  /**
+   * Appends the original file to a multipart request.
+   *
+   * @param form - The form data to add the file to.
+   * @param field - The multipart field name.
+   */
+  appendTo(form: FormData, field: string): void
+}
+
+/** Filters and limits applied to a file selection. */
+export interface FileSelectionOptions {
+  /** Comma-separated extensions, MIME types, MIME wildcards or `*`. */
+  accept?: string
+  /** Deliver all accepted files. Defaults to delivering the first accepted file. */
+  multiple?: boolean
+  /** Inclusive per-file limit in bytes. */
+  maxSize?: number
+}
+
 /**
  * Metadata about a file or directory (name, path, size, timestamps, type).
  */

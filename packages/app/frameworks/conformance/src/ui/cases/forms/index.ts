@@ -6,6 +6,7 @@
 
 export * from './avatar.js'
 export * from './checkbox.js'
+export * from './file-field.js'
 export * from './floating-input.js'
 export * from './form.js'
 export * from './form-field.js'

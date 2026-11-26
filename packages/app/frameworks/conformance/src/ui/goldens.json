@@ -20,6 +20,7 @@
   "DropdownLabel",
   "DropdownSeparator",
   "EmptyState",
+  "FileField",
   "Flex",
   "FloatingInput",
   "Form",
@@ -4213,6 +4214,345 @@
         "event": "click",
         "target": "div"
        }
+      ]
+     }
+    ]
+   }
+  },
+  "FileField": {
+   "browse delivers both files in selection order": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0\n@chooseFiles input empty"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "reselecting the same file calls back twice": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "cancelling keeps the previous selection without a callback": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "disabling the field keeps the previous selection": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty",
+     "<div aria-disabled=\"true\" aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"-1\">\n<input disabled hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"-1\">\n<input disabled hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty",
+     "<div aria-disabled=\"true\" aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"-1\">\n<input disabled hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@dragover default kept dropEffect=none",
+     "<div aria-disabled=\"true\" aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"-1\">\n<input disabled hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "browse and drop apply the same inclusive per-file maximum": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden multiple type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden multiple type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden multiple type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 5
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 5
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "a zero-byte maximum keeps an empty file and rejects one byte": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@chooseFiles input empty"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 0
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 1
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "single selection keeps the first accepted file after filtering": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input accept=\" .PDF, IMAGE/*, application/octet-stream \" hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" data-mol-id=\"file-field\" role=\"button\" tabindex=\"0\">\n<input accept=\" .PDF, IMAGE/*, application/octet-stream \" hidden type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 5
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "browse delivers both files in selection order, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "browse delivers both files in selection order, then children emptied and refilled": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@focus body>div:0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n</div>\n@route /\n@focus body>div:0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n</span>\n</div>\n@route /\n@focus body>div:0"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "browse delivers both files in selection order, with a stateful children": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "browse delivers both files in selection order, then a locale switch, with a stateful children": {
+    "snapshots": [
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0\n@chooseFiles input empty",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0",
+     "<div aria-label=\"Attachments\" class=\"cd75bbd18\" data-mol-id=\"file-field\" id=\"#id0\" role=\"button\" tabindex=\"0\">\n<input accept=\"image/*,.pdf\" hidden multiple type=\"file\" {value=\"\"}>\n</input>\n<span>\nChoose attachments\n<i data-parity-lifetime=\"children\" data-parity-ordinal=\"1\">\non\n</i>\n</span>\n</div>\n@route /\n@focus body>div:0\n@lifetime children created=1 disposed=0"
+    ],
+    "calls": [
+     {
+      "name": "onValueChange",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 4
+        }
+       ]
       ]
      }
     ]

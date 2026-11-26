@@ -35,10 +35,12 @@
     "directory": "packages/app/core/file-upload"
   },
   "peerDependencies": {
-    "@molecule/app-bond": "^1.0.1"
+    "@molecule/app-bond": "^1.0.1",
+    "@molecule/app-filesystem": "^1.1.0"
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.5",
+    "@molecule/app-filesystem": "1.0.5",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -54,6 +54,8 @@
  * @module
  */
 
+export * from './browser-files.js'
+export * from './file-selection.js'
 export * from './provider.js'
 export * from './types.js'
 export * from './utilities.js'

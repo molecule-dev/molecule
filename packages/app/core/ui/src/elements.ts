@@ -18,6 +18,8 @@
  * @module
  */
 
+import type { PickedFile } from '@molecule/app-filesystem'
+
 import type {
   ChangeEventHandler,
   CSSProperties,
@@ -893,6 +895,26 @@ export interface RangeFieldProps extends ElementProps, InteractionProps {
   style?: BoxStyle
   /** CSS layered over `style` in the browser. The device applies the subset it can draw. */
   webStyle?: WebStyle
+}
+
+/** A browse target that delivers an ordered batch of selected files. */
+export interface FileFieldProps<Node = unknown> extends ElementProps {
+  /** Content of the browse target. */
+  children?: Node
+  /** Comma-separated extensions, MIME types, MIME wildcards or `*`. */
+  accept?: string
+  /** Deliver all accepted files. Defaults to delivering the first accepted file. */
+  multiple?: boolean
+  /** Inclusive per-file limit in bytes. */
+  maxSize?: number
+  /** Prevents opening the chooser or delivering files. */
+  disabled?: boolean
+  /** Receives a nonempty batch of accepted files in selection order. */
+  onValueChange(files: readonly PickedFile[]): void
+  /** Receives a nonempty batch of files rejected by the type or size filter. */
+  onRejected?(files: readonly PickedFile[]): void
+  /** Receives a failure to open the chooser or read its selection. */
+  onPickError?(error: Error): void
 }
 
 /** One selectable row in the browser's select and the device's option list. */

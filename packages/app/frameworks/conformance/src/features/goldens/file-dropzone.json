@@ -79,7 +79,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      }
@@ -95,8 +99,16 @@
       "name": "onFiles",
       "args": [
        [
-        {},
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 3
+        }
        ]
       ]
      }
@@ -113,7 +125,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      }
@@ -129,7 +145,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      },
@@ -137,7 +157,11 @@
       "name": "onRejected",
       "args": [
        [
-        {}
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 4
+        }
        ]
       ]
      }
@@ -153,7 +177,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      },
@@ -161,7 +189,11 @@
       "name": "onRejected",
       "args": [
        [
-        {}
+        {
+         "name": "big.png",
+         "type": "image/png",
+         "size": 20
+        }
        ]
       ]
      }
@@ -177,7 +209,43 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
+       ]
+      ]
+     }
+    ]
+   },
+   "a zero-byte maximum rejects one byte and keeps an empty file": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 0
+        }
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 1
+        }
        ]
       ]
      }
@@ -193,7 +261,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 3
+        }
        ]
       ]
      },
@@ -201,7 +273,11 @@
       "name": "onRejected",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      }
@@ -217,7 +293,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 3
+        }
        ]
       ]
      },
@@ -225,7 +305,11 @@
       "name": "onRejected",
       "args": [
        [
-        {}
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 4
+        }
        ]
       ]
      }
@@ -241,7 +325,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "notes.txt",
+         "type": "text/plain",
+         "size": 4
+        }
        ]
       ]
      }
@@ -287,6 +375,31 @@
     ],
     "calls": []
    },
+   "browse delivers both files in input order": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input multiple style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input multiple style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@chooseFiles input empty"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 3
+        }
+       ]
+      ]
+     }
+    ]
+   },
    "prop changes toggle disabled and accept": {
     "snapshots": [
      "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 12px; border-top-right-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
@@ -299,7 +412,11 @@
       "name": "onFiles",
       "args": [
        [
-        {}
+        {
+         "name": "report.pdf",
+         "type": "application/pdf",
+         "size": 3
+        }
        ]
       ]
      },
@@ -307,7 +424,11 @@
       "name": "onRejected",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      }
