@@ -1,7 +1,6 @@
 /**
- * Renderer-neutral elements for React features: one feature renders on React DOM through this
- * entry and on React Native through `@molecule/app-ui-react-native/elements`, which the
- * `react-native` export condition resolves this entry to.
+ * Renderer-neutral elements for React features. This entry renders React DOM. The native kit will
+ * provide `@molecule/app-ui-react-native/elements` when its native elements land.
  *
  * @example
  * ```tsx
