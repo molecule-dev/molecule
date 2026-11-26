@@ -4,14 +4,10 @@
  * @module
  */
 
-import { existsSync, mkdirSync } from 'node:fs'
-import { dirname } from 'node:path'
-
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when pool.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
-import Database from 'better-sqlite3'
 
 import { getLogger } from '@molecule/api-bond'
 import type {
@@ -22,6 +18,7 @@ import type {
 } from '@molecule/api-database'
 import { getActiveTransaction } from '@molecule/api-database'
 
+import { configuredDatabasePath, openDatabase } from './connection.js'
 import type { SqliteConfig } from './types.js'
 import { coerceSqliteParam, convertPlaceholders, normalizeSqliteRows } from './utilities.js'
 
@@ -133,18 +130,14 @@ class OperationQueue {
  * @returns A DatabasePool wrapping a synchronous better-sqlite3 connection.
  */
 export const createPool = (config?: SqliteConfig): DatabasePool => {
-  const dbPath = config?.path ?? process.env.SQLITE_PATH ?? './data/app.db'
   const walMode = config?.walMode ?? true
   const foreignKeys = config?.foreignKeys ?? true
   const logger = getLogger()
 
-  // Auto-create parent directory
-  const dir = dirname(dbPath)
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true })
-  }
-
-  const db = new Database(dbPath)
+  // The configured database (no `path`) is the one the migrator opened: with SQLITE_PATH=:memory:
+  // it is the same connection, or the pool would start on an empty database.
+  const opened = openDatabase(config?.path ?? configuredDatabasePath(), config?.path === undefined)
+  const db = opened.db
 
   if (walMode) {
     db.pragma('journal_mode = WAL')
@@ -300,7 +293,7 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
     },
 
     async end() {
-      db.close()
+      opened.closeDatabase()
       logger.debug('SQLite database closed')
     },
 

@@ -12,15 +12,16 @@
  * @module
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when migrator.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
-import Database from 'better-sqlite3'
+import type Database from 'better-sqlite3'
 
+import { configuredDatabasePath, openDatabase } from './connection.js'
 import { translateDdlToSqlite } from './utilities.js'
 
 /**
@@ -490,15 +491,9 @@ export function createMigrator(
 ): () => Promise<void> {
   const namespace = options.namespace ?? ''
   return async function runMigrations(): Promise<void> {
-    const dbPath = process.env.SQLITE_PATH ?? './data/app.db'
-
-    // SQLite auto-creates the file on open — just ensure the parent dir exists.
-    const dir = dirname(dbPath)
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true })
-    }
-
-    const db = new Database(dbPath)
+    // SQLite creates the file on open; an in-memory SQLITE_PATH is the pool's own connection.
+    const opened = openDatabase(configuredDatabasePath(), true)
+    const db = opened.db
     try {
       const sqlFiles = existsSync(migrationsDir)
         ? readdirSync(migrationsDir)
@@ -595,7 +590,7 @@ export function createMigrator(
       if (skipped > 0) console.log(`· ${skipped} migration file(s) already applied`)
       console.log('Migrations complete.')
     } finally {
-      db.close()
+      opened.release()
     }
   }
 }

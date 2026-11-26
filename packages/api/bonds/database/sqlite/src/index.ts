@@ -16,6 +16,8 @@
  *
  * @remarks
  * Configure via the SQLITE_PATH environment variable (default: ./data/app.db).
+ * `SQLITE_PATH=:memory:` is one database for the whole process: the boot migrations and the pool
+ * share it, and it is gone when the pool closes.
  * WAL mode and foreign key constraints are enabled by default.
  * - **Schema changes are `*.sql` files in the app's `api/migrations/`.** A
  *   scaffolded API applies new files in lexical order each time it starts
