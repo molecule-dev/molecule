@@ -1,5 +1,11 @@
 # @molecule/app-file-upload
 
+## 1.1.0
+
+### Minor Changes
+
+- Accepts portable file selections in the upload queue alongside browser files.
+
 ## 1.0.1
 
 ### Patch Changes

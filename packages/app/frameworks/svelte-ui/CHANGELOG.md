@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.8.0
+
+### Minor Changes
+
+- Adds FileField for browsing and dropping files with shared filtering and portable selections.
+
 ## 1.7.0
 
 ### Minor Changes

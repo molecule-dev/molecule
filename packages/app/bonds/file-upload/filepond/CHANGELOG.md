@@ -1,5 +1,11 @@
 # @molecule/app-file-upload-filepond
 
+## 1.1.0
+
+### Minor Changes
+
+- Uploads portable file selections with their original filename and bytes, including when retried.
+
 ## 1.0.4
 
 ### Patch Changes

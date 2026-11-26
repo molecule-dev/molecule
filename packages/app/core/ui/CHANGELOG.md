@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.12.0
+
+### Minor Changes
+
+- Adds the FileField contract for ordered, portable file selections.
+
 ## 1.11.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-filesystem
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds portable file selections, shared type and size filtering, and a browser adapter for reading and uploading selected files.
+
 ## 1.0.5
 
 ### Patch Changes

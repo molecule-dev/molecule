@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.10.0
+
+### Minor Changes
+
+- Adds FileField for browsing and dropping files with shared filtering and portable selections.
+
 ## 4.9.0
 
 ### Minor Changes
