@@ -216,6 +216,8 @@ npm run lint        # ESLint
 npm run format:check  # Prettier
 ```
 
+Molecule has its own npm install so local package links in a sibling workspace can use its source without changing its dependencies.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
 
 ## Contributing
