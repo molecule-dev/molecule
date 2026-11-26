@@ -1,5 +1,11 @@
 # @molecule/app-feature-graph-view-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- Node labels render without the spaces the template added around them.
+
 ## 1.1.0
 
 ### Minor Changes
