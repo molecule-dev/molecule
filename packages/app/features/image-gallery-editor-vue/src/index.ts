@@ -8,12 +8,14 @@
  * slot are keyboard buttons: Enter and Space do what a click does.
  *
  * Stateless about persistence — the consumer owns the slot array and handles
- * uploads via `onPickFiles` (defaults to local object URLs for preview).
+ * uploads via `onPickFiles`. The editor owns the lifetime of default local previews.
  *
  * @example
  * ```ts
  * import { createApp, defineComponent, h, ref } from 'vue'
+ * import type { PickedFile } from '@molecule/app-filesystem'
  * import { ImageGalleryEditor } from '@molecule/app-image-gallery-editor-vue'
+ * import { uploadImage } from './uploads.js'
  *
  * const GalleryEditor = defineComponent({
  *   setup() {
@@ -22,10 +24,7 @@
  *       h(ImageGalleryEditor, {
  *         slots: slots.value,
  *         onChange: (next) => (slots.value = next),
- *         onPickFiles: async (files) => {
- *           // upload each file, return persisted URLs (null keeps a slot empty)
- *           return Array.from(files).map((f) => URL.createObjectURL(f))
- *         },
+ *         onPickFiles: (files: readonly PickedFile[]) => Promise.all(files.map(uploadImage)),
  *         counter: `${slots.value.filter(Boolean).length} / 24 Photos`,
  *       })
  *   },

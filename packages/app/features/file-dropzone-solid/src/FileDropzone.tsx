@@ -10,7 +10,7 @@
 
 import { type Component, createSignal, type JSX, Show } from 'solid-js'
 
-import { createBrowserFileInput } from '@molecule/app-filesystem'
+import { createBrowserFileInput, fromBrowserFile } from '@molecule/app-filesystem'
 import { ResolveNode, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -35,7 +35,7 @@ export const FileDropzone: Component<FileDropzoneProps> = (props) => {
   const handlers = createBrowserFileInput(
     () => inputEl,
     () => props,
-    (file) => file,
+    fromBrowserFile,
   )
 
   /**

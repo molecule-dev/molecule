@@ -7,10 +7,12 @@
 
 import type { JSX } from 'solid-js'
 
+import type { PickedFile } from '@molecule/app-filesystem'
+
 /** Props for {@link FileDropzone}. */
 export interface FileDropzoneProps {
-  /** Called with the File[] the user selected or dropped. */
-  onFiles: (files: File[]) => void
+  /** Called with the files the user selected or dropped, in selection order. */
+  onFiles: (files: readonly PickedFile[]) => void
   /** Accept attribute (e.g. `'image/*'` or `'.pdf,.docx'`). */
   accept?: string
   /** Allow multi-file selection. Defaults to false. */
@@ -18,7 +20,7 @@ export interface FileDropzoneProps {
   /** Max file size in bytes. Files exceeding are rejected. */
   maxSize?: number
   /** Called with rejected files (wrong type or size). */
-  onRejected?: (files: File[]) => void
+  onRejected?: (files: readonly PickedFile[]) => void
   /** Optional content rendered inside the dropzone (defaults to standard upload copy). */
   children?: JSX.Element
   /** Disabled state. */

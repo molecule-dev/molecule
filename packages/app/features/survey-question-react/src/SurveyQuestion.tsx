@@ -1,10 +1,20 @@
-import type { ChangeEvent, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import { useCallback, useState } from 'react'
 
 import { FileDropzone } from '@molecule/app-file-dropzone-react'
+import type { PickedFile } from '@molecule/app-filesystem'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+import {
+  Box,
+  CheckField,
+  Pressable,
+  TableBox,
+  TableCell,
+  Text,
+  TextField,
+} from '@molecule/app-ui-react/elements'
 
 import type {
   DateQuestion,
@@ -30,8 +40,8 @@ export interface SurveyQuestionProps {
   value?: SurveyAnswerValue
   /** Called whenever the answer value changes. */
   onChange?: (value: SurveyAnswerValue) => void
-  /** Called when the user clicks "Submit" — only fires when the answer passes required-field validation. */
-  onSubmit?: (value: SurveyAnswerValue) => void
+  /** Called on valid submission. An unanswered optional question submits undefined. */
+  onSubmit?: (value: SurveyAnswerValue | undefined) => void
   /** When true, every input is disabled and no controls fire change events. */
   readOnly?: boolean
   /** Optional extra classes on the root wrapper. */
@@ -83,56 +93,67 @@ export function SurveyQuestion(props: SurveyQuestionProps): ReactElement {
       return
     }
     setError(null)
-    onSubmit?.(value as SurveyAnswerValue)
+    onSubmit?.(value)
   }, [question, readOnly, t, value, onSubmit])
 
   return (
-    <div
+    <Box
+      as="div"
       className={cm.cn(cm.stack(3), className)}
       data-mol-id={`survey-question-${question.id}`}
       data-kind={question.kind}
     >
-      <header className={cm.stack(1)}>
-        <h3 className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
+      <Box as="header" className={cm.stack(1)}>
+        <Text as="h3" className={cm.cn(cm.textSize('lg'), cm.fontWeight('semibold'))}>
           {question.prompt}
           {question.required && (
-            <span
+            <Text
+              as="span"
               aria-label={t('surveyQuestion.requiredIndicator', {}, { defaultValue: 'required' })}
-              style={{ color: '#ef4444', marginLeft: 4 }}
+              webStyle={{ color: '#ef4444', marginLeft: 4 }}
               data-mol-id={`survey-question-${question.id}-required`}
             >
               *
-            </span>
+            </Text>
           )}
-        </h3>
-        {question.description && <p className={cm.textSize('sm')}>{question.description}</p>}
-      </header>
-      <div data-mol-id={`survey-question-${question.id}-input`}>
+        </Text>
+        {question.description && (
+          <Text as="p" className={cm.textSize('sm')}>
+            {question.description}
+          </Text>
+        )}
+      </Box>
+      <Box as="div" data-mol-id={`survey-question-${question.id}-input`}>
         {renderControl(question, value, setValue, readOnly)}
-      </div>
+      </Box>
       {question.helpText && (
-        <p className={cm.textSize('xs')} data-mol-id={`survey-question-${question.id}-help`}>
+        <Text
+          as="p"
+          className={cm.textSize('xs')}
+          data-mol-id={`survey-question-${question.id}-help`}
+        >
           {question.helpText}
-        </p>
+        </Text>
       )}
       {error && (
-        <p
+        <Text
+          as="p"
           className={cm.textSize('xs')}
-          style={{ color: '#ef4444' }}
+          webStyle={{ color: '#ef4444' }}
           role="alert"
           data-mol-id={`survey-question-${question.id}-error`}
         >
           {error}
-        </p>
+        </Text>
       )}
       {onSubmit && !readOnly && (
-        <div>
+        <Box as="div">
           <Button type="button" variant="solid" color="primary" onClick={handleSubmit}>
             {t('surveyQuestion.submit', {}, { defaultValue: 'Submit' })}
           </Button>
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -151,11 +172,7 @@ function hasAnswer(kind: SurveyQuestionDef['kind'], value: unknown): boolean {
     case 'file-upload':
       return Array.isArray(value) && value.length > 0
     case 'matrix':
-      return (
-        typeof value === 'object' &&
-        value !== null &&
-        Object.keys(value as Record<string, string>).length > 0
-      )
+      return typeof value === 'object' && Object.keys(value).length > 0
     case 'short-text':
     case 'long-text':
     case 'date':
@@ -171,6 +188,13 @@ function hasAnswer(kind: SurveyQuestionDef['kind'], value: unknown): boolean {
     default:
       return false
   }
+}
+
+/** Narrows the answer's two ordered collection types, including the readonly file batch. */
+function isAnswerList(
+  value: SurveyAnswerValue | undefined,
+): value is string[] | readonly PickedFile[] {
+  return Array.isArray(value)
 }
 
 /**
@@ -193,7 +217,7 @@ function renderControl(
       return (
         <MultiChoiceSingleControl
           question={q}
-          value={(value as string) ?? ''}
+          value={typeof value === 'string' ? value : ''}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -202,7 +226,7 @@ function renderControl(
       return (
         <MultiChoiceMultiControl
           question={q}
-          value={(value as string[]) ?? []}
+          value={isAnswerList(value) ? value.filter((entry) => typeof entry === 'string') : []}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -211,7 +235,7 @@ function renderControl(
       return (
         <TrueFalseControl
           question={q}
-          value={value as boolean | undefined}
+          value={typeof value === 'boolean' ? value : undefined}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -220,7 +244,7 @@ function renderControl(
       return (
         <ShortTextControl
           question={q}
-          value={(value as string) ?? ''}
+          value={typeof value === 'string' ? value : ''}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -229,7 +253,7 @@ function renderControl(
       return (
         <LongTextControl
           question={q}
-          value={(value as string) ?? ''}
+          value={typeof value === 'string' ? value : ''}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -238,7 +262,7 @@ function renderControl(
       return (
         <NumericControl
           question={q}
-          value={(value as number | '') ?? ''}
+          value={typeof value === 'number' ? value : ''}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -247,7 +271,7 @@ function renderControl(
       return (
         <RatingScaleControl
           question={q}
-          value={value as number | undefined}
+          value={typeof value === 'number' ? value : undefined}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -256,7 +280,7 @@ function renderControl(
       return (
         <NPSControl
           question={q}
-          value={value as number | undefined}
+          value={typeof value === 'number' ? value : undefined}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -265,7 +289,7 @@ function renderControl(
       return (
         <DateControl
           question={q}
-          value={(value as string) ?? ''}
+          value={typeof value === 'string' ? value : ''}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -274,7 +298,7 @@ function renderControl(
       return (
         <FileUploadControl
           question={q}
-          value={(value as File[]) ?? []}
+          value={isAnswerList(value) ? value.filter((entry) => typeof entry !== 'string') : []}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -283,7 +307,7 @@ function renderControl(
       return (
         <MatrixControl
           question={q}
-          value={(value as Record<string, string>) ?? {}}
+          value={value && typeof value === 'object' && !isAnswerList(value) ? value : {}}
           onChange={setValue}
           readOnly={readOnly}
         />
@@ -320,11 +344,12 @@ function MultiChoiceSingleControl({
 }: ControlProps<MultiChoiceSingleQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
-    <div className={cm.stack(2)} role="radiogroup">
+    <Box as="div" className={cm.stack(2)} role="radiogroup">
       {question.options.map((opt) => {
         const selected = value === opt.value
         return (
-          <button
+          <Pressable
+            as="button"
             key={opt.value}
             type="button"
             role="radio"
@@ -345,7 +370,7 @@ function MultiChoiceSingleControl({
                fixed-height `cm.button()` tiers cannot do. The resting border
                is a theme token now; `rgba(0,0,0,0.15)` was invisible on a dark
                surface. */
-            style={{
+            webStyle={{
               borderRadius: 8,
               border: `1px solid ${
                 selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
@@ -356,10 +381,10 @@ function MultiChoiceSingleControl({
             data-mol-id={`survey-option-${question.id}-${opt.value}`}
           >
             {opt.label}
-          </button>
+          </Pressable>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
@@ -385,11 +410,12 @@ function MultiChoiceMultiControl({
     else onChange([...value, v])
   }
   return (
-    <div className={cm.stack(2)} role="group">
+    <Box as="div" className={cm.stack(2)} role="group">
       {question.options.map((opt) => {
         const selected = value.includes(opt.value)
         return (
-          <button
+          <Pressable
+            as="button"
             key={opt.value}
             type="button"
             role="checkbox"
@@ -408,7 +434,7 @@ function MultiChoiceMultiControl({
             /* mol-bespoke-button: full-width checkbox option ROW, not a CTA —
                same wrapping, left-aligned shape and theme-token border as
                MultiChoiceSingleControl above. */
-            style={{
+            webStyle={{
               borderRadius: 8,
               border: `1px solid ${
                 selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
@@ -418,14 +444,14 @@ function MultiChoiceMultiControl({
             }}
             data-mol-id={`survey-option-${question.id}-${opt.value}`}
           >
-            <span aria-hidden style={{ display: 'inline-block', width: 16 }}>
+            <Text as="span" aria-hidden webStyle={{ display: 'inline-block', width: 16 }}>
               {selected ? '☑' : '☐'}
-            </span>
-            <span>{opt.label}</span>
-          </button>
+            </Text>
+            <Text as="span">{opt.label}</Text>
+          </Pressable>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
@@ -448,7 +474,7 @@ function TrueFalseControl({
   const falseLabel =
     question.falseLabel ?? t('surveyQuestion.trueFalse.false', {}, { defaultValue: 'False' })
   return (
-    <div className={cm.flex({ gap: 'sm', align: 'center' })} role="radiogroup">
+    <Box as="div" className={cm.flex({ gap: 'sm', align: 'center' })} role="radiogroup">
       <Button
         type="button"
         variant={value === true ? 'solid' : 'ghost'}
@@ -471,7 +497,7 @@ function TrueFalseControl({
       >
         {falseLabel}
       </Button>
-    </div>
+    </Box>
   )
 }
 
@@ -489,16 +515,17 @@ function ShortTextControl({
 }: ControlProps<ShortTextQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
-    <input
+    <TextField
+      as="input"
       type="text"
       value={value}
       placeholder={question.placeholder}
       maxLength={question.maxLength}
       disabled={readOnly}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+      onValueChange={onChange}
       aria-label={question.prompt}
       className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
-      style={{
+      webStyle={{
         border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 8,
         outline: 'none',
@@ -523,16 +550,17 @@ function LongTextControl({
 }: ControlProps<LongTextQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
-    <textarea
+    <TextField
+      as="textarea"
       value={value}
       placeholder={question.placeholder}
       maxLength={question.maxLength}
       rows={question.rows ?? 4}
       disabled={readOnly}
-      onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
+      onValueChange={onChange}
       aria-label={question.prompt}
       className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
-      style={{
+      webStyle={{
         border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 8,
         outline: 'none',
@@ -558,8 +586,9 @@ function NumericControl({
 }: ControlProps<NumericQuestion, number | ''>): ReactElement {
   const cm = getClassMap()
   return (
-    <div className={cm.flex({ align: 'center', gap: 'xs' })}>
-      <input
+    <Box as="div" className={cm.flex({ align: 'center', gap: 'xs' })}>
+      <TextField
+        as="input"
         type="number"
         inputMode="decimal"
         value={value === '' ? '' : String(value)}
@@ -567,8 +596,7 @@ function NumericControl({
         max={question.max}
         step={question.step}
         disabled={readOnly}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const raw = e.target.value
+        onValueChange={(raw) => {
           if (raw === '') {
             onChange('')
             return
@@ -578,7 +606,7 @@ function NumericControl({
         }}
         aria-label={question.prompt}
         className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
-        style={{
+        webStyle={{
           border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
           borderRadius: 8,
           outline: 'none',
@@ -587,14 +615,15 @@ function NumericControl({
         data-mol-id={`survey-input-${question.id}`}
       />
       {question.unit && (
-        <span
+        <Text
+          as="span"
           className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
           data-mol-id={`survey-input-${question.id}-unit`}
         >
           {question.unit}
-        </span>
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -616,12 +645,13 @@ function RatingScaleControl({
   const buttons: number[] = []
   for (let i = min; i <= max; i++) buttons.push(i)
   return (
-    <div className={cm.stack(1)}>
-      <div className={cm.flex({ gap: 'xs', align: 'center' })} role="radiogroup">
+    <Box as="div" className={cm.stack(1)}>
+      <Box as="div" className={cm.flex({ gap: 'xs', align: 'center' })} role="radiogroup">
         {buttons.map((n) => {
           const selected = value === n
           return (
-            <button
+            <Pressable
+              as="button"
               key={n}
               type="button"
               role="radio"
@@ -639,7 +669,7 @@ function RatingScaleControl({
                  `cm.button()` has no square-icon tier at this size. Border and
                  fill are theme tokens; the old `rgba(0,0,0,…)` pair washed out
                  on a dark surface. */
-              style={{
+              webStyle={{
                 border: `1px solid ${
                   selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
                 }`,
@@ -653,17 +683,21 @@ function RatingScaleControl({
               data-mol-id={`survey-option-${question.id}-${n}`}
             >
               {n}
-            </button>
+            </Pressable>
           )
         })}
-      </div>
+      </Box>
       {(question.lowLabel || question.highLabel) && (
-        <div className={cm.flex({ justify: 'between' })}>
-          <span className={cm.textSize('xs')}>{question.lowLabel}</span>
-          <span className={cm.textSize('xs')}>{question.highLabel}</span>
-        </div>
+        <Box as="div" className={cm.flex({ justify: 'between' })}>
+          <Text as="span" className={cm.textSize('xs')}>
+            {question.lowLabel}
+          </Text>
+          <Text as="span" className={cm.textSize('xs')}>
+            {question.highLabel}
+          </Text>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -688,12 +722,13 @@ function NPSControl({
   const buttons: number[] = []
   for (let i = 0; i <= 10; i++) buttons.push(i)
   return (
-    <div className={cm.stack(1)}>
-      <div className={cm.flex({ gap: 'xs', align: 'center' })} role="radiogroup">
+    <Box as="div" className={cm.stack(1)}>
+      <Box as="div" className={cm.flex({ gap: 'xs', align: 'center' })} role="radiogroup">
         {buttons.map((n) => {
           const selected = value === n
           return (
-            <button
+            <Pressable
+              as="button"
               key={n}
               type="button"
               role="radio"
@@ -708,7 +743,7 @@ function NPSControl({
               /* mol-bespoke-button: a 32×32 NPS scale POINT, not a CTA — same
                  fixed scale geometry as RatingScaleControl, sized down so
                  eleven of them fit one row. */
-              style={{
+              webStyle={{
                 border: `1px solid ${
                   selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
                 }`,
@@ -723,15 +758,19 @@ function NPSControl({
               data-mol-id={`survey-option-${question.id}-${n}`}
             >
               {n}
-            </button>
+            </Pressable>
           )
         })}
-      </div>
-      <div className={cm.flex({ justify: 'between' })}>
-        <span className={cm.textSize('xs')}>{lowLabel}</span>
-        <span className={cm.textSize('xs')}>{highLabel}</span>
-      </div>
-    </div>
+      </Box>
+      <Box as="div" className={cm.flex({ justify: 'between' })}>
+        <Text as="span" className={cm.textSize('xs')}>
+          {lowLabel}
+        </Text>
+        <Text as="span" className={cm.textSize('xs')}>
+          {highLabel}
+        </Text>
+      </Box>
+    </Box>
   )
 }
 
@@ -749,16 +788,17 @@ function DateControl({
 }: ControlProps<DateQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
-    <input
+    <TextField
+      as="input"
       type="date"
       value={value}
       min={question.min}
       max={question.max}
       disabled={readOnly}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+      onValueChange={onChange}
       aria-label={question.prompt}
       className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
-      style={{
+      webStyle={{
         border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 8,
         outline: 'none',
@@ -779,33 +819,33 @@ function FileUploadControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<FileUploadQuestion, File[]>): ReactElement {
+}: ControlProps<FileUploadQuestion, readonly PickedFile[]>): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div className={cm.stack(2)}>
+    <Box as="div" className={cm.stack(2)}>
       <FileDropzone
         accept={question.accept}
         multiple={question.multiple}
         maxSize={question.maxSize}
         disabled={readOnly}
-        onFiles={(files) => onChange(files)}
+        onFiles={onChange}
       />
       {value.length > 0 && (
-        <ul className={cm.stack(1)} data-mol-id={`survey-input-${question.id}-files`}>
+        <Box as="ul" className={cm.stack(1)} data-mol-id={`survey-input-${question.id}-files`}>
           {value.map((f, i) => (
-            <li key={`${f.name}-${i}`} className={cm.textSize('xs')}>
+            <Text as="li" key={`${f.name}-${i}`} className={cm.textSize('xs')}>
               {f.name}
-            </li>
+            </Text>
           ))}
-        </ul>
+        </Box>
       )}
       {value.length === 0 && (
-        <p className={cm.textSize('xs')}>
+        <Text as="p" className={cm.textSize('xs')}>
           {t('surveyQuestion.file.noFiles', {}, { defaultValue: 'No files selected.' })}
-        </p>
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -830,50 +870,58 @@ function MatrixControl({
     onChange({ ...value, [rowId]: colValue })
   }
   return (
-    <table
+    <TableBox
+      as="table"
       className={cm.cn(cm.textSize('sm'))}
-      style={{ borderCollapse: 'collapse', width: '100%' }}
+      webStyle={{ borderCollapse: 'collapse', width: '100%' }}
       data-mol-id={`survey-matrix-${question.id}`}
     >
-      <thead>
-        <tr>
-          <th style={{ textAlign: 'left', padding: 4 }} />
+      <TableBox as="thead">
+        <TableBox as="tr">
+          <TableCell as="th" webStyle={{ textAlign: 'left', padding: 4 }} />
           {question.columns.map((col) => (
-            <th key={col.value} style={{ textAlign: 'center', padding: 4 }} scope="col">
+            <TableCell
+              as="th"
+              key={col.value}
+              webStyle={{ textAlign: 'center', padding: 4 }}
+              scope="col"
+            >
               {col.label}
-            </th>
+            </TableCell>
           ))}
-        </tr>
-      </thead>
-      <tbody>
+        </TableBox>
+      </TableBox>
+      <TableBox as="tbody">
         {question.rows.map((row) => (
-          <tr key={row.id}>
-            <th
-              style={{ textAlign: 'left', padding: 4 }}
+          <TableBox as="tr" key={row.id}>
+            <TableCell
+              as="th"
+              webStyle={{ textAlign: 'left', padding: 4 }}
               scope="row"
               data-mol-id={`survey-matrix-${question.id}-row-${row.id}`}
             >
               {row.label}
-            </th>
+            </TableCell>
             {question.columns.map((col) => {
               const selected = value[row.id] === col.value
               return (
-                <td key={col.value} style={{ textAlign: 'center', padding: 4 }}>
-                  <input
+                <TableCell as="td" key={col.value} webStyle={{ textAlign: 'center', padding: 4 }}>
+                  <CheckField
+                    as="input"
                     type="radio"
                     name={`${question.id}-${row.id}`}
                     checked={selected}
                     disabled={readOnly}
-                    onChange={() => setRow(row.id, col.value)}
+                    onCheckedChange={() => setRow(row.id, col.value)}
                     aria-label={`${row.label} - ${col.label}`}
                     data-mol-id={`survey-matrix-${question.id}-${row.id}-${col.value}`}
                   />
-                </td>
+                </TableCell>
               )
             })}
-          </tr>
+          </TableBox>
         ))}
-      </tbody>
-    </table>
+      </TableBox>
+    </TableBox>
   )
 }

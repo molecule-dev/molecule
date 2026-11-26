@@ -9,12 +9,14 @@
  * buttons: Enter and Space do what a click does.
  *
  * Stateless about persistence — the consumer owns the slot array and handles
- * uploads via `onPickFiles` (defaults to local object URLs for preview).
+ * uploads via `onPickFiles`. The editor owns the lifetime of default local previews.
  *
  * @example
  * ```svelte
  * <script lang="ts">
+ *   import type { PickedFile } from '@molecule/app-filesystem'
  *   import { ImageGalleryEditor } from '@molecule/app-image-gallery-editor-svelte'
+ *   import { uploadImage } from './uploads.js'
  *
  *   let slots = $state<(string | null)[]>(Array(4).fill(null))
  * </script>
@@ -22,10 +24,7 @@
  * <ImageGalleryEditor
  *   {slots}
  *   onChange={(next) => (slots = next)}
- *   onPickFiles={async (files) => {
- *     // upload each file, return persisted URLs (null keeps a slot empty)
- *     return Array.from(files).map((f) => URL.createObjectURL(f))
- *   }}
+ *   onPickFiles={(files: readonly PickedFile[]) => Promise.all(files.map(uploadImage))}
  *   counter={`${slots.filter(Boolean).length} / 24 Photos`}
  * />
  * ```

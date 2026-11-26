@@ -466,7 +466,11 @@
       "name": "onChange",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      }

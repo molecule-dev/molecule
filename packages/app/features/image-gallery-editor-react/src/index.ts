@@ -7,23 +7,23 @@
  * buttons: Enter and Space do what a click does.
  *
  * Stateless about persistence — the consumer owns the slot array and handles
- * uploads via `onPickFiles` (defaults to local object URLs for preview).
+ * uploads via `onPickFiles`. The editor owns the lifetime of default local previews.
  *
  * @example
  * ```tsx
  * import { useState } from 'react'
+ * import type { PickedFile } from '@molecule/app-filesystem'
  * import { ImageGalleryEditor } from '@molecule/app-image-gallery-editor-react'
  *
- * function GalleryEditor() {
+ * function GalleryEditor({
+ *   uploadImages,
+ * }: { uploadImages: (files: readonly PickedFile[]) => Promise<(string | null)[]> }) {
  *   const [slots, setSlots] = useState<(string | null)[]>(Array(4).fill(null))
  *   return (
  *     <ImageGalleryEditor
  *       slots={slots}
  *       onChange={setSlots}
- *       onPickFiles={async (files) => {
- *         // upload each file, return persisted URLs (null keeps a slot empty)
- *         return Array.from(files).map((f) => URL.createObjectURL(f))
- *       }}
+ *       onPickFiles={uploadImages}
  *       header={<h3>Image Gallery</h3>}
  *       counter={`${slots.filter(Boolean).length} / 24 Photos`}
  *     />
@@ -54,6 +54,8 @@
  *   `confirmRemoveMessage` override it per instance.
  * - A drop that carries a file other than an image is refused, as the picker
  *   (`accept="image/*"`) would refuse it.
+ * - `onPickFiles` receives portable files. Use `file.appendTo(formData, field)`
+ *   to upload each image and return the persisted URL, or null for an empty slot.
  * - `getClassMap()` requires a bonded ClassMap for the layout primitives.
  *
  * @module

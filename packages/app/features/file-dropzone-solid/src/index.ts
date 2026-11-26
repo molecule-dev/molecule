@@ -1,6 +1,6 @@
 /**
  * Solid file dropzone — drag-drop + click-to-browse file picker with
- * accept / max-size filtering. Pure UI: it emits the chosen `File[]`
+ * accept / max-size filtering. Pure UI: it emits `readonly PickedFile[]`
  * and the host app performs the actual upload.
  *
  * Exports `FileDropzone` and its `FileDropzoneProps`. It is the Solid
@@ -17,7 +17,11 @@
  *       accept="image/*"
  *       multiple={false}
  *       maxSize={5 * 1024 * 1024}
- *       onFiles={(files) => uploadAvatar(files[0])}
+ *       onFiles={(files) => {
+ *         const form = new FormData()
+ *         files[0]?.appendTo(form, 'avatar')
+ *         uploadAvatar(form)
+ *       }}
  *       onRejected={(files) => showError(files[0].name)}
  *     />
  *   )

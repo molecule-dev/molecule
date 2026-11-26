@@ -7,7 +7,10 @@
  * @module
  */
 
+import { createSignal } from 'solid-js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { PickedFile } from '@molecule/app-filesystem'
 
 // Class tokens echo their own name; Icon records its glyph; ConfirmDialog shows
 // its title and description while open — the same mocks the React tests use.
@@ -66,6 +69,7 @@ const disposers: Array<() => void> = []
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
   document.body.innerHTML = ''
+  vi.unstubAllGlobals()
 })
 
 /**
@@ -74,22 +78,20 @@ afterEach(() => {
  * @param props - Props over `slots` and a spied `onChange`.
  * @returns The container and the `onChange` spy.
  */
-async function mount(
-  props: Partial<Omit<ImageGalleryEditorProps, 'slots' | 'onChange'>> & {
-    slots?: (string | null)[]
-  },
-): Promise<{ container: HTMLElement; onChange: ReturnType<typeof vi.fn> }> {
+async function mount(props: Partial<Omit<ImageGalleryEditorProps, 'onChange'>>): Promise<{
+  container: HTMLElement
+  onChange: ReturnType<typeof vi.fn>
+  setSlots: (next: (string | null)[]) => void
+}> {
   const onChange = vi.fn()
+  const [slots, setSlots] = createSignal(props.slots ?? [null])
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(
-    render(
-      () => <ImageGalleryEditor {...props} slots={props.slots ?? [null]} onChange={onChange} />,
-      container,
-    ),
+    render(() => <ImageGalleryEditor {...props} slots={slots()} onChange={onChange} />, container),
   )
   await Promise.resolve()
-  return { container, onChange }
+  return { container, onChange, setSlots }
 }
 
 /**
@@ -121,6 +123,15 @@ async function drop(el: Element, files: File[]): Promise<boolean> {
 const zone = (c: HTMLElement): Element =>
   c.querySelector('[data-mol-id="image-gallery-editor-dropzone"]')!
 
+/** Simulates a browser delivering the selected files in a chooser change event. */
+function chooseFiles(input: HTMLInputElement, files: File[]): void {
+  Object.defineProperties(input, {
+    files: { value: fileList(files), configurable: true },
+    value: { value: 'selected', writable: true, configurable: true },
+  })
+  input.dispatchEvent(new Event('change', { bubbles: true }))
+}
+
 describe('ImageGalleryEditor drop zone', () => {
   it('accepts a drag over it, so the browser lets the drop through', async () => {
     const { container } = await mount({})
@@ -130,15 +141,26 @@ describe('ImageGalleryEditor drop zone', () => {
   })
 
   it('dropped images fill the empty slots in order', async () => {
-    const onPickFiles = vi.fn((files: FileList) => Array.from(files).map((f) => `url:${f.name}`))
+    const onPickFiles = vi.fn((files: readonly PickedFile[]) =>
+      files.map((file) => `url:${file.name}`),
+    )
     const { container, onChange } = await mount({ slots: ['kept', null, null], onPickFiles })
-    const prevented = await drop(zone(container), [
-      new File(['a'], 'a.png', { type: 'image/png' }),
-      new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
-    ])
+    const png = new File(['a'], 'a.png', { type: 'image/png' })
+    const jpg = new File(['b'], 'b.jpg', { type: 'image/jpeg' })
+    const prevented = await drop(zone(container), [png, jpg])
     expect(prevented).toBe(true)
     expect(onPickFiles).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenCalledWith(['kept', 'url:a.png', 'url:b.jpg'])
+    const picked = onPickFiles.mock.lastCall?.[0]
+    expect(picked).toEqual([
+      expect.objectContaining({ name: png.name, appendTo: expect.any(Function) }),
+      expect.objectContaining({ name: jpg.name, appendTo: expect.any(Function) }),
+    ])
+    if (!picked) throw new Error('The gallery did not deliver the dropped images')
+    const form = new FormData()
+    for (const file of picked) file.appendTo(form, 'photos')
+    expect(form.getAll('photos')).toEqual([png, jpg])
+    expect(onChange).toHaveBeenCalledAfter(onPickFiles)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(['kept', 'url:a.png', 'url:b.jpg'])
   })
 
   it('refuses a drop that carries a file the picker would not take', async () => {
@@ -152,6 +174,81 @@ describe('ImageGalleryEditor drop zone', () => {
     expect(prevented).toBe(true)
     expect(onPickFiles).not.toHaveBeenCalled()
     expect(onChange).not.toHaveBeenCalled()
+  })
+})
+
+describe('ImageGalleryEditor chooser and previews', () => {
+  it('resets the shared chooser before calling onPickFiles and updates the triggering slot', async () => {
+    const onPickFiles = vi.fn<(files: readonly PickedFile[]) => (string | null)[]>()
+    const { container, onChange } = await mount({ slots: [null, null, 'kept'], onPickFiles })
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')
+    const slot = container.querySelector<HTMLElement>('[data-mol-id="image-gallery-editor-slot-1"]')
+    if (!input || !slot) throw new Error('The gallery did not render its chooser and empty slot')
+    expect(container.querySelectorAll('input[type="file"]')).toHaveLength(1)
+    expect(input.multiple).toBe(false)
+    expect(input.style.display).toBe('none')
+    const clicks = vi.fn()
+    input.addEventListener('click', clicks)
+    zone(container).dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    slot.click()
+    expect(clicks).toHaveBeenCalledTimes(2)
+
+    let valueAtCallback: string | undefined
+    onPickFiles.mockImplementation(() => {
+      valueAtCallback = input.value
+      return ['persisted']
+    })
+    const first = new File(['png'], 'photo.png', { type: 'image/png' })
+    const second = new File(['gif'], 'photo.gif', { type: 'image/gif' })
+    chooseFiles(input, [first, second])
+    expect(valueAtCallback).toBe('')
+    expect(onPickFiles).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({
+        name: first.name,
+        type: first.type,
+        size: first.size,
+        appendTo: expect.any(Function),
+        arrayBuffer: expect.any(Function),
+      }),
+    ])
+    expect(onChange).not.toHaveBeenCalled()
+    await Promise.resolve()
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([null, 'persisted', 'kept'])
+  })
+
+  it('releases local object URLs after slot replacement and on unmount', async () => {
+    const first = 'blob:preview-1'
+    const second = 'blob:preview-2'
+    const createObjectURL = vi.fn().mockReturnValueOnce(first).mockReturnValueOnce(second)
+    const revokeObjectURL = vi.fn()
+    vi.stubGlobal(
+      'URL',
+      class extends URL {
+        static createObjectURL = createObjectURL
+        static revokeObjectURL = revokeObjectURL
+      },
+    )
+    const { container, onChange, setSlots } = await mount({ slots: [null, null, 'kept'] })
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')
+    if (!input) throw new Error('The gallery did not render its chooser')
+    const photo = new File(['png'], 'photo.png', { type: 'image/png' })
+
+    chooseFiles(input, [photo])
+    await vi.waitFor(() => expect(onChange).toHaveBeenCalledExactlyOnceWith([first, null, 'kept']))
+    await setSlots([first, null, 'kept'])
+    expect(revokeObjectURL).not.toHaveBeenCalled()
+
+    await setSlots(['persisted', null, 'kept'])
+    expect(revokeObjectURL).toHaveBeenCalledExactlyOnceWith(first)
+
+    chooseFiles(input, [photo])
+    await vi.waitFor(() => expect(onChange).toHaveBeenLastCalledWith(['persisted', second, 'kept']))
+    await setSlots(['persisted', second, 'kept'])
+    expect(createObjectURL).toHaveBeenCalledTimes(2)
+    expect(revokeObjectURL).toHaveBeenCalledTimes(1)
+
+    disposers.pop()?.()
+    expect(revokeObjectURL.mock.calls).toEqual([[first], [second]])
   })
 })
 

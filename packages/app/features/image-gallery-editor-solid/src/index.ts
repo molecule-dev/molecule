@@ -9,12 +9,14 @@
  * buttons: Enter and Space do what a click does.
  *
  * Stateless about persistence — the consumer owns the slot array and handles
- * uploads via `onPickFiles` (defaults to local object URLs for preview).
+ * uploads via `onPickFiles`. The editor owns the lifetime of default local previews.
  *
  * @example
  * ```tsx
  * import { createSignal } from 'solid-js'
+ * import type { PickedFile } from '@molecule/app-filesystem'
  * import { ImageGalleryEditor } from '@molecule/app-image-gallery-editor-solid'
+ * import { uploadImage } from './uploads.js'
  *
  * export function GalleryEditor() {
  *   const [slots, setSlots] = createSignal<(string | null)[]>(Array(4).fill(null))
@@ -22,10 +24,7 @@
  *     <ImageGalleryEditor
  *       slots={slots()}
  *       onChange={setSlots}
- *       onPickFiles={async (files) => {
- *         // upload each file, return persisted URLs (null keeps a slot empty)
- *         return Array.from(files).map((f) => URL.createObjectURL(f))
- *       }}
+ *       onPickFiles={(files: readonly PickedFile[]) => Promise.all(files.map(uploadImage))}
  *       header={<h3>Image Gallery</h3>}
  *       counter={`${slots().filter(Boolean).length} / 24 Photos`}
  *     />

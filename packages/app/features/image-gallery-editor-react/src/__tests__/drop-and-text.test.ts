@@ -1,6 +1,10 @@
 import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { PickedFile } from '@molecule/app-filesystem'
+
+import type { ImageGalleryEditorProps } from '../ImageGalleryEditor.js'
 
 // Class tokens echo their own name; Icon records its glyph; ConfirmDialog shows its title and
 // description while open.
@@ -45,11 +49,16 @@ const { ImageGalleryEditor } = await import('../ImageGalleryEditor.js')
 let root: Root | null = null
 let host: HTMLElement | null = null
 
+beforeEach(() => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+})
+
 afterEach(async () => {
   if (root) await act(async () => root?.unmount())
   host?.remove()
   root = null
   host = null
+  vi.unstubAllGlobals()
 })
 
 /**
@@ -59,7 +68,7 @@ afterEach(async () => {
  * @returns The container and the `onChange` spy.
  */
 async function mount(
-  props: Record<string, unknown>,
+  props: Partial<ImageGalleryEditorProps>,
 ): Promise<{ container: HTMLElement; onChange: ReturnType<typeof vi.fn> }> {
   host = document.createElement('div')
   document.body.appendChild(host)
@@ -78,7 +87,7 @@ async function mount(
  * @returns The list.
  */
 const fileList = (files: File[]): FileList =>
-  Object.assign([...files], { item: (i: number) => files[i] ?? null }) as unknown as FileList
+  Object.assign([...files], { item: (i: number) => files[i] ?? null })
 
 /**
  * Drops files on an element and reports whether the drop's default was prevented.
@@ -96,8 +105,13 @@ async function drop(el: Element, files: File[]): Promise<boolean> {
   return event.defaultPrevented
 }
 
-const zone = (c: HTMLElement): Element =>
-  c.querySelector('[data-mol-id="image-gallery-editor-dropzone"]')!
+function target(container: HTMLElement, id: string): Element {
+  const node = container.querySelector(`[data-mol-id="${id}"]`)
+  if (!node) throw new Error(`Missing gallery target ${id}`)
+  return node
+}
+
+const zone = (container: HTMLElement): Element => target(container, 'image-gallery-editor-dropzone')
 
 describe('ImageGalleryEditor drop zone', () => {
   it('accepts a drag over it, so the browser lets the drop through', async () => {
@@ -108,14 +122,20 @@ describe('ImageGalleryEditor drop zone', () => {
   })
 
   it('dropped images fill the empty slots in order', async () => {
-    const onPickFiles = vi.fn((files: FileList) => Array.from(files).map((f) => `url:${f.name}`))
+    const onPickFiles = vi.fn((files: readonly PickedFile[]) =>
+      files.map((file) => `url:${file.name}`),
+    )
     const { container, onChange } = await mount({ slots: ['kept', null, null], onPickFiles })
-    const prevented = await drop(zone(container), [
-      new File(['a'], 'a.png', { type: 'image/png' }),
-      new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
-    ])
+    const png = new File(['a'], 'a.png', { type: 'image/png' })
+    const jpg = new File(['b'], 'b.jpg', { type: 'image/jpeg' })
+    const prevented = await drop(zone(container), [png, jpg])
     expect(prevented).toBe(true)
     expect(onPickFiles).toHaveBeenCalledTimes(1)
+    const picked = onPickFiles.mock.lastCall?.[0]
+    if (!picked) throw new Error('The gallery did not deliver the dropped images')
+    const form = new FormData()
+    for (const file of picked) file.appendTo(form, 'photos')
+    expect(form.getAll('photos')).toEqual([png, jpg])
     expect(onChange).toHaveBeenCalledWith(['kept', 'url:a.png', 'url:b.jpg'])
   })
 
@@ -142,7 +162,7 @@ describe('ImageGalleryEditor text', () => {
 
   it('takes the remove confirmation through i18n by default', async () => {
     const { container } = await mount({ slots: ['x'] })
-    const slot = container.querySelector('[data-mol-id="image-gallery-editor-slot-0"]')!
+    const slot = target(container, 'image-gallery-editor-slot-0')
     await act(async () => {
       slot.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
@@ -160,7 +180,7 @@ describe('ImageGalleryEditor text', () => {
     })
     expect(zone(container).textContent).toContain('Drop photos')
     expect(zone(container).textContent).toContain('or pick some')
-    const slot = container.querySelector('[data-mol-id="image-gallery-editor-slot-0"]')!
+    const slot = target(container, 'image-gallery-editor-slot-0')
     await act(async () => {
       slot.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })

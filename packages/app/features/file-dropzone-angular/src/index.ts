@@ -1,6 +1,6 @@
 /**
  * Angular file dropzone — drag-drop + click-to-browse file picker with
- * accept / max-size filtering. Pure UI: it emits the chosen `File[]`
+ * accept / max-size filtering. Pure UI: it emits `readonly PickedFile[]`
  * and the host app performs the actual upload.
  *
  * Exports `<FileDropzone>` and its `FileDropzoneProps`. It is the Angular
@@ -10,6 +10,7 @@
  * @example
  * ```ts
  * import { Component } from '@angular/core'
+ * import type { PickedFile } from '@molecule/app-filesystem'
  * import { FileDropzone } from '@molecule/app-file-dropzone-angular'
  *
  * @Component({
@@ -27,13 +28,13 @@
  *   `,
  * })
  * export class AvatarUpload {
- *   avatar: File | null = null
- *   error = ''
- *   uploadAvatar = (files: File[]): void => {
+ *   avatar: PickedFile | null = null
+ *   rejectedFiles: readonly PickedFile[] = []
+ *   uploadAvatar = (files: readonly PickedFile[]): void => {
  *     this.avatar = files[0] ?? null
  *   }
- *   showError = (files: File[]): void => {
- *     this.error = `${files.length} file(s) are not images under 5 MB`
+ *   showError = (files: readonly PickedFile[]): void => {
+ *     this.rejectedFiles = files
  *   }
  * }
  * ```

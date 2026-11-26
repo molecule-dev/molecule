@@ -4,7 +4,17 @@
  * @module
  */
 
-import { Component, type ElementRef, EventEmitter, signal, ViewChild } from '@angular/core'
+import {
+  Component,
+  type ElementRef,
+  EventEmitter,
+  type OnChanges,
+  type OnDestroy,
+  signal,
+  type SimpleChanges,
+  ViewChild,
+} from '@angular/core'
+import { fromByteArray } from 'base64-js'
 
 import {
   MolPlacement,
@@ -14,7 +24,14 @@ import {
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
+import {
+  createBrowserFileInput,
+  filterPickedFiles,
+  fromBrowserFile,
+  type PickedFile,
+} from '@molecule/app-filesystem'
 import type { IconName } from '@molecule/app-icons'
+import { warn } from '@molecule/app-logger'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { ConfirmDialog, Icon, styleText } from '@molecule/app-ui-angular'
@@ -27,6 +44,37 @@ import type { ImageGalleryEditorProps } from './types.js'
  * is a documented inline-style exception (molecule Rule 5).
  */
 const SLOT_RADIUS = '0.75rem'
+
+/** Revokes the editor's object URLs once they are no longer needed. */
+function releasePreviews(owned: Set<string>, keep: readonly (string | null)[]): void {
+  for (const url of owned) {
+    if (keep.includes(url)) continue
+    URL.revokeObjectURL(url)
+    owned.delete(url)
+  }
+}
+
+/** Reads local previews from the portable file selection. */
+async function createPreviews(files: readonly PickedFile[], owned: Set<string>): Promise<string[]> {
+  const images = await Promise.all(
+    files.map(async (file) => ({ type: file.type, data: await file.arrayBuffer() })),
+  )
+  const useObjectUrl =
+    typeof HTMLImageElement !== 'undefined' &&
+    typeof URL.createObjectURL === 'function' &&
+    typeof URL.revokeObjectURL === 'function'
+  return images.map(({ data, type }) => {
+    if (!useObjectUrl) return `data:${type};base64,${fromByteArray(new Uint8Array(data))}`
+    const url = URL.createObjectURL(new Blob([data], { type }))
+    owned.add(url)
+    return url
+  })
+}
+
+/** Reports a chooser or preview failure. */
+function reportSelectionError(error: unknown): void {
+  warn('Image gallery could not use the selected files', { error })
+}
 
 /**
  * ImageGalleryEditor component.
@@ -56,6 +104,7 @@ const SLOT_RADIUS = '0.75rem'
   outputs: ['change'],
   inputs: [
     'slots',
+    'onChange',
     'onPickFiles',
     'maxImages',
     'header',
@@ -153,7 +202,7 @@ const SLOT_RADIUS = '0.75rem'
     <input
       #fileInput
       type="file"
-      accept="image/*"
+      [attr.accept]="imageAccept"
       style="display: none"
       (change)="onFileChange($event)"
     /><mol-confirm-dialog
@@ -166,10 +215,12 @@ const SLOT_RADIUS = '0.75rem'
       }}</ng-container></mol-confirm-dialog
     >`,
 })
-export class ImageGalleryEditor {
+export class ImageGalleryEditor implements OnChanges, OnDestroy {
   /** Ordered slots, `null` for empty. Length determines slot count. */
   slots?: (string | null)[]
-  /** Called when the user picks files; defaults to a local object URL. */
+  /** Called with the next slots array when a slot is filled or removed. */
+  onChange?: ImageGalleryEditorProps['onChange']
+  /** Returns URLs for the ordered selection. Defaults to local previews owned by the editor. */
   onPickFiles?: ImageGalleryEditorProps['onPickFiles']
   /** The highest slot index a drop may fill (default 24). */
   maxImages?: number
@@ -188,7 +239,7 @@ export class ImageGalleryEditor {
   /** Glyph rendered in empty slots (defaults to `'image'`). */
   emptySlotIcon?: IconName
 
-  /** Called with the next slots array when a slot is filled or removed. */
+  /** The Angular change output, used when no `onChange` callback is bound. */
   readonly change = new EventEmitter<(string | null)[]>()
 
   /** The header row (always in the template; detached while empty). */
@@ -216,9 +267,44 @@ export class ImageGalleryEditor {
   private readonly i18n = useTranslation()
 
   /** The slot that opened the picker (React's `uploadingSlot`). */
-  private readonly uploadingSlot = signal<number | null>(null)
+  private uploadingSlot: number | null = null
   /** The slot asking for removal, or null (React's `removeIndex`). */
   readonly removeIndex = signal<number | null>(null)
+
+  /** File policy shared by the chooser and the hero drop target. */
+  readonly imageAccept = 'image/*'
+  private mounted = true
+  private readonly ownedPreviews = new Set<string>()
+
+  private readonly chooser = createBrowserFileInput(
+    () => this.fileInput?.nativeElement,
+    () => ({
+      accept: this.imageAccept,
+      onPickError: reportSelectionError,
+      onFiles: (files) => {
+        const slot = this.uploadingSlot
+        this.uploadingSlot = null
+        void this.placeFiles(files, slot)
+      },
+    }),
+    fromBrowserFile,
+  )
+
+  private readonly drop = createBrowserFileInput(
+    () => this.fileInput?.nativeElement,
+    () => ({
+      multiple: true,
+      onPickError: reportSelectionError,
+      onFiles: (files) => {
+        const { accepted, rejected } = filterPickedFiles(files, {
+          accept: this.imageAccept,
+          multiple: true,
+        })
+        if (rejected.length === 0) void this.placeFiles(accepted, null)
+      },
+    }),
+    fromBrowserFile,
+  )
 
   /** Whether the drop-zone title falls back to the translated default text. */
   readonly titleFallbackShown = signal(false)
@@ -233,6 +319,17 @@ export class ImageGalleryEditor {
    */
   constructor() {
     usePlacement((hasContent) => this.reconcile(hasContent))
+  }
+
+  /** Releases previews replaced by the caller's updated slots. */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['slots']) releasePreviews(this.ownedPreviews, this.slotList())
+  }
+
+  /** Releases every preview when this gallery is destroyed. */
+  ngOnDestroy(): void {
+    this.mounted = false
+    releasePreviews(this.ownedPreviews, [])
   }
 
   /**
@@ -582,35 +679,55 @@ export class ImageGalleryEditor {
   }
 
   /**
-   * Turns picked or dropped files into slot URLs and writes them: into the
-   * slot that opened the picker, or else into the empty slots in order.
+   * Delivers URLs for the ordered file selection to the chosen slot or empty slots.
    *
-   * @param files - The files the user picked or dropped.
-   * @param slot - The slot that opened the picker, or null.
+   * @param files - The portable files from the chooser or drop.
+   * @param slot - The slot that opened the chooser, or null.
    */
-  async placeFiles(files: FileList, slot: number | null): Promise<void> {
-    const maxImages = this.maxImages ?? 24
-    const urls = this.onPickFiles
-      ? await this.onPickFiles(files)
-      : Array.from(files).map((f) => URL.createObjectURL(f))
-    const next = [...this.slotList()]
-    if (slot !== null) {
-      next[slot] = urls[0] ?? null
-    } else {
-      let writeAt = next.findIndex((s) => s === null)
-      for (const url of urls) {
-        if (writeAt < 0 || writeAt >= maxImages) break
-        next[writeAt] = url ?? null
-        writeAt = next.findIndex((s) => s === null)
+  async placeFiles(files: readonly PickedFile[], slot: number | null): Promise<void> {
+    const previews = new Set<string>()
+    const limit = this.maxImages ?? 24
+    try {
+      const visible = this.slotList().slice(0, Math.max(0, limit))
+      const available =
+        slot === null ? visible.filter((url) => url === null).length : Number(slot < visible.length)
+      const urls = this.onPickFiles
+        ? await this.onPickFiles(files)
+        : await createPreviews(files.slice(0, available), previews)
+      if (!this.mounted) {
+        releasePreviews(previews, [])
+        return
       }
+      const next = [...this.slotList()]
+      if (slot !== null) {
+        next[slot] = urls[0] ?? null
+      } else {
+        for (const url of urls) {
+          const index = next.findIndex((value) => value === null)
+          if (index < 0 || index >= limit) break
+          next[index] = url ?? null
+        }
+      }
+      const changed = next.slice(0, limit)
+      releasePreviews(previews, changed)
+      for (const url of previews) this.ownedPreviews.add(url)
+      this.reportChange(changed)
+      releasePreviews(this.ownedPreviews, [...this.slotList(), ...changed])
+    } catch (error) {
+      for (const url of previews) this.ownedPreviews.delete(url)
+      releasePreviews(previews, [])
+      reportSelectionError(error)
     }
-    this.change.emit(next.slice(0, maxImages))
   }
 
-  /** React's `handleUploadAreaClick`: clears the slot target and opens the picker. */
-  openPicker(): void {
-    this.uploadingSlot.set(null)
-    this.fileInput?.nativeElement.click()
+  /**
+   * Opens the shared chooser at the given slot, or at the first empty slot from the hero.
+   *
+   * @param index - The slot that opened the chooser, or null.
+   */
+  openPicker(index: number | null = null): void {
+    this.uploadingSlot = index
+    this.chooser.onClick({ target: null, defaultPrevented: false })
   }
 
   /**
@@ -623,8 +740,7 @@ export class ImageGalleryEditor {
     if (this.slotList()[index]) {
       this.removeIndex.set(index)
     } else {
-      this.uploadingSlot.set(index)
-      this.fileInput?.nativeElement.click()
+      this.openPicker(index)
     }
   }
 
@@ -667,7 +783,7 @@ export class ImageGalleryEditor {
    * @param event - The native drag event.
    */
   onDragOver(event: DragEvent): void {
-    event.preventDefault()
+    this.drop.onDragOver(event)
   }
 
   /**
@@ -678,25 +794,27 @@ export class ImageGalleryEditor {
    * @param event - The native drop event.
    */
   onDrop(event: DragEvent): void {
-    event.preventDefault()
-    const files = event.dataTransfer?.files
-    if (!files?.length || Array.from(files).some((f) => !f.type.startsWith('image/'))) return
-    void this.placeFiles(files, null)
+    this.drop.onDrop(event)
   }
 
   /**
-   * React's hidden-input `onChange`: places the picked files into the slot
-   * that opened the picker and clears the trigger state.
+   * Handles the native change locally so the host's change output only delivers slots.
    *
-   * @param event - The native change event.
+   * @param event - The chooser's native change event.
    */
-  async onFileChange(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement
-    const files = input.files
-    if (!files?.length) return
-    await this.placeFiles(files, this.uploadingSlot())
-    this.uploadingSlot.set(null)
-    input.value = ''
+  onFileChange(event: Event): void {
+    event.stopPropagation()
+    this.chooser.onChange()
+  }
+
+  /**
+   * Delivers the next controlled slot values through the bound callback.
+   *
+   * @param slots - The next slot values.
+   */
+  private reportChange(slots: (string | null)[]): void {
+    if (this.onChange) this.onChange(slots)
+    else this.change.emit(slots)
   }
 
   /** React's ConfirmDialog `onClose`: dismisses the removal ask. */
@@ -710,7 +828,7 @@ export class ImageGalleryEditor {
     if (index === null) return
     const next = [...this.slotList()]
     next[index] = null
-    this.change.emit(next)
+    this.reportChange(next)
     this.removeIndex.set(null)
   }
 }

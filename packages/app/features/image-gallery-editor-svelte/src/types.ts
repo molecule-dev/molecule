@@ -6,6 +6,7 @@
 
 import type { Snippet } from 'svelte'
 
+import type { PickedFile } from '@molecule/app-filesystem'
 import type { IconName } from '@molecule/app-icons'
 
 /**
@@ -19,8 +20,8 @@ export interface ImageGalleryEditorProps {
   slots: (string | null)[]
   /** Called with the next slots array when a slot is filled or removed. */
   onChange: (slots: (string | null)[]) => void
-  /** Called when the user picks files; defaults to a local object URL. */
-  onPickFiles?: (files: FileList) => Promise<(string | null)[]> | (string | null)[]
+  /** Returns URLs for the ordered selection. Defaults to local previews owned by the editor. */
+  onPickFiles?: (files: readonly PickedFile[]) => Promise<(string | null)[]> | (string | null)[]
   /** The highest slot index a drop may fill (default 24). */
   maxImages?: number
   /** Header heading + subtitle slot (renders left of the photo counter). */

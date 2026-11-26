@@ -24,13 +24,22 @@ import type {
   NumericQuestion,
   RatingScaleQuestion,
   ShortTextQuestion,
+  SurveyAnswerMap,
   SurveyAnswerValue,
   SurveyQuestionDef,
+  SurveyQuestionProps,
   TrueFalseQuestion,
 } from './types.js'
 
 /** The theme-token border both option rows share. */
 const BORDER = 'var(--mol-color-border, rgba(128,128,128,0.35))'
+
+/** Narrows the two ordered answer types, including the readonly file batch. */
+function isAnswerList(
+  value: SurveyAnswerValue | undefined,
+): value is string[] | SurveyAnswerMap['file-upload'] {
+  return Array.isArray(value)
+}
 
 /**
  * Returns true when `value` is a non-empty answer for the given kind.
@@ -107,7 +116,7 @@ export class SurveyQuestion {
   /** Called whenever the answer value changes. */
   onChange?: (value: SurveyAnswerValue) => void
   /** Called on submit, after required-field validation passes. */
-  onSubmit?: (value: SurveyAnswerValue) => void
+  onSubmit?: SurveyQuestionProps['onSubmit']
   /** When true, every input is disabled and no controls fire change events. */
   readOnly?: boolean
   /** Extra classes on the root wrapper. */
@@ -432,8 +441,8 @@ export class SurveyQuestion {
    * The current value as a list of files.
    * @returns The files.
    */
-  fileValue(): File[] {
-    return Array.isArray(this.value) ? (this.value as File[]) : []
+  fileValue(): SurveyAnswerMap['file-upload'] {
+    return isAnswerList(this.value) ? this.value.filter((entry) => typeof entry !== 'string') : []
   }
 
   /**
@@ -602,7 +611,7 @@ export class SurveyQuestion {
   }
 
   /** The dropzone's `onFiles` handler. */
-  readonly uploadFiles = (files: File[]): void => {
+  readonly uploadFiles = (files: SurveyAnswerMap['file-upload']): void => {
     this.setValue(files)
   }
 
@@ -701,6 +710,6 @@ export class SurveyQuestion {
       return
     }
     this.error.set(null)
-    this.onSubmit?.(this.value as SurveyAnswerValue)
+    this.onSubmit?.(this.value)
   }
 }

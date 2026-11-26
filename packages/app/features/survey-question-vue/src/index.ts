@@ -38,7 +38,7 @@
  *         question,
  *         value: answer.value,
  *         onChange: (next: SurveyAnswerValue) => (answer.value = next),
- *         onSubmit: (value: SurveyAnswerValue) => console.log(value),
+ *         onSubmit: (value: SurveyAnswerValue | undefined) => console.log(value),
  *       })
  *   },
  * })
@@ -49,6 +49,8 @@
  *   provider (`useTranslation()`), exactly as the React package does.
  * - File uploads delegate to `<FileDropzone>` from
  *   `@molecule/app-file-dropzone-vue`, the same counterpart React uses.
+ * - File-upload answers are `readonly PickedFile[]`. An unanswered optional
+ *   question passes `undefined` to `onSubmit`.
  *
  * @module
  */

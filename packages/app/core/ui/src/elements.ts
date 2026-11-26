@@ -897,6 +897,12 @@ export interface RangeFieldProps extends ElementProps, InteractionProps {
   webStyle?: WebStyle
 }
 
+/** Opens the chooser from an external button on either renderer. */
+export interface FileFieldHandle {
+  /** Starts a file pick. Call from the activation handler of a button. */
+  pick(): void
+}
+
 /** A browse target that delivers an ordered batch of selected files. */
 export interface FileFieldProps<Node = unknown> extends ElementProps {
   /** Content of the browse target. */
@@ -915,6 +921,29 @@ export interface FileFieldProps<Node = unknown> extends ElementProps {
   onRejected?(files: readonly PickedFile[]): void
   /** Receives a failure to open the chooser or read its selection. */
   onPickError?(error: Error): void
+  /** Tab order of the browse target. Defaults to 0 when enabled and -1 when disabled. */
+  tabIndex?: number
+  /** Layout and paint applied by both the browser and device. */
+  style?: BoxStyle
+  /** CSS layered over `style` in the browser. */
+  webStyle?: WebStyle
+  /** Use separately rendered buttons and open the chooser through its handle. */
+  externalTrigger?: boolean
+  /** Web-only: hide the chooser with inline display:none instead of the hidden attribute. */
+  webInputDisplayNone?: boolean
+  /** Web-only enhancement of the browse target. */
+  webDrop?: {
+    /** Use another element as the drop target. Null waits for its ref to mount. */
+    target?: ElementHandle | null
+    /** Reports when an enabled drag enters or the drag leaves or drops. */
+    onActiveChange?: (active: boolean) => void
+    /** Overrides the chooser's multiple setting for drops alone. */
+    multiple?: boolean
+    /** Reject the entire drop if any file fails the type or size filter. */
+    rejectBatch?: boolean
+    /** Receives drops separately from chooser selections when provided. */
+    onValueChange?: (files: readonly PickedFile[]) => void
+  }
 }
 
 /** One selectable row in the browser's select and the device's option list. */

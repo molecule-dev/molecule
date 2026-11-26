@@ -5,9 +5,10 @@ import type { ReactNode } from 'react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { fromBrowserFile } from '@molecule/app-filesystem'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
-import { setClassMap, type UIClassMap } from '@molecule/app-ui'
+import { getClassMap, setClassMap } from '@molecule/app-ui'
 
 import { SurveyQuestion } from '../SurveyQuestion.js'
 import type {
@@ -24,13 +25,13 @@ import type {
   TrueFalseQuestion,
 } from '../types.js'
 
-/**
- * Stub UIClassMap via Proxy so all `cm.x()` / `cm.y` calls return a
- * deterministic token without the real Tailwind bond.
- *
- * @returns A stub UIClassMap.
- */
-function buildStubClassMap(): UIClassMap {
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getClassMap: buildStubClassMap,
+}))
+
+/** Returns deterministic ClassMap tokens without a styling dependency. */
+function buildStubClassMap(): Record<string, unknown> {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_target, prop): unknown {
       if (prop === 'cn') {
@@ -47,7 +48,7 @@ function buildStubClassMap(): UIClassMap {
       })
     },
   }
-  return new Proxy({}, handler) as unknown as UIClassMap
+  return new Proxy({}, handler)
 }
 
 /**
@@ -62,8 +63,15 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
 }
 
 beforeEach(() => {
-  setClassMap(buildStubClassMap())
+  setClassMap(getClassMap())
 })
+
+/** Finds the control an interaction targets and fails if it is missing. */
+function control<T extends Element = HTMLElement>(container: HTMLElement, id: string): T {
+  const node = container.querySelector<T>(`[data-mol-id="${id}"]`)
+  if (!node) throw new Error(`Missing survey control ${id}`)
+  return node
+}
 
 describe('<SurveyQuestion>', () => {
   it('renders the prompt and required indicator', () => {
@@ -117,7 +125,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      const btn = container.querySelector('[data-mol-id="survey-option-mc1-a"]')!
+      const btn = control(container, 'survey-option-mc1-a')
       fireEvent.click(btn)
       expect(onChange).toHaveBeenCalledWith('a')
     })
@@ -128,8 +136,8 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} value="b" />
         </Wrap>,
       )
-      const btnA = container.querySelector('[data-mol-id="survey-option-mc1-a"]')!
-      const btnB = container.querySelector('[data-mol-id="survey-option-mc1-b"]')!
+      const btnA = control(container, 'survey-option-mc1-a')
+      const btnB = control(container, 'survey-option-mc1-b')
       expect(btnA.getAttribute('aria-checked')).toBe('false')
       expect(btnB.getAttribute('aria-checked')).toBe('true')
     })
@@ -141,9 +149,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} readOnly />
         </Wrap>,
       )
-      const btn = container.querySelector(
-        '[data-mol-id="survey-option-mc1-a"]',
-      ) as HTMLButtonElement
+      const btn = control<HTMLButtonElement>(container, 'survey-option-mc1-a')
       expect(btn.disabled).toBe(true)
       fireEvent.click(btn)
       expect(onChange).not.toHaveBeenCalled()
@@ -169,7 +175,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} value={['a']} onChange={onChange} />
         </Wrap>,
       )
-      fireEvent.click(container.querySelector('[data-mol-id="survey-option-mm1-b"]')!)
+      fireEvent.click(control(container, 'survey-option-mm1-b'))
       expect(onChange).toHaveBeenCalledWith(['a', 'b'])
     })
 
@@ -180,7 +186,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} value={['a', 'b']} onChange={onChange} />
         </Wrap>,
       )
-      fireEvent.click(container.querySelector('[data-mol-id="survey-option-mm1-a"]')!)
+      fireEvent.click(control(container, 'survey-option-mm1-a'))
       expect(onChange).toHaveBeenCalledWith(['b'])
     })
   })
@@ -195,7 +201,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      fireEvent.click(container.querySelector('[data-mol-id="survey-option-tf1-true"]')!)
+      fireEvent.click(control(container, 'survey-option-tf1-true'))
       expect(onChange).toHaveBeenCalledWith(true)
     })
 
@@ -206,7 +212,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      fireEvent.click(container.querySelector('[data-mol-id="survey-option-tf1-false"]')!)
+      fireEvent.click(control(container, 'survey-option-tf1-false'))
       expect(onChange).toHaveBeenCalledWith(false)
     })
   })
@@ -220,7 +226,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      const input = container.querySelector('[data-mol-id="survey-input-s1"]') as HTMLInputElement
+      const input = control<HTMLInputElement>(container, 'survey-input-s1')
       fireEvent.change(input, { target: { value: 'hello' } })
       expect(onChange).toHaveBeenCalledWith('hello')
     })
@@ -237,7 +243,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} />
         </Wrap>,
       )
-      const ta = container.querySelector('[data-mol-id="survey-input-lt1"]') as HTMLTextAreaElement
+      const ta = control<HTMLTextAreaElement>(container, 'survey-input-lt1')
       expect(ta.tagName).toBe('TEXTAREA')
       expect(ta.rows).toBe(6)
     })
@@ -249,7 +255,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} readOnly />
         </Wrap>,
       )
-      const input = container.querySelector('[data-mol-id="survey-input-s2"]') as HTMLInputElement
+      const input = control<HTMLInputElement>(container, 'survey-input-s2')
       expect(input.disabled).toBe(true)
     })
   })
@@ -264,7 +270,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      const input = container.querySelector('[data-mol-id="survey-input-n1"]') as HTMLInputElement
+      const input = control<HTMLInputElement>(container, 'survey-input-n1')
       fireEvent.change(input, { target: { value: '42' } })
       expect(onChange).toHaveBeenCalledWith(42)
     })
@@ -318,7 +324,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      fireEvent.click(container.querySelector('[data-mol-id="survey-option-r3-3"]')!)
+      fireEvent.click(control(container, 'survey-option-r3-3'))
       expect(onChange).toHaveBeenCalledWith(3)
     })
   })
@@ -344,7 +350,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      fireEvent.click(container.querySelector('[data-mol-id="survey-option-nps1-9"]')!)
+      fireEvent.click(control(container, 'survey-option-nps1-9'))
       expect(onChange).toHaveBeenCalledWith(9)
     })
   })
@@ -358,7 +364,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} onChange={onChange} />
         </Wrap>,
       )
-      const input = container.querySelector('[data-mol-id="survey-input-d1"]') as HTMLInputElement
+      const input = control<HTMLInputElement>(container, 'survey-input-d1')
       expect(input.type).toBe('date')
       fireEvent.change(input, { target: { value: '2026-01-15' } })
       expect(onChange).toHaveBeenCalledWith('2026-01-15')
@@ -369,13 +375,39 @@ describe('<SurveyQuestion>', () => {
     it('renders the dropzone and lists files', () => {
       const q: FileUploadQuestion = { id: 'f1', kind: 'file-upload', prompt: 'upload' }
       const file = new File(['contents'], 'a.txt', { type: 'text/plain' })
-      const { container, getByText } = render(
+      const onChange = vi.fn()
+      const picked = fromBrowserFile(file)
+      const { container, getByText, rerender } = render(
         <Wrap>
-          <SurveyQuestion question={q} value={[file]} />
+          <SurveyQuestion question={q} value={[picked]} onChange={onChange} />
         </Wrap>,
       )
       expect(getByText('a.txt')).toBeTruthy()
       expect(container.querySelector('[data-mol-id="survey-input-f1-files"]')).not.toBeNull()
+
+      const input = container.querySelector<HTMLInputElement>('input[type="file"]')
+      if (!input) throw new Error('The file question did not render a chooser')
+      const next = new File(['new'], 'next.txt', { type: 'text/plain' })
+      fireEvent.change(input, { target: { files: [next] } })
+      expect(onChange).toHaveBeenCalledExactlyOnceWith([
+        expect.objectContaining({
+          name: next.name,
+          type: next.type,
+          size: next.size,
+          appendTo: expect.any(Function),
+          arrayBuffer: expect.any(Function),
+        }),
+      ])
+
+      rerender(
+        <Wrap>
+          <SurveyQuestion question={q} value={[picked]} onChange={onChange} readOnly />
+        </Wrap>,
+      )
+      expect(input.disabled).toBe(true)
+      fireEvent.change(input, { target: { files: [next] } })
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(getByText('a.txt')).toBeTruthy()
     })
   })
 
@@ -411,9 +443,7 @@ describe('<SurveyQuestion>', () => {
           <SurveyQuestion question={q} value={{}} onChange={onChange} />
         </Wrap>,
       )
-      const cell = container.querySelector(
-        '[data-mol-id="survey-matrix-mx1-r1-2"]',
-      ) as HTMLInputElement
+      const cell = control<HTMLInputElement>(container, 'survey-matrix-mx1-r1-2')
       fireEvent.click(cell)
       expect(onChange).toHaveBeenCalledWith({ r1: '2' })
     })
@@ -428,15 +458,12 @@ describe('<SurveyQuestion>', () => {
         required: true,
       }
       const onSubmit = vi.fn()
-      const { container } = render(
+      const { container, getByRole } = render(
         <Wrap>
           <SurveyQuestion question={q} onSubmit={onSubmit} />
         </Wrap>,
       )
-      const submitBtn = Array.from(container.querySelectorAll('button')).find(
-        (b) => b.textContent === 'Submit',
-      )!
-      fireEvent.click(submitBtn)
+      fireEvent.click(getByRole('button', { name: 'Submit' }))
       expect(onSubmit).not.toHaveBeenCalled()
       expect(container.querySelector('[data-mol-id="survey-question-req1-error"]')).not.toBeNull()
     })
@@ -449,15 +476,12 @@ describe('<SurveyQuestion>', () => {
         required: true,
       }
       const onSubmit = vi.fn()
-      const { container } = render(
+      const { getByRole } = render(
         <Wrap>
           <SurveyQuestion question={q} value="hello" onSubmit={onSubmit} />
         </Wrap>,
       )
-      const submitBtn = Array.from(container.querySelectorAll('button')).find(
-        (b) => b.textContent === 'Submit',
-      )!
-      fireEvent.click(submitBtn)
+      fireEvent.click(getByRole('button', { name: 'Submit' }))
       expect(onSubmit).toHaveBeenCalledWith('hello')
     })
 

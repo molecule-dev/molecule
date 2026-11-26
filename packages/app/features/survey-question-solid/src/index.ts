@@ -37,7 +37,7 @@
  *       question={question}
  *       value={answer()}
  *       onChange={setAnswer}
- *       onSubmit={(value) => console.log(value)}
+ *       onSubmit={(value: SurveyAnswerValue | undefined) => console.log(value)}
  *     />
  *   )
  * }
@@ -48,6 +48,8 @@
  *   provider (`useTranslation()`), exactly as the React package does.
  * - File uploads delegate to `<FileDropzone>` from
  *   `@molecule/app-file-dropzone-solid`, the same counterpart React uses.
+ * - File-upload answers are `readonly PickedFile[]`. An unanswered optional
+ *   question passes `undefined` to `onSubmit`.
  *
  * @module
  */

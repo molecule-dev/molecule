@@ -9,12 +9,15 @@
  * buttons: Enter and Space do what a click does.
  *
  * Stateless about persistence — the consumer owns the slot array and handles
- * uploads via `onPickFiles` (defaults to local object URLs for preview).
+ * uploads via `onPickFiles`. The editor owns the lifetime of default local previews.
+ * Angular templates can bind the `onChange` input or listen to the `change` output.
  *
  * @example
  * ```ts
  * import { Component, signal } from '@angular/core'
+ * import type { PickedFile } from '@molecule/app-filesystem'
  * import { ImageGalleryEditor } from '@molecule/app-image-gallery-editor-angular'
+ * import { uploadImage } from './uploads.js'
  *
  * @Component({
  *   selector: 'app-gallery',
@@ -24,7 +27,7 @@
  *     <section
  *       mol-image-gallery-editor
  *       [slots]="slots()"
- *       (change)="slots.set($event)"
+ *       [onChange]="updateSlots"
  *       [onPickFiles]="persist"
  *     >
  *       <h3 slot="header">Image Gallery</h3>
@@ -33,10 +36,13 @@
  * })
  * export class GalleryComponent {
  *   readonly slots = signal<(string | null)[]>(Array(4).fill(null))
+ *   readonly updateSlots = (next: (string | null)[]): void => {
+ *     this.slots.set(next)
+ *   }
  *
  *   // Upload each file, return persisted URLs (null keeps a slot empty).
- *   readonly persist = async (files: FileList): Promise<(string | null)[]> =>
- *     Array.from(files).map((f) => URL.createObjectURL(f))
+ *   readonly persist = (files: readonly PickedFile[]): Promise<(string | null)[]> =>
+ *     Promise.all(files.map(uploadImage))
  * }
  * ```
  *

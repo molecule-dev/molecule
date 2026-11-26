@@ -26,6 +26,7 @@ import type {
   NumericQuestion,
   RatingScaleQuestion,
   ShortTextQuestion,
+  SurveyAnswerMap,
   SurveyAnswerValue,
   SurveyQuestionDef,
   TrueFalseQuestion,
@@ -39,8 +40,8 @@ export interface SurveyQuestionProps {
   value?: SurveyAnswerValue
   /** Called whenever the answer value changes. */
   onChange?: (value: SurveyAnswerValue) => void
-  /** Called when the user clicks "Submit" — only fires when the answer passes required-field validation. */
-  onSubmit?: (value: SurveyAnswerValue) => void
+  /** Called on valid submission. An unanswered optional question submits undefined. */
+  onSubmit?: (value: SurveyAnswerValue | undefined) => void
   /** When true, every input is disabled and no controls fire change events. */
   readOnly?: boolean
   /** Optional extra classes on the root wrapper. */
@@ -86,6 +87,13 @@ interface ControlContext {
   readOnly: boolean | undefined
   /** Where the radio-group restore looks up the rendered inputs. */
   root: () => HTMLElement | undefined
+}
+
+/** Narrows the two ordered answer types, including the readonly file batch. */
+function isAnswerList(
+  value: SurveyAnswerValue | undefined,
+): value is string[] | SurveyAnswerMap['file-upload'] {
+  return Array.isArray(value)
 }
 
 /**
@@ -578,7 +586,7 @@ function DateControl(props: {
  */
 function FileUploadControl(props: {
   question: FileUploadQuestion
-  value: File[]
+  value: SurveyAnswerMap['file-upload']
   context: ControlContext
 }): JSX.Element {
   const { cm, readOnly, setValue, t } = props.context
@@ -742,7 +750,7 @@ export const SurveyQuestion: Component<SurveyQuestionProps> = (props) => {
       return
     }
     setError(null)
-    props.onSubmit?.(props.value as SurveyAnswerValue)
+    props.onSubmit?.(props.value)
   }
 
   /**
@@ -835,7 +843,11 @@ export const SurveyQuestion: Component<SurveyQuestionProps> = (props) => {
         return (
           <FileUploadControl
             question={props.question}
-            value={(props.value as File[]) ?? []}
+            value={
+              isAnswerList(props.value)
+                ? props.value.filter((entry) => typeof entry !== 'string')
+                : []
+            }
             context={context}
           />
         )

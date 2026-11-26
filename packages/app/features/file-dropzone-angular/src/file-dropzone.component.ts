@@ -13,9 +13,11 @@ import {
   usePlacement,
   useTranslation,
 } from '@molecule/app-angular'
-import { createBrowserFileInput, filterPickedFiles } from '@molecule/app-filesystem'
+import { createBrowserFileInput, fromBrowserFile } from '@molecule/app-filesystem'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import type { FileDropzoneProps } from './types.js'
 
 /**
  * FileDropzone component.
@@ -58,11 +60,11 @@ import { getClassMap } from '@molecule/app-ui'
     '(keydown)': 'onKeyDown($event)',
   },
   // prettier-ignore
-  template: `<input #fileInput type="file" [attr.accept]="accept ?? null" [attr.multiple]="multiple ? '' : null" [attr.disabled]="disabled ? '' : null" (change)="onInputChange($event)" style="display: none" /><span #contentSlot><ng-content></ng-content></span>@if (defaultCopyShown()) {<p [class]="dropHereClasses()">{{ dropHereText() }}</p>@if (accept) {<p [class]="acceptsClasses()">{{ acceptsText() }}</p>}}`,
+  template: `<input #fileInput type="file" [attr.accept]="accept ?? null" [attr.multiple]="multiple ? '' : null" [attr.disabled]="disabled ? '' : null" (change)="onInputChange()" style="display: none" /><span #contentSlot><ng-content></ng-content></span>@if (defaultCopyShown()) {<p [class]="dropHereClasses()">{{ dropHereText() }}</p>@if (accept) {<p [class]="acceptsClasses()">{{ acceptsText() }}</p>}}`,
 })
 export class FileDropzone {
-  /** Called with the File[] the user selected or dropped. */
-  onFiles?: (files: File[]) => void
+  /** Called with the files the user selected or dropped, in selection order. */
+  onFiles?: FileDropzoneProps['onFiles']
   /** Accept attribute (e.g. `'image/*'` or `'.pdf,.docx'`). */
   accept?: string
   /** Allow multi-file selection. Defaults to false. */
@@ -70,7 +72,7 @@ export class FileDropzone {
   /** Max file size in bytes. Files exceeding are rejected. */
   maxSize?: number
   /** Called with rejected files (wrong type or size). */
-  onRejected?: (files: File[]) => void
+  onRejected?: FileDropzoneProps['onRejected']
   /** Disabled state. */
   disabled?: boolean
   /** Extra classes on the dropzone wrapper. */
@@ -92,7 +94,7 @@ export class FileDropzone {
       onFiles: (files) => this.onFiles?.(files),
       onRejected: this.onRejected,
     }),
-    (file) => file,
+    fromBrowserFile,
   )
 
   /** The i18n handle (locale-reactive), read in an injection context. */
@@ -197,32 +199,6 @@ export class FileDropzone {
     )
   }
 
-  /**
-   * Filters a file list into kept and rejected files.
-   *
-   * @param raw - The files the user dropped or picked.
-   * @returns All the kept and rejected files.
-   */
-  filter(raw: FileList | File[]): { kept: File[]; rejected: File[] } {
-    const { accepted, rejected } = filterPickedFiles(Array.from(raw), {
-      accept: this.accept,
-      maxSize: this.maxSize,
-      multiple: true,
-    })
-    return { kept: accepted, rejected }
-  }
-
-  /**
-   * Delivers accepted and rejected files to the callbacks.
-   *
-   * @param list - The files to deliver.
-   */
-  dispatch(list: FileList | File[]): void {
-    const { accepted, rejected } = filterPickedFiles(Array.from(list), this)
-    if (accepted.length) this.onFiles?.(accepted)
-    if (rejected.length) this.onRejected?.(rejected)
-  }
-
   /** Opens the file dialog through the hidden input. */
   openDialog(): void {
     this.onClick()
@@ -272,16 +248,8 @@ export class FileDropzone {
     this.handlers.onKeyDown(event)
   }
 
-  /**
-   * Delivers the input's files and clears it for the next selection.
-   *
-   * @param event - The native change event.
-   */
-  onInputChange(event: Event): void {
-    if (event.target === this.fileInput?.nativeElement) {
-      this.handlers.onChange()
-    } else if (event.target instanceof HTMLInputElement && event.target.files) {
-      this.dispatch(event.target.files)
-    }
+  /** Delivers the input's files after clearing it for the next selection. */
+  onInputChange(): void {
+    this.handlers.onChange()
   }
 }

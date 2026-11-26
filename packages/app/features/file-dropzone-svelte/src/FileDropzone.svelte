@@ -6,7 +6,7 @@
   string goes through `t()` so a locale switch re-renders it.
 -->
 <script lang="ts">
-  import { createBrowserFileInput } from '@molecule/app-filesystem'
+  import { createBrowserFileInput, fromBrowserFile } from '@molecule/app-filesystem'
   import { contentNodes, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
@@ -31,7 +31,7 @@
   const handlers = createBrowserFileInput(
     () => inputEl,
     () => ({ accept, disabled, maxSize, multiple, onFiles, onRejected }),
-    (file) => file,
+    fromBrowserFile,
   )
 
   // Every `t(…)` runs inside a `$derived`: it reads the i18n version under the

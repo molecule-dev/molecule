@@ -1,6 +1,6 @@
 /**
  * File dropzone — drag-drop + click-to-browse file picker with
- * accept / max-size filtering. Pure UI: it emits the chosen `File[]`
+ * accept / max-size filtering. Pure UI: it emits portable `PickedFile` values
  * and the host app performs the actual upload.
  *
  * Exports `<FileDropzone>` and its `FileDropzoneProps`.
@@ -30,6 +30,8 @@
  * extension or MIME prefix match) — treat it as UX sugar and always
  * re-validate on the server. Files failing `accept` or `maxSize` go to
  * `onRejected` (both rejection causes arrive in the same callback).
+ * Read selected bytes with `arrayBuffer()` or append a file to a multipart
+ * body with `file.appendTo(formData, fieldName)`.
  *
  * Pass `children` to replace the default "Drop files here or click to
  * browse" copy; the default copy translates via

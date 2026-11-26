@@ -10,7 +10,7 @@
 
 import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
-import { createBrowserFileInput } from '@molecule/app-filesystem'
+import { createBrowserFileInput, fromBrowserFile } from '@molecule/app-filesystem'
 import { getClassMap } from '@molecule/app-ui'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
 
@@ -64,7 +64,7 @@ export const FileDropzone = defineComponent({
     const handlers = createBrowserFileInput(
       () => inputEl.value,
       () => props,
-      (file) => file,
+      fromBrowserFile,
     )
 
     /**

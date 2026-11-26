@@ -36,6 +36,7 @@ import type {
   NumericQuestion,
   RatingScaleQuestion,
   ShortTextQuestion,
+  SurveyAnswerMap,
   SurveyAnswerValue,
   SurveyQuestionDef,
   TrueFalseQuestion,
@@ -59,6 +60,15 @@ const DATE_STYLE = {
   outline: 'none',
 }
 
+/** Matches the scalar, list and matrix answer shapes in Vue's runtime props. */
+const ANSWER_VALUE_PROP: {
+  type: PropType<SurveyAnswerValue>
+  default: undefined
+} = {
+  type: [String, Number, Boolean, Array, Object],
+  default: undefined,
+}
+
 /** Props for the `<SurveyQuestion>` renderer. */
 export interface SurveyQuestionProps {
   /** Discriminated-union question payload — drives which sub-component is rendered. */
@@ -67,8 +77,8 @@ export interface SurveyQuestionProps {
   value?: SurveyAnswerValue
   /** Called whenever the answer value changes. */
   onChange?: (value: SurveyAnswerValue) => void
-  /** Called when the user clicks "Submit" — only fires when the answer passes required-field validation. */
-  onSubmit?: (value: SurveyAnswerValue) => void
+  /** Called on valid submission. An unanswered optional question submits undefined. */
+  onSubmit?: (value: SurveyAnswerValue | undefined) => void
   /** When true, every input is disabled and no controls fire change events. */
   readOnly?: boolean
   /** Optional extra classes on the root wrapper. */
@@ -566,7 +576,11 @@ function date(question: DateQuestion, value: string, context: ControlContext): V
  * @param context - The control context.
  * @returns The file dropzone wrapper.
  */
-function fileUpload(question: FileUploadQuestion, value: File[], context: ControlContext): VNode {
+function fileUpload(
+  question: FileUploadQuestion,
+  value: SurveyAnswerMap['file-upload'],
+  context: ControlContext,
+): VNode {
   const { cm, readOnly, setValue, t } = context
   return h('div', { class: cm.stack(2) }, [
     h(FileDropzone, {
@@ -574,7 +588,7 @@ function fileUpload(question: FileUploadQuestion, value: File[], context: Contro
       multiple: question.multiple,
       maxSize: question.maxSize,
       disabled: readOnly,
-      onFiles: (files: File[]) => setValue(files),
+      onFiles: setValue,
     }),
     value.length > 0
       ? h(
@@ -687,6 +701,13 @@ function matrix(
   )
 }
 
+/** Narrows the two ordered answer types, including the readonly file batch. */
+function isAnswerList(
+  value: SurveyAnswerValue | undefined,
+): value is string[] | SurveyAnswerMap['file-upload'] {
+  return Array.isArray(value)
+}
+
 /**
  * Dispatches the right per-kind sub-component.
  *
@@ -724,7 +745,11 @@ function renderControl(
     case 'date':
       return date(question, (value as string) ?? '', context)
     case 'file-upload':
-      return fileUpload(question, (value as File[]) ?? [], context)
+      return fileUpload(
+        question,
+        isAnswerList(value) ? value.filter((entry) => typeof entry !== 'string') : [],
+        context,
+      )
     case 'matrix':
       return matrix(question, (value as Record<string, string>) ?? {}, context, root)
     default:
@@ -750,13 +775,13 @@ export const SurveyQuestion = defineComponent({
       type: Object as PropType<SurveyQuestionDef>,
       required: true,
     },
-    value: null,
+    value: ANSWER_VALUE_PROP,
     onChange: {
-      type: Function as PropType<(value: SurveyAnswerValue) => void>,
+      type: Function as PropType<SurveyQuestionProps['onChange']>,
       default: undefined,
     },
     onSubmit: {
-      type: Function as PropType<(value: SurveyAnswerValue) => void>,
+      type: Function as PropType<SurveyQuestionProps['onSubmit']>,
       default: undefined,
     },
     // React's `readOnly` is `boolean | undefined`: an omitted prop must stay
@@ -800,7 +825,7 @@ export const SurveyQuestion = defineComponent({
         return
       }
       error.value = null
-      props.onSubmit?.(props.value as SurveyAnswerValue)
+      props.onSubmit?.(props.value)
     }
 
     // React renders a textarea's value through the DOM property only — Vue's

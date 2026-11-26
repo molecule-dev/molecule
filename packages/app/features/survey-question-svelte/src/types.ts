@@ -7,6 +7,8 @@
  * @module
  */
 
+import type { PickedFile } from '@molecule/app-filesystem'
+
 /** Discriminator for the supported survey question kinds. */
 export type SurveyQuestionKind =
   | 'multi-choice-single'
@@ -171,7 +173,7 @@ export interface SurveyAnswerMap {
   'rating-scale': number
   nps: number
   date: string
-  'file-upload': File[]
+  'file-upload': readonly PickedFile[]
   matrix: Record<string, string>
 }
 
@@ -188,8 +190,8 @@ export interface SurveyQuestionProps {
   value?: SurveyAnswerValue
   /** Called whenever the answer value changes. */
   onChange?: (value: SurveyAnswerValue) => void
-  /** Called when the user clicks "Submit" — only fires when the answer passes required-field validation. */
-  onSubmit?: (value: SurveyAnswerValue) => void
+  /** Called on valid submission. An unanswered optional question submits undefined. */
+  onSubmit?: (value: SurveyAnswerValue | undefined) => void
   /** When true, every input is disabled and no controls fire change events. */
   readOnly?: boolean
   /** Optional extra classes on the root wrapper. */

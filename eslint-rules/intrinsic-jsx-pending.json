@@ -5,13 +5,10 @@
     "barcode-scanner-react",
     "canvas-engine-react",
     "canvas-react",
-    "file-dropzone-react",
     "flow-canvas-react",
     "ide-react",
     "image-canvas-react",
-    "image-gallery-editor-react",
     "mind-map-canvas-react",
-    "survey-question-react",
     "three-viewer-react",
     "video-player-react",
     "whiteboard-canvas-react"

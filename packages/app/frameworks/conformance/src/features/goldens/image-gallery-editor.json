@@ -139,8 +139,16 @@
       "name": "onPickFiles",
       "args": [
        [
-        {},
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "pic.jpg",
+         "type": "image/jpeg",
+         "size": 3
+        }
        ]
       ]
      },
@@ -173,7 +181,11 @@
       "name": "onPickFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      },
@@ -198,8 +210,16 @@
       "name": "onPickFiles",
       "args": [
        [
-        {},
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        },
+        {
+         "name": "pic.jpg",
+         "type": "image/jpeg",
+         "size": 3
+        }
        ]
       ]
      },
@@ -224,7 +244,11 @@
       "name": "onPickFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      },
@@ -248,7 +272,11 @@
       "name": "onPickFiles",
       "args": [
        [
-        {}
+        {
+         "name": "photo.png",
+         "type": "image/png",
+         "size": 3
+        }
        ]
       ]
      },

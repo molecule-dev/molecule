@@ -1,6 +1,6 @@
 /**
  * Vue file dropzone — drag-drop + click-to-browse file picker with
- * accept / max-size filtering. Pure UI: it emits the chosen `File[]`
+ * accept / max-size filtering. Pure UI: it emits `readonly PickedFile[]`
  * and the host app performs the actual upload.
  *
  * Exports `<FileDropzone>` and its `FileDropzoneProps`. It is the Vue
@@ -10,6 +10,7 @@
  * @example
  * ```ts
  * import { defineComponent, h } from 'vue'
+ * import type { PickedFile } from '@molecule/app-filesystem'
  * import { FileDropzone } from '@molecule/app-file-dropzone-vue'
  *
  * const AvatarUpload = defineComponent({
@@ -19,8 +20,8 @@
  *         accept: 'image/*',
  *         multiple: false,
  *         maxSize: 5 * 1024 * 1024,
- *         onFiles: (files: File[]) => uploadAvatar(files[0]),
- *         onRejected: (files: File[]) => showError(files[0].name),
+ *         onFiles: (files: readonly PickedFile[]) => uploadAvatar(files[0]),
+ *         onRejected: (files: readonly PickedFile[]) => showError(files[0].name),
  *       })
  *   },
  * })

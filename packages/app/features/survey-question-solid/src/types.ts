@@ -7,6 +7,8 @@
  * @module
  */
 
+import type { PickedFile } from '@molecule/app-filesystem'
+
 /** Discriminator for the supported survey question kinds. */
 export type SurveyQuestionKind =
   | 'multi-choice-single'
@@ -171,7 +173,7 @@ export interface SurveyAnswerMap {
   'rating-scale': number
   nps: number
   date: string
-  'file-upload': File[]
+  'file-upload': readonly PickedFile[]
   matrix: Record<string, string>
 }
 

@@ -39,15 +39,18 @@
  *       mol-survey-question
  *       [question]="question"
  *       [value]="answer"
- *       (onChange)="answer = $event"
- *       (onSubmit)="submit($event)"
+ *       [onChange]="updateAnswer"
+ *       [onSubmit]="submit"
  *     ></div>
  *   `,
  * })
  * export class MyForm {
  *   question = question
  *   answer?: SurveyAnswerValue
- *   submit(value: SurveyAnswerValue): void {
+ *   readonly updateAnswer = (value: SurveyAnswerValue): void => {
+ *     this.answer = value
+ *   }
+ *   readonly submit = (value: SurveyAnswerValue | undefined): void => {
  *     console.log(value)
  *   }
  * }
@@ -60,6 +63,8 @@
  *   `data-mol-id` and `data-kind`.
  * - File uploads delegate to the `div[mol-file-dropzone]` counterpart of the
  *   React package's `<FileDropzone>`.
+ * - File-upload answers are `readonly PickedFile[]`. An unanswered optional
+ *   question passes `undefined` to `onSubmit`.
  *
  * @module
  */

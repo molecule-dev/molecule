@@ -34,6 +34,7 @@ vi.mock('@molecule/app-ui', async (importOriginal) => ({
   },
 }))
 
+import { fromBrowserFile } from '@molecule/app-filesystem'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 import SurveyQuestion from '../SurveyQuestion.svelte'
@@ -319,10 +320,53 @@ describe('<SurveyQuestion>', () => {
   describe('file-upload', () => {
     it('renders the dropzone and lists files', () => {
       const q: FileUploadQuestion = { id: 'f1', kind: 'file-upload', prompt: 'upload' }
-      const file = new File(['contents'], 'a.txt', { type: 'text/plain' })
-      const container = render({ question: q, value: [file] })
+      const file = fromBrowserFile(new File(['contents'], 'a.txt', { type: 'text/plain' }))
+      const onChange = vi.fn()
+      const container = render({ question: q, value: [file], onChange })
       expect(container.textContent).toContain('a.txt')
       expect(container.querySelector('[data-mol-id="survey-input-f1-files"]')).not.toBeNull()
+
+      const input = container.querySelector<HTMLInputElement>('input[type="file"]')
+      if (!input) throw new Error('The file question did not render a chooser')
+      const next = new File(['new'], 'next.txt', { type: 'text/plain' })
+      Object.defineProperty(input, 'files', { value: [next] })
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+      expect(onChange).toHaveBeenCalledExactlyOnceWith([
+        expect.objectContaining({
+          name: next.name,
+          size: next.size,
+          type: next.type,
+          appendTo: expect.any(Function),
+          arrayBuffer: expect.any(Function),
+        }),
+      ])
+
+      const readOnly = render({
+        question: { ...q, id: 'f-readonly' },
+        value: [file],
+        onChange,
+        readOnly: true,
+      })
+      const disabledInput = readOnly.querySelector<HTMLInputElement>(
+        '[data-mol-id="survey-question-f-readonly"] input[type="file"]',
+      )
+      if (!disabledInput) throw new Error('The read-only file question did not render a chooser')
+      expect(disabledInput.disabled).toBe(true)
+      Object.defineProperty(disabledInput, 'files', { value: [next] })
+      disabledInput.dispatchEvent(new Event('change', { bubbles: true }))
+      expect(onChange).toHaveBeenCalledTimes(1)
+    })
+
+    it('submits undefined for an unanswered optional file question', () => {
+      const q: FileUploadQuestion = { id: 'f-optional', kind: 'file-upload', prompt: 'upload' }
+      const onSubmit = vi.fn()
+      const container = render({ question: q, onSubmit })
+      const submit = Array.from(container.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Submit',
+      )
+      if (!submit) throw new Error('The optional file question did not render Submit')
+      submit.click()
+      expect(onSubmit).toHaveBeenCalledExactlyOnceWith(undefined)
     })
   })
 

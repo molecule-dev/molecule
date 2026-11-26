@@ -24,6 +24,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement } from '@molecule/app-angular'
+import type { PickedFile } from '@molecule/app-filesystem'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `textCenter`), so tests can assert which cm.* class was applied without a
@@ -195,8 +196,8 @@ describe('FileDropzone (keyboard activation)', () => {
   })
 
   it('rejects one byte and delivers an empty file when maxSize is zero', async () => {
-    const onFiles = vi.fn()
-    const onRejected = vi.fn()
+    const onFiles = vi.fn<(files: readonly PickedFile[]) => void>()
+    const onRejected = vi.fn<(files: readonly PickedFile[]) => void>()
     const { zone } = await mountZone({ onFiles, onRejected, maxSize: 0 })
     const one = new File(['x'], 'one.txt', { type: 'text/plain' })
     const empty = new File([], 'empty.txt', { type: 'text/plain' })
@@ -205,10 +206,23 @@ describe('FileDropzone (keyboard activation)', () => {
 
     zone.dispatchEvent(drop)
 
-    expect(onFiles).toHaveBeenCalledExactlyOnceWith([empty])
-    expect(onFiles.mock.calls[0][0][0]).toBe(empty)
-    expect(onRejected).toHaveBeenCalledExactlyOnceWith([one])
-    expect(onRejected.mock.calls[0][0][0]).toBe(one)
+    expect(onFiles).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ name: empty.name, size: empty.size, type: empty.type }),
+    ])
+    expect(onRejected).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ name: one.name, size: one.size, type: one.type }),
+    ])
+    expect(onFiles).toHaveBeenCalledBefore(onRejected)
+    const accepted = onFiles.mock.lastCall?.[0][0]
+    const rejected = onRejected.mock.lastCall?.[0][0]
+    expect(accepted).toHaveProperty('appendTo', expect.any(Function))
+    expect(rejected).toHaveProperty('appendTo', expect.any(Function))
+    if (!accepted || !rejected) throw new Error('The expected file batches were not delivered')
+    const body = new FormData()
+    accepted.appendTo(body, 'accepted')
+    rejected.appendTo(body, 'rejected')
+    expect(body.get('accepted')).toBe(empty)
+    expect(body.get('rejected')).toBe(one)
   })
 
   it('opens the chooser once when the input click bubbles back to the target', async () => {

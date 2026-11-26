@@ -16,9 +16,8 @@
  * Styling goes entirely through the ClassMap bond (`getClassMap()` / `cm.*`)
  * so the editor renders out of the box under ANY styling library and needs
  * no per-app Tailwind `@source` scan of this package. The handful of
- * `style={...}` values (grid-column span, aspect ratio, corner radius, the
- * dashed drop-zone affordance border, `object-fit`, the dimming opacity, and
- * the hidden file input's `display:none`) are the documented
+ * `webStyle={...}` values (grid-column span, aspect ratio, corner radius, the
+ * dashed drop-zone affordance border, `object-fit` and dimming opacity) are the
  * ClassMap-can't-express cases (molecule Rule 5); each uses a real theme
  * token (`var(--color-*)`) rather than a hardcoded color. Icons are real SVG
  * glyphs from `@molecule/app-ui-react`'s `<Icon>` (no Material Symbols font).
@@ -26,29 +25,30 @@
  * @module
  */
 
-import {
-  type ChangeEvent,
-  type DragEvent,
-  type JSX,
-  type KeyboardEvent,
-  type ReactNode,
-  useRef,
-  useState,
-} from 'react'
+import { fromByteArray } from 'base64-js'
+import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 
+import type { PickedFile } from '@molecule/app-filesystem'
 import type { IconName } from '@molecule/app-icons'
+import { warn } from '@molecule/app-logger'
 import { useTranslation } from '@molecule/app-react'
-import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { slot, useCommittedRef } from '@molecule/app-react/render'
+import {
+  type ElementHandle,
+  type FileFieldHandle,
+  getClassMap,
+  type KitKeyboardEvent,
+} from '@molecule/app-ui'
 import { ConfirmDialog, Icon } from '@molecule/app-ui-react'
+import { Box, FileField, Image, Pressable } from '@molecule/app-ui-react/elements'
 
 /** Props for {@link ImageGalleryEditor}. */
 export interface ImageGalleryEditorProps {
   /** Ordered slots, `null` for empty. Length determines slot count. */
   slots: (string | null)[]
   onChange: (slots: (string | null)[]) => void
-  /** Called when the user picks files; defaults to a local object URL. */
-  onPickFiles?: (files: FileList) => Promise<(string | null)[]> | (string | null)[]
+  /** Returns URLs for the ordered selection. Defaults to local previews owned by the editor. */
+  onPickFiles?: (files: readonly PickedFile[]) => Promise<(string | null)[]> | (string | null)[]
   maxImages?: number
   /** Header heading + subtitle slot (renders left of the photo counter). */
   header?: ReactNode
@@ -84,10 +84,41 @@ const SLOT_RADIUS = '0.75rem'
  * @param event - DOM keyboard event on the focusable element.
  * @param action - The click handler to mirror.
  */
-function activateWithKeyboard(event: KeyboardEvent<HTMLElement>, action: () => void): void {
+function activateWithKeyboard(event: KitKeyboardEvent, action: () => void): void {
   if (event.key !== 'Enter' && event.key !== ' ') return
   event.preventDefault()
   action()
+}
+
+/** Revokes the editor's object URLs once they are no longer needed. */
+function releasePreviews(owned: Set<string>, keep: readonly (string | null)[]): void {
+  for (const url of owned) {
+    if (keep.includes(url)) continue
+    URL.revokeObjectURL(url)
+    owned.delete(url)
+  }
+}
+
+/** Reads local previews while keeping the browser file and device URI private to their adapters. */
+async function createPreviews(files: readonly PickedFile[], owned: Set<string>): Promise<string[]> {
+  const images = await Promise.all(
+    files.map(async (file) => ({ type: file.type, data: await file.arrayBuffer() })),
+  )
+  const useObjectUrl =
+    typeof HTMLImageElement !== 'undefined' &&
+    typeof URL.createObjectURL === 'function' &&
+    typeof URL.revokeObjectURL === 'function'
+  return images.map(({ data, type }) => {
+    if (!useObjectUrl) return `data:${type};base64,${fromByteArray(new Uint8Array(data))}`
+    const url = URL.createObjectURL(new Blob([data], { type }))
+    owned.add(url)
+    return url
+  })
+}
+
+/** Reports a chooser, upload callback or preview failure. */
+function reportSelectionError(error: unknown): void {
+  warn('Image gallery could not use the selected files', { error })
 }
 
 /** Editable image gallery primitive. */
@@ -127,9 +158,31 @@ export function ImageGalleryEditor({
     confirmRemoveMessage ??
     t('imageGalleryEditor.remove.message', {}, { defaultValue: 'Remove this image?' })
   const removeTitle = t('imageGalleryEditor.remove.title', {}, { defaultValue: 'Remove image?' })
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null)
+  const picker = useRef<FileFieldHandle>(null)
+  const uploadingSlot = useRef<number | null>(null)
+  const committedSlots = useRef(slots)
+  const mounted = useRef(false)
+  const ownedPreviews = useRef(new Set<string>())
+  const [dropTarget, setDropTarget] = useState<ElementHandle | null>(null)
   const [removeIndex, setRemoveIndex] = useState<number | null>(null)
+
+  useCommittedRef(committedSlots, slots)
+  useEffect(() => {
+    const previews = ownedPreviews.current
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      releasePreviews(previews, [])
+    }
+  }, [])
+  useEffect(() => {
+    releasePreviews(ownedPreviews.current, slots)
+  }, [slots])
+
+  const openPicker = (index: number | null): void => {
+    uploadingSlot.current = index
+    picker.current?.pick()
+  }
 
   const handleSlotClick = (index: number): void => {
     if (slots[index]) {
@@ -137,8 +190,7 @@ export function ImageGalleryEditor({
       // headless (it hangs e2e) and awkward on touch.
       setRemoveIndex(index)
     } else {
-      setUploadingSlot(index)
-      fileInputRef.current?.click()
+      openPicker(index)
     }
   }
 
@@ -149,11 +201,6 @@ export function ImageGalleryEditor({
     setRemoveIndex(null)
   }
 
-  const handleUploadAreaClick = (): void => {
-    setUploadingSlot(null)
-    fileInputRef.current?.click()
-  }
-
   /**
    * Turns picked or dropped files into slot URLs and writes them: into the
    * slot that opened the picker, or else into the empty slots in order.
@@ -161,51 +208,58 @@ export function ImageGalleryEditor({
    * @param files - The files the user picked or dropped.
    * @param slot - The slot that opened the picker, or null.
    */
-  const placeFiles = async (files: FileList, slot: number | null): Promise<void> => {
-    const urls = onPickFiles
-      ? await onPickFiles(files)
-      : Array.from(files).map((f) => URL.createObjectURL(f))
-    const next = [...slots]
-    if (slot !== null) {
-      next[slot] = urls[0] ?? null
-    } else {
-      let writeAt = next.findIndex((s) => s === null)
-      for (const url of urls) {
-        if (writeAt < 0 || writeAt >= maxImages) break
-        next[writeAt] = url ?? null
-        writeAt = next.findIndex((s) => s === null)
+  const placeFiles = async (files: readonly PickedFile[], slot: number | null): Promise<void> => {
+    const previews = new Set<string>()
+    try {
+      const visible = committedSlots.current.slice(0, Math.max(0, maxImages))
+      const available =
+        slot === null ? visible.filter((url) => url === null).length : Number(slot < visible.length)
+      const urls = onPickFiles
+        ? await onPickFiles(files)
+        : await createPreviews(files.slice(0, available), previews)
+      if (!mounted.current) {
+        releasePreviews(previews, [])
+        return
       }
+      const next = [...committedSlots.current]
+      if (slot !== null) {
+        next[slot] = urls[0] ?? null
+      } else {
+        for (const url of urls) {
+          const index = next.findIndex((value) => value === null)
+          if (index < 0 || index >= maxImages) break
+          next[index] = url ?? null
+        }
+      }
+      const changed = next.slice(0, maxImages)
+      releasePreviews(previews, changed)
+      for (const url of previews) ownedPreviews.current.add(url)
+      onChange(changed)
+      releasePreviews(ownedPreviews.current, [...committedSlots.current, ...changed])
+    } catch (error) {
+      for (const url of previews) ownedPreviews.current.delete(url)
+      releasePreviews(previews, [])
+      reportSelectionError(error)
     }
-    onChange(next.slice(0, maxImages))
   }
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
-    const files = e.target.files
-    if (!files?.length) return
-    await placeFiles(files, uploadingSlot)
-    setUploadingSlot(null)
-    e.target.value = ''
-  }
-
-  // The drop zone takes what the picker takes (`accept="image/*"`): a drop
-  // that carries anything else is refused, so the browser never opens it.
-  const handleDragOver = (e: DragEvent<HTMLDivElement>): void => {
-    e.preventDefault()
-  }
-  const handleDrop = (e: DragEvent<HTMLDivElement>): void => {
-    e.preventDefault()
-    const files = e.dataTransfer.files
-    if (!files.length || Array.from(files).some((f) => !f.type.startsWith('image/'))) return
-    void placeFiles(files, null)
+  const handlePickedFiles = (files: readonly PickedFile[]): void => {
+    const slot = uploadingSlot.current
+    uploadingSlot.current = null
+    void placeFiles(files, slot)
   }
 
   return (
-    <section>
+    <Box as="section">
       {(header || counter) && (
-        <div className={cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6))}>
-          {header ?? <div />}
+        <Box
+          as="div"
+          className={cm.cn(cm.flex({ align: 'end', justify: 'between' }), cm.sp('mb', 6))}
+        >
+          {header ?? <Box as="div" />}
           {counter ? (
-            <span
+            <Box
+              as="span"
               className={cm.cn(
                 cm.textSize('xs'),
                 cm.fontWeight('bold'),
@@ -215,11 +269,11 @@ export function ImageGalleryEditor({
               )}
             >
               {counter}
-            </span>
+            </Box>
           ) : null}
-        </div>
+        </Box>
       )}
-      <div className={cm.cn(cm.grid({ cols: 12, gap: 'md', responsive: false }))}>
+      <Box as="div" className={cm.cn(cm.grid({ cols: 12, gap: 'md', responsive: false }))}>
         {/* Hero drop zone (spans 8/12). grid-column span, aspect ratio, corner
             radius, and the dashed affordance border are ClassMap-can't-express
             (Rule 5); each uses a real theme token, never a hardcoded color. */}
@@ -227,27 +281,28 @@ export function ImageGalleryEditor({
             a bespoke 16:9 drop-zone surface, not a CTA — the dashed affordance
             border and tile radius are the documented ClassMap-can't-express
             cases (Rule 5); the button recipe's CTA chrome does not apply. */}
-        <div
+        <Pressable
+          as="div"
+          ref={setDropTarget}
           role="button"
           tabIndex={0}
           data-mol-id="image-gallery-editor-dropzone"
-          onClick={handleUploadAreaClick}
-          onKeyDown={(e) => activateWithKeyboard(e, handleUploadAreaClick)}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
+          onClick={() => openPicker(null)}
+          onKeyDown={(e) => activateWithKeyboard(e, () => openPicker(null))}
           className={cm.cn(
             cm.surfaceSecondary,
             cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
             cm.cursorPointer,
           )}
-          style={{
+          webStyle={{
             gridColumn: 'span 8 / span 8',
             aspectRatio: '16 / 9',
             borderRadius: SLOT_RADIUS,
             border: '2px dashed var(--color-border)',
           }}
         >
-          <div
+          <Box
+            as="div"
             className={cm.cn(
               cm.w(16),
               cm.h(16),
@@ -258,21 +313,27 @@ export function ImageGalleryEditor({
             )}
           >
             <Icon name="upload" size={28} className={cm.textPrimary} />
-          </div>
-          <p className={cm.cn(cm.fontWeight('bold'))}>{title}</p>
-          <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>{hint}</p>
-        </div>
+          </Box>
+          <Box as="p" className={cm.cn(cm.fontWeight('bold'))}>
+            {title}
+          </Box>
+          <Box as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>
+            {hint}
+          </Box>
+        </Pressable>
         {/* Thumbnail slot grid (spans 4/12). */}
-        <div
+        <Box
+          as="div"
           className={cm.cn(cm.grid({ cols: 2, gap: 'md', responsive: false }))}
-          style={{ gridColumn: 'span 4 / span 4' }}
+          webStyle={{ gridColumn: 'span 4 / span 4' }}
         >
           {slots.map((url, i) => (
             /* mol-bespoke-button: the role="button" is the keyboard a11y
                contract on a 1:1 image-thumbnail tile, not a CTA — aspect ratio
                and tile radius are Rule 5 inline exceptions; the button recipe
                does not style image slots. */
-            <div
+            <Pressable
+              as="div"
               key={i}
               role="button"
               tabIndex={0}
@@ -281,24 +342,25 @@ export function ImageGalleryEditor({
               onClick={() => handleSlotClick(i)}
               onKeyDown={(e) => activateWithKeyboard(e, () => handleSlotClick(i))}
               className={cm.cn(cm.surfaceSecondary, cm.position('relative'), cm.cursorPointer)}
-              style={{ aspectRatio: '1 / 1', borderRadius: SLOT_RADIUS, overflow: 'hidden' }}
+              webStyle={{ aspectRatio: '1 / 1', borderRadius: SLOT_RADIUS, overflow: 'hidden' }}
             >
               {url ? (
                 <>
-                  <img
+                  <Image
                     alt=""
                     src={url}
                     className={cm.cn(cm.w('full'), cm.h('full'))}
                     // object-fit + a steady dim are not in the ClassMap contract
                     // (Rule 5). The dim lets the always-visible delete glyph read.
-                    style={{ objectFit: 'cover', opacity: 0.6 }}
+                    webStyle={{ objectFit: 'cover', opacity: 0.6 }}
                   />
                   {/* Delete affordance is always visible — it works on touch, and
                       the old hover-reveal relied on a `group-hover` class that
                       never generated in a plain scaffold, so it was effectively
                       invisible out of the box. The glyph inherits the foreground
                       color (currentColor) and reads against the dimmed image. */}
-                  <div
+                  <Box
+                    as="div"
                     className={cm.cn(
                       cm.position('absolute'),
                       cm.inset0,
@@ -306,10 +368,11 @@ export function ImageGalleryEditor({
                     )}
                   >
                     <Icon name="trash" size={20} />
-                  </div>
+                  </Box>
                 </>
               ) : (
-                <div
+                <Box
+                  as="div"
                   className={cm.cn(
                     cm.w('full'),
                     cm.h('full'),
@@ -317,30 +380,34 @@ export function ImageGalleryEditor({
                   )}
                 >
                   <Icon name={emptySlotIcon} size={24} className={cm.textMuted} />
-                </div>
+                </Box>
               )}
-            </div>
+            </Pressable>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
       {statusMessage ? (
-        <p
+        <Box
+          as="p"
           className={cm.cn(cm.sp('mt', 3), cm.textSize('xs'), cm.textMuted)}
           data-mol-id="image-gallery-editor-status"
         >
           {statusMessage}
-        </p>
+        </Box>
       ) : null}
-      {/* Hidden trigger input. `display:none` is the robust, framework-agnostic
-          hide — a raw `hidden` class never generates without an @source scan of
-          THIS package (exactly what left the input visible before). It is still
-          `.click()`-triggered from the visible drop zone / slots. */}
-      <input
-        ref={fileInputRef}
-        type="file"
+      <FileField
+        ref={picker}
+        externalTrigger
+        webInputDisplayNone
         accept="image/*"
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
+        onValueChange={handlePickedFiles}
+        onPickError={reportSelectionError}
+        webDrop={{
+          target: dropTarget,
+          multiple: true,
+          rejectBatch: true,
+          onValueChange: (files) => void placeFiles(files, null),
+        }}
       />
       <ConfirmDialog
         open={removeIndex !== null}
@@ -351,7 +418,7 @@ export function ImageGalleryEditor({
           if (removeIndex !== null) removeSlot(removeIndex)
         }}
       />
-    </section>
+    </Box>
   )
 }
 

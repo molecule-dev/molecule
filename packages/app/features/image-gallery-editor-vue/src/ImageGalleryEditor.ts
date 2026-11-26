@@ -12,9 +12,26 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
+import { fromByteArray } from 'base64-js'
+import {
+  defineComponent,
+  h,
+  onUnmounted,
+  type PropType,
+  ref,
+  type VNode,
+  type VNodeChild,
+  watch,
+} from 'vue'
 
+import {
+  createBrowserFileInput,
+  filterPickedFiles,
+  fromBrowserFile,
+  type PickedFile,
+} from '@molecule/app-filesystem'
 import type { IconName } from '@molecule/app-icons'
+import { warn } from '@molecule/app-logger'
 import { getClassMap } from '@molecule/app-ui'
 import { ConfirmDialog, Icon } from '@molecule/app-ui-vue'
 import { toChildArray, useTranslation } from '@molecule/app-vue'
@@ -27,6 +44,38 @@ import type { ImageGalleryEditorProps } from './types.js'
  * is a documented inline-style exception (molecule Rule 5).
  */
 const SLOT_RADIUS = '0.75rem'
+const IMAGE_ACCEPT = 'image/*'
+
+/** Revokes the editor's object URLs once they are no longer needed. */
+function releasePreviews(owned: Set<string>, keep: readonly (string | null)[]): void {
+  for (const url of owned) {
+    if (keep.includes(url)) continue
+    URL.revokeObjectURL(url)
+    owned.delete(url)
+  }
+}
+
+/** Reads local previews from the portable file selection. */
+async function createPreviews(files: readonly PickedFile[], owned: Set<string>): Promise<string[]> {
+  const images = await Promise.all(
+    files.map(async (file) => ({ type: file.type, data: await file.arrayBuffer() })),
+  )
+  const useObjectUrl =
+    typeof HTMLImageElement !== 'undefined' &&
+    typeof URL.createObjectURL === 'function' &&
+    typeof URL.revokeObjectURL === 'function'
+  return images.map(({ data, type }) => {
+    if (!useObjectUrl) return `data:${type};base64,${fromByteArray(new Uint8Array(data))}`
+    const url = URL.createObjectURL(new Blob([data], { type }))
+    owned.add(url)
+    return url
+  })
+}
+
+/** Reports a chooser or preview failure. */
+function reportSelectionError(error: unknown): void {
+  warn('Image gallery could not use the selected files', { error })
+}
 
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot, with
@@ -80,58 +129,103 @@ export const ImageGalleryEditor = defineComponent({
       default: 'image',
     },
   },
-  emits: ['change'],
+  emits: { change: (_slots: Parameters<ImageGalleryEditorProps['onChange']>[0]) => true },
   setup(props, { slots, emit }) {
     const cm = getClassMap()
     const { t } = useTranslation()
     const fileInputRef = ref<HTMLInputElement | null>(null)
-    const uploadingSlot = ref<number | null>(null)
+    let uploadingSlot: number | null = null
     const removeIndex = ref<number | null>(null)
+    let mounted = true
+    const ownedPreviews = new Set<string>()
+    watch(
+      () => props.slots,
+      (slots) => releasePreviews(ownedPreviews, slots),
+      { flush: 'post' },
+    )
+    onUnmounted(() => {
+      mounted = false
+      releasePreviews(ownedPreviews, [])
+    })
 
     /**
-     * Turns picked or dropped files into slot URLs and writes them: into the
-     * slot that opened the picker, or else into the empty slots in order.
+     * Delivers URLs for the ordered file selection to the chosen slot or empty slots.
      *
-     * @param files - The files the user picked or dropped.
-     * @param slot - The slot that opened the picker, or null.
+     * @param files - The portable files from the chooser or drop.
+     * @param slot - The slot that opened the chooser, or null.
      */
-    const placeFiles = async (files: FileList, slot: number | null): Promise<void> => {
-      const urls = props.onPickFiles
-        ? await props.onPickFiles(files)
-        : Array.from(files).map((f) => URL.createObjectURL(f))
-      const next = [...props.slots]
-      if (slot !== null) {
-        next[slot] = urls[0] ?? null
-      } else {
-        let writeAt = next.findIndex((s) => s === null)
-        for (const url of urls) {
-          if (writeAt < 0 || writeAt >= props.maxImages) break
-          next[writeAt] = url ?? null
-          writeAt = next.findIndex((s) => s === null)
+    const placeFiles = async (files: readonly PickedFile[], slot: number | null): Promise<void> => {
+      const previews = new Set<string>()
+      const limit = props.maxImages
+      try {
+        const visible = props.slots.slice(0, Math.max(0, limit))
+        const available =
+          slot === null
+            ? visible.filter((url) => url === null).length
+            : Number(slot < visible.length)
+        const urls = props.onPickFiles
+          ? await props.onPickFiles(files)
+          : await createPreviews(files.slice(0, available), previews)
+        if (!mounted) {
+          releasePreviews(previews, [])
+          return
         }
+        const next = [...props.slots]
+        if (slot !== null) {
+          next[slot] = urls[0] ?? null
+        } else {
+          for (const url of urls) {
+            const index = next.findIndex((value) => value === null)
+            if (index < 0 || index >= limit) break
+            next[index] = url ?? null
+          }
+        }
+        const changed = next.slice(0, limit)
+        releasePreviews(previews, changed)
+        for (const url of previews) ownedPreviews.add(url)
+        emit('change', changed)
+        releasePreviews(ownedPreviews, [...props.slots, ...changed])
+      } catch (error) {
+        for (const url of previews) ownedPreviews.delete(url)
+        releasePreviews(previews, [])
+        reportSelectionError(error)
       }
-      emit('change', next.slice(0, props.maxImages))
     }
 
-    /**
-     * React's hidden-input `onChange`: places the picked files into the slot
-     * that opened the picker and clears the trigger state.
-     *
-     * @param event - The native change event.
-     */
-    const handleFileChange = async (event: Event): Promise<void> => {
-      const input = event.target as HTMLInputElement
-      const files = input.files
-      if (!files?.length) return
-      await placeFiles(files, uploadingSlot.value)
-      uploadingSlot.value = null
-      input.value = ''
-    }
+    const chooser = createBrowserFileInput(
+      () => fileInputRef.value,
+      () => ({
+        accept: IMAGE_ACCEPT,
+        onPickError: reportSelectionError,
+        onFiles: (files) => {
+          const slot = uploadingSlot
+          uploadingSlot = null
+          void placeFiles(files, slot)
+        },
+      }),
+      fromBrowserFile,
+    )
 
-    /** React's `handleUploadAreaClick`: clears the slot target and opens the picker. */
-    const openPicker = (): void => {
-      uploadingSlot.value = null
-      fileInputRef.value?.click()
+    const drop = createBrowserFileInput(
+      () => fileInputRef.value,
+      () => ({
+        multiple: true,
+        onPickError: reportSelectionError,
+        onFiles: (files) => {
+          const { accepted, rejected } = filterPickedFiles(files, {
+            accept: IMAGE_ACCEPT,
+            multiple: true,
+          })
+          if (rejected.length === 0) void placeFiles(accepted, null)
+        },
+      }),
+      fromBrowserFile,
+    )
+
+    /** Opens the shared chooser at the given slot, or at the first empty slot from the hero. */
+    const openPicker = (index: number | null): void => {
+      uploadingSlot = index
+      chooser.onClick({ target: null, defaultPrevented: false })
     }
 
     /**
@@ -145,8 +239,7 @@ export const ImageGalleryEditor = defineComponent({
       if (props.slots[index]) {
         removeIndex.value = index
       } else {
-        uploadingSlot.value = index
-        fileInputRef.value?.click()
+        openPicker(index)
       }
     }
 
@@ -235,20 +328,12 @@ export const ImageGalleryEditor = defineComponent({
               role: 'button',
               tabindex: 0,
               'data-mol-id': 'image-gallery-editor-dropzone',
-              onClick: openPicker,
+              onClick: () => openPicker(null),
               onKeydown: (event: KeyboardEvent) => {
-                activateWithKeyboard(event, openPicker)
+                activateWithKeyboard(event, () => openPicker(null))
               },
-              onDragover: (event: DragEvent) => {
-                event.preventDefault()
-              },
-              onDrop: (event: DragEvent) => {
-                event.preventDefault()
-                const files = event.dataTransfer?.files
-                if (!files?.length || Array.from(files).some((f) => !f.type.startsWith('image/')))
-                  return
-                void placeFiles(files, null)
-              },
+              onDragover: drop.onDragOver,
+              onDrop: drop.onDrop,
               class: cm.cn(
                 cm.surfaceSecondary,
                 cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
@@ -378,9 +463,9 @@ export const ImageGalleryEditor = defineComponent({
         h('input', {
           ref: fileInputRef,
           type: 'file',
-          accept: 'image/*',
+          accept: IMAGE_ACCEPT,
           style: { display: 'none' },
-          onChange: handleFileChange,
+          onChange: chooser.onChange,
         }),
         h(ConfirmDialog, {
           open: removeIndex.value !== null,

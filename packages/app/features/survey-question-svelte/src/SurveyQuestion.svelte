@@ -15,6 +15,7 @@
     MatrixQuestion,
     MultiChoiceMultiQuestion,
     MultiChoiceSingleQuestion,
+    SurveyAnswerMap,
     SurveyAnswerValue,
     SurveyQuestionDef,
     SurveyQuestionProps,
@@ -94,7 +95,7 @@
       return
     }
     error = null
-    onSubmit?.(value as SurveyAnswerValue)
+    onSubmit?.(value)
   }
 
   /** The current answer as text (React's `(value as string) ?? ''`). */
@@ -103,8 +104,17 @@
   /** The current answer as a list of option values. */
   const listValue = $derived(Array.isArray(value) ? (value as string[]) : [])
 
+  /** Narrows the two ordered answer types, including the readonly file batch. */
+  function isAnswerList(
+    candidate: SurveyAnswerValue | undefined,
+  ): candidate is string[] | SurveyAnswerMap['file-upload'] {
+    return Array.isArray(candidate)
+  }
+
   /** The current answer as a list of files. */
-  const fileValue = $derived(Array.isArray(value) ? (value as File[]) : [])
+  const fileValue = $derived(
+    isAnswerList(value) ? value.filter((entry) => typeof entry !== 'string') : [],
+  )
 
   /** The current answer as a matrix row mapping. */
   const matrixValue = $derived(
