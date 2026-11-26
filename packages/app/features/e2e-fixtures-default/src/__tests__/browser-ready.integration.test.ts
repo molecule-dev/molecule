@@ -1,5 +1,8 @@
 import { spawnSync } from 'node:child_process'
 import {
+  accessSync,
+  chmodSync,
+  constants,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -21,8 +24,10 @@ const runner = createRequire(import.meta.url).resolve('@playwright/test/cli')
 const fixtures = new URL('../../dist/index.js', import.meta.url).href
 const core = import.meta.resolve('@molecule/app-e2e')
 const dirs: string[] = []
+const readOnly: string[] = []
 
 afterEach(() => {
+  for (const dir of readOnly.splice(0)) chmodSync(dir, 0o755)
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
@@ -79,6 +84,8 @@ interface RunOptions {
   filters?: string[]
   externalConfig?: boolean
   cliInProject?: boolean
+  /** Make the cache read-only, holding a complete browser or one without its marker. */
+  readOnlyCache?: 'complete' | 'incomplete'
 }
 
 /** Create a suite outside the checkout and run it with a project-local recording installer. */
@@ -92,6 +99,7 @@ function run(
     filters = [],
     externalConfig = false,
     cliInProject = false,
+    readOnlyCache,
   }: RunOptions = {},
 ) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'mol-browser-ready-')))
@@ -121,12 +129,18 @@ function run(
   writeFileSync(
     join(playable, 'cli.cjs'),
     `const { appendFileSync } = require('node:fs')
+    const dryRun = process.argv.includes('--dry-run')
     appendFileSync(process.env.EVENT_LOG, JSON.stringify({
-      kind: 'install', args: process.argv.slice(2), cwd: process.cwd(),
+      kind: dryRun ? 'list' : 'install', args: process.argv.slice(2), cwd: process.cwd(),
       cache: process.env.PLAYWRIGHT_BROWSERS_PATH, cacheBase: process.env.INIT_CWD,
       proxy: process.env.HTTPS_PROXY,
       node: process.execPath,
     }) + '\\n')
+    if (dryRun) {
+      console.log('Chrome Headless Shell (playwright chromium-headless-shell v1248)')
+      console.log('  Install location:    ' + process.env.BROWSER_LOCATION)
+      return
+    }
     console.log('Recording download progress')
     setTimeout(() => {
       if (process.env.FAIL_INSTALL !== '1') return
@@ -141,6 +155,15 @@ function run(
   specs.forEach((spec, index) =>
     writeFileSync(join(dir, `${index}.spec.mjs`), `${SPEC_HEADER}\n${spec}`),
   )
+  const location = join(cache, 'chromium_headless_shell-1248')
+  if (readOnlyCache) {
+    mkdirSync(location, { recursive: true })
+    if (readOnlyCache === 'complete') writeFileSync(join(location, 'INSTALLATION_COMPLETE'), '')
+    chmodSync(cache, 0o555)
+    readOnly.push(cache)
+    // Root writes a 0555 directory, so this user could not see the cache as read-only.
+    expect(() => accessSync(cache, constants.W_OK), 'needs a user a 0555 cache refuses').toThrow()
+  }
   const proxy = 'http://127.0.0.1:9'
   const config = externalConfig ? ['--config', join(dir, 'playwright.config.mjs')] : []
   const result = spawnSync(process.execPath, [runner, 'test', ...config, ...filters], {
@@ -159,6 +182,7 @@ function run(
       INIT_CWD: externalConfig ? '.' : undefined,
       HTTPS_PROXY: proxy,
       EVENT_LOG: eventsPath,
+      BROWSER_LOCATION: location,
       ...env,
     },
     encoding: 'utf8',
@@ -198,6 +222,29 @@ it('installs with the suite CLI and streams progress before the inherited browse
   expect(output).toMatch(
     /Molecule browser setup[^\n]*--only-shell chromium[\s\S]*Recording download progress/,
   )
+})
+
+// Playwright's installer locks the cache first and retries for ten minutes, so on a read-only
+// cache (a host cache mounted into a container) it was killed at the 240 s limit even with the
+// browser in place (2026-11-26).
+it('checks a read-only cache that holds the browser instead of running the installer', () => {
+  const { status, events, output, cache } = run([PAGE], { readOnlyCache: 'complete' })
+  expect(status, output).toBe(0)
+  expect(events.map(({ kind }) => kind)).toEqual(['list', 'launch', 'page'])
+  expect(events[0]?.args).toEqual(['install', '--dry-run', ...SHELL])
+  expect(output).toContain(`Molecule browser setup: ${cache} is read-only`)
+})
+
+it('fails at once on a read-only cache whose browser is incomplete, naming its location', () => {
+  const { status, events, output, cache } = run([PAGE], { readOnlyCache: 'incomplete' })
+  expect(status, output).toBe(1)
+  expect(events.map(({ kind }) => kind)).toEqual(['list'])
+  const errors = output.match(/^\s*Error: MOL_E2E_BROWSER_SETUP_FAILED[^\n]*/gm) ?? []
+  expect(errors).toHaveLength(1)
+  expect(errors[0]).toContain(
+    'the browser cache is read-only, so Playwright cannot install into it',
+  )
+  expect(errors[0]).toContain(`it lacks ${join(cache, 'chromium_headless_shell-1248')}`)
 })
 
 it('uses the invoking project CLI when the suite has an external config', () => {

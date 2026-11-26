@@ -4,9 +4,10 @@
  * @module
  */
 
-import { spawn } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { constants } from 'node:fs'
+import { access, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { homedir, hostname, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -16,6 +17,13 @@ import { stripVTControlCharacters } from 'node:util'
 
 const INSTALL_TIMEOUT_MS = 240_000
 const RESULT_WAIT_MS = INSTALL_TIMEOUT_MS + 10_000
+const LIST_TIMEOUT_MS = 30_000
+
+/**
+ * The file Playwright writes into a browser's install location once the browser is complete
+ * (playwright-core's `browserDirectoryToMarkerFilePath`). Its installer skips a browser that has it.
+ */
+const INSTALLED_MARKER = 'INSTALLATION_COMPLETE'
 
 /** Read Playwright's environment setting, including the forms npm passes to scripts. */
 function setting(name: string): string | undefined {
@@ -83,6 +91,86 @@ function runInstall(command: string[], cwd: string, env: NodeJS.ProcessEnv): Pro
         )
     })
   })
+}
+
+/**
+ * Whether the cache exists and this process cannot write to it, such as a read-only mount.
+ * Playwright's installer first takes a lock in the cache and retries it for ten minutes, so on such
+ * a cache it can never succeed, even when every browser is already there. A missing cache is not
+ * read-only: the installer creates it.
+ */
+async function readOnlyCache(cache: string): Promise<boolean> {
+  try {
+    await access(cache, constants.W_OK)
+    return false
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code
+    if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') return true
+    if (code === 'ENOENT') return false
+    throw error
+  }
+}
+
+/** The install locations `playwright install --dry-run` lists for the same arguments. */
+function installLocations(
+  command: string[],
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+): Promise<string[]> {
+  const args = [command[1], 'install', '--dry-run', ...command.slice(3)]
+  return new Promise((resolveResult, reject) => {
+    execFile(
+      command[0],
+      args,
+      { cwd, env, encoding: 'utf8', timeout: LIST_TIMEOUT_MS },
+      (error, stdout) => {
+        if (error) reject(error)
+        else
+          resolveResult(
+            [...stdout.matchAll(/^\s*Install location:\s*(.+?)\s*$/gm)].map(([, at]) => at),
+          )
+      },
+    )
+  })
+}
+
+/** Whether a browser's install location holds Playwright's completion marker. */
+async function installed(location: string): Promise<boolean> {
+  try {
+    await access(join(location, INSTALLED_MARKER))
+    return true
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false
+    throw error
+  }
+}
+
+/**
+ * On a read-only cache, check that the requested browsers are complete instead of running an
+ * installer that cannot take its lock there.
+ *
+ * @returns An empty string when every listed browser is complete, otherwise the diagnostic.
+ */
+async function checkReadOnlyCache(
+  command: string[],
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+  cache: string,
+): Promise<string> {
+  process.stdout.write(
+    `Molecule browser setup: ${cache} is read-only, so checking it holds playwright ${command.slice(3).join(' ')}\n`,
+  )
+  const locations = await installLocations(command, cwd, env)
+  const missing: string[] = []
+  for (const location of locations) if (!(await installed(location))) missing.push(location)
+  if (locations.length && !missing.length) return ''
+  const lacks = locations.length
+    ? `it lacks ${missing.join(', ')}`
+    : '`playwright install --dry-run` listed no install location to check'
+  return (
+    `the browser cache is read-only, so Playwright cannot install into it, and ${lacks}. ` +
+    'Install the browser where the cache is writable, or set PLAYWRIGHT_BROWSERS_PATH to a writable cache'
+  )
 }
 
 /** A runner ID shared by its workers, with Linux process start time to distinguish reused PIDs. */
@@ -190,7 +278,9 @@ export async function installPlaywrightBrowser(
     const env = { ...process.env, ...(dir !== runnerCwd ? { INIT_CWD: from } : {}) }
     const run = async (): Promise<string> => {
       try {
-        const diagnostic = await runInstall(command, dir, env)
+        const diagnostic = (await readOnlyCache(cache))
+          ? await checkReadOnlyCache(command, dir, env, cache)
+          : await runInstall(command, dir, env)
         return diagnostic ? failure(diagnostic) : ''
       } catch (error) {
         return failure(String(error))
