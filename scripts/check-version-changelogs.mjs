@@ -15,6 +15,11 @@
  * Usage:
  *   node scripts/check-version-changelogs.mjs --staged     # the index against MOL_PRECOMMIT_BASE or HEAD
  *   node scripts/check-version-changelogs.mjs --base=<rev>  # HEAD against <rev>; `ci` is the push or PR base
+ *
+ * Run from a tree with no `.git` (the release runs CI's steps on an export of the commit it pushes),
+ * it reads history from the repository `MOL_INDEX_REPO` names, up to `MOL_INDEX_TIP` when that is
+ * set: the export's own directory is no repository, and the one around it is not molecule
+ * (2026-11-26: the pre-push run failed on `bad object` for main's tip).
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
@@ -175,7 +180,10 @@ export function judgeChange(cwd, manifests, before, after) {
 }
 
 if (isMainModule(import.meta.url)) {
-  const git = (args) => execFileSync('git', args, { encoding: 'utf8', maxBuffer: 1 << 28 })
+  const repo = process.env.MOL_INDEX_REPO || '.'
+  const tip = process.env.MOL_INDEX_TIP || 'HEAD'
+  const git = (args) =>
+    execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', maxBuffer: 1 << 28 })
   const changedManifests = (args) =>
     git(['diff', '--name-only', '--no-renames', ...args, '--', ':(glob)packages/**/package.json'])
       .split('\n')
@@ -184,11 +192,11 @@ if (isMainModule(import.meta.url)) {
   let missing
   if (process.argv.includes('--staged')) {
     const base = process.env.MOL_PRECOMMIT_BASE || 'HEAD'
-    missing = judgeChange('.', changedManifests(['--cached', base]), base, '')
+    missing = judgeChange(repo, changedManifests(['--cached', base]), base, '')
   } else if (baseArg) {
     const base =
       baseArg === 'ci'
-        ? ciBase(process.env, (ref) => git(['merge-base', ref, 'HEAD']).trim())
+        ? ciBase(process.env, (ref) => git(['merge-base', ref, tip]).trim())
         : baseArg
     if (!base) {
       console.log(
@@ -196,7 +204,7 @@ if (isMainModule(import.meta.url)) {
       )
       process.exit(0)
     }
-    missing = judgeChange('.', changedManifests([base, 'HEAD']), base, 'HEAD')
+    missing = judgeChange(repo, changedManifests([base, tip]), base, tip)
   } else {
     console.error('usage: check-version-changelogs.mjs --staged | --base=<rev|ci>')
     process.exit(2)

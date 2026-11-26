@@ -66,7 +66,13 @@ const changesetVersion = (root) => {
 const run = (root, args, env = {}) =>
   new Promise((resolve) => {
     const clean = { ...process.env }
-    for (const name of ['GITHUB_EVENT_NAME', 'GITHUB_EVENT_BEFORE', 'GITHUB_BASE_REF'])
+    for (const name of [
+      'GITHUB_EVENT_NAME',
+      'GITHUB_EVENT_BEFORE',
+      'GITHUB_BASE_REF',
+      'MOL_INDEX_REPO',
+      'MOL_INDEX_TIP',
+    ])
       delete clean[name]
     execFile(
       process.execPath,
@@ -166,6 +172,33 @@ describe('a raised version ships with its CHANGELOG section', () => {
     git(root, 'add', `${PKG}/CHANGELOG.md`)
     git(root, 'commit', '-qm', 'chore: add the changelog')
     expect((await run(root, [`--base=${base}`])).status).toBe(0)
+  })
+
+  it('known-bad: judges a pushed range from an export with no .git, through MOL_INDEX_REPO at MOL_INDEX_TIP', async () => {
+    const root = fixture()
+    const base = git(root, 'rev-parse', 'HEAD')
+    changesetVersion(root)
+    git(root, 'commit', '-qam', 'chore: version packages')
+    const tip = git(root, 'rev-parse', 'HEAD')
+    // A commit that lands after the release exported its tip is not part of the push.
+    git(root, 'add', `${PKG}/CHANGELOG.md`)
+    git(root, 'commit', '-qm', 'chore: add the changelog')
+    // The release exports molecule into a directory of the workspace repository, whose history
+    // holds none of molecule's commits.
+    const workspace = mkdtempSync(join(tmpdir(), 'version-changelogs-workspace-'))
+    roots.push(workspace)
+    git(workspace, 'init', '-q')
+    const exported = join(workspace, '.release-committed-push')
+    mkdirSync(exported)
+    const env = { GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: base, MOL_INDEX_REPO: root }
+    const refused = await run(exported, ['--base=ci'], { ...env, MOL_INDEX_TIP: tip })
+    // Read from the export's own directory, git found no repository (or the wrong one).
+    expect(refused.stderr).not.toMatch(/bad object|not a git repository/)
+    expect(refused.status).toBe(1)
+    expect(refused.stderr).toContain('has no `## 1.1.0` section')
+    const later = await run(exported, ['--base=ci'], env)
+    expect(later.stderr).toBe('')
+    expect(later.status).toBe(0)
   })
 
   it('judges nothing, and says so, for --base=ci outside a push or pull request', async () => {
