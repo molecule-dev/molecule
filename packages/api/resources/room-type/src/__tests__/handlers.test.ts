@@ -253,6 +253,16 @@ describe('@molecule/api-resource-room-type handlers', () => {
   })
 
   describe('list', () => {
+    it('ignores array-valued room filters from repeated query keys', async () => {
+      mockCount.mockResolvedValueOnce(0)
+      mockFindMany.mockResolvedValueOnce([])
+      await list(
+        mockReq({ query: { propertyId: ['one', 'two'], activeOnly: ['false'] } }),
+        mockRes(),
+      )
+      expect(mockCount).toHaveBeenCalledWith('room_types', [])
+    })
+
     it('returns paginated room types with default page and limit', async () => {
       mockCount.mockResolvedValueOnce(1)
       mockFindMany.mockResolvedValueOnce([ROOM_TYPE_ROW])

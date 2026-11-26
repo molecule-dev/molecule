@@ -23,11 +23,11 @@ import { isJsonSchema, isZodSchema } from './utilities.js'
  * @returns JSON Schema with the OpenAPI-incompatible `$schema` field removed.
  */
 export const zodToJsonSchema = (schema: ZodLikeSchema | JsonSchema): JsonSchema => {
+  if (schema instanceof z.core.$ZodType) {
+    return stripSchemaTag(z.toJSONSchema(schema) as JsonSchema)
+  }
   if (isZodSchema(schema)) {
-    // zod 4 ships toJSONSchema; cast through unknown because the
-    // exported type is wider than what the public API guarantees.
-    const raw = z.toJSONSchema(schema as unknown as z.ZodType) as JsonSchema
-    return stripSchemaTag(raw)
+    throw new TypeError('zodToJsonSchema: pass a Zod 4 schema or a JSON Schema fragment')
   }
   if (isJsonSchema(schema)) {
     return schema

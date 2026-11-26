@@ -1,7 +1,7 @@
 /**
  * Runtime validator that checks an incoming request payload against
  * an `OpenApiOperation`'s parameter and body schemas. Internally
- * stores the original (pre-conversion) zod schemas on a hidden marker
+ * associates the original (pre-conversion) zod schemas with the operation
  * so `safeParse` can be reused for accurate error reporting; falls
  * back to a small JSON-Schema validator for handcrafted shapes.
  *
@@ -20,10 +20,7 @@ import type {
 } from './types.js'
 import { isJsonSchema, isZodSchema, resolveRef } from './utilities.js'
 
-/** Hidden marker used to attach the original zod schemas to an operation. */
-const SOURCE_KEY = '__moleculeOpenApiSource__'
-
-/** Internal: shape stored at `operation[SOURCE_KEY]`. */
+/** Original schemas associated with an operation. */
 interface OperationSource {
   params?: ZodLikeSchema | JsonSchema
   query?: ZodLikeSchema | JsonSchema
@@ -32,6 +29,8 @@ interface OperationSource {
   /** Document the operation was generated under, for `$ref` resolution. */
   root?: unknown
 }
+
+const operationSources = new WeakMap<OpenApiOperation, OperationSource>()
 
 /**
  * Attach the unconverted (zod) schemas to an operation so that
@@ -46,12 +45,7 @@ export const attachOperationSource = (
   operation: OpenApiOperation,
   source: OperationSource,
 ): OpenApiOperation => {
-  Object.defineProperty(operation, SOURCE_KEY, {
-    value: source,
-    enumerable: false,
-    writable: true,
-    configurable: true,
-  })
+  operationSources.set(operation, source)
   return operation
 }
 
@@ -63,7 +57,7 @@ export const attachOperationSource = (
  * @returns The previously attached source, or `undefined`.
  */
 export const getOperationSource = (operation: OpenApiOperation): OperationSource | undefined => {
-  return (operation as unknown as Record<string, OperationSource | undefined>)[SOURCE_KEY]
+  return operationSources.get(operation)
 }
 
 /**

@@ -35,7 +35,7 @@
  */
 
 import { exportPptx } from './exportPptx.js'
-import type { Deck, ExportPptxOptions } from './types.js'
+import type { Deck, ExportPptxOptions, Slide, SlideElement } from './types.js'
 
 /**
  * Minimal request shape consumed by {@link createPptxExportHandler}. The
@@ -139,29 +139,119 @@ function parseRequestBody(body: unknown): ParsedBody | { error: string } {
     return { error: 'Request body must be a JSON object' }
   }
 
-  const obj = body as Record<string, unknown>
-
-  // Envelope shape: { deck, options? }
-  if ('deck' in obj && obj['deck'] && typeof obj['deck'] === 'object') {
-    const deck = obj['deck'] as Record<string, unknown>
-    if (!Array.isArray(deck['slides'])) {
-      return { error: 'deck.slides must be an array' }
-    }
+  if (!isRecord(body)) return { error: 'Request body must be a JSON object' }
+  const envelope = 'deck' in body && isRecord(body.deck)
+  const source = envelope ? body.deck : body
+  if (!isRecord(source) || !Array.isArray(source.slides)) {
     return {
-      deck: deck as unknown as Deck,
-      options:
-        typeof obj['options'] === 'object' && obj['options'] !== null
-          ? (obj['options'] as ExportPptxOptions)
-          : {},
+      error: envelope
+        ? 'deck.slides must be an array'
+        : 'Request body must contain `slides` (or `deck.slides`)',
     }
   }
-
-  // Bare Deck shape: { slides: [...] }
-  if (Array.isArray(obj['slides'])) {
-    return { deck: obj as unknown as Deck, options: {} }
+  const slides: Slide[] = []
+  for (const raw of source.slides) {
+    if (!isRecord(raw)) return { error: 'deck.slides contains a malformed slide' }
+    const { elements = [], layout, background, notes } = raw
+    if (
+      !Array.isArray(elements) ||
+      !elements.every(isElement) ||
+      (layout !== undefined && layout !== 'standard' && layout !== 'widescreen') ||
+      !isOptionalString(background) ||
+      !isOptionalString(notes)
+    ) {
+      return { error: 'deck.slides contains a malformed slide or element' }
+    }
+    slides.push({ ...raw, elements, layout, background, notes })
   }
+  const { title, author, subject, company } = source
+  if (
+    !isOptionalString(title) ||
+    !isOptionalString(author) ||
+    !isOptionalString(subject) ||
+    !isOptionalString(company)
+  ) {
+    return { error: 'deck metadata must be strings' }
+  }
+  const filename = envelope && isRecord(body.options) ? body.options.filename : undefined
+  if (!isOptionalString(filename)) return { error: 'options.filename must be a string' }
+  return {
+    deck: { ...source, slides, title, author, subject, company },
+    options: filename === undefined ? {} : { filename },
+  }
+}
 
-  return { error: 'Request body must contain `slides` (or `deck.slides`)' }
+/** Recognize a JSON object with named fields. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** Check a numeric option read from the request body. */
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+/** Check an optional number read from the request body. */
+function isOptionalNumber(value: unknown): value is number | undefined {
+  return value === undefined || isNumber(value)
+}
+
+/** Check an optional string read from the request body. */
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string'
+}
+
+/** Check an optional boolean read from the request body. */
+function isOptionalBoolean(value: unknown): value is boolean | undefined {
+  return value === undefined || typeof value === 'boolean'
+}
+
+/** Check the payload for each supported slide element. */
+function isElement(value: unknown): value is SlideElement {
+  if (!isRecord(value) || ![value.x, value.y, value.w, value.h].every(isNumber)) return false
+  switch (value.kind) {
+    case 'text':
+      return (
+        typeof value.body === 'string' &&
+        [value.fontFace, value.color].every(isOptionalString) &&
+        isOptionalNumber(value.fontSize) &&
+        [value.bold, value.italic, value.underline].every(isOptionalBoolean) &&
+        (value.align === undefined ||
+          ['left', 'center', 'right', 'justify'].some((align) => align === value.align)) &&
+        (value.valign === undefined ||
+          ['top', 'middle', 'bottom'].some((valign) => valign === value.valign))
+      )
+    case 'image':
+      return (
+        [value.src, value.data, value.mimeType, value.altText].every(isOptionalString) &&
+        (value.buffer === undefined || Buffer.isBuffer(value.buffer))
+      )
+    case 'shape':
+      return (
+        ['rect', 'roundedRect', 'ellipse', 'line'].some((kind) => kind === value.shape) &&
+        [value.fill, value.line].every(isOptionalString) &&
+        [value.lineWidth, value.rectRadius].every(isOptionalNumber)
+      )
+    case 'chart':
+      return (
+        ['bar', 'line', 'pie'].some((kind) => kind === value.chart) &&
+        isOptionalString(value.title) &&
+        isOptionalBoolean(value.showLegend) &&
+        Array.isArray(value.series) &&
+        value.series.every(
+          (series) =>
+            isRecord(series) &&
+            typeof series.name === 'string' &&
+            Array.isArray(series.data) &&
+            series.data.every(
+              (point) =>
+                isRecord(point) && typeof point.label === 'string' && isNumber(point.value),
+            ),
+        )
+      )
+    default:
+      return false
+  }
 }
 
 /**

@@ -62,6 +62,15 @@ function makeSubscription(overrides: Record<string, unknown> = {}): Record<strin
 }
 
 describe('paymentProvider', () => {
+  it('refuses a decoded notification whose purchase token is not a string', async () => {
+    mockVerifySubscription.mockResolvedValue(makeSubscription())
+    const data = {
+      subscriptionNotification: { notificationType: 2, purchaseToken: 123, subscriptionId: 'pro' },
+    }
+    await expect(parseNotification({ message: { data } })).resolves.toBeNull()
+    expect(mockVerifySubscription).not.toHaveBeenCalled()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
   })

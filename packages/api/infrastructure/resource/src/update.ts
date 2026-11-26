@@ -68,19 +68,15 @@ export const update =
      */
     props: UpdateProps
   }) => {
-    // TypeScript 5+ requires explicit unknown cast for generic type conversions
-    let props = updateProps as unknown as UpdatedProps
-
+    let props: UpdatedProps
     try {
-      // Describe when the resource was updated.
-      props.updatedAt = new Date().toISOString()
-
-      // Validate the new `props`.
-      props = getValidProps<UpdatedProps>({
+      const updatedAt = new Date().toISOString()
+      const validated = getValidProps<UpdatedProps>({
         name,
-        schema: schema as unknown as ZodSchema<UpdatedProps>,
-        props,
+        schema: schema as ZodSchema<UpdatedProps>,
+        props: { ...updateProps, updatedAt },
       })
+      props = { ...validated, updatedAt }
     } catch (error) {
       // The provided `props` failed validation.
       return {
@@ -96,11 +92,7 @@ export const update =
 
     try {
       // Update the resource in the database via the bonded DataStore.
-      const result = await updateById(
-        tableName,
-        id as string,
-        props as unknown as Record<string, unknown>,
-      )
+      const result = await updateById(tableName, id as string, props)
 
       if (!result.affected) {
         throw new Error(`Unable to update ${tableName} by id: ${id}`)

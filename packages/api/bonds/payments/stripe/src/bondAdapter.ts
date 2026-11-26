@@ -356,8 +356,14 @@ export const paymentProvider: PaymentProvider = {
 
             if (updatedSubscription) {
               const subscriptionItem = updatedSubscription.items?.data?.[0]
-              const periodEnd = (subscriptionItem as unknown as Record<string, unknown>)
-                ?.current_period_end as number | undefined
+              const itemPeriodEnd =
+                subscriptionItem && 'current_period_end' in subscriptionItem
+                  ? subscriptionItem.current_period_end
+                  : undefined
+              const periodEnd =
+                typeof itemPeriodEnd === 'number' && Number.isFinite(itemPeriodEnd)
+                  ? itemPeriodEnd
+                  : updatedSubscription.current_period_end
               const expiresAt = periodEnd ? new Date(periodEnd * 1000).toISOString() : undefined
 
               return {

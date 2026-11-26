@@ -460,6 +460,27 @@ describe('handler — createImageCompositeHandler', () => {
     }
   }
 
+  it('rehydrates image bytes received through JSON before raster decoding', async () => {
+    const codec = makeMockCodec()
+    const handle = createImageCompositeHandler({ deps: { raster: codec } })
+    const res = makeRes()
+    const source = encodeMockSrc({ width: 1, height: 1, data: Buffer.from([255, 0, 0, 255]) })
+    await handle(
+      {
+        body: {
+          doc: {
+            width: 1,
+            height: 1,
+            layers: [{ kind: 'image', src: source.toJSON(), position: { x: 0, y: 0 } }],
+          },
+        },
+      },
+      res,
+    )
+    expect(codec.decode).toHaveBeenCalledWith(source)
+    expect(res.buffer).toBeInstanceOf(Buffer)
+  })
+
   it('returns 400 when body is not an object', async () => {
     const codec = makeMockCodec()
     const handle = createImageCompositeHandler({ deps: { raster: codec } })

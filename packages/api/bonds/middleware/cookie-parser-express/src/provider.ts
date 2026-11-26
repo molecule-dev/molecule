@@ -7,16 +7,9 @@
  */
 
 import createCookieParser from 'cookie-parser'
+import type { Request, Response } from 'express'
 
 import type { CookieParseOptions, Middleware } from '@molecule/api-middleware-cookie-parser'
-
-/**
- * The Express cookie parser provider.
- *
- * Parses Cookie header and populates `req.cookies` with an object
- * keyed by the cookie names.
- */
-export const provider: Middleware = createCookieParser() as unknown as Middleware
 
 /**
  * Factory for creating cookie parser middleware with a signing secret and custom options.
@@ -27,4 +20,10 @@ export const provider: Middleware = createCookieParser() as unknown as Middlewar
 export const cookieParserFactory = (
   secret?: string | string[],
   options?: CookieParseOptions,
-): Middleware => createCookieParser(secret, options) as unknown as Middleware
+): Middleware => {
+  const middleware = createCookieParser(secret, options)
+  return (req, res, next) => middleware(req as Request, res as Response, next)
+}
+
+/** The default Express middleware that populates `req.cookies`. */
+export const provider: Middleware = cookieParserFactory()

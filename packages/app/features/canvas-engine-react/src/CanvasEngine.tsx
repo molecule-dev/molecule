@@ -262,7 +262,7 @@ export const CanvasEngine = forwardRef(function CanvasEngine(
   )
 
   const onSurfacePointerMove = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement>): void => {
+    (e: ReactPointerEvent<Element>): void => {
       const origin = marqueeOriginRef.current
       if (!origin || origin.pointerId !== e.pointerId) return
       const cur = screenToDocCoords(e.clientX, e.clientY)
@@ -284,7 +284,7 @@ export const CanvasEngine = forwardRef(function CanvasEngine(
     [commitSelection, document.layers, screenToDocCoords],
   )
 
-  const onSurfacePointerUp = useCallback((e: ReactPointerEvent<HTMLDivElement>): void => {
+  const onSurfacePointerUp = useCallback((e: ReactPointerEvent<Element>): void => {
     const origin = marqueeOriginRef.current
     if (!origin || origin.pointerId !== e.pointerId) return
     marqueeOriginRef.current = null
@@ -406,15 +406,15 @@ export const CanvasEngine = forwardRef(function CanvasEngine(
           viewBox={`0 0 ${document.width} ${document.height}`}
           style={svgStyle}
           onPointerMove={(e) => {
-            onSurfacePointerMove(e as unknown as ReactPointerEvent<HTMLDivElement>)
+            onSurfacePointerMove(e)
             onElementPointerMove(e)
           }}
           onPointerUp={(e) => {
-            onSurfacePointerUp(e as unknown as ReactPointerEvent<HTMLDivElement>)
+            onSurfacePointerUp(e)
             onElementPointerUp(e)
           }}
           onPointerCancel={(e) => {
-            onSurfacePointerUp(e as unknown as ReactPointerEvent<HTMLDivElement>)
+            onSurfacePointerUp(e)
             onElementPointerUp(e)
           }}
         >

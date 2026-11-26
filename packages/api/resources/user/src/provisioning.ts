@@ -296,7 +296,7 @@ const supportsTransactions = (): boolean => {
  * @param row - The existing `users` row.
  * @returns An `existing` result, or a `lookupFailed` result when the credential row cannot be read.
  */
-const existingAccount = async (tableName: string, row: Row): Promise<ProvisionUserResult> => {
+const existingAccount = async (tableName: string, row: SafeProps): Promise<ProvisionUserResult> => {
   let secrets: { id: string; passwordHash?: string | null } | null
   try {
     secrets = await findById<{ id: string; passwordHash?: string | null }>(
@@ -319,7 +319,7 @@ const existingAccount = async (tableName: string, row: Row): Promise<ProvisionUs
   return {
     status: 'existing',
     id: row.id,
-    props: stripSensitiveUserColumns(row) as unknown as SafeProps,
+    props: stripSensitiveUserColumns(row),
     hasPassword: Boolean(secrets?.passwordHash),
   }
 }
@@ -372,9 +372,9 @@ const completeProvisioning = async ({
   email: string | undefined
   password: string | undefined
 }): Promise<ProvisionUserResult> => {
-  let row: Row | null
+  let row: SafeProps | null
   try {
-    row = await findById<Row>(tableName, completeId)
+    row = await findById<SafeProps>(tableName, completeId)
   } catch (error) {
     logger.error('Failed to read the account named by completeId', { error, userId: completeId })
     return failed('lookupFailed', 'user.error.failedToReadUser', t('user.error.failedToReadUser'))
@@ -432,7 +432,7 @@ const completeProvisioning = async ({
     )
   }
 
-  const props = stripSensitiveUserColumns(row) as unknown as SafeProps
+  const props = stripSensitiveUserColumns(row)
 
   // The credential state this call OBSERVED, captured before hashing. The conditional write below
   // must match what was read here, never a value re-read off the row later — a provider is free to
@@ -685,11 +685,11 @@ export const provisionUser = async (
   // BEFORE validation because the resource schema (`basePropsSchema`) requires them.
   const id = uuid()
   const now = new Date().toISOString()
-  let validated: Record<string, unknown>
+  let validated: SafeProps
   try {
-    validated = utilities.getValidProps<Record<string, unknown>>({
+    validated = utilities.getValidProps<SafeProps>({
       name,
-      schema: schema as ZodSchema<Record<string, unknown>>,
+      schema: schema as ZodSchema<SafeProps>,
       props: { ...candidateProps, id, createdAt: now, updatedAt: now },
     })
   } catch (error) {
@@ -723,16 +723,18 @@ export const provisionUser = async (
 
   // Look for an existing account BEFORE writing — a re-run returns it instead of creating a
   // second one, and an existing account's credentials are never touched.
-  let byUsername: Row | null = null
-  let byEmail: Row | null = null
+  let byUsername: SafeProps | null = null
+  let byEmail: SafeProps | null = null
   try {
     if (username) {
-      byUsername = await findOne<Row>(tableName, [
+      byUsername = await findOne<SafeProps>(tableName, [
         { field: 'username', operator: '=', value: username },
       ])
     }
     if (email) {
-      byEmail = await findOne<Row>(tableName, [{ field: 'email', operator: '=', value: email }])
+      byEmail = await findOne<SafeProps>(tableName, [
+        { field: 'email', operator: '=', value: email },
+      ])
     }
   } catch (error) {
     logger.error('Failed to look up an existing user while provisioning', { error })
@@ -760,7 +762,9 @@ export const provisionUser = async (
     if (!email) return null
 
     try {
-      const raced = await findOne<Row>(tableName, [{ field: 'email', operator: '=', value: email }])
+      const raced = await findOne<SafeProps>(tableName, [
+        { field: 'email', operator: '=', value: email },
+      ])
       if (raced) return await existingAccount(tableName, raced)
     } catch (error) {
       logger.warn('Failed to re-check an email after a refused user insert', { error })
@@ -785,7 +789,7 @@ export const provisionUser = async (
     }
   }
 
-  const userRow: Record<string, unknown> = { ...validated, id, createdAt: now, updatedAt: now }
+  const userRow: SafeProps = { ...validated, id, createdAt: now, updatedAt: now }
   if (username === undefined) delete userRow.username
   else userRow.username = username
   if (email === undefined) delete userRow.email
@@ -871,7 +875,7 @@ export const provisionUser = async (
   return {
     status: 'created',
     id,
-    props: stripSensitiveUserColumns(userRow) as unknown as SafeProps,
+    props: stripSensitiveUserColumns(userRow),
     hasPassword: passwordHash !== undefined,
   }
 }

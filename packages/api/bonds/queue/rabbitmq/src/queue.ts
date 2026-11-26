@@ -238,16 +238,20 @@ export const createQueue = (
  * @param msg - The raw message from `channel.get` or `channel.consume`.
  * @returns The wrapped message plus a `settleOnce` used by `subscribe`'s auto-ack/nack.
  */
-const wrapMessage = <T>(
+function wrapMessage<T>(
   channel: Channel,
   msg: GetMessage | ConsumeMessage,
-): { received: ReceivedMessage<T>; settleOnce: (settle: () => void) => boolean } => {
-  let body: T
+): { received: ReceivedMessage<T>; settleOnce: (settle: () => void) => boolean }
+function wrapMessage(
+  channel: Channel,
+  msg: GetMessage | ConsumeMessage,
+): { received: ReceivedMessage; settleOnce: (settle: () => void) => boolean } {
+  let body: unknown
   try {
-    body = JSON.parse(msg.content.toString()) as T
+    body = JSON.parse(msg.content.toString())
   } catch (_error) {
     // JSON parse failure is expected for non-JSON payloads; fall back to raw string body.
-    body = msg.content.toString() as unknown as T
+    body = msg.content.toString()
   }
 
   let settled = false
@@ -258,7 +262,7 @@ const wrapMessage = <T>(
     return true
   }
 
-  const received: ReceivedMessage<T> = {
+  const received: ReceivedMessage = {
     id: msg.properties.messageId ?? msg.fields.deliveryTag.toString(),
     body,
     receiptHandle: msg.fields.deliveryTag.toString(),

@@ -54,6 +54,10 @@ export interface MoleculeResponse {
   set(headers: Record<string, string>): void
   setHeader(name: string, value: string): void
   cookie(name: string, value: string, options?: Record<string, unknown>): void
+  /** Clear a cookie on adapters that support cookies. */
+  clearCookie?(name: string, options?: Record<string, unknown>): void
+  /** Remove an outgoing header when the adapter supports it. */
+  removeHeader?(name: string): void
   write(chunk: string | Buffer): boolean
   flushHeaders?(): void
   locals: Record<string, any>

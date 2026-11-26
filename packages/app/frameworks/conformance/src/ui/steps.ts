@@ -360,6 +360,41 @@ export function caseStrings(testCase: UICase): Set<string> {
   return out
 }
 
+/** A recorded response with parsed JSON and no byte stream. */
+class RecordedFetchResponse extends Response {
+  /**
+   * Creates a response with the case's value and HTTP metadata.
+   *
+   * @param value - The case's already-parsed response value.
+   * @param init - The response status and headers.
+   */
+  constructor(
+    private readonly value: unknown,
+    init: ResponseInit,
+  ) {
+    super(null, init)
+  }
+
+  /** Reads the recorded JSON value. */
+  override async json(): Promise<unknown> {
+    return this.value
+  }
+
+  /** Serializes the recorded value as JSON text. */
+  override async text(): Promise<string> {
+    return JSON.stringify(this.value ?? null) ?? 'null'
+  }
+
+  /** Copies the recorded value and the current response metadata. */
+  override clone(): Response {
+    return new RecordedFetchResponse(this.value, {
+      status: this.status,
+      statusText: this.statusText,
+      headers: this.headers,
+    })
+  }
+}
+
 /**
  * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage` and
  * `localStorage` (the kit's in-memory ones, for every case, so nothing one case writes
@@ -404,7 +439,7 @@ export function applyWindowContext(
     const headers = Object.fromEntries(
       Object.entries(answer.headers ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
     )
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    globalThis.fetch = async (input, init) => {
       const raw = init?.body
       let body: unknown = raw
       if (typeof raw === 'string') {
@@ -421,14 +456,11 @@ export function applyWindowContext(
         body,
       })
       if (answer.defer) await new Promise<void>((resolve) => held.push(resolve))
-      return {
-        ok: answer.status >= 200 && answer.status < 300,
+      return new RecordedFetchResponse(answer.body, {
         status: answer.status,
-        headers: { get: (name: string) => headers[name.toLowerCase()] ?? null },
-        json: async () => answer.body,
-        text: async () => JSON.stringify(answer.body ?? null),
-      } as unknown as Response
-    }) as typeof fetch
+        headers,
+      })
+    }
   }
   return {
     answerFetch,

@@ -8,6 +8,8 @@ import {
   ChangeMessageVisibilityCommand,
   DeleteMessageCommand,
   GetQueueAttributesCommand,
+  type Message,
+  type MessageAttributeValue,
   PurgeQueueCommand,
   ReceiveMessageCommand,
   SendMessageBatchCommand,
@@ -24,6 +26,10 @@ import type {
   ReceivedMessage,
   ReceiveOptions,
 } from '@molecule/api-queue'
+
+type SqsReceiveFields = Pick<Message, 'MessageId' | 'Body' | 'ReceiptHandle' | 'Attributes'> & {
+  MessageAttributes?: Record<string, Pick<MessageAttributeValue, 'StringValue'>>
+}
 
 /**
  * Creates a `Queue` backed by AWS SQS. Supports send/sendBatch (with message attributes, delay, FIFO grouping),
@@ -215,23 +221,22 @@ export const createQueue = (client: SQSClient, queueName: string, queueUrl: stri
  * @param msg.Attributes - System attributes such as receive count and sent timestamp.
  * @returns A `ReceivedMessage` with parsed body, metadata (receive count, sent timestamp), and ack/nack methods.
  */
-export const createReceivedMessage = <T>(
+export function createReceivedMessage<T>(
   client: SQSClient,
   queueUrl: string,
-  msg: {
-    MessageId?: string
-    Body?: string
-    ReceiptHandle?: string
-    MessageAttributes?: Record<string, { StringValue?: string }>
-    Attributes?: Record<string, string>
-  },
-): ReceivedMessage<T> => {
-  let body: T
+  msg: SqsReceiveFields,
+): ReceivedMessage<T>
+export function createReceivedMessage(
+  client: SQSClient,
+  queueUrl: string,
+  msg: SqsReceiveFields,
+): ReceivedMessage {
+  let body: unknown
   try {
-    body = JSON.parse(msg.Body ?? '{}') as T
+    body = JSON.parse(msg.Body ?? '{}')
   } catch (_error) {
     // JSON.parse failed — body is not JSON; fall back to the raw string value
-    body = msg.Body as unknown as T
+    body = msg.Body
   }
 
   const attributes = msg.MessageAttributes

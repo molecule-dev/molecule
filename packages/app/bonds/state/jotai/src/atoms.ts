@@ -4,7 +4,7 @@
  * @module
  */
 
-import { atom } from 'jotai/vanilla'
+import { atom, type WritableAtom } from 'jotai/vanilla'
 
 import type { Atom, AtomWithAccessors, JotaiStore, PrimitiveAtom } from './types.js'
 
@@ -78,9 +78,8 @@ export const createWritableDerivedAtom = <T, Args extends unknown[]>(
     set: <V>(atom: PrimitiveAtom<V>, value: V) => void,
     ...args: Args
   ) => void,
-): Atom<T> & { write: typeof write } => {
-  const derivedAtom = atom(read, write)
-  return derivedAtom as unknown as Atom<T> & { write: typeof write }
+): WritableAtom<T, Args, void> => {
+  return atom<T, Args, void>(read, write)
 }
 
 /**

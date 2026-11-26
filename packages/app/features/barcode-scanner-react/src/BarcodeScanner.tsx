@@ -197,7 +197,7 @@ function resolveDetectorCtor(
   if (injected === null) return null
   if (injected !== undefined) return injected
   // The platform API is read through the `'BarcodeDetector' in host`
-  // narrowing (never an `as unknown as` chain), and the value itself is
+  // narrowing (no unchecked assertion), and the value itself is
   // duck-typed before the single, guarded cast.
   const host = globalThis
   if (!('BarcodeDetector' in host)) return null
@@ -247,8 +247,8 @@ const W3C_TO_ZXING_FORMAT: Record<BarcodeFormat, string> = {
  */
 export function buildZxingHints(
   formats: BarcodeFormat[],
-  zxingBarcodeFormat: Record<string, number>,
-  decodeHintType: Record<string, number>,
+  zxingBarcodeFormat: Record<string, number | string>,
+  decodeHintType: { POSSIBLE_FORMATS: number },
 ): Map<number, number[]> | null {
   const zxingFormats = formats
     .map((format) => zxingBarcodeFormat[W3C_TO_ZXING_FORMAT[format]])
@@ -272,16 +272,7 @@ function resolveZxingLoader(injected: ZxingLoader | null | undefined): ZxingLoad
   if (injected === null) return null
   if (injected !== undefined) return injected
   return async (formats: BarcodeFormat[]) => {
-    const mod = (await import('@zxing/library')) as unknown as {
-      BrowserMultiFormatReader: new (hints?: Map<number, number[]>) => {
-        decodeFromVideoElement(video: HTMLVideoElement | string): Promise<{
-          getText(): string
-        }>
-        reset(): void
-      }
-      BarcodeFormat: Record<string, number>
-      DecodeHintType: Record<string, number>
-    }
+    const mod = await import('@zxing/library')
     const hints = buildZxingHints(formats, mod.BarcodeFormat, mod.DecodeHintType)
     const reader = new mod.BrowserMultiFormatReader(hints ?? undefined)
     return {

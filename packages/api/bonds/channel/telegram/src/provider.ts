@@ -26,7 +26,7 @@ import type {
   SendResult,
 } from '@molecule/api-channel'
 
-import type { TelegramConfig, TelegramMessage, TelegramParseMode, TelegramUpdate } from './types.js'
+import type { TelegramConfig, TelegramMessage, TelegramParseMode } from './types.js'
 
 const DEFAULT_API_BASE_URL = 'https://api.telegram.org'
 const DEFAULT_TIMEOUT_MS = 10000
@@ -142,38 +142,36 @@ export class TelegramChannelProvider implements ChannelProvider {
       throw new Error('Telegram inbound payload is not an object.')
     }
 
-    const update = payload as unknown as TelegramUpdate
+    const update = payload
 
     const msg =
       update.message ?? update.edited_message ?? update.channel_post ?? update.edited_channel_post
 
-    if (msg) {
-      return inboundFromMessage(msg, update)
-    }
+    if (isPlainObject(msg)) return inboundFromMessage(msg, update)
 
-    if (update.callback_query) {
+    if (isPlainObject(update.callback_query)) {
       const cb = update.callback_query
       const inner = cb.message
       const receivedAt = new Date()
       const result: InboundMessage = {
-        from: String(cb.from.id),
+        from: senderId(cb.from),
         channel: 'telegram',
-        text: cb.data,
+        text: typeof cb.data === 'string' ? cb.data : undefined,
         payload: update,
         receivedAt,
       }
-      if (inner?.message_thread_id !== undefined) {
+      if (isPlainObject(inner) && typeof inner.message_thread_id === 'number') {
         result.thread_id = String(inner.message_thread_id)
       }
       return result
     }
 
-    if (update.inline_query) {
+    if (isPlainObject(update.inline_query) && typeof update.inline_query.query === 'string') {
       const iq = update.inline_query
       return {
-        from: String(iq.from.id),
+        from: senderId(iq.from),
         channel: 'telegram',
-        text: iq.query,
+        text: update.inline_query.query,
         payload: update,
         receivedAt: new Date(),
       }
@@ -357,46 +355,61 @@ function isImageAttachment(attachment: ChannelAttachment): boolean {
  * @param fullUpdate - Original update wrapper, preserved on `payload`.
  * @returns Normalized inbound message.
  */
-function inboundFromMessage(msg: TelegramMessage, fullUpdate: TelegramUpdate): InboundMessage {
+function inboundFromMessage(
+  msg: Record<string, unknown>,
+  fullUpdate: Record<string, unknown>,
+): InboundMessage {
   const result: InboundMessage = {
-    from: String(msg.from?.id ?? msg.chat.id),
+    from: senderId(msg.from ?? msg.chat),
     channel: 'telegram',
     payload: fullUpdate,
-    receivedAt: msg.date ? new Date(msg.date * 1000) : new Date(),
+    receivedAt: typeof msg.date === 'number' && msg.date ? new Date(msg.date * 1000) : new Date(),
   }
 
-  const text = msg.text ?? msg.caption
+  const caption = typeof msg.caption === 'string' ? msg.caption : undefined
+  const text = typeof msg.text === 'string' ? msg.text : caption
   if (text !== undefined) {
     result.text = text
   }
 
   const attachments: ChannelAttachment[] = []
-  if (msg.photo && msg.photo.length > 0) {
+  if (Array.isArray(msg.photo) && msg.photo.length > 0) {
     const largest = msg.photo[msg.photo.length - 1]
-    if (largest) {
+    if (isPlainObject(largest) && typeof largest.file_id === 'string') {
       attachments.push({
-        filename: largest.file_unique_id ?? largest.file_id,
+        filename:
+          typeof largest.file_unique_id === 'string' ? largest.file_unique_id : largest.file_id,
         contentType: 'image/jpeg',
-        ...(msg.caption ? { caption: msg.caption } : {}),
+        ...(caption ? { caption } : {}),
       })
     }
   }
-  if (msg.document) {
+  if (isPlainObject(msg.document)) {
     const att: ChannelAttachment = {}
-    if (msg.document.file_name) att.filename = msg.document.file_name
-    if (msg.document.mime_type) att.contentType = msg.document.mime_type
-    if (msg.caption) att.caption = msg.caption
+    if (typeof msg.document.file_name === 'string' && msg.document.file_name)
+      att.filename = msg.document.file_name
+    if (typeof msg.document.mime_type === 'string' && msg.document.mime_type)
+      att.contentType = msg.document.mime_type
+    if (caption) att.caption = caption
     attachments.push(att)
   }
   if (attachments.length > 0) {
     result.attachments = attachments
   }
 
-  if (msg.message_thread_id !== undefined) {
+  if (typeof msg.message_thread_id === 'number') {
     result.thread_id = String(msg.message_thread_id)
   }
 
   return result
+}
+
+/** Read the numeric identifier on a Telegram User or Chat. */
+function senderId(value: unknown): string {
+  if (!isPlainObject(value) || typeof value.id !== 'number' || !Number.isSafeInteger(value.id)) {
+    throw new TypeError('Telegram inbound payload has no valid sender id.')
+  }
+  return String(value.id)
 }
 
 /**
@@ -438,8 +451,7 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 
 /**
- * Type guard for plain JSON objects. Rejects arrays and `null` so
- * downstream casts to {@link TelegramUpdate} are safe.
+ * Type guard for non-null JSON records.
  *
  * @param value - Candidate value.
  * @returns `true` when `value` is a non-array, non-null object.

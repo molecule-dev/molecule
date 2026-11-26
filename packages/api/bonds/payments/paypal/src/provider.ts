@@ -642,6 +642,6 @@ export const normalizeSubscription = (
       subscription.status === 'CANCELLED' && subscription.status_update_time
         ? Date.parse(subscription.status_update_time)
         : undefined,
-    rawData: subscription as unknown as Record<string, unknown>,
+    rawData: { ...subscription },
   }
 }

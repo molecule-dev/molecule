@@ -355,6 +355,32 @@ describe('PayPal Bond Adapter', () => {
       expect(result).toBeNull()
     })
 
+    it('keeps verified subscription fields when PayPal includes an invalid billing date', async () => {
+      const subscription = {
+        ...mockSubscription,
+        billing_info: { next_billing_time: 'invalid date' },
+      }
+      mockVerifyWebhookSignature.mockResolvedValueOnce({
+        id: 'WH-123',
+        type: 'BILLING.SUBSCRIPTION.ACTIVATED',
+        resource: subscription,
+      })
+      const { paymentProvider } = await import('../bondAdapter.js')
+      expect(
+        await paymentProvider.handleWebhookEvent?.(
+          makeReq(
+            JSON.stringify({
+              id: 'WH-123',
+              event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
+              resource: subscription,
+            }),
+          ),
+        ),
+      ).toMatchObject({
+        subscription: { customerId: 'PAYER123', isActive: true, expiresAt: undefined },
+      })
+    })
+
     it('parses a BILLING.SUBSCRIPTION.ACTIVATED event into a created grant', async () => {
       const { paymentProvider } = await import('../bondAdapter.js')
 

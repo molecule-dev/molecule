@@ -36,6 +36,17 @@ const ok = (body: unknown = ''): DockerResponse => ({
 const mockFetch = vi.fn()
 
 describe('model-hosting-docker', () => {
+  it('reports an image pull error from a single JSON progress record', async () => {
+    const denied = 'registry denied image pull'
+    const transport = vi.fn(async (_method: string, path: string) =>
+      path.startsWith('/images/create') ? ok({ error: denied }) : ok(RUNNING),
+    )
+    mockFetch.mockResolvedValue(new Response(null, { status: 200 }))
+    const docker = createProvider({ transport })
+    await expect(docker.deploy(SPEC)).rejects.toThrow(denied)
+    expect(transport).toHaveBeenCalledTimes(1)
+  })
+
   beforeEach(() => {
     mockFetch.mockReset()
     vi.stubGlobal('fetch', mockFetch)

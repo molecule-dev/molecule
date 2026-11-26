@@ -14,10 +14,7 @@ import type { z } from 'zod'
 
 import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
-import {
-  validateBody as validateBodyRaw,
-  validateQuery as validateQueryRaw,
-} from '@molecule/api-middleware-validation'
+import { validateBody, validateQuery } from '@molecule/api-middleware-validation'
 import { getParamId, getUserId } from '@molecule/api-resource'
 
 import {
@@ -38,9 +35,6 @@ import {
   rolloutDeviceStatusSchema,
   updateFirmwareSchema,
 } from './validation.js'
-
-const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
-const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
 /**
  * Caller-supplied device-token authorization. Should set
@@ -83,7 +77,7 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
     try {
       const userId = getUserId(res)
       if (!userId) return unauthorized(res)
-      const q = req.query as unknown as z.infer<typeof listFirmwareQuerySchema>
+      const q = listFirmwareQuerySchema.parse(req.query)
       res.json(await listFirmwareForOwner(userId, q))
     } catch (error) {
       logger.error('listFirmwareForOwner failed', { error })
@@ -98,7 +92,7 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
       try {
         const userId = getUserId(res)
         if (!userId) return unauthorized(res)
-        const q = req.query as unknown as z.infer<typeof listRolloutsQuerySchema>
+        const q = listRolloutsQuerySchema.parse(req.query)
         res.json(await listRolloutsForOwner(userId, q))
       } catch (error) {
         logger.error('listRolloutsForOwner failed', { error })

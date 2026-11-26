@@ -188,7 +188,7 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
       // remaining targets are not stalled by its full buffer. The failure
       // itself is reported through the mirror's own onError/await path.
       done.catch((_error) => {
-        stream.unpipe(branch as unknown as NodeJS.WritableStream)
+        stream.unpipe(branch)
         branch.resume()
       })
       settled.push(done)

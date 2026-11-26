@@ -16,19 +16,20 @@ import type { Platform, PlatformInfo } from './types.js'
  * @returns The detected platform identifier.
  */
 export const detectPlatform = (): Platform => {
-  // Check for Capacitor
+  const cap = typeof window !== 'undefined' && 'Capacitor' in window ? window.Capacitor : undefined
   if (
-    typeof window !== 'undefined' &&
-    (window as unknown as { Capacitor?: { getPlatform?: () => string } }).Capacitor?.getPlatform
+    cap &&
+    typeof cap === 'object' &&
+    'getPlatform' in cap &&
+    typeof cap.getPlatform === 'function'
   ) {
-    const cap = (window as unknown as { Capacitor: { getPlatform: () => string } }).Capacitor
-    const platform = cap.getPlatform()
+    const platform: unknown = cap.getPlatform()
     if (platform === 'ios') return 'ios'
     if (platform === 'android') return 'android'
   }
 
   // Check for Electron
-  if (typeof window !== 'undefined' && (window as unknown as { electron?: unknown }).electron) {
+  if (typeof window !== 'undefined' && 'electron' in window && window.electron) {
     // Try to detect the OS in Electron
     if (typeof navigator !== 'undefined') {
       const ua = navigator.userAgent.toLowerCase()

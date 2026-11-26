@@ -126,9 +126,7 @@ export const pick = <T extends z.ZodRawShape, K extends keyof T>(
   schema: z.ZodObject<T>,
   keys: readonly K[],
 ): z.ZodObject<Pick<T, K>> => {
-  const shape = {} as Record<string, unknown>
-  for (const key of keys) {
-    shape[key as string] = schema.shape[key]
-  }
-  return z.object(shape) as unknown as z.ZodObject<Pick<T, K>>
+  const shape: Partial<Pick<T, K>> = {}
+  for (const key of keys) shape[key] = schema.shape[key]
+  return z.object(shape as Pick<T, K>)
 }

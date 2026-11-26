@@ -12,6 +12,7 @@
 // (not through the package barrel).
 import './secrets.js'
 import Typesense from 'typesense'
+import type { SearchParams } from 'typesense/lib/Typesense/Types.js'
 
 import type {
   BulkIndexResult,
@@ -91,7 +92,7 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
 
     async index(indexName: string, id: string, document: Record<string, unknown>): Promise<void> {
       await client
-        .collections(indexName)
+        .collections<Record<string, unknown>>(indexName)
         .documents()
         .upsert({ id, ...document })
     },
@@ -99,7 +100,7 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
     async bulkIndex(indexName: string, documents: IndexDocument[]): Promise<BulkIndexResult> {
       const docs = documents.map((d) => ({ id: d.id, ...d.document }))
       const results = await client
-        .collections(indexName)
+        .collections<Record<string, unknown>>(indexName)
         .documents()
         .import(docs as never[], { action: 'upsert' })
 
@@ -129,7 +130,7 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
       const perPage = query.perPage ?? 20
       const startTime = Date.now()
 
-      const params: Record<string, unknown> = {
+      const params: SearchParams<Record<string, unknown>> = {
         q: query.text,
         query_by: '*',
         per_page: perPage,
@@ -156,14 +157,14 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
       }
 
       const response = await client
-        .collections(indexName)
+        .collections<Record<string, unknown>>(indexName)
         .documents()
-        .search(params as never)
+        .search(params)
       const processingTimeMs = Date.now() - startTime
 
-      const rawHits = (response.hits ?? []) as unknown as Array<Record<string, unknown>>
+      const rawHits = response.hits ?? []
       const hits = rawHits.map((hit) => {
-        const doc = (hit.document as Record<string, unknown>) ?? {}
+        const doc = hit.document ?? {}
         const { id, ...document } = doc
         const result: {
           id: string
@@ -178,8 +179,8 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
 
         if (query.highlight && Array.isArray(hit.highlights)) {
           const highlights: Record<string, string[]> = {}
-          for (const h of hit.highlights as Array<{ field: string; snippet: string }>) {
-            highlights[h.field] = [h.snippet]
+          for (const h of hit.highlights) {
+            if (typeof h.snippet === 'string') highlights[h.field] = [h.snippet]
           }
           if (Object.keys(highlights).length) {
             result.highlights = highlights
@@ -215,7 +216,7 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
     },
 
     async delete(indexName: string, id: string): Promise<void> {
-      await client.collections(indexName).documents(id).delete()
+      await client.collections<Record<string, unknown>>(indexName).documents(id).delete()
     },
 
     async suggest(
@@ -225,7 +226,7 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
     ): Promise<Suggestion[]> {
       const limit = options?.limit ?? 10
 
-      const params: Record<string, unknown> = {
+      const params: SearchParams<Record<string, unknown>> = {
         q: query,
         query_by: options?.fields?.join(',') ?? '*',
         per_page: limit,
@@ -237,13 +238,13 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
       }
 
       const response = await client
-        .collections(indexName)
+        .collections<Record<string, unknown>>(indexName)
         .documents()
-        .search(params as never)
-      const suggestHits = (response.hits ?? []) as unknown as Array<Record<string, unknown>>
+        .search(params)
+      const suggestHits = response.hits ?? []
 
       return suggestHits.map((hit) => {
-        const doc = (hit.document as Record<string, unknown>) ?? {}
+        const doc = hit.document ?? {}
         return {
           text: getFirstTextField(doc),
           score: typeof hit.text_match === 'number' ? hit.text_match : 0,
@@ -253,10 +254,10 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
 
     async getDocument(indexName: string, id: string): Promise<Record<string, unknown> | null> {
       try {
-        const doc = (await client
-          .collections(indexName)
+        const doc = await client
+          .collections<Record<string, unknown>>(indexName)
           .documents(id)
-          .retrieve()) as unknown as Record<string, unknown>
+          .retrieve()
         const { id: _id, ...rest } = doc
         return rest
       } catch (error: unknown) {

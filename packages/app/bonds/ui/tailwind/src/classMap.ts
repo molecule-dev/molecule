@@ -775,13 +775,15 @@ export const classMap: UIClassMap = {
       opts?.responsive !== false && colsNum !== undefined && colsNum >= 2
         ? gridResponsiveCols[colsNum]
         : undefined
-    // Grid CVA uses numeric keys but cva requires string lookups — stringify
-    // cols. When the ramp handles columns, omit cols from the CVA so it emits
-    // only the base `grid` (+ gap); the ramp classes are appended after.
-    const cols =
-      rampCols === undefined && colsNum !== undefined
-        ? (String(colsNum) as unknown as 1)
-        : undefined
+    const hasFixedCols =
+      colsNum === 1 ||
+      colsNum === 2 ||
+      colsNum === 3 ||
+      colsNum === 4 ||
+      colsNum === 5 ||
+      colsNum === 6 ||
+      colsNum === 12
+    const cols = rampCols === undefined && hasFixedCols ? colsNum : 'none'
     if (typeof gap === 'number') {
       return cn(stripGapUtilities(grid({ cols })), rampCols, `gap-${gap}`)
     }

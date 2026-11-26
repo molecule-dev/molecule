@@ -16,9 +16,6 @@ import {
   type NodeSpec,
 } from '../../ui/index.js'
 
-/** A compiled snippet's calling convention: `(anchor, ...argument getters)`. */
-type CompiledSnippet = (anchor: unknown, ...args: (() => unknown)[]) => void
-
 /** Builds the recording spy for a nested `{ $callback }` in the running case. */
 type CallbackSpy = (name: string) => (...args: unknown[]) => unknown
 
@@ -78,24 +75,32 @@ export function snippetBuilders(
   tree: Snippet<[NodeSpec[]]>,
   callback?: CallbackSpy,
 ): SnippetBuilders {
-  const compiled = tree as unknown as CompiledSnippet
-  const snippetOf = (list: NodeSpec[]): Snippet =>
-    ((anchor: unknown, ...args: (() => unknown)[]) =>
-      compiled(anchor, () => withSnippetProps(list, args[0]?.()))) as unknown as Snippet
-  const liveSnippetOf = (read: () => NodeSpec[]): Snippet =>
-    ((anchor: unknown, ...args: (() => unknown)[]) =>
-      compiled(anchor, () => withSnippetProps(read(), args[0]?.()))) as unknown as Snippet
+  // The Svelte compiler calls snippets with an anchor and reactive argument getters.
+  // The public Snippet type only describes the arguments written in a render tag.
+  type CompiledTree = (anchor: unknown, read: () => NodeSpec[]) => ReturnType<Snippet>
+  const renderTree = tree as typeof tree & CompiledTree
+  const snippetOf =
+    (list: NodeSpec[]): Snippet =>
+    (anchor?: unknown, props?: () => unknown) =>
+      renderTree(anchor, () => withSnippetProps(list, props?.()))
+  const liveSnippetOf =
+    (read: () => NodeSpec[]): Snippet =>
+    (anchor?: unknown, props?: () => unknown) =>
+      renderTree(anchor, () => withSnippetProps(read(), props?.()))
   // A render function prop is a snippet with arguments: `{@render column.render(row)}`.
-  const renderSnippet = (spec: FnValue & { nodes: NodeSpec[] }): Snippet<unknown[]> =>
-    ((anchor: unknown, ...args: (() => unknown)[]) =>
-      compiled(anchor, () =>
+  const renderSnippet =
+    (spec: FnValue & { nodes: NodeSpec[] }): Snippet<unknown[]> =>
+    (anchor?: unknown, ...args: (() => unknown)[]) =>
+      renderTree(anchor, () =>
         interpolateNodes(
           spec.nodes,
           args.map((get) => get()),
         ),
-      )) as unknown as Snippet<unknown[]>
-  const itemSnippet = ((anchor: unknown, item: () => NodeSpec) =>
-    compiled(anchor, () => [item()])) as unknown as Snippet<[NodeSpec]>
+      )
+  const itemSnippet: Snippet<[NodeSpec]> = (anchor: unknown, item?: () => NodeSpec) => {
+    if (!item) throw new Error('Svelte did not pass the list item getter')
+    return renderTree(anchor, () => [item()])
+  }
   const materialize = (props: Record<string, unknown>): Record<string, unknown> =>
     materializeProps(props, { nodes: snippetOf, renderFn: renderSnippet, callback })
   const propsOf = (node: NodeSpec): Record<string, unknown> => {

@@ -124,9 +124,9 @@ const withRrwebRecording: TestType<
           if (process.env.MOL_E2E_RRWEB === '1') await page.addInitScript(RRWEB_INIT)
           await use(page)
           try {
-            const events = (await page.evaluate(
-              () => (window as unknown as { __rrwebEvents?: unknown[] }).__rrwebEvents,
-            )) as unknown[]
+            const events: unknown = await page.evaluate(() =>
+              '__rrwebEvents' in window ? window.__rrwebEvents : undefined,
+            )
             if (Array.isArray(events) && events.length > 0) {
               const fs = await import('node:fs')
               const { join } = await import('node:path')

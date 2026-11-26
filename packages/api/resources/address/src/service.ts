@@ -48,7 +48,7 @@ export async function createAddress(input: CreateAddressInput): Promise<Address>
     await clearDefault(normalized.userId, 'billing')
   }
 
-  const result = await dbCreate<Address>(TABLE, normalized as unknown as Record<string, unknown>)
+  const result = await dbCreate<Address>(TABLE, { ...normalized })
 
   if (!result.data) {
     throw new Error('Database create returned no data')
@@ -113,11 +113,7 @@ export async function updateAddress(
     await clearDefault(userId, 'billing', addressId)
   }
 
-  const result = await updateById<Address>(
-    TABLE,
-    addressId,
-    normalizeForWrite(patch) as unknown as Record<string, unknown>,
-  )
+  const result = await updateById<Address>(TABLE, addressId, { ...normalizeForWrite(patch) })
 
   return result.data ?? null
 }

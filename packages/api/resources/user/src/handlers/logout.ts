@@ -39,11 +39,8 @@ export const logout = () => {
       logger.debug('Device delete on logout failed (non-fatal)', { error })
     }
 
-    const expressRes = res as unknown as {
-      clearCookie?(name: string, options?: Record<string, unknown>): void
-      removeHeader?(name: string): void
-    }
-    if (typeof expressRes.clearCookie === 'function') {
+    const clearCookie = res.clearCookie?.bind(res)
+    if (clearCookie) {
       // The CLEAR must carry the SAME attributes the cookie was SET with
       // (getAuthCookieOptions: Secure + Path=/ in prod; + SameSite=None +
       // Partitioned in the sandbox live-preview) or the browser won't match &
@@ -53,18 +50,18 @@ export const logout = () => {
       // Clear by BOTH the current name (prod `__Host-`) and the legacy plain name
       // so a pre-rollout copy can't linger.
       const clear = (base: string): void => {
-        expressRes.clearCookie!(getAuthCookieName(base), { ...cookieOptions })
-        expressRes.clearCookie!(base, { path: '/' })
+        clearCookie(getAuthCookieName(base), { ...cookieOptions })
+        clearCookie(base, { path: '/' })
       }
       clear('token')
       clear('sessionId')
       // The session-presence hint is a plain (non-`__Host-`) cookie set with the
       // same per-environment attributes, so clear it with them too.
-      expressRes.clearCookie!('mol_auth', { ...cookieOptions })
+      clearCookie('mol_auth', { ...cookieOptions })
     }
     // Drop any Authorization header so a same-response refresh can't hand a
     // fresh credential back to a client that just logged out.
-    expressRes.removeHeader?.('Authorization')
+    res.removeHeader?.('Authorization')
 
     return { statusCode: 200, body: { success: true } }
   }

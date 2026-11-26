@@ -87,9 +87,7 @@ export async function connectImap(
  * @internal
  */
 async function defaultFactory(): Promise<ImapFlowFactory> {
-  const mod = (await import('imapflow')) as unknown as {
-    ImapFlow: new (options: Parameters<ImapFlowFactory>[0]) => ImapFlowLike
-  }
+  const mod = await import('imapflow')
   return (options) => new mod.ImapFlow(options)
 }
 

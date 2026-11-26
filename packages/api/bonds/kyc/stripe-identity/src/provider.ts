@@ -503,7 +503,7 @@ export const createProvider = (options: StripeIdentityProviderOptions = {}): Kyc
         metadata: metadata ?? undefined,
         lastErrorCode: session.last_error?.code ?? undefined,
         lastErrorReason: session.last_error?.reason ?? undefined,
-        raw: event as unknown as Record<string, unknown>,
+        raw: { ...event },
       }
     },
   }

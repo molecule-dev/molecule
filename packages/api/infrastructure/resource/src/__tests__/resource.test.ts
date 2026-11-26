@@ -60,6 +60,25 @@ const testSchema = z.object({
 type TestProps = z.infer<typeof testSchema>
 
 describe('create', () => {
+  it('keeps server metadata when the resource schema only validates user fields', async () => {
+    mockCreate.mockResolvedValueOnce({ affected: 1 })
+    const createResource = create({
+      name: 'Note',
+      tableName: 'notes',
+      schema: z.object({ title: z.string() }),
+    })
+    const input = { title: 'Heading' }
+    const result = await createResource({ props: input })
+    expect(result.statusCode).toBe(201)
+    expect(mockCreate).toHaveBeenCalledWith('notes', {
+      title: 'Heading',
+      id: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    })
+    expect(input).toEqual({ title: 'Heading' })
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -403,6 +422,21 @@ describe('read', () => {
 })
 
 describe('update', () => {
+  it('keeps the server update timestamp when a partial schema strips it', async () => {
+    mockUpdateById.mockResolvedValueOnce({ affected: 1 })
+    const updateResource = update({
+      name: 'Note',
+      tableName: 'notes',
+      schema: z.object({ title: z.string() }),
+    })
+    const result = await updateResource({ id: 'note-1', props: { title: 'New heading' } })
+    expect(result.statusCode).toBe(200)
+    expect(mockUpdateById).toHaveBeenCalledWith('notes', 'note-1', {
+      title: 'New heading',
+      updatedAt: expect.any(String),
+    })
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
   })

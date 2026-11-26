@@ -346,13 +346,13 @@ export const createAuthFlowsFakes: AreaFakesFactory = (context, record) => {
 
   const restore: (() => void)[] = []
   const patch = (key: string, value: unknown): void => {
-    const target = window as unknown as Record<string, unknown>
+    const target = window
     const had = key in target
-    const previous = target[key]
-    target[key] = value
+    const previous: unknown = Reflect.get(target, key)
+    Reflect.set(target, key, value)
     restore.push(() => {
-      if (had) target[key] = previous
-      else delete target[key]
+      if (had) Reflect.set(target, key, previous)
+      else Reflect.deleteProperty(target, key)
     })
   }
 

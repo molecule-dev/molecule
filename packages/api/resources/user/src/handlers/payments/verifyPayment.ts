@@ -417,7 +417,7 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
         name,
         tableName,
         schema: updatePlanPropsSchema,
-      } as unknown as Parameters<typeof resourceUpdate<types.UpdatePlanProps>>[0])
+      })
 
       const result = await updateUser({
         id,

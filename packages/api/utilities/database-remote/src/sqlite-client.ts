@@ -233,16 +233,12 @@ export function quoteIdentifier(name: string): string {
  * @internal
  */
 export async function defaultSqliteFactory(): Promise<SqliteDbFactory> {
-  let mod: { default: SqliteDbFactory } | { ['default']: unknown }
-  try {
-    mod = (await import('better-sqlite3')) as unknown as { default: SqliteDbFactory }
-  } catch (error) {
+  const { default: Database } = await import('better-sqlite3').catch((error: unknown) => {
     throw new RemoteDbError(
       'driver-not-installed',
       "SQLite driver 'better-sqlite3' is not installed — add it to host-project dependencies",
       { cause: error },
     )
-  }
-  const ctor = (mod as { default: unknown }).default ?? (mod as unknown)
-  return ctor as SqliteDbFactory
+  })
+  return (file, options) => new Database(file, options)
 }

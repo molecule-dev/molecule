@@ -38,6 +38,13 @@ describe('SendGrid Email Provider', () => {
   })
 
   describe('sendMail', () => {
+    it('rejects a message without text or HTML before calling SendGrid', async () => {
+      const { sendMail } = await import('../sendMail.js')
+      await expect(
+        sendMail({ from: 'a@example.com', to: 'b@example.com', subject: 'No content' }),
+      ).rejects.toThrow('SendGrid messages require text or HTML content')
+    })
+
     it('should send an email successfully', async () => {
       mockSend.mockResolvedValue([
         { statusCode: 202, headers: { 'x-message-id': 'test-message-id' }, body: '' },

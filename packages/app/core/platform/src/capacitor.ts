@@ -170,12 +170,16 @@ export function createCapacitorApp(options: CapacitorAppOptions = {}): Capacitor
         return
       }
 
+      const capacitor =
+        typeof window !== 'undefined' && 'Capacitor' in window ? window.Capacitor : undefined
+
       // Check if already ready (Capacitor fires this before we might listen)
       if (
-        typeof window !== 'undefined' &&
-        (
-          window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }
-        ).Capacitor?.isNativePlatform?.()
+        capacitor &&
+        typeof capacitor === 'object' &&
+        'isNativePlatform' in capacitor &&
+        typeof capacitor.isNativePlatform === 'function' &&
+        capacitor.isNativePlatform()
       ) {
         // On native, document may already be ready
         if (document.readyState === 'complete') {
@@ -194,10 +198,7 @@ export function createCapacitorApp(options: CapacitorAppOptions = {}): Capacitor
       document.addEventListener('deviceready', handler)
 
       // Fallback: if not native, resolve on DOMContentLoaded / immediately
-      if (
-        typeof window === 'undefined' ||
-        !(window as unknown as { Capacitor?: unknown }).Capacitor
-      ) {
+      if (!capacitor) {
         if (document.readyState !== 'loading') {
           document.removeEventListener('deviceready', handler)
           updateState({ deviceReady: true })

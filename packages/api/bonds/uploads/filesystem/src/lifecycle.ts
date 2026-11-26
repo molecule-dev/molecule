@@ -10,19 +10,10 @@
  * @module
  */
 
+import type * as Lifecycle from '@molecule/api-process-lifecycle'
+
 /** Runtime import specifier kept in a variable so the package stays optional. */
 const PROCESS_LIFECYCLE = '@molecule/api-process-lifecycle'
-
-/** The slice of the core package this bond uses. */
-interface LifecycleModule {
-  registerReadinessCheck(check: {
-    name: string
-    check: () => Promise<void>
-    timeoutMs?: number
-    critical?: boolean
-    description?: string
-  }): () => void
-}
 
 /**
  * Register the storage readiness check with the bonded process-lifecycle
@@ -32,8 +23,7 @@ interface LifecycleModule {
  */
 export function registerLifecycleIntegration(resources: { ping: () => Promise<void> }): void {
   void import(PROCESS_LIFECYCLE)
-    .then((module) => {
-      const lifecycle = module as unknown as LifecycleModule
+    .then((lifecycle: typeof Lifecycle) => {
       lifecycle.registerReadinessCheck({
         name: 'storage',
         critical: false,

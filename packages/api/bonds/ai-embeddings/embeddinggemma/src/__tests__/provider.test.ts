@@ -345,3 +345,12 @@ describe('api-ai-embeddings-embeddinggemma', () => {
     })
   })
 })
+
+it('reports a model output that omits sentence_embedding', async () => {
+  configFromPretrained.mockResolvedValue({})
+  modelFromPretrained.mockResolvedValue(async () => ({ last_hidden_state: {} }))
+  tokenizerFromPretrained.mockResolvedValue(tokenizer)
+  await expect(createProvider().embedQuery('text')).rejects.toThrow(
+    'EmbeddingGemma: model output is missing sentence_embedding',
+  )
+})

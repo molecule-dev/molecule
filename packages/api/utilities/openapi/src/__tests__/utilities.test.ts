@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
+import { z as z3 } from 'zod/v3'
 
 import { isJsonSchema, isZodSchema, normalizePath, resolveRef } from '../utilities.js'
+import { zodToJsonSchema } from '../zodToJsonSchema.js'
 
 describe('isZodSchema', () => {
   it('true for actual zod schemas (string/number/object/etc.)', () => {
@@ -161,4 +163,9 @@ describe('normalizePath', () => {
     expect(normalizePath('/health')).toBe('/health')
     expect(normalizePath('/')).toBe('/')
   })
+})
+
+it('explains when a Zod 3 schema cannot be converted by the Zod 4 exporter', () => {
+  expect(() => zodToJsonSchema(z3.string())).toThrow(/pass a Zod 4 schema/)
+  expect(zodToJsonSchema(z.string())).toEqual({ type: 'string' })
 })

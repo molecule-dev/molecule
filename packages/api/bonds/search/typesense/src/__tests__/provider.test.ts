@@ -38,6 +38,21 @@ vi.mock('typesense', () => ({
 let createProvider: (options?: Record<string, unknown>) => SearchProvider
 
 describe('typesense search provider', () => {
+  it('omits highlight fields when Typesense supplies no snippet', async () => {
+    mockDocSearch.mockResolvedValueOnce({
+      hits: [
+        {
+          document: { id: 'p1', name: 'Product' },
+          text_match: 1,
+          highlights: [{ field: 'name', matched_tokens: [] }],
+        },
+      ],
+      found: 1,
+    })
+    const result = await createProvider().search('products', { text: 'prod', highlight: true })
+    expect(result.hits[0]).toEqual({ id: 'p1', score: 1, document: { name: 'Product' } })
+  })
+
   beforeEach(async () => {
     vi.clearAllMocks()
     vi.resetModules()

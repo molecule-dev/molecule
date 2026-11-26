@@ -10,6 +10,8 @@
  * @module
  */
 
+import type { SKRSContext2D } from '@napi-rs/canvas'
+
 import type {
   CanvasDocument,
   EllipseLayer,
@@ -30,6 +32,8 @@ import type {
  */
 export interface CanvasModule {
   createCanvas: (width: number, height: number) => CanvasLike
+  /** Decode an inline image source for a native canvas context. */
+  loadImage?: (source: string | Buffer) => Promise<unknown>
 }
 
 /**
@@ -40,15 +44,14 @@ export interface CanvasLike {
   toBuffer(mimeType: 'image/png'): Buffer
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Subset of the HTML5 2D canvas API used by the renderer. Real
  * `@napi-rs/canvas` contexts satisfy this; tests can satisfy it with
  * spy-backed objects.
  */
 export interface Canvas2DContext {
-  fillStyle: string
-  strokeStyle: string
+  fillStyle: SKRSContext2D['fillStyle']
+  strokeStyle: SKRSContext2D['strokeStyle']
   lineWidth: number
   globalAlpha: number
   font: string
@@ -78,11 +81,8 @@ export interface Canvas2DContext {
   fillText(text: string, x: number, y: number): void
   strokeText(text: string, x: number, y: number): void
   fillRect(x: number, y: number, w: number, h: number): void
-  drawImage(image: any, x: number, y: number, w: number, h: number): void
-
-  loadImage?: (source: any) => Promise<any>
+  drawImage(image: unknown, x: number, y: number, w: number, h: number): void
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 let cachedModule: CanvasModule | undefined
 let injectedModule: CanvasModule | undefined
@@ -98,9 +98,27 @@ export async function loadCanvasModule(): Promise<CanvasModule> {
   if (injectedModule) return injectedModule
   if (cachedModule) return cachedModule
   // Dynamic import keeps the native binary optional at install time.
-  const mod = (await import('@napi-rs/canvas')) as unknown as CanvasModule
-  cachedModule = mod
-  return mod
+  const mod = await import('@napi-rs/canvas')
+  cachedModule = {
+    createCanvas(width, height) {
+      const canvas = mod.createCanvas(width, height)
+      return {
+        getContext(kind) {
+          const context = canvas.getContext(kind)
+          if (!context) throw new Error('The canvas SDK could not create a 2D context')
+          return context
+        },
+        toBuffer: (mimeType) => canvas.toBuffer(mimeType),
+      }
+    },
+    loadImage(source) {
+      if (typeof source === 'string' && !source.startsWith('data:')) {
+        throw new TypeError('Native PNG images require an inline data URI or a Buffer')
+      }
+      return mod.loadImage(source)
+    },
+  }
+  return cachedModule
 }
 
 /**
@@ -145,7 +163,7 @@ export async function renderPng(doc: CanvasDocument, options: RenderOptions): Pr
   }
 
   for (const layer of doc.layers) {
-    drawLayer(ctx, layer)
+    await drawLayer(ctx, layer, mod.loadImage)
   }
 
   ctx.restore()
@@ -158,8 +176,13 @@ export async function renderPng(doc: CanvasDocument, options: RenderOptions): Pr
  *
  * @param ctx - Active 2D context.
  * @param layer - Layer to draw.
+ * @param loadImage - Decoder supplied by the native canvas adapter.
  */
-function drawLayer(ctx: Canvas2DContext, layer: Layer): void {
+async function drawLayer(
+  ctx: Canvas2DContext,
+  layer: Layer,
+  loadImage?: CanvasModule['loadImage'],
+): Promise<void> {
   ctx.save()
   applyTransform(ctx, layer)
 
@@ -180,11 +203,11 @@ function drawLayer(ctx: Canvas2DContext, layer: Layer): void {
       drawText(ctx, layer)
       break
     case 'image':
-      drawImage(ctx, layer)
+      await drawImage(ctx, layer, loadImage)
       break
     case 'group':
       for (const child of layer.children) {
-        drawLayer(ctx, child)
+        await drawLayer(ctx, child, loadImage)
       }
       break
     default: {
@@ -432,14 +455,13 @@ function drawText(ctx: Canvas2DContext, layer: TextLayer): void {
  *
  * @param ctx
  * @param layer
+ * @param loadImage - Decoder supplied by the native canvas adapter.
  */
-function drawImage(ctx: Canvas2DContext, layer: ImageLayer): void {
-  // Image sources are decoded by the host @napi-rs/canvas module via
-  // `loadImage`. To stay decoupled (and mockable), we accept the resolved
-  // image opaque-handle the consumer attached to the layer at runtime, OR
-  // forward the raw `data` URI / `src` / `buffer`. In the mock-friendly
-  // path used by tests, we just call `drawImage` with the source value
-  // verbatim — the spy verifies the dispatch.
+async function drawImage(
+  ctx: Canvas2DContext,
+  layer: ImageLayer,
+  loadImage?: CanvasModule['loadImage'],
+): Promise<void> {
   const sources = [layer.src, layer.data, layer.buffer].filter((v) => v !== undefined)
   if (sources.length === 0) {
     throw new Error('image layer requires one of: src, data, buffer')
@@ -447,7 +469,8 @@ function drawImage(ctx: Canvas2DContext, layer: ImageLayer): void {
   if (sources.length > 1) {
     throw new Error('image layer accepts only one of: src, data, buffer')
   }
-  const handle = layer.src ?? layer.data ?? layer.buffer
+  const source = sources[0]
+  const handle = loadImage ? await loadImage(source) : source
   ctx.drawImage(handle, layer.x, layer.y, layer.width, layer.height)
 }
 

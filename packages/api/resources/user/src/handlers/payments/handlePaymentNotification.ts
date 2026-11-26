@@ -81,7 +81,7 @@ export const handlePaymentNotification = ({
       const updateUser = resourceUpdate({
         name,
         tableName,
-        schema: updatePlanPropsSchema as unknown as types.Resource['schema'],
+        schema: updatePlanPropsSchema,
       })
 
       const cancelTypes = ['canceled', 'expired', 'refund', 'revoked']

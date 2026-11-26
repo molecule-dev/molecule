@@ -207,27 +207,9 @@ export function e2bPassiveSandboxClass(sdkSandbox: typeof NativeSandbox): typeof
 async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
   const { NotFoundError, Sandbox, SandboxNotFoundError, Volume: VolumeClass } = await import('e2b')
   const PassiveSandbox = e2bPassiveSandboxClass(Sandbox)
-  const S = PassiveSandbox as unknown as {
-    create(template: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
-    connect(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
-    list(opts?: Record<string, unknown>): unknown
-    kill(id: string, opts?: Record<string, unknown>): Promise<boolean>
-    getInfo(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxInfoLike>
-    createSnapshot(id: string, opts?: Record<string, unknown>): Promise<E2BSnapshotLike>
-    listSnapshots(opts?: Record<string, unknown>): {
-      nextItems(): Promise<E2BSnapshotLike[]>
-      hasNext?: boolean
-    }
-    deleteSnapshot(id: string, opts?: Record<string, unknown>): Promise<boolean>
-  }
-  const V = VolumeClass as unknown as {
-    create(name: string, opts?: Record<string, unknown>): Promise<E2BVolumeLike>
-    list(opts?: Record<string, unknown>): Promise<E2BVolumeLike[]>
-    destroy(volumeId: string, opts?: Record<string, unknown>): Promise<boolean>
-  }
   return {
-    create: (templateId, opts) => S.create(templateId, { apiKey, ...opts }),
-    connect: (id, opts) => S.connect(id, { apiKey, ...opts }),
+    create: (templateId, opts) => PassiveSandbox.create(templateId, { apiKey, ...opts }),
+    connect: (id, opts) => PassiveSandbox.connect(id, { apiKey, ...opts }),
     readHandle: (serialized) => {
       const native = new PassiveSandbox({
         ...(JSON.parse(serialized) as ConstructorParameters<typeof Sandbox>[0]),
@@ -238,21 +220,21 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
         readFile: (path) => native.files.read(path, { format: 'bytes' }),
       }
     },
-    kill: (id, opts) => S.kill(id, { apiKey, ...opts }),
-    getInfo: (id, opts) => S.getInfo(id, { apiKey, ...opts }),
-    createVolume: (name) => V.create(name, { apiKey }),
-    listVolumes: () => V.list({ apiKey }),
-    destroyVolume: (volumeId) => V.destroy(volumeId, { apiKey }),
-    createSnapshot: (sandboxId, name) => S.createSnapshot(sandboxId, { apiKey, name }),
+    kill: (id, opts) => PassiveSandbox.kill(id, { apiKey, ...opts }),
+    getInfo: (id, opts) => PassiveSandbox.getInfo(id, { apiKey, ...opts }),
+    createVolume: (name) => VolumeClass.create(name, { apiKey }),
+    listVolumes: () => VolumeClass.list({ apiKey }),
+    destroyVolume: (volumeId) => VolumeClass.destroy(volumeId, { apiKey }),
+    createSnapshot: (sandboxId, name) => PassiveSandbox.createSnapshot(sandboxId, { apiKey, name }),
     async listSnapshots(opts) {
-      const pager = S.listSnapshots({ apiKey, ...opts })
+      const pager = PassiveSandbox.listSnapshots({ apiKey, ...opts })
       const out: E2BSnapshotLike[] = []
       do {
         out.push(...(await pager.nextItems()))
       } while (pager.hasNext && !opts?.limit)
       return out
     },
-    deleteSnapshot: (snapshotId) => S.deleteSnapshot(snapshotId, { apiKey }),
+    deleteSnapshot: (snapshotId) => PassiveSandbox.deleteSnapshot(snapshotId, { apiKey }),
     // The SDK raises `SandboxNotFoundError` from `getInfo`/`connect` for exactly
     // one condition — the API answered 404 — and routes every other failure to a
     // different class. That makes it a POSITIVE not-found, which is the whole
@@ -263,7 +245,7 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
       // Sandbox.list returns a paginator; normalize to a flat array of running
       // sandboxes. Support the async-iterator, nextItems(), and array shapes so
       // a minor SDK change does not silently return nothing.
-      const result = S.list({ apiKey, ...opts }) as unknown
+      const result = PassiveSandbox.list({ apiKey, ...opts }) as unknown
       const out: E2BSandboxListItem[] = []
       const push = (items: E2BSandboxListItem[]): void => {
         // Carry the listed state through: it is the only way a caller can skip a

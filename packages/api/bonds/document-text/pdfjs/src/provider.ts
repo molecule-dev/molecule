@@ -116,10 +116,17 @@ export class PdfjsDocumentTextProvider implements DocumentTextProvider {
     let info: DocumentTextInfo | undefined
     try {
       const meta = await getMeta(pdf)
-      const raw = (meta?.info ?? {}) as unknown as Record<string, unknown>
+      const raw = meta?.info
       const picked: DocumentTextInfo = {}
+      const keys = {
+        title: 'Title',
+        author: 'Author',
+        subject: 'Subject',
+        creator: 'Creator',
+        producer: 'Producer',
+      } as const
       for (const key of ['title', 'author', 'subject', 'creator', 'producer'] as const) {
-        const value = metaString(raw[key.charAt(0).toUpperCase() + key.slice(1)])
+        const value = metaString(raw?.[keys[key]])
         if (value !== undefined) picked[key] = value
       }
       if (Object.keys(picked).length > 0) info = picked

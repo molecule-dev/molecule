@@ -10,25 +10,10 @@
  * @module
  */
 
+import type * as Lifecycle from '@molecule/api-process-lifecycle'
+
 /** Runtime import specifier kept in a variable so the package stays optional. */
 const PROCESS_LIFECYCLE = '@molecule/api-process-lifecycle'
-
-/** The slice of the core package this bond uses. */
-interface LifecycleModule {
-  registerReadinessCheck(check: {
-    name: string
-    check: () => Promise<void>
-    timeoutMs?: number
-    critical?: boolean
-    description?: string
-  }): () => void
-  registerShutdownHook(hook: {
-    name: string
-    run: () => Promise<void>
-    order?: number
-    timeoutMs?: number
-  }): () => void
-}
 
 /**
  * Register the storage readiness check and shutdown hook with the bonded
@@ -42,8 +27,7 @@ export function registerLifecycleIntegration(resources: {
   created: () => boolean
 }): void {
   void import(PROCESS_LIFECYCLE)
-    .then((module) => {
-      const lifecycle = module as unknown as LifecycleModule
+    .then((lifecycle: typeof Lifecycle) => {
       lifecycle.registerReadinessCheck({
         name: 'storage',
         // The HEAD is a billed request: a slow/failed bucket should be visible

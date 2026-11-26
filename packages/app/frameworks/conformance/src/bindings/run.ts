@@ -73,7 +73,7 @@ export const bindingCaseFamilies: HookCases[] = (Object.values(allCases) as Hook
 )
 
 /** The React reference results every framework binding must reproduce. */
-export const bindingGoldens = goldensJson as unknown as BindingGoldens
+export const bindingGoldens = goldensJson as BindingGoldens
 
 /**
  * The `@molecule/app-react` exports every framework binding exports under the

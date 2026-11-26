@@ -836,6 +836,18 @@ describe('logInOAuth handler — CSRF state validation', () => {
     expect(result?.body?.errorKey).toBe('user.error.oauthStateMismatch')
   })
 
+  it('rejects an OAuth state cookie parsed as a JSON object', async () => {
+    const req = makeReq({
+      body: { server: 'google', code: 'auth-code', state: 'expected' },
+      cookies: { '__Host-oauth_state': { state: 'expected' }, oauth_state: { state: 'expected' } },
+    })
+    const res = makeRes()
+    const result = await handler(req, res)
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body?.errorKey).toBe('user.error.oauthStateMismatch')
+    expect(res.clearCookie).toHaveBeenCalledWith('oauth_state', { path: '/' })
+  })
+
   it('should clear the state cookie after successful validation', async () => {
     const stateValue = 'matching-state-value'
 

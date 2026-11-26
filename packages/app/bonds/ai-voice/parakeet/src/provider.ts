@@ -34,6 +34,8 @@
  * @module
  */
 
+import type { ParakeetModel } from 'parakeet.js'
+
 import type {
   AIVoiceProvider,
   VoiceDescriptor,
@@ -57,17 +59,8 @@ const MIN_SPEECH_SECONDS = 0.35
 /** Default parakeet.js model key (multilingual v3). */
 const DEFAULT_MODEL = 'parakeet-tdt-0.6b-v3'
 
-/** Minimal shape of the parakeet.js model this provider uses. */
-interface ParakeetModelLike {
-  transcribe(
-    audio: Float32Array,
-    sampleRate?: number,
-    opts?: Record<string, unknown>,
-  ): Promise<{
-    utterance_text: string
-    confidence_scores?: { token_avg?: number | null }
-  }>
-}
+/** The Parakeet model method this provider uses. */
+type ParakeetModelLike = Pick<ParakeetModel, 'transcribe'>
 
 /**
  * Resolves getUserMedia, or null when unavailable.
@@ -224,7 +217,7 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
         // env at our same-origin files there and retry.
         for (let attempt = 0; attempt < 2 && !parakeet; attempt++) {
           try {
-            parakeet = (await fromHub(model, options)) as unknown as ParakeetModelLike
+            parakeet = await fromHub(model, options)
           } catch (error) {
             lastError = error
             if (!this.applyGlobalWasmPaths()) break

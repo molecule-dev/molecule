@@ -67,6 +67,13 @@ export interface RuntimeCall {
 /** Bumped when the in-page runtime's protocol changes; a page holding an older one is re-installed. */
 export const E2E_RUNTIME_VERSION = 2
 
+/** Browser global used by the preview driver. */
+declare global {
+  /** The request dispatcher installed in each preview document. */
+  var __molE2E:
+    { version: number; call: (req: Record<string, unknown>) => Promise<unknown> } | undefined
+}
+
 /**
  * Install the runtime. Runs INSIDE the page — see the module doc; the body
  * must stay self-contained.
@@ -88,9 +95,7 @@ export function installE2ERuntime(): { version: number } {
   }
   type Step = Record<string, unknown> & { k: string }
   type Dict = Record<string, unknown>
-  const g = globalThis as unknown as {
-    __molE2E?: { version: number; call: (req: Dict) => Promise<unknown> }
-  }
+  const g = globalThis
   if (g.__molE2E && g.__molE2E.version === VERSION) return { version: VERSION }
 
   const norm = (s: string | null | undefined): string => (s ?? '').replace(/\s+/g, ' ').trim()
@@ -1305,7 +1310,7 @@ export function installE2ERuntime(): { version: number } {
       case 'toHaveId':
         return { pass: matchFull(el.id, args.expected as Match), received: el.id }
       case 'toHaveJSProperty': {
-        const value = (el as unknown as Dict)[String(args.name)]
+        const value: unknown = Reflect.get(el, String(args.name))
         return { pass: JSON.stringify(value) === JSON.stringify(args.expected), received: value }
       }
       case 'toBeChecked': {

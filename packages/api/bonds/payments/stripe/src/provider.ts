@@ -10,6 +10,10 @@ import Stripe from 'stripe'
 
 import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
+/** Narrow decoded payloads while retaining the SDK's original object. */
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
 const logger = getLogger()
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
@@ -321,9 +325,10 @@ export const verifyWebhookSignature = (
     throw configNotConfiguredError('STRIPE_WEBHOOK_SECRET', 'payment webhook verification')
   }
   const event = getClient().webhooks.constructEvent(payload, signature, webhookSecret)
+  const data = event.data.object
   return {
     type: event.type,
-    data: { object: event.data.object as unknown as Record<string, unknown> },
+    data: { object: isRecord(data) ? data : {} },
   }
 }
 
@@ -687,6 +692,6 @@ export const normalizeSubscription = (subscription: SubscriptionResult): Normali
     currentPeriodEnd: subscription.current_period_end * 1000,
     willRenew: !subscription.cancel_at_period_end,
     canceledAt: subscription.canceled_at ? subscription.canceled_at * 1000 : undefined,
-    rawData: subscription as unknown as Record<string, unknown>,
+    rawData: isRecord(subscription) ? subscription : undefined,
   }
 }

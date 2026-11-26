@@ -209,10 +209,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
     if (sqlFiles.length === 0) {
       console.log('No migration files found.')
     } else {
-      const query: Query = (text, params) =>
-        client.query(text, params as unknown[]) as unknown as Promise<{
-          rows: Record<string, unknown>[]
-        }>
+      const query: Query = (text, params) => client.query<Record<string, unknown>>(text, params)
       const { applied, adopting } = await openLedger(query)
       let skipped = 0
       for (const file of sqlFiles) {

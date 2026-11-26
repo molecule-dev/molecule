@@ -89,6 +89,7 @@ export const flex = cva('flex', {
 export const grid = cva('grid', {
   variants: {
     cols: {
+      none: '',
       1: 'grid-cols-1',
       2: 'grid-cols-2',
       3: 'grid-cols-3',

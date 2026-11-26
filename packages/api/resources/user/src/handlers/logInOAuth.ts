@@ -65,7 +65,7 @@ export interface LogInOAuthRequest extends MoleculeRequest {
  * @returns A request handler that responds with `{ statusCode: 200, body: { props } }` on success.
  */
 export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.HandlerResource) => {
-  const createResource = resourceCreate({
+  const createResource = resourceCreate<types.CreateOAuthProps, types.Props>({
     name,
     tableName,
     schema,
@@ -100,15 +100,13 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
       // cookies cannot carry a Domain, so they can't be tossed. oauth_state has a
       // 5-min TTL, so there is no legacy plain cookie to support — drop the fallback
       // in production. In dev (no `__Host-`) the plain name is the real cookie.
-      const stateCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
+      const stateCookies = req.cookies
       const cookieState =
         getConfig<string>('NODE_ENV') === 'production'
           ? stateCookies?.[authorization.getAuthCookieName('oauth_state')]
           : (stateCookies?.[authorization.getAuthCookieName('oauth_state')] ??
             stateCookies?.oauth_state)
-      const expressRes = res as unknown as {
-        clearCookie?(name: string, options?: Record<string, unknown>): void
-      }
+
       // The state cookie is one-time use — always clear it, match or not. Clear
       // BOTH names so a leftover plain/prefixed copy can't linger. The CLEAR must
       // carry the SAME attributes the initiation endpoint SET it with
@@ -116,14 +114,19 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
       // Partitioned in the sandbox live-preview) or the browser won't match &
       // delete the (partitioned) cookie.
       const clearStateCookie = (): void => {
-        if (typeof expressRes.clearCookie === 'function') {
-          expressRes.clearCookie(authorization.getAuthCookieName('oauth_state'), {
+        if (typeof res.clearCookie === 'function') {
+          res.clearCookie(authorization.getAuthCookieName('oauth_state'), {
             ...authorization.getAuthCookieOptions(),
           })
-          expressRes.clearCookie('oauth_state', { path: '/' })
+          res.clearCookie('oauth_state', { path: '/' })
         }
       }
-      if (!body.state || !cookieState || !timingSafeEqualString(cookieState, body.state)) {
+      if (
+        !body.state ||
+        typeof cookieState !== 'string' ||
+        !cookieState ||
+        !timingSafeEqualString(cookieState, body.state)
+      ) {
         clearStateCookie()
         return {
           statusCode: 403,
@@ -146,25 +149,23 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
     // RFC 9700 §2.1). One-time use: cleared whether or not verification succeeds. The
     // body fallback is only for legacy consumers that never set the cookie — the random
     // S256 challenge issued at initiation is the actual injection guard either way.
-    const verifierCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
+    const verifierCookies = req.cookies
     const cookieVerifier =
       getConfig<string>('NODE_ENV') === 'production'
         ? verifierCookies?.[authorization.getAuthCookieName('oauth_verifier')]
         : (verifierCookies?.[authorization.getAuthCookieName('oauth_verifier')] ??
           verifierCookies?.oauth_verifier)
-    const expressResVerifier = res as unknown as {
-      clearCookie?(name: string, options?: Record<string, unknown>): void
-    }
-    if (typeof expressResVerifier.clearCookie === 'function') {
+
+    if (typeof res.clearCookie === 'function') {
       // Same one-time-use clear as oauth_state: match the SET attributes
       // (Partitioned + SameSite=None + Secure in the live-preview) so the
       // deletion hits the right cookie jar.
-      expressResVerifier.clearCookie(authorization.getAuthCookieName('oauth_verifier'), {
+      res.clearCookie(authorization.getAuthCookieName('oauth_verifier'), {
         ...authorization.getAuthCookieOptions(),
       })
-      expressResVerifier.clearCookie('oauth_verifier', { path: '/' })
+      res.clearCookie('oauth_verifier', { path: '/' })
     }
-    const codeVerifier = cookieVerifier ?? body.codeVerifier
+    const codeVerifier = typeof cookieVerifier === 'string' ? cookieVerifier : body.codeVerifier
 
     const oauthProvider = get<{
       verify(
@@ -209,17 +210,17 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
       // at initiation in the httpOnly `oauth_redirect` cookie so the exchange can
       // reconstruct it byte-for-byte (RFC 6749 §4.1.3; GitHub/Google reject with
       // `redirect_uri_mismatch` otherwise) without trusting the request body.
-      const redirectCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
+      const redirectCookies = req.cookies
       const cookieRedirect =
         getConfig<string>('NODE_ENV') === 'production'
           ? redirectCookies?.[authorization.getAuthCookieName('oauth_redirect')]
           : (redirectCookies?.[authorization.getAuthCookieName('oauth_redirect')] ??
             redirectCookies?.oauth_redirect)
-      if (typeof expressResVerifier.clearCookie === 'function') {
-        expressResVerifier.clearCookie(authorization.getAuthCookieName('oauth_redirect'), {
+      if (typeof res.clearCookie === 'function') {
+        res.clearCookie(authorization.getAuthCookieName('oauth_redirect'), {
           ...authorization.getAuthCookieOptions(),
         })
-        expressResVerifier.clearCookie('oauth_redirect', { path: '/' })
+        res.clearCookie('oauth_redirect', { path: '/' })
       }
       const appOrigin = getConfig<string>('APP_ORIGIN', '')
       // Re-validate defensively (same rule the initiation applied) so a planted
@@ -456,13 +457,18 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
             emailVerified: oauthEmailVerified,
             oauthServer: oauthProps.oauthServer,
             oauthId: oauthProps.oauthId,
-            oauthData: oauthProps.oauthData,
+            oauthData:
+              oauthProps.oauthData &&
+              typeof oauthProps.oauthData === 'object' &&
+              !Array.isArray(oauthProps.oauthData)
+                ? { ...oauthProps.oauthData }
+                : undefined,
           },
           id,
         })
 
         if (createResponse?.statusCode === 201) {
-          user = createResponse.body?.props as unknown as types.Props
+          user = createResponse.body?.props ?? null
         }
 
         if (!user) {

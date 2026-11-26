@@ -77,7 +77,9 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
         status: 'active',
         runCount: 0,
         maxRuns: options?.maxRuns,
-        task: null as unknown as ScheduledTask,
+        get task(): ScheduledTask {
+          return task
+        },
       }
 
       const task = cron.schedule(
@@ -142,7 +144,6 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
       )
 
       record.id = task.id
-      record.task = task
 
       if (options?.runOnInit) {
         await task.execute()

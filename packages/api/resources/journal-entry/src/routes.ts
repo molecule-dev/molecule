@@ -5,16 +5,12 @@
  * @module
  */
 
-import type { RequestHandler } from 'express'
 import { type Request, type Response, Router } from 'express'
 import type { z } from 'zod'
 
 import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
-import {
-  validateBody as validateBodyRaw,
-  validateParams,
-} from '@molecule/api-middleware-validation'
+import { validateBody, validateParams } from '@molecule/api-middleware-validation'
 import { getUserId, idParamSchema } from '@molecule/api-resource'
 
 import {
@@ -28,8 +24,6 @@ import {
   updateEntryForOwner,
 } from './service.js'
 import { createEntrySchema, updateEntrySchema } from './validation.js'
-
-const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
 
 const EXPORT_FORMATS = ['json', 'csv', 'txt'] as const
 type ExportFormat = (typeof EXPORT_FORMATS)[number]

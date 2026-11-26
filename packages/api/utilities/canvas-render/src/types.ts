@@ -124,7 +124,8 @@ export interface TextLayer extends Transform {
 
 /**
  * Image element. Source is one of:
- * - `src` — an `http(s):` URL (raster) — only honoured by PNG output.
+ * - `src` — an external URL for a custom raster adapter or an SVG image reference.
+ *   The built-in PNG adapter accepts inline image data.
  * - `data` — a `data:` URI (e.g. `data:image/png;base64,...`).
  * - `buffer` — a raw `Buffer` of PNG/JPEG bytes (encoded to data URI).
  *

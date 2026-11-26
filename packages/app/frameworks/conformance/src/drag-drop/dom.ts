@@ -18,27 +18,40 @@ import { expect, vi } from 'vitest'
 import { nextMillisecond } from '../ui/user-input-time.js'
 
 /**
- * A finished, inert `Animation`, which is all `@dnd-kit/dom`'s feedback waits on.
- * jsdom has no `Animation` class to construct, so this test double carries only
- * the members dnd-kit reads and is typed as the interface it stands in for.
+ * A finished, inert `Animation` for `@dnd-kit/dom`'s feedback in jsdom.
  *
  * @returns The animation.
  */
 function finishedAnimation(): Animation {
-  const animation = {
-    finished: Promise.resolve(),
+  const completion: Promise<Animation> = Promise.resolve().then(() => animation)
+  const animation: Animation = Object.assign(new EventTarget(), {
+    finished: completion,
+    ready: completion,
     cancel(): void {},
     finish(): void {},
     pause(): void {},
     play(): void {},
+    reverse(): void {},
     commitStyles(): void {},
-    addEventListener(): void {},
-    removeEventListener(): void {},
+    persist(): void {},
+    updatePlaybackRate(rate: number): void {
+      animation.playbackRate = rate
+    },
+    oncancel: null,
     onfinish: null,
-    playState: 'finished',
+    onremove: null,
+    id: '',
+    currentTime: null,
+    startTime: null,
+    pending: false,
+    overallProgress: 1,
+    playbackRate: 1,
+    playState: 'finished' as const,
+    replaceState: 'active' as const,
     effect: null,
-  }
-  return animation as unknown as Animation
+    timeline: null,
+  })
+  return animation
 }
 
 /** An observer that reports each observed element once, with its current rect. */

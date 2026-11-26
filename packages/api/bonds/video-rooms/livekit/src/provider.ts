@@ -256,20 +256,13 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
 
   const { http: httpUrl, ws: wsUrl } = normaliseHost(rawHost)
 
-  const accessTokenCtor: AccessTokenCtor =
-    config.accessTokenCtor ?? (AccessToken as unknown as AccessTokenCtor)
+  const accessTokenCtor: AccessTokenCtor = config.accessTokenCtor ?? AccessToken
 
   const roomService: LiveKitRoomServiceClient =
-    config.roomServiceClient ??
-    (new RoomServiceClient(
-      httpUrl,
-      resolvedApiKey,
-      resolvedApiSecret,
-    ) as unknown as LiveKitRoomServiceClient)
+    config.roomServiceClient ?? new RoomServiceClient(httpUrl, resolvedApiKey, resolvedApiSecret)
 
   const egress: LiveKitEgressClient =
-    config.egressClient ??
-    (new EgressClient(httpUrl, resolvedApiKey, resolvedApiSecret) as unknown as LiveKitEgressClient)
+    config.egressClient ?? new EgressClient(httpUrl, resolvedApiKey, resolvedApiSecret)
 
   const recordingEgress = config.recordingEgress
 

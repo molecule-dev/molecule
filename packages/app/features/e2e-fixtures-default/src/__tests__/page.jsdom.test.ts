@@ -100,6 +100,17 @@ const HTML = `
 `
 
 describe('createEvaluatePage over a jsdom transport', () => {
+  it('supports async disposal on preview API responses', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('saved'))
+    try {
+      const response = await page.request.get('/preferences')
+      vexpect(await response.text()).toBe('saved')
+      vexpect(typeof response[Symbol.asyncDispose]).toBe('function')
+      await response[Symbol.asyncDispose]()
+    } finally {
+      fetchMock.mockRestore()
+    }
+  })
   let page: Awaited<ReturnType<typeof createEvaluatePage>>
   let emit: (event: string, payload: unknown) => void
   const events: Record<string, number> = {}

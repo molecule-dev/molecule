@@ -4,6 +4,8 @@
  * @module
  */
 
+import type * as Pg from 'pg'
+
 import type { PgPoolFactory, PgPoolLike } from './driverTypes.js'
 import { isMutating } from './keywords.js'
 import {
@@ -295,9 +297,9 @@ export function createPgRemoteDb(pool: PgPoolLike, readonly: boolean): RemoteDb 
  * @internal
  */
 export async function defaultPgPoolFactory(): Promise<PgPoolFactory> {
-  let mod: { Pool: new (cfg: { connectionString: string; max?: number }) => PgPoolLike }
+  let mod: typeof Pg
   try {
-    mod = (await import('pg')) as unknown as typeof mod
+    mod = await import('pg')
   } catch (error) {
     throw new RemoteDbError(
       'driver-not-installed',

@@ -12,6 +12,15 @@
 
 import { getProvider as getI18nProvider, registerContent } from '@molecule/app-i18n'
 
+/** Checks that the namespace export is a string-to-string translation map. */
+function isTranslationMap(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.values(value).every((text) => typeof text === 'string')
+  )
+}
+
 /**
  * Resolve the locale map at CALL time, not module-evaluation time.
  *
@@ -27,11 +36,12 @@ import { getProvider as getI18nProvider, registerContent } from '@molecule/app-i
  * @returns That locale's legal content, falling back to English.
  */
 async function legalFor(code: string): Promise<Record<string, string>> {
-  const legalDefault = (await import('./index.js')) as unknown as Record<
-    string,
-    Record<string, string>
-  >
-  return legalDefault[code.replace('-', '')] ?? legalDefault.en
+  const legalDefault = await import('./index.js')
+  const content: unknown = Object.getOwnPropertyDescriptor(
+    legalDefault,
+    code.replace('-', ''),
+  )?.value
+  return isTranslationMap(content) ? content : { ...legalDefault.en }
 }
 
 /**

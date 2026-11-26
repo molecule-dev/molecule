@@ -110,16 +110,11 @@ export const cva = <T extends Record<string, Record<string, string>>>(
 
     if (variants) {
       for (const [variantKey, variantOptions] of Object.entries(variants)) {
-        const selectedVariant =
-          (props?.[variantKey as keyof T] as string | undefined) ??
-          (defaultVariants?.[variantKey as keyof T] as string | undefined)
-
-        if (
-          selectedVariant &&
-          typeof selectedVariant === 'string' &&
-          variantOptions[selectedVariant]
-        ) {
-          classes.push(variantOptions[selectedVariant])
+        const key = variantKey as keyof T
+        const selected = props?.[key] ?? defaultVariants?.[key]
+        if (typeof selected === 'string' || typeof selected === 'number') {
+          const variantClass = variantOptions[String(selected)]
+          if (variantClass) classes.push(variantClass)
         }
       }
     }

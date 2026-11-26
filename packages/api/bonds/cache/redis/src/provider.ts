@@ -26,6 +26,20 @@ import type { RedisOptions } from './types.js'
 const CLEAR_UNLINK_BATCH_SIZE = 500
 
 /**
+ * Decode a cache entry. The caller's generic describes the value written at
+ * that key; entries written by other clients may be legacy plain strings.
+ */
+function decode<T = unknown>(value: string): T
+function decode(value: string): unknown {
+  try {
+    return JSON.parse(value)
+  } catch (_error) {
+    // Keep non-JSON entries readable for clients that wrote plain strings.
+    return value
+  }
+}
+
+/**
  * Creates a Redis-backed cache provider that implements the `CacheProvider`
  * interface using ioredis. Supports tag-based invalidation via Redis sets.
  * Reads `REDIS_URL`, `REDIS_HOST`, `REDIS_PORT`, and `REDIS_PASSWORD` from env.
@@ -118,12 +132,7 @@ export const createProvider = (options?: RedisOptions): CacheProvider => {
       try {
         const value = await client.get(key)
         if (value === null) return undefined
-        try {
-          return JSON.parse(value) as T
-        } catch (_error) {
-          // Value is not valid JSON — return the raw string as-is (safe: best-effort parse)
-          return value as unknown as T
-        }
+        return decode<T>(value)
       } catch (error) {
         // Normalized down-server behavior (matches the Memcached bond): a read
         // that fails (unreachable/timed-out Redis) degrades to "not cached"
@@ -186,12 +195,7 @@ export const createProvider = (options?: RedisOptions): CacheProvider => {
         for (let i = 0; i < keys.length; i++) {
           const value = values[i]
           if (value !== null) {
-            try {
-              results.set(keys[i], JSON.parse(value) as T)
-            } catch (_error) {
-              // Value is not valid JSON — store the raw string as-is (safe: best-effort parse)
-              results.set(keys[i], value as unknown as T)
-            }
+            results.set(keys[i], decode<T>(value))
           }
         }
       } catch (error) {

@@ -55,6 +55,14 @@ const validBody = {
 }
 
 describe('createAnimationRenderHandler', () => {
+  it('rejects a numeric job id before submitting an animation render', async () => {
+    const handle = createAnimationRenderHandler()
+    const res = makeRes()
+    await handle({ body: { ...validBody, options: { format: 'lottie', jobId: 42 } } }, res)
+    expect(res.status).toBe(400)
+    expect(res.jsonBody).toEqual({ error: expect.stringContaining('jobId') })
+  })
+
   it('rejects non-object bodies with 400', async () => {
     const handle = createAnimationRenderHandler()
     const res = makeRes()

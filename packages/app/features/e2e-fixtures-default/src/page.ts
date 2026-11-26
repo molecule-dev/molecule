@@ -177,7 +177,7 @@ const defaultAlternative =
   'It needs a real browser; the same spec runs unchanged with @molecule/app-e2e-playwright on your machine or in CI. Inside the preview, page.evaluate() can usually do the same job.'
 
 /** The response object `page.request.*` returns over the preview: a `fetch` run inside the page, read back as text. */
-class ResponseImpl {
+class ResponseImpl implements APIResponse<unknown> {
   constructor(
     private readonly r: {
       url: string
@@ -187,6 +187,7 @@ class ResponseImpl {
       headers: [string, string][]
       text: string
     },
+    private readonly bond: string,
   ) {}
   /** Whether the status is 2xx. */
   ok(): boolean {
@@ -223,6 +224,22 @@ class ResponseImpl {
   /** The body as a Buffer (UTF-8 text; binary bodies are not preserved). */
   async body(): Promise<Buffer> {
     return Buffer.from(this.r.text, 'utf8')
+  }
+  /** Fetch does not expose the connection's TLS details. */
+  async securityDetails(): Promise<null> {
+    return null
+  }
+  /** Fetch does not expose the connection's server address. */
+  async serverAddr(): Promise<null> {
+    return null
+  }
+  /** This response has no browser network timing. */
+  timing(): ReturnType<APIResponse['timing']> {
+    throw new E2EUnsupportedError('response.timing()', defaultAlternative, this.bond)
+  }
+  /** Release this response through the async disposable protocol. */
+  [Symbol.asyncDispose](): Promise<void> {
+    return this.dispose()
   }
   /** Nothing to release; kept for parity with Playwright. */
   async dispose(): Promise<void> {
@@ -706,7 +723,8 @@ class PageImpl {
       this.check(res, `request.${method.toLowerCase()}()`)
       return new ResponseImpl(
         res.value as ConstructorParameters<typeof ResponseImpl>[0],
-      ) as unknown as APIResponse
+        this.bondName,
+      )
     }
     this.request = {
       get: (url: string, opts?: Dict) => fetchCall('GET', url, opts),
@@ -1167,7 +1185,8 @@ class PageImpl {
   }
   /** The page itself, standing in for the main frame. */
   mainFrame(): Frame {
-    return this.proxy as unknown as Frame
+    const frame: Pick<Frame, 'url' | 'title' | 'content' | 'goto' | 'waitForTimeout'> = this.proxy
+    return frame as Frame
   }
   /** The main frame only. */
   frames(): Frame[] {
@@ -1188,7 +1207,7 @@ class PageImpl {
   /** A minimal BrowserContext: pages, timeouts and no-op tracing; the rest throws naming the alternative. */
   context(): BrowserContext {
     const page = this.proxy
-    const ctx: Dict = {
+    const ctx = {
       pages: () => [page],
       close: () => this.close(),
       setDefaultTimeout: (ms: number) => this.setDefaultTimeout(ms),
@@ -1214,9 +1233,21 @@ class PageImpl {
       backgroundPages: () => [],
     }
     const bond = this.bondName
-    return new Proxy(ctx, {
+    const supported: Pick<
+      BrowserContext,
+      | 'pages'
+      | 'close'
+      | 'setDefaultTimeout'
+      | 'setDefaultNavigationTimeout'
+      | 'grantPermissions'
+      | 'clearPermissions'
+      | 'browser'
+      | 'serviceWorkers'
+      | 'backgroundPages'
+    > = ctx
+    return new Proxy(supported, {
       get(target, prop) {
-        if (typeof prop === 'symbol' || prop in target) return target[prop as string]
+        if (typeof prop === 'symbol' || prop in target) return Reflect.get(target, prop)
         if (prop === 'then') return undefined
         if (prop in CONTEXT_UNSUPPORTED) {
           return () => {
@@ -1225,12 +1256,29 @@ class PageImpl {
         }
         return undefined
       },
-    }) as unknown as BrowserContext
+    }) as BrowserContext
   }
 }
 
-const wrapLocator = (impl: LocatorImpl, bond: string): Locator =>
-  new Proxy(impl, {
+/** Check the supported Playwright methods before adding the unsupported-method traps. */
+const wrapLocator = (impl: LocatorImpl, bond: string): Locator => {
+  const supported: Pick<
+    Locator,
+    | 'click'
+    | 'dblclick'
+    | 'fill'
+    | 'press'
+    | 'count'
+    | 'allTextContents'
+    | 'allInnerTexts'
+    | 'textContent'
+    | 'innerText'
+    | 'getAttribute'
+    | 'isVisible'
+    | 'isHidden'
+    | 'isEnabled'
+  > = impl
+  return new Proxy(supported, {
     get(target, prop, receiver) {
       if (typeof prop === 'symbol' || prop in target) {
         const value = Reflect.get(target, prop, receiver)
@@ -1262,7 +1310,8 @@ const wrapLocator = (impl: LocatorImpl, bond: string): Locator =>
       }
       return undefined
     },
-  }) as unknown as Locator
+  }) as Locator
+}
 
 /**
  * Build a Playwright-shaped `Page` over a transport. Bonds call this from
@@ -1275,7 +1324,23 @@ export const createEvaluatePage = async (
 ): Promise<Page> => {
   const impl = new PageImpl(transport, options)
   const bond = impl.bondName
-  const proxy = new Proxy(impl, {
+  const supported: Pick<
+    Page,
+    | 'url'
+    | 'title'
+    | 'content'
+    | 'goto'
+    | 'reload'
+    | 'waitForTimeout'
+    | 'setViewportSize'
+    | 'viewportSize'
+    | 'isClosed'
+    | 'close'
+    | 'context'
+    | 'mainFrame'
+    | 'frames'
+  > = impl
+  const proxy = new Proxy(supported, {
     get(target, prop, receiver) {
       if (typeof prop === 'symbol' || prop in target) {
         const value = Reflect.get(target, prop, receiver)
@@ -1304,7 +1369,7 @@ export const createEvaluatePage = async (
         throw new E2EUnsupportedError(`page.${String(prop)}()`, defaultAlternative, bond)
       }
     },
-  }) as unknown as Page
+  }) as Page
   impl.attachProxy(proxy)
   await impl.applyInitialViewport()
   return proxy

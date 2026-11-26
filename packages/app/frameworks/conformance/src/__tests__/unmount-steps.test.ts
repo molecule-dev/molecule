@@ -15,6 +15,7 @@ import '../ui/setup.js'
 import { describe, expect, it } from 'vitest'
 
 import { CallRecorder, type MountedCase, runSteps, settle, type UICase } from '../ui/index.js'
+import { applyWindowContext } from '../ui/steps.js'
 
 /**
  * Mounts a fake component that fetches on mount and reports the answer.
@@ -63,6 +64,24 @@ const lateAnswer: UICase = {
 }
 
 describe('unmount and fetch steps', () => {
+  it('returns a cloneable Fetch response from a recorded request', async () => {
+    const controls = applyWindowContext(
+      { fetch: { status: 201, body: { ok: true }, headers: { 'X-Test': 'recorded' } } },
+      new CallRecorder({}),
+    )
+    try {
+      const response = await fetch('/api/thing')
+      expect(response.status).toBe(201)
+      const copy = response.clone()
+      expect(copy.headers.get('X-Test')).toBe('recorded')
+      expect(response.body).toBeNull()
+      await expect(copy.json()).resolves.toEqual({ ok: true })
+      await expect(response.json()).resolves.toEqual({ ok: true })
+    } finally {
+      controls.restore()
+    }
+  })
+
   it('records nothing for a component that stops reporting once unmounted', async () => {
     const recorder = new CallRecorder({})
     const log: string[] = []

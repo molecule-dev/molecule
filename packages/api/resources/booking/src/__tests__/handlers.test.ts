@@ -298,6 +298,16 @@ describe('@molecule/api-resource-booking handlers', () => {
   })
 
   describe('getBookings', () => {
+    it('ignores repeated date filters instead of binding arrays as timestamps', async () => {
+      mockCount.mockResolvedValueOnce(0)
+      mockFindMany.mockResolvedValueOnce([])
+      const req = mockReq({ query: { from: ['2030-01-01', '2030-01-02'] } })
+      await getBookings(req, mockRes())
+      expect(mockCount).toHaveBeenCalledWith('bookings', [
+        { field: 'userId', operator: '=', value: expect.any(String) },
+      ])
+    })
+
     it('should return 401 when not authenticated', async () => {
       const req = mockReq()
       const res = mockRes({ locals: {} })

@@ -4,6 +4,8 @@
  * @module
  */
 
+import type * as Mysql from 'mysql2/promise'
+
 import type {
   MysqlField,
   MysqlOkPacket,
@@ -283,15 +285,9 @@ export function createMysqlRemoteDb(
  * @internal
  */
 export async function defaultMysqlPoolFactory(): Promise<MysqlPoolFactory> {
-  let mod: {
-    createPool: (cfg: {
-      uri: string
-      connectionLimit?: number
-      multipleStatements?: false
-    }) => MysqlPoolLike
-  }
+  let mod: typeof Mysql
   try {
-    mod = (await import('mysql2/promise')) as unknown as typeof mod
+    mod = await import('mysql2/promise')
   } catch (error) {
     throw new RemoteDbError(
       'driver-not-installed',

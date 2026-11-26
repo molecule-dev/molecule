@@ -164,7 +164,7 @@ export interface E2BSandboxLike {
   downloadUrl?(path: string, opts: { useSignatureExpiration: number }): Promise<string>
   getHost(port: number): string
   setTimeout(ms: number): Promise<void>
-  kill(): Promise<void>
+  kill(): Promise<void | boolean>
   /**
    * Suspend the sandbox (FS + memory snapshot). Resolves `false` when the API
    * answered 409 because it was ALREADY paused — which is a success, not a

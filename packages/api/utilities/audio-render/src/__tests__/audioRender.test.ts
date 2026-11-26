@@ -588,6 +588,20 @@ describe('createAudioRenderRoutes', () => {
     return messages[messages.length - 1]!.body as AudioRenderJobPayload
   }
 
+  it('rejects nonnumeric channel gains before queuing a render', async () => {
+    const routes = createAudioRenderRoutes(paths)
+    const res = makeRes()
+    const firstChannel = handlerSession.channels[0]
+    await routes.enqueue(
+      {
+        body: { session: { ...handlerSession, channels: [{ ...firstChannel, volume: 'loud' }] } },
+      },
+      res,
+    )
+    expect(res.status).toBe(400)
+    expect(res.body).toEqual({ error: expect.stringContaining('channel or clip') })
+  })
+
   it('requires mediaRoot and outputDir', () => {
     type RouteOptions = Parameters<typeof createAudioRenderRoutes>[0]
     expect(() =>

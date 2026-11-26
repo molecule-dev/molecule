@@ -111,12 +111,14 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
     throw configNotConfiguredError('SENDGRID_API_KEY', 'email sending')
   }
   try {
-    const msg: Record<string, unknown> = {
+    const { text, html } = message
+    const content = text ? { text, ...(html ? { html } : {}) } : html ? { html } : undefined
+    if (!content) throw new Error('SendGrid messages require text or HTML content')
+    const msg: Parameters<ReturnType<typeof getClient>['send']>[0] = {
+      ...content,
       to: toSgRecipients(message.to),
       from: toSgAddress(message.from),
       subject: message.subject,
-      ...(message.text ? { text: message.text } : {}),
-      ...(message.html ? { html: message.html } : {}),
     }
 
     if (message.cc) msg.cc = toSgRecipients(message.cc)
@@ -128,7 +130,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
     // Configure the client lazily from the environment on first send (honors
     // late-resolved secrets), then send.
     const sgClient = getClient()
-    const [response] = await sgClient.send(msg as unknown as Parameters<typeof sgClient.send>[0])
+    const [response] = await sgClient.send(msg)
 
     return {
       accepted: extractEmails(message.to),

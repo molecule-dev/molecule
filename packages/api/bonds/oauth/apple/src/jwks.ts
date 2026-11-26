@@ -9,7 +9,7 @@
  * @module
  */
 
-import { createPublicKey, type JsonWebKeyInput } from 'node:crypto'
+import { createPublicKey } from 'node:crypto'
 
 import { get } from '@molecule/api-http'
 
@@ -85,7 +85,7 @@ export const getAppleJwks = async (): Promise<Map<string, AppleJwk>> => {
  */
 export const jwkToPem = (jwk: AppleJwk): string => {
   const keyObject = createPublicKey({
-    key: jwk as unknown as JsonWebKeyInput[`key`],
+    key: { ...jwk },
     format: `jwk`,
   })
 

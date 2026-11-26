@@ -1303,6 +1303,25 @@ describe('Stripe Bond Adapter', () => {
       expect(result.subscription!.autoRenews).toBe(true)
     })
 
+    it('returns the paid-through date from the normalized Stripe subscription', async () => {
+      const periodEnd = 1702592000
+      mockFindByUserId.mockResolvedValue({ data: { subscriptionId: 'sub_existing' } })
+      const normalized = {
+        ...mockSubscriptionResult,
+        id: 'sub_existing',
+        current_period_end: periodEnd,
+        items: { data: [{ id: 'si_item', price: { product: 'prod_new' } }] },
+      }
+      mockGetSubscription.mockResolvedValue(normalized)
+      mockStripeUpdateSubscription.mockResolvedValue(normalized)
+      const { paymentProvider } = await import('../bondAdapter.js')
+      const result = await paymentProvider.updateSubscription?.({
+        userId: 'user_details',
+        newProductId: 'price_new',
+      })
+      expect(result?.subscription?.expiresAt).toBe(new Date(periodEnd * 1000).toISOString())
+    })
+
     it('should fall through to checkout when subscription has no items', async () => {
       mockFindByUserId.mockResolvedValue({
         data: { subscriptionId: 'sub_empty_items' },

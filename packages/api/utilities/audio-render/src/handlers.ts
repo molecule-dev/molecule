@@ -131,28 +131,106 @@ const parseEnqueueBody = (
   if (!isPlainObject(session)) {
     return { error: 'Request body must include `session` (an AudioSession object)' }
   }
-  if (!Array.isArray((session as Record<string, unknown>)['channels'])) {
+  if (!Array.isArray(session.channels)) {
     return { error: 'session.channels must be an array' }
   }
   const rawOptions = body['options'] ?? {}
   if (!isPlainObject(rawOptions)) {
     return { error: '`options` must be an object' }
   }
-  const client = rawOptions as AudioRenderOptions
+  const client = rawOptions
   try {
     const format: AudioRenderFormat =
       client.format === undefined ? 'mp3' : assertAllowedAudioFormat(client.format)
     const options: AudioRenderOptions = { format, outputPath: createOutputPath(outputDir, format) }
-    if (client.sampleRate !== undefined) options.sampleRate = client.sampleRate
-    if (client.channels !== undefined) options.channels = client.channels
-    if (client.bitrate !== undefined) options.bitrate = client.bitrate
+    if (
+      !isOptionalNumber(client.sampleRate) ||
+      !isOptionalNumber(client.channels) ||
+      !isOptionalString(client.bitrate)
+    ) {
+      return { error: 'options has an invalid sampleRate, channels or bitrate' }
+    }
+    options.sampleRate = client.sampleRate
+    options.channels = client.channels
+    options.bitrate = client.bitrate
+    if (
+      !isNumber(session.duration) ||
+      !isOptionalNumber(session.masterVolume) ||
+      !session.channels.every(isChannel)
+    ) {
+      return { error: 'session has an invalid duration, masterVolume, channel or clip' }
+    }
     return {
-      session: confineSession(session as unknown as AudioSession, mediaRoot),
+      session: confineSession(
+        {
+          ...session,
+          duration: session.duration,
+          channels: session.channels,
+          masterVolume: session.masterVolume,
+        },
+        mediaRoot,
+      ),
       options,
     }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Invalid request' }
   }
+}
+
+/** Check a number read from the request body. */
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+/** Check an optional numeric field. */
+function isOptionalNumber(value: unknown): value is number | undefined {
+  return value === undefined || isNumber(value)
+}
+
+/** Check an optional string field. */
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string'
+}
+
+/** Check a clip's source and timing before constructing confined paths. */
+function isClip(value: unknown): value is AudioClip {
+  return (
+    isPlainObject(value) &&
+    typeof value.audioUrl === 'string' &&
+    isNumber(value.startTime) &&
+    isNumber(value.duration) &&
+    isOptionalNumber(value.sourceOffset) &&
+    isOptionalString(value.id)
+  )
+}
+
+/** Check a mixer channel, including its clips and effect parameters. */
+function isChannel(value: unknown): value is AudioChannel {
+  if (
+    !isPlainObject(value) ||
+    typeof value.id !== 'string' ||
+    !Array.isArray(value.clips) ||
+    !value.clips.every(isClip) ||
+    !isOptionalString(value.label) ||
+    !isOptionalNumber(value.volume) ||
+    !isOptionalNumber(value.pan) ||
+    (value.muted !== undefined && typeof value.muted !== 'boolean')
+  )
+    return false
+  return (
+    value.effects === undefined ||
+    (Array.isArray(value.effects) &&
+      value.effects.every(
+        (effect) =>
+          isPlainObject(effect) &&
+          typeof effect.kind === 'string' &&
+          (effect.params === undefined ||
+            (isPlainObject(effect.params) &&
+              Object.values(effect.params).every(
+                (param) => isNumber(param) || typeof param === 'string',
+              ))),
+      ))
+  )
 }
 
 /**
@@ -166,13 +244,12 @@ const parseEnqueueBody = (
 const confineSession = (session: AudioSession, mediaRoot: string): AudioSession => ({
   ...session,
   channels: session.channels.map((channel: AudioChannel) => {
-    if (!channel || !Array.isArray(channel.clips)) return channel
     return {
       ...channel,
       clips: channel.clips.map((clip: AudioClip) => ({
         ...clip,
         audioUrl: resolveMediaSource(
-          clip?.audioUrl,
+          clip.audioUrl,
           mediaRoot,
           `channel ${channel.id} clip audioUrl`,
         ),

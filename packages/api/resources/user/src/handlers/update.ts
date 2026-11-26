@@ -203,7 +203,7 @@ export const update = ({ name, tableName }: types.HandlerResource) => {
           props.emailVerified = false
         }
 
-        props.email = nextEmail as unknown as string
+        props.email = nextEmail
       }
 
       if (req.body.avatar !== undefined) {

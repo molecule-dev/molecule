@@ -14,6 +14,8 @@
  * @module
  */
 
+import type * as Transformers from '@huggingface/transformers'
+
 import type {
   AIEmbeddingsProvider,
   EmbedContentInput,
@@ -47,34 +49,39 @@ const MODALITIES: readonly string[] = ['text', 'image', 'audio']
 /** Usage is always zero: local inference is not billed. */
 const NO_USAGE = { promptTokens: 0, totalTokens: 0 }
 
-/** Structural view of the model output tensor. */
-interface EmbeddingTensor {
-  tolist(): number[][]
-}
-
-/** Structural view of the loaded model: call it with processor/tokenizer output. */
-type ModelCall = (inputs: unknown) => Promise<{ sentence_embedding: EmbeddingTensor }>
-
-/** Structural view of the tokenizer call. */
-type TokenizerCall = (
-  texts: string[],
-  options: { padding: boolean; truncation: boolean },
-) => unknown
-
-/** Structural view of the processor call: `(text, images, audio, videos)`. */
-type ProcessorCall = (
-  text: string[] | null,
-  images?: unknown,
-  audio?: unknown,
-  videos?: unknown,
-) => Promise<unknown>
-
 /** The loaded model plus its pre-processors. */
 interface Loaded {
-  model: ModelCall
-  tokenizer: TokenizerCall
-  processor: ProcessorCall | null
-  loadImage: (data: Uint8Array | string) => Promise<unknown>
+  model: Awaited<ReturnType<typeof Transformers.AutoModel.from_pretrained>>
+  tokenizer: Awaited<ReturnType<typeof Transformers.AutoTokenizer.from_pretrained>>
+  processor: Awaited<ReturnType<typeof Transformers.AutoProcessor.from_pretrained>> | null
+  loadImage: (data: Uint8Array | string) => Promise<Transformers.RawImage>
+}
+
+/** Read EmbeddingGemma's model-specific output without assuming other ONNX models expose it. */
+function embeddingVectors(output: unknown): number[][] {
+  if (!output || typeof output !== 'object' || !('sentence_embedding' in output)) {
+    throw new TypeError('EmbeddingGemma: model output is missing sentence_embedding')
+  }
+  const tensor = output.sentence_embedding
+  if (
+    !tensor ||
+    typeof tensor !== 'object' ||
+    !('tolist' in tensor) ||
+    typeof tensor.tolist !== 'function'
+  ) {
+    throw new TypeError('EmbeddingGemma: sentence_embedding must be a tensor')
+  }
+  const vectors: unknown = tensor.tolist()
+  if (
+    !Array.isArray(vectors) ||
+    !vectors.every(
+      (vector): vector is number[] =>
+        Array.isArray(vector) && vector.every((value) => typeof value === 'number'),
+    )
+  ) {
+    throw new TypeError('EmbeddingGemma: sentence_embedding must contain numeric vectors')
+  }
+  return vectors
 }
 
 /** Resolved, validated settings. */
@@ -197,17 +204,14 @@ async function load(config: EmbeddingGemmaConfig, settings: Settings): Promise<L
 
   // Null an encoder's config and Transformers.js skips downloading + loading it
   // (the selective-loading recipe from the ONNX model card).
-  const modelConfig = (await AutoConfig.from_pretrained(settings.model)) as unknown as Record<
-    string,
-    unknown
-  >
-  if (!settings.modalities.includes('image')) modelConfig.vision_config = null
-  if (!settings.modalities.includes('audio')) modelConfig.audio_config = null
+  const modelConfig = await AutoConfig.from_pretrained(settings.model)
+  if (!settings.modalities.includes('image')) Object.assign(modelConfig, { vision_config: null })
+  if (!settings.modalities.includes('audio')) Object.assign(modelConfig, { audio_config: null })
 
   const needsProcessor = settings.modalities.length > 1
   const [model, tokenizer, processor] = await Promise.all([
     AutoModel.from_pretrained(settings.model, {
-      config: modelConfig as never,
+      config: modelConfig,
       device: settings.device,
       dtype: settings.dtype,
     }),
@@ -215,12 +219,10 @@ async function load(config: EmbeddingGemmaConfig, settings: Settings): Promise<L
     needsProcessor ? AutoProcessor.from_pretrained(settings.model) : Promise.resolve(null),
   ])
 
-  // Boundary casts: Transformers.js types these as broad callable classes; we
-  // use exactly the shapes its model card documents for this model.
   return {
-    model: model as unknown as ModelCall,
-    tokenizer: tokenizer as unknown as TokenizerCall,
-    processor: processor as unknown as ProcessorCall | null,
+    model,
+    tokenizer,
+    processor,
     // Read bytes ourselves (fetch / fs) so URLs and paths behave exactly like audio's.
     loadImage: async (data) =>
       RawImage.fromBlob(new Blob([new Uint8Array(await readMediaBytes(data))])),
@@ -268,7 +270,7 @@ export function createProvider(config: EmbeddingGemmaConfig = {}): AIEmbeddingsP
         truncation: true,
       })
       const output = await model(inputs)
-      for (const vector of output.sentence_embedding.tolist()) vectors.push(vector)
+      vectors.push(...embeddingVectors(output))
     }
     return vectors
   }
@@ -328,7 +330,7 @@ export function createProvider(config: EmbeddingGemmaConfig = {}): AIEmbeddingsP
       )
     }
     const output = await loaded.model(inputs)
-    return output.sentence_embedding.tolist()[0] ?? []
+    return embeddingVectors(output)[0] ?? []
   }
 
   return {

@@ -82,14 +82,29 @@ export function socketTransport(socketPath: string, apiVersion: string): DockerT
  * @param method - HTTP method.
  * @param path - Path after the version prefix.
  * @param body - JSON body.
- * @returns The parsed body (or raw text when not JSON), or `null` on 404.
+ * @param format - Use `text` for line-delimited or other unparsed responses.
+ * @returns The parsed body (or raw text when requested or not JSON), or `null` on 404.
  */
-export async function dockerCall<T>(
+export function dockerCall<T>(
   transport: DockerTransport,
   method: string,
   path: string,
   body?: unknown,
-): Promise<T | null> {
+): Promise<T | null>
+export function dockerCall(
+  transport: DockerTransport,
+  method: string,
+  path: string,
+  body: unknown,
+  format: 'text',
+): Promise<string | null>
+export async function dockerCall(
+  transport: DockerTransport,
+  method: string,
+  path: string,
+  body?: unknown,
+  format?: 'text',
+): Promise<unknown> {
   const res = await transport(method, path, body)
   if (res.status === 404) return null
   if (res.status >= 400) {
@@ -105,10 +120,11 @@ export async function dockerCall<T>(
     )
   }
   if (!res.body) return null
+  if (format === 'text') return res.body
   try {
-    return JSON.parse(res.body) as T
+    return JSON.parse(res.body)
   } catch (_error) {
-    // Streaming endpoints (image pull) answer newline-delimited JSON; callers ignore the body.
-    return res.body as unknown as T
+    // Older callers rely on the raw body fallback for non-JSON responses.
+    return res.body
   }
 }

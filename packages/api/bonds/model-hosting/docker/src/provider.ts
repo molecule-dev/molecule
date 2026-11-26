@@ -174,13 +174,15 @@ class DockerModelHosting implements ModelHostingProvider {
     const name = `${CONTAINER_PREFIX}${spec.name}`
     const { fromImage, tag } = splitImage(spec.image)
     opts.log?.(`docker: pulling ${spec.image}`)
-    const pulled = await dockerCall<string>(
+    const pulled = await dockerCall(
       this.transport,
       'POST',
       `/images/create?fromImage=${encodeURIComponent(fromImage)}${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`,
+      undefined,
+      'text',
     )
     // A failed pull still answers 200; the error is a line in the progress stream.
-    const pullError = String(pulled ?? '')
+    const pullError = (pulled ?? '')
       .split('\n')
       .map((l) => {
         try {

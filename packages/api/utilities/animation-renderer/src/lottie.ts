@@ -67,14 +67,9 @@ interface LottieLayer {
   shapes: unknown[]
 }
 
-interface LottieScalar {
-  /** Animated flag — `0 = static`, `1 = animated`. */
-  a: 0 | 1
-  /** Static value, when `a === 0`. */
-  k: number | number[]
-  /** Animated keyframes, when `a === 1`. */
-  // (Lottie permits `k` to be `number | number[] | KeyframeBlock[]` based on `a`.)
-}
+type LottieScalar =
+  | { a: 0; k: number | number[] }
+  | { a: 1; k: Array<{ t: number; s: number[] } & Record<string, unknown>> }
 
 interface LottieTransform {
   /** Anchor point (x, y, z). */
@@ -182,7 +177,7 @@ function toLottieTransform(layer: AnimationLayer, fps: number): LottieTransform 
         ...easingToLottie(easing),
       }
     })
-    position = { a: 1, k: keyframes as unknown as number[] }
+    position = { a: 1, k: keyframes }
   } else {
     position = { a: 0, k: positionStatic }
   }
@@ -230,7 +225,7 @@ function scalarTrack(
     s: [scale100 ? (toNumber(kf.value) ?? 0) * 100 : (toNumber(kf.value) ?? 0)],
     ...easingToLottie(kf.easing),
   }))
-  return { a: 1, k: keyframes as unknown as number[] }
+  return { a: 1, k: keyframes }
 }
 
 /**

@@ -106,24 +106,19 @@ const mapSearchError = (error: unknown, node: string): unknown => {
  * connectivity/auth failures become actionable instead of a raw
  * `ECONNREFUSED` surfacing at whichever call happened to be first.
  *
- * @param rawProvider - The unwrapped provider implementation.
+ * @param method - The unwrapped provider method.
  * @param node - The resolved node URL, used to build actionable messages.
- * @returns The same provider with every method's errors mapped.
+ * @returns The method with its errors mapped.
  */
-const wrapConnectivityErrors = (rawProvider: SearchProvider, node: string): SearchProvider => {
-  const wrapped = {} as Record<string, unknown>
-  for (const key of Object.keys(rawProvider) as (keyof SearchProvider)[]) {
-    const original = rawProvider[key] as (...args: unknown[]) => Promise<unknown>
-    wrapped[key] = async (...args: unknown[]): Promise<unknown> => {
-      try {
-        return await original(...args)
-      } catch (error) {
-        throw mapSearchError(error, node)
-      }
+const wrapConnectivityErrors =
+  <Args extends unknown[], Result>(method: (...args: Args) => Promise<Result>, node: string) =>
+  async (...args: Args): Promise<Result> => {
+    try {
+      return await method(...args)
+    } catch (error) {
+      throw mapSearchError(error, node)
     }
   }
-  return wrapped as unknown as SearchProvider
-}
 
 /**
  * Creates an Elasticsearch search provider instance.
@@ -386,7 +381,16 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
     },
   }
 
-  return wrapConnectivityErrors(rawProvider, node)
+  return {
+    createIndex: wrapConnectivityErrors(rawProvider.createIndex, node),
+    deleteIndex: wrapConnectivityErrors(rawProvider.deleteIndex, node),
+    index: wrapConnectivityErrors(rawProvider.index, node),
+    bulkIndex: wrapConnectivityErrors(rawProvider.bulkIndex, node),
+    search: wrapConnectivityErrors(rawProvider.search, node),
+    delete: wrapConnectivityErrors(rawProvider.delete, node),
+    suggest: wrapConnectivityErrors(rawProvider.suggest, node),
+    getDocument: wrapConnectivityErrors(rawProvider.getDocument, node),
+  }
 }
 
 /**

@@ -4,7 +4,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import type { BookingQuery, BookingRow, BookingStatus, PaginatedResult } from '../types.js'
+import type { BookingRow, PaginatedResult } from '../types.js'
 import { BOOKING_STATUSES } from '../types.js'
 import { toBooking } from '../utilities.js'
 
@@ -23,7 +23,7 @@ export async function getBookings(req: MoleculeRequest, res: MoleculeResponse): 
     return
   }
 
-  const query = req.query as unknown as BookingQuery
+  const query: Record<string, unknown> = req.query
 
   const page = Math.max(1, parseInt(String(query.page ?? '1'), 10) || 1)
   const limit = Math.min(100, Math.max(1, parseInt(String(query.limit ?? '20'), 10) || 20))
@@ -31,15 +31,15 @@ export async function getBookings(req: MoleculeRequest, res: MoleculeResponse): 
   try {
     const where: WhereCondition[] = [{ field: 'userId', operator: '=' as const, value: userId }]
 
-    if (query.status && BOOKING_STATUSES.includes(query.status as BookingStatus)) {
+    if (BOOKING_STATUSES.some((status) => status === query.status)) {
       where.push({ field: 'status', operator: '=' as const, value: query.status })
     }
 
-    if (query.from) {
+    if (typeof query.from === 'string' && query.from) {
       where.push({ field: 'startTime', operator: '>=' as const, value: query.from })
     }
 
-    if (query.to) {
+    if (typeof query.to === 'string' && query.to) {
       where.push({ field: 'startTime', operator: '<=' as const, value: query.to })
     }
 

@@ -385,16 +385,15 @@ function createDeviceFake(
  */
 function stubPlatformGlobals(seed: PlatformSeed): () => void {
   const restore: (() => void)[] = []
-  const asWindow = window as unknown as Record<string, unknown>
   if (seed.capacitor) {
     restore.push(
-      patchProperty(asWindow, 'Capacitor', {
+      patchProperty(window, 'Capacitor', {
         getPlatform: () => seed.capacitor,
         isNativePlatform: () => true,
       }),
     )
   }
-  if (seed.electron) restore.push(patchProperty(asWindow, 'electron', { bridge: true }))
+  if (seed.electron) restore.push(patchProperty(window, 'electron', { bridge: true }))
   restore.push(patchProperty(navigator, 'userAgent', seed.userAgent ?? CONFORMANCE_USER_AGENT))
   if (seed.reactNative) restore.push(patchProperty(navigator, 'product', 'ReactNative'))
   if (seed.nodeEnv !== undefined) restore.push(patchEnv('NODE_ENV', seed.nodeEnv))

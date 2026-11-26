@@ -46,6 +46,20 @@ const toMemcachedLifetime = (ttl: number): number =>
   ttl > MEMCACHED_MAX_RELATIVE_TTL ? Math.floor(Date.now() / 1000) + ttl : ttl
 
 /**
+ * Decode a cache entry. The caller's generic describes the value written at
+ * that key; entries written by other clients may be legacy plain strings.
+ */
+function decode<T = unknown>(value: string): T
+function decode(value: string): unknown {
+  try {
+    return JSON.parse(value)
+  } catch (_error) {
+    // Keep non-JSON entries readable for clients that wrote plain strings.
+    return value
+  }
+}
+
+/**
  * Creates a Memcached-backed cache provider that implements the `CacheProvider`
  * interface. Supports tag-based invalidation by storing tag-to-key mappings
  * alongside cached values, and a namespace-versioned `clear()` (memcached has
@@ -184,12 +198,7 @@ export const createProvider = (options?: MemcachedOptions): CacheProvider => {
       try {
         const data = await ops.get<string>(fullKey)
         if (data === undefined) return undefined
-        try {
-          return JSON.parse(data) as T
-        } catch (_error) {
-          // data is not JSON-serialized; return as-is (e.g. a plain string value)
-          return data as unknown as T
-        }
+        return decode<T>(data)
       } catch (error) {
         logger.error('Memcached get error:', error)
         return undefined
@@ -257,12 +266,7 @@ export const createProvider = (options?: MemcachedOptions): CacheProvider => {
         const data = await ops.getMulti<string>(fullKeys)
         for (const [fullKey, value] of Object.entries(data)) {
           const key = fullKey.slice(prefix.length)
-          try {
-            results.set(key, JSON.parse(value) as T)
-          } catch (_error) {
-            // value is not JSON-serialized; store as-is (e.g. a plain string value)
-            results.set(key, value as unknown as T)
-          }
+          results.set(key, decode<T>(value))
         }
       } catch (error) {
         logger.error('Memcached getMany error:', error)

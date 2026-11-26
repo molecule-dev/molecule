@@ -75,6 +75,16 @@ describe('@molecule/app-platform', () => {
       expect(platform).toBe('web')
     })
 
+    it('ignores a noncallable Capacitor getPlatform property', () => {
+      const mockWindow = { ...globalThis.window, Capacitor: { getPlatform: 'android' } }
+      Object.defineProperty(globalThis, 'window', {
+        value: mockWindow,
+        writable: true,
+        configurable: true,
+      })
+      expect(detectPlatform()).toBe('web')
+    })
+
     it('should detect iOS via Capacitor', () => {
       const mockWindow = {
         ...(globalThis.window ?? {}),

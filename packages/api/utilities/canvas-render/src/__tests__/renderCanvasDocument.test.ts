@@ -174,6 +174,30 @@ describe('renderCanvasDocument — format dispatch', () => {
   })
 })
 
+it('decodes inline image bytes before drawing with the real PNG adapter', async () => {
+  const native = await import('@napi-rs/canvas')
+  const source = native.createCanvas(1, 1)
+  const context = source.getContext('2d')
+  if (!context) throw new Error('test requires a native 2D canvas')
+  context.fillStyle = '#ff0000'
+  context.fillRect(0, 0, 1, 1)
+
+  const result = await renderCanvasDocument(
+    {
+      width: 1,
+      height: 1,
+      layers: [
+        { kind: 'image', x: 0, y: 0, width: 1, height: 1, buffer: source.toBuffer('image/png') },
+      ],
+    },
+    { format: 'png' },
+  )
+  const output = native.createCanvas(1, 1).getContext('2d')
+  if (!output) throw new Error('test requires a native 2D canvas')
+  output.drawImage(await native.loadImage(result.buffer), 0, 0)
+  expect([...output.getImageData(0, 0, 1, 1).data]).toEqual([255, 0, 0, 255])
+})
+
 describe('renderCanvasDocument — PNG shape dispatch', () => {
   let fake: ReturnType<typeof makeFakeCanvasModule>
 
@@ -506,6 +530,26 @@ describe('createCanvasRenderHandler', () => {
 
   afterEach(() => {
     setCanvasModule(undefined)
+  })
+
+  it('rejects a nonstring text layer at the HTTP boundary', async () => {
+    const handle = createCanvasRenderHandler()
+    const res = fakeRes()
+    await handle(
+      {
+        body: {
+          doc: {
+            width: 10,
+            height: 10,
+            layers: [{ kind: 'text', x: 0, y: 0, text: { text: 'headline' } }],
+          },
+          options: { format: 'svg' },
+        },
+      },
+      res,
+    )
+    expect(res.status).toBe(400)
+    expect(res.body).toEqual({ error: 'doc.layers contains a malformed layer' })
   })
 
   /** A `CanvasRenderResponse` that records what the handler wrote, for assertions. */

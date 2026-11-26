@@ -16,11 +16,11 @@
  *
  * // Must live in the app's own src/service-worker.ts so the build-time
  * // manifest injection finds the __WB_MANIFEST token in the SW source.
- * const sw = self as unknown as ServiceWorkerGlobalScope & {
+ * declare const self: ServiceWorkerGlobalScope & {
  *   __WB_MANIFEST: Array<{ url: string; revision: string | null }>
  * }
  *
- * setupDefaultServiceWorker(sw, sw.__WB_MANIFEST)
+ * setupDefaultServiceWorker(self, self.__WB_MANIFEST)
  * ```
  *
  * @remarks

@@ -358,6 +358,34 @@ describe('chat() — request shape', () => {
     ).toBe(1)
   })
 
+  it('omits a nonstring legacy reasoning value on assistant tool calls', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'key' })
+    const assistant = {
+      role: 'assistant' as const,
+      _reasoning: { bad: true },
+      content: [{ type: 'tool_use' as const, id: 'c1', name: 'add', input: {} }],
+    }
+    for await (const _ of provider.chat({
+      messages: [assistant],
+      model: 'kimi-k3',
+      stream: false,
+    })) {
+      // Consume the provider output before examining the SDK request.
+    }
+    const init = fetch.mock.calls[0][1] as RequestInit
+    const body = JSON.parse(String(init.body))
+    expect(body.messages).toContainEqual(
+      expect.objectContaining({
+        role: 'assistant',
+        reasoning_content: '',
+      }),
+    )
+  })
+
   it('places system prompt as leading {role:system}', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

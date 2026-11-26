@@ -56,6 +56,15 @@ describe('@molecule/app-styling', () => {
   })
 
   describe('cva', () => {
+    it('looks up explicitly selected numeric variants and numeric defaults', () => {
+      const layout = cva('grid', {
+        variants: { cols: { 1: 'grid-cols-1', 2: 'grid-cols-2' } },
+        defaultVariants: { cols: 1 },
+      })
+      expect(layout()).toBe('grid grid-cols-1')
+      expect(layout({ cols: 2 })).toBe('grid grid-cols-2')
+    })
+
     it('should return base class when no variants', () => {
       const button = cva('btn')
       expect(button()).toBe('btn')

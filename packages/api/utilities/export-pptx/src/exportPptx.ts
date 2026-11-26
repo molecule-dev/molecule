@@ -16,14 +16,7 @@
  * @module
  */
 
-// pptxgenjs's d.ts combines `export as namespace` + `declare class` +
-// `declare namespace`, which under NodeNext + esModuleInterop resolves the
-// default-imported value to the namespace rather than the constructor.
-// Runtime works fine — we just need a typed handle to construct from.
-// `Constructor` mirrors only what we use; the slide we get back is typed
-// loosely (`PptxSlide`) since pptxgenjs's per-method option shapes
-// aren't reachable through the merged namespace at module scope.
-import PptxGenJSDefault from 'pptxgenjs'
+import * as PptxGenJS from 'pptxgenjs'
 
 import { assertSafeImageFormat } from './imageSafety.js'
 import type {
@@ -39,32 +32,24 @@ import type {
   TextStyle,
 } from './types.js'
 
-interface PptxLayoutSettable {
-  title: string
-  author: string
-  subject: string
-  company: string
-  layout: string
-  addSlide(): PptxSlide
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  write(props: { outputType: string }): Promise<any>
-}
+// NodeNext wraps the CJS declaration in a synthetic default.
+type PptxConstructor = (typeof PptxGenJS.default)['default']
+type PptxLayoutSettable = InstanceType<PptxConstructor>
+type PptxSlide = ReturnType<PptxLayoutSettable['addSlide']>
 
-interface PptxSlide {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  background: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addText(text: string | unknown[], options?: any): PptxSlide
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addImage(options: any): PptxSlide
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addShape(shape: string, options?: any): PptxSlide
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addChart(type: string, data: unknown[], options?: any): PptxSlide
-  addNotes(notes: string): PptxSlide
+/** Recognize the constructor exposed by the SDK's ESM entry point. */
+function isPptxConstructor(value: unknown): value is PptxConstructor {
+  if (typeof value !== 'function') return false
+  const prototype: unknown = value.prototype
+  return (
+    !!prototype &&
+    typeof prototype === 'object' &&
+    'addSlide' in prototype &&
+    typeof prototype.addSlide === 'function' &&
+    'write' in prototype &&
+    typeof prototype.write === 'function'
+  )
 }
-
-const PptxGenJS = PptxGenJSDefault as unknown as new () => PptxLayoutSettable
 
 const PPTX_CONTENT_TYPE =
   'application/vnd.openxmlformats-officedocument.presentationml.presentation' as const
@@ -85,7 +70,11 @@ export async function exportPptx(
     throw new TypeError('exportPptx: deck.slides must be an array')
   }
 
-  const pptx = new PptxGenJS()
+  const PptxGenJSDefault: unknown = PptxGenJS.default
+  if (!isPptxConstructor(PptxGenJSDefault)) {
+    throw new TypeError('pptxgenjs did not export a presentation constructor')
+  }
+  const pptx = new PptxGenJSDefault()
 
   // Apply deck-level metadata.
   if (deck.title) pptx.title = deck.title
@@ -292,7 +281,7 @@ function addChart(slide: PptxSlide, element: ChartElement): void {
  * Map a molecule shape kind string to the corresponding pptxgenjs shape name.
  * @param kind
  */
-function mapShape(kind: ShapeElement['shape']): string {
+function mapShape(kind: ShapeElement['shape']): Parameters<PptxSlide['addShape']>[0] {
   switch (kind) {
     case 'rect':
       return 'rect'
@@ -309,7 +298,7 @@ function mapShape(kind: ShapeElement['shape']): string {
  * Map a molecule chart kind string to the corresponding pptxgenjs chart type name.
  * @param kind
  */
-function mapChart(kind: ChartElement['chart']): string {
+function mapChart(kind: ChartElement['chart']): Parameters<PptxSlide['addChart']>[0] {
   switch (kind) {
     case 'bar':
       return 'bar'

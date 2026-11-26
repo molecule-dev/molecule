@@ -39,6 +39,16 @@ describe('detect', () => {
 })
 
 describe('the session log', () => {
+  it('keeps the assistant turn when persisted tool calls have an invalid shape', () => {
+    const text = [
+      JSON.stringify({ sessionId: 'session', projectHash: 'project' }),
+      JSON.stringify({ id: 'message', type: 'gemini', content: 'Done', toolCalls: { bad: true } }),
+    ].join('\n')
+    expect(provider.read({ text }).turns).toEqual([
+      expect.objectContaining({ role: 'assistant', text: 'Done', files: [] }),
+    ])
+  })
+
   const s = provider.read({ text: log })
 
   it('replays the log: injected context, notices, slash commands and the rewound turn are gone', () => {

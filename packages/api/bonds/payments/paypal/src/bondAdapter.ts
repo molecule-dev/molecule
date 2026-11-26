@@ -34,7 +34,7 @@ import {
   reviseSubscription,
   verifyWebhookSignature,
 } from './provider.js'
-import type { PayPalPlan, PayPalSubscription } from './types.js'
+import type { PayPalPlan } from './types.js'
 
 /**
  * Maps PayPal webhook event types (e.g. `BILLING.SUBSCRIPTION.CANCELLED`) to
@@ -102,16 +102,31 @@ const tryGetPlan = async (planId: string): Promise<PayPalPlan | null> => {
  * @returns The `WebhookEvent['subscription']` fields.
  */
 const subscriptionFieldsFromResource = async (
-  subscription: PayPalSubscription,
+  subscription: Record<string, unknown>,
 ): Promise<NonNullable<WebhookEvent['subscription']>> => {
-  const plan = subscription.plan_id ? await tryGetPlan(subscription.plan_id) : null
-  const nextBillingTime = subscription.billing_info?.next_billing_time
+  const planId = typeof subscription.plan_id === 'string' ? subscription.plan_id : undefined
+  const plan = planId ? await tryGetPlan(planId) : null
+  const billing = subscription.billing_info
+  const payer = subscription.subscriber
+  const nextBillingTime =
+    billing &&
+    typeof billing === 'object' &&
+    'next_billing_time' in billing &&
+    typeof billing.next_billing_time === 'string'
+      ? Date.parse(billing.next_billing_time)
+      : NaN
+  const payerId =
+    payer && typeof payer === 'object' && 'payer_id' in payer && typeof payer.payer_id === 'string'
+      ? payer.payer_id
+      : undefined
   const rawStatus = typeof subscription.status === 'string' ? subscription.status : undefined
   return {
-    customerId: subscription.subscriber?.payer_id ?? undefined,
+    customerId: payerId,
     productId: plan?.product_id ?? undefined,
-    priceId: subscription.plan_id || undefined,
-    expiresAt: nextBillingTime ? new Date(Date.parse(nextBillingTime)).toISOString() : undefined,
+    priceId: planId || undefined,
+    expiresAt: Number.isFinite(nextBillingTime)
+      ? new Date(nextBillingTime).toISOString()
+      : undefined,
     autoRenews: rawStatus === 'ACTIVE',
     status: normalizeSubscriptionStatus(rawStatus),
     isActive: rawStatus === 'ACTIVE',
@@ -315,9 +330,7 @@ export const paymentProvider: PaymentProvider = {
       if (event.type.startsWith('BILLING.SUBSCRIPTION.')) {
         return {
           type: mapPayPalEventType(event.type),
-          subscription: await subscriptionFieldsFromResource(
-            resource as unknown as PayPalSubscription,
-          ),
+          subscription: await subscriptionFieldsFromResource(resource),
         }
       }
 
@@ -337,7 +350,7 @@ export const paymentProvider: PaymentProvider = {
         }
         try {
           const subscription = await getSubscription(billingAgreementId)
-          return { type, subscription: await subscriptionFieldsFromResource(subscription) }
+          return { type, subscription: await subscriptionFieldsFromResource({ ...subscription }) }
         } catch (lookupError) {
           logger.error(
             `PayPal bondAdapter handleWebhookEvent: could not fetch subscription ${billingAgreementId} for ${event.type}:`,

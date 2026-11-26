@@ -280,5 +280,7 @@ export const provider: Middleware = (req, res, next) => {
  * @param options - Express JSON parser options passed directly to `express.json()`.
  * @returns A `Middleware` that parses JSON request bodies with the specified options.
  */
-export const jsonParserFactory = (options?: JsonParserOptions): Middleware =>
-  express.json(options) as unknown as Middleware
+export const jsonParserFactory = (options?: JsonParserOptions): Middleware => {
+  const middleware = express.json(options)
+  return (req, res, next) => middleware(req as express.Request, res as express.Response, next)
+}

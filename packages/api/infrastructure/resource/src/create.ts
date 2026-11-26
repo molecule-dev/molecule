@@ -64,25 +64,17 @@ export const create =
      */
     id?: CreatedProps['id']
   }) => {
-    // TypeScript 5+ requires explicit unknown cast for generic type conversions
-    let props = createProps as unknown as CreatedProps
-
+    let props: CreatedProps
     try {
-      // Assign an `id` to this types.
-      id = id || uuid()
-      props.id = id
-
-      // Always set server-controlled timestamps — never trust client-supplied values.
+      // Server-owned values win over any supplied properties.
       const now = new Date().toISOString()
-      props.createdAt = now
-      props.updatedAt = now
-
-      // Validate the new resource's `props`.
-      props = getValidProps<CreatedProps>({
+      const metadata = { id: id || uuid(), createdAt: now, updatedAt: now }
+      const validated = getValidProps<CreatedProps>({
         name,
-        schema: schema as unknown as ZodSchema<CreatedProps>,
-        props,
+        schema: schema as ZodSchema<CreatedProps>,
+        props: { ...createProps, ...metadata },
       })
+      props = { ...validated, ...metadata }
     } catch (error) {
       // The provided `props` failed validation.
       return {
@@ -98,7 +90,7 @@ export const create =
 
     try {
       // Insert the new resource into the database via the bonded DataStore.
-      const result = await storeCreate(tableName, props as unknown as Record<string, unknown>)
+      const result = await storeCreate(tableName, props)
 
       if (!result.affected) {
         throw new Error(`Failed to insert data into ${tableName}.`)

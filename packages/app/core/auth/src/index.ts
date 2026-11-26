@@ -186,7 +186,7 @@
  * `undefined` — a mapper that keeps `id`/`name`/`avatar` but drops `username` leaves the
  * signed-in controls unrendered although login succeeded. The
  * wire user carries the base fields too, `id` included — spread it, do not rebuild it
- * field by field, and never hide a mismatch with `as unknown as MyUser`:
+ * field by field, so TypeScript checks the profile your mapper returns.
  *
  * ```typescript
  * import type { AuthClientConfig, UserProfile } from '@molecule/app-auth'

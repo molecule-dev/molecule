@@ -22,6 +22,13 @@ function jsonResponse(body: unknown, init: { status?: number } = {}): Response {
 }
 
 describe('@molecule/api-channel-telegram', () => {
+  it('rejects inbound messages that have no numeric sender id', () => {
+    const telegram = createProvider({ botToken: SAMPLE_TOKEN })
+    expect(() => telegram.parseInbound({ message: { chat: {}, text: 'hello' } })).toThrow(
+      /no valid sender id/,
+    )
+  })
+
   const mockFetch = vi.fn()
 
   beforeEach(() => {

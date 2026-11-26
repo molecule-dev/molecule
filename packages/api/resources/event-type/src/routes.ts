@@ -13,13 +13,10 @@
  * @module
  */
 
-import { type Request, type RequestHandler, type Response, Router } from 'express'
+import { type Request, type Response, Router } from 'express'
 
 import { t } from '@molecule/api-i18n'
-import {
-  validateBody as validateBodyRaw,
-  validateQuery as validateQueryRaw,
-} from '@molecule/api-middleware-validation'
+import { validateBody, validateQuery } from '@molecule/api-middleware-validation'
 import { getParamId, requireUser } from '@molecule/api-resource'
 
 import {
@@ -40,9 +37,6 @@ import {
   eventTypeCreateSchema,
   eventTypeUpdateSchema,
 } from './validation.js'
-
-const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
-const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
 /** Creates and returns the Express router for event-type and availability endpoints. */
 export function createEventTypeRouter(): Router {

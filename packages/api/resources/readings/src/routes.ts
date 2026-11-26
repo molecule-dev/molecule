@@ -1,16 +1,10 @@
-import { type Request, type RequestHandler, type Response, Router } from 'express'
+import { type Request, type Response, Router } from 'express'
 
-import {
-  validateBody as validateBodyRaw,
-  validateQuery as validateQueryRaw,
-} from '@molecule/api-middleware-validation'
+import { validateBody, validateQuery } from '@molecule/api-middleware-validation'
 import { requireUser } from '@molecule/api-resource'
 
 import { ingestBulk, ingestReading, listAggregatedReadings, listRawReadings } from './service.js'
 import { readingBulkSchema, readingCreateSchema, readingQuerySchema } from './validation.js'
-
-const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
-const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
 /** Creates and returns the Express router for the readings resource endpoints. */
 export function createReadingsRouter(): Router {

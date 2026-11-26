@@ -160,7 +160,8 @@ const INSTALLED = Symbol.for('@molecule/app-vue/testing:event-timing')
  * @throws {Error} When Vue's listener map or error-handling frames cannot be read.
  */
 export function installEventTiming(win: Window & typeof globalThis = window): EventTiming {
-  const installed = (win as unknown as Record<symbol, EventTiming | undefined>)[INSTALLED]
+  const trackedWindow: Window & { [INSTALLED]?: EventTiming } = win
+  const installed = trackedWindow[INSTALLED]
   if (installed) return installed
   const listenerMap = findListenerMapKey(win.document)
   let seenFromVue = false
@@ -197,10 +198,8 @@ export function installEventTiming(win: Window & typeof globalThis = window): Ev
 
   const listenersOf = (node: EventTarget, type: string, capture: boolean): VueListener[] => {
     if (!(node instanceof win.Element)) return []
-    const map = (node as unknown as Record<symbol, Record<string, unknown> | undefined>)[
-      listenerMap
-    ]
-    if (!map) return []
+    const map: unknown = Reflect.get(node, listenerMap)
+    if (!map || typeof map !== 'object') return []
     const found: VueListener[] = []
     for (const [key, invoker] of Object.entries(map)) {
       if (!invoker) continue
@@ -319,6 +318,6 @@ export function installEventTiming(win: Window & typeof globalThis = window): Ev
     pause,
     resume,
   }
-  ;(win as unknown as Record<symbol, EventTiming>)[INSTALLED] = timing
+  trackedWindow[INSTALLED] = timing
   return timing
 }

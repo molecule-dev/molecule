@@ -12,10 +12,10 @@
  * @module
  */
 
-import { type Request, type RequestHandler, type Response, Router } from 'express'
+import { type Request, type Response, Router } from 'express'
 
 import { t } from '@molecule/api-i18n'
-import { validateBody as validateBodyRaw } from '@molecule/api-middleware-validation'
+import { validateBody } from '@molecule/api-middleware-validation'
 import { getParamId, requireUser } from '@molecule/api-resource'
 
 import {
@@ -27,8 +27,6 @@ import {
   updateInvoiceForUser,
 } from './service.js'
 import { invoiceCreateSchema, invoiceUpdateSchema, recordPaymentSchema } from './validation.js'
-
-const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
 
 /**
  * Creates and returns an Express router with all CRUD + payment routes for invoices.

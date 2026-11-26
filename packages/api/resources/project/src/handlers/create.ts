@@ -20,7 +20,7 @@ import { isProjectType } from '../types.js'
 export async function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId =
     (res.locals.session as { userId?: string } | undefined)?.userId ??
-    (req as unknown as { userId?: string }).userId
+    ('userId' in req && typeof req.userId === 'string' ? req.userId : undefined)
   if (!userId) {
     res.status(401).json({
       error: t('user.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),

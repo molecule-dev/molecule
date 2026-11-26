@@ -768,8 +768,7 @@ export const verifyMiddleware =
       const acceptedSchemes = new Set<string>([...BASE_AUTH_SCHEMES, scheme.toLowerCase()])
       const headerToken =
         authMatch && acceptedSchemes.has(authMatch[1].toLowerCase()) ? authMatch[2].trim() : null
-      const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
-      const cookieToken = readAuthCookie(cookies, 'token')
+      const cookieToken = readAuthCookie(req.cookies, 'token')
       let usableCookie =
         !headerToken && allowCookieSession && typeof cookieToken === 'string' && cookieToken
           ? cookieToken

@@ -44,12 +44,12 @@ interface Part {
 /** One stored message record. */
 interface MessageRecord {
   id: string
-  timestamp?: string
-  type?: string
+  timestamp?: unknown
+  type?: unknown
   content?: unknown
   displayContent?: unknown
-  model?: string
-  toolCalls?: Array<{ name?: unknown; args?: Record<string, unknown>; status?: unknown }>
+  model?: unknown
+  toolCalls?: unknown
 }
 
 /** One Gemini API content entry (a `/chat save` checkpoint). */
@@ -205,20 +205,20 @@ function replayLog(text: string): { meta: Record<string, unknown>; messages: Mes
       }
       if (!found) byId.clear()
     } else if (typeof rec.id === 'string') {
-      byId.set(rec.id, rec as unknown as MessageRecord)
+      byId.set(rec.id, { ...rec, id: rec.id })
     } else if (isObject(rec.$set)) {
       const set = rec.$set
       if (Array.isArray(set.messages)) {
         byId.clear()
         for (const m of set.messages)
-          if (isObject(m) && typeof m.id === 'string') byId.set(m.id, m as unknown as MessageRecord)
+          if (isObject(m) && typeof m.id === 'string') byId.set(m.id, { ...m, id: m.id })
       }
       meta = { ...meta, ...set }
     } else if (isSessionHeader(rec)) {
       meta = { ...meta, ...rec }
       if (Array.isArray(rec.messages)) {
         for (const m of rec.messages)
-          if (isObject(m) && typeof m.id === 'string') byId.set(m.id, m as unknown as MessageRecord)
+          if (isObject(m) && typeof m.id === 'string') byId.set(m.id, { ...m, id: m.id })
       }
     }
   }
@@ -238,25 +238,30 @@ function turnsOfRecords(messages: MessageRecord[]): AgentTurn[] {
     if (m.type === 'user') {
       const text = partText(m.displayContent ?? m.content).trim()
       if (!text || INJECTED.test(text)) continue
-      turns.push({ role: 'user', text, timestamp: m.timestamp, files: [] })
+      turns.push({
+        role: 'user',
+        text,
+        timestamp: typeof m.timestamp === 'string' ? m.timestamp : undefined,
+        files: [],
+      })
       assistant = null
     } else if (m.type === 'gemini') {
       if (!assistant) {
         assistant = {
           role: 'assistant',
           text: '',
-          timestamp: m.timestamp,
-          model: m.model,
+          timestamp: typeof m.timestamp === 'string' ? m.timestamp : undefined,
+          model: typeof m.model === 'string' ? m.model : undefined,
           files: [],
         }
         turns.push(assistant)
       }
-      if (!assistant.model && m.model) assistant.model = m.model
+      if (!assistant.model && typeof m.model === 'string') assistant.model = m.model
       const text = partText(m.displayContent ?? m.content).trim()
       if (text) assistant.text = assistant.text ? `${assistant.text}\n\n${text}` : text
-      for (const call of m.toolCalls ?? []) {
-        if (call.status !== 'success') continue
-        const w = writeOf(call.name, call.args)
+      for (const call of Array.isArray(m.toolCalls) ? m.toolCalls : []) {
+        if (!isObject(call) || call.status !== 'success') continue
+        const w = writeOf(call.name, isObject(call.args) ? call.args : undefined)
         if (w) assistant.files.push(w)
       }
     }

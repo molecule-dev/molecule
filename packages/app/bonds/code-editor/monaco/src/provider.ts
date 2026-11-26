@@ -7,6 +7,8 @@
  * @module
  */
 
+import type * as Monaco from 'monaco-editor'
+
 import type {
   DiffFile,
   EditorChangeEvent,
@@ -24,82 +26,23 @@ import { getLogger } from '@molecule/app-logger'
 import {
   LspClient,
   type LspClientRef,
-  type LspMonacoModule,
   type LspProviderOptions,
   registerLspProviders,
 } from './lsp-client.js'
 import { registerTsxHighlighting } from './tsx-monarch.js'
 import type { MonacoConfig } from './types.js'
 
-/** Minimal Monaco types to avoid importing the full package at compile time. */
-interface MonacoEditor {
-  dispose(): void
-  getModel(): MonacoModel | null
-  setModel(model: MonacoModel | null): void
-  layout(dimensions?: { width: number; height: number }): void
-  getPosition(): { lineNumber: number; column: number } | null
-  setPosition(position: { lineNumber: number; column: number }): void
-  revealLineInCenter(lineNumber: number): void
-  focus(): void
-  updateOptions(options: Record<string, unknown>): void
-  onDidChangeModelContent(listener: () => void): { dispose(): void }
-  addAction(descriptor: {
-    id: string
-    label: string
-    contextMenuGroupId?: string
-    contextMenuOrder?: number
-    precondition?: string
-    run: (editor: MonacoEditor) => void
-  }): { dispose(): void }
-  addCommand(keybinding: number, handler: (...args: unknown[]) => void): string | null
-  getSelection(): {
-    startLineNumber: number
-    startColumn: number
-    endLineNumber: number
-    endColumn: number
-  } | null
-}
-
-interface MonacoModel {
-  getValue(): string
-  setValue(value: string): void
-  dispose(): void
-  uri: unknown
-  getLineContent(lineNumber: number): string
-  getLineCount(): number
-}
-
-/** Minimal marker type from Monaco's marker service. */
-interface MonacoMarker {
-  owner: string
-  severity: number // 1=Hint, 2=Info, 4=Warning, 8=Error
-  message: string
-  startLineNumber: number
-  startColumn: number
-  endLineNumber: number
-  endColumn: number
-  source?: string
-}
-
-/** Minimal code action type returned by code action providers. */
-interface MonacoCodeAction {
-  title: string
-  kind?: string
-  diagnostics?: MonacoMarker[]
-  isPreferred?: boolean
-  command?: {
-    id: string
-    title: string
-    arguments?: unknown[]
-  }
-}
-
-interface MonacoDiffEditor {
-  dispose(): void
-  setModel(model: { original: MonacoModel; modified: MonacoModel }): void
-  layout(dimensions?: { width: number; height: number }): void
-}
-
+type MonacoModule = typeof Monaco
+type MonacoEditor = Monaco.editor.IStandaloneCodeEditor
+type MonacoDiffEditor = Monaco.editor.IStandaloneDiffEditor
+type MonacoModel = Monaco.editor.ITextModel
+type MonacoMarker = Monaco.editor.IMarkerData
+type MonacoCodeAction = Monaco.languages.CodeAction
+/**
+ * The TypeScript/JavaScript worker defaults this bond configures. Monaco moved them from
+ * `languages.typescript` (before 0.55.1) to the module's top-level `typescript` (0.55.1 and later), so
+ * they are typed by the methods called here, which both layouts provide, and read with a guard.
+ */
 interface MonacoLanguageDefaults {
   setCompilerOptions(options: Record<string, unknown>): void
   setDiagnosticsOptions(options: Record<string, unknown>): void
@@ -108,61 +51,18 @@ interface MonacoLanguageDefaults {
   addExtraLib(content: string, filePath?: string): { dispose(): void }
 }
 
-interface MonacoModule {
-  editor: {
-    create(element: HTMLElement, options: Record<string, unknown>): MonacoEditor
-    createDiffEditor(element: HTMLElement, options: Record<string, unknown>): MonacoDiffEditor
-    createModel(value: string, language?: string, uri?: unknown): MonacoModel
-    getModel(uri: unknown): MonacoModel | null
-    getModelMarkers(filter: { resource?: unknown }): MonacoMarker[]
-    setModelMarkers(model: MonacoModel, owner: string, markers: unknown[]): void
-    onDidChangeMarkers(listener: (uris: unknown[]) => void): { dispose(): void }
-    defineTheme(themeName: string, themeData: Record<string, unknown>): void
-    registerEditorOpener?(opener: {
-      openCodeEditor(
-        source: unknown,
-        resource: unknown,
-        selectionOrPosition?: unknown,
-      ): boolean | Promise<boolean>
-    }): { dispose(): void }
-  }
-  Uri: {
-    parse(uri: string): unknown
-  }
-  // monaco-editor <=0.55 exposed the TS/JS defaults under languages.typescript;
-  // 0.56 moved them to the module top level (monaco.typescript). Both are
-  // declared optional and resolved via tsDefaults() so either layout works.
-  typescript?: {
-    typescriptDefaults: MonacoLanguageDefaults
-    javascriptDefaults: MonacoLanguageDefaults
-  }
-  languages: {
-    typescript?: {
-      typescriptDefaults: MonacoLanguageDefaults
-      javascriptDefaults: MonacoLanguageDefaults
-    }
-    setMonarchTokensProvider(
-      languageId: string,
-      languageDef: Record<string, unknown>,
-    ): { dispose(): void }
-    registerCodeActionProvider(
-      languageSelector: string,
-      provider: {
-        provideCodeActions(
-          model: MonacoModel,
-          range: unknown,
-          context: { markers: MonacoMarker[] },
-          token: unknown,
-        ): { actions: MonacoCodeAction[]; dispose(): void }
-      },
-    ): { dispose(): void }
-  }
-  MarkerSeverity: {
-    Hint: number
-    Info: number
-    Warning: number
-    Error: number
-  }
+/** Recognize TypeScript defaults on Monaco versions that declare them under languages. */
+function isLanguageDefaults(value: unknown): value is MonacoLanguageDefaults {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    'setCompilerOptions' in value &&
+    typeof value.setCompilerOptions === 'function' &&
+    'setDiagnosticsOptions' in value &&
+    typeof value.setDiagnosticsOptions === 'function' &&
+    'addExtraLib' in value &&
+    typeof value.addExtraLib === 'function'
+  )
 }
 
 /**
@@ -274,7 +174,7 @@ export class MonacoEditorProvider implements EditorProvider {
     // Dynamic import — Monaco is a large library, loaded at runtime.
     // Must use a string literal (not a variable) so Vite can rewrite the bare specifier
     // 'monaco-editor' to the resolved node_modules path at dev-serve time.
-    const monaco = (await import('monaco-editor')) as unknown as MonacoModule
+    const monaco = await import('monaco-editor')
 
     // If a newer mount() call started while we were awaiting, bail out.
     // This handles React StrictMode's double-invoke of useEffect.
@@ -288,8 +188,7 @@ export class MonacoEditorProvider implements EditorProvider {
     // reference the TS worker, bypassing our fix to exclude it.
     // Workers must be module type since Monaco's ESM worker files use `import`.
     // Vite dev server serves node_modules with fs.strict=false so these paths work.
-    const win = window as unknown as Record<string, unknown>
-    win.MonacoEnvironment = {
+    window.MonacoEnvironment = {
       // Use new URL(..., import.meta.url) so Vite resolves bare specifiers
       // through its module resolver (finds hoisted workspace node_modules).
       // Hardcoded /node_modules/ paths fail in monorepo setups where node_modules
@@ -731,7 +630,8 @@ export class MonacoEditorProvider implements EditorProvider {
     if (this.silentUpdateRaf !== null) {
       clearTimeout(this.silentUpdateRaf)
     }
-    this.silentUpdateRaf = window.setTimeout(() => {
+    const timerWindow: Window = window
+    this.silentUpdateRaf = timerWindow.setTimeout(() => {
       this.silentUpdateRaf = null
 
       // Process only the active file's pending update. Non-active files were
@@ -767,7 +667,7 @@ export class MonacoEditorProvider implements EditorProvider {
         const col = Math.min(savedPosition.column, maxCol)
         this.editor.setPosition({ lineNumber: line, column: col })
       }
-    }) as unknown as number
+    })
   }
 
   /**
@@ -1068,7 +968,7 @@ export class MonacoEditorProvider implements EditorProvider {
 
   /**
    * Resolves the TypeScript/JavaScript language defaults across Monaco layouts:
-   * top-level `monaco.typescript` (0.56+) or `monaco.languages.typescript` (<=0.55).
+   * top-level `monaco.typescript` (0.55.1 and later) or `monaco.languages.typescript` (before 0.55.1).
    * @param monaco - The Monaco module instance.
    * @returns The defaults pair, or `null` when neither layout is present.
    */
@@ -1076,7 +976,28 @@ export class MonacoEditorProvider implements EditorProvider {
     typescriptDefaults: MonacoLanguageDefaults
     javascriptDefaults: MonacoLanguageDefaults
   } | null {
-    return monaco.typescript ?? monaco.languages.typescript ?? null
+    const layout = (
+      source: unknown,
+    ): {
+      typescriptDefaults: MonacoLanguageDefaults
+      javascriptDefaults: MonacoLanguageDefaults
+    } | null => {
+      if (
+        !source ||
+        typeof source !== 'object' ||
+        !('typescriptDefaults' in source) ||
+        !('javascriptDefaults' in source)
+      )
+        return null
+      const { typescriptDefaults, javascriptDefaults } = source
+      return isLanguageDefaults(typescriptDefaults) && isLanguageDefaults(javascriptDefaults)
+        ? { typescriptDefaults, javascriptDefaults }
+        : null
+    }
+    // Which layout exists depends on the installed Monaco, so neither is read as a declared member.
+    const topLevel: unknown = Reflect.get(monaco, 'typescript')
+    const legacy: unknown = Reflect.get(monaco.languages, 'typescript')
+    return layout(topLevel) ?? layout(legacy)
   }
 
   /**
@@ -1093,7 +1014,7 @@ export class MonacoEditorProvider implements EditorProvider {
       )
       return
     }
-    const compilerOptions: Record<string, unknown> = {
+    const compilerOptions: Parameters<MonacoLanguageDefaults['setCompilerOptions']>[0] = {
       target: 99, // ESNext
       module: 99, // ESNext
       moduleResolution: 2, // Node (Classic=1, Node=2, Bundler=100) — Node is most reliable with Monaco extra libs
@@ -1168,7 +1089,7 @@ export class MonacoEditorProvider implements EditorProvider {
    */
   private wireMarkerListener(monaco: MonacoModule): void {
     this.markerDisposable?.dispose()
-    this.markerDisposable = monaco.editor.onDidChangeMarkers((uris: unknown[]) => {
+    this.markerDisposable = monaco.editor.onDidChangeMarkers((uris: readonly Monaco.Uri[]) => {
       // Only check models whose markers actually changed (via URI parameter),
       // not all tabs. Reduces work from O(all_tabs) to O(changed_models).
       let changed = false
@@ -1372,16 +1293,12 @@ export class MonacoEditorProvider implements EditorProvider {
           const uri = monaco.Uri.parse(uriStr)
           if (!monaco.editor.getModel(uri)) {
             const model = monaco.editor.createModel(resolved.content, resolved.language, uri)
-            this.lspResolvedModels.push(model as unknown as MonacoModel)
+            this.lspResolvedModels.push(model)
           }
           return true
         }
       }
-      this.lspProviders = registerLspProviders(
-        this.monaco as unknown as LspMonacoModule,
-        this.lspClientRef,
-        lspOptions,
-      )
+      this.lspProviders = registerLspProviders(this.monaco, this.lspClientRef, lspOptions)
     }
 
     // Register diagnostics handler on this specific client instance
@@ -1794,7 +1711,7 @@ const logger = getLogger('monaco-editor')
 export function preloadMonaco(): Promise<unknown> {
   if (!monacoPreload) {
     // Same string literal as mount()'s import so Vite emits one shared chunk.
-    monacoPreload = import('monaco-editor').catch((error) => {
+    monacoPreload = import('monaco-editor').catch((error: unknown) => {
       // Reset so a later mount() (or retry) can attempt the import again; a
       // failed prefetch only costs the cache warm, and mount() surfaces any
       // real import failure to the caller.

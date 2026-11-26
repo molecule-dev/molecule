@@ -134,17 +134,11 @@ const applyLocalOptions = (
 
   const local = Handlebars.create()
 
-  const parentHelpers = (
-    parent as unknown as { helpers: Record<string, Handlebars.HelperDelegate> }
-  ).helpers
-  const parentPartials = (parent as unknown as { partials: Record<string, Handlebars.Template> })
-    .partials
-
-  for (const [name, helper] of Object.entries(parentHelpers)) {
+  for (const [name, helper] of Object.entries(parent.helpers)) {
     local.registerHelper(name, helper)
   }
-  for (const [name, partial] of Object.entries(parentPartials)) {
-    local.registerPartial(name, partial as string)
+  for (const [name, partial] of Object.entries(parent.partials)) {
+    local.registerPartial(name, partial)
   }
 
   if (options.helpers) {

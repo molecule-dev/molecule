@@ -1,10 +1,7 @@
-import { type Request, type RequestHandler, type Response, Router } from 'express'
+import { type Request, type Response, Router } from 'express'
 
 import { t } from '@molecule/api-i18n'
-import {
-  validateBody as validateBodyRaw,
-  validateQuery as validateQueryRaw,
-} from '@molecule/api-middleware-validation'
+import { validateBody, validateQuery } from '@molecule/api-middleware-validation'
 import { getParamId, requireUser } from '@molecule/api-resource'
 
 import {
@@ -26,9 +23,6 @@ import {
   threadUpdateSchema,
   voteSchema,
 } from './validation.js'
-
-const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
-const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
 /**
  * Express router for forum threads. Pass `isModeratorFor(userId)` to

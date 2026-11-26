@@ -78,6 +78,16 @@ describe('@molecule/api-resource-project handlers', () => {
   })
 
   describe('create', () => {
+    it('requires a string caller id even on legacy request adapters', async () => {
+      const req = Object.assign(mockReq({ body: { name: 'Test', projectType: 'api' } }), {
+        userId: 42,
+      })
+      const res = mockRes({ locals: {} })
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
     it('should return 400 when name is missing', async () => {
       const req = mockReq({ body: { projectType: 'api' } })
       const res = mockRes()

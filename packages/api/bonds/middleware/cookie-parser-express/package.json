@@ -29,6 +29,7 @@
   "devDependencies": {
     "@molecule/api-middleware-cookie-parser": "1.0.3",
     "@types/cookie-parser": "1.4.10",
+    "@types/express": "5.0.6",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

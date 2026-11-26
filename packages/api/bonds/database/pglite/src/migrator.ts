@@ -119,8 +119,7 @@ export async function applyMigrations(
     return
   }
   const failures: { file: string; message: string }[] = []
-  const query: Query = (text, params) =>
-    pool.query(text, params) as unknown as Promise<{ rows: Record<string, unknown>[] }>
+  const query: Query = (text, params) => pool.query<Record<string, unknown>>(text, params)
   const { applied, adopting } = await openLedger(query)
   let skipped = 0
   for (const migration of sorted) {

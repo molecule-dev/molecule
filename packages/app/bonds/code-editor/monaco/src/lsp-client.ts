@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as Monaco from 'monaco-editor'
+
 // ---------------------------------------------------------------------------
 // LSP types (minimal subset needed for Monaco conversion)
 // ---------------------------------------------------------------------------
@@ -69,35 +71,18 @@ interface LspSignatureHelp {
 
 /** Extended Monaco module interface with language provider registration methods. */
 export interface LspMonacoModule {
-  Uri: { parse(uri: string): unknown }
-  MarkerSeverity: { Error: number; Warning: number; Info: number; Hint: number }
-  languages: {
-    registerCompletionItemProvider(
-      languageSelector: string | string[],
-      provider: unknown,
-    ): { dispose(): void }
-    registerHoverProvider(
-      languageSelector: string | string[],
-      provider: unknown,
-    ): { dispose(): void }
-    registerDefinitionProvider(
-      languageSelector: string | string[],
-      provider: unknown,
-    ): { dispose(): void }
-    registerSignatureHelpProvider(
-      languageSelector: string | string[],
-      provider: unknown,
-    ): { dispose(): void }
-    typescript: {
-      typescriptDefaults: {
-        setDiagnosticsOptions(options: Record<string, unknown>): void
-      }
-    }
-  }
-  editor: {
-    getModel(uri: unknown): { uri: unknown; getValue(): string } | null
-    setModelMarkers(model: unknown, owner: string, markers: unknown[]): void
-  }
+  /** URI parser used to resolve workspace file locations. */
+  Uri: Pick<typeof Monaco.Uri, 'parse'>
+  /** Registers providers for the language server capabilities. */
+  languages: Pick<
+    typeof Monaco.languages,
+    | 'registerCompletionItemProvider'
+    | 'registerHoverProvider'
+    | 'registerDefinitionProvider'
+    | 'registerSignatureHelpProvider'
+  >
+  /** Looks up an existing model before resolving a definition target. */
+  editor: Pick<typeof Monaco.editor, 'getModel'>
 }
 
 // ---------------------------------------------------------------------------
@@ -147,17 +132,10 @@ function convertHoverContents(
  * @param item - The LSP completion item to convert.
  * @returns A Monaco-compatible completion suggestion object.
  */
-function convertCompletionItem(item: LspCompletionItem): {
-  label: string
-  kind: number
-  detail?: string
-  documentation?: { value: string }
-  insertText: string
-  sortText?: string
-  filterText?: string
-  preselect?: boolean
-  range?: unknown
-} {
+function convertCompletionItem(
+  item: LspCompletionItem,
+  fallbackRange: Monaco.IRange,
+): Monaco.languages.CompletionItem {
   return {
     label: item.label,
     kind: item.kind ?? 0,
@@ -171,7 +149,7 @@ function convertCompletionItem(item: LspCompletionItem): {
     sortText: item.sortText,
     filterText: item.filterText,
     preselect: item.preselect,
-    range: item.textEdit ? lspToMonacoRange(item.textEdit.range) : undefined,
+    range: item.textEdit ? lspToMonacoRange(item.textEdit.range) : fallbackRange,
   }
 }
 
@@ -572,10 +550,7 @@ export function registerLspProviders(
   disposables.push(
     monaco.languages.registerCompletionItemProvider(TS_LANGUAGES, {
       triggerCharacters: ['.', '"', "'", '/', '<'],
-      async provideCompletionItems(
-        model: { uri: { toString(): string } },
-        position: { lineNumber: number; column: number },
-      ) {
+      async provideCompletionItems(model, position) {
         if (!clientRef.current?.isConnected()) return { suggestions: [] }
         try {
           const result = await clientRef.current!.completion(
@@ -583,9 +558,16 @@ export function registerLspProviders(
             position.lineNumber - 1,
             position.column - 1,
           )
+          const word = model.getWordUntilPosition(position)
+          const range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          }
           return {
             incomplete: result.isIncomplete,
-            suggestions: result.items.map(convertCompletionItem),
+            suggestions: result.items.map((item) => convertCompletionItem(item, range)),
           }
         } catch (_error) {
           // LSP request may fail transiently (e.g. server restart, network
@@ -695,7 +677,7 @@ export function registerLspProviders(
                     ? { value: sig.documentation }
                     : { value: sig.documentation.value }
                   : undefined,
-                parameters: sig.parameters?.map((p) => ({
+                parameters: (sig.parameters ?? []).map((p) => ({
                   label: p.label,
                   documentation: p.documentation
                     ? typeof p.documentation === 'string'

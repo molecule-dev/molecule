@@ -49,8 +49,11 @@ const isReplayRequest = (input: RequestInfo | URL): boolean => {
   const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
   try {
     const url = new URL(raw)
-    const instance = mixpanel as unknown as { get_api_host?: (route: string) => string }
-    const host = instance.get_api_host?.('record') ?? mixpanel.get_config('api_host')
+    const replayHost: unknown =
+      'get_api_host' in mixpanel && typeof mixpanel.get_api_host === 'function'
+        ? mixpanel.get_api_host('record')
+        : undefined
+    const host = typeof replayHost === 'string' ? replayHost : mixpanel.get_config('api_host')
     return url.origin === new URL(host).origin && /\/record\/?$/.test(url.pathname)
   } catch (_error) {
     return false
@@ -197,9 +200,11 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
     before_send_groups: appendHook(configuredHooks?.before_send_groups, scrubSdkPayload),
     on_track: composeTrackHook(configuredHooks?.on_track),
   }
-  // mixpanel-browser 2.84.0 accepts hook arrays and before_send_people at runtime,
-  // although its published Config declaration omits both.
-  mixpanel.set_config({ hooks } as unknown as Partial<Config>)
+  // The SDK accepts hook arrays and person/group hooks at runtime.
+  const runtime = mixpanel as typeof mixpanel & {
+    set_config(config: { hooks: RuntimeHooks }): void
+  }
+  runtime.set_config({ hooks })
   installReplayTransportCapture()
 
   return {

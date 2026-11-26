@@ -4,7 +4,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import type { PaginatedRoomTypes, RoomTypeQuery, RoomTypeRow } from '../types.js'
+import type { PaginatedRoomTypes, RoomTypeRow } from '../types.js'
 import { toRoomType } from '../utilities.js'
 
 /**
@@ -14,11 +14,11 @@ import { toRoomType } from '../utilities.js'
  * `minCapacity` floor. Results are sorted by capacity descending so the
  * largest rooms appear first.
  *
- * @param req - The request with optional query params from {@link RoomTypeQuery}.
+ * @param req - The request with optional query params for room types.
  * @param res - The response object.
  */
 export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
-  const query = req.query as unknown as RoomTypeQuery
+  const query: Record<string, unknown> = req.query
 
   const page = Math.max(1, parseInt(String(query.page ?? '1'), 10) || 1)
   const limit = Math.min(100, Math.max(1, parseInt(String(query.limit ?? '20'), 10) || 20))
@@ -26,7 +26,7 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
   try {
     const where: WhereCondition[] = []
 
-    if (query.propertyId) {
+    if (typeof query.propertyId === 'string' && query.propertyId) {
       where.push({ field: 'propertyId', operator: '=' as const, value: query.propertyId })
     }
 
@@ -36,7 +36,7 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
     const activeOnly =
       typeof query.activeOnly === 'string'
         ? query.activeOnly !== 'false'
-        : Boolean(query.activeOnly)
+        : query.activeOnly === true
     if (activeOnly) {
       where.push({ field: 'active', operator: '=' as const, value: true })
     }

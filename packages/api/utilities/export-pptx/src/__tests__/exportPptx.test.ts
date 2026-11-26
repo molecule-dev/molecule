@@ -443,6 +443,25 @@ describe('createPptxExportHandler', () => {
     }
   }
 
+  it('rejects a nonstring slide text body before exporting', async () => {
+    const handle = createPptxExportHandler()
+    const res = fakeRes()
+    await handle(
+      {
+        body: {
+          slides: [
+            {
+              elements: [{ kind: 'text', x: 0, y: 0, w: 1, h: 1, body: 42 }],
+            },
+          ],
+        },
+      },
+      res,
+    )
+    expect(res.status).toBe(400)
+    expect(res.body).toEqual({ error: 'deck.slides contains a malformed slide or element' })
+  })
+
   it('returns a buffer with attachment Content-Disposition on success', async () => {
     const handle = createPptxExportHandler()
     const req: PptxRequest = {

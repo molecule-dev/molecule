@@ -495,11 +495,12 @@ class MoonshotAIProvider implements AIProvider {
         // continuity through the tool loop. The typed ChatMessage.reasoning
         // field is preferred; the legacy untyped `_reasoning` stays as a
         // fallback for older callers.
-        const rawMsg = m as unknown as Record<string, unknown>
+        const legacyReasoning = '_reasoning' in m ? m._reasoning : undefined
         formatted.push({
           role: 'assistant',
           content: parts.length > 0 ? parts : null,
-          reasoning_content: m.reasoning ?? ((rawMsg._reasoning as string) || ''),
+          reasoning_content:
+            m.reasoning ?? (typeof legacyReasoning === 'string' ? legacyReasoning : ''),
           tool_calls: toolCalls,
         })
       } else if (m.role === 'assistant' && m.reasoning) {

@@ -155,8 +155,8 @@ export const resetPassword = ({
         }
       }
 
-      const userId = (secrets as unknown as { id: string }).id
-      if (!userId) {
+      const userId = secrets.id
+      if (typeof userId !== 'string' || !userId) {
         return {
           statusCode: 500,
           body: {

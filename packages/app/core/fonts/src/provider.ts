@@ -42,8 +42,10 @@ export function resolveFontBasePath(basePath?: string): string {
     }
   }
   if (!base) {
-    const env = (import.meta as unknown as { env?: { BASE_URL?: unknown } }).env
-    if (typeof env?.BASE_URL === 'string') base = env.BASE_URL
+    const env = (import.meta as ImportMeta & { env?: { BASE_URL?: unknown } }).env
+    if (typeof env?.BASE_URL === 'string') {
+      base = env.BASE_URL
+    }
   }
   if (!base || base === '.' || base === './') return '/'
   if (!base.startsWith('/')) base = `/${base}`

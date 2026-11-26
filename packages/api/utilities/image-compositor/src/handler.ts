@@ -38,6 +38,8 @@ import type {
   CompositeFormat,
   CompositeOptions,
   CompositorDependencies,
+  Gradient,
+  Layer,
   LayeredImage,
 } from './types.js'
 
@@ -195,8 +197,124 @@ function parseRequestBody(body: unknown): ParsedBody | { error: string } {
   if (format !== undefined && format !== 'png' && format !== 'jpeg' && format !== 'webp') {
     return { error: 'options.format must be one of: png, jpeg, webp' }
   }
-  return {
-    doc: doc as unknown as LayeredImage,
-    options: optionsRaw as unknown as CompositeOptions,
+  const { width, height, background } = doc
+  if (!isNumber(width) || !isNumber(height) || !isOptionalString(background)) {
+    return { error: 'doc has invalid dimensions or background' }
   }
+  const layers: Layer[] = []
+  for (const source of doc.layers) {
+    const layer = readLayer(source)
+    if (!layer) return { error: 'doc.layers contains a malformed layer' }
+    layers.push(layer)
+  }
+  const { quality, resize } = optionsRaw
+  if (!isOptionalNumber(quality) || (resize !== undefined && !isResize(resize))) {
+    return { error: 'options has an invalid quality or resize' }
+  }
+  return {
+    doc: { ...doc, width, height, background, layers },
+    options: { ...optionsRaw, format, quality, resize },
+  }
+}
+
+/** Recognize a JSON object with named fields. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** Check a number read from the request body. */
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+/** Check an optional numeric field. */
+function isOptionalNumber(value: unknown): value is number | undefined {
+  return value === undefined || isNumber(value)
+}
+
+/** Check an optional string field. */
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string'
+}
+
+/** Check the optional output dimensions. */
+function isResize(value: unknown): value is NonNullable<CompositeOptions['resize']> {
+  return isRecord(value) && isOptionalNumber(value.width) && isOptionalNumber(value.height)
+}
+
+/** Rehydrate a Buffer serialized by Node's JSON representation. */
+function readBuffer(value: unknown): Buffer | undefined {
+  if (Buffer.isBuffer(value)) return value
+  if (
+    !isRecord(value) ||
+    value.type !== 'Buffer' ||
+    !Array.isArray(value.data) ||
+    !value.data.every(
+      (byte) => isNumber(byte) && Number.isInteger(byte) && byte >= 0 && byte <= 255,
+    )
+  ) {
+    return undefined
+  }
+  return Buffer.from(value.data)
+}
+
+/** Check the geometry and color stops of a gradient. */
+function isGradient(value: unknown): value is Gradient {
+  if (
+    !isRecord(value) ||
+    !Array.isArray(value.stops) ||
+    !value.stops.every(
+      (stop) => isRecord(stop) && isNumber(stop.offset) && typeof stop.color === 'string',
+    )
+  )
+    return false
+  if (value.type === 'linear') return [value.x0, value.y0, value.x1, value.y1].every(isNumber)
+  return value.type === 'radial' && [value.cx, value.cy, value.r].every(isNumber)
+}
+
+/** Read a compositing layer and convert serialized image and mask bytes. */
+function readLayer(value: unknown): Layer | undefined {
+  if (!isRecord(value)) return undefined
+  const { kind, position, opacity, blendMode, mask: sourceMask } = value
+  if (
+    !isRecord(position) ||
+    !isNumber(position.x) ||
+    !isNumber(position.y) ||
+    !isOptionalNumber(position.width) ||
+    !isOptionalNumber(position.height) ||
+    !isOptionalNumber(opacity)
+  )
+    return undefined
+  if (
+    blendMode !== undefined &&
+    blendMode !== 'normal' &&
+    blendMode !== 'multiply' &&
+    blendMode !== 'screen' &&
+    blendMode !== 'overlay'
+  )
+    return undefined
+  let mask: Layer['mask']
+  if (sourceMask !== undefined) {
+    if (!isRecord(sourceMask) || !isNumber(sourceMask.width) || !isNumber(sourceMask.height))
+      return undefined
+    const data = readBuffer(sourceMask.data)
+    if (!data) return undefined
+    mask = { data, width: sourceMask.width, height: sourceMask.height }
+  }
+  const base: Omit<Layer, 'kind'> = {
+    ...value,
+    position: { x: position.x, y: position.y, width: position.width, height: position.height },
+    opacity,
+    blendMode,
+    mask,
+  }
+  if (kind === 'fill' && typeof value.color === 'string')
+    return { ...base, kind, color: value.color }
+  if (kind === 'gradient' && isGradient(value.gradient))
+    return { ...base, kind, gradient: value.gradient }
+  if (kind === 'image') {
+    const src = readBuffer(value.src)
+    if (src) return { ...base, kind, src }
+  }
+  return undefined
 }

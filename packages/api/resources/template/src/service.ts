@@ -71,6 +71,13 @@ export function substituteString(
   })
 }
 
+/** The shape after replacing string leaves, including string literals, with strings. */
+export type Substituted<T> = T extends string
+  ? string
+  : T extends object
+    ? { [K in keyof T]: Substituted<T[K]> }
+    : T
+
 /**
  * Recursively walks a JSON-like value and substitutes placeholders inside
  * any string leaves. Non-string scalars are returned unchanged.
@@ -80,19 +87,22 @@ export function substituteString(
  * @param missing - Mutable array collecting unresolved variable names.
  * @returns A deep clone with placeholders resolved.
  */
-export function substitute<T>(value: T, variables: VariableValues, missing: string[] = []): T {
-  if (typeof value === 'string') {
-    return substituteString(value, variables, missing) as unknown as T
-  }
-  if (Array.isArray(value)) {
-    return value.map((item) => substitute(item, variables, missing)) as unknown as T
-  }
+export function substitute<T>(
+  value: T,
+  variables: VariableValues,
+  missing?: string[],
+): Substituted<T>
+export function substitute(
+  value: unknown,
+  variables: VariableValues,
+  missing: string[] = [],
+): unknown {
+  if (typeof value === 'string') return substituteString(value, variables, missing)
+  if (Array.isArray(value)) return value.map((item) => substitute(item, variables, missing))
   if (value !== null && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
-      out[key] = substitute(item, variables, missing)
-    }
-    return out as unknown as T
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, substitute(item, variables, missing)]),
+    )
   }
   return value
 }

@@ -42,5 +42,14 @@ export const legacyMessage = (value: unknown): ParacrineMessage | null => {
     (candidate.threadId !== undefined && typeof candidate.threadId !== 'string')
   )
     return null
-  return candidate as unknown as ParacrineMessage
+  return {
+    ...candidate,
+    id: candidate.id,
+    from: candidate.from,
+    to: candidate.to,
+    body: candidate.body,
+    sentAt: candidate.sentAt,
+    subject: candidate.subject,
+    threadId: candidate.threadId,
+  }
 }

@@ -100,16 +100,63 @@ interface RTDNData {
   eventTimeMillis?: string
 }
 
-/**
- * Shape of the raw Google Pub/Sub push message body.
- */
-interface PubSubBody {
-  subscription?: string
-  message?: {
-    data?: string
-    messageId?: string
-    publishTime?: string
-  }
+/** Checks that a Pub/Sub envelope or notification is a JSON record. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** Checks optional fields used for selection and verification in each notification. */
+function matchesFields<T extends object>(
+  value: unknown,
+  fields: { [K in keyof T]-?: 'string' | 'number' },
+): boolean {
+  return (
+    value === undefined ||
+    (isRecord(value) &&
+      Object.entries(fields).every(
+        ([key, kind]) => value[key] === undefined || typeof value[key] === kind,
+      ))
+  )
+}
+
+/** Validate the fields read by the RTDN handlers before they use a decoded message. */
+function isRTDNData(value: unknown): value is RTDNData {
+  return (
+    isRecord(value) &&
+    matchesFields<NonNullable<RTDNData['subscriptionNotification']>>(
+      value.subscriptionNotification,
+      {
+        notificationType: 'number',
+        purchaseToken: 'string',
+        subscriptionId: 'string',
+      },
+    ) &&
+    matchesFields<NonNullable<RTDNData['oneTimeProductNotification']>>(
+      value.oneTimeProductNotification,
+      {
+        version: 'string',
+        notificationType: 'number',
+        purchaseToken: 'string',
+        sku: 'string',
+      },
+    ) &&
+    matchesFields<NonNullable<RTDNData['voidedPurchaseNotification']>>(
+      value.voidedPurchaseNotification,
+      {
+        purchaseToken: 'string',
+        orderId: 'string',
+        productType: 'number',
+        refundType: 'number',
+      },
+    ) &&
+    matchesFields<NonNullable<RTDNData['testNotification']>>(value.testNotification, {
+      version: 'string',
+    }) &&
+    matchesFields<Pick<RTDNData, 'packageName' | 'eventTimeMillis'>>(value, {
+      packageName: 'string',
+      eventTimeMillis: 'string',
+    })
+  )
 }
 
 /**
@@ -225,22 +272,19 @@ export const paymentProvider: PaymentProvider = {
    */
   async parseNotification(body: unknown): Promise<ParsedNotification | null> {
     try {
-      const pubSubBody = body as PubSubBody
-
-      if (!pubSubBody?.message?.data) {
+      const message = isRecord(body) && isRecord(body.message) ? body.message : undefined
+      if (!message?.data) {
         logger.error('Google Play: parseNotification missing message.data')
         return null
       }
 
-      // Decode the base64-encoded data from Pub/Sub.
-      let data: RTDNData
-
-      if (typeof pubSubBody.message.data === 'string') {
-        const decoded = Buffer.from(pubSubBody.message.data, 'base64').toString('utf-8')
-        data = JSON.parse(decoded)
-      } else {
-        // Already parsed (some middleware may have decoded it).
-        data = pubSubBody.message.data as unknown as RTDNData
+      const data: unknown =
+        typeof message.data === 'string'
+          ? JSON.parse(Buffer.from(message.data, 'base64').toString('utf-8'))
+          : message.data
+      if (!isRTDNData(data)) {
+        logger.error('Google Play: parseNotification received malformed RTDN data')
+        return null
       }
 
       // Play Console's "Send test notification" button sends a testNotification

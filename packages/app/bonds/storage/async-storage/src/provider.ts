@@ -30,6 +30,41 @@ const ASYNC_STORAGE_PACKAGE = '@react-native-async-storage/async-storage'
  */
 let resolvedAsyncStorage: AsyncStorageAPI | undefined
 
+/** Checks the methods the storage provider delegates to. */
+function isAsyncStorage(value: unknown): value is AsyncStorageAPI {
+  if (!value || typeof value !== 'object') return false
+  const methods: ReadonlyArray<keyof AsyncStorageAPI> = [
+    'getItem',
+    'setItem',
+    'removeItem',
+    'getAllKeys',
+    'multiGet',
+    'multiSet',
+    'multiRemove',
+    'clear',
+  ]
+  return methods.every(
+    (method) => Reflect.has(value, method) && typeof Reflect.get(value, method) === 'function',
+  )
+}
+
+/** Handles ESM, CommonJS and Babel's nested default interop. */
+function resolveAsyncStorage(value: unknown): AsyncStorageAPI | undefined {
+  if (value && typeof value === 'object' && 'default' in value) {
+    if (isAsyncStorage(value.default)) return value.default
+    const nested = value.default
+    if (
+      nested &&
+      typeof nested === 'object' &&
+      'default' in nested &&
+      isAsyncStorage(nested.default)
+    ) {
+      return nested.default
+    }
+  }
+  return isAsyncStorage(value) ? value : undefined
+}
+
 /**
  * Gets the AsyncStorage instance, importing it lazily on first use.
  *
@@ -44,8 +79,9 @@ async function getAsyncStorage(): Promise<AsyncStorageAPI> {
   try {
     // Dynamic import returns the module namespace; `.default` holds the AsyncStorage instance.
     // CJS interop may nest the default export, so we resolve both shapes.
-    const mod = await import(ASYNC_STORAGE_PACKAGE)
-    const storage = (mod.default ?? (mod as unknown as AsyncStorageAPI)) as AsyncStorageAPI
+    const mod: unknown = await import(ASYNC_STORAGE_PACKAGE)
+    const storage = resolveAsyncStorage(mod)
+    if (!storage) throw new TypeError('The module does not expose the AsyncStorage API')
     resolvedAsyncStorage = storage
     return storage
   } catch (error) {

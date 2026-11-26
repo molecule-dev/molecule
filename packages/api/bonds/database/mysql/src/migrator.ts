@@ -152,7 +152,7 @@ async function openLedger(
   connection: mysql.Connection,
 ): Promise<{ applied: Set<string>; adopting: boolean }> {
   const count = async (sql: string, params: unknown[] = []): Promise<number> => {
-    const [rows] = (await connection.query(sql, params)) as unknown as [{ n?: unknown }[]]
+    const [rows] = await connection.query<(mysql.RowDataPacket & { n?: unknown })[]>(sql, params)
     return Number(rows?.[0]?.n ?? 0)
   }
   const tables =
@@ -162,9 +162,9 @@ async function openLedger(
   await connection.query(
     `CREATE TABLE IF NOT EXISTS "${MIGRATION_LEDGER}" ("file" VARCHAR(255) PRIMARY KEY, "applied_at" VARCHAR(40) NOT NULL)`,
   )
-  const [rows] = (await connection.query(
+  const [rows] = await connection.query<(mysql.RowDataPacket & { file?: unknown })[]>(
     `SELECT "file" FROM "${MIGRATION_LEDGER}"`,
-  )) as unknown as [{ file?: unknown }[]]
+  )
   return {
     applied: new Set((rows ?? []).map((r) => String(r.file))),
     adopting: had === 0 && others > 0,

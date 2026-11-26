@@ -130,8 +130,7 @@ export const createBrowserStorageAdapter = (
     if (storage) return storage
     if (resolved !== undefined && resolved !== null) return resolved
     try {
-      const areas = globalThis as unknown as Record<string, StorageAdapter | undefined>
-      const web = kind === 'session' ? areas.sessionStorage : areas.localStorage
+      const web = kind === 'session' ? globalThis.sessionStorage : globalThis.localStorage
       if (web) {
         // A store can be PRESENT and still unusable (a blocked third-party
         // context, a private mode): touching it throws, so probe before trusting it.

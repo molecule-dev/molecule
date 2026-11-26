@@ -63,10 +63,17 @@ describe('api-ai-embeddings-local', () => {
   })
 
   it('embedQuery returns the single vector for the text', async () => {
+    // The ordinary query path must still accept a numeric tensor.
+
     pipelineMock.mockResolvedValue(makePipe())
     const vector = await createProvider().embedQuery('hello')
     expect(vector).toHaveLength(384)
     expect(vector[0]).toBe('hello'.length)
+  })
+
+  it('rejects a tensor whose rows contain nonnumeric values', async () => {
+    pipelineMock.mockResolvedValue(async () => ({ tolist: () => [['not a number']] }))
+    await expect(createProvider().embedQuery('hello')).rejects.toThrow(/batch of numeric vectors/)
   })
 
   it('embed wraps a single string input and reports zero usage', async () => {

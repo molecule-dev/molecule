@@ -425,3 +425,10 @@ describe('@molecule/api-resource-template — service', () => {
     })
   })
 })
+
+it('keeps own JSON property names when substituting recursively', () => {
+  const source: Record<string, unknown> = { ['__proto__']: { name: '{{name}}' } }
+  const result = substitute(source, { name: 'Filled' })
+  expect(Object.hasOwn(result, '__proto__')).toBe(true)
+  expect(result['__proto__']).toEqual({ name: 'Filled' })
+})

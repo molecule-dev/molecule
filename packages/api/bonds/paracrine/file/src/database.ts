@@ -41,7 +41,7 @@ const RECENT_WRITE_MS = 60_000
 const SEQUENCE_WIDTH = 13
 const UNREADABLE = Symbol('unreadable legacy JSON')
 
-interface MessageRow {
+type MessageRow = {
   id: string
   sender: string
   recipient: string
@@ -52,7 +52,7 @@ interface MessageRow {
   thread_id: string | null
 }
 
-interface ClaimRow extends MessageRow {
+type ClaimRow = MessageRow & {
   selection_group: number
   old_state: 'pending' | 'claimed'
   old_token: string | null
@@ -484,7 +484,7 @@ export class ParacrineDatabase {
         `SELECT message_id FROM deliveries
          WHERE recipient = ? AND state = 'pending' ORDER BY message_id`,
       )
-      .all(recipient) as unknown as { message_id: string }[]
+      .all(recipient) as { message_id: string }[]
     return rows.map((row) => row.message_id + '.json')
   }
 
@@ -501,12 +501,7 @@ export class ParacrineDatabase {
            ))
          ORDER BY sent_ms, id`,
       )
-      .all(
-        query.for,
-        sinceMs,
-        query.unreadOnly === true ? 1 : 0,
-        query.for,
-      ) as unknown as MessageRow[]
+      .all(query.for, sinceMs, query.unreadOnly === true ? 1 : 0, query.for) as MessageRow[]
     return rows
       .map(toMessage)
       .filter(
@@ -541,7 +536,7 @@ export class ParacrineDatabase {
         `SELECT kind, recipient, at FROM receipts
          WHERE message_id = ? ORDER BY recipient, kind`,
       )
-      .all(messageId) as unknown as { kind: 'read' | 'delivery'; recipient: string; at: string }[]
+      .all(messageId) as { kind: 'read' | 'delivery'; recipient: string; at: string }[]
     return rows.map((row) => ({
       messageId,
       by: row.kind === 'delivery' ? row.recipient + DELIVERY_SUFFIX : row.recipient,
@@ -555,7 +550,7 @@ export class ParacrineDatabase {
     return this.transaction(() => {
       const rows = this.db
         .prepare('DELETE FROM messages WHERE sent_ms < ? RETURNING id')
-        .all(beforeMs) as unknown as { id: string }[]
+        .all(beforeMs) as { id: string }[]
       if (options.includeReceipts === true) {
         const remove = this.db.prepare('DELETE FROM receipts WHERE message_id = ?')
         for (const row of rows) remove.run(row.id)
@@ -589,7 +584,7 @@ export class ParacrineDatabase {
              ORDER BY d.selection_group, d.sent_ms, d.message_id
              LIMIT ?`,
           )
-          .all(recipient, group, sinceMs, maximum + 1) as unknown as ClaimRow[]
+          .all(recipient, group, sinceMs, maximum + 1) as ClaimRow[]
         const stale = this.db
           .prepare(
             `SELECT m.*, d.selection_group, d.state AS old_state,
@@ -600,7 +595,7 @@ export class ParacrineDatabase {
              ORDER BY d.selection_group, d.sent_ms, d.message_id
              LIMIT ?`,
           )
-          .all(recipient, group, sinceMs, staleBefore, maximum + 1) as unknown as ClaimRow[]
+          .all(recipient, group, sinceMs, staleBefore, maximum + 1) as ClaimRow[]
         candidates.push(...pending, ...stale)
       }
       candidates.sort(

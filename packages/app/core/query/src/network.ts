@@ -25,11 +25,6 @@ export function shouldPrefetch(): boolean {
   return !/(^|-)2g$/.test(connection.effectiveType ?? '')
 }
 
-interface IdleWindow {
-  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
-  cancelIdleCallback?: (id: number) => void
-}
-
 /**
  * Runs `fn` when the browser is idle, or after `timeout` milliseconds at the
  * latest; where idle callbacks do not exist, after a short delay.
@@ -40,10 +35,9 @@ interface IdleWindow {
  */
 export function whenIdle(fn: () => void, timeout = 2000): () => void {
   if (typeof window === 'undefined') return () => {}
-  const w = window as unknown as IdleWindow
-  if (w.requestIdleCallback) {
-    const id = w.requestIdleCallback(fn, { timeout })
-    return () => w.cancelIdleCallback?.(id)
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(fn, { timeout })
+    return () => window.cancelIdleCallback?.(id)
   }
   const id = window.setTimeout(fn, 300)
   return () => window.clearTimeout(id)

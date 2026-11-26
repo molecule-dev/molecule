@@ -64,19 +64,16 @@ const failure = (
   return err
 }
 
-interface SoftFailSink {
-  _failWithError?: (e: Error) => void
-}
-
 const record = (soft: boolean, err: Error): void => {
   if (!soft) throw err
-  let info: SoftFailSink | null
+  let info: ReturnType<typeof playwrightTest.info> | null
   try {
-    info = playwrightTest.info() as unknown as SoftFailSink
+    info = playwrightTest.info()
   } catch (_error) {
     info = null
   }
-  if (info && typeof info._failWithError === 'function') info._failWithError(err)
+  if (info && '_failWithError' in info && typeof info._failWithError === 'function')
+    info._failWithError(err)
   else throw err
 }
 
@@ -377,7 +374,7 @@ const wrap = (base: AnyExpect, defaults: MatcherDefaults): AnyExpect =>
         return locatorMatchers(actual, { ...defaults, message: message ?? defaults.message })
       if (isE2EPage(actual))
         return pageMatchers(actual, { ...defaults, message: message ?? defaults.message })
-      return Reflect.apply(target as unknown as (...a: unknown[]) => unknown, thisArg, args)
+      return Reflect.apply(target, thisArg, args)
     },
     get(target, prop, receiver) {
       if (prop === 'soft') {

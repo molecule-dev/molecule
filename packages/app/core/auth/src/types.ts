@@ -857,7 +857,7 @@ export interface StorageAdapter {
  * wire user — the base fields (`id`, `name`, `avatar`) come from the server like
  * any other, never re-derived from a mutable display field such as a username;
  * mapping a field to a different name does not preserve the original, and an
- * `as unknown as MyUser` assertion hides the loss. See the module docs for the
+ * unchecked assertion hides the loss. See the module docs for the
  * wire-preserving adapter.
  *
  * `T` is the app's OWN profile shape and need not extend {@link UserProfile}:

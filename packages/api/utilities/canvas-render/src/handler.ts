@@ -30,7 +30,7 @@
  */
 
 import { renderCanvasDocument } from './renderCanvasDocument.js'
-import type { CanvasDocument, RenderOptions } from './types.js'
+import type { CanvasDocument, Layer, RenderOptions } from './types.js'
 
 /**
  * Minimal request shape consumed by {@link createCanvasRenderHandler}.
@@ -149,8 +149,94 @@ function parseRequestBody(body: unknown): ParsedBody | { error: string } {
   if (format !== 'png' && format !== 'svg' && format !== 'pdf') {
     return { error: 'options.format must be one of: png, svg, pdf' }
   }
+  const { width, height, background, layers } = doc
+  if (!isNumber(width) || !isNumber(height) || !isOptionalString(background)) {
+    return { error: 'doc dimensions and background must be valid' }
+  }
+  if (!Array.isArray(layers) || !layers.every(isLayer)) {
+    return { error: 'doc.layers contains a malformed layer' }
+  }
+  const { width: outputWidth, height: outputHeight, dpi } = optionsRaw
+  if (!isOptionalNumber(outputWidth) || !isOptionalNumber(outputHeight) || !isOptionalNumber(dpi)) {
+    return { error: 'options.width, options.height and options.dpi must be numbers' }
+  }
   return {
-    doc: doc as unknown as CanvasDocument,
-    options: optionsRaw as unknown as RenderOptions,
+    doc: { ...doc, width, height, background, layers },
+    options: { ...optionsRaw, format, width: outputWidth, height: outputHeight, dpi },
+  }
+}
+
+/** Recognize a JSON object with named fields. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** Check a number read from the request body. */
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+/** Check an optional numeric field. */
+function isOptionalNumber(value: unknown): value is number | undefined {
+  return value === undefined || isNumber(value)
+}
+
+/** Check an optional string field. */
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string'
+}
+
+/** Check one canvas layer, including the contents of nested groups. */
+function isLayer(value: unknown): value is Layer {
+  if (
+    !isRecord(value) ||
+    ![value.x, value.y, value.rotation, value.scaleX, value.scaleY, value.opacity].every(
+      isOptionalNumber,
+    )
+  )
+    return false
+  if (value.kind === 'group') return Array.isArray(value.children) && value.children.every(isLayer)
+  if (value.kind === 'image') {
+    return (
+      [value.x, value.y, value.width, value.height].every(isNumber) &&
+      [value.src, value.data, value.mimeType].every(isOptionalString) &&
+      (value.buffer === undefined || Buffer.isBuffer(value.buffer))
+    )
+  }
+  if (![value.fill, value.stroke].every(isOptionalString) || !isOptionalNumber(value.strokeWidth)) {
+    return false
+  }
+  switch (value.kind) {
+    case 'rect':
+      return (
+        [value.x, value.y, value.width, value.height].every(isNumber) &&
+        isOptionalNumber(value.radius)
+      )
+    case 'ellipse':
+      return [value.x, value.y, value.width, value.height].every(isNumber)
+    case 'line':
+      return [value.x1, value.y1, value.x2, value.y2].every(isNumber)
+    case 'path':
+      return typeof value.d === 'string'
+    case 'text':
+      return (
+        [value.x, value.y].every(isNumber) &&
+        typeof value.text === 'string' &&
+        isOptionalString(value.fontFamily) &&
+        isOptionalNumber(value.fontSize) &&
+        (typeof value.fontWeight === 'string' || isOptionalNumber(value.fontWeight)) &&
+        (value.italic === undefined || typeof value.italic === 'boolean') &&
+        (value.align === undefined ||
+          value.align === 'left' ||
+          value.align === 'center' ||
+          value.align === 'right') &&
+        (value.baseline === undefined ||
+          value.baseline === 'top' ||
+          value.baseline === 'middle' ||
+          value.baseline === 'alphabetic' ||
+          value.baseline === 'bottom')
+      )
+    default:
+      return false
   }
 }

@@ -69,11 +69,8 @@ const hasHttpErrorBrand = (failure: unknown): failure is object =>
   Object.getOwnPropertyDescriptor(failure, HTTP_ERROR_BRAND)?.value === true
 
 /** Capture every non-response field on the original error, preserving native stacks and receivers. */
-const snapshotHttpFailureFields = (
-  failure: object,
-  response: HttpResponse | undefined,
-): Record<string, unknown> => {
-  const originalFields = new Error() as unknown as Record<string, unknown>
+const snapshotHttpFailureFields = (failure: object, response: HttpResponse | undefined): Error => {
+  const originalFields = new Error()
   const visited = new Set<string>()
   for (const key of [...ERROR_DATA_FIELDS, ...Reflect.ownKeys(failure)]) {
     if (key === 'response') continue
@@ -94,7 +91,7 @@ const snapshotHttpFailureFields = (
       writable: true,
     })
   }
-  const snapshot = snapshotCredentials(originalFields) as Record<string, unknown>
+  const snapshot = snapshotCredentials(originalFields)
   Object.defineProperty(snapshot, 'response', {
     value: response,
     enumerable: true,

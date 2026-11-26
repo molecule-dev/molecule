@@ -25,11 +25,21 @@ export async function createExtractor(config: ResolvedLocalEmbeddingsConfig): Pr
   return async (texts) => {
     const vectors: number[][] = []
     for (let start = 0; start < texts.length; start += config.batchSize) {
-      const tensor = (await pipe(texts.slice(start, start + config.batchSize), {
+      const tensor = await pipe(texts.slice(start, start + config.batchSize), {
         pooling: config.pooling,
         normalize: config.normalize,
-      })) as unknown as { tolist(): number[][] }
-      for (const vector of tensor.tolist()) vectors.push(vector)
+      })
+      const batch: unknown = tensor.tolist()
+      if (
+        !Array.isArray(batch) ||
+        !batch.every(
+          (vector): vector is number[] =>
+            Array.isArray(vector) && vector.every((value) => typeof value === 'number'),
+        )
+      ) {
+        throw new TypeError('Embedding model output must be a batch of numeric vectors')
+      }
+      vectors.push(...batch)
     }
     return vectors
   }
