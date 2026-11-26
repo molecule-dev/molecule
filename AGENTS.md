@@ -307,8 +307,9 @@ duplicate a bunch of work". A React feature package (`features/*-react`) is the 
 React DOM and React Native both; no `-react-native` feature port is written. Vue, Svelte, Solid and
 Angular keep their ports, which the conformance kit holds to React's output.
 
-Today 185 of the 201 React features still render raw DOM tags (`div`, `span`, `button`), which React
-Native cannot render. The design:
+React Native cannot render raw DOM tags (`div`, `span`, `button`). Every React feature renders the
+elements below except those in `eslint-rules/intrinsic-jsx-pending.json` (15 of 201 on 2026-11-26; the
+list may only shrink). The design:
 
 - Renderer-neutral elements (`Box`, `Text`, `Pressable`, `TextField`, `Image`, `ScrollArea`, `Svg`,
   `Link`, `GlyphIcon`). Their props are typed once in `@molecule/app-ui` (`elements.ts`). Each has an
@@ -329,10 +330,12 @@ Native cannot render. The design:
 - A lint rule bans lowercase JSX tags in `features/*-react` and the kit's components, with a list of
   the packages not yet converted that may only shrink.
 - Features that are inherently DOM (canvas, maps, HTML5 drag-and-drop, media players, code editors) are
-  registered web-only, so `mlcl add` refuses them on React Native with the reason.
+  registered web-only, so `mlcl add` refuses them on React Native with the reason. mlcl's pre-commit
+  (`scripts/check-react-native-refusals.mjs`) refuses a registry in which a feature on the pending list
+  has neither its own `webOnlyReason` nor a required peer that has one.
 
-Converted so far: NotificationFeed, AmountInput, Sparkline. Keep DOM-only APIs (layout
-measurement, raw HTML injection, HTML5 drag-and-drop) out of features that are not inherently DOM.
+Keep DOM-only APIs (layout measurement, raw HTML injection, HTML5 drag-and-drop) out of features that
+are not inherently DOM.
 
 ### UIClassMap
 
