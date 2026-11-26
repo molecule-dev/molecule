@@ -34,7 +34,7 @@
     "directory": "packages/app/bonds/query/memory"
   },
   "peerDependencies": {
-    "@molecule/app-query": "^1.0.0"
+    "@molecule/app-query": "^1.3.1"
   },
   "devDependencies": {
     "@molecule/app-query": "1.3.4",

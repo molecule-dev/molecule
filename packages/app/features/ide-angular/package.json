@@ -58,7 +58,7 @@
     "@angular/core": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@molecule/app-ai-chat": "^1.8.0",
-    "@molecule/app-ai-models": "^1.2.0",
+    "@molecule/app-ai-models": "^1.4.0",
     "@molecule/app-ai-voice": "^1.0.1",
     "@molecule/app-angular": "^3.14.0",
     "@molecule/app-clipboard": "^1.0.1",

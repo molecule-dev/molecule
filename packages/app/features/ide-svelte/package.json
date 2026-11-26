@@ -61,7 +61,7 @@
   },
   "peerDependencies": {
     "@molecule/app-ai-chat": "^1.8.0",
-    "@molecule/app-ai-models": "^1.2.0",
+    "@molecule/app-ai-models": "^1.4.0",
     "@molecule/app-ai-voice": "^1.0.1",
     "@molecule/app-clipboard": "^1.0.1",
     "@molecule/app-code-editor": "^1.0.1",
