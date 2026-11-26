@@ -5,4 +5,6 @@ export const lv: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Aizvērt',
   'lightbox.previous': 'Iepriekšējais',
   'lightbox.next': 'Nākamais',
+  'lightbox.image': 'Attēls {{index}}',
+  'lightbox.imageOfTotal': 'Attēls {{index}} no {{total}}',
 }

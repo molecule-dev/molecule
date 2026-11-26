@@ -113,7 +113,7 @@ export const reportModalCases: FeatureComponentCases = {
       callbacks: ['onClose', 'onSubmitted'],
       interactions: [
         { type: 'click', selector: '[data-mol-id="report-modal"]' },
-        { type: 'click', selector: '[data-mol-id="report-modal-backdrop"]' },
+        { type: 'click', selector: 'div[role="presentation"]:has(> [role="dialog"])' },
       ],
     },
 

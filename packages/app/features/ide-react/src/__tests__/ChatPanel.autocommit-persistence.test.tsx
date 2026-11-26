@@ -29,7 +29,7 @@
  * @module
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -156,9 +156,7 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = (): void => {}
 })
 
-afterEach(() => {
-  document.body.innerHTML = ''
-})
+afterEach(cleanup)
 
 /**
  * Submits a slash command through the real composer (the space closes the
@@ -177,7 +175,7 @@ function submitCommand(container: HTMLElement, text: string): void {
 describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
   it('hydrates the saved cadence on load — shown in /settings; nothing on a clean tree', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({ autoCommitSeconds: 30 }, patchSpy)),
     )
 
@@ -205,7 +203,7 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
 
   it('is ON by default when no cadence was ever saved — paused (no badge), no spurious PATCH', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
+    const { baseElement: container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
 
     // The default hydrates like a saved cadence: paused, visible in /settings as
     // the default "Every Ns". (The commit-bar button needs pending files, and the
@@ -230,7 +228,7 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
 
   it('respects an explicit off (autoCommitSeconds: 0) — never re-defaulted to on', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({ autoCommitSeconds: 0 }, patchSpy)),
     )
 
@@ -252,7 +250,7 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
 
   it('debounce-PATCHes settings.autoCommitSeconds when the cadence changes (explicit off → /autocommit 30)', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({ autoCommitSeconds: 0 }, patchSpy)),
     )
 

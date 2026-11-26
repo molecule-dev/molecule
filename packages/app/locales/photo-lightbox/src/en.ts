@@ -5,4 +5,6 @@ export const en: PhotoLightboxTranslations = {
   'lightbox.close': 'Close',
   'lightbox.previous': 'Previous',
   'lightbox.next': 'Next',
+  'lightbox.image': 'Image {{index}}',
+  'lightbox.imageOfTotal': 'Image {{index}} of {{total}}',
 }

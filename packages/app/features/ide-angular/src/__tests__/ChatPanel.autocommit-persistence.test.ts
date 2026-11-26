@@ -120,7 +120,7 @@ async function mountChatPanel(
     projectId: PROJECT_ID,
     props: { isLight: true, ...props },
   })
-  return mounted.container
+  return mounted.container.ownerDocument.body
 }
 
 /**

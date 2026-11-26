@@ -185,7 +185,7 @@ function mountChatPanel(
     projectId: PROJECT_ID,
     props: { ...extraProps },
   })
-  return mounted.container
+  return mounted.container.ownerDocument.body
 }
 
 /**

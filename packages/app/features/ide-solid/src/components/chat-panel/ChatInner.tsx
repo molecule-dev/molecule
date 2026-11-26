@@ -221,7 +221,6 @@ function buildChatInnerCtx(props: ChatInnerProps): ChatInnerCtx {
   ctx.tips.effects[3]()
   ctx.tips.effects[4]()
   ctx.sounds.effects[1]()
-  ctx.overlay.effects[1]()
   ctx.tests.effects[1]()
   ctx.tests.effects[2]()
   ctx.sounds.effects[2]()

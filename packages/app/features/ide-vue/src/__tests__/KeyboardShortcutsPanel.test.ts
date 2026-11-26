@@ -1,12 +1,7 @@
 // @vitest-environment jsdom
 /**
- * `KeyboardShortcutsPanel`'s document key listener — the Vue port of
- * `@molecule/app-ide-react/src/__tests__/KeyboardShortcutsPanel.test.tsx` with
- * the same test names and the same behavioral assertions, mounted through Vue's
- * own `createApp`. The listener reads the LATEST shortcuts and selection
- * reactively, so after the caller changes `shortcuts` the very next key acts on
- * the new list (a stale listener would clamp to the old length and run the old
- * entry).
+ * Exercises keyboard navigation inside the kit dialog using Vue's `createApp`.
+ * The next key uses the latest shortcuts and selection.
  *
  * @module
  */
@@ -87,12 +82,14 @@ async function rerender(next: ShortcutEntry[]): Promise<void> {
 }
 
 /**
- * Fires a key press at `document` the way the user would.
+ * Dispatches a key press from the shortcuts dialog.
  *
  * @param key - The key value.
  */
 function keyDown(key: string): void {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a shortcuts dialog')
+  dialog.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
 }
 
 describe('KeyboardShortcutsPanel keyboard navigation', () => {

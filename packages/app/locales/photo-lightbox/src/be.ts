@@ -5,4 +5,6 @@ export const be: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Закрыць',
   'lightbox.previous': 'Папярэдні',
   'lightbox.next': 'Далей',
+  'lightbox.image': 'Выява {{index}}',
+  'lightbox.imageOfTotal': 'Выява {{index}} з {{total}}',
 }

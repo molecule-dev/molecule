@@ -5,4 +5,6 @@ export const hr: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Zatvoriti',
   'lightbox.previous': 'Prethodno',
   'lightbox.next': 'Sljedeći',
+  'lightbox.image': 'Slika {{index}}',
+  'lightbox.imageOfTotal': 'Slika {{index}} od {{total}}',
 }

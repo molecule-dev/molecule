@@ -221,6 +221,7 @@ import {
 } from '@molecule/app-react'
 import { useCommittedRef, useEffectEvent, useStableCallback } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-react'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 import { SelectField } from '@molecule/app-ui-react/elements'
 
@@ -1726,19 +1727,6 @@ function ChatInner({
   // #endregion chat:prefs
 
   // #region chat:overlay
-  // Escape closes the overlay from anywhere inside it — including the embedded
-  // card's own search input — the way this package's modals (ShareModal,
-  // ReportModal) already do. A dialog is a WAI-ARIA widget, so its key listener
-  // lives here rather than as a handler on a static element.
-  // #effect chat:overlay:1
-  useEffect(() => {
-    if (!panelOverlay) return
-    const handler = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') setPanelOverlay(null)
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [panelOverlay])
   const openPanelOverlay = useCallback(
     (variant: 'skills' | 'scripts' | 'settings' | 'tests', query = ''): void => {
       // Close any sibling popup so overlays never stack (matches how the model
@@ -7510,34 +7498,14 @@ function ChatInner({
           </div>
         )}
 
-        {/* Panel overlay popup (/skills, /scripts, /settings) — a closeable popup
-            above the composer, mirroring the model + sounds picker shell. A thin
-            header bar carries the title (left) + the ✕ (right) — NOT absolutely
-            positioned over the card, so it never overlaps the card's own top-right
-            actions (New skill / New script). The card mounts `embedded` in the
-            scrollable body below, rendering transparent so the overlay's `cm.surface`
-            is the single clean background (no nested gray panel). Esc also closes. */}
         {panelOverlay && (
-          <div
-            className={cm.cn(cm.surface, cm.borderAll)}
-            // A non-modal popover dialog above the composer: it carries the
-            // embedded card, closes on Escape, and takes a name from the same
-            // key its header title renders.
-            role="dialog"
+          <Modal
+            open
+            onClose={() => setPanelOverlay(null)}
+            showCloseButton={false}
+            size="lg"
             aria-label={panelOverlayHeading(t, panelOverlay)}
-            style={{
-              position: 'absolute',
-              bottom: '100%',
-              left: 0,
-              right: 0,
-              marginBottom: 0,
-              borderRadius: '6px 6px 0 0',
-              zIndex: 100,
-              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
-              display: 'flex',
-              flexDirection: 'column',
-              maxHeight: popupMaxHeight,
-            }}
+            data-mol-id="chat-panel-overlay"
           >
             {/* Header bar — title on the left, ✕ on the right (mirrors the /sounds
                 popup header). The title reuses each panel's existing heading key
@@ -7653,7 +7621,7 @@ function ChatInner({
                 </>
               )}
             </div>
-          </div>
+          </Modal>
         )}
 
         {/* File picker popup */}

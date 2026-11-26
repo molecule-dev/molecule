@@ -140,7 +140,7 @@ async function renderPicker(
   ref.changeDetectorRef.markForCheck()
   current = { appRef, ref, container }
   await flush()
-  const input = container.querySelector('input')
+  const input = container.ownerDocument.querySelector('input')
   if (!input) throw new Error('missing quick picker input')
   return { ...current, input }
 }
@@ -222,12 +222,16 @@ describe('components migrated off the static t re-render on a locale switch', ()
     ref.changeDetectorRef.markForCheck()
     current = { appRef, ref, container }
     await flush()
-    expect(container.textContent).toContain('Loading…')
+    expect(container.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Loading…',
+    )
 
     // The switch itself: the component must re-render in French. Against the
     // static `t` this stays 'Loading…' — nothing subscribed it to the provider.
     await provider.setLocale('fr')
     await flush()
-    expect(container.textContent).toContain('Chargement…')
+    expect(container.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Chargement…',
+    )
   })
 })

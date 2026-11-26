@@ -10,8 +10,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { KeyboardShortcutsPanelProps, ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
-import { useEffectEvent } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-react'
 
 /**
  * Groups shortcuts by category, preserving insertion order.
@@ -72,7 +72,7 @@ export function KeyboardShortcutsPanel({
   const { t } = useTranslation()
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
-  const panelRef = useRef<HTMLDivElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const [selectedIndex, setSelectedIndex] = useState(0)
 
@@ -95,15 +95,8 @@ export function KeyboardShortcutsPanel({
     el?.scrollIntoView({ block: 'nearest' })
   }, [selectedIndex])
 
-  // An Effect Event: the document listener registers once and still sees the
-  // latest shortcuts/selection of the committed render, so it never needs
-  // re-registering (and never reads a value from a render React discarded).
-  const onKeyDown = useEffectEvent((e: KeyboardEvent) => {
+  const onKeyDown = (e: KitKeyboardEvent): void => {
     switch (e.key) {
-      case 'Escape':
-        e.preventDefault()
-        onDismiss()
-        break
       case 'ArrowDown':
         e.preventDefault()
         setSelectedIndex((i) => Math.min(i + 1, flatEntries.length - 1))
@@ -122,17 +115,7 @@ export function KeyboardShortcutsPanel({
         break
       }
     }
-  })
-
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown, true)
-    return () => document.removeEventListener('keydown', onKeyDown, true)
-  }, [])
-
-  // Focus the panel so keyboard events work immediately
-  useEffect(() => {
-    panelRef.current?.focus()
-  }, [])
+  }
 
   // The selected-row tint follows the theme primary (so a rebranded app tints
   // its own picker), never a literal blue; the hex is only the CSS-var fallback.
@@ -144,190 +127,162 @@ export function KeyboardShortcutsPanel({
   let flatIndex = -1
 
   return (
-    <>
-      {/* Backdrop — role="presentation": a sibling click-away surface that
-          receives only its own clicks; Escape dismisses through the document
-          key handler above. */}
+    <Modal
+      open
+      onClose={onDismiss}
+      ref={dialogRef}
+      initialFocus={dialogRef}
+      onKeyDown={onKeyDown}
+      showCloseButton={false}
+      aria-label={t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
+      style={{ maxHeight: '70vh' }}
+    >
+      {/* Header */}
       <div
-        role="presentation"
-        onClick={onDismiss}
         style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1000,
-          background: 'rgba(0,0,0,0.4)',
-        }}
-      />
-      {/* Panel */}
-      <div
-        ref={panelRef}
-        tabIndex={-1}
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 480,
-          maxWidth: '90vw',
-          maxHeight: '70vh',
-          zIndex: 1001,
-          borderRadius: 8,
-          overflow: 'hidden',
-          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-          background: isLight ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
-          border: '1px solid var(--color-border, #333)',
           display: 'flex',
-          flexDirection: 'column',
-          outline: 'none',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 16px 10px',
+          borderBottom: '1px solid var(--color-border, #333)',
+          flexShrink: 0,
         }}
       >
-        {/* Header */}
-        <div
+        <span style={{ fontSize: 14, fontWeight: 600 }}>
+          {t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
+        </span>
+        {/* mol-bespoke-button: icon-only ✕ panel dismiss — the IDE's one
+            dismiss mark (same SVG, same 4px-radius square box, same hover
+            scrim as the tab close and the chat-card dismisses), on the full
+            44px coarse floor DESIGN.md reserves for icon-only ✕ dismisses.
+            It was a bare text × with no label and no hit floor. */}
+        <button
+          type="button"
+          data-mol-id="shortcuts-close"
+          onClick={onDismiss}
+          aria-label={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
+          title={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
+          className={cm.cn(cm.touchTarget, cm.shrink0)}
           style={{
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '14px 16px 10px',
-            borderBottom: '1px solid var(--color-border, #333)',
-            flexShrink: 0,
+            justifyContent: 'center',
+            width: 18,
+            height: 18,
+            borderRadius: 4,
+            border: 'none',
+            background: 'transparent',
+            color: 'inherit',
+            cursor: 'pointer',
+            opacity: 0.6,
+            transition: 'opacity 100ms, background 100ms',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1'
+            e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.6'
+            e.currentTarget.style.background = 'transparent'
           }}
         >
-          <span style={{ fontSize: 14, fontWeight: 600 }}>
-            {t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
-          </span>
-          {/* mol-bespoke-button: icon-only ✕ panel dismiss — the IDE's one
-              dismiss mark (same SVG, same 4px-radius square box, same hover
-              scrim as the tab close and the chat-card dismisses), on the full
-              44px coarse floor DESIGN.md reserves for icon-only ✕ dismisses.
-              It was a bare text × with no label and no hit floor. */}
-          <button
-            type="button"
-            data-mol-id="shortcuts-close"
-            onClick={onDismiss}
-            aria-label={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
-            title={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
-            className={cm.cn(cm.touchTarget, cm.shrink0)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 18,
-              height: 18,
-              borderRadius: 4,
-              border: 'none',
-              background: 'transparent',
-              color: 'inherit',
-              cursor: 'pointer',
-              opacity: 0.6,
-              transition: 'opacity 100ms, background 100ms',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '1'
-              e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '0.6'
-              e.currentTarget.style.background = 'transparent'
-            }}
-          >
-            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M3 3l10 10M13 3L3 13"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        </div>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 3l10 10M13 3L3 13"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      </div>
 
-        {/* Shortcut list */}
-        <div ref={listRef} style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
-          {Array.from(groups.entries()).map(([category, entries]) => (
-            <div key={category}>
-              {category && (
-                <div
+      {/* Shortcut list */}
+      <div ref={listRef} style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
+        {Array.from(groups.entries()).map(([category, entries]) => (
+          <div key={category}>
+            {category && (
+              <div
+                style={{
+                  padding: '8px 16px 4px',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--mol-color-text-secondary, #888)',
+                }}
+              >
+                {category}
+              </div>
+            )}
+            {entries.map((entry) => {
+              flatIndex++
+              const idx = flatIndex
+              const isSelected = idx === selectedIndex
+              return (
+                <button
+                  key={entry.label}
+                  type="button"
+                  data-shortcut-row
+                  data-mol-id={`shortcut-row-${idx}`}
+                  onClick={() => {
+                    if (entry.execute) {
+                      entry.execute()
+                      onDismiss()
+                    }
+                  }}
+                  onMouseEnter={() => setSelectedIndex(idx)}
+                  className={cm.touchTargetCompact}
+                  /* mol-bespoke-button: a shortcut-list ROW (label + key
+                     badges) with keyboard-driven selection — a list item, not
+                     a CTA. Its selected tint is a theme token and its 36px
+                     coarse floor comes from the ClassMap. */
                   style={{
-                    padding: '8px 16px 4px',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--mol-color-text-secondary, #888)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '6px 16px',
+                    fontSize: 13,
+                    width: '100%',
+                    border: 'none',
+                    background: isSelected ? selectedBg : 'transparent',
+                    color: 'var(--mol-color-text, currentColor)',
+                    cursor: entry.execute ? 'pointer' : 'default',
+                    textAlign: 'left',
+                    borderRadius: 0,
                   }}
                 >
-                  {category}
-                </div>
-              )}
-              {entries.map((entry) => {
-                flatIndex++
-                const idx = flatIndex
-                const isSelected = idx === selectedIndex
-                return (
-                  <button
-                    key={entry.label}
-                    type="button"
-                    data-shortcut-row
-                    data-mol-id={`shortcut-row-${idx}`}
-                    onClick={() => {
-                      if (entry.execute) {
-                        entry.execute()
-                        onDismiss()
-                      }
-                    }}
-                    onMouseEnter={() => setSelectedIndex(idx)}
-                    className={cm.touchTargetCompact}
-                    /* mol-bespoke-button: a shortcut-list ROW (label + key
-                       badges) with keyboard-driven selection — a list item, not
-                       a CTA. Its selected tint is a theme token and its 36px
-                       coarse floor comes from the ClassMap. */
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '6px 16px',
-                      fontSize: 13,
-                      width: '100%',
-                      border: 'none',
-                      background: isSelected ? selectedBg : 'transparent',
-                      color: 'var(--mol-color-text, currentColor)',
-                      cursor: entry.execute ? 'pointer' : 'default',
-                      textAlign: 'left',
-                      borderRadius: 0,
-                    }}
-                  >
-                    <span>{entry.label}</span>
-                    <span style={{ display: 'flex', gap: 4, flexShrink: 0, marginLeft: 16 }}>
-                      {entry.keys.split(' ').map((part, i) => (
-                        <KeyBadge key={i} isLight={isLight}>
-                          {part}
-                        </KeyBadge>
-                      ))}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-
-        {/* Footer hint */}
-        <div
-          style={{
-            padding: '8px 16px',
-            borderTop: '1px solid var(--color-border, #333)',
-            fontSize: 11,
-            color: 'var(--mol-color-text-secondary, #888)',
-            textAlign: 'center',
-            flexShrink: 0,
-          }}
-        >
-          {t('ide.shortcuts.hint', undefined, {
-            defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close',
-          })}
-        </div>
+                  <span>{entry.label}</span>
+                  <span style={{ display: 'flex', gap: 4, flexShrink: 0, marginLeft: 16 }}>
+                    {entry.keys.split(' ').map((part, i) => (
+                      <KeyBadge key={i} isLight={isLight}>
+                        {part}
+                      </KeyBadge>
+                    ))}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        ))}
       </div>
-    </>
+
+      {/* Footer hint */}
+      <div
+        style={{
+          padding: '8px 16px',
+          borderTop: '1px solid var(--color-border, #333)',
+          fontSize: 11,
+          color: 'var(--mol-color-text-secondary, #888)',
+          textAlign: 'center',
+          flexShrink: 0,
+        }}
+      >
+        {t('ide.shortcuts.hint', undefined, {
+          defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close',
+        })}
+      </div>
+    </Modal>
   )
 }
 

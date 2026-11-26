@@ -181,7 +181,9 @@ export const quickPickerCases: FeatureComponentCases = {
       name: 'clicking the backdrop dismisses the picker',
       props: { items: ITEMS },
       callbacks: ['onSelect', 'onDismiss'],
-      interactions: [{ type: 'click', selector: 'body > div > div > div:nth-child(1)' }],
+      interactions: [
+        { type: 'click', selector: 'div[role="presentation"]:has(> [role="dialog"])' },
+      ],
     },
     {
       name: 'clicking a row selects it',

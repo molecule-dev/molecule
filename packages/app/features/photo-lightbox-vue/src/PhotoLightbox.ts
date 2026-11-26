@@ -8,33 +8,21 @@
  * @module
  */
 
-import {
-  defineComponent,
-  h,
-  onMounted,
-  onUnmounted,
-  type PropType,
-  ref,
-  type VNodeChild,
-  watch,
-} from 'vue'
+import { defineComponent, h, type PropType, ref, type VNodeChild, watch } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
-import { Button } from '@molecule/app-ui-vue'
+import { Button, Modal } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
 import type { LightboxPhoto } from './types.js'
 
-/** React's overlay style (`position: fixed`, `z-index: 100`; the scrim is `cm.bgScrim`'s class). */
-const ROOT_STYLE =
-  'position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center'
 /** React's figure style. */
-const FIGURE_STYLE = 'margin: 0; max-width: 90vw; max-height: 90vh; text-align: center'
+const FIGURE_STYLE = 'margin: 0 auto; max-width: 90vw; max-height: 90vh; text-align: center'
 /** React's image style. */
 const IMG_STYLE = 'max-width: 100%; max-height: 80vh; object-fit: contain'
-/** React's caption style (the caption colour is `cm.textOnTone`'s class). */
+/** React's caption style (the caption colour is `cm.textMuted`'s class). */
 const CAPTION_STYLE = 'padding: 12px; font-size: 14px'
-/** React's "N / total" counter style (the counter colour is `cm.textOnTone`'s class). */
+/** React's "N / total" counter style (the counter colour is `cm.textMuted`'s class). */
 const COUNTER_STYLE =
   'position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 12px'
 /** React's previous-arrow style. */
@@ -101,103 +89,86 @@ export const PhotoLightbox = defineComponent({
       props.onIndexChange?.(clamped)
     }
 
-    /** React's document keydown handler: ← → navigate, Escape closes. */
-    const onKey = (event: KeyboardEvent): void => {
-      if (!props.open) return
-      if (event.key === 'Escape') props.onClose()
-      else if (event.key === 'ArrowLeft') setIdx(index.value - 1)
+    /** Navigates while the key event comes from this lightbox. */
+    const navigate = (event: KeyboardEvent): void => {
+      if (event.key === 'ArrowLeft') setIdx(index.value - 1)
       else if (event.key === 'ArrowRight') setIdx(index.value + 1)
     }
-
-    onMounted(() => document.addEventListener('keydown', onKey))
-    onUnmounted(() => document.removeEventListener('keydown', onKey))
 
     return (): VNodeChild => {
       const total = props.photos.length
       if (!props.open || total === 0) return null
       const photo = props.photos[index.value]
-      const closeLabel = t('lightbox.close', {}, { defaultValue: 'Close' })
 
       return h(
-        // The overlay is a click-to-dismiss screen (role="presentation"):
-        // clicking it directly closes; clicks on the controls inside do not.
-        // The dialog itself is the element inside it, so Escape (handled on
-        // `document` in `onKey`) stays the keyboard path.
-        'div',
+        Modal,
         {
-          role: 'presentation',
-          onClick: (event: MouseEvent) => {
-            if (event.target === event.currentTarget) props.onClose()
-          },
-          class: cm.cn(cm.position('fixed'), cm.bgScrim),
-          style: ROOT_STYLE,
+          open: true,
+          onClose: props.onClose,
+          onKeyDown: navigate,
+          size: 'full',
+          closeLabel: t('lightbox.close', {}, { defaultValue: 'Close' }),
+          'aria-label':
+            photo.alt ??
+            t(
+              'lightbox.imageOfTotal',
+              { index: index.value + 1, total },
+              { defaultValue: 'Image {{index}} of {{total}}' },
+            ),
         },
-        [
-          h(
-            'div',
-            {
-              role: 'dialog',
-              'aria-modal': 'true',
-              'aria-label': photo.alt ?? `Image ${index.value + 1} of ${total}`,
-            },
-            [
-              h(
-                Button,
-                {
-                  variant: 'ghost',
-                  size: 'sm',
-                  onClick: props.onClose,
-                  'aria-label': closeLabel,
-                  className: cm.position('absolute'),
-                },
-                () => ['✕'],
-              ),
-              total > 1
-                ? h(
-                    Button,
-                    {
-                      variant: 'ghost',
-                      size: 'sm',
-                      onClick: () => setIdx(index.value - 1),
-                      'aria-label': t('lightbox.previous', {}, { defaultValue: 'Previous' }),
-                      className: cm.position('absolute'),
-                      style: PREVIOUS_STYLE,
-                    },
-                    () => ['‹'],
-                  )
+        {
+          default: () => [
+            total > 1
+              ? h(
+                  Button,
+                  {
+                    variant: 'ghost',
+                    size: 'sm',
+                    onClick: () => setIdx(index.value - 1),
+                    'aria-label': t('lightbox.previous', {}, { defaultValue: 'Previous' }),
+                    className: cm.position('absolute'),
+                    style: PREVIOUS_STYLE,
+                  },
+                  () => ['‹'],
+                )
+              : null,
+            h('figure', { style: FIGURE_STYLE }, [
+              h('img', {
+                src: photo.src,
+                alt:
+                  photo.alt ??
+                  t(
+                    'lightbox.image',
+                    { index: index.value + 1 },
+                    { defaultValue: 'Image {{index}}' },
+                  ),
+                style: IMG_STYLE,
+              }),
+              photo.caption
+                ? h('figcaption', { class: cm.textMuted, style: CAPTION_STYLE }, [photo.caption])
                 : null,
-              h('figure', { style: FIGURE_STYLE }, [
-                h('img', {
-                  src: photo.src,
-                  alt: photo.alt ?? `Image ${index.value + 1}`,
-                  style: IMG_STYLE,
-                }),
-                photo.caption
-                  ? h('figcaption', { class: cm.textOnTone, style: CAPTION_STYLE }, [photo.caption])
-                  : null,
-              ]),
-              total > 1
-                ? h(
-                    Button,
-                    {
-                      variant: 'ghost',
-                      size: 'sm',
-                      onClick: () => setIdx(index.value + 1),
-                      'aria-label': t('lightbox.next', {}, { defaultValue: 'Next' }),
-                      className: cm.position('absolute'),
-                      style: NEXT_STYLE,
-                    },
-                    () => ['›'],
-                  )
-                : null,
-              h('div', { class: cm.textOnTone, style: COUNTER_STYLE }, [
-                index.value + 1,
-                ' / ',
-                total,
-              ]),
-            ],
-          ),
-        ],
+            ]),
+            total > 1
+              ? h(
+                  Button,
+                  {
+                    variant: 'ghost',
+                    size: 'sm',
+                    onClick: () => setIdx(index.value + 1),
+                    'aria-label': t('lightbox.next', {}, { defaultValue: 'Next' }),
+                    className: cm.position('absolute'),
+                    style: NEXT_STYLE,
+                  },
+                  () => ['›'],
+                )
+              : null,
+            h('div', { class: cm.textMuted, style: COUNTER_STYLE }, [
+              index.value + 1,
+              ' / ',
+              total,
+            ]),
+          ],
+        },
       )
     }
   },

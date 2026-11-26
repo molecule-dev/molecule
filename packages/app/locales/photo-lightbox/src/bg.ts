@@ -5,4 +5,6 @@ export const bg: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Затвори',
   'lightbox.previous': 'Предишен',
   'lightbox.next': 'Следващо',
+  'lightbox.image': 'Изображение {{index}}',
+  'lightbox.imageOfTotal': 'Изображение {{index}} от {{total}}',
 }

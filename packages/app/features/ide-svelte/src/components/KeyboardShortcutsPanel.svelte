@@ -1,22 +1,4 @@
-<!--
-  Keyboard shortcuts reference panel — displays all available shortcuts
-  grouped by category with keyboard navigation.
-
-  Svelte counterpart of `@molecule/app-ide-react`'s `KeyboardShortcutsPanel`
-  (see that file for the design notes): the same props (React names), the
-  same DOM for the same input, the same callbacks. Rows are grouped by the
-  entries' category in first-occurrence order, the highlighted row follows
-  the arrow keys and the pointer, Enter runs it, and Escape, the ✕ dismiss
-  and the click-away backdrop all call `onDismiss`. The key listener sits on
-  `document` in the capture phase, so the panel hears the keys wherever the
-  focus is.
-
-  The selected-row tint follows the theme primary (so a rebranded app tints
-  its own picker), never a literal blue; the hex is only the CSS-var fallback.
-
-  Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
-  ClassMap can't express. All user-facing text goes through `t()`.
--->
+<!-- The IDE shortcut reference and its dialog-scoped keyboard navigation. -->
 <script module lang="ts">
   import { SvelteMap } from 'svelte/reactivity'
 
@@ -74,7 +56,8 @@
 
 <script lang="ts">
   import { useThemeMode, useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+  import { Modal } from '@molecule/app-ui-svelte'
 
   let { shortcuts, onDismiss }: KeyboardShortcutsPanelProps = $props()
 
@@ -82,7 +65,12 @@
   const mode = useThemeMode()
 
   let selectedIndex = $state(0)
-  let panelEl = $state<HTMLDivElement | null>(null)
+  let dialog = $state<HTMLDivElement | null>(null)
+  const dialogTarget: OverlayTarget = {
+    get current() {
+      return dialog
+    },
+  }
   let listEl = $state<HTMLDivElement | null>(null)
 
   const cm = $derived(getClassMap())
@@ -101,11 +89,6 @@
       : 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 25%, transparent)',
   )
 
-  // Focus the panel so keyboard events work immediately
-  $effect(() => {
-    panelEl?.focus()
-  })
-
   // Scroll selected item into view
   $effect(() => {
     const buttons = listEl?.querySelectorAll('[data-shortcut-row]')
@@ -113,30 +96,15 @@
     el?.scrollIntoView({ block: 'nearest' })
   })
 
-  // React re-subscribes when its handler identity changes; the state reads
-  // make this handler always current, so one subscribe for the component's
-  // life is the same behavior.
-  $effect(() => {
-    document.addEventListener('keydown', handleKeyDown, true)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown, true)
-    }
-  })
-
   /**
    * The keyboard navigation: the arrows move the highlight over the flat
    * row order (clamped), Enter runs the highlighted row when it has a
-   * handler, Escape dismisses. Bound on `document` in the capture phase,
-   * so the panel hears the keys wherever the focus is.
+   * handler. The dialog owns Escape.
    *
    * @param event - The key press.
    */
   function handleKeyDown(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'Escape':
-        event.preventDefault()
-        onDismiss()
-        break
       case 'ArrowDown':
         event.preventDefault()
         selectedIndex = Math.min(selectedIndex + 1, flatEntries.length - 1)
@@ -158,23 +126,15 @@
   }
 </script>
 
-<!-- Backdrop: role="presentation" — a sibling click-away surface that receives
-     only its own clicks; the key handling lives on `document` in the capture
-     phase, as React's does. -->
-<div
-  role="presentation"
-  onclick={onDismiss}
-  style="position: fixed; inset: 0px; z-index: 1000; background: rgba(0, 0, 0, 0.4)"
-></div>
-<!-- Panel -->
-<div
-  bind:this={panelEl}
-  tabindex="-1"
-  style={`position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; max-width: 90vw; max-height: 70vh; z-index: 1001; border-radius: 8px; overflow: hidden; box-shadow: ${
-    $mode === 'light' ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)'
-  }; background: ${
-    $mode === 'light' ? '#fff' : 'var(--mol-color-background, #1e1e1e)'
-  }; border: 1px solid var(--color-border, #333); display: flex; flex-direction: column; outline: none`}
+<Modal
+  open
+  onClose={onDismiss}
+  bind:ref={dialog}
+  initialFocus={dialogTarget}
+  onKeyDown={handleKeyDown}
+  showCloseButton={false}
+  aria-label={t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
+  style={{ maxHeight: '70vh' }}
 >
   <!-- Header -->
   <div
@@ -271,4 +231,4 @@
       defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close',
     })}
   </div>
-</div>
+</Modal>

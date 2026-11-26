@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+import type * as UI from '@molecule/app-ui-react'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -16,7 +21,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -31,7 +36,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof UI>()),
   Button: ({
     children,
     ['aria-label']: ariaLabel,
@@ -99,6 +105,7 @@ describe('PhotoLightbox', () => {
   it('always renders a close button', () => {
     const markup = html(createElement(PhotoLightbox, { photos, open: true, onClose: () => {} }))
     expect(markup).toContain('aria-label="Close"')
+    expect(markup).toContain('data-mol-id="modal-close"')
   })
 
   it('wraps the dialog in a presentation backdrop that closes on its own click', () => {

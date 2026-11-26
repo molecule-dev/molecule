@@ -363,7 +363,6 @@ export const ChatInner = defineComponent({
     ctx.prefs = createChatPrefs(ctx)
 
     // ── chat:overlay (region 2 of 2) ───────────────────────────────────────
-    ctx.overlay.effects[1]()
 
     // ── chat:tests ─────────────────────────────────────────────────────────
     ctx.tests = createChatTests(ctx)

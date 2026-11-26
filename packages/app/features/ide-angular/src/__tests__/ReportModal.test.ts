@@ -174,7 +174,7 @@ async function renderModal(props: Record<string, unknown>): Promise<HTMLElement>
   }
   ref.changeDetectorRef.detectChanges()
   current = { appRef, ref, container }
-  return container
+  return container.ownerDocument.body
 }
 
 /** Types like a user: the value, then a bubbling `input` event. */

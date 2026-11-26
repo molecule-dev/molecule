@@ -5,4 +5,6 @@ export const bn: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'বন্ধ করুন',
   'lightbox.previous': 'পূর্ববর্তী',
   'lightbox.next': 'পরবর্তী',
+  'lightbox.image': 'ছবি {{index}}',
+  'lightbox.imageOfTotal': '{{total}}টির মধ্যে ছবি {{index}}',
 }

@@ -1,39 +1,14 @@
 /**
- * Keyboard shortcuts reference panel — displays all available shortcuts
- * grouped by category with keyboard navigation.
- *
- * Vue counterpart of `@molecule/app-ide-react`'s `KeyboardShortcutsPanel`
- * (see that file for the design notes): the same props (React names), the
- * same DOM for the same input, the same callbacks. Rows are grouped by the
- * entries' category in first-occurrence order, the highlighted row follows
- * the arrow keys and the pointer, Enter runs it, and Escape, the ✕ dismiss
- * and the click-away backdrop all call `onDismiss`. The key listener sits on
- * `document` in the capture phase, so the panel hears the keys wherever the
- * focus is.
- *
- * The selected-row tint follows the theme primary (so a rebranded app tints
- * its own picker), never a literal blue; the hex is only the CSS-var fallback.
- *
- * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
- * ClassMap can't express. All user-facing text goes through `t()`.
+ * The IDE shortcut reference and its dialog-scoped keyboard navigation.
  *
  * @module
  */
 
-import {
-  computed,
-  defineComponent,
-  h,
-  onMounted,
-  onUnmounted,
-  type PropType,
-  ref,
-  type VNodeChild,
-  watch,
-} from 'vue'
+import { computed, defineComponent, h, type PropType, ref, type VNodeChild, watch } from 'vue'
 
 import type { ShortcutEntry } from '@molecule/app-ide-panel-logic'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-vue'
 import { useThemeMode, useTranslation } from '@molecule/app-vue'
 
 /**
@@ -98,15 +73,27 @@ export const KeyboardShortcutsPanel = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
     const mode = useThemeMode()
-    const panelRef = ref<HTMLDivElement | null>(null)
+    const dialog = ref<{ $el: HTMLDivElement | null } | null>(null)
+    const dialogTarget: OverlayTarget = {
+      get current() {
+        return dialog.value?.$el ?? null
+      },
+    }
     const listRef = ref<HTMLDivElement | null>(null)
     const selectedIndex = ref(0)
 
     // The rows grouped by category, in first-occurrence order
-    const groups = computed(() => groupByCategory(props.shortcuts))
+    const groups = computed(() => {
+      let start = 0
+      return groupByCategory(props.shortcuts).map(([category, entries]) => {
+        const group = { category, entries, start }
+        start += entries.length
+        return group
+      })
+    })
 
     // Flat list for keyboard navigation indexing
-    const flatEntries = computed(() => groups.value.flatMap(([, entries]) => entries))
+    const flatEntries = computed(() => groups.value.flatMap(({ entries }) => entries))
 
     // Scroll selected item into view
     watch(selectedIndex, () => {
@@ -118,17 +105,12 @@ export const KeyboardShortcutsPanel = defineComponent({
     /**
      * The keyboard navigation: the arrows move the highlight over the flat
      * row order (clamped), Enter runs the highlighted row when it has a
-     * handler, Escape dismisses. Bound on `document` in the capture phase,
-     * so the panel hears the keys wherever the focus is.
+     * handler. The dialog owns Escape.
      *
      * @param e - The key press.
      */
     function handleKeyDown(e: KeyboardEvent): void {
       switch (e.key) {
-        case 'Escape':
-          e.preventDefault()
-          props.onDismiss()
-          break
         case 'ArrowDown':
           e.preventDefault()
           selectedIndex.value = Math.min(selectedIndex.value + 1, flatEntries.value.length - 1)
@@ -147,26 +129,6 @@ export const KeyboardShortcutsPanel = defineComponent({
           break
         }
       }
-    }
-
-    // React re-subscribes when its handler identity changes; the ref reads make
-    // this handler always current, so one subscribe for the component's life
-    // is the same behavior.
-    onMounted(() => {
-      document.addEventListener('keydown', handleKeyDown, true)
-      // Focus the panel so keyboard events work immediately
-      panelRef.value?.focus()
-    })
-    onUnmounted(() => {
-      document.removeEventListener('keydown', handleKeyDown, true)
-    })
-
-    /** The backdrop's style (a full-viewport click-away tint). */
-    const backdropStyle = {
-      position: 'fixed',
-      inset: '0px',
-      zIndex: '1000',
-      background: 'rgba(0,0,0,0.4)',
     }
 
     /** The close ✕'s static style; hover tints it through the DOM, not here. */
@@ -201,40 +163,20 @@ export const KeyboardShortcutsPanel = defineComponent({
       const selectedBg = light
         ? 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 12%, transparent)'
         : 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 25%, transparent)'
-      // Flat index counter mapping grouped rendering back to the flat order
-      let flatIndex = -1
-
-      return [
-        // Backdrop — role="presentation": a sibling click-away surface that
-        // receives only its own clicks; Escape dismisses through the document
-        // key handler above.
-        h('div', { role: 'presentation', onClick: props.onDismiss, style: backdropStyle }),
-        // Panel
-        h(
-          'div',
-          {
-            ref: panelRef,
-            tabindex: -1,
-            style: {
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '480px',
-              maxWidth: '90vw',
-              maxHeight: '70vh',
-              zIndex: '1001',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              boxShadow: light ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-              background: light ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
-              border: '1px solid var(--color-border, #333)',
-              display: 'flex',
-              flexDirection: 'column',
-              outline: 'none',
-            },
-          },
-          [
+      return h(
+        Modal,
+        {
+          open: true,
+          onClose: props.onDismiss,
+          ref: dialog,
+          initialFocus: dialogTarget,
+          onKeyDown: handleKeyDown,
+          showCloseButton: false,
+          'aria-label': t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' }),
+          style: { maxHeight: '70vh' },
+        },
+        {
+          default: () => [
             // Header
             h(
               'div',
@@ -308,7 +250,7 @@ export const KeyboardShortcutsPanel = defineComponent({
                 ref: listRef,
                 style: { flex: '1', overflow: 'auto', padding: '8px 0px' },
               },
-              groups.value.map(([category, entries]) =>
+              groups.value.map(({ category, entries, start }) =>
                 h('div', { key: category }, [
                   ...(category
                     ? [
@@ -328,9 +270,8 @@ export const KeyboardShortcutsPanel = defineComponent({
                         ),
                       ]
                     : []),
-                  ...entries.map((entry) => {
-                    flatIndex++
-                    const idx = flatIndex
+                  ...entries.map((entry, index) => {
+                    const idx = start + index
                     return h(
                       'button',
                       {
@@ -349,9 +290,9 @@ export const KeyboardShortcutsPanel = defineComponent({
                         },
                         class: cm.touchTargetCompact,
                         /* mol-bespoke-button: a shortcut-list ROW (label + key
-                           badges) with keyboard-driven selection — a list item, not
-                           a CTA. Its selected tint is a theme token and its 36px
-                           coarse floor comes from the ClassMap. */
+                         badges) with keyboard-driven selection — a list item, not
+                         a CTA. Its selected tint is a theme token and its 36px
+                         coarse floor comes from the ClassMap. */
                         style: {
                           display: 'flex',
                           alignItems: 'center',
@@ -402,8 +343,8 @@ export const KeyboardShortcutsPanel = defineComponent({
               ],
             ),
           ],
-        ),
-      ]
+        },
+      )
     }
   },
 })

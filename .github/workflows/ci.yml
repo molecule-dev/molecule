@@ -152,6 +152,8 @@ jobs:
       # exempt), and the rule's tag table names an element for every tag an element type renders.
       # As a scripts test alone it ran only after every build check passed.
       - run: npm run check:intrinsic-jsx
+      # Feature dialogs get focus and dismissal behavior from the UI kits.
+      - run: npm run check:feature-modals
       # No publishable package's build puts src/**/__tests__ in its tarball: tsc and
       # ngc through the tsconfig exclude, svelte-package through `files` negations.
       # 193 packages shipped dist/__tests__/*.test.js until 2026-11-16, and the

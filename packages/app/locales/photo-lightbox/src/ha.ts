@@ -5,4 +5,6 @@ export const ha: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Rufe',
   'lightbox.previous': 'Na Baya',
   'lightbox.next': 'Na gaba',
+  'lightbox.image': 'Hoto {{index}}',
+  'lightbox.imageOfTotal': 'Hoto {{index}} cikin {{total}}',
 }

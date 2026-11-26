@@ -1,14 +1,7 @@
 // @vitest-environment jsdom
 /**
- * The `chat:overlay` slice: the closeable `/skills`, `/scripts`, `/settings`
- * and `/tests` overlay's state, the action that opens it, and React's
- * `#effect chat:overlay:1`.
- *
- * React opens an overlay only after closing every sibling popup (the model and
- * effort pickers, the sounds picker and the command menu), so overlays never
- * stack. Its Escape listener is a WINDOW listener attached only while an
- * overlay is open, so Escape from a field inside the embedded card — a search
- * box — still closes it, and nothing listens while it is closed.
+ * The panel overlay slice dismisses the composer popups, seeds its search query
+ * and gives the kit modal the current view. The modal handles Escape.
  *
  * @module
  */
@@ -52,11 +45,11 @@ function mountOverlay(keep: (slice: ChatOverlaySlice, ctx: ChatContext) => void)
       chat: buildChatProvider([]),
       theme: buildThemeProvider(),
       props: { projectId: 'p1', endpoint: '/projects/p1/chat' },
+      overlayModal: true,
       build: (ctx: ChatContext) => {
         ctx.composer = createChatComposer(ctx)
         ctx.sounds = createChatSounds(ctx)
         ctx.overlay = createChatOverlay(ctx)
-        ctx.overlay.effects[1]()
         keep(ctx.overlay, ctx)
       },
     },
@@ -71,15 +64,14 @@ function mountOverlay(keep: (slice: ChatOverlaySlice, ctx: ChatContext) => void)
 }
 
 /**
- * Dispatches a keydown on the window, as a key press inside the panel does.
- * Flushes first, so the effect that attaches the listener has run for the
- * current open state (a real keystroke happens after the render that opened it).
+ * Dispatches a keydown from the currently focused control after rendering.
  *
  * @param key - The key.
  */
 function press(key: string): void {
   flushSync()
-  window.dispatchEvent(new KeyboardEvent('keydown', { key }))
+  const target = document.activeElement ?? document.body
+  target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
   flushSync()
 }
 
@@ -146,6 +138,8 @@ describe('ChatPanel chat:overlay slice', () => {
     })
     overlay.openPanelOverlay('skills')
     expect(overlay.panelOverlay).toBe('skills')
+    flushSync()
+    expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true')
 
     press('Escape')
     expect(overlay.panelOverlay).toBeNull()
@@ -156,17 +150,18 @@ describe('ChatPanel chat:overlay slice', () => {
     mountOverlay((slice) => {
       overlay = slice
     })
-    // Closed: Escape changes nothing (no listener throws, no view opens).
     press('Escape')
     expect(overlay.panelOverlay).toBeNull()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
 
-    // Open, then closed by the ✕: Escape no longer reaches the slice.
     overlay.openPanelOverlay('tests')
+    flushSync()
+    expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true')
     overlay.setPanelOverlay(null)
     press('Escape')
     expect(overlay.panelOverlay).toBeNull()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
 
-    // Re-opened: the listener is attached again.
     overlay.openPanelOverlay('tests')
     press('Escape')
     expect(overlay.panelOverlay).toBeNull()

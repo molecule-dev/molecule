@@ -171,7 +171,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
       true,
     )
     await flush()
-    const modal = container.querySelector('[data-mol-id="report-modal"]')
+    const modal = container.ownerDocument.querySelector('[data-mol-id="report-modal"]')
     expect(modal, 'the report modal should mount').not.toBeNull()
     const text = modal?.textContent ?? ''
     expect(text).toContain('Acme’s team')
@@ -187,7 +187,8 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
       true,
     )
     await flush()
-    const text = container.querySelector('[data-mol-id="report-modal"]')?.textContent ?? ''
+    const text =
+      container.ownerDocument.querySelector('[data-mol-id="report-modal"]')?.textContent ?? ''
     expect(text).toContain('the IDE’s team')
     expect(text).not.toContain('Molecule.dev')
   })

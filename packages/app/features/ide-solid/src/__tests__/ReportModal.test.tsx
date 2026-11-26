@@ -122,7 +122,7 @@ function renderModal(props: Omit<ReportModalProps, 'projectId'>): HTMLElement {
     ),
     container,
   )
-  return container
+  return container.ownerDocument.body
 }
 
 /** Types like a user: the value, then a bubbling `input` event. */

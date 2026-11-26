@@ -19,11 +19,12 @@
  */
 
 import type { Accessor, JSX } from 'solid-js'
-import { createComputed, createEffect, createMemo, createSignal, For, onMount } from 'solid-js'
+import { createComputed, createEffect, createMemo, createSignal, For } from 'solid-js'
 
 import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
 import { useThemeMode, useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-solid'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 
@@ -103,13 +104,14 @@ export function QuickPicker(props: QuickPickerProps): JSX.Element {
   const isCoarse = useCoarsePointer()
   const [query, setQuery] = createSignal(props.initialQuery ?? '')
   const [selectedIndex, setSelectedIndex] = createSignal(0)
-  let inputEl: HTMLInputElement | undefined
-  let listEl: HTMLDivElement | undefined
+  const [inputEl, setInputEl] = createSignal<HTMLInputElement>()
+  const [listEl, setListEl] = createSignal<HTMLDivElement>()
 
-  // Focus input on mount
-  onMount(() => {
-    inputEl?.focus()
-  })
+  const inputTarget: OverlayTarget = {
+    get current() {
+      return inputEl() ?? null
+    },
+  }
 
   // Filter and sort items by fuzzy match
   const filtered = createMemo<QuickPickerItem[]>(() => {
@@ -134,7 +136,7 @@ export function QuickPicker(props: QuickPickerProps): JSX.Element {
 
   // Scroll selected item into view
   createEffect(() => {
-    const el = listEl?.children[selectedIndex()] as HTMLElement | undefined
+    const el = listEl()?.children[selectedIndex()] as HTMLElement | undefined
     el?.scrollIntoView({ block: 'nearest' })
   })
 
@@ -154,12 +156,12 @@ export function QuickPicker(props: QuickPickerProps): JSX.Element {
   // framework-UI packages each declare in their own .d.ts, and this component
   // ships without one.)
   createEffect(() => {
-    inputEl?.setAttribute('value', query())
+    inputEl()?.setAttribute('value', query())
   })
 
   /**
    * The keyboard navigation: the arrows move the highlight within the
-   * filtered rows (clamped), Enter selects it, Escape dismisses. Bound to
+   * filtered rows (clamped), Enter selects it. The kit handles Escape. Bound to
    * the panel, so a key press anywhere in it (the autofocus input first of
    * all) lands here.
    *
@@ -181,10 +183,6 @@ export function QuickPicker(props: QuickPickerProps): JSX.Element {
         if (chosen) props.onSelect(chosen)
         break
       }
-      case 'Escape':
-        e.preventDefault()
-        props.onDismiss()
-        break
     }
   }
 
@@ -200,29 +198,6 @@ export function QuickPicker(props: QuickPickerProps): JSX.Element {
   // `border: none`, a `flex: 1` expansion). A call keeps the binding live,
   // so each declaration is applied through `setProperty` the way React
   // writes them.
-  const backdropStyle = (): Record<string, string> => ({
-    position: 'fixed',
-    inset: '0px',
-    'z-index': '1000',
-    background: 'rgba(0,0,0,0.4)',
-  })
-  const panelStyle = (): Record<string, string | undefined> => ({
-    position: 'fixed',
-    top: isNarrow() ? '10%' : '50%',
-    left: '50%',
-    transform: isNarrow() ? 'translate(-50%, 0)' : 'translate(-50%, -50%)',
-    width: '500px',
-    'max-width': '90vw',
-    'max-height': isNarrow() ? 'min(60dvh, 480px)' : undefined,
-    display: isNarrow() ? 'flex' : undefined,
-    'flex-direction': isNarrow() ? 'column' : undefined,
-    'z-index': '1001',
-    'border-radius': '8px',
-    overflow: 'hidden',
-    'box-shadow': mode() === 'light' ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-    background: mode() === 'light' ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
-    border: '1px solid var(--color-border, #333)',
-  })
   const inputStyle = (): Record<string, string> => ({
     width: '100%',
     // 16px on phones/touch devices — below that iOS Safari zooms the page
@@ -277,86 +252,65 @@ export function QuickPicker(props: QuickPickerProps): JSX.Element {
   })
 
   return (
-    <>
-      {/* Backdrop — role="presentation": a sibling click-away surface that
-          receives only its own clicks; Escape dismisses through the picker's
-          key handler. */}
-      <div role="presentation" onClick={props.onDismiss} style={backdropStyle()} />
-      {/* Picker — centered on desktop; anchored near the TOP on phone-width
-          viewports (the picker autofocuses its input, so the on-screen keyboard
-          appears immediately — a vertically-centered box would sit under it).
-          The dvh cap keeps the results visible above the keyboard when the
-          browser resizes the viewport (interactive-widget=resizes-content).
-          The picker is a modal dialog: role="dialog" + aria-modal name it to
-          assistive tech. Its keyboard navigation rides the picker's own
-          interactive descendants (the input and the rows) — the WAI-ARIA dialog
-          keeps the keys inside the dialog, and attaching them to the focused
-          controls keeps them there without giving the container, which holds
-          controls, an interaction role. */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })}
-        class={cm.cn(props.className)}
-        style={panelStyle()}
-      >
-        <input
-          ref={(el: HTMLInputElement) => {
-            inputEl = el
-          }}
-          type="text"
-          value={query()}
-          onInput={(e) => setQuery(e.currentTarget.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={
-            props.placeholder ??
-            t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })
-          }
-          style={inputStyle()}
-        />
-        <div
-          ref={(el: HTMLDivElement) => {
-            listEl = el
-          }}
-          style={listStyle()}
-        >
-          {props.loading ? (
-            <div style={stateStyle()}>
-              {t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' })}
-            </div>
-          ) : list.keys().length === 0 ? (
-            <div style={stateStyle()}>
-              {t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' })}
-            </div>
-          ) : (
-            <For each={list.keys()}>
-              {(key) => {
-                const index = createMemo(() => list.keys().indexOf(key))
-                const item = createMemo(() => list.get(key)!)
-                return (
-                  <button
-                    type="button"
-                    data-mol-id={`quick-picker-item-${item().id}`}
-                    onClick={() => props.onSelect(item())}
-                    onKeyDown={handleKeyDown}
-                    onMouseEnter={() => setSelectedIndex(index())}
-                    class={cm.touchTargetCompact}
-                    /* mol-bespoke-button: a picker ROW (icon + label + detail) with
-                       keyboard-driven selection — a list item, not a CTA. Selected
-                       tint is a theme token; the ≥36px coarse floor is the
-                       ClassMap's (it was a hand-rolled `minHeight: 36`). */
-                    style={rowStyle(index())}
-                  >
-                    {item().icon}
-                    <span style={labelStyle()}>{item().label}</span>
-                    {item().detail && <span style={detailStyle()}>{item().detail}</span>}
-                  </button>
-                )
-              }}
-            </For>
-          )}
-        </div>
+    <Modal
+      open
+      onClose={props.onDismiss}
+      initialFocus={inputTarget}
+      showCloseButton={false}
+      centered={!isNarrow()}
+      aria-label={t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })}
+      className={props.className}
+      style={isNarrow() ? { maxHeight: 'min(60dvh, 480px)' } : undefined}
+    >
+      <input
+        ref={setInputEl}
+        type="text"
+        value={query()}
+        onInput={(e) => setQuery(e.currentTarget.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={
+          props.placeholder ??
+          t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })
+        }
+        style={inputStyle()}
+      />
+      <div ref={setListEl} style={listStyle()}>
+        {props.loading ? (
+          <div style={stateStyle()}>
+            {t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' })}
+          </div>
+        ) : list.keys().length === 0 ? (
+          <div style={stateStyle()}>
+            {t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' })}
+          </div>
+        ) : (
+          <For each={list.keys()}>
+            {(key) => {
+              const index = createMemo(() => list.keys().indexOf(key))
+              const item = createMemo(() => list.get(key)!)
+              return (
+                <button
+                  type="button"
+                  data-mol-id={`quick-picker-item-${item().id}`}
+                  onClick={() => props.onSelect(item())}
+                  onKeyDown={handleKeyDown}
+                  onMouseEnter={() => setSelectedIndex(index())}
+                  class={cm.touchTargetCompact}
+                  /* mol-bespoke-button: a picker ROW (icon + label + detail) with
+                     keyboard-driven selection — a list item, not a CTA. Selected
+                     tint is a theme token; the ≥36px coarse floor is the
+                     ClassMap's (it was a hand-rolled `minHeight: 36`). */
+                  style={rowStyle(index())}
+                >
+                  {item().icon}
+                  <span style={labelStyle()}>{item().label}</span>
+                  {item().detail && <span style={detailStyle()}>{item().detail}</span>}
+                </button>
+              )
+            }}
+          </For>
+        )}
       </div>
-    </>
+    </Modal>
   )
 }

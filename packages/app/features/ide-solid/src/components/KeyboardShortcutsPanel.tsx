@@ -1,35 +1,16 @@
 /**
- * Keyboard shortcuts reference panel — displays all available shortcuts
- * grouped by category with keyboard navigation.
- *
- * Solid counterpart of `@molecule/app-ide-react`'s `KeyboardShortcutsPanel`
- * (see that file for the design notes): the same props (React names), the
- * same DOM for the same input, the same callbacks. Rows are grouped by the
- * entries' category in first-occurrence order, the highlighted row follows
- * the arrow keys and the pointer, Enter runs it, and Escape, the ✕ dismiss
- * and the click-away backdrop all call `onDismiss`. The key listener sits on
- * `document` in the capture phase, so the panel hears the keys wherever the
- * focus is.
- *
- * Lists are keyed the way React keys them (`entry.label` per row, the
- * category per group) so a re-passed or re-ordered `shortcuts` prop keeps
- * each rendered row, the way React's `key` does.
- *
- * The selected-row tint follows the theme primary (so a rebranded app tints
- * its own picker), never a literal blue; the hex is only the CSS-var fallback.
- *
- * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
- * ClassMap can't express. All user-facing text goes through `t()`.
+ * The IDE shortcut reference and its dialog-scoped keyboard navigation.
  *
  * @module
  */
 
 import type { Accessor, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, onCleanup, onMount } from 'solid-js'
+import { createEffect, createMemo, createSignal, For } from 'solid-js'
 
 import type { KeyboardShortcutsPanelProps, ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import { useThemeMode, useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type KitKeyboardEvent, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-solid'
 
 /**
  * A React-keyed view of a list: the keys to iterate and the latest item per
@@ -109,8 +90,13 @@ export function KeyboardShortcutsPanel(props: KeyboardShortcutsPanelProps): JSX.
   const { t } = useTranslation()
   const mode = useThemeMode()
   const [selectedIndex, setSelectedIndex] = createSignal(0)
-  let panelEl: HTMLDivElement | undefined
-  let listEl: HTMLDivElement | undefined
+  let dialog: HTMLDivElement | undefined
+  const dialogTarget: OverlayTarget = {
+    get current() {
+      return dialog ?? null
+    },
+  }
+  const [listEl, setListEl] = createSignal<HTMLDivElement>()
 
   // The rows grouped by category, in first-occurrence order, with their flat
   // offsets — and the flat list for keyboard navigation indexing.
@@ -124,7 +110,7 @@ export function KeyboardShortcutsPanel(props: KeyboardShortcutsPanelProps): JSX.
 
   // Scroll selected item into view
   createEffect(() => {
-    const buttons = listEl?.querySelectorAll('[data-shortcut-row]')
+    const buttons = listEl()?.querySelectorAll('[data-shortcut-row]')
     const el = buttons?.[selectedIndex()] as HTMLElement | undefined
     el?.scrollIntoView({ block: 'nearest' })
   })
@@ -140,17 +126,12 @@ export function KeyboardShortcutsPanel(props: KeyboardShortcutsPanelProps): JSX.
   /**
    * The keyboard navigation: the arrows move the highlight over the flat
    * row order (clamped), Enter runs the highlighted row when it has a
-   * handler, Escape dismisses. Bound on `document` in the capture phase,
-   * so the panel hears the keys wherever the focus is.
+   * handler. The dialog owns Escape.
    *
    * @param e - The key press.
    */
-  function handleKeyDown(e: KeyboardEvent): void {
+  function handleKeyDown(e: KitKeyboardEvent): void {
     switch (e.key) {
-      case 'Escape':
-        e.preventDefault()
-        props.onDismiss()
-        break
       case 'ArrowDown':
         e.preventDefault()
         setSelectedIndex(Math.min(selectedIndex() + 1, flatEntries().length - 1))
@@ -171,18 +152,6 @@ export function KeyboardShortcutsPanel(props: KeyboardShortcutsPanelProps): JSX.
     }
   }
 
-  onMount(() => {
-    // React re-subscribes when its handler identity changes; the signal reads
-    // make this handler always current, so one subscribe for the component's
-    // life is the same behavior.
-    document.addEventListener('keydown', handleKeyDown, true)
-    // Focus the panel so keyboard events work immediately
-    panelEl?.focus()
-    onCleanup(() => {
-      document.removeEventListener('keydown', handleKeyDown, true)
-    })
-  })
-
   // The style objects come from function CALLS, not inline literals: the
   // Solid JSX transform compiles an inline style object into one raw `style`
   // attribute string, whose one-shot parse loses shorthand declarations
@@ -190,32 +159,6 @@ export function KeyboardShortcutsPanel(props: KeyboardShortcutsPanelProps): JSX.
   // `flex: 1` expansion, an `rgba()` re-spacing). A call keeps the binding
   // live, so each declaration is applied through `setProperty` the way React
   // writes them.
-  /** The backdrop's style (a full-viewport click-away tint). */
-  const backdropStyle = (): Record<string, string> => ({
-    position: 'fixed',
-    inset: '0px',
-    'z-index': '1000',
-    background: 'rgba(0,0,0,0.4)',
-  })
-  /** The panel's style: a fixed, centered column. */
-  const panelStyle = (): Record<string, string> => ({
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '480px',
-    'max-width': '90vw',
-    'max-height': '70vh',
-    'z-index': '1001',
-    'border-radius': '8px',
-    overflow: 'hidden',
-    'box-shadow': mode() === 'light' ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-    background: mode() === 'light' ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
-    border: '1px solid var(--color-border, #333)',
-    display: 'flex',
-    'flex-direction': 'column',
-    outline: 'none',
-  })
   /** The header's style. */
   const headerStyle = (): Record<string, string> => ({
     display: 'flex',
@@ -320,126 +263,119 @@ export function KeyboardShortcutsPanel(props: KeyboardShortcutsPanelProps): JSX.
   })
 
   return (
-    <>
-      {/* Backdrop — role="presentation": a sibling click-away surface that
-          receives only its own clicks; Escape dismisses through the document
-          key handler above. */}
-      <div role="presentation" onClick={props.onDismiss} style={backdropStyle()} />
-      {/* Panel */}
-      <div
-        ref={(el: HTMLDivElement) => {
-          panelEl = el
-        }}
-        tabIndex={-1}
-        style={panelStyle()}
-      >
-        {/* Header */}
-        <div style={headerStyle()}>
-          <span style={titleStyle()}>
-            {t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
-          </span>
-          {/* mol-bespoke-button: icon-only ✕ panel dismiss — the IDE's one
-              dismiss mark (same SVG, same 4px-radius square box, same hover
-              scrim as the tab close and the chat-card dismisses), on the full
-              44px coarse floor DESIGN.md reserves for icon-only ✕ dismisses.
-              It was a bare text × with no label and no hit floor. */}
-          <button
-            type="button"
-            data-mol-id="shortcuts-close"
-            onClick={props.onDismiss}
-            aria-label={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
-            title={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
-            class={cm.cn(cm.touchTarget, cm.shrink0)}
-            style={closeStyle()}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '1'
-              e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '0.6'
-              e.currentTarget.style.background = 'transparent'
-            }}
-          >
-            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M3 3l10 10M13 3L3 13"
-                stroke="currentColor"
-                stroke-width={1.6}
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
-        </div>
-
-        {/* Shortcut list */}
-        <div
-          ref={(el: HTMLDivElement) => {
-            listEl = el
+    <Modal
+      open
+      onClose={props.onDismiss}
+      ref={(element) => {
+        dialog = element
+      }}
+      initialFocus={dialogTarget}
+      onKeyDown={handleKeyDown}
+      showCloseButton={false}
+      aria-label={t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
+      style={{ maxHeight: '70vh' }}
+    >
+      {/* Header */}
+      <div style={headerStyle()}>
+        <span style={titleStyle()}>
+          {t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
+        </span>
+        {/* mol-bespoke-button: icon-only ✕ panel dismiss — the IDE's one
+            dismiss mark (same SVG, same 4px-radius square box, same hover
+            scrim as the tab close and the chat-card dismisses), on the full
+            44px coarse floor DESIGN.md reserves for icon-only ✕ dismisses.
+            It was a bare text × with no label and no hit floor. */}
+        <button
+          type="button"
+          data-mol-id="shortcuts-close"
+          onClick={props.onDismiss}
+          aria-label={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
+          title={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
+          class={cm.cn(cm.touchTarget, cm.shrink0)}
+          style={closeStyle()}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1'
+            e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
           }}
-          style={listStyle()}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.6'
+            e.currentTarget.style.background = 'transparent'
+          }}
         >
-          <For each={list.keys()}>
-            {(category) => {
-              const group = createMemo(() => list.get(category)!)
-              const rows = createKeyedList(
-                () => group().entries,
-                (entry): string => entry.label,
-              )
-              return (
-                <div>
-                  {group().category && <div style={categoryStyle()}>{group().category}</div>}
-                  <For each={rows.keys()}>
-                    {(key) => {
-                      const entry = createMemo(() => rows.get(key)!)
-                      const rowIndex = createMemo(() => rows.keys().indexOf(key))
-                      // The row's flat index: the group's first row plus the
-                      // row's position in its group.
-                      const idx = (): number => group().start + rowIndex()
-                      return (
-                        <button
-                          type="button"
-                          data-shortcut-row="true"
-                          data-mol-id={`shortcut-row-${String(idx())}`}
-                          onClick={() => {
-                            const current = entry()
-                            if (current.execute) {
-                              current.execute()
-                              props.onDismiss()
-                            }
-                          }}
-                          onMouseEnter={() => setSelectedIndex(idx())}
-                          class={cm.touchTargetCompact}
-                          /* mol-bespoke-button: a shortcut-list ROW (label + key
-                             badges) with keyboard-driven selection — a list item, not
-                             a CTA. Its selected tint is a theme token and its 36px
-                             coarse floor comes from the ClassMap. */
-                          style={rowStyle(idx(), !!entry().execute)}
-                        >
-                          <span>{entry().label}</span>
-                          <span style={keysStyle()}>
-                            <For each={entry().keys.split(' ')}>
-                              {(part): JSX.Element => (
-                                <kbd style={badgeStyle(mode() === 'light')}>{part}</kbd>
-                              )}
-                            </For>
-                          </span>
-                        </button>
-                      )
-                    }}
-                  </For>
-                </div>
-              )
-            }}
-          </For>
-        </div>
-
-        {/* Footer hint */}
-        <div style={footerStyle()}>
-          {t('ide.shortcuts.hint', undefined, {
-            defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close',
-          })}
-        </div>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 3l10 10M13 3L3 13"
+              stroke="currentColor"
+              stroke-width={1.6}
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
       </div>
-    </>
+
+      {/* Shortcut list */}
+      <div ref={setListEl} style={listStyle()}>
+        <For each={list.keys()}>
+          {(category) => {
+            const group = createMemo(() => list.get(category)!)
+            const rows = createKeyedList(
+              () => group().entries,
+              (entry): string => entry.label,
+            )
+            return (
+              <div>
+                {group().category && <div style={categoryStyle()}>{group().category}</div>}
+                <For each={rows.keys()}>
+                  {(key) => {
+                    const entry = createMemo(() => rows.get(key)!)
+                    const rowIndex = createMemo(() => rows.keys().indexOf(key))
+                    // The row's flat index: the group's first row plus the
+                    // row's position in its group.
+                    const idx = (): number => group().start + rowIndex()
+                    return (
+                      <button
+                        type="button"
+                        data-shortcut-row="true"
+                        data-mol-id={`shortcut-row-${String(idx())}`}
+                        onClick={() => {
+                          const current = entry()
+                          if (current.execute) {
+                            current.execute()
+                            props.onDismiss()
+                          }
+                        }}
+                        onMouseEnter={() => setSelectedIndex(idx())}
+                        class={cm.touchTargetCompact}
+                        /* mol-bespoke-button: a shortcut-list ROW (label + key
+                           badges) with keyboard-driven selection — a list item, not
+                           a CTA. Its selected tint is a theme token and its 36px
+                           coarse floor comes from the ClassMap. */
+                        style={rowStyle(idx(), !!entry().execute)}
+                      >
+                        <span>{entry().label}</span>
+                        <span style={keysStyle()}>
+                          <For each={entry().keys.split(' ')}>
+                            {(part): JSX.Element => (
+                              <kbd style={badgeStyle(mode() === 'light')}>{part}</kbd>
+                            )}
+                          </For>
+                        </span>
+                      </button>
+                    )
+                  }}
+                </For>
+              </div>
+            )
+          }}
+        </For>
+      </div>
+
+      {/* Footer hint */}
+      <div style={footerStyle()}>
+        {t('ide.shortcuts.hint', undefined, {
+          defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close',
+        })}
+      </div>
+    </Modal>
   )
 }

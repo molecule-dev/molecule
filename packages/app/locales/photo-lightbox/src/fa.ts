@@ -5,4 +5,6 @@ export const fa: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'بستن',
   'lightbox.previous': 'قبلی',
   'lightbox.next': 'بعدی',
+  'lightbox.image': 'تصویر {{index}}',
+  'lightbox.imageOfTotal': 'تصویر {{index}} از {{total}}',
 }

@@ -7,24 +7,28 @@
 import { NgTemplateOutlet } from '@angular/common'
 import {
   Component,
+  effect,
+  ElementRef,
+  inject,
   type OnChanges,
-  type OnDestroy,
-  type OnInit,
   signal,
   type SimpleChanges,
   type TemplateRef,
+  ViewChild,
 } from '@angular/core'
 
-import { useHostPresence, useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { Button } from '@molecule/app-ui-angular'
+import { Button, Modal } from '@molecule/app-ui-angular'
 
 import type { LightboxPhoto } from './types.js'
-
-/** React's overlay style (`position: fixed`, `z-index: 100`; the scrim is `cm.bgScrim`'s class). */
-const ROOT_STYLE =
-  'position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center'
 
 /**
  * Whether a node-valued caption is an Angular template (a projected node)
@@ -44,42 +48,23 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
  * PhotoLightbox component.
  *
  * Fullscreen photo viewer with prev/next arrows, keyboard navigation
- * (← → Esc), close button, and optional captions. The host IS the overlay
- * (`div[mol-photo-lightbox]`), matching React's root exactly: the class and
- * the inline style live on it, it is `role="presentation"` (the
- * click-to-dismiss backdrop screen — clicking the host itself closes the
- * lightbox, clicks on the controls inside do not), and the `role="dialog"`
- * element with `aria-modal` and the accessible label is the `<div>` inside it,
- * as in React's DOM.
- *
- * React renders null while the lightbox is closed or the gallery is empty —
- * `useHostPresence` takes the host out of the page in that state, so a closed
- * lightbox leaves no element behind. The document keydown listener (← → Esc) is
- * mounted with the component, as React's effect is while open.
+ * (← → Esc), close button, and optional captions. The kit owns the
+ * modal's focus, close controls and backdrop.
  */
 @Component({
   selector: 'div[mol-photo-lightbox]',
   standalone: true,
-  imports: [Button, NgTemplateOutlet],
+  imports: [Button, Modal, NgTemplateOutlet],
   inputs: ['photos', 'open', 'onClose', 'initialIndex', 'onIndexChange'],
-  host: {
-    role: 'presentation',
-    '[class]': 'classes()',
-    '[style]': 'rootStyle()',
-    '(click)': 'onHostClick($event)',
-  },
+  hostDirectives: [MolPlacement],
   template: `@if (isVisible()) {
-    <div role="dialog" aria-modal="true" [attr.aria-label]="ariaLabel()">
-      <button
-        mol-button
-        [variant]="'ghost'"
-        [size]="'sm'"
-        (click)="close($event)"
-        [attr.aria-label]="closeLabel()"
-        [className]="arrowClasses()"
-      >
-        ✕
-      </button>
+    <mol-modal
+      [open]="true"
+      [size]="'full'"
+      [attr.aria-label]="ariaLabel()"
+      [closeLabel]="closeLabel()"
+      (close)="close($event)"
+    >
       @if (total() > 1) {
         <button
           mol-button
@@ -94,7 +79,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
         </button>
       }
       <figure
-        [style.margin]="'0'"
+        [style.margin]="'0 auto'"
         [style.max-width]="'90vw'"
         [style.max-height]="'90vh'"
         [style.text-align]="'center'"
@@ -108,7 +93,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
         />
         @if (captionTemplate(); as caption) {
           <figcaption
-            [class]="textOnToneClasses()"
+            [class]="captionClasses()"
             [style.padding]="'12px'"
             [style.font-size]="'14px'"
           >
@@ -116,7 +101,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
           </figcaption>
         } @else if (captionText(); as text) {
           <figcaption
-            [class]="textOnToneClasses()"
+            [class]="captionClasses()"
             [style.padding]="'12px'"
             [style.font-size]="'14px'"
           >
@@ -138,7 +123,7 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
         </button>
       }
       <div
-        [class]="textOnToneClasses()"
+        [class]="captionClasses()"
         [style.position]="'absolute'"
         [style.bottom]="'16px'"
         [style.left]="'0'"
@@ -148,10 +133,10 @@ const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
       >
         {{ index() + 1 }} / {{ total() }}
       </div>
-    </div>
+    </mol-modal>
   }`,
 })
-export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
+export class PhotoLightbox implements OnChanges {
   /** Photos to browse. */
   photos: LightboxPhoto[] = []
   /** Whether the lightbox is open. */
@@ -187,9 +172,27 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
    */
   private readonly i18n = useTranslation()
 
+  private readonly modal = signal<Modal | undefined>(undefined)
+
+  /** Tracks when the kit dialog is created or removed. */
+  @ViewChild(Modal)
+  private set dialogComponent(modal: Modal | undefined) {
+    this.modal.set(modal)
+  }
+
   constructor() {
-    // Leaves no element in the page while the lightbox is closed (React renders null).
-    useHostPresence(() => this.isVisible())
+    const host: ElementRef<HTMLElement> = inject(ElementRef)
+    usePlacement(() => {
+      const element = host.nativeElement
+      placeContentBefore(element, element)
+      setElementPresent(element, false)
+    })
+    effect((onCleanup) => {
+      const dialog = this.modal()?.element()
+      if (!dialog) return
+      dialog.addEventListener('keydown', this.navigate)
+      onCleanup(() => dialog.removeEventListener('keydown', this.navigate))
+    })
   }
 
   /**
@@ -201,22 +204,13 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
   }
 
   /**
-   * The root class list (React's `cm.cn(cm.position('fixed'), cm.bgScrim)`).
-   * @returns The class string.
-   */
-  classes(): string {
-    return this.cm().cn(this.cm().position('fixed'), this.cm().bgScrim)
-  }
-
-  /**
-   * The caption/counter text class (React's `cm.textOnTone` — readable text on
-   * the scrim). Routed through `cn` like every other binding: `cn` of a single
+   * The caption/counter text class from the dialog surface. Routed through `cn` like every other binding: `cn` of a single
    * token is the token, and ClassMap mocks that model string properties as
    * zero-arg resolvers stay bound to whatever a bond provides.
    * @returns The class string.
    */
-  textOnToneClasses(): string {
-    return this.cm().cn(this.cm().textOnTone)
+  captionClasses(): string {
+    return this.cm().cn(this.cm().textMuted)
   }
 
   /**
@@ -225,14 +219,6 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
    */
   arrowClasses(): string {
     return this.cm().position('absolute')
-  }
-
-  /**
-   * The root inline style (React's overlay style object).
-   * @returns The `style` attribute text.
-   */
-  rootStyle(): string {
-    return ROOT_STYLE
   }
 
   /**
@@ -265,7 +251,14 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
    */
   ariaLabel(): string | null {
     if (!this.isVisible()) return null
-    return this.photo().alt ?? `Image ${this.index() + 1} of ${this.photos.length}`
+    return (
+      this.photo().alt ??
+      this.i18n.t(
+        'lightbox.imageOfTotal',
+        { index: this.index() + 1, total: this.total() },
+        { defaultValue: 'Image {{index}} of {{total}}' },
+      )
+    )
   }
 
   /**
@@ -273,7 +266,14 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
    * @returns The alt text.
    */
   imageAlt(): string {
-    return this.photo().alt ?? `Image ${this.index() + 1}`
+    return (
+      this.photo().alt ??
+      this.i18n.t(
+        'lightbox.image',
+        { index: this.index() + 1 },
+        { defaultValue: 'Image {{index}}' },
+      )
+    )
   }
 
   /**
@@ -333,21 +333,12 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
   }
 
   /**
-   * Calls `onClose` with the click event, as React's `Button onClick` does.
-   *
-   * @param event - The native click event.
+   * Forwards the kit's close request. The close button supplies its click.
+   * @param event - The close button's click, when it was pressed.
    */
-  close(event: MouseEvent): void {
-    this.onClose?.(event)
-  }
-
-  /**
-   * React's backdrop click: close only when the overlay itself was clicked.
-   *
-   * @param event - The native click event.
-   */
-  onHostClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) this.onClose?.()
+  close(event?: MouseEvent): void {
+    if (event) this.onClose?.(event)
+    else this.onClose?.()
   }
 
   /**
@@ -362,21 +353,9 @@ export class PhotoLightbox implements OnChanges, OnInit, OnDestroy {
     }
   }
 
-  /** React's keydown handler: ← → navigate, Escape closes. */
-  private readonly onKey = (event: KeyboardEvent): void => {
-    if (!this.open) return
-    if (event.key === 'Escape') this.onClose?.()
-    else if (event.key === 'ArrowLeft') this.setIdx(this.index() - 1)
+  /** Navigates while the key event comes from this lightbox. */
+  private readonly navigate = (event: KeyboardEvent): void => {
+    if (event.key === 'ArrowLeft') this.setIdx(this.index() - 1)
     else if (event.key === 'ArrowRight') this.setIdx(this.index() + 1)
-  }
-
-  /** Attaches the document keydown listener (React's effect while open). */
-  ngOnInit(): void {
-    document.addEventListener('keydown', this.onKey)
-  }
-
-  /** Detaches the keydown listener (the host's visibility is `useHostPresence`'s). */
-  ngOnDestroy(): void {
-    document.removeEventListener('keydown', this.onKey)
   }
 }

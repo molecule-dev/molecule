@@ -243,7 +243,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
 
   it('renders a host-supplied productName in the report modal, never the hardcoded one', async () => {
     const container = await renderReport({ productName: 'Acme' })
-    const modal = container.querySelector('[data-mol-id="report-modal"]')
+    const modal = container.ownerDocument.querySelector('[data-mol-id="report-modal"]')
     expect(modal, 'the report modal should mount').not.toBeNull()
     const text = modal?.textContent ?? ''
     expect(text).toContain('Acme’s team')
@@ -254,7 +254,8 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
 
   it('falls back to the NEUTRAL default product name in the report modal', async () => {
     const container = await renderReport()
-    const text = container.querySelector('[data-mol-id="report-modal"]')?.textContent ?? ''
+    const text =
+      container.ownerDocument.querySelector('[data-mol-id="report-modal"]')?.textContent ?? ''
     expect(text).toContain('the IDE’s team')
     expect(text).not.toContain('Molecule.dev')
   })

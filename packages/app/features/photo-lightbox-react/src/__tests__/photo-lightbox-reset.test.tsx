@@ -11,7 +11,12 @@
 import { fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+import type * as UI from '@molecule/app-ui-react'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -26,7 +31,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -41,7 +46,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof UI>()),
   Button: ({
     children,
     'aria-label': ariaLabel,
@@ -70,41 +76,51 @@ function counter(container: HTMLElement): string {
   return dialog.textContent ?? ''
 }
 
+/**
+ * Dispatches a key down from the mounted dialog.
+ * @param root - The owner of the portaled lightbox.
+ */
+function pressArrowRight(root: HTMLElement): void {
+  const dialog = root.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a lightbox')
+  fireEvent.keyDown(dialog, { key: 'ArrowRight' })
+}
+
 describe('<PhotoLightbox> index reset', () => {
   it('shows initialIndex on the first open frame', () => {
-    const { container, rerender } = render(
+    const { baseElement, rerender } = render(
       createElement(PhotoLightbox, { photos, open: false, onClose: () => {} }),
     )
     rerender(
       createElement(PhotoLightbox, { photos, open: true, onClose: () => {}, initialIndex: 2 }),
     )
-    expect(counter(container)).toContain('3 / 3')
+    expect(counter(baseElement)).toContain('3 / 3')
   })
 
   it('rewinds to initialIndex when reopened after navigating', () => {
-    const { container, rerender } = render(
+    const { baseElement, rerender } = render(
       createElement(PhotoLightbox, { photos, open: true, onClose: () => {}, initialIndex: 0 }),
     )
-    expect(counter(container)).toContain('1 / 3')
-    fireEvent.keyDown(document, { key: 'ArrowRight' })
-    fireEvent.keyDown(document, { key: 'ArrowRight' })
-    expect(counter(container)).toContain('3 / 3')
+    expect(counter(baseElement)).toContain('1 / 3')
+    pressArrowRight(baseElement)
+    pressArrowRight(baseElement)
+    expect(counter(baseElement)).toContain('3 / 3')
     rerender(createElement(PhotoLightbox, { photos, open: false, onClose: () => {} }))
     rerender(
       createElement(PhotoLightbox, { photos, open: true, onClose: () => {}, initialIndex: 1 }),
     )
-    expect(counter(container)).toContain('2 / 3')
+    expect(counter(baseElement)).toContain('2 / 3')
   })
 
   it('follows a new initialIndex while open', () => {
-    const { container, rerender } = render(
+    const { baseElement, rerender } = render(
       createElement(PhotoLightbox, { photos, open: true, onClose: () => {}, initialIndex: 0 }),
     )
-    fireEvent.keyDown(document, { key: 'ArrowRight' })
-    expect(counter(container)).toContain('2 / 3')
+    pressArrowRight(baseElement)
+    expect(counter(baseElement)).toContain('2 / 3')
     rerender(
       createElement(PhotoLightbox, { photos, open: true, onClose: () => {}, initialIndex: 2 }),
     )
-    expect(counter(container)).toContain('3 / 3')
+    expect(counter(baseElement)).toContain('3 / 3')
   })
 })

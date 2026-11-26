@@ -23,17 +23,7 @@
  * @module
  */
 
-import {
-  computed,
-  defineComponent,
-  h,
-  onBeforeUnmount,
-  onMounted,
-  type PropType,
-  ref,
-  type VNode,
-  type VNodeChild,
-} from 'vue'
+import { computed, defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
 import type { ReportFormState, ReportResult } from '@molecule/app-ide-panel-logic'
 import {
@@ -43,7 +33,8 @@ import {
   isReportFormValid,
 } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-vue'
 import {
   DEFAULT_PRODUCT_NAME,
   useHttpClient,
@@ -143,15 +134,11 @@ export const ReportModal = defineComponent({
     const error = ref<string | null>(null)
     const titleInput = ref<HTMLInputElement | null>(null)
 
-    // Escape closes the modal.
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') props.onClose()
+    const titleTarget: OverlayTarget = {
+      get current() {
+        return titleInput.value
+      },
     }
-    onMounted(() => window.addEventListener('keydown', onKey))
-    onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
-
-    // Focus the title field on mount (React's `autoFocus`).
-    onMounted(() => titleInput.value?.focus())
 
     const isNarrow = useNarrowViewport()
     const isCoarse = useCoarsePointer()
@@ -200,271 +187,223 @@ export const ReportModal = defineComponent({
 
     return (): VNodeChild =>
       h(
-        'div',
+        Modal,
         {
-          'data-mol-id': 'report-modal-backdrop',
-          // The backdrop is the dialog's PARENT: role="presentation" and a
-          // close only when the click landed on the backdrop itself (a click
-          // inside the dialog bubbles here with a different target).
-          role: 'presentation',
-          onClick: (event: MouseEvent) => {
-            if (event.target === event.currentTarget) props.onClose()
-          },
-          style: {
-            position: 'fixed',
-            inset: '0px',
-            // Dialog layer (1300) — must paint above ambient status chrome like
-            // the host's HealthBanner (z 1100), which otherwise overlaps this
-            // on phones.
-            zIndex: '1300',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0, 0, 0, 0.45)',
-            padding: '16px',
-          },
+          open: true,
+          onClose: props.onClose,
+          title: t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' }),
+          showCloseButton: false,
+          'data-mol-id': 'report-modal',
+          initialFocus: titleTarget,
         },
-        [
-          h(
-            'div',
-            {
-              'data-mol-id': 'report-modal',
-              role: 'dialog',
-              'aria-modal': 'true',
-              'aria-label': t('ide.chat.report.heading', undefined, {
-                defaultValue: 'Report a bug',
-              }),
-              class: cm.cn(cm.surface, cm.borderAll, cm.textSize('sm')),
-              style: {
-                width: '100%',
-                maxWidth: '460px',
-                maxHeight: '85vh',
-                overflowY: 'auto',
-                borderRadius: '8px',
-                padding: '16px',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
-              },
-            },
-            [
-              h(
-                'div',
+        {
+          default: () => [
+            h('div', { class: cm.textMuted, style: { marginBottom: '12px', lineHeight: '1.4' } }, [
+              t(
+                'ide.chat.report.subheading',
+                { productName: props.productName ?? DEFAULT_PRODUCT_NAME },
                 {
-                  class: cm.cn(cm.fontWeight('medium'), cm.textSize('lg')),
-                  style: { marginBottom: '4px' },
+                  defaultValue:
+                    'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
                 },
-                [t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })],
               ),
-              h(
-                'div',
-                { class: cm.textMuted, style: { marginBottom: '12px', lineHeight: '1.4' } },
-                [
-                  t(
-                    'ide.chat.report.subheading',
-                    { productName: props.productName ?? DEFAULT_PRODUCT_NAME },
-                    {
-                      defaultValue:
-                        'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
-                    },
-                  ),
-                ],
-              ),
-              h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } }, [
-                h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
-                  h('span', { class: cm.fontWeight('medium') }, [
-                    t('ide.chat.report.titleLabel', undefined, { defaultValue: 'Title' }),
-                  ]),
-                  h('input', {
-                    value: form.value.title,
-                    'data-mol-id': 'report-title',
-                    ref: titleInput,
-                    onInput: (event: Event) => {
-                      form.value = {
-                        ...form.value,
-                        title: (event.target as HTMLInputElement).value,
-                      }
-                    },
-                    placeholder: t('ide.chat.report.titlePlaceholder', undefined, {
-                      defaultValue: 'Brief summary',
-                    }),
-                    class: cm.textSize('sm'),
-                    style: fieldStyle.value,
-                    onVnodeMounted: syncValueAttr,
-                    onVnodeUpdated: syncValueAttr,
-                  }),
+            ]),
+            h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } }, [
+              h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
+                h('span', { class: cm.fontWeight('medium') }, [
+                  t('ide.chat.report.titleLabel', undefined, { defaultValue: 'Title' }),
                 ]),
-                h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
-                  h('span', { class: cm.fontWeight('medium') }, [
-                    t('ide.chat.report.descriptionLabel', undefined, {
-                      defaultValue: 'Description',
-                    }),
-                  ]),
-                  h('textarea', {
-                    // React's textarea carries the value PROPERTY alone —
-                    // never a `value` attribute (Vue's own `value` binding
-                    // writes the attribute), so the property is asserted in
-                    // the vnode hooks.
-                    onVnodeMounted: (vnode: VNode) => {
-                      setControlledValue(vnode, form.value.description)
-                    },
-                    onVnodeUpdated: (vnode: VNode) => {
-                      setControlledValue(vnode, form.value.description)
-                    },
-                    'data-mol-id': 'report-description',
-                    onInput: (event: Event) => {
-                      form.value = {
-                        ...form.value,
-                        description: (event.target as HTMLTextAreaElement).value,
-                      }
-                    },
-                    placeholder: t('ide.chat.report.descriptionPlaceholder', undefined, {
-                      defaultValue: 'What happened? What did you expect?',
-                    }),
-                    rows: 4,
-                    class: cm.textSize('sm'),
-                    style: { ...fieldStyle.value, resize: 'vertical' },
-                  }),
-                ]),
-                h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
-                  h('span', { class: cm.fontWeight('medium') }, [
-                    t('ide.chat.report.stepsLabel', undefined, {
-                      defaultValue: 'Steps to reproduce (optional)',
-                    }),
-                  ]),
-                  h('textarea', {
-                    // The value PROPERTY alone, as above.
-                    onVnodeMounted: (vnode: VNode) => {
-                      setControlledValue(vnode, form.value.steps)
-                    },
-                    onVnodeUpdated: (vnode: VNode) => {
-                      setControlledValue(vnode, form.value.steps)
-                    },
-                    'data-mol-id': 'report-steps',
-                    onInput: (event: Event) => {
-                      form.value = {
-                        ...form.value,
-                        steps: (event.target as HTMLTextAreaElement).value,
-                      }
-                    },
-                    placeholder: t('ide.chat.report.stepsPlaceholder', undefined, {
-                      defaultValue: '1. …\n2. …',
-                    }),
-                    rows: 3,
-                    class: cm.textSize('sm'),
-                    style: { ...fieldStyle.value, resize: 'vertical' },
-                  }),
-                ]),
-                h(
-                  'label',
-                  {
-                    style: {
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                    },
+                h('input', {
+                  value: form.value.title,
+                  'data-mol-id': 'report-title',
+                  ref: titleInput,
+                  onInput: (event: Event) => {
+                    form.value = {
+                      ...form.value,
+                      title: (event.target as HTMLInputElement).value,
+                    }
                   },
-                  [
-                    h('input', {
-                      type: 'checkbox',
-                      'data-mol-id': 'report-include-chat',
-                      onChange: (event: Event) => {
-                        form.value = {
-                          ...form.value,
-                          includeChat: (event.target as HTMLInputElement).checked,
-                        }
-                      },
-                      // React keeps the `checked` ATTRIBUTE at its mount value
-                      // and follows the state with the property alone (Vue's
-                      // own `checked` binding writes both), so both are
-                      // asserted in the vnode hooks.
-                      onVnodeMounted: (vnode: VNode) => {
-                        const el = vnode.el as HTMLInputElement
-                        el.checked = form.value.includeChat
-                        if (el.checked) el.setAttribute('checked', '')
-                      },
-                      onVnodeUpdated: (vnode: VNode) => {
-                        ;(vnode.el as HTMLInputElement).checked = form.value.includeChat
-                      },
-                    }),
-                    h('span', [
-                      t('ide.chat.report.includeChat', undefined, {
-                        defaultValue: 'Include recent chat for context',
-                      }),
-                    ]),
-                  ],
-                ),
-                error.value
-                  ? h('div', { class: cm.textError, style: { lineHeight: '1.4' } }, [error.value])
-                  : null,
+                  placeholder: t('ide.chat.report.titlePlaceholder', undefined, {
+                    defaultValue: 'Brief summary',
+                  }),
+                  class: cm.textSize('sm'),
+                  style: fieldStyle.value,
+                  onVnodeMounted: syncValueAttr,
+                  onVnodeUpdated: syncValueAttr,
+                }),
+              ]),
+              h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
+                h('span', { class: cm.fontWeight('medium') }, [
+                  t('ide.chat.report.descriptionLabel', undefined, {
+                    defaultValue: 'Description',
+                  }),
+                ]),
+                h('textarea', {
+                  // React's textarea carries the value PROPERTY alone —
+                  // never a `value` attribute (Vue's own `value` binding
+                  // writes the attribute), so the property is asserted in
+                  // the vnode hooks.
+                  onVnodeMounted: (vnode: VNode) => {
+                    setControlledValue(vnode, form.value.description)
+                  },
+                  onVnodeUpdated: (vnode: VNode) => {
+                    setControlledValue(vnode, form.value.description)
+                  },
+                  'data-mol-id': 'report-description',
+                  onInput: (event: Event) => {
+                    form.value = {
+                      ...form.value,
+                      description: (event.target as HTMLTextAreaElement).value,
+                    }
+                  },
+                  placeholder: t('ide.chat.report.descriptionPlaceholder', undefined, {
+                    defaultValue: 'What happened? What did you expect?',
+                  }),
+                  rows: 4,
+                  class: cm.textSize('sm'),
+                  style: { ...fieldStyle.value, resize: 'vertical' },
+                }),
+              ]),
+              h('label', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
+                h('span', { class: cm.fontWeight('medium') }, [
+                  t('ide.chat.report.stepsLabel', undefined, {
+                    defaultValue: 'Steps to reproduce (optional)',
+                  }),
+                ]),
+                h('textarea', {
+                  // The value PROPERTY alone, as above.
+                  onVnodeMounted: (vnode: VNode) => {
+                    setControlledValue(vnode, form.value.steps)
+                  },
+                  onVnodeUpdated: (vnode: VNode) => {
+                    setControlledValue(vnode, form.value.steps)
+                  },
+                  'data-mol-id': 'report-steps',
+                  onInput: (event: Event) => {
+                    form.value = {
+                      ...form.value,
+                      steps: (event.target as HTMLTextAreaElement).value,
+                    }
+                  },
+                  placeholder: t('ide.chat.report.stepsPlaceholder', undefined, {
+                    defaultValue: '1. …\n2. …',
+                  }),
+                  rows: 3,
+                  class: cm.textSize('sm'),
+                  style: { ...fieldStyle.value, resize: 'vertical' },
+                }),
               ]),
               h(
-                'div',
-                {
-                  'data-mol-id': 'report-diagnostics-note',
-                  class: cm.cn(cm.textMuted, cm.textSize('xs')),
-                  style: { marginTop: '12px', lineHeight: '1.4' },
-                },
-                [
-                  t('ide.chat.report.diagnosticsNote', undefined, {
-                    defaultValue:
-                      'Your app version, browser, and screen size are attached to help us debug.',
-                  }),
-                ],
-              ),
-              h(
-                'div',
+                'label',
                 {
                   style: {
                     display: 'flex',
-                    justifyContent: 'flex-end',
+                    alignItems: 'center',
                     gap: '8px',
-                    marginTop: '16px',
+                    cursor: 'pointer',
                   },
                 },
                 [
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      'data-mol-id': 'report-cancel',
-                      onClick: () => props.onClose(),
-                      class: cm.cn(
-                        cm.button({ variant: 'ghost', size: 'sm' }),
-                        cm.touchTargetCompact,
-                      ),
+                  h('input', {
+                    type: 'checkbox',
+                    'data-mol-id': 'report-include-chat',
+                    onChange: (event: Event) => {
+                      form.value = {
+                        ...form.value,
+                        includeChat: (event.target as HTMLInputElement).checked,
+                      }
                     },
-                    [t('common.cancel', undefined, { defaultValue: 'Cancel' })],
-                  ),
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      'data-mol-id': 'report-submit',
-                      onClick: () => void handleSubmit(),
-                      disabled: !isReportFormValid(form.value) || submitting.value,
-                      // No inline opacity — the CVA fades a real `disabled`
-                      // button itself, and an inline value would override
-                      // whatever it chooses.
-                      class: cm.cn(
-                        cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
-                        cm.touchTargetCompact,
-                      ),
+                    // React keeps the `checked` ATTRIBUTE at its mount value
+                    // and follows the state with the property alone (Vue's
+                    // own `checked` binding writes both), so both are
+                    // asserted in the vnode hooks.
+                    onVnodeMounted: (vnode: VNode) => {
+                      const el = vnode.el as HTMLInputElement
+                      el.checked = form.value.includeChat
+                      if (el.checked) el.setAttribute('checked', '')
                     },
-                    [
-                      submitting.value
-                        ? t('ide.chat.report.submitting', undefined, {
-                            defaultValue: 'Submitting…',
-                          })
-                        : t('ide.chat.report.submit', undefined, {
-                            defaultValue: 'Submit report',
-                          }),
-                    ],
-                  ),
+                    onVnodeUpdated: (vnode: VNode) => {
+                      ;(vnode.el as HTMLInputElement).checked = form.value.includeChat
+                    },
+                  }),
+                  h('span', [
+                    t('ide.chat.report.includeChat', undefined, {
+                      defaultValue: 'Include recent chat for context',
+                    }),
+                  ]),
                 ],
               ),
-            ],
-          ),
-        ],
+              error.value
+                ? h('div', { class: cm.textError, style: { lineHeight: '1.4' } }, [error.value])
+                : null,
+            ]),
+            h(
+              'div',
+              {
+                'data-mol-id': 'report-diagnostics-note',
+                class: cm.cn(cm.textMuted, cm.textSize('xs')),
+                style: { marginTop: '12px', lineHeight: '1.4' },
+              },
+              [
+                t('ide.chat.report.diagnosticsNote', undefined, {
+                  defaultValue:
+                    'Your app version, browser, and screen size are attached to help us debug.',
+                }),
+              ],
+            ),
+            h(
+              'div',
+              {
+                style: {
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '8px',
+                  marginTop: '16px',
+                },
+              },
+              [
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    'data-mol-id': 'report-cancel',
+                    onClick: () => props.onClose(),
+                    class: cm.cn(
+                      cm.button({ variant: 'ghost', size: 'sm' }),
+                      cm.touchTargetCompact,
+                    ),
+                  },
+                  [t('common.cancel', undefined, { defaultValue: 'Cancel' })],
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    'data-mol-id': 'report-submit',
+                    onClick: () => void handleSubmit(),
+                    disabled: !isReportFormValid(form.value) || submitting.value,
+                    // No inline opacity — the CVA fades a real `disabled`
+                    // button itself, and an inline value would override
+                    // whatever it chooses.
+                    class: cm.cn(
+                      cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+                      cm.touchTargetCompact,
+                    ),
+                  },
+                  [
+                    submitting.value
+                      ? t('ide.chat.report.submitting', undefined, {
+                          defaultValue: 'Submitting…',
+                        })
+                      : t('ide.chat.report.submit', undefined, {
+                          defaultValue: 'Submit report',
+                        }),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        },
       )
   },
 })

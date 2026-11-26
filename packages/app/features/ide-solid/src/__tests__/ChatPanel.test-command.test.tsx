@@ -189,7 +189,7 @@ function renderPanel(
     ),
     container,
   )
-  return container
+  return container.ownerDocument.body
 }
 
 /**
@@ -995,8 +995,8 @@ describe('every test run in the project reaches the test view', () => {
     mounted.dispose?.()
     mounted.dispose = undefined
     document.body.innerHTML = ''
-    const container = document.createElement('div')
-    document.body.appendChild(container)
+    const host = document.body.appendChild(document.createElement('div'))
+    const container = host.ownerDocument.body
     mounted.dispose = render(
       () => (
         <ThemeContext.Provider value={buildThemeProvider()}>
@@ -1013,7 +1013,7 @@ describe('every test run in the project reaches the test view', () => {
           </HttpContext.Provider>
         </ThemeContext.Provider>
       ),
-      container,
+      host,
     )
     await openTests(container)
     click(molId(container, `tests-card-run-${HOME}`))
@@ -1052,8 +1052,8 @@ describe('every test run in the project reaches the test view', () => {
     mounted.dispose?.()
     mounted.dispose = undefined
     document.body.innerHTML = ''
-    const container = document.createElement('div')
-    document.body.appendChild(container)
+    const host = document.body.appendChild(document.createElement('div'))
+    const container = host.ownerDocument.body
     mounted.dispose = render(
       () => (
         <ThemeContext.Provider value={buildThemeProvider()}>
@@ -1069,7 +1069,7 @@ describe('every test run in the project reaches the test view', () => {
           </HttpContext.Provider>
         </ThemeContext.Provider>
       ),
-      container,
+      host,
     )
     await openTests(container)
     const before = molId(container, 'tests-card')?.textContent

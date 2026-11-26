@@ -1,14 +1,7 @@
 // @vitest-environment jsdom
 /**
- * `KeyboardShortcutsPanel`'s document key listener.
- *
- * Angular port of
- * `@molecule/app-ide-react/src/__tests__/KeyboardShortcutsPanel.test.tsx` with
- * the same test names and the same assertions, mounted through Angular's own
- * `createApplication`. The listener is registered once and reads the LATEST
- * shortcuts and selection from the component's live fields, so after the caller
- * changes `shortcuts` the very next key acts on the new list (a stale listener
- * would clamp to the old length and run the old entry).
+ * Exercises keyboard navigation in the kit dialog using Angular's
+ * `createApplication`. The next key uses the latest shortcuts and selection.
  *
  * @module
  */
@@ -135,12 +128,14 @@ function rerender(shortcuts: ShortcutEntry[]): void {
 }
 
 /**
- * Fires one key on the document, the way `fireEvent.keyDown(document, …)` does.
+ * Dispatches one key from the portaled shortcuts dialog.
  *
  * @param key - The key name.
  */
 function keyDown(key: string): void {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a shortcuts dialog')
+  dialog.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 }
 
 describe('KeyboardShortcutsPanel keyboard navigation', () => {

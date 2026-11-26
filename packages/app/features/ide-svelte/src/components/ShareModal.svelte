@@ -51,12 +51,19 @@
     /** Called after a link is created, with the created link. */
     onCreated?: (result: ShareLinkResult) => void
   }
+  let done = $state<HTMLButtonElement | null>(null)
+  const doneTarget: OverlayTarget = {
+    get current() {
+      return done
+    },
+  }
 </script>
 
 <script lang="ts">
   import { DEFAULT_SHARE_ROLE, shareSubheading } from '@molecule/app-ide-panel-logic'
   import { useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+  import { Modal } from '@molecule/app-ui-svelte'
 
   import ShareLinkManager from './ShareLinkManager.svelte'
 
@@ -83,84 +90,49 @@
   const createAllowed = $derived(canCreate ?? canManage ?? true)
   const revokeAllowed = $derived(canRevoke ?? canManage ?? true)
   const linksShown = $derived(showLinks !== false)
-
-  /**
-   * The escape handling: React's handler calls `onClose()` with NO event
-   * argument; every other key is ignored.
-   *
-   * @param event - The key press.
-   */
-  function handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') onClose()
-  }
-
-  /**
-   * A click on the backdrop itself dismisses the dialog; a click inside the
-   * panel bubbles here otherwise. React's handler compares the event's target
-   * with its current target and calls the callback with NO argument.
-   *
-   * @param event - The click.
-   */
-  function handleBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) onClose()
-  }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
-<!-- React's backdrop is a plain div with a click handler and role
-     "presentation" (no key handler, no tabindex). -->
-<div
-  data-mol-id="share-modal-backdrop"
-  role="presentation"
-  onclick={handleBackdropClick}
-  style="position: fixed; inset: 0px; z-index: 1300; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.45); padding: 16px"
+<Modal
+  open
+  {onClose}
+  title={t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
+  showCloseButton={false}
+  initialFocus={doneTarget}
+  data-mol-id="share-modal"
 >
-  <!-- React's dialog is role="dialog" with no tabindex. -->
-  <div
-    data-mol-id="share-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-label={t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
-    class={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
-    style="width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto; border-radius: 8px; padding: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.35)"
-  >
-    <div class={cm.cn(cm.fontWeight('medium'), cm.textSize('lg'))} style="margin-bottom: 4px">
-      {t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
+  {#if linksShown}
+    <div class={cm.textMuted} style="margin-bottom: 12px; line-height: 1.4">
+      {offeredRoles.length > 1
+        ? t('ide.chat.share.subheading', undefined, {
+            defaultValue:
+              'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+          })
+        : shareSubheading(t, offeredRoles[0]!)}
     </div>
-    {#if linksShown}
-      <div class={cm.textMuted} style="margin-bottom: 12px; line-height: 1.4">
-        {offeredRoles.length > 1
-          ? t('ide.chat.share.subheading', undefined, {
-              defaultValue:
-                'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
-            })
-          : shareSubheading(t, offeredRoles[0]!)}
-      </div>
 
-      <ShareLinkManager
-        {projectId}
-        roles={offeredRoles}
-        {initialRole}
-        {canManage}
-        canCreate={createAllowed}
-        canRevoke={revokeAllowed}
-        {onCreated}
-        {refreshSignal}
-      />
-    {/if}
+    <ShareLinkManager
+      {projectId}
+      roles={offeredRoles}
+      {initialRole}
+      {canManage}
+      canCreate={createAllowed}
+      canRevoke={revokeAllowed}
+      {onCreated}
+      {refreshSignal}
+    />
+  {/if}
 
-    {#if children}{@render children?.()}{/if}
+  {#if children}{@render children?.()}{/if}
 
-    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px">
-      <button
-        type="button"
-        data-mol-id="share-close"
-        onclick={onClose}
-        class={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
-      >
-        {t('common.done', undefined, { defaultValue: 'Done' })}
-      </button>
-    </div>
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px">
+    <button
+      type="button"
+      data-mol-id="share-close"
+      bind:this={done}
+      onclick={onClose}
+      class={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
+    >
+      {t('common.done', undefined, { defaultValue: 'Done' })}
+    </button>
   </div>
-</div>
+</Modal>

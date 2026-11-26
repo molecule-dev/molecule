@@ -5,4 +5,6 @@ export const gu: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'બંધ કરો',
   'lightbox.previous': 'પાછલું',
   'lightbox.next': 'આગળ',
+  'lightbox.image': 'છબી {{index}}',
+  'lightbox.imageOfTotal': '{{total}} માંથી છબી {{index}}',
 }

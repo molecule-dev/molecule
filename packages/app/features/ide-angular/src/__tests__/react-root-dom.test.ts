@@ -234,12 +234,17 @@ describe('CommandPalette (React root: the QuickPicker fragment of two roots)', (
       [CommandPalette],
       { commands: [], onDismiss: () => undefined },
     )
-    expect(shape(m.root)).toBe(
-      '<i>a</i><div></div><div><input></input><div><div>No matching results</div></div></div><i>b</i>',
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    const dialog = m.root.ownerDocument.querySelector('[role="dialog"]')
+    if (!dialog) throw new Error('Expected a kit dialog in the owner document')
+    expect(dialog.parentElement?.getAttribute('role')).toBe('presentation')
+    expect(shape(dialog)).toBe(
+      '<div><input></input><div><div>No matching results</div></div></div>',
     )
     m.set({ commands: [{ id: 'c', label: 'Do', execute: () => undefined }] })
-    expect(shape(m.root)).toBe(
-      '<i>a</i><div></div><div><input></input><div><button><span>Do</span></button></div></div><i>b</i>',
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    expect(shape(dialog)).toBe(
+      '<div><input></input><div><button><span>Do</span></button></div></div>',
     )
   })
 })
@@ -270,12 +275,17 @@ describe('KeyboardShortcutsPanel (React root: a fragment of two roots)', () => {
       [KeyboardShortcutsPanel],
       { shortcuts: [], onDismiss: () => undefined },
     )
-    expect(shape(m.root)).toBe(
-      '<i>a</i><div></div><div><div><span>Keyboard Shortcuts</span><button><svg><path></path></svg></button></div><div></div><div>Arrow keys to navigate · Enter to run · Esc to close</div></div><i>b</i>',
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    const dialog = m.root.ownerDocument.querySelector('[role="dialog"]')
+    if (!dialog) throw new Error('Expected a kit dialog in the owner document')
+    expect(dialog.parentElement?.getAttribute('role')).toBe('presentation')
+    expect(shape(dialog)).toBe(
+      '<div><div><span>Keyboard Shortcuts</span><button><svg><path></path></svg></button></div><div></div><div>Arrow keys to navigate · Enter to run · Esc to close</div></div>',
     )
     m.set({ shortcuts: [{ label: 'Save', keys: 'Ctrl S' }] })
-    expect(shape(m.root)).toBe(
-      '<i>a</i><div></div><div><div><span>Keyboard Shortcuts</span><button><svg><path></path></svg></button></div><div><div><button><span>Save</span><span><kbd>Ctrl</kbd><kbd>S</kbd></span></button></div></div><div>Arrow keys to navigate · Enter to run · Esc to close</div></div><i>b</i>',
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    expect(shape(dialog)).toBe(
+      '<div><div><span>Keyboard Shortcuts</span><button><svg><path></path></svg></button></div><div><div><button><span>Save</span><span><kbd>Ctrl</kbd><kbd>S</kbd></span></button></div></div><div>Arrow keys to navigate · Enter to run · Esc to close</div></div>',
     )
   })
 })
@@ -289,13 +299,16 @@ describe('QuickOpen (React root: the QuickPicker fragment of two roots)', () => 
       [QuickOpen],
       { projectId: 'p1', onFileOpen: () => undefined, onDismiss: () => undefined },
     )
-    // The picker renders its two roots; its list is either the in-flight state
-    // or the empty one (the file fetch resolves on a microtask).
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    const dialog = m.root.ownerDocument.querySelector('[role="dialog"]')
+    if (!dialog) throw new Error('Expected a kit dialog in the owner document')
+    expect(dialog.parentElement?.getAttribute('role')).toBe('presentation')
     const picker =
-      /^<i>a<\/i><div><\/div><div><input><\/input><div><div>(Loading…|No matching results)<\/div><\/div><\/div><i>b<\/i>$/
-    expect(shape(m.root)).toMatch(picker)
+      /^<div><input><\/input><div><div>(Loading…|No matching results)<\/div><\/div><\/div>$/
+    expect(shape(dialog)).toMatch(picker)
     m.set({ projectId: 'p2' })
-    expect(shape(m.root)).toMatch(picker)
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    expect(shape(dialog)).toMatch(picker)
   })
 })
 
@@ -308,12 +321,17 @@ describe('QuickPicker (React root: a fragment of two roots)', () => {
       [QuickPicker],
       { items: [], onSelect: () => undefined, onDismiss: () => undefined },
     )
-    expect(shape(m.root)).toBe(
-      '<i>a</i><div></div><div><input></input><div><div>No matching results</div></div></div><i>b</i>',
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    const dialog = m.root.ownerDocument.querySelector('[role="dialog"]')
+    if (!dialog) throw new Error('Expected a kit dialog in the owner document')
+    expect(dialog.parentElement?.getAttribute('role')).toBe('presentation')
+    expect(shape(dialog)).toBe(
+      '<div><input></input><div><div>No matching results</div></div></div>',
     )
     m.set({ items: [{ id: 'x', label: 'X', detail: 'd' }] })
-    expect(shape(m.root)).toBe(
-      '<i>a</i><div></div><div><input></input><div><button><span>X</span><span>d</span></button></div></div><i>b</i>',
+    expect(shape(m.root)).toBe('<i>a</i><i>b</i>')
+    expect(shape(dialog)).toBe(
+      '<div><input></input><div><button><span>X</span><span>d</span></button></div></div>',
     )
   })
 })

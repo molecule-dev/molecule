@@ -5,4 +5,6 @@ export const hu: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Bezárás',
   'lightbox.previous': 'Előző',
   'lightbox.next': 'Következő',
+  'lightbox.image': 'Kép {{index}}',
+  'lightbox.imageOfTotal': 'Kép {{index}} / {{total}}',
 }

@@ -8,7 +8,11 @@
  * @module
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `position`), so tests can assert which cm.* class was applied without a real
@@ -26,7 +30,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -64,7 +68,10 @@ const render = (props: PhotoLightboxProps): string => {
   const app = createApp(defineComponent({ render: () => h(PhotoLightbox, props) }))
   apps.push(app)
   app.mount(host)
-  return host.innerHTML
+  return (
+    host.ownerDocument.querySelector('[role="presentation"]:has(> [role="dialog"])')?.outerHTML ??
+    ''
+  )
 }
 
 const photos = [
@@ -115,6 +122,7 @@ describe('PhotoLightbox', () => {
   it('always renders a close button', () => {
     const markup = render({ photos, open: true, onClose: () => {} })
     expect(markup).toContain('aria-label="Close"')
+    expect(markup).toContain('data-mol-id="modal-close"')
   })
 
   it('wraps the dialog in a presentation backdrop that closes on its own click', () => {

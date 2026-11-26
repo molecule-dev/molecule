@@ -22,6 +22,7 @@
   } from '@molecule/app-svelte'
   import type { ThemeProvider } from '@molecule/app-theme'
   import { getClassMap } from '@molecule/app-ui'
+  import { Modal } from '@molecule/app-ui-svelte'
 
   import type { ChatEnvSlice } from '../components/chat-panel/chat-env.svelte.js'
   import type { ChatInnerProps } from '../components/chat-panel/context.svelte.js'
@@ -33,12 +34,14 @@
     theme,
     props,
     build,
+    overlayModal = false,
   }: {
     http: HttpClient
     chat: ChatProvider
     theme: ThemeProvider
     props: ChatInnerProps
     build: (ctx: ChatContext) => void
+    overlayModal?: boolean
   } = $props()
 
   // The providers are fixed for the whole mount; untrack records that the host
@@ -78,3 +81,12 @@
   ctx.env = env
   untrack(() => build(ctx))
 </script>
+
+{#if overlayModal}
+  <Modal
+    open={ctx.overlay.panelOverlay !== null}
+    onClose={() => ctx.overlay.setPanelOverlay(null)}
+    showCloseButton={false}
+    aria-label="Test panel"
+  />
+{/if}

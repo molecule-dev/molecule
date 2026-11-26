@@ -5,4 +5,6 @@ export const is: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Loka',
   'lightbox.previous': 'Fyrri',
   'lightbox.next': 'Næst',
+  'lightbox.image': 'Mynd {{index}}',
+  'lightbox.imageOfTotal': 'Mynd {{index}} af {{total}}',
 }

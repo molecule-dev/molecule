@@ -79,13 +79,17 @@ describe('components migrated off the static t re-render on a locale switch', ()
       ),
       container,
     )
-    expect(container.textContent).toContain('Loading…')
+    expect(container.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Loading…',
+    )
 
     // The switch itself: the component must re-render in French. Against the
     // static `t` this stays 'Loading…' — nothing subscribed it to the provider.
     await provider.setLocale('fr')
     await Promise.resolve()
-    expect(container.textContent).toContain('Chargement…')
+    expect(container.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Chargement…',
+    )
   })
 })
 
@@ -137,7 +141,7 @@ function renderPicker(
     ),
     container,
   )
-  return container
+  return container.ownerDocument.body
 }
 
 describe('QuickPicker keyboard', () => {
@@ -151,7 +155,7 @@ describe('QuickPicker keyboard', () => {
 
   it('selects the highlighted row with Enter and moves with the arrows', () => {
     const container = renderPicker(() => itemsOf('a', 'b'), onSelect, onDismiss)
-    const input = container.querySelector('input') as HTMLInputElement
+    const input = container.ownerDocument.querySelector('input') as HTMLInputElement
 
     press(input, 'ArrowDown')
     press(input, 'Enter')
@@ -162,7 +166,7 @@ describe('QuickPicker keyboard', () => {
   it('reads the latest items after the caller replaces the list', () => {
     const [items, setItems] = createSignal(itemsOf('a', 'b'))
     const container = renderPicker(() => items(), onSelect, onDismiss)
-    const input = container.querySelector('input') as HTMLInputElement
+    const input = container.ownerDocument.querySelector('input') as HTMLInputElement
     press(input, 'ArrowDown')
     press(input, 'Enter')
     expect(onSelect.mock.calls[0][0]).toMatchObject({ id: 'b' })

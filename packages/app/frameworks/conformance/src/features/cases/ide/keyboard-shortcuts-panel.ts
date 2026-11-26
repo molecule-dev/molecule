@@ -17,7 +17,7 @@
 import type { FeatureComponentCases } from '../../spec.js'
 
 /** The click-away backdrop, the overlay's first element. */
-const BACKDROP = 'body > div > div > div:nth-child(1)'
+const BACKDROP = 'div[role="presentation"]:has(> [role="dialog"])'
 /** The header's ✕ dismiss. */
 const CLOSE = '[data-mol-id="shortcuts-close"]'
 /** A shortcut row by its flat index. */

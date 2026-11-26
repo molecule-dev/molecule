@@ -5,4 +5,6 @@ export const ta: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'அருகில்',
   'lightbox.previous': 'முந்தைய',
   'lightbox.next': 'அடுத்து',
+  'lightbox.image': 'படம் {{index}}',
+  'lightbox.imageOfTotal': '{{total}} இல் படம் {{index}}',
 }

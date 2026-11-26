@@ -101,7 +101,7 @@ afterEach(cleanup)
 
 describe('QuickOpen project switch', () => {
   it('shows loading, not the previous project’s files, when the project id changes', async () => {
-    const { container, rerender } = render(
+    const { baseElement: container, rerender } = render(
       <Wrap>
         <QuickOpen projectId="p1" onFileOpen={onFileOpen} onDismiss={onDismiss} />
       </Wrap>,

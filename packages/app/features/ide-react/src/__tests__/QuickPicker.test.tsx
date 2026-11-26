@@ -56,7 +56,7 @@ afterEach(cleanup)
 
 describe('QuickPicker keyboard', () => {
   it('selects the highlighted row with Enter and moves with the arrows', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <QuickPicker items={itemsOf('a', 'b')} onSelect={onSelect} onDismiss={onDismiss} />
       </Wrap>,
@@ -70,7 +70,7 @@ describe('QuickPicker keyboard', () => {
   })
 
   it('reads the latest items after the caller replaces the list', () => {
-    const { container, rerender } = render(
+    const { baseElement: container, rerender } = render(
       <Wrap>
         <QuickPicker items={itemsOf('a', 'b')} onSelect={onSelect} onDismiss={onDismiss} />
       </Wrap>,
@@ -92,7 +92,7 @@ describe('QuickPicker keyboard', () => {
   })
 
   it('dismisses on Escape', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <QuickPicker items={itemsOf('a')} onSelect={onSelect} onDismiss={onDismiss} />
       </Wrap>,
@@ -101,5 +101,9 @@ describe('QuickPicker keyboard', () => {
     fireEvent.keyDown(input, { key: 'Escape' })
     expect(onDismiss).toHaveBeenCalledTimes(1)
     expect(onSelect).not.toHaveBeenCalled()
+
+    onDismiss.mockClear()
+    fireEvent.keyDown(document.body, { key: 'Escape' })
+    expect(onDismiss).toHaveBeenCalledOnce()
   })
 })

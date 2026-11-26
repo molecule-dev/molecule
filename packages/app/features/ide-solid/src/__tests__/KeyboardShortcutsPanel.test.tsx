@@ -1,15 +1,8 @@
 // @vitest-environment jsdom
 
 /**
- * `KeyboardShortcutsPanel`'s document key listener. The listener is registered
- * once and reads the LATEST shortcuts and selection, so after the caller
- * changes `shortcuts` the very next key acts on the new list (a stale listener
- * would clamp to the old length and run the old entry).
- *
- * A port of `@molecule/app-ide-react/src/__tests__/KeyboardShortcutsPanel.test.tsx`
- * with the same test names and the same behavioral assertions. Solid has no
- * `rerender`: the rows are read through an accessor, so replacing them is a
- * signal write the mounted panel sees on the next key, never a re-registration.
+ * Exercises keyboard navigation inside the kit dialog. A signal supplies later
+ * shortcut lists, and the next key uses the new list and current selection.
  *
  * @module
  */
@@ -89,7 +82,9 @@ function renderPanel(initial: ShortcutEntry[]): MountedPanel {
  * @param key - The key.
  */
 function keyDown(key: string): void {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a shortcuts dialog')
+  dialog.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 }
 
 beforeEach(() => {

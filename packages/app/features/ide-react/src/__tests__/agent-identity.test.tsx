@@ -25,7 +25,7 @@
  * @module
  */
 
-import { render } from '@testing-library/react'
+import { cleanup, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -35,42 +35,12 @@ import { setIconSet } from '@molecule/app-icons'
 import { buildSettingsList, type SettingsDisplayValues } from '@molecule/app-ide-panel-logic/panels'
 import * as ideLocales from '@molecule/app-locales-ide'
 import { HttpProvider, ThemeProvider } from '@molecule/app-react'
-import { setClassMap, type UIClassMap } from '@molecule/app-ui'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ReportModal } from '../components/ReportModal.js'
 import { SettingsCard } from '../components/SettingsCard.js'
 import { buildThemeProvider } from './theme-test-provider.js'
-
-/**
- * A ClassMap stub whose every member resolves to its key as a class token, so
- * the components render without depending on a concrete styling bond.
- *
- * @returns A stub {@link UIClassMap}.
- */
-function buildStubClassMap(): UIClassMap {
-  const token =
-    (name: string) =>
-    (..._args: unknown[]): string =>
-      name
-  const cn = (...classes: unknown[]): string => {
-    const out: string[] = []
-    const walk = (c: unknown): void => {
-      if (Array.isArray(c)) c.forEach(walk)
-      else if (typeof c === 'string' && c) out.push(c)
-    }
-    classes.forEach(walk)
-    return out.join(' ')
-  }
-  return new Proxy(
-    {},
-    {
-      get(_t, prop): unknown {
-        if (prop === 'cn') return cn
-        return token(String(prop))
-      },
-    },
-  ) as unknown as UIClassMap
-}
 
 /**
  * A no-op {@link HttpClient} so {@link ReportModal}'s `useHttpClient()` resolves
@@ -137,7 +107,7 @@ function Wrap({ children }: { children: ReactNode }): ReactElement {
 }
 
 beforeEach(() => {
-  setClassMap(buildStubClassMap())
+  setClassMap(classMap)
   setIconSet(new Proxy({}, { get: () => ({ paths: [] }) }))
   // `t()` resolves against the module-level provider (not React context). Use an
   // empty 'en' provider so it falls through to the inline `defaultValue` and
@@ -145,13 +115,11 @@ beforeEach(() => {
   setProvider(createSimpleI18nProvider('en'))
 })
 
-afterEach(() => {
-  document.body.innerHTML = ''
-})
+afterEach(cleanup)
 
 describe('agent identity threads into the IDE chat copy (PKG1)', () => {
   it('renders a host-supplied agentName in the /settings card, never the hardcoded one', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <SettingsCard
         settings={buildSettingsList(SAMPLE_SETTINGS)}
         onRunCommand={() => {}}
@@ -171,7 +139,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
   })
 
   it('falls back to the NEUTRAL default agent name when the host supplies none', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <SettingsCard
         settings={buildSettingsList(SAMPLE_SETTINGS)}
         onRunCommand={() => {}}
@@ -185,7 +153,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
   })
 
   it('renders a host-supplied productName in the report modal, never the hardcoded one', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <ReportModal projectId="p1" onClose={() => {}} onSubmitted={() => {}} productName="Acme" />
       </Wrap>,
@@ -200,7 +168,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
   })
 
   it('falls back to the NEUTRAL default product name in the report modal', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <ReportModal projectId="p1" onClose={() => {}} onSubmitted={() => {}} />
       </Wrap>,

@@ -141,6 +141,8 @@ fi
 #   no-intrinsic-jsx), and the rule's tag table names an element for every tag an element type
 #   renders. The avatar-stack and margin-notes conversions landed with their entries still listed,
 #   and three new elements landed with no table entry (2026-11-25).
+# - check-feature-modals: only the UI kits author the modal attribute, where the overlay
+#   owns focus, dismissal and scroll locking.
 # - check-published-tests: no publishable package's build puts src/**/__tests__ in its
 #   tarball (precommit-changeset.mjs above counts on it). 193 packages whose tsconfig
 #   lacked the exclude shipped dist/__tests__/*.test.js to npm until 2026-11-16.
@@ -180,6 +182,7 @@ if printf '%s\n' "$ALL_STAGED" | grep -qE '^packages/.+/src/' ||
     "scripts/check-locale-placeholders.js" \
     "scripts/check-jsx-specifiers.mjs" \
     "scripts/check-intrinsic-jsx.mjs" \
+    "scripts/check-feature-modals.mjs" \
     "scripts/check-published-tests.mjs" \
     "scripts/check-undeclared-imports.mjs" \
     "scripts/check-framework-conformance.mjs --base=${DIFF_BASE:-HEAD}" \

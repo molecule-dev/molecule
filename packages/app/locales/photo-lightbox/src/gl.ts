@@ -5,4 +5,6 @@ export const gl: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Pechar',
   'lightbox.previous': 'Anterior',
   'lightbox.next': 'Seguinte',
+  'lightbox.image': 'Imaxe {{index}}',
+  'lightbox.imageOfTotal': 'Imaxe {{index}} de {{total}}',
 }

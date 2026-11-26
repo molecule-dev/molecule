@@ -54,7 +54,7 @@ afterEach(() => {
 
 describe('ShareModal — offered roles', () => {
   it('offers no role choice by default and mints the safe role', async () => {
-    const { container } = render(<ShareModal projectId="p1" onClose={() => {}} />)
+    const { baseElement: container } = render(<ShareModal projectId="p1" onClose={() => {}} />)
 
     // The create control appears once the (empty) link list has loaded.
     const create = await waitFor(() => {
@@ -73,13 +73,13 @@ describe('ShareModal — offered roles', () => {
   })
 
   it('says what the single link will grant, instead of implying a choice', () => {
-    const { container } = render(<ShareModal projectId="p1" onClose={() => {}} />)
+    const { baseElement: container } = render(<ShareModal projectId="p1" onClose={() => {}} />)
     expect(container.textContent).toContain('can act as viewer')
     expect(container.textContent).not.toContain('the role you choose')
   })
 
   it('offers exactly the roles the host declares, in order', async () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ShareModal projectId="p1" roles={['viewer', 'editor']} onClose={() => {}} />,
     )
 
@@ -92,7 +92,7 @@ describe('ShareModal — offered roles', () => {
   })
 
   it('ignores an initial role the host does not grant', async () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ShareModal projectId="p1" initialRole="owner" onClose={() => {}} />,
     )
 

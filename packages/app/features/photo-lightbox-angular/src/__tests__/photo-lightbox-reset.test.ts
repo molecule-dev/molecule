@@ -20,7 +20,12 @@ import {
   type Type,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+import type * as UI from '@molecule/app-ui-angular'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
@@ -40,7 +45,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -61,7 +66,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // plain native button carrying the class and aria label it was handed (the
 // real Angular Button's icon-wrapper class bindings need a real ClassMap,
 // which this suite deliberately replaces with a token proxy).
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   const Button = Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -70,7 +75,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     inputs: ['variant', 'size', 'className', 'style', 'type'],
     template: '<ng-content></ng-content>',
   })(class MockButton {})
-  return { Button }
+  return { ...(await importOriginal<typeof UI>()), Button }
 })
 
 const { PhotoLightbox } = await import('../photo-lightbox.component.js')
@@ -161,11 +166,14 @@ afterEach(async () => {
 })
 
 /** The dialog's photo counter, e.g. "2 / 3". */
-const counter = (m: Mounted): string => m.host.querySelector('[role="dialog"]')?.textContent ?? ''
+const counter = (m: Mounted): string =>
+  m.host.ownerDocument.querySelector('[role="dialog"]')?.textContent ?? ''
 
-/** Sends one document-level keydown, as React's `fireEvent.keyDown(document, …)` does. */
+/** Sends one keydown from the lightbox. */
 const press = (m: Mounted, key: string): void => {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a lightbox')
+  dialog.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
   m.tick()
 }
 

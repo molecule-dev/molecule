@@ -126,7 +126,7 @@ function render(projectId: string): {
   flushSync()
   const host = container
   return {
-    container: host,
+    container: host.ownerDocument.body,
     setProject: (next: string): void => {
       mounted.setProps({ projectId: next, onFileOpen, onDismiss })
       flushSync()
@@ -139,21 +139,25 @@ describe('QuickOpen project switch', () => {
     const { container: host, setProject } = render('p1')
     await vi.waitFor(() =>
       expect(
-        host.querySelector('[data-mol-id="quick-picker-item-/workspace/p1.ts"]'),
+        host.ownerDocument.querySelector('[data-mol-id="quick-picker-item-/workspace/p1.ts"]'),
       ).not.toBeNull(),
     )
 
     setProject('p2')
 
     // The render carrying the new project id is already in the loading state.
-    expect(host.querySelector('[data-mol-id="quick-picker-item-/workspace/p1.ts"]')).toBeNull()
-    expect(host.textContent).toContain('Loading')
+    expect(
+      host.ownerDocument.querySelector('[data-mol-id="quick-picker-item-/workspace/p1.ts"]'),
+    ).toBeNull()
+    expect(host.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain('Loading')
 
     await vi.waitFor(() =>
       expect(
-        host.querySelector('[data-mol-id="quick-picker-item-/workspace/p2.ts"]'),
+        host.ownerDocument.querySelector('[data-mol-id="quick-picker-item-/workspace/p2.ts"]'),
       ).not.toBeNull(),
     )
-    expect(host.querySelector('[data-mol-id="quick-picker-item-/workspace/p1.ts"]')).toBeNull()
+    expect(
+      host.ownerDocument.querySelector('[data-mol-id="quick-picker-item-/workspace/p1.ts"]'),
+    ).toBeNull()
   })
 })

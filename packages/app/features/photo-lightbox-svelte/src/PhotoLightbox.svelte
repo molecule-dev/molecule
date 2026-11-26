@@ -10,20 +10,17 @@
 
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
-  import { Button } from '@molecule/app-ui-svelte'
+  import { Button, Modal } from '@molecule/app-ui-svelte'
 
   import type { PhotoLightboxProps } from './types.js'
 
-  /** React's overlay style (`position: fixed`, `z-index: 100`; the scrim is `cm.bgScrim`'s class). */
-  const ROOT_STYLE =
-    'position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center'
   /** React's figure style. */
-  const FIGURE_STYLE = 'margin: 0; max-width: 90vw; max-height: 90vh; text-align: center'
+  const FIGURE_STYLE = 'margin: 0 auto; max-width: 90vw; max-height: 90vh; text-align: center'
   /** React's image style. */
   const IMG_STYLE = 'max-width: 100%; max-height: 80vh; object-fit: contain'
-  /** React's caption style (the caption colour is `cm.textOnTone`'s class). */
+  /** React's caption style (the caption colour is `cm.textMuted`'s class). */
   const CAPTION_STYLE = 'padding: 12px; font-size: 14px'
-  /** React's "N / total" counter style (the counter colour is `cm.textOnTone`'s class). */
+  /** React's "N / total" counter style (the counter colour is `cm.textMuted`'s class). */
   const COUNTER_STYLE =
     'position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 12px'
   /** React's previous-arrow style. */
@@ -41,7 +38,13 @@
     transform: 'translateY(-50%)',
   }
 
-  let { photos, open, onClose, initialIndex = 0, onIndexChange }: PhotoLightboxProps = $props()
+  let {
+    photos,
+    open,
+    onClose = () => {},
+    initialIndex = 0,
+    onIndexChange,
+  }: PhotoLightboxProps = $props()
 
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
@@ -64,18 +67,11 @@
     previousInitial = nextInitial
   })
 
-  // React's document keydown listener while open: ← → navigate, Escape closes.
-  $effect(() => {
-    if (!open) return
-    /** React's keydown handler. */
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') onClose?.()
-      else if (event.key === 'ArrowLeft') setIdx(index - 1)
-      else if (event.key === 'ArrowRight') setIdx(index + 1)
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  })
+  /** Navigates while the key event comes from this lightbox. */
+  const navigate = (event: KeyboardEvent): void => {
+    if (event.key === 'ArrowLeft') setIdx(index - 1)
+    else if (event.key === 'ArrowRight') setIdx(index + 1)
+  }
 
   // Every `t(…)` runs inside a `$derived`: it reads the i18n version under the
   // hood, so these re-run on a locale switch the way React's render-time `t`
@@ -91,72 +87,55 @@
     index = clamped
     onIndexChange?.(clamped)
   }
-
-  /** React's backdrop click: close only when the overlay itself was clicked. */
-  function onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) onClose?.()
-  }
 </script>
 
 {#if open && photos.length > 0}
-  <!-- The overlay is a click-to-dismiss screen (role="presentation"): clicking
-       it directly closes; clicks on the controls inside do not. The dialog
-       itself is the element inside it, so Escape (handled on `document` in the
-       $effect) stays the keyboard path. Both roles pass the compiler's a11y
-       checks without ignores: the presentation backdrop is the click screen the
-       checks exempt, and the dialog carries no interaction handler.
-       The `</Button>{#if …}<Button` / `</Button>{/if}` boundaries hug their
-       tags on purpose: the dialog is a block container, so whitespace Svelte
-       keeps at block edges would render as a space between the controls; the
-       other frameworks strip it, and React's DOM has none. -->
-  <div
-    role="presentation"
-    onclick={onBackdropClick}
-    class={cm.cn(cm.position('fixed'), cm.bgScrim)}
-    style={ROOT_STYLE}
+  <Modal
+    open
+    {onClose}
+    onKeyDown={navigate}
+    size="full"
+    {closeLabel}
+    aria-label={photo.alt ??
+      t(
+        'lightbox.imageOfTotal',
+        { index: index + 1, total: photos.length },
+        { defaultValue: 'Image {{index}} of {{total}}' },
+      )}
   >
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={photo.alt ?? `Image ${index + 1} of ${photos.length}`}
-    >
-      <Button
+    {#if photos.length > 1}<Button
         variant="ghost"
         size="sm"
-        onClick={onClose}
-        aria-label={closeLabel}
+        onClick={() => setIdx(index - 1)}
+        aria-label={previousLabel}
         className={cm.position('absolute')}
+        style={PREVIOUS_STYLE}
       >
-        ✕
-      </Button>{#if photos.length > 1}<Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIdx(index - 1)}
-          aria-label={previousLabel}
-          className={cm.position('absolute')}
-          style={PREVIOUS_STYLE}
-        >
-          ‹
-        </Button>{/if}
-      <figure style={FIGURE_STYLE}>
-        <img src={photo.src} alt={photo.alt ?? `Image ${index + 1}`} style={IMG_STYLE} />
-        {#if photo.caption}
-          <figcaption class={cm.textOnTone} style={CAPTION_STYLE}>
-            {#if typeof photo.caption === 'function'}{@render photo.caption?.()}{:else}{photo.caption}{/if}
-          </figcaption>
-        {/if}
-      </figure>
-      {#if photos.length > 1}<Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIdx(index + 1)}
-          aria-label={nextLabel}
-          className={cm.position('absolute')}
-          style={NEXT_STYLE}
-        >
-          ›
-        </Button>{/if}
-      <div class={cm.textOnTone} style={COUNTER_STYLE}>{index + 1} / {photos.length}</div>
-    </div>
-  </div>
+        ‹
+      </Button>{/if}
+    <figure style={FIGURE_STYLE}>
+      <img
+        src={photo.src}
+        alt={photo.alt ??
+          t('lightbox.image', { index: index + 1 }, { defaultValue: 'Image {{index}}' })}
+        style={IMG_STYLE}
+      />
+      {#if photo.caption}
+        <figcaption class={cm.textMuted} style={CAPTION_STYLE}>
+          {#if typeof photo.caption === 'function'}{@render photo.caption?.()}{:else}{photo.caption}{/if}
+        </figcaption>
+      {/if}
+    </figure>
+    {#if photos.length > 1}<Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIdx(index + 1)}
+        aria-label={nextLabel}
+        className={cm.position('absolute')}
+        style={NEXT_STYLE}
+      >
+        ›
+      </Button>{/if}
+    <div class={cm.textMuted} style={COUNTER_STYLE}>{index + 1} / {photos.length}</div>
+  </Modal>
 {/if}

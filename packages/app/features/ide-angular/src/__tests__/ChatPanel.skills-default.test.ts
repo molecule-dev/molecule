@@ -177,7 +177,7 @@ async function renderChatPanel(
     chat: provider,
     props: { projectId: PROJECT_ID, ...extraProps },
   })
-  return mounted.container
+  return mounted.container.ownerDocument.body
 }
 
 /**

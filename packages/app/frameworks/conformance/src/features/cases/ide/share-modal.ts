@@ -215,7 +215,7 @@ export const shareModalCases: FeatureComponentCases = {
       context: { http: [{ method: 'GET', url: '/projects/p1/shares', data: [] }] },
       interactions: [
         { type: 'click', selector: '[data-mol-id="share-modal"]' },
-        { type: 'click', selector: '[data-mol-id="share-modal-backdrop"]' },
+        { type: 'click', selector: 'div[role="presentation"]:has(> [role="dialog"])' },
       ],
     },
     {

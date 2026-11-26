@@ -150,7 +150,7 @@ async function renderChatPanel(history: ChatMessage[] = []): Promise<HTMLElement
     container,
   )
   await vi.waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
-  return container
+  return container.ownerDocument.body
 }
 
 /**

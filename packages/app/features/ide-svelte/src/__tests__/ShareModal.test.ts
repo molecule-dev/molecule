@@ -89,7 +89,7 @@ beforeEach(() => {
   setProvider(createSimpleI18nProvider('en'))
   // The manager lists existing links on mount; default to "none" so the create
   // control is what renders.
-  get.mockReset().mockResolvedValue(responseOf({ data: { data: [] } }))
+  get.mockReset().mockResolvedValue(responseOf({ data: [] }))
   post.mockReset().mockResolvedValue(responseOf(LINK))
   del.mockReset().mockResolvedValue(responseOf({}))
 })
@@ -128,7 +128,8 @@ function renderModal(
     },
   })
   mounted.push({ instance: instance as Record<string, unknown>, container })
-  return container
+  flushSync()
+  return container.ownerDocument.body
 }
 
 describe('ShareModal — offered roles', () => {
@@ -223,7 +224,9 @@ describe('ShareModal — host content', () => {
     flushSync()
     expect(onClose).not.toHaveBeenCalled()
 
-    const backdrop = molId(container, 'share-modal-backdrop') as HTMLElement
+    const backdrop = container.querySelector(
+      '[role="presentation"]:has(> [data-mol-id="share-modal"])',
+    ) as HTMLElement
     backdrop.click()
     flushSync()
     expect(onClose).toHaveBeenCalledOnce()

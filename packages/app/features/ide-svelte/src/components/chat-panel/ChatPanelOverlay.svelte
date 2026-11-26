@@ -1,18 +1,9 @@
 <!--
-  React's section “Panel overlay popup (/skills, /scripts, /settings)”
-  (ChatPanel.tsx lines 7514–7659): the closeable popup above the composer,
-  mirroring the model and sounds picker shells. A thin header bar carries the
-  title (left) and the ✕ (right) — NOT absolutely positioned over the card, so
-  it never overlaps the card's own top-right actions (New skill / New script).
-  The card mounts `embedded` in the scrollable body below, rendering transparent
-  so the overlay's `cm.surface` is the single clean background.
-
-  A non-modal popover dialog: it takes its name from the same translated heading
-  its header renders. Escape closes it from anywhere inside (the `chat:overlay`
-  slice's window listener); the ✕ closes it here.
+  The chat panel dialog for skills, scripts, settings and test runs.
 -->
 <script lang="ts">
   import { type CommandId, panelOverlayHeading } from '@molecule/app-ide-panel-logic'
+  import { Modal } from '@molecule/app-ui-svelte'
 
   import ScriptsCard from '../../parts/ScriptsCard.svelte'
   import SettingsCard from '../../parts/SettingsCard.svelte'
@@ -47,12 +38,13 @@
 
 {#if ctx.overlay.panelOverlay}
   {@const overlay = ctx.overlay.panelOverlay}
-  <div
-    class={ctx.env.cm.cn(ctx.env.cm.surface, ctx.env.cm.borderAll)}
-    role="dialog"
+  <Modal
+    open
+    onClose={() => ctx.overlay.setPanelOverlay(null)}
+    showCloseButton={false}
+    size="lg"
     aria-label={panelOverlayHeading(ctx.env.t, overlay)}
-    style="position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 0; border-radius: 6px 6px 0 0; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.25); display: flex; flex-direction: column; max-height: {ctx
-      .env.popupMaxHeight}"
+    data-mol-id="chat-panel-overlay"
   >
     <!-- Header bar — title on the left, ✕ on the right (mirrors the /sounds
          popup header). The title reuses each panel's existing heading key. -->
@@ -131,5 +123,5 @@
         />
       {/if}
     </div>
-  </div>
+  </Modal>
 {/if}

@@ -26,20 +26,15 @@
  * @module
  */
 
-import {
-  afterNextRender,
-  Component,
-  DestroyRef,
-  type ElementRef,
-  inject,
-  type OnInit,
-  signal,
-  ViewChild,
-} from '@angular/core'
+import { Component, ElementRef, inject, type OnInit, signal, ViewChild } from '@angular/core'
 
 import {
   DEFAULT_PRODUCT_NAME,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
   useHttpClient,
+  usePlacement,
   useThemeMode,
   useTranslation,
 } from '@molecule/app-angular'
@@ -53,7 +48,7 @@ import {
 import { getLogger } from '@molecule/app-logger'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { styleText } from '@molecule/app-ui-angular'
+import { elementTarget, Modal, styleText } from '@molecule/app-ui-angular'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 
@@ -84,6 +79,7 @@ export interface ReportModalProps {
 @Component({
   selector: 'div[mol-report-modal]',
   standalone: true,
+  imports: [Modal],
   inputs: [
     'projectId',
     'conversationId',
@@ -93,18 +89,9 @@ export interface ReportModalProps {
     'productName',
     'appVersion',
   ],
-  host: {
-    'data-mol-id': 'report-modal-backdrop',
-    // The backdrop is the dialog's PARENT: role="presentation" and a close
-    // only when the click landed on the backdrop itself (a click inside the
-    // dialog bubbles here with a different target).
-    role: 'presentation',
-    '[attr.style]': 's.backdrop',
-    '(click)': 'dismissFromBackdrop($event)',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div data-mol-id="report-modal" role="dialog" aria-modal="true" [attr.aria-label]="t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })" [class]="cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))" [attr.style]="s.dialog">
-    <div [class]="cm.cn(cm.fontWeight('medium'), cm.textSize('lg'))" [attr.style]="s.heading">{{ t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' }) }}</div>
+  template: `<mol-modal [open]="true" [title]="t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })" [showCloseButton]="false" [initialFocus]="titleTarget" (close)="onClose()" data-mol-id="report-modal">
     <div [class]="cm.textMuted" [attr.style]="s.subheading">{{ subheadingText() }}</div>
     <div [attr.style]="s.fields">
       <label [attr.style]="s.fieldLabel">
@@ -132,7 +119,7 @@ export interface ReportModalProps {
       <button type="button" data-mol-id="report-cancel" (click)="cancel($event)" [class]="cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)">{{ t('common.cancel', undefined, { defaultValue: 'Cancel' }) }}</button>
       <button type="button" data-mol-id="report-submit" (click)="submit()" [disabled]="!isFormValid() || submitting()" [class]="cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'sm' }), cm.touchTargetCompact)">{{ submitting() ? t('ide.chat.report.submitting', undefined, { defaultValue: 'Submitting…' }) : t('ide.chat.report.submit', undefined, { defaultValue: 'Submit report' }) }}</button>
     </div>
-  </div>`,
+  </mol-modal>`,
 })
 export class ReportModal implements OnInit {
   /** The project the report is about (the POST route's id). */
@@ -198,29 +185,22 @@ export class ReportModal implements OnInit {
   /** The title input, for the autofocus. */
   @ViewChild('title') private title?: ElementRef<HTMLInputElement>
 
+  /** Title field focused when the report opens. */
+  protected readonly titleTarget = elementTarget(() => this.title?.nativeElement)
+
   /** Seeds the form once (React's `useState` initializer). */
   ngOnInit(): void {
     this.form.set({ ...EMPTY_REPORT_FORM, title: this.initialTitle ?? '' })
     this.mountedIncludeChat = this.form().includeChat
   }
 
-  /**
-   * Registers the Escape listener and the title autofocus. The focus move runs
-   * after the first render (React's `autoFocus`): focusing during the view
-   * check would fire the field's `focusin` listeners while Angular is still
-   * checking, and a state change they make would never render.
-   */
   constructor() {
-    afterNextRender(() => this.title?.nativeElement.focus())
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        // React calls the callback with NO event argument.
-        const close: () => void = this.onClose
-        close()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    inject(DestroyRef).onDestroy(() => window.removeEventListener('keydown', onKey))
+    const host: ElementRef<HTMLElement> = inject(ElementRef)
+    usePlacement(() => {
+      const element = host.nativeElement
+      placeContentBefore(element, element)
+      setElementPresent(element, false)
+    })
   }
 
   /**
@@ -350,18 +330,6 @@ export class ReportModal implements OnInit {
   }
 
   /**
-   * The backdrop closes the modal — only when the click landed on the backdrop
-   * itself (a click inside the dialog bubbles here with a different target).
-   * React's backdrop handler is an arrow that calls `onClose()` with no
-   * argument, so nothing is passed here either.
-   * @param event - The native click event.
-   */
-  protected dismissFromBackdrop(event: Event): void {
-    if (event.target !== event.currentTarget) return
-    this.onClose()
-  }
-
-  /**
    * Submits the report: POSTs to the project's report route (carrying the
    * conversation for context when there is one), hands the recorded report
    * back on success, and on failure shows the error text and hands the
@@ -404,29 +372,6 @@ export class ReportModal implements OnInit {
  * free).
  */
 const STYLES = {
-  /** The full-viewport centered backdrop (the host's own style). */
-  backdrop: styleText({
-    position: 'fixed',
-    inset: 0,
-    zIndex: 1300,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(0, 0, 0, 0.45)',
-    padding: 16,
-  }),
-  /** The dialog card. */
-  dialog: styleText({
-    width: '100%',
-    maxWidth: 460,
-    maxHeight: '85vh',
-    overflowY: 'auto',
-    borderRadius: 8,
-    padding: 16,
-    boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
-  }),
-  /** The heading. */
-  heading: styleText({ marginBottom: 4 }),
   /** The muted subheading. */
   subheading: styleText({ marginBottom: 12, lineHeight: 1.4 }),
   /** The fields column. */

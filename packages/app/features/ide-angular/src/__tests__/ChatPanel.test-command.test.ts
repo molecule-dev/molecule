@@ -158,7 +158,7 @@ async function renderPanel(options: RenderOptions): Promise<PanelMount> {
     },
   })
   await settle(mounted)
-  return mounted
+  return { ...mounted, container: mounted.container.ownerDocument.body }
 }
 
 /**
@@ -400,7 +400,7 @@ describe('the /test command', () => {
       await settle(mount)
       await submitCommand(mount.container, '/test')
       await waitFor(() => {
-        expect(molId(mount.container, 'tests-card-error')).not.toBeNull()
+        expect(molId(mount.container.ownerDocument.body, 'tests-card-error')).not.toBeNull()
       })
       expect(sent).toEqual([])
     },

@@ -23,7 +23,7 @@
  */
 
 import type { JSX } from 'solid-js'
-import { createEffect, createSignal, onCleanup, onMount } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 import type { ReportFormState, ReportResult } from '@molecule/app-ide-panel-logic'
 import {
@@ -39,7 +39,8 @@ import {
   useThemeMode,
   useTranslation,
 } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-solid'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 
@@ -84,25 +85,13 @@ export function ReportModal(props: ReportModalProps): JSX.Element {
   })
   const [submitting, setSubmitting] = createSignal(false)
   const [error, setError] = createSignal<string | null>(null)
-  let titleEl: HTMLInputElement | undefined
-  let chatEl: HTMLInputElement | undefined
+  const [titleEl, setTitleEl] = createSignal<HTMLInputElement>()
 
-  // Escape closes the modal.
-  const onKey = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') props.onClose()
+  const titleTarget: OverlayTarget = {
+    get current() {
+      return titleEl() ?? null
+    },
   }
-  onMount(() => window.addEventListener('keydown', onKey))
-  onCleanup(() => window.removeEventListener('keydown', onKey))
-
-  // Focus the title field on mount (React's `autoFocus`).
-  onMount(() => titleEl?.focus())
-
-  // React keeps the checkbox's `checked` ATTRIBUTE at its mount value and
-  // follows the state with the property alone (Solid's `checked` prop writes
-  // only the property), so the attribute is stamped once at mount.
-  onMount(() => {
-    if (chatEl?.checked) chatEl.setAttribute('checked', '')
-  })
 
   const isNarrow = useNarrowViewport()
   const isCoarse = useCoarsePointer()
@@ -124,7 +113,7 @@ export function ReportModal(props: ReportModalProps): JSX.Element {
   // controlled value; Solid's `value` prop writes only the property, so the
   // attribute is mirrored here (the sibling QuickPicker does the same).
   createEffect(() => {
-    titleEl?.setAttribute('value', form().title)
+    titleEl()?.setAttribute('value', form().title)
   })
 
   /**
@@ -157,193 +146,153 @@ export function ReportModal(props: ReportModalProps): JSX.Element {
   }
 
   return (
-    <div
-      data-mol-id="report-modal-backdrop"
-      // The backdrop is the dialog's PARENT: role="presentation" and a close
-      // only when the click landed on the backdrop itself (a click inside the
-      // dialog bubbles here with a different target).
-      role="presentation"
-      onClick={(e: MouseEvent) => {
-        if (e.target === e.currentTarget) props.onClose()
-      }}
-      style={{
-        position: 'fixed',
-        inset: '0px',
-        // Dialog layer (1300) — must paint above ambient status chrome like the
-        // host's HealthBanner (z 1100), which otherwise overlaps this on phones.
-        'z-index': '1300',
-        display: 'flex',
-        'align-items': 'center',
-        'justify-content': 'center',
-        background: 'rgba(0, 0, 0, 0.45)',
-        padding: '16px',
-      }}
+    <Modal
+      open
+      onClose={props.onClose}
+      title={t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })}
+      showCloseButton={false}
+      data-mol-id="report-modal"
+      initialFocus={titleTarget}
     >
-      <div
-        data-mol-id="report-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })}
-        class={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
-        style={{
-          width: '100%',
-          'max-width': '460px',
-          'max-height': '85vh',
-          'overflow-y': 'auto',
-          'border-radius': '8px',
-          padding: '16px',
-          'box-shadow': '0 10px 40px rgba(0,0,0,0.35)',
-        }}
-      >
-        <div
-          class={cm.cn(cm.fontWeight('medium'), cm.textSize('lg'))}
-          style={{ 'margin-bottom': '4px' }}
-        >
-          {t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })}
-        </div>
-        <div class={cm.textMuted} style={{ 'margin-bottom': '12px', 'line-height': '1.4' }}>
-          {t(
-            'ide.chat.report.subheading',
-            { productName: props.productName ?? DEFAULT_PRODUCT_NAME },
-            {
-              defaultValue:
-                'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
-            },
-          )}
-        </div>
-
-        <div style={{ display: 'flex', 'flex-direction': 'column', gap: '10px' }}>
-          <label style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
-            <span class={cm.fontWeight('medium')}>
-              {t('ide.chat.report.titleLabel', undefined, { defaultValue: 'Title' })}
-            </span>
-            <input
-              ref={(el: HTMLInputElement) => {
-                titleEl = el
-              }}
-              value={form().title}
-              data-mol-id="report-title"
-              onInput={(e) => setForm((f) => ({ ...f, title: e.currentTarget.value }))}
-              placeholder={t('ide.chat.report.titlePlaceholder', undefined, {
-                defaultValue: 'Brief summary',
-              })}
-              class={cm.textSize('sm')}
-              style={fieldStyle()}
-            />
-          </label>
-
-          <label style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
-            <span class={cm.fontWeight('medium')}>
-              {t('ide.chat.report.descriptionLabel', undefined, { defaultValue: 'Description' })}
-            </span>
-            <textarea
-              value={form().description}
-              data-mol-id="report-description"
-              onInput={(e) => setForm((f) => ({ ...f, description: e.currentTarget.value }))}
-              placeholder={t('ide.chat.report.descriptionPlaceholder', undefined, {
-                defaultValue: 'What happened? What did you expect?',
-              })}
-              rows={4}
-              class={cm.textSize('sm')}
-              style={{ ...fieldStyle(), resize: 'vertical' }}
-            />
-          </label>
-
-          <label style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
-            <span class={cm.fontWeight('medium')}>
-              {t('ide.chat.report.stepsLabel', undefined, {
-                defaultValue: 'Steps to reproduce (optional)',
-              })}
-            </span>
-            <textarea
-              value={form().steps}
-              data-mol-id="report-steps"
-              onInput={(e) => setForm((f) => ({ ...f, steps: e.currentTarget.value }))}
-              placeholder={t('ide.chat.report.stepsPlaceholder', undefined, {
-                defaultValue: '1. …\n2. …',
-              })}
-              rows={3}
-              class={cm.textSize('sm')}
-              style={{ ...fieldStyle(), resize: 'vertical' }}
-            />
-          </label>
-
-          <label
-            style={{
-              display: 'flex',
-              'align-items': 'center',
-              gap: '8px',
-              cursor: 'pointer',
-            }}
-          >
-            <input
-              ref={(el: HTMLInputElement) => {
-                chatEl = el
-              }}
-              type="checkbox"
-              data-mol-id="report-include-chat"
-              checked={form().includeChat}
-              onChange={(e) => setForm((f) => ({ ...f, includeChat: e.currentTarget.checked }))}
-            />
-            <span>
-              {t('ide.chat.report.includeChat', undefined, {
-                defaultValue: 'Include recent chat for context',
-              })}
-            </span>
-          </label>
-
-          {error() && (
-            <div class={cm.textError} style={{ 'line-height': '1.4' }}>
-              {error()}
-            </div>
-          )}
-        </div>
-
-        <div
-          data-mol-id="report-diagnostics-note"
-          class={cm.cn(cm.textMuted, cm.textSize('xs'))}
-          style={{ 'margin-top': '12px', 'line-height': '1.4' }}
-        >
-          {t('ide.chat.report.diagnosticsNote', undefined, {
+      <div class={cm.textMuted} style={{ 'margin-bottom': '12px', 'line-height': '1.4' }}>
+        {t(
+          'ide.chat.report.subheading',
+          { productName: props.productName ?? DEFAULT_PRODUCT_NAME },
+          {
             defaultValue:
-              'Your app version, browser, and screen size are attached to help us debug.',
-          })}
-        </div>
+              'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+          },
+        )}
+      </div>
 
-        <div
+      <div style={{ display: 'flex', 'flex-direction': 'column', gap: '10px' }}>
+        <label style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
+          <span class={cm.fontWeight('medium')}>
+            {t('ide.chat.report.titleLabel', undefined, { defaultValue: 'Title' })}
+          </span>
+          <input
+            ref={setTitleEl}
+            value={form().title}
+            data-mol-id="report-title"
+            onInput={(e) => setForm((f) => ({ ...f, title: e.currentTarget.value }))}
+            placeholder={t('ide.chat.report.titlePlaceholder', undefined, {
+              defaultValue: 'Brief summary',
+            })}
+            class={cm.textSize('sm')}
+            style={fieldStyle()}
+          />
+        </label>
+
+        <label style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
+          <span class={cm.fontWeight('medium')}>
+            {t('ide.chat.report.descriptionLabel', undefined, { defaultValue: 'Description' })}
+          </span>
+          <textarea
+            value={form().description}
+            data-mol-id="report-description"
+            onInput={(e) => setForm((f) => ({ ...f, description: e.currentTarget.value }))}
+            placeholder={t('ide.chat.report.descriptionPlaceholder', undefined, {
+              defaultValue: 'What happened? What did you expect?',
+            })}
+            rows={4}
+            class={cm.textSize('sm')}
+            style={{ ...fieldStyle(), resize: 'vertical' }}
+          />
+        </label>
+
+        <label style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
+          <span class={cm.fontWeight('medium')}>
+            {t('ide.chat.report.stepsLabel', undefined, {
+              defaultValue: 'Steps to reproduce (optional)',
+            })}
+          </span>
+          <textarea
+            value={form().steps}
+            data-mol-id="report-steps"
+            onInput={(e) => setForm((f) => ({ ...f, steps: e.currentTarget.value }))}
+            placeholder={t('ide.chat.report.stepsPlaceholder', undefined, {
+              defaultValue: '1. …\n2. …',
+            })}
+            rows={3}
+            class={cm.textSize('sm')}
+            style={{ ...fieldStyle(), resize: 'vertical' }}
+          />
+        </label>
+
+        <label
           style={{
             display: 'flex',
-            'justify-content': 'flex-end',
+            'align-items': 'center',
             gap: '8px',
-            'margin-top': '16px',
+            cursor: 'pointer',
           }}
         >
-          <button
-            type="button"
-            data-mol-id="report-cancel"
-            onClick={() => props.onClose()}
-            class={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
-          >
-            {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
-          </button>
-          <button
-            type="button"
-            data-mol-id="report-submit"
-            onClick={() => void handleSubmit()}
-            disabled={!isReportFormValid(form()) || submitting()}
-            // No inline opacity — the CVA fades a real `disabled` button itself,
-            // and an inline value would override whatever it chooses.
-            class={cm.cn(
-              cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
-              cm.touchTargetCompact,
-            )}
-          >
-            {submitting()
-              ? t('ide.chat.report.submitting', undefined, { defaultValue: 'Submitting…' })
-              : t('ide.chat.report.submit', undefined, { defaultValue: 'Submit report' })}
-          </button>
-        </div>
+          <input
+            ref={(input) => {
+              input.defaultChecked = EMPTY_REPORT_FORM.includeChat
+            }}
+            type="checkbox"
+            data-mol-id="report-include-chat"
+            checked={form().includeChat}
+            onChange={(e) => setForm((f) => ({ ...f, includeChat: e.currentTarget.checked }))}
+          />
+          <span>
+            {t('ide.chat.report.includeChat', undefined, {
+              defaultValue: 'Include recent chat for context',
+            })}
+          </span>
+        </label>
+
+        {error() && (
+          <div class={cm.textError} style={{ 'line-height': '1.4' }}>
+            {error()}
+          </div>
+        )}
       </div>
-    </div>
+
+      <div
+        data-mol-id="report-diagnostics-note"
+        class={cm.cn(cm.textMuted, cm.textSize('xs'))}
+        style={{ 'margin-top': '12px', 'line-height': '1.4' }}
+      >
+        {t('ide.chat.report.diagnosticsNote', undefined, {
+          defaultValue: 'Your app version, browser, and screen size are attached to help us debug.',
+        })}
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          'justify-content': 'flex-end',
+          gap: '8px',
+          'margin-top': '16px',
+        }}
+      >
+        <button
+          type="button"
+          data-mol-id="report-cancel"
+          onClick={() => props.onClose()}
+          class={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
+        >
+          {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
+        </button>
+        <button
+          type="button"
+          data-mol-id="report-submit"
+          onClick={() => void handleSubmit()}
+          disabled={!isReportFormValid(form()) || submitting()}
+          // No inline opacity — the CVA fades a real `disabled` button itself,
+          // and an inline value would override whatever it chooses.
+          class={cm.cn(
+            cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+            cm.touchTargetCompact,
+          )}
+        >
+          {submitting()
+            ? t('ide.chat.report.submitting', undefined, { defaultValue: 'Submitting…' })
+            : t('ide.chat.report.submit', undefined, { defaultValue: 'Submit report' })}
+        </button>
+      </div>
+    </Modal>
   )
 }

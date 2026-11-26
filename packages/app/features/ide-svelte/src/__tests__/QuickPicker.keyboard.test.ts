@@ -91,7 +91,7 @@ function render(items: PickerItem[]): {
   flushSync()
   const host = container
   return {
-    container: host,
+    container: host.ownerDocument.body,
     setItems: (next: PickerItem[]): void => {
       mounted.setProps({ items: next, onSelect, onDismiss })
       flushSync()
@@ -113,7 +113,7 @@ function keyDown(el: Element, key: string): void {
 describe('QuickPicker keyboard', () => {
   it('selects the highlighted row with Enter and moves with the arrows', () => {
     const { container: host } = render(itemsOf('a', 'b'))
-    const input = host.querySelector('input') as HTMLInputElement
+    const input = host.ownerDocument.querySelector('input') as HTMLInputElement
 
     keyDown(input, 'ArrowDown')
     keyDown(input, 'Enter')
@@ -123,7 +123,7 @@ describe('QuickPicker keyboard', () => {
 
   it('reads the latest items after the caller replaces the list', () => {
     const { container: host, setItems } = render(itemsOf('a', 'b'))
-    const input = host.querySelector('input') as HTMLInputElement
+    const input = host.ownerDocument.querySelector('input') as HTMLInputElement
     keyDown(input, 'ArrowDown')
     keyDown(input, 'Enter')
     expect(onSelect.mock.calls[0][0]).toMatchObject({ id: 'b' })

@@ -24,11 +24,12 @@
  * @module
  */
 
-import { defineComponent, h, onBeforeUnmount, onMounted, type PropType, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, ref, type VNodeChild } from 'vue'
 
 import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
 import { DEFAULT_SHARE_ROLE, shareSubheading } from '@molecule/app-ide-panel-logic'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
 import { ShareLinkManager } from './ShareLinkManager.js'
@@ -110,13 +111,12 @@ export const ShareModal = defineComponent({
     const cm = getClassMap()
     const { t } = useTranslation()
 
-    // Escape closes the modal. React registers the handler on mount and
-    // removes it on unmount; the closure reads the CURRENT `onClose`.
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') props.onClose()
+    const done = ref<HTMLButtonElement | null>(null)
+    const doneTarget: OverlayTarget = {
+      get current() {
+        return done.value
+      },
     }
-    onMounted(() => window.addEventListener('keydown', onKey))
-    onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
     return (): VNodeChild => {
       const offeredRoles: readonly ShareRole[] = props.roles.length
@@ -128,118 +128,75 @@ export const ShareModal = defineComponent({
       const canRevoke = props.canRevoke === undefined ? props.canManage : props.canRevoke
 
       return h(
-        'div',
+        Modal,
         {
-          'data-mol-id': 'share-modal-backdrop',
-          role: 'presentation',
-          onClick: (event: MouseEvent) => {
-            // Only a click on the backdrop itself dismisses the dialog; a click
-            // inside the panel bubbles here otherwise. React calls the callback
-            // with NO event argument.
-            if (event.target === event.currentTarget) props.onClose()
-          },
-          style: {
-            position: 'fixed',
-            inset: '0px',
-            // Dialog layer (1300) — must paint above ambient status chrome like
-            // the host's HealthBanner (z 1100), which otherwise overlaps this
-            // on phones.
-            zIndex: '1300',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0, 0, 0, 0.45)',
-            padding: '16px',
-          },
+          open: true,
+          onClose: props.onClose,
+          title: t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' }),
+          showCloseButton: false,
+          initialFocus: doneTarget,
+          'data-mol-id': 'share-modal',
         },
-        [
-          h(
-            'div',
-            {
-              'data-mol-id': 'share-modal',
-              role: 'dialog',
-              'aria-modal': 'true',
-              'aria-label': t('ide.chat.share.heading', undefined, {
-                defaultValue: 'Share project',
-              }),
-              class: cm.cn(cm.surface, cm.borderAll, cm.textSize('sm')),
-              style: {
-                width: '100%',
-                maxWidth: '460px',
-                maxHeight: '85vh',
-                overflowY: 'auto',
-                borderRadius: '8px',
-                padding: '16px',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
-              },
-            },
-            [
-              h(
-                'div',
-                {
-                  class: cm.cn(cm.fontWeight('medium'), cm.textSize('lg')),
-                  style: { marginBottom: '4px' },
-                },
-                [t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })],
-              ),
-              props.showLinks
-                ? [
-                    h(
-                      'div',
-                      { class: cm.textMuted, style: { marginBottom: '12px', lineHeight: '1.4' } },
-                      [
-                        offeredRoles.length > 1
-                          ? t('ide.chat.share.subheading', undefined, {
-                              defaultValue:
-                                'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
-                            })
-                          : shareSubheading(t, offeredRoles[0]!),
-                      ],
-                    ),
-                    h(ShareLinkManager, {
-                      projectId: props.projectId,
-                      roles: offeredRoles,
-                      initialRole: props.initialRole,
-                      canManage: props.canManage,
-                      canCreate,
-                      canRevoke,
-                      onCreated: props.onCreated,
-                      refreshSignal: props.refreshSignal,
-                    }),
-                  ]
-                : null,
-              slots.default?.(),
-              h(
-                'div',
-                {
-                  style: {
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '8px',
-                    marginTop: '16px',
-                  },
-                },
-                [
+        {
+          default: () => [
+            props.showLinks
+              ? [
                   h(
-                    'button',
-                    {
-                      type: 'button',
-                      'data-mol-id': 'share-close',
-                      // React binds the BARE `onClose` reference as the button's
-                      // handler, so the click event itself is the call's argument.
-                      onClick: props.onClose,
-                      class: cm.cn(
-                        cm.button({ variant: 'ghost', size: 'sm' }),
-                        cm.touchTargetCompact,
-                      ),
-                    },
-                    [t('common.done', undefined, { defaultValue: 'Done' })],
+                    'div',
+                    { class: cm.textMuted, style: { marginBottom: '12px', lineHeight: '1.4' } },
+                    [
+                      offeredRoles.length > 1
+                        ? t('ide.chat.share.subheading', undefined, {
+                            defaultValue:
+                              'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+                          })
+                        : shareSubheading(t, offeredRoles[0]!),
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                  h(ShareLinkManager, {
+                    projectId: props.projectId,
+                    roles: offeredRoles,
+                    initialRole: props.initialRole,
+                    canManage: props.canManage,
+                    canCreate,
+                    canRevoke,
+                    onCreated: props.onCreated,
+                    refreshSignal: props.refreshSignal,
+                  }),
+                ]
+              : null,
+            slots.default?.(),
+            h(
+              'div',
+              {
+                style: {
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '8px',
+                  marginTop: '16px',
+                },
+              },
+              [
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    'data-mol-id': 'share-close',
+                    ref: done,
+                    // React binds the BARE `onClose` reference as the button's
+                    // handler, so the click event itself is the call's argument.
+                    onClick: props.onClose,
+                    class: cm.cn(
+                      cm.button({ variant: 'ghost', size: 'sm' }),
+                      cm.touchTargetCompact,
+                    ),
+                  },
+                  [t('common.done', undefined, { defaultValue: 'Done' })],
+                ),
+              ],
+            ),
+          ],
+        },
       )
     }
   },

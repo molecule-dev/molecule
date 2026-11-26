@@ -1,13 +1,8 @@
 // @vitest-environment jsdom
 
 /**
- * `KeyboardShortcutsPanel`'s document key listener — a port of
- * `@molecule/app-ide-react/src/__tests__/KeyboardShortcutsPanel.test.tsx` with
- * the same test names and the same behavioral assertions, mounted through
- * Svelte 5's own `mount`/`flushSync`. The listener is registered once and reads
- * the component's CURRENT shortcuts and selection, so after the caller changes
- * `shortcuts` the very next key acts on the new list (a stale listener would
- * clamp to the old length and run the old entry).
+ * Exercises keyboard navigation inside the kit dialog using Svelte's `mount`
+ * and `flushSync`. The next key uses the latest shortcuts and selection.
  *
  * @module
  */
@@ -81,14 +76,24 @@ function renderPanel(shortcuts: ShortcutEntry[]): {
   return { instance: mounted, container: target }
 }
 
+/**
+ * Dispatches a key from the portaled shortcuts dialog.
+ * @param key - The pressed key.
+ */
+function keyDown(key: string): void {
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a shortcuts dialog')
+  dialog.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+}
+
 describe('KeyboardShortcutsPanel keyboard navigation', () => {
   it('runs the selected row on Enter and dismisses', () => {
     const first = vi.fn()
     const second = vi.fn()
     renderPanel([shortcut('First', first), shortcut('Second', second)])
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+    keyDown('ArrowDown')
+    keyDown('Enter')
 
     expect(first).not.toHaveBeenCalled()
     expect(second).toHaveBeenCalledTimes(1)
@@ -110,9 +115,9 @@ describe('KeyboardShortcutsPanel keyboard navigation', () => {
 
     // Two downs reach the row the NEW list has at index 2 — a listener holding
     // the old two-entry list would stop at index 1.
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+    keyDown('ArrowDown')
+    keyDown('ArrowDown')
+    keyDown('Enter')
 
     expect(third).toHaveBeenCalledTimes(1)
     expect(second).not.toHaveBeenCalled()
@@ -120,7 +125,7 @@ describe('KeyboardShortcutsPanel keyboard navigation', () => {
 
   it('dismisses on Escape', () => {
     renderPanel([shortcut('First', vi.fn())])
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    keyDown('Escape')
     expect(onDismiss).toHaveBeenCalledTimes(1)
   })
 })

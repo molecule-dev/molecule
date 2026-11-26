@@ -1,41 +1,15 @@
 /**
- * Keyboard shortcuts reference panel — displays all available shortcuts
- * grouped by category with keyboard navigation.
- *
- * Angular counterpart of `@molecule/app-ide-react`'s `KeyboardShortcutsPanel`
- * (see that file for the design notes): the same inputs (React prop names),
- * the same DOM for the same input, the same callbacks. Rows are grouped by
- * the entries' category in first-occurrence order, the highlighted row
- * follows the arrow keys and the pointer, Enter runs it, and Escape, the ✕
- * dismiss and the click-away backdrop all call `onDismiss`. The key listener
- * sits on `document` in the capture phase, so the panel hears the keys
- * wherever the focus is.
- *
- * React's component is a fragment of TWO roots (the backdrop and the panel),
- * so the template's nodes render in front of the host (`placeContentBefore`)
- * and the host leaves the DOM: no host element appears in a `@focus` path
- * (React renders no element between the mount wrapper and the two roots).
- * Inputs are declared one plain field per React
- * prop in the decorator's `inputs` array, and every derived value is a method
- * the template reads, so each change-detection pass renders the current state
- * the way React's render does. Styling uses `getClassMap()` (`cm.*`) and the
- * only inline styles are layout the ClassMap can't express — written through
- * `[attr.style]`, whose attribute text lands in the DOM as is, so every
- * declaration is pre-serialized the way React's CSSOM writes it
- * (`480px`, `border: medium`, `flex: 1 1 0%`, spaced `rgba()`). All
- * user-facing text goes through `t()`.
+ * The IDE shortcut reference and its dialog-scoped keyboard navigation.
  *
  * @module
  */
 
 import {
-  afterNextRender,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   inject,
-  type OnDestroy,
-  type OnInit,
   signal,
   ViewChild,
 } from '@angular/core'
@@ -51,6 +25,7 @@ import {
 import type { ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { elementTarget, Modal } from '@molecule/app-ui-angular'
 
 /**
  * One category's rows and the flat index its first row holds.
@@ -71,7 +46,6 @@ interface ShortcutGroup {
  */
 const STYLES = {
   /** The full-viewport click-away tint behind the panel. */
-  backdrop: 'position: fixed; inset: 0px; z-index: 1000; background: rgba(0, 0, 0, 0.4)',
   /** The header row. */
   header:
     'display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--color-border, #333); flex-shrink: 0',
@@ -98,12 +72,13 @@ const STYLES = {
 @Component({
   selector: 'div[mol-keyboard-shortcuts-panel]',
   standalone: true,
+  imports: [Modal],
   inputs: ['shortcuts', 'onDismiss'],
   hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div role="presentation" [attr.style]="s.backdrop" (click)="dismissBackdrop($event)"></div><div #panel [attr.tabindex]="-1" [attr.style]="panelStyle()"><div [attr.style]="s.header"><span [attr.style]="s.title">{{ t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' }) }}</span><button type="button" data-mol-id="shortcuts-close" (click)="dismissBackdrop($event)" [attr.aria-label]="t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })" [attr.title]="t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })" [class]="cm.cn(cm.touchTarget, cm.shrink0)" [attr.style]="s.close" (mouseenter)="hoverClose($event, true)" (mouseleave)="hoverClose($event, false)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button></div><div #list [attr.style]="s.list">@for (group of groups(); track group.category) {<div>@if (group.category) {<div [attr.style]="s.category">{{ group.category }}</div>}@for (entry of group.entries; track entry.label; let j = $index) {<button type="button" [attr.data-shortcut-row]="'true'" [attr.data-mol-id]="'shortcut-row-' + (group.start + j)" (click)="pick(entry)" (mouseenter)="highlight(group.start + j)" [class]="cm.touchTargetCompact" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; font-size: 13px; width: 100%; border: medium; color: var(--mol-color-text, currentColor); text-align: left; border-radius: 0px" [style.cursor]="entry.execute ? 'pointer' : 'default'" [style.background]="rowBackground(group.start + j)"><span>{{ entry.label }}</span><span [attr.style]="s.keys">@for (part of entry.keys.split(' '); track $index) {<kbd [attr.style]="badgeStyle()">{{ part }}</kbd>}</span></button>}</div>}</div><div [attr.style]="s.footer">{{ t('ide.shortcuts.hint', undefined, { defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close' }) }}</div></div>`,
+  template: `<mol-modal [open]="true" [initialFocus]="dialogTarget" [showCloseButton]="false" [style]="dialogStyle" [attr.aria-label]="t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })" (close)="onDismiss()"><div [attr.style]="s.header"><span [attr.style]="s.title">{{ t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' }) }}</span><button type="button" data-mol-id="shortcuts-close" (click)="dismissFromButton($event)" [attr.aria-label]="t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })" [attr.title]="t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })" [class]="cm.cn(cm.touchTarget, cm.shrink0)" [attr.style]="s.close" (mouseenter)="hoverClose($event, true)" (mouseleave)="hoverClose($event, false)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button></div><div #list [attr.style]="s.list">@for (group of groups(); track group.category) {<div>@if (group.category) {<div [attr.style]="s.category">{{ group.category }}</div>}@for (entry of group.entries; track entry.label; let j = $index) {<button type="button" [attr.data-shortcut-row]="'true'" [attr.data-mol-id]="'shortcut-row-' + (group.start + j)" (click)="pick(entry)" (mouseenter)="highlight(group.start + j)" [class]="cm.touchTargetCompact" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; font-size: 13px; width: 100%; border: medium; color: var(--mol-color-text, currentColor); text-align: left; border-radius: 0px" [style.cursor]="entry.execute ? 'pointer' : 'default'" [style.background]="rowBackground(group.start + j)"><span>{{ entry.label }}</span><span [attr.style]="s.keys">@for (part of entry.keys.split(' '); track $index) {<kbd [attr.style]="badgeStyle()">{{ part }}</kbd>}</span></button>}</div>}</div><div [attr.style]="s.footer">{{ t('ide.shortcuts.hint', undefined, { defaultValue: 'Arrow keys to navigate · Enter to run · Esc to close' }) }}</div></mol-modal>`,
 })
-export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
+export class KeyboardShortcutsPanel {
   /** List of shortcuts to display. */
   shortcuts: ShortcutEntry[] = []
 
@@ -127,7 +102,7 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
 
   /**
    * The highlighted row (the one Enter runs, the one tinted). A signal so a
-   * write from the document-level key handler (no Angular event binding
+   * write from the dialog-level key handler (no Angular event binding
    * surrounds it) still schedules the zoneless change-detection pass.
    */
   protected readonly selectedIndex = signal(0)
@@ -141,13 +116,9 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
   /** Marks this view for the zoneless change-detection pass a raw listener needs. */
   private readonly changeDetectorRef = inject(ChangeDetectorRef)
 
-  /** The document-level capture handler, one identity for add and remove. */
+  /** Handles shortcut navigation from the open dialog. */
   private readonly onKeyDown = (event: KeyboardEvent): void => {
     switch (event.key) {
-      case 'Escape':
-        event.preventDefault()
-        this.onDismiss()
-        break
       case 'ArrowDown':
         event.preventDefault()
         this.selectedIndex.update((i) => Math.min(i + 1, this.flatEntries().length - 1))
@@ -169,8 +140,19 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
     this.changeDetectorRef.markForCheck()
   }
 
-  /** The panel element, for the mount focus. */
-  @ViewChild('panel') protected panel?: ElementRef<HTMLDivElement>
+  private readonly modal = signal<Modal | undefined>(undefined)
+
+  /** Tracks when the kit dialog is created or removed. */
+  @ViewChild(Modal)
+  private set dialogComponent(modal: Modal | undefined) {
+    this.modal.set(modal)
+  }
+
+  /** The dialog receives focus so arrows work before a user tabs to a row. */
+  protected readonly dialogTarget = elementTarget(() => this.modal()?.element())
+
+  /** Caps the kit dialog at the shortcuts panel's available height. */
+  protected readonly dialogStyle = { maxHeight: '70vh' }
 
   /** The list element, for the scroll-into-view. */
   @ViewChild('list') protected list?: ElementRef<HTMLDivElement>
@@ -187,23 +169,14 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
     setElementPresent(host, false)
   }
 
-  /**
-   * Subscribes the document key listener in the capture phase (React's
-   * effect), so the panel hears the keys wherever the focus is.
-   */
-  ngOnInit(): void {
-    document.addEventListener('keydown', this.onKeyDown, true)
-  }
-
-  /**
-   * Focuses the panel after the first render (React's mount effect), so the
-   * keyboard works at once. The move runs after the view check: focusing
-   * during it would fire the panel's `focusout` listeners while Angular is
-   * still checking, and a state change they make would never render.
-   */
   constructor() {
     usePlacement(() => this.place())
-    afterNextRender(() => this.panel?.nativeElement.focus())
+    effect((onCleanup) => {
+      const dialog = this.modal()?.element()
+      if (!dialog) return
+      dialog.addEventListener('keydown', this.onKeyDown)
+      onCleanup(() => dialog.removeEventListener('keydown', this.onKeyDown))
+    })
   }
 
   /**
@@ -216,11 +189,6 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
     const buttons = this.list?.nativeElement.querySelectorAll('[data-shortcut-row]')
     const el = buttons?.[this.selectedIndex()] as HTMLElement | undefined
     el?.scrollIntoView({ block: 'nearest' })
-  }
-
-  /** Unsubscribes the document key listener (React's effect cleanup). */
-  ngOnDestroy(): void {
-    document.removeEventListener('keydown', this.onKeyDown, true)
   }
 
   /**
@@ -254,17 +222,6 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
    */
   protected flatEntries(): ShortcutEntry[] {
     return this.groups().flatMap((group) => group.entries)
-  }
-
-  /**
-   * The panel's inline style: a fixed, centered column whose surface follows
-   * the theme.
-   * @returns The style attribute text.
-   */
-  protected panelStyle(): string | null {
-    return this.mode() === 'light'
-      ? 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; max-width: 90vw; max-height: 70vh; z-index: 1001; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.18); background: rgb(255, 255, 255); border: 1px solid var(--color-border, #333); display: flex; flex-direction: column; outline: none'
-      : 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; max-width: 90vw; max-height: 70vh; z-index: 1001; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6); background: var(--mol-color-background, #1e1e1e); border: 1px solid var(--color-border, #333); display: flex; flex-direction: column; outline: none'
   }
 
   /**
@@ -313,9 +270,7 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
   }
 
   /**
-   * The keyboard navigation over the flat row order lives in the capture
-   * handler ({@link onKeyDown}); a row hovered with the pointer becomes the
-   * highlighted one (React's `onMouseEnter` per row).
+   * Highlights the hovered row in the same flat order used by keyboard navigation.
    * @param idx - The hovered row's flat index.
    */
   protected highlight(idx: number): void {
@@ -335,13 +290,13 @@ export class KeyboardShortcutsPanel implements OnInit, OnDestroy {
   }
 
   /**
-   * Dismisses through the backdrop and the close ✕. React binds the BARE
+   * Dismisses through the close button. React binds the BARE
    * `onDismiss` reference as their click handler, so the click event itself
    * is the call's argument even though the callback's type takes none (a
    * zero-arg function is assignable to a one-arg handler).
    * @param event - The native click event.
    */
-  protected dismissBackdrop(event: Event): void {
+  protected dismissFromButton(event: Event): void {
     const dismiss: (event: Event) => void = this.onDismiss
     dismiss(event)
   }

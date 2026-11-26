@@ -213,7 +213,7 @@ function renderChatPanel(
     ),
     container,
   )
-  return container
+  return container.ownerDocument.body
 }
 
 /**

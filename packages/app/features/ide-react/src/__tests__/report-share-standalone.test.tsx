@@ -22,7 +22,7 @@
  * @module
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -30,42 +30,13 @@ import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { HttpProvider, ThemeProvider } from '@molecule/app-react'
-import { setClassMap, type UIClassMap } from '@molecule/app-ui'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
 
 // Deliberately the package BARREL, not the component paths — a host has no other
 // way in, so this import IS half the contract under test.
 import { buildShareUrl, formatReportConfirmation, ReportModal, ShareModal } from '../index.js'
 import { buildThemeProvider } from './theme-test-provider.js'
-
-/**
- * A ClassMap stub whose every member resolves to its key as a class token.
- *
- * @returns A stub {@link UIClassMap}.
- */
-function buildStubClassMap(): UIClassMap {
-  const token =
-    (name: string) =>
-    (..._args: unknown[]): string =>
-      name
-  const cn = (...classes: unknown[]): string => {
-    const out: string[] = []
-    const walk = (c: unknown): void => {
-      if (Array.isArray(c)) c.forEach(walk)
-      else if (typeof c === 'string' && c) out.push(c)
-    }
-    classes.forEach(walk)
-    return out.join(' ')
-  }
-  return new Proxy(
-    {},
-    {
-      get(_t, prop): unknown {
-        if (prop === 'cn') return cn
-        return token(String(prop))
-      },
-    },
-  ) as unknown as UIClassMap
-}
 
 const post = vi.fn()
 
@@ -112,15 +83,13 @@ function Wrap({ children }: { children: ReactNode }): ReactElement {
 }
 
 beforeEach(() => {
-  setClassMap(buildStubClassMap())
+  setClassMap(classMap)
   setIconSet(new Proxy({}, { get: () => ({ paths: [] }) }))
   setProvider(createSimpleI18nProvider('en'))
   post.mockReset()
 })
 
-afterEach(() => {
-  document.body.innerHTML = ''
-})
+afterEach(cleanup)
 
 describe('ReportModal works standalone, with no ChatPanel in the tree', () => {
   it('is reachable from the package barrel and POSTs the report to the platform API', async () => {
@@ -128,7 +97,7 @@ describe('ReportModal works standalone, with no ChatPanel in the tree', () => {
     post.mockResolvedValue({ data: { ok: true, id: 'r1', url: 'https://issues.example/1' } })
     const onSubmitted = vi.fn()
 
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <ReportModal
           projectId="p1"
@@ -163,7 +132,7 @@ describe('ReportModal works standalone, with no ChatPanel in the tree', () => {
   it('hands the outcome to the host rather than showing its own success state', async () => {
     post.mockResolvedValue({ data: { ok: true, id: 'r1', url: 'https://issues.example/1' } })
     const onSubmitted = vi.fn()
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <ReportModal projectId="p1" onClose={() => {}} onSubmitted={onSubmitted} />
       </Wrap>,
@@ -191,7 +160,7 @@ describe('ShareModal works standalone, with no ChatPanel in the tree', () => {
     post.mockResolvedValue({ data: { slug: 's1', role: 'viewer' } })
     const onCreated = vi.fn()
 
-    const { container } = render(
+    const { baseElement: container } = render(
       <Wrap>
         <ShareModal projectId="p1" onClose={() => {}} onCreated={onCreated} />
       </Wrap>,

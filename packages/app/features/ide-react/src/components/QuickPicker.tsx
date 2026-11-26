@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-react'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { QuickPickerProps } from '../types.js'
@@ -41,11 +42,6 @@ export function QuickPicker({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
 
   // Filter and sort items by fuzzy match
   const filtered = useMemo(() => {
@@ -93,10 +89,6 @@ export function QuickPicker({
           onSelect(filtered[selectedIndex])
         }
         break
-      case 'Escape':
-        e.preventDefault()
-        onDismiss()
-        break
     }
   }
 
@@ -107,169 +99,130 @@ export function QuickPicker({
     : 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 25%, transparent)'
 
   return (
-    <>
-      {/* Backdrop — role="presentation": a sibling click-away surface that
-          receives only its own clicks; Escape dismisses through the picker's
-          key handler. */}
-      <div
-        role="presentation"
-        onClick={onDismiss}
+    <Modal
+      open
+      onClose={onDismiss}
+      initialFocus={inputRef}
+      showCloseButton={false}
+      centered={!isNarrow}
+      aria-label={t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })}
+      className={className}
+      style={isNarrow ? { maxHeight: 'min(60dvh, 480px)' } : undefined}
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={
+          placeholder ??
+          t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })
+        }
         style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1000,
-          background: 'rgba(0,0,0,0.4)',
+          width: '100%',
+          // 16px on phones/touch devices — below that iOS Safari zooms the
+          // page when this (autofocused) input receives focus.
+          fontSize: isNarrow || isCoarse ? 16 : 13,
+          padding: '10px 12px',
+          border: 'none',
+          borderBottom: '1px solid var(--color-border, #333)',
+          background: 'transparent',
+          color: 'var(--mol-color-text, currentColor)',
+          outline: 'none',
+          boxSizing: 'border-box',
+          flexShrink: 0,
         }}
       />
-      {/* Picker — centered on desktop; anchored near the TOP on phone-width
-          viewports (the picker autofocuses its input, so the on-screen keyboard
-          appears immediately — a vertically-centered box would sit under it).
-          The dvh cap keeps the results visible above the keyboard when the
-          browser resizes the viewport (interactive-widget=resizes-content).
-          The picker is a modal dialog: role="dialog" + aria-modal name it to
-          assistive tech. Its keyboard navigation rides the picker's own
-          interactive descendants (the input and the rows) — the WAI-ARIA dialog
-          keeps the keys inside the dialog, and attaching them to the focused
-          controls keeps them there without giving the container, which holds
-          controls, an interaction role. */}
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })}
-        className={cm.cn(className)}
+        ref={listRef}
         style={{
-          position: 'fixed',
-          top: isNarrow ? '10%' : '50%',
-          left: '50%',
-          transform: isNarrow ? 'translate(-50%, 0)' : 'translate(-50%, -50%)',
-          width: 500,
-          maxWidth: '90vw',
-          maxHeight: isNarrow ? 'min(60dvh, 480px)' : undefined,
-          display: isNarrow ? 'flex' : undefined,
-          flexDirection: isNarrow ? 'column' : undefined,
-          zIndex: 1001,
-          borderRadius: 8,
-          overflow: 'hidden',
-          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-          background: isLight ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
-          border: '1px solid var(--color-border, #333)',
+          // On narrow viewports the flex-column container's dvh cap governs
+          // instead of a fixed pixel height — the list shrinks to whatever
+          // fits above the on-screen keyboard.
+          maxHeight: isNarrow ? undefined : 300,
+          minHeight: 0,
+          overflow: 'auto',
         }}
       >
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={
-            placeholder ??
-            t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })
-          }
-          style={{
-            width: '100%',
-            // 16px on phones/touch devices — below that iOS Safari zooms the
-            // page when this (autofocused) input receives focus.
-            fontSize: isNarrow || isCoarse ? 16 : 13,
-            padding: '10px 12px',
-            border: 'none',
-            borderBottom: '1px solid var(--color-border, #333)',
-            background: 'transparent',
-            color: 'var(--mol-color-text, currentColor)',
-            outline: 'none',
-            boxSizing: 'border-box',
-            flexShrink: 0,
-          }}
-        />
-        <div
-          ref={listRef}
-          style={{
-            // On narrow viewports the flex-column container's dvh cap governs
-            // instead of a fixed pixel height — the list shrinks to whatever
-            // fits above the on-screen keyboard.
-            maxHeight: isNarrow ? undefined : 300,
-            minHeight: 0,
-            overflow: 'auto',
-          }}
-        >
-          {loading && (
-            <div
+        {loading && (
+          <div
+            style={{
+              padding: '12px',
+              fontSize: 12,
+              color: 'var(--mol-color-text-secondary, #888)',
+              textAlign: 'center',
+            }}
+          >
+            {t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' })}
+          </div>
+        )}
+        {!loading && filtered.length === 0 && (
+          <div
+            style={{
+              padding: '12px',
+              fontSize: 12,
+              color: 'var(--mol-color-text-secondary, #888)',
+              textAlign: 'center',
+            }}
+          >
+            {t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' })}
+          </div>
+        )}
+        {!loading &&
+          filtered.map((item, i) => (
+            <button
+              key={item.id}
+              type="button"
+              data-mol-id={`quick-picker-item-${item.id}`}
+              onClick={() => onSelect(item)}
+              onKeyDown={handleKeyDown}
+              onMouseEnter={() => setSelectedIndex(i)}
+              className={cm.touchTargetCompact}
+              /* mol-bespoke-button: a picker ROW (icon + label + detail) with
+                 keyboard-driven selection — a list item, not a CTA. Selected
+                 tint is a theme token; the ≥36px coarse floor is the
+                 ClassMap's (it was a hand-rolled `minHeight: 36`). */
               style={{
-                padding: '12px',
-                fontSize: 12,
-                color: 'var(--mol-color-text-secondary, #888)',
-                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                padding: '6px 12px',
+                border: 'none',
+                background: i === selectedIndex ? selectedBg : 'transparent',
+                color: 'var(--mol-color-text, currentColor)',
+                cursor: 'pointer',
+                fontSize: 13,
+                textAlign: 'left',
               }}
             >
-              {t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' })}
-            </div>
-          )}
-          {!loading && filtered.length === 0 && (
-            <div
-              style={{
-                padding: '12px',
-                fontSize: 12,
-                color: 'var(--mol-color-text-secondary, #888)',
-                textAlign: 'center',
-              }}
-            >
-              {t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' })}
-            </div>
-          )}
-          {!loading &&
-            filtered.map((item, i) => (
-              <button
-                key={item.id}
-                type="button"
-                data-mol-id={`quick-picker-item-${item.id}`}
-                onClick={() => onSelect(item)}
-                onKeyDown={handleKeyDown}
-                onMouseEnter={() => setSelectedIndex(i)}
-                className={cm.touchTargetCompact}
-                /* mol-bespoke-button: a picker ROW (icon + label + detail) with
-                   keyboard-driven selection — a list item, not a CTA. Selected
-                   tint is a theme token; the ≥36px coarse floor is the
-                   ClassMap's (it was a hand-rolled `minHeight: 36`). */
+              {item.icon}
+              <span
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  width: '100%',
-                  padding: '6px 12px',
-                  border: 'none',
-                  background: i === selectedIndex ? selectedBg : 'transparent',
-                  color: 'var(--mol-color-text, currentColor)',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  textAlign: 'left',
+                  flex: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                {item.icon}
+                {item.label}
+              </span>
+              {item.detail && (
                 <span
                   style={{
-                    flex: 1,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    fontSize: 11,
+                    color: 'var(--mol-color-text-secondary, #888)',
+                    flexShrink: 0,
                   }}
                 >
-                  {item.label}
+                  {item.detail}
                 </span>
-                {item.detail && (
-                  <span
-                    style={{
-                      fontSize: 11,
-                      color: 'var(--mol-color-text-secondary, #888)',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {item.detail}
-                  </span>
-                )}
-              </button>
-            ))}
-        </div>
+              )}
+            </button>
+          ))}
       </div>
-    </>
+    </Modal>
   )
 }
 

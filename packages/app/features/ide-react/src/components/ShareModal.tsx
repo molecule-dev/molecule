@@ -23,14 +23,14 @@
  * @module
  */
 
-import type { JSX, ReactNode } from 'react'
-import { useEffect } from 'react'
+import { type JSX, type ReactNode, useRef } from 'react'
 
 import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
 import { DEFAULT_SHARE_ROLE } from '@molecule/app-ide-panel-logic'
 import { shareSubheading } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-react'
 
 import { ShareLinkManager } from './ShareLinkManager.js'
 
@@ -90,98 +90,55 @@ export function ShareModal({
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  // Escape closes the modal.
-  useEffect(() => {
-    const handler = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
-
+  const done = useRef<HTMLButtonElement>(null)
   const offeredRoles = roles.length ? roles : [DEFAULT_SHARE_ROLE]
 
   return (
-    <div
-      data-mol-id="share-modal-backdrop"
-      role="presentation"
-      onClick={(e) => {
-        // Only a click on the backdrop itself dismisses the dialog; a click
-        // inside the panel bubbles here otherwise.
-        if (e.target === e.currentTarget) onClose()
-      }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        // Dialog layer (1300) — must paint above ambient status chrome like the
-        // host's HealthBanner (z 1100), which otherwise overlaps this on phones.
-        zIndex: 1300,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'rgba(0,0,0,0.45)',
-        padding: 16,
-      }}
+    <Modal
+      open
+      onClose={onClose}
+      title={t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
+      showCloseButton={false}
+      initialFocus={done}
+      data-mol-id="share-modal"
     >
-      <div
-        data-mol-id="share-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
-        className={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
-        style={{
-          width: '100%',
-          maxWidth: 460,
-          maxHeight: '85vh',
-          overflowY: 'auto',
-          borderRadius: 8,
-          padding: 16,
-          boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
-        }}
-      >
-        <div
-          className={cm.cn(cm.fontWeight('medium'), cm.textSize('lg'))}
-          style={{ marginBottom: 4 }}
+      {showLinks && (
+        <>
+          <div className={cm.textMuted} style={{ marginBottom: 12, lineHeight: 1.4 }}>
+            {offeredRoles.length > 1
+              ? t('ide.chat.share.subheading', undefined, {
+                  defaultValue:
+                    'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+                })
+              : shareSubheading(t, offeredRoles[0])}
+          </div>
+
+          <ShareLinkManager
+            projectId={projectId}
+            roles={offeredRoles}
+            initialRole={initialRole}
+            canManage={canManage}
+            canCreate={canCreate}
+            canRevoke={canRevoke}
+            onCreated={onCreated}
+            refreshSignal={refreshSignal}
+          />
+        </>
+      )}
+
+      {children}
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <button
+          type="button"
+          data-mol-id="share-close"
+          ref={done}
+          onClick={onClose}
+          className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
         >
-          {t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
-        </div>
-        {showLinks && (
-          <>
-            <div className={cm.textMuted} style={{ marginBottom: 12, lineHeight: 1.4 }}>
-              {offeredRoles.length > 1
-                ? t('ide.chat.share.subheading', undefined, {
-                    defaultValue:
-                      'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
-                  })
-                : shareSubheading(t, offeredRoles[0])}
-            </div>
-
-            <ShareLinkManager
-              projectId={projectId}
-              roles={offeredRoles}
-              initialRole={initialRole}
-              canManage={canManage}
-              canCreate={canCreate}
-              canRevoke={canRevoke}
-              onCreated={onCreated}
-              refreshSignal={refreshSignal}
-            />
-          </>
-        )}
-
-        {children}
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-          <button
-            type="button"
-            data-mol-id="share-close"
-            onClick={onClose}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
-          >
-            {t('common.done', undefined, { defaultValue: 'Done' })}
-          </button>
-        </div>
+          {t('common.done', undefined, { defaultValue: 'Done' })}
+        </button>
       </div>
-    </div>
+    </Modal>
   )
 }

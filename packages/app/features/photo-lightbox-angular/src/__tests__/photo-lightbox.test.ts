@@ -21,7 +21,12 @@ import {
   type Type,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+import type * as UI from '@molecule/app-ui-angular'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 import { provideDomPlacement } from '@molecule/app-angular'
 
@@ -41,7 +46,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -62,7 +67,7 @@ vi.mock('@molecule/app-angular', async (importOriginal) => ({
 // plain native button carrying the class and aria label it was handed (the
 // real Angular Button's icon-wrapper class bindings need a real ClassMap,
 // which this suite deliberately replaces with a token proxy).
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component } = await import('@angular/core')
   const Button = Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -71,7 +76,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     inputs: ['variant', 'size', 'className', 'style', 'type'],
     template: '<ng-content></ng-content>',
   })(class MockButton {})
-  return { Button }
+  return { ...(await importOriginal<typeof UI>()), Button }
 })
 
 const { PhotoLightbox } = await import('../photo-lightbox.component.js')
@@ -124,7 +129,10 @@ async function mount(template: string, props: Record<string, unknown>): Promise<
   appRef.tick()
   return {
     get innerHTML() {
-      return host.innerHTML
+      return (
+        host.ownerDocument.querySelector('[role="presentation"]:has(> [role="dialog"])')
+          ?.outerHTML ?? ''
+      )
     },
     host,
     setProps: (next: Record<string, unknown>) => {
@@ -177,11 +185,11 @@ describe('PhotoLightbox', () => {
 
   it('shows again when a prop change reopens it', async () => {
     const m = await render({ photos, open: true })
-    expect(m.host.querySelector('[role="dialog"]')).not.toBeNull()
+    expect(m.host.ownerDocument.querySelector('[role="dialog"]')).not.toBeNull()
     m.setProps({ open: false })
-    expect(m.host.querySelector('[role="dialog"]')).toBeNull()
+    expect(m.host.ownerDocument.querySelector('[role="dialog"]')).toBeNull()
     m.setProps({ open: true })
-    expect(m.host.querySelector('[role="dialog"]')).not.toBeNull()
+    expect(m.host.ownerDocument.querySelector('[role="dialog"]')).not.toBeNull()
   })
 
   it('leaves no element behind when it is removed while closed', async () => {
@@ -190,7 +198,7 @@ describe('PhotoLightbox', () => {
       { shown: true, photos, open: false },
     )
     mounted.push(m)
-    expect(m.host.querySelector('[role="dialog"]')).toBeNull()
+    expect(m.host.ownerDocument.querySelector('[role="dialog"]')).toBeNull()
     m.setProps({ shown: false })
     // Not even the empty host element is left in the page.
     expect(m.host.querySelector('*')).toBeNull()
@@ -236,12 +244,13 @@ describe('PhotoLightbox', () => {
   it('always renders a close button', async () => {
     const m = await render({ photos, open: true, onClose: () => {} })
     expect(m.innerHTML).toContain('aria-label="Close"')
+    expect(m.innerHTML).toContain('data-mol-id="modal-close"')
   })
 
   it('wraps the dialog in a presentation backdrop that closes on its own click', async () => {
     const m = await render({ photos, open: true, onClose: () => {} })
-    // The host element IS the backdrop (React's root); the dialog sits inside it.
-    const backdrop = document.querySelector('div[mol-photo-lightbox]') as HTMLElement
+    const backdrop = document.querySelector('[role="presentation"]:has(> [role="dialog"])')
+    if (!backdrop) throw new Error('Expected a lightbox backdrop')
     expect(backdrop.getAttribute('role')).toBe('presentation')
     expect(backdrop.firstElementChild?.getAttribute('role')).toBe('dialog')
     expect(m.innerHTML).toContain('aria-modal="true"')

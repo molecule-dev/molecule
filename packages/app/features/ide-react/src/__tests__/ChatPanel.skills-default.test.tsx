@@ -28,7 +28,7 @@
  * @module
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ComponentProps, ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -195,9 +195,7 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = (): void => {}
 })
 
-afterEach(() => {
-  document.body.innerHTML = ''
-})
+afterEach(cleanup)
 
 /**
  * Submits a slash command through the real composer (the space closes the
@@ -257,7 +255,7 @@ function announcedMarkerPatched(patchSpy: ReturnType<typeof vi.fn>): boolean {
 describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => {
   it('toggling one default OFF from the implicit all-default state PATCHes all-minus-one (not a bogus singleton)', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
     )
 
@@ -295,7 +293,7 @@ describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => 
 
   it('reset ("Load all by default") appears once explicit and PATCHes defaultSkills: null', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
     )
 
@@ -336,7 +334,9 @@ describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => 
     const filesList = (): Promise<string[]> =>
       new Promise<string[]>((resolve) => deferred.push(resolve))
 
-    const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy, filesList)))
+    const { baseElement: container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, filesList)),
+    )
 
     await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
     submitCommand(container, '/skills')
@@ -384,7 +384,7 @@ describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => 
 describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" card (SYN)', () => {
   it('empty first load → bounded retry eventually seeds ALL skills as default (no hollow stars)', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, emptyThenPopulated())),
     )
 
@@ -427,7 +427,7 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
       })
       onEvent({ type: 'done' })
     })
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(
         buildHttpClient(
           {},
@@ -457,7 +457,7 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
 
   it('does NOT announce the skills card client-side (it is server-driven now)', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
     )
 
@@ -483,7 +483,7 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
       })
       onEvent({ type: 'done' })
     })
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(
         buildHttpClient(
           {},
@@ -518,7 +518,7 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
 
   it('invoking /skills opens the closeable overlay and the ✕ closes it', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
     )
 
@@ -533,6 +533,7 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
     const close = (await waitFor(() => {
       const el = container.querySelector('[data-mol-id="panel-overlay-close"]')
       expect(el, 'the /skills overlay must open with a ✕ close button').not.toBeNull()
+      expect(el?.closest('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true')
       expect(container.querySelector('[data-mol-id="skills-card"]')).not.toBeNull()
       return el as HTMLElement
     })) as HTMLButtonElement
@@ -555,7 +556,7 @@ describe('ChatPanel activity slot — always reserved, opacity-toggled (no jump,
     )
 
   it('keeps the activity slot in the layout but invisible when idle', async () => {
-    const { container } = render(renderChatPanel(http()))
+    const { baseElement: container } = render(renderChatPanel(http()))
     await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
     const slot = container.querySelector('[data-mol-id="chat-activity-slot"]') as HTMLElement | null
     // Reserved in the layout (so showing/hiding the indicator never shifts the list height)…
@@ -566,7 +567,7 @@ describe('ChatPanel activity slot — always reserved, opacity-toggled (no jump,
   })
 
   it('shows the SAME slot (opacity 1) while waiting for the sandbox to boot', async () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(http(), buildChatProvider(), { awaitingSandboxBoot: true }),
     )
     await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
@@ -584,7 +585,7 @@ describe('ChatPanel activity slot — always reserved, opacity-toggled (no jump,
     // through to "Waiting for the development environment to finish starting…"
     // over a clearly-running sandbox (observed 2026-08-31).
     let push: ((conversationId: string, event: ChatStreamEvent) => void) | null | undefined
-    const { container } = render(
+    const { baseElement: container } = render(
       renderChatPanel(http(), buildChatProvider(), {
         endpoint: `/projects/${PROJECT_ID}/chat?conversationId=conv-1`,
         onRegisterPushHandler: (handler) => {

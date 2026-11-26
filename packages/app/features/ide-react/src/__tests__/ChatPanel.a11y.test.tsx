@@ -114,7 +114,7 @@ function wrap(children: ReactNode, chat: ChatProvider): ReactElement {
 
 /** Render ChatPanel with the given history and wait for the composer. */
 async function renderChatPanel(history: ChatMessage[] = []): Promise<HTMLElement> {
-  const { container } = render(
+  const { baseElement: container } = render(
     wrap(<ChatPanel projectId="proj-a11y" agentName="Synthase" />, buildChatProvider(history)),
   )
   await waitFor(() => {

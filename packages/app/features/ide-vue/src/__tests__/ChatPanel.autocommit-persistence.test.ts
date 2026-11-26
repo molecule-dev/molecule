@@ -119,7 +119,7 @@ function mountChatPanel(
     projectId: PROJECT_ID,
     props: { ...props },
   })
-  return mounted.container
+  return mounted.container.ownerDocument.body
 }
 
 /**

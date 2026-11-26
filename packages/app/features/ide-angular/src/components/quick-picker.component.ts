@@ -8,12 +8,8 @@
  * backdrop; rows are ordered by a fuzzy score of the query, the highlighted
  * row follows the arrow keys and the pointer, and Enter selects it.
  *
- * React's component is a fragment of TWO roots (the backdrop and the panel),
- * so the template's nodes render in front of the host
- * (`placeContentBefore`) and the host leaves the DOM: the template then
- * renders exactly
- * React's tree, with no wrapper element and nothing extra in a `@focus` path.
- * Inputs are
+ * The kit owns the overlay and its portal. The Angular adapter removes the
+ * feature host after placing its content. Inputs are
  * declared the way the kit's other Angular
  * feature components declare them — one plain field per React prop, named in
  * the decorator's `inputs` array — and every derived value is a method the
@@ -28,7 +24,6 @@
 
 import { NgTemplateOutlet } from '@angular/common'
 import {
-  afterNextRender,
   Component,
   ElementRef,
   inject,
@@ -48,9 +43,9 @@ import {
   useTranslation,
 } from '@molecule/app-angular'
 import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
-import type { UIClassMap } from '@molecule/app-ui'
+import type { UIClassMap, WebStyle } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { styleText } from '@molecule/app-ui-angular'
+import { elementTarget, Modal, styleText } from '@molecule/app-ui-angular'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 
@@ -93,13 +88,6 @@ export interface QuickPickerProps {
  * free).
  */
 const STYLES = {
-  /** The full-viewport click-away tint behind the picker (the colour text React's DOM carries). */
-  backdrop: styleText({
-    position: 'fixed',
-    inset: 0,
-    zIndex: 1000,
-    background: 'rgba(0, 0, 0, 0.4)',
-  }),
   /** The loading and no-results rows. */
   stateRow: styleText({
     padding: '12px',
@@ -128,11 +116,11 @@ const STYLES = {
 @Component({
   selector: 'div[mol-quick-picker]',
   standalone: true,
-  imports: [NgTemplateOutlet],
+  imports: [Modal, NgTemplateOutlet],
   inputs: ['items', 'placeholder', 'onSelect', 'onDismiss', 'loading', 'initialQuery', 'className'],
   hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div role="presentation" [attr.style]="s.backdrop" (click)="dismissBackdrop($event)"></div><div role="dialog" aria-modal="true" [attr.aria-label]="t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })" [class]="cm.cn(className)" [attr.style]="panelStyle()"><input #input type="text" [value]="query" [attr.value]="query" (input)="onSearch($event)" (keydown)="handleKeyDown($event)" [attr.placeholder]="placeholderText()" [attr.style]="inputStyle()" /><div #list [attr.style]="listStyle()">@if (loading) {<div [attr.style]="s.stateRow">{{ t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' }) }}</div>} @else if (filtered().length === 0) {<div [attr.style]="s.stateRow">{{ t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' }) }}</div>} @else {@for (item of filtered(); track item.id; let i = $index) {<button type="button" [attr.data-mol-id]="'quick-picker-item-' + item.id" (click)="pick(item)" (keydown)="handleKeyDown($event)" (mouseenter)="highlight(i)" [class]="cm.touchTargetCompact" [attr.style]="rowStyle(item, i)">@if (item.icon != null) {@if (isTemplate(item.icon)) {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}@else {{{ textOf(item.icon) }}}}<span [attr.style]="s.label">{{ item.label }}</span>@if (item.detail) {<span [attr.style]="s.detail">{{ item.detail }}</span>}</button>}}</div></div>`,
+  template: `<mol-modal [open]="true" [initialFocus]="inputTarget" [showCloseButton]="false" [centered]="!isNarrow()" (close)="onDismiss()" [attr.aria-label]="t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })" [className]="className" [style]="panelStyle()"><input #input type="text" [value]="query" [attr.value]="query" (input)="onSearch($event)" (keydown)="handleKeyDown($event)" [attr.placeholder]="placeholderText()" [attr.style]="inputStyle()" /><div #list [attr.style]="listStyle()">@if (loading) {<div [attr.style]="s.stateRow">{{ t('ide.quickPicker.loading', undefined, { defaultValue: 'Loading…' }) }}</div>} @else if (filtered().length === 0) {<div [attr.style]="s.stateRow">{{ t('ide.quickPicker.noResults', undefined, { defaultValue: 'No matching results' }) }}</div>} @else {@for (item of filtered(); track item.id; let i = $index) {<button type="button" [attr.data-mol-id]="'quick-picker-item-' + item.id" (click)="pick(item)" (keydown)="handleKeyDown($event)" (mouseenter)="highlight(i)" [class]="cm.touchTargetCompact" [attr.style]="rowStyle(item, i)">@if (item.icon != null) {@if (isTemplate(item.icon)) {<ng-container [ngTemplateOutlet]="templateOf(item.icon)"></ng-container>}@else {{{ textOf(item.icon) }}}}<span [attr.style]="s.label">{{ item.label }}</span>@if (item.detail) {<span [attr.style]="s.detail">{{ item.detail }}</span>}</button>}}</div></mol-modal>`,
 })
 export class QuickPicker implements OnInit, OnChanges {
   /** The items to display and filter. */
@@ -184,12 +172,7 @@ export class QuickPicker implements OnInit, OnChanges {
   /** This component's host element, for the content adoption below. */
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
-  /**
-   * Renders the backdrop and the panel in front of the host and keeps the host
-   * out of the DOM: React's root is the fragment of those two, with no wrapper
-   * and nothing extra in a `@focus` path. Nodes a later render re-creates land
-   * inside the host first and are placed here.
-   */
+  /** Places the kit component and removes the feature host. */
   private place(): void {
     const host = this.host.nativeElement
     placeContentBefore(host, host)
@@ -205,6 +188,9 @@ export class QuickPicker implements OnInit, OnChanges {
   /** The search input, for the autofocus. */
   @ViewChild('input') protected input?: ElementRef<HTMLInputElement>
 
+  /** Search field focused by the kit after the dialog opens. */
+  protected readonly inputTarget = elementTarget(() => this.input?.nativeElement)
+
   /** The list element, for the scroll-into-view. */
   @ViewChild('list') protected list?: ElementRef<HTMLDivElement>
 
@@ -213,15 +199,8 @@ export class QuickPicker implements OnInit, OnChanges {
     this.query = this.initialQuery ?? ''
   }
 
-  /**
-   * Focuses the input after the first render (React's mount effect), so
-   * typing can start at once. The move runs after the view check: focusing
-   * during it would fire the input's `focusin` listeners while Angular is
-   * still checking, and a state change they make would never render.
-   */
   constructor() {
     usePlacement(() => this.place())
-    afterNextRender(() => this.input?.nativeElement.focus())
   }
 
   /**
@@ -280,33 +259,9 @@ export class QuickPicker implements OnInit, OnChanges {
       : 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 25%, transparent)'
   }
 
-  /**
-   * The panel's inline style: centered on desktop, anchored near the top on
-   * phone-width viewports (the autofocus input would otherwise sit behind the
-   * on-screen keyboard), with the dvh cap keeping the results above it.
-   * @returns The style attribute text.
-   */
-  protected panelStyle(): string | null {
-    const narrow = this.isNarrow()
-    return styleText({
-      position: 'fixed',
-      top: narrow ? '10%' : '50%',
-      left: '50%',
-      transform: narrow ? 'translate(-50%, 0)' : 'translate(-50%, -50%)',
-      width: 500,
-      maxWidth: '90vw',
-      maxHeight: narrow ? 'min(60dvh, 480px)' : undefined,
-      display: narrow ? 'flex' : undefined,
-      flexDirection: narrow ? 'column' : undefined,
-      zIndex: 1001,
-      borderRadius: 8,
-      overflow: 'hidden',
-      boxShadow:
-        this.mode() === 'light' ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-      background:
-        this.mode() === 'light' ? 'rgb(255, 255, 255)' : 'var(--mol-color-background, #1e1e1e)',
-      border: '1px solid var(--color-border, #333)',
-    })
+  /** Keeps the dialog above the on-screen keyboard on a narrow viewport. */
+  protected panelStyle(): WebStyle | undefined {
+    return this.isNarrow() ? { maxHeight: 'min(60dvh, 480px)' } : undefined
   }
 
   /**
@@ -412,7 +367,7 @@ export class QuickPicker implements OnInit, OnChanges {
 
   /**
    * The keyboard navigation: the arrows move the highlight within the
-   * filtered rows (clamped), Enter selects it, Escape dismisses. Bound to the
+   * filtered rows (clamped), Enter selects it. Bound to the
    * panel, so a key press anywhere in it (the autofocus input first of all)
    * lands here.
    * @param event - The key press.
@@ -433,10 +388,6 @@ export class QuickPicker implements OnInit, OnChanges {
         if (chosen) this.onSelect(chosen)
         break
       }
-      case 'Escape':
-        event.preventDefault()
-        this.onDismiss()
-        break
     }
   }
 
@@ -455,17 +406,5 @@ export class QuickPicker implements OnInit, OnChanges {
    */
   protected pick(item: QuickPickerItem): void {
     this.onSelect(item)
-  }
-
-  /**
-   * Dismisses through the backdrop. React binds the BARE `onDismiss` reference
-   * as the backdrop's click handler, so the click event itself is the call's
-   * argument even though the callback's type takes none (a zero-arg function
-   * is assignable to a one-arg handler).
-   * @param event - The native click event.
-   */
-  protected dismissBackdrop(event: Event): void {
-    const dismiss: (event: Event) => void = this.onDismiss
-    dismiss(event)
   }
 }

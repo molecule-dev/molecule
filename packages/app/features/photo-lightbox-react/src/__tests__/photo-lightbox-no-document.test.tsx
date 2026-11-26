@@ -11,7 +11,13 @@
 import { fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+import type * as UI from '@molecule/app-ui-react'
+import { OverlayHost } from '@molecule/app-ui-react/platform'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -26,7 +32,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -41,7 +47,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof UI>()),
   Button: ({
     children,
     'aria-label': ariaLabel,
@@ -63,18 +70,25 @@ describe('<PhotoLightbox> without a global document', () => {
   it('opens without a global document and still dismisses on a backdrop press', () => {
     const container = document.createElement('div')
     const onClose = vi.fn()
+    const owner = container.ownerDocument
 
     vi.stubGlobal('document', undefined)
     try {
-      render(createElement(PhotoLightbox, { photos, open: true, onClose }), { container })
-      const dialog = container.querySelector('[role="dialog"]')
+      render(
+        createElement(OverlayHost, {
+          owner: { current: container },
+          children: createElement(PhotoLightbox, { photos, open: true, onClose }),
+        }),
+        { container },
+      )
+      const dialog = owner.querySelector('[role="dialog"]')
       expect(dialog?.textContent ?? '').toContain('1 / 3')
     } finally {
       vi.unstubAllGlobals()
     }
 
-    const dialog = container.querySelector('[role="dialog"]')
-    const backdrop = container.querySelector('[role="presentation"]')
+    const dialog = owner.querySelector('[role="dialog"]')
+    const backdrop = owner.querySelector('[role="presentation"]')
     if (!dialog || !backdrop) throw new Error('Expected a dialog inside a backdrop')
     fireEvent.click(dialog)
     expect(onClose).not.toHaveBeenCalled()

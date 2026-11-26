@@ -505,8 +505,6 @@ export class ChatInner implements OnChanges, AfterViewInit {
 
     this.sounds.effects[1]()
 
-    this.overlay.effects[1]()
-
     this.tests.effects[1]()
     this.tests.effects[2]()
 
@@ -582,7 +580,6 @@ export class ChatInner implements OnChanges, AfterViewInit {
     this.tips.mount()
     this.sounds.mount()
     this.prefs.mount()
-    this.overlay.mount()
     this.tests.mount()
     this.models.mount()
     this.autoCommit.mount()

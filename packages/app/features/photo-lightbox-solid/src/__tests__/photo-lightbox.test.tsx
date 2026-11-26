@@ -9,7 +9,11 @@
  */
 
 import { render } from 'solid-js/web'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 import type { PhotoLightboxProps } from '../types.js'
 
@@ -29,7 +33,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -59,7 +63,10 @@ function renderLightbox(props: PhotoLightboxProps): string {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(() => <PhotoLightbox {...props} />, container))
-  return container.innerHTML
+  return (
+    container.ownerDocument.querySelector('[role="presentation"]:has(> [role="dialog"])')
+      ?.outerHTML ?? ''
+  )
 }
 
 const photos = [
@@ -110,6 +117,7 @@ describe('PhotoLightbox', () => {
   it('always renders a close button', () => {
     const markup = renderLightbox({ photos, open: true, onClose: () => {} })
     expect(markup).toContain('aria-label="Close"')
+    expect(markup).toContain('data-mol-id="modal-close"')
   })
 
   it('wraps the dialog in a presentation backdrop that closes on its own click', () => {

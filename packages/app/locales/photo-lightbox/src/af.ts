@@ -5,4 +5,6 @@ export const af: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Maak toe',
   'lightbox.previous': 'Vorige',
   'lightbox.next': 'Volgende',
+  'lightbox.image': 'Beeld {{index}}',
+  'lightbox.imageOfTotal': 'Beeld {{index}} van {{total}}',
 }

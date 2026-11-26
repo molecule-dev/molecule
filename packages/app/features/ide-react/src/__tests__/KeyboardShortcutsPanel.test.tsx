@@ -1,10 +1,8 @@
 // @vitest-environment jsdom
 
 /**
- * `KeyboardShortcutsPanel`'s document key listener. The listener is registered
- * once and reads the LATEST shortcuts and selection through an Effect Event, so
- * after the caller changes `shortcuts` the very next key acts on the new list
- * (a stale listener would clamp to the old length and run the old entry).
+ * Exercises keyboard navigation inside the kit dialog. The next key uses
+ * the latest shortcuts and selection.
  *
  * @module
  */
@@ -67,14 +65,28 @@ function renderPanel(shortcuts: ShortcutEntry[]): ReturnType<typeof render> {
   return render(panel(shortcuts))
 }
 
+/**
+ * Dispatches a key from the portaled shortcuts dialog.
+ * @param key - The pressed key.
+ */
+function keyDown(key: string): void {
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a shortcuts dialog')
+  fireEvent.keyDown(dialog, { key })
+}
+
 describe('KeyboardShortcutsPanel keyboard navigation', () => {
   it('runs the selected row on Enter and dismisses', () => {
     const first = vi.fn()
     const second = vi.fn()
     renderPanel([shortcut('First', first), shortcut('Second', second)])
 
-    fireEvent.keyDown(document, { key: 'ArrowDown' })
-    fireEvent.keyDown(document, { key: 'Enter' })
+    fireEvent.keyDown(document.body, { key: 'Enter' })
+    expect(first).not.toHaveBeenCalled()
+    expect(onDismiss).not.toHaveBeenCalled()
+
+    keyDown('ArrowDown')
+    keyDown('Enter')
 
     expect(first).not.toHaveBeenCalled()
     expect(second).toHaveBeenCalledTimes(1)
@@ -93,9 +105,9 @@ describe('KeyboardShortcutsPanel keyboard navigation', () => {
 
     // Two downs reach the row the NEW list has at index 2 — a listener holding
     // the old two-entry list would stop at index 1.
-    fireEvent.keyDown(document, { key: 'ArrowDown' })
-    fireEvent.keyDown(document, { key: 'ArrowDown' })
-    fireEvent.keyDown(document, { key: 'Enter' })
+    keyDown('ArrowDown')
+    keyDown('ArrowDown')
+    keyDown('Enter')
 
     expect(third).toHaveBeenCalledTimes(1)
     expect(second).not.toHaveBeenCalled()
@@ -103,7 +115,7 @@ describe('KeyboardShortcutsPanel keyboard navigation', () => {
 
   it('dismisses on Escape', () => {
     renderPanel([shortcut('First', vi.fn())])
-    fireEvent.keyDown(document, { key: 'Escape' })
+    keyDown('Escape')
     expect(onDismiss).toHaveBeenCalledTimes(1)
   })
 })

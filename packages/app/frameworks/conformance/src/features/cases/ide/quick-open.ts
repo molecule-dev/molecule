@@ -74,7 +74,9 @@ export const quickOpenCases: FeatureComponentCases = {
       props: { projectId: 'p1' },
       callbacks: ['onFileOpen', 'onDismiss'],
       context: { http: [{ ...P1_LIST, data: { files: FILES } }] },
-      interactions: [{ type: 'click', selector: 'body > div > div > div:nth-child(1)' }],
+      interactions: [
+        { type: 'click', selector: 'div[role="presentation"]:has(> [role="dialog"])' },
+      ],
     },
 
     // ── The project input ───────────────────────────────────────────────────

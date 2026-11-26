@@ -5,4 +5,6 @@ export const th: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'ปิด',
   'lightbox.previous': 'ก่อนหน้า',
   'lightbox.next': 'ต่อไป',
+  'lightbox.image': 'รูปภาพ {{index}}',
+  'lightbox.imageOfTotal': 'รูปภาพ {{index}} จาก {{total}}',
 }

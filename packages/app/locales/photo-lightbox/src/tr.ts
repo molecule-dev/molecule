@@ -5,4 +5,6 @@ export const tr: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Kapat',
   'lightbox.previous': 'Önceki',
   'lightbox.next': 'Sonraki',
+  'lightbox.image': 'Görsel {{index}}',
+  'lightbox.imageOfTotal': 'Görsel {{index}} / {{total}}',
 }

@@ -129,7 +129,7 @@ function renderPanel(options: RenderOptions): PanelMount {
       testsAvailable: true,
     },
   })
-  return mounted
+  return { ...mounted, container: mounted.container.ownerDocument.body }
 }
 
 /**

@@ -21,7 +21,6 @@ import {
   computed,
   defineComponent,
   h,
-  onMounted,
   type PropType,
   ref,
   type VNode,
@@ -30,7 +29,8 @@ import {
 } from 'vue'
 
 import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+import { Modal } from '@molecule/app-ui-vue'
 import { useThemeMode, useTranslation } from '@molecule/app-vue'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
@@ -114,10 +114,11 @@ export const QuickPicker = defineComponent({
     const inputRef = ref<HTMLInputElement | null>(null)
     const listRef = ref<HTMLDivElement | null>(null)
 
-    // Focus input on mount
-    onMounted(() => {
-      inputRef.value?.focus()
-    })
+    const inputTarget: OverlayTarget = {
+      get current() {
+        return inputRef.value
+      },
+    }
 
     // Filter and sort items by fuzzy match
     const filtered = computed<QuickPickerItem[]>(() => {
@@ -150,7 +151,7 @@ export const QuickPicker = defineComponent({
 
     /**
      * The keyboard navigation: the arrows move the highlight within the
-     * filtered rows (clamped), Enter selects it, Escape dismisses. Bound to
+     * filtered rows (clamped), Enter selects it. The kit handles Escape. Bound to
      * the panel, so a key press anywhere in it (the autofocus input first of
      * all) lands here.
      *
@@ -172,69 +173,27 @@ export const QuickPicker = defineComponent({
           if (chosen) props.onSelect(chosen)
           break
         }
-        case 'Escape':
-          e.preventDefault()
-          props.onDismiss()
-          break
       }
     }
 
     /** The backdrop's style (a full-viewport click-away tint). */
-    const backdropStyle = {
-      position: 'fixed',
-      inset: '0px',
-      zIndex: '1000',
-      background: 'rgba(0,0,0,0.4)',
-    }
-
     return (): VNodeChild => {
-      const light = mode.value === 'light'
       const narrow = isNarrow.value
       const rows = filtered.value
-      return [
-        // Backdrop — role="presentation": a sibling click-away surface that
-        // receives only its own clicks; Escape dismisses through the picker's
-        // key handler.
-        h('div', { role: 'presentation', onClick: props.onDismiss, style: backdropStyle }),
-        // Picker — centered on desktop; anchored near the TOP on phone-width
-        // viewports (the picker autofocuses its input, so the on-screen keyboard
-        // appears immediately — a vertically-centered box would sit under it).
-        // The dvh cap keeps the results visible above the keyboard when the
-        // browser resizes the viewport (interactive-widget=resizes-content).
-        // The picker is a modal dialog: role="dialog" + aria-modal name it to
-        // assistive tech. Its keyboard navigation rides the picker's own
-        // interactive descendants (the input and the rows) — the WAI-ARIA dialog
-        // keeps the keys inside the dialog, and attaching them to the focused
-        // controls keeps them there without giving the container, which holds
-        // controls, an interaction role.
-        h(
-          'div',
-          {
-            role: 'dialog',
-            'aria-modal': 'true',
-            'aria-label': t('ide.quickPicker.label', undefined, {
-              defaultValue: 'Quick picker',
-            }),
-            class: cm.cn(props.className),
-            style: {
-              position: 'fixed',
-              top: narrow ? '10%' : '50%',
-              left: '50%',
-              transform: narrow ? 'translate(-50%, 0)' : 'translate(-50%, -50%)',
-              width: '500px',
-              maxWidth: '90vw',
-              maxHeight: narrow ? 'min(60dvh, 480px)' : undefined,
-              display: narrow ? 'flex' : undefined,
-              flexDirection: narrow ? 'column' : undefined,
-              zIndex: '1001',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              boxShadow: light ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
-              background: light ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
-              border: '1px solid var(--color-border, #333)',
-            },
-          },
-          [
+      return h(
+        Modal,
+        {
+          open: true,
+          onClose: props.onDismiss,
+          initialFocus: inputTarget,
+          showCloseButton: false,
+          centered: !narrow,
+          'aria-label': t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' }),
+          className: props.className,
+          style: narrow ? { maxHeight: 'min(60dvh, 480px)' } : undefined,
+        },
+        {
+          default: () => [
             h('input', {
               ref: inputRef,
               type: 'text',
@@ -326,9 +285,9 @@ export const QuickPicker = defineComponent({
                           },
                           class: cm.touchTargetCompact,
                           /* mol-bespoke-button: a picker ROW (icon + label + detail)
-                             with keyboard-driven selection — a list item, not a CTA.
-                             Selected tint is a theme token; the ≥36px coarse floor is
-                             the ClassMap's (it was a hand-rolled `minHeight: 36`). */
+                           with keyboard-driven selection — a list item, not a CTA.
+                           Selected tint is a theme token; the ≥36px coarse floor is
+                           the ClassMap's (it was a hand-rolled `minHeight: 36`). */
                           style: {
                             display: 'flex',
                             alignItems: 'center',
@@ -376,8 +335,8 @@ export const QuickPicker = defineComponent({
                     ),
             ),
           ],
-        ),
-      ]
+        },
+      )
     }
   },
 })

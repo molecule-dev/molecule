@@ -560,6 +560,12 @@ describe("chat-panel sections render React's elements with no host or capture el
     mounted.tick()
     expect(mounted.container.querySelector('[mol-chat-report-modal]')).toBeNull()
     expect(mounted.container.querySelector('[data-parity-unwrap]')).toBeNull()
+    expectChildren(mounted.container, 0)
+    expect(
+      mounted.container.ownerDocument
+        .querySelector('[data-mol-id="report-modal"]')
+        ?.getAttribute('aria-modal'),
+    ).toBe('true')
     const elements = elementChildren(mounted.container)
     expect(elements[0]?.tagName).toBe('I')
     expect(elements[elements.length - 1]?.tagName).toBe('I')
@@ -585,6 +591,12 @@ describe("chat-panel sections render React's elements with no host or capture el
     mounted.tick()
     expect(mounted.container.querySelector('[mol-chat-share-modal]')).toBeNull()
     expect(mounted.container.querySelector('[data-parity-unwrap]')).toBeNull()
+    expectChildren(mounted.container, 0)
+    expect(
+      mounted.container.ownerDocument
+        .querySelector('[data-mol-id="share-modal"]')
+        ?.getAttribute('aria-modal'),
+    ).toBe('true')
     const elements = elementChildren(mounted.container)
     expect(elements[0]?.tagName).toBe('I')
     expect(elements[elements.length - 1]?.tagName).toBe('I')
@@ -662,8 +674,12 @@ describe("chat-panel sections render React's elements with no host or capture el
     expectChildren(mounted.container, 0)
     overlay.set('settings')
     mounted.tick()
-    expectChildren(mounted.container, 1)
-    expect(elementChildren(mounted.container)[1]?.getAttribute('role')).toBe('dialog')
+    expectChildren(mounted.container, 0)
+    expect(
+      mounted.container.ownerDocument
+        .querySelector('[data-mol-id="chat-panel-overlay"]')
+        ?.getAttribute('aria-modal'),
+    ).toBe('true')
   })
 
   it("ChatModelPicker renders React's elements with no host or capture element of its own", async () => {

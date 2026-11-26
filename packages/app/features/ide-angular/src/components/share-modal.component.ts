@@ -29,14 +29,20 @@
  * @module
  */
 
-import { Component, DestroyRef, inject } from '@angular/core'
+import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
-import { useTranslation } from '@molecule/app-angular'
+import {
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+  useTranslation,
+} from '@molecule/app-angular'
 import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
 import { DEFAULT_SHARE_ROLE, shareSubheading } from '@molecule/app-ide-panel-logic'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { styleText } from '@molecule/app-ui-angular'
+import { elementTarget, Modal, styleText } from '@molecule/app-ui-angular'
 
 import { ShareLinkManager } from './share-link-manager.component.js'
 
@@ -74,7 +80,7 @@ export interface ShareModalProps {
 @Component({
   selector: 'div[mol-share-modal]',
   standalone: true,
-  imports: [ShareLinkManager],
+  imports: [Modal, ShareLinkManager],
   inputs: [
     'projectId',
     'initialRole',
@@ -87,24 +93,18 @@ export interface ShareModalProps {
     'onClose',
     'onCreated',
   ],
-  host: {
-    'data-mol-id': 'share-modal-backdrop',
-    role: 'presentation',
-    '[attr.style]': 's.backdrop',
-    '(click)': 'dismissFromBackdrop($event)',
-  },
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `<div data-mol-id="share-modal" role="dialog" aria-modal="true" [attr.aria-label]="t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })" [class]="cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))" [attr.style]="s.dialog">
-    <div [class]="cm.cn(cm.fontWeight('medium'), cm.textSize('lg'))" [attr.style]="s.heading">{{ t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' }) }}</div>
+  template: `<mol-modal [open]="true" [title]="t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })" [showCloseButton]="false" [initialFocus]="doneTarget" (close)="onClose()" data-mol-id="share-modal">
     @if (linksShown()) {
       <div [class]="cm.textMuted" [attr.style]="s.subheading">{{ subheadingText() }}</div>
       <div mol-share-link-manager [projectId]="projectId" [roles]="offeredRoles()" [initialRole]="initialRole" [canManage]="canManage" [canCreate]="canCreateAllowed()" [canRevoke]="canRevokeAllowed()" [onCreated]="onCreated" [refreshSignal]="refreshSignal"></div>
     }
     <ng-content />
     <div [attr.style]="s.footer">
-      <button type="button" data-mol-id="share-close" (click)="closeWithEvent($event)" [class]="cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)">{{ t('common.done', undefined, { defaultValue: 'Done' }) }}</button>
+      <button type="button" #done data-mol-id="share-close" (click)="closeWithEvent($event)" [class]="cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)">{{ t('common.done', undefined, { defaultValue: 'Done' }) }}</button>
     </div>
-  </div>`,
+  </mol-modal>`,
 })
 export class ShareModal {
   /** The project whose public link the modal manages. */
@@ -149,17 +149,18 @@ export class ShareModal {
   /** The static style texts. */
   protected readonly s = STYLES
 
-  /** Registers the Escape listener and its cleanup (React's mount effect). */
+  @ViewChild('done') private done?: ElementRef<HTMLButtonElement>
+
+  /** Focuses the stable Done button while the list of links loads. */
+  protected readonly doneTarget = elementTarget(() => this.done?.nativeElement)
+
   constructor() {
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        // React calls the callback with NO event argument.
-        const close: () => void = this.onClose
-        close()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    inject(DestroyRef).onDestroy(() => window.removeEventListener('keydown', onKey))
+    const host: ElementRef<HTMLElement> = inject(ElementRef)
+    usePlacement(() => {
+      const element = host.nativeElement
+      placeContentBefore(element, element)
+      setElementPresent(element, false)
+    })
   }
 
   /**
@@ -218,19 +219,6 @@ export class ShareModal {
     const close: (event: Event) => void = this.onClose
     close(event)
   }
-
-  /**
-   * A click on the backdrop itself closes the modal; a click inside the dialog
-   * bubbles here with a different target and is ignored. React calls the
-   * callback with NO event argument.
-   * @param event - The click.
-   */
-  protected dismissFromBackdrop(event: Event): void {
-    if (event.target === event.currentTarget) {
-      const close: () => void = this.onClose
-      close()
-    }
-  }
 }
 
 /**
@@ -240,29 +228,6 @@ export class ShareModal {
  * free).
  */
 const STYLES = {
-  /** The full-viewport centered backdrop (the host's own style). */
-  backdrop: styleText({
-    position: 'fixed',
-    inset: 0,
-    zIndex: 1300,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(0, 0, 0, 0.45)',
-    padding: 16,
-  }),
-  /** The dialog card. */
-  dialog: styleText({
-    width: '100%',
-    maxWidth: 460,
-    maxHeight: '85vh',
-    overflowY: 'auto',
-    borderRadius: 8,
-    padding: 16,
-    boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
-  }),
-  /** The heading. */
-  heading: styleText({ marginBottom: 4 }),
   /** The muted subheading. */
   subheading: styleText({ marginBottom: 12, lineHeight: 1.4 }),
   /** The footer's actions row. */

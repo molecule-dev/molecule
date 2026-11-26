@@ -526,7 +526,7 @@ describe('report and share modal slots', () => {
     app.mount(container)
     if (!built) throw new Error('the modal context was not built')
     return {
-      container,
+      container: container.ownerDocument.body,
       ctx: built,
       unmount: () => {
         app.unmount()

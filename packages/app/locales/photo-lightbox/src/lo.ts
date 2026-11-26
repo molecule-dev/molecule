@@ -5,4 +5,6 @@ export const lo: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'ປິດ',
   'lightbox.previous': 'ກ່ອນໜ້ານີ້',
   'lightbox.next': 'ຕໍ່ໄປ',
+  'lightbox.image': 'ຮູບພາບ {{index}}',
+  'lightbox.imageOfTotal': 'ຮູບພາບ {{index}} ຈາກ {{total}}',
 }

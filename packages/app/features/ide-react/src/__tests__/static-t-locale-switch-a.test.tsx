@@ -62,7 +62,7 @@ describe('components migrated off the static t re-render on a locale switch', ()
   it('QuickPicker renders the translated loading label after setLocale', async () => {
     const onSelect = vi.fn()
     const onDismiss = vi.fn()
-    const { container } = render(
+    const { baseElement: container } = render(
       wrap(<QuickPicker items={[]} onSelect={onSelect} onDismiss={onDismiss} loading />),
     )
     expect(container.textContent).toContain('Loading…')

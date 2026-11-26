@@ -95,7 +95,7 @@ async function renderChatPanel(history: ChatMessage[] = []): Promise<HTMLElement
     expect(mounted).not.toBeNull()
     expect(mounted!.container.querySelector('[data-mol-chat-input]')).not.toBeNull()
   })
-  return mounted.container
+  return mounted.container.ownerDocument.body
 }
 
 /**

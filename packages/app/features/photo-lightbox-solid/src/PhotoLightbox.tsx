@@ -1,24 +1,15 @@
 import type { Component, JSX } from 'solid-js'
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
+import { createEffect, createSignal, Show } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
-import { Button } from '@molecule/app-ui-solid'
+import { getClassMap, type KitKeyboardEvent } from '@molecule/app-ui'
+import { Button, Modal } from '@molecule/app-ui-solid'
 
 import type { PhotoLightboxProps } from './types.js'
 
-/** React's overlay style (`position: fixed`, `z-index: 100`; the scrim is `cm.bgScrim`'s class). */
-const ROOT_STYLE: JSX.CSSProperties = {
-  position: 'fixed',
-  inset: '0',
-  'z-index': '100',
-  display: 'flex',
-  'align-items': 'center',
-  'justify-content': 'center',
-}
 /** React's figure style. */
 const FIGURE_STYLE: JSX.CSSProperties = {
-  margin: '0',
+  margin: '0 auto',
   'max-width': '90vw',
   'max-height': '90vh',
   'text-align': 'center',
@@ -29,12 +20,12 @@ const IMG_STYLE: JSX.CSSProperties = {
   'max-height': '80vh',
   'object-fit': 'contain',
 }
-/** React's caption style (the caption colour is `cm.textOnTone`'s class). */
+/** React's caption style (the caption colour is `cm.textMuted`'s class). */
 const CAPTION_STYLE: JSX.CSSProperties = {
   padding: '12px',
   'font-size': '14px',
 }
-/** React's "N / total" counter style (the counter colour is `cm.textOnTone`'s class). */
+/** React's "N / total" counter style (the counter colour is `cm.textMuted`'s class). */
 const COUNTER_STYLE: JSX.CSSProperties = {
   position: 'absolute',
   bottom: '16px',
@@ -92,87 +83,72 @@ export const PhotoLightbox: Component<PhotoLightboxProps> = (props) => {
     if (open) setIndex(initial)
   })
 
-  // React's document keydown listener while open: ← → navigate, Escape closes.
-  createEffect(() => {
-    if (!props.open) return
-    /** React's keydown handler. */
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') props.onClose()
-      else if (event.key === 'ArrowLeft') setIdx(index() - 1)
-      else if (event.key === 'ArrowRight') setIdx(index() + 1)
-    }
-    document.addEventListener('keydown', onKey)
-    onCleanup(() => document.removeEventListener('keydown', onKey))
-  })
-
-  /** React's backdrop click: close only when the overlay itself was clicked. */
-  const onBackdropClick = (event: MouseEvent): void => {
-    if (event.target === event.currentTarget) props.onClose()
+  /** Navigates while the key event comes from this lightbox. */
+  const navigate = (event: KitKeyboardEvent): void => {
+    if (event.key === 'ArrowLeft') setIdx(index() - 1)
+    else if (event.key === 'ArrowRight') setIdx(index() + 1)
   }
 
   return (
     <Show when={props.open && total() > 0}>
-      {/* The overlay is a click-to-dismiss screen (role="presentation"):
-          clicking it directly closes; clicks on the controls inside do not.
-          The dialog itself is the element inside it, so Escape (handled on
-          `document` in the keydown effect) stays the keyboard path. */}
-      <div
-        role="presentation"
-        onClick={onBackdropClick}
-        class={cm.cn(cm.position('fixed'), cm.bgScrim)}
-        style={ROOT_STYLE}
+      <Modal
+        open
+        onClose={props.onClose ?? (() => {})}
+        onKeyDown={navigate}
+        size="full"
+        closeLabel={t('lightbox.close', {}, { defaultValue: 'Close' })}
+        aria-label={
+          photo().alt ??
+          t(
+            'lightbox.imageOfTotal',
+            { index: index() + 1, total: total() },
+            { defaultValue: 'Image {{index}} of {{total}}' },
+          )
+        }
       >
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={photo().alt ?? `Image ${index() + 1} of ${total()}`}
-        >
+        <Show when={total() > 1}>
           <Button
             variant="ghost"
             size="sm"
-            onClick={props.onClose}
-            aria-label={t('lightbox.close', {}, { defaultValue: 'Close' })}
+            onClick={() => setIdx(index() - 1)}
+            aria-label={t('lightbox.previous', {}, { defaultValue: 'Previous' })}
             className={cm.position('absolute')}
+            style={PREVIOUS_STYLE}
           >
-            ✕
+            ‹
           </Button>
-          <Show when={total() > 1}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIdx(index() - 1)}
-              aria-label={t('lightbox.previous', {}, { defaultValue: 'Previous' })}
-              className={cm.position('absolute')}
-              style={PREVIOUS_STYLE}
-            >
-              ‹
-            </Button>
+        </Show>
+        <figure style={FIGURE_STYLE}>
+          <img
+            src={photo().src}
+            alt={
+              photo().alt ??
+              t('lightbox.image', { index: index() + 1 }, { defaultValue: 'Image {{index}}' })
+            }
+            style={IMG_STYLE}
+          />
+          <Show when={photo().caption}>
+            <figcaption class={cm.textMuted} style={CAPTION_STYLE}>
+              {photo().caption}
+            </figcaption>
           </Show>
-          <figure style={FIGURE_STYLE}>
-            <img src={photo().src} alt={photo().alt ?? `Image ${index() + 1}`} style={IMG_STYLE} />
-            <Show when={photo().caption}>
-              <figcaption class={cm.textOnTone} style={CAPTION_STYLE}>
-                {photo().caption}
-              </figcaption>
-            </Show>
-          </figure>
-          <Show when={total() > 1}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIdx(index() + 1)}
-              aria-label={t('lightbox.next', {}, { defaultValue: 'Next' })}
-              className={cm.position('absolute')}
-              style={NEXT_STYLE}
-            >
-              ›
-            </Button>
-          </Show>
-          <div class={cm.textOnTone} style={COUNTER_STYLE}>
-            {index() + 1} / {total()}
-          </div>
+        </figure>
+        <Show when={total() > 1}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIdx(index() + 1)}
+            aria-label={t('lightbox.next', {}, { defaultValue: 'Next' })}
+            className={cm.position('absolute')}
+            style={NEXT_STYLE}
+          >
+            ›
+          </Button>
+        </Show>
+        <div class={cm.textMuted} style={COUNTER_STYLE}>
+          {index() + 1} / {total()}
         </div>
-      </div>
+      </Modal>
     </Show>
   )
 }

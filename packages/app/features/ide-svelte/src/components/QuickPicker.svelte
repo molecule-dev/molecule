@@ -18,7 +18,8 @@
 
   import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
   import { useThemeMode, useTranslation } from '@molecule/app-svelte'
-  import { getClassMap } from '@molecule/app-ui'
+  import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
+  import { Modal } from '@molecule/app-ui-svelte'
 
   import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
   import type * as types from '../types.js'
@@ -75,10 +76,11 @@
   let inputEl = $state<HTMLInputElement | null>(null)
   let listEl = $state<HTMLDivElement | null>(null)
 
-  // Focus input on mount
-  $effect(() => {
-    inputEl?.focus()
-  })
+  const inputTarget: OverlayTarget = {
+    get current() {
+      return inputEl
+    },
+  }
 
   // Filter and sort items by fuzzy match
   const filtered = $derived.by(() => {
@@ -137,7 +139,7 @@
 
   /**
    * The keyboard navigation: the arrows move the highlight within the
-   * filtered rows (clamped), Enter selects it, Escape dismisses. Bound to the
+   * filtered rows (clamped), Enter selects it. The kit handles Escape. Bound to the
    * panel, so a key press anywhere in it (the autofocus input first of all)
    * lands here.
    *
@@ -157,45 +159,19 @@
         event.preventDefault()
         if (filtered[selectedIndex]) onSelect(filtered[selectedIndex]!)
         break
-      case 'Escape':
-        event.preventDefault()
-        onDismiss()
-        break
     }
   }
 </script>
 
-<!-- Backdrop — role="presentation": a sibling click-away surface that receives
-     only its own clicks (the picker itself carries the keyboard behavior). -->
-<div
-  role="presentation"
-  onclick={onDismiss}
-  style="position: fixed; inset: 0px; z-index: 1000; background: rgba(0, 0, 0, 0.4)"
-></div>
-<!-- Picker — centered on desktop; anchored near the TOP on phone-width
-     viewports (the picker autofocuses its input, so the on-screen keyboard
-     appears immediately — a vertically-centered box would sit under it). The
-     dvh cap keeps the results visible above the keyboard when the browser
-     resizes the viewport (interactive-widget=resizes-content). The picker is a
-     modal dialog: role="dialog" + aria-modal name it to assistive tech. Its
-     keyboard navigation rides the picker's own interactive descendants (the
-     input and the rows) — the WAI-ARIA dialog keeps the keys inside the dialog,
-     and attaching them to the focused controls keeps them there without giving
-     the container, which holds controls, an interaction role. -->
-<div
-  role="dialog"
-  aria-modal="true"
+<Modal
+  open
+  onClose={onDismiss}
+  initialFocus={inputTarget}
+  showCloseButton={false}
+  centered={!$isNarrowStore}
   aria-label={t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })}
-  class={cm.cn(className)}
-  style={`position: fixed; top: ${$isNarrowStore ? '10%' : '50%'}; left: 50%; transform: ${
-    $isNarrowStore ? 'translate(-50%, 0)' : 'translate(-50%, -50%)'
-  }; width: 500px; max-width: 90vw; ${
-    $isNarrowStore ? 'max-height: min(60dvh, 480px); display: flex; flex-direction: column;' : ''
-  } z-index: 1001; border-radius: 8px; overflow: hidden; box-shadow: ${
-    $mode === 'light' ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)'
-  }; border: 1px solid var(--color-border, #333); background: ${
-    $mode === 'light' ? '#fff' : 'var(--mol-color-background, #1e1e1e)'
-  }`}
+  {className}
+  style={$isNarrowStore ? { maxHeight: 'min(60dvh, 480px)' } : undefined}
 >
   <!-- The input's borders are written expanded (React's `border: none` +
        `border-bottom` lands in the DOM as five declarations) with background
@@ -268,4 +244,4 @@
       {/each}
     {/if}
   </div>
-</div>
+</Modal>

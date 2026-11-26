@@ -5,4 +5,6 @@ export const sq: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Mbyll',
   'lightbox.previous': 'Mëparshme',
   'lightbox.next': 'Tjetra',
+  'lightbox.image': 'Imazh {{index}}',
+  'lightbox.imageOfTotal': 'Imazhi {{index}} nga {{total}}',
 }

@@ -1,13 +1,6 @@
 /**
- * The panel overlay popup (`/skills`, `/scripts`, `/settings`, `/test`) — React's
- * render section “Panel overlay popup”.
- *
- * A closeable, non-modal popup above the composer, mirroring the model and
- * sounds picker shells: one surface, a thin header bar carrying the view's
- * title (left) and its ✕ (right) — never overlaid on the card, so it cannot
- * cover the card's own top-right actions — and the embedded card in a
- * scrollable body below. Escape closes it (the `chat:overlay` slice's window
- * listener); the header ✕ closes it too.
+ * The chat panel's blocking dialog for browsing skills, scripts, settings and
+ * test runs. Its heading and content follow the selected view.
  *
  * @module
  */
@@ -17,6 +10,7 @@ import { Show } from 'solid-js'
 
 import { panelOverlayHeading } from '@molecule/app-ide-panel-logic'
 import { DEFAULT_AGENT_NAME } from '@molecule/app-solid'
+import { Modal } from '@molecule/app-ui-solid'
 
 import { ScriptsCard } from '../../parts/ScriptsCard.jsx'
 import { SettingsCard } from '../../parts/SettingsCard.jsx'
@@ -104,26 +98,13 @@ export function ChatPanelOverlay(props: ChatPanelOverlayProps): JSX.Element {
   return (
     <Show when={ctx.overlay.panelOverlay()}>
       {(overlay) => (
-        <div
-          class={cm.cn(cm.surface, cm.borderAll)}
-          // A non-modal popover dialog above the composer: it carries the
-          // embedded card, closes on Escape, and takes a name from the same key
-          // its header title renders.
-          role="dialog"
+        <Modal
+          open
+          onClose={() => ctx.overlay.setPanelOverlay(null)}
+          showCloseButton={false}
+          size="lg"
           aria-label={panelOverlayHeading(t, overlay())}
-          style={styleOf({
-            position: 'absolute',
-            bottom: '100%',
-            left: 0,
-            right: 0,
-            'margin-bottom': 0,
-            'border-radius': '6px 6px 0 0',
-            'z-index': 100,
-            'box-shadow': '0 -4px 16px rgba(0,0,0,0.25)',
-            display: 'flex',
-            'flex-direction': 'column',
-            'max-height': ctx.env.popupMaxHeight(),
-          })}
+          data-mol-id="chat-panel-overlay"
         >
           {/* Header bar — title on the left, ✕ on the right (mirrors the
               /sounds popup header). The title reuses each panel's existing
@@ -210,7 +191,7 @@ export function ChatPanelOverlay(props: ChatPanelOverlayProps): JSX.Element {
               />
             </Show>
           </div>
-        </div>
+        </Modal>
       )}
     </Show>
   )

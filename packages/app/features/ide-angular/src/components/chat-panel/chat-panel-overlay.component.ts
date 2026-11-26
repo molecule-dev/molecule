@@ -1,24 +1,20 @@
 /**
- * React's section “Panel overlay popup (/skills, /scripts, /settings)”
- * (ChatPanel.tsx lines 7514–7659): the closeable popup above the composer that
- * `/skills`, `/scripts`, `/settings` and `/test` open — a `role="dialog"`
- * shell with the heading on the left and the ✕ on the right, and the selected
- * card mounted `embedded` in the scrollable body below.
- *
- * The open variant and its search seed come from the `chat:overlay` slice; the
- * cards get exactly the props React passes (the settings list the timeline
- * slice computes, the skills set, the tests snapshot and the host's native
- * history template). The host IS React's `role="dialog"` root `<div>`; nothing
- * renders while the overlay is closed, so the host is out of the DOM then
- * (`useHostPresence`).
+ * The chat panel's blocking dialog for browsing skills, scripts, settings and
+ * test runs. Its heading and content follow the selected view.
  *
  * @module
  */
 
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
-import { Component, inject, TemplateRef, type Type } from '@angular/core'
+import { Component, ElementRef, inject, TemplateRef, type Type } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, useHostPresence } from '@molecule/app-angular'
+import {
+  DEFAULT_AGENT_NAME,
+  MolPlacement,
+  placeContentBefore,
+  setElementPresent,
+  usePlacement,
+} from '@molecule/app-angular'
 import {
   panelOverlayHeading,
   type TestFailure,
@@ -27,7 +23,7 @@ import {
 import type { CommandId, SettingDescriptor, SkillInfo } from '@molecule/app-ide-panel-logic/panels'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { styleText } from '@molecule/app-ui-angular'
+import { Modal, styleText } from '@molecule/app-ui-angular'
 
 import { ScriptsCard } from '../../parts/scripts-card.component.js'
 import { SettingsCard } from '../../parts/settings-card.component.js'
@@ -47,15 +43,18 @@ import { ChatTimeline } from './chat-timeline.slice.js'
 @Component({
   selector: 'div[mol-chat-panel-overlay]',
   standalone: true,
-  imports: [NgComponentOutlet, NgTemplateOutlet, ScriptsCard, SettingsCard, SkillsCard, TestsCard],
-  host: {
-    role: 'dialog',
-    '[class]': 'rootClass',
-    '[attr.aria-label]': 'dialogLabel()',
-    '[attr.style]': 'rootStyle()',
-  },
+  imports: [
+    Modal,
+    NgComponentOutlet,
+    NgTemplateOutlet,
+    ScriptsCard,
+    SettingsCard,
+    SkillsCard,
+    TestsCard,
+  ],
+  hostDirectives: [MolPlacement],
   // prettier-ignore
-  template: `@if (overlayValue(); as variant) {<div [class]="headerClass" [attr.style]="headerStyle"><span [class]="titleClass">{{ heading(variant) }}</span><button type="button" data-mol-id="panel-overlay-close" [attr.aria-label]="closeLabel()" (click)="close()" [attr.style]="closeStyle()">{{ '✕' }}</button></div><div style="overflow-y: auto; flex: 1">@if (variant === 'settings') {<div mol-settings-card [settings]="settings()" [onRunCommand]="runCommand" [onPrefillInput]="prefillInput" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'skills') {<div mol-skills-card [projectId]="projectId()" [initialQuery]="query()" [onLoad]="loadSkill" [onCreate]="createSkill" [loadedSkillPaths]="skills.loadedSkillPaths()" [defaultSkillPaths]="skills.defaultSkillPaths()" [onToggleDefault]="toggleDefaultSkill" [onResetDefault]="resetDefaultSkills" [defaultsExplicit]="skills.defaultSkillsExplicit()" [isLight]="isLight()" [embedded]="true"></div>}@if (variant === 'scripts') {<div mol-scripts-card [projectId]="projectId()" [initialQuery]="query()" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'tests') {@if (nativeHistoryTemplate(); as history) {<ng-container [ngTemplateOutlet]="history"></ng-container>} @else if (nativeHistoryComponent(); as historyComponent) {<ng-container [ngComponentOutlet]="historyComponent"></ng-container>}<div mol-tests-card [tests]="tests.testsList()" [status]="tests.testsStatus()" [run]="tests.testsRun()" [agentName]="agentName()" [initialQuery]="query()" [canRun]="canRunTests()" [onRun]="startTestsRun" [onCancel]="cancelTestsRun" [onSkipCurrent]="skipCurrentTest" [onFix]="fixTests" [fixDisabledReason]="fixDisabledReason()" [isLight]="isLight()" [embedded]="true"></div>}</div>}`,
+  template: `@if (overlayValue(); as variant) {<mol-modal [open]="true" [showCloseButton]="false" [size]="'lg'" [attr.aria-label]="heading(variant)" (close)="close()" data-mol-id="chat-panel-overlay"><div [class]="headerClass" [attr.style]="headerStyle"><span [class]="titleClass">{{ heading(variant) }}</span><button type="button" data-mol-id="panel-overlay-close" [attr.aria-label]="closeLabel()" (click)="close()" [attr.style]="closeStyle()">{{ '✕' }}</button></div><div style="overflow-y: auto; flex: 1">@if (variant === 'settings') {<div mol-settings-card [settings]="settings()" [onRunCommand]="runCommand" [onPrefillInput]="prefillInput" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'skills') {<div mol-skills-card [projectId]="projectId()" [initialQuery]="query()" [onLoad]="loadSkill" [onCreate]="createSkill" [loadedSkillPaths]="skills.loadedSkillPaths()" [defaultSkillPaths]="skills.defaultSkillPaths()" [onToggleDefault]="toggleDefaultSkill" [onResetDefault]="resetDefaultSkills" [defaultsExplicit]="skills.defaultSkillsExplicit()" [isLight]="isLight()" [embedded]="true"></div>}@if (variant === 'scripts') {<div mol-scripts-card [projectId]="projectId()" [initialQuery]="query()" [isLight]="isLight()" [agentName]="agentName()" [embedded]="true"></div>}@if (variant === 'tests') {@if (nativeHistoryTemplate(); as history) {<ng-container [ngTemplateOutlet]="history"></ng-container>} @else if (nativeHistoryComponent(); as historyComponent) {<ng-container [ngComponentOutlet]="historyComponent"></ng-container>}<div mol-tests-card [tests]="tests.testsList()" [status]="tests.testsStatus()" [run]="tests.testsRun()" [agentName]="agentName()" [initialQuery]="query()" [canRun]="canRunTests()" [onRun]="startTestsRun" [onCancel]="cancelTestsRun" [onSkipCurrent]="skipCurrentTest" [onFix]="fixTests" [fixDisabledReason]="fixDisabledReason()" [isLight]="isLight()" [embedded]="true"></div>}</div></mol-modal>}`,
 })
 export class ChatPanelOverlay {
   /** The shared panel state (the props the cards and the dialog read). */
@@ -84,9 +83,6 @@ export class ChatPanelOverlay {
 
   /** The bonded ClassMap (styling tokens resolve at render time). */
   protected readonly cm: UIClassMap = getClassMap()
-
-  /** React's root ClassMap classes (`cm.cn(cm.surface, cm.borderAll)`). */
-  protected readonly rootClass: string
 
   /** The header bar's ClassMap classes (`cm.cn(cm.textSize('xs'), cm.textMuted)`). */
   protected readonly headerClass: string
@@ -153,12 +149,16 @@ export class ChatPanelOverlay {
     this.tests.fixTests(failures)
   }
 
-  /** Composes the fixed ClassMap classes once, and keeps the host in the page only while open. */
+  /** Composes the fixed ClassMap classes and places the kit dialog. */
   constructor() {
-    this.rootClass = this.cm.cn(this.cm.surface, this.cm.borderAll)
     this.headerClass = this.cm.cn(this.cm.textSize('xs'), this.cm.textMuted)
     this.titleClass = this.cm.fontWeight('medium')
-    useHostPresence(() => this.overlayValue() !== null)
+    const host: ElementRef<HTMLElement> = inject(ElementRef)
+    usePlacement(() => {
+      const element = host.nativeElement
+      placeContentBefore(element, element)
+      setElementPresent(element, false)
+    })
   }
 
   /**
@@ -168,16 +168,6 @@ export class ChatPanelOverlay {
    */
   protected overlayValue(): PanelOverlayVariant | null {
     return this.overlay.panelOverlay()
-  }
-
-  /**
-   * The dialog's accessible name, or null while no overlay is open.
-   *
-   * @returns The translated heading, or null.
-   */
-  protected dialogLabel(): string | null {
-    const variant = this.overlayValue()
-    return variant === null ? null : this.heading(variant)
   }
 
   /**
@@ -211,27 +201,6 @@ export class ChatPanelOverlay {
    */
   protected closeLabel(): string {
     return this.state.env.t('ide.chat.closeOverlay', undefined, { defaultValue: 'Close' })
-  }
-
-  /**
-   * React's root inline style (anchored above the composer, capped height).
-   *
-   * @returns React's style text for the dialog.
-   */
-  protected rootStyle(): string | null {
-    return styleText({
-      position: 'absolute',
-      bottom: '100%',
-      left: 0,
-      right: 0,
-      marginBottom: 0,
-      borderRadius: '6px 6px 0 0',
-      zIndex: 100,
-      boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
-      display: 'flex',
-      flexDirection: 'column',
-      maxHeight: this.state.env.popupMaxHeight(),
-    })
   }
 
   /**

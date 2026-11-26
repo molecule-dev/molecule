@@ -161,7 +161,7 @@ function mountPanel(http: HttpClient, provider: ChatProvider = buildChatProvider
     ),
     container,
   )
-  return container
+  return container.ownerDocument.body
 }
 
 /**

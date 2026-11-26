@@ -117,7 +117,8 @@ function renderModal(
     },
   })
   mounted.push({ instance: instance as Record<string, unknown>, container })
-  return container
+  flushSync()
+  return container.ownerDocument.body
 }
 
 /** Types like a user: the value, then a bubbling `input` event. */

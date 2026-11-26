@@ -295,7 +295,7 @@ describe('the /test command', () => {
       emit = onEvent
       return { cancel }
     })
-    const { container, unmount } = render(
+    const { baseElement: container, unmount } = render(
       <StrictMode>{renderPanel({ listTests, runTests })}</StrictMode>,
     )
     submit(container, '/test')
@@ -333,7 +333,7 @@ describe('the /test command', () => {
   it('opens the tests browser with one click on the not-run summary', async () => {
     const listTests = vi.fn(async () => LIST)
     const runTests = vi.fn(() => ({ cancel: () => {} }))
-    const { container } = render(renderPanel({ listTests, runTests }))
+    const { baseElement: container } = render(renderPanel({ listTests, runTests }))
     const summary = await waitFor(() => {
       const button = molId(container, 'tests-bar-toggle')
       expect(button?.textContent).toContain('not run yet')
@@ -362,7 +362,7 @@ describe('the /test command', () => {
 
   it('opens the tests browser and sends NOTHING to the agent', async () => {
     const listTests = vi.fn(async () => LIST)
-    const { container } = render(renderPanel({ listTests }))
+    const { baseElement: container } = render(renderPanel({ listTests }))
     submit(container, '/test')
 
     await waitFor(() => {
@@ -386,7 +386,7 @@ describe('the /test command', () => {
         </ThemeProvider>
       </I18nProvider>
     )
-    const { container } = render(wrap(<ChatPanel projectId={PROJECT_ID} />))
+    const { baseElement: container } = render(wrap(<ChatPanel projectId={PROJECT_ID} />))
     submit(container, '/test')
     await waitFor(() => {
       expect(molId(container, 'tests-card-error')).not.toBeNull()
@@ -395,7 +395,7 @@ describe('the /test command', () => {
   })
 
   it('seeds the search from /test <query>', async () => {
-    const { container } = render(renderPanel({ listTests: async () => LIST }))
+    const { baseElement: container } = render(renderPanel({ listTests: async () => LIST }))
     submit(container, '/test routes')
     await waitFor(() => {
       expect(molId(container, 'tests-card')).not.toBeNull()
@@ -405,7 +405,7 @@ describe('the /test command', () => {
 
   it('/tests is the same command, via the alias', async () => {
     const listTests = vi.fn(async () => LIST)
-    const { container } = render(renderPanel({ listTests }))
+    const { baseElement: container } = render(renderPanel({ listTests }))
     submit(container, '/tests')
     await waitFor(() => {
       expect(molId(container, 'tests-card')).not.toBeNull()
@@ -415,7 +415,7 @@ describe('the /test command', () => {
 
   it('/test all runs everything straight away', async () => {
     const selections: TestSelection[] = []
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         runTests: (selection) => {
@@ -435,7 +435,7 @@ describe('the /test command', () => {
   it('re-running /test re-lists, and the run in flight survives it', async () => {
     const listTests = vi.fn(async () => LIST)
     let emit: (event: TestRunEvent) => void = () => {}
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests,
         runTests: (_selection, onEvent) => {
@@ -514,7 +514,7 @@ describe('every test run in the project reaches the test view', () => {
     const feed = fakeFeed()
     let emit: (event: TestRunEvent) => void = () => {}
     const cancel = vi.fn()
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -548,7 +548,7 @@ describe('every test run in the project reaches the test view', () => {
     const emitters: Array<(event: TestRunEvent) => void> = []
     const cancels = [vi.fn(), vi.fn()]
     const skips = [vi.fn(), vi.fn()]
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         runTests: (_selection, onEvent) => {
@@ -582,7 +582,7 @@ describe('every test run in the project reaches the test view', () => {
   it('keeps a newer outside verdict for a file the own run already finished', async () => {
     const feed = fakeFeed()
     let emit: (event: TestRunEvent) => void = () => {}
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -619,7 +619,7 @@ describe('every test run in the project reaches the test view', () => {
 
   it('keeps a completed watched run’s verdict when the displayed run ends without one', async () => {
     const feed = fakeFeed()
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({ listTests: async () => LIST, watchTestRuns: feed.watchTestRuns }),
     )
     await openTests(container)
@@ -641,7 +641,7 @@ describe('every test run in the project reaches the test view', () => {
       { type: 'result', runId: 'previous', id: ROUTES, status: 'failed' },
       { type: 'done', runId: 'previous', outcome: 'completed' },
     ])
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({ listTests: async () => LIST, watchTestRuns: feed.watchTestRuns }),
     )
     await openTests(container)
@@ -673,7 +673,7 @@ describe('every test run in the project reaches the test view', () => {
       feed.emit({ type: 'start', runId: 'agent-1', ids: [ROUTES], source: 'agent' })
       throw new Error('own start failed')
     })
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({ listTests: async () => LIST, runTests, watchTestRuns: feed.watchTestRuns }),
     )
     await openTests(container)
@@ -696,7 +696,7 @@ describe('every test run in the project reaches the test view', () => {
     const feed = fakeFeed()
     const cancel = vi.fn()
     const skipCurrent = vi.fn()
-    const { container, unmount } = render(
+    const { baseElement: container, unmount } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -734,7 +734,9 @@ describe('every test run in the project reaches the test view', () => {
       .mockImplementationOnce(() => {
         throw new Error('own start failed')
       })
-    const { container } = render(renderPanel({ listTests: async () => LIST, runTests }))
+    const { baseElement: container } = render(
+      renderPanel({ listTests: async () => LIST, runTests }),
+    )
     await openTests(container)
     fireEvent.click(molId(container, 'tests-card-run-all')!)
     expect(molId(container, 'tests-card-run-error')?.textContent).toBe('own start failed')
@@ -760,7 +762,7 @@ describe('every test run in the project reaches the test view', () => {
     const feed = fakeFeed()
     let emit: (event: TestRunEvent) => void = () => {}
     const cancel = vi.fn(() => emit({ type: 'done', outcome: 'cancelled' }))
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -789,7 +791,7 @@ describe('every test run in the project reaches the test view', () => {
       refuseSkip = resolve
     })
     const skipCurrent = vi.fn(() => skipped)
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         runTests: (_selection, onEvent) => {
@@ -815,7 +817,9 @@ describe('every test run in the project reaches the test view', () => {
   it('shows a run the agent started, says who started it, and offers no Stop', async () => {
     const feed = fakeFeed()
     const listTests = vi.fn(async () => LIST)
-    const { container } = render(renderPanel({ listTests, watchTestRuns: feed.watchTestRuns }))
+    const { baseElement: container } = render(
+      renderPanel({ listTests, watchTestRuns: feed.watchTestRuns }),
+    )
     await waitFor(() => expect(molId(container, 'tests-bar-toggle')).not.toBeNull())
     feed.emit({
       type: 'start',
@@ -854,7 +858,7 @@ describe('every test run in the project reaches the test view', () => {
       { type: 'result', runId: 'platform-1', id: ROUTES, status: 'failed', failed: 1 },
       { type: 'done', runId: 'platform-1', outcome: 'completed', failed: 1 },
     ])
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({ listTests: vi.fn(async () => LIST), watchTestRuns: feed.watchTestRuns }),
     )
     await waitFor(() =>
@@ -870,7 +874,7 @@ describe('every test run in the project reaches the test view', () => {
       emit = onEvent
       return { cancel }
     })
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: vi.fn(async () => LIST),
         runTests,
@@ -901,7 +905,7 @@ describe('every test run in the project reaches the test view', () => {
   it('keeps own-run suppression through a synthetic feed done and replayed start', async () => {
     const feed = fakeFeed()
     let emit: (event: TestRunEvent) => void = () => {}
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -929,7 +933,7 @@ describe('every test run in the project reaches the test view', () => {
   it('bounds own-run ids when no feed echo arrives but still suppresses recent echoes', async () => {
     const feed = fakeFeed()
     const emitters: Array<(event: TestRunEvent) => void> = []
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -972,7 +976,7 @@ describe('every test run in the project reaches the test view', () => {
       emit = onEvent
       return { cancel: () => {} }
     })
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: vi.fn(async () => LIST),
         runTests,
@@ -1014,7 +1018,7 @@ describe('every test run in the project reaches the test view', () => {
       emit = onEvent
       return { cancel: () => {} }
     }
-    const { container, rerender } = render(
+    const { baseElement: container, rerender } = render(
       renderPanel({ listTests, runTests, watchTestRuns: first.watchTestRuns }),
     )
     await openTests(container)
@@ -1052,7 +1056,7 @@ describe('every test run in the project reaches the test view', () => {
     ]
     const first = fakeFeed(events)
     const listTests = async (): Promise<TestList> => LIST
-    const { container, rerender } = render(
+    const { baseElement: container, rerender } = render(
       renderPanel({ listTests, watchTestRuns: first.watchTestRuns }),
     )
     await openTests(container)
@@ -1066,7 +1070,7 @@ describe('every test run in the project reaches the test view', () => {
   it('40 completed own runs never evict the active own-run id', async () => {
     const feed = fakeFeed()
     const emitters: Array<(event: TestRunEvent) => void> = []
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -1096,7 +1100,7 @@ describe('every test run in the project reaches the test view', () => {
   it('a start delayed past cancellation remains a completed own run', async () => {
     const feed = fakeFeed()
     let emit: (event: TestRunEvent) => void = () => {}
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -1117,7 +1121,7 @@ describe('every test run in the project reaches the test view', () => {
 
   it('a host failure after the own start retires the active id and ends the row', async () => {
     const feed = fakeFeed()
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -1138,7 +1142,7 @@ describe('every test run in the project reaches the test view', () => {
   it('Sol 3: delayed starts of cancelled runs cannot evict the active own-run id', async () => {
     const feed = fakeFeed()
     const emitters: Array<(event: TestRunEvent) => void> = []
-    const { container } = render(
+    const { baseElement: container } = render(
       renderPanel({
         listTests: async () => LIST,
         watchTestRuns: feed.watchTestRuns,
@@ -1173,7 +1177,9 @@ describe('every test run in the project reaches the test view', () => {
       }
       return { cancel: () => {} }
     })
-    const { container } = render(renderPanel({ listTests: async () => LIST, runTests }))
+    const { baseElement: container } = render(
+      renderPanel({ listTests: async () => LIST, runTests }),
+    )
     await openTests(container)
     fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
     await waitFor(() => expect(molId(container, 'tests-card-run-error')).not.toBeNull())

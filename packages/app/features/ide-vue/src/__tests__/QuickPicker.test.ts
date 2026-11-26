@@ -81,13 +81,15 @@ describe('components migrated off the static t re-render on a locale switch', ()
     )
     mounted.app = app
     app.mount(host)
-    expect(host.textContent).toContain('Loading…')
+    expect(host.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain('Loading…')
 
     // The switch itself: the component must re-render in French. Against the
     // static `t` this stays 'Loading…' — nothing subscribed it to the provider.
     await provider.setLocale('fr')
     await nextTick()
-    expect(host.textContent).toContain('Chargement…')
+    expect(host.ownerDocument.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Chargement…',
+    )
   })
 })
 
@@ -136,7 +138,7 @@ function mountPicker(initial: QuickPickerItem[]): {
   mounted.app = app
   app.mount(host)
   return {
-    container: host,
+    container: host.ownerDocument.body,
     replaceItems: async (next: QuickPickerItem[]): Promise<void> => {
       items.value = next
       await nextTick()
@@ -159,7 +161,7 @@ function press(input: HTMLInputElement, key: string): void {
 describe('QuickPicker keyboard', () => {
   it('selects the highlighted row with Enter and moves with the arrows', () => {
     const { container, onSelect } = mountPicker(itemsOf('a', 'b'))
-    const input = container.querySelector('input') as HTMLInputElement
+    const input = container.ownerDocument.querySelector('input') as HTMLInputElement
 
     press(input, 'ArrowDown')
     press(input, 'Enter')
@@ -169,7 +171,7 @@ describe('QuickPicker keyboard', () => {
 
   it('reads the latest items after the caller replaces the list', async () => {
     const { container, replaceItems, onSelect } = mountPicker(itemsOf('a', 'b'))
-    const input = container.querySelector('input') as HTMLInputElement
+    const input = container.ownerDocument.querySelector('input') as HTMLInputElement
     press(input, 'ArrowDown')
     press(input, 'Enter')
     expect(onSelect.mock.calls[0]?.[0]).toMatchObject({ id: 'b' })

@@ -6,9 +6,8 @@
  * `open` or `initialIndex` changes.
  *
  * `PhotoLightbox` is the package's only runtime export (`LightboxPhoto` and
- * `PhotoLightboxProps` are types). The overlay is a `role="presentation"`
- * click-to-dismiss backdrop and the dialog sits inside it: the close button
- * passes React's click event to `onClose` (it is `Button`'s `onClick`), the
+ * `PhotoLightboxProps` are types). The kit Modal supplies the backdrop and the
+ * close control. Its close button passes its click event to `onClose`, the
  * backdrop and Escape call it with no arguments, and a click on the dialog or
  * its content does not close; arrow navigation calls `onIndexChange` with the
  * clamped index. Captions are React nodes, so the case passes a node caption

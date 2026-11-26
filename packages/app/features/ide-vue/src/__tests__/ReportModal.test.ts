@@ -121,7 +121,7 @@ function renderModal(
   app.use(createHttpPlugin(buildHttpClient()))
   mounted.app = app
   app.mount(host)
-  return host
+  return host.ownerDocument.body
 }
 
 /** Types like a user: the value, then a bubbling `input` event. */

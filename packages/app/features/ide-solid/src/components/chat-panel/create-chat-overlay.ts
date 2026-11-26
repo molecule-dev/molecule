@@ -3,20 +3,18 @@
  * overlay (React's two `chat:overlay` regions and their one effect, ported by
  * unit U6).
  *
- * The overlay is a closeable popup above the composer, mutually exclusive with
+ * The dialog is mutually exclusive with
  * the model, effort and sounds pickers — opening it closes every sibling popup,
  * and every command closes it again. `panelOverlayQuery` seeds the skills and
  * scripts searches from a `/skills <query>` / `/scripts <query>` invocation.
- * The Escape listener is a window listener, as for a dialog, so a field inside
- * the overlay (its cards' own search inputs) still closes it.
  *
  * @module
  */
 
 import type { Accessor, Setter } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { createSignal } from 'solid-js'
 
-import type { ChatInnerCtx, SliceEffects } from './context.js'
+import type { ChatInnerCtx } from './context.js'
 
 /** The panel overlay's open view. */
 export type PanelOverlayKind = 'skills' | 'scripts' | 'settings' | 'tests'
@@ -31,8 +29,6 @@ export interface ChatOverlaySlice {
   panelOverlayQuery: Accessor<string>
   /** Opens the overlay on a view, with an optional query. */
   openPanelOverlay: (kind: PanelOverlayKind, query?: string) => void
-  /** The slice's effects, by ledger position. */
-  effects: SliceEffects
 }
 
 /**
@@ -57,23 +53,6 @@ export function createChatOverlay(ctx: ChatInnerCtx): ChatOverlaySlice {
       ctx.composer.setCommandMenu(null)
       setPanelOverlayQuery(query)
       setPanelOverlay(variant)
-    },
-    effects: {
-      // #effect chat:overlay:1 — Escape closes the overlay from anywhere inside
-      // it, including the embedded card's own search input, the way this
-      // package's modals already do.
-      1: () => {
-        createEffect(
-          on(panelOverlay, (open) => {
-            if (!open) return
-            const handler = (event: KeyboardEvent): void => {
-              if (event.key === 'Escape') setPanelOverlay(null)
-            }
-            window.addEventListener('keydown', handler)
-            onCleanup(() => window.removeEventListener('keydown', handler))
-          }),
-        )
-      },
     },
   }
 }

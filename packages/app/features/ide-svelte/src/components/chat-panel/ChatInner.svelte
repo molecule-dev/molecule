@@ -143,8 +143,6 @@
   ctx.prefs = createChatPrefs(ctx)
   ctx.prefs.mount()
 
-  ctx.overlay.effects[1]()
-
   ctx.tests = createChatTests(ctx)
   ctx.tests.mount()
   ctx.tests.effects[1]()

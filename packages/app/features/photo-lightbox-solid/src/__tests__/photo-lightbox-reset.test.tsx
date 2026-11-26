@@ -11,7 +11,11 @@
 
 import { createSignal } from 'solid-js'
 import { render } from 'solid-js/web'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setIconSet } from '@molecule/app-icons'
+
+beforeEach(() => setIconSet({ 'x-mark': { paths: [] } }))
 
 import type { PhotoLightboxProps } from '../types.js'
 
@@ -31,7 +35,7 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        return token === 'modal' || token === 'position' || token === 'button' ? () => token : token
       },
     }
     return new Proxy({}, handler)
@@ -81,13 +85,15 @@ function mountLightbox(initial: PhotoLightboxProps): Mounted {
 
 /** The dialog's photo counter, e.g. "2 / 3". */
 function counter(container: HTMLElement): string {
-  const dialog = container.querySelector('[role="dialog"]')
+  const dialog = container.ownerDocument.querySelector('[role="dialog"]')
   return dialog?.textContent ?? ''
 }
 
-/** Sends one document-level keydown, as React's `fireEvent.keyDown(document, …)` does. */
+/** Sends one keydown from the lightbox. */
 function press(key: string): void {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+  const dialog = document.querySelector('[role="dialog"]')
+  if (!dialog) throw new Error('Expected a lightbox')
+  dialog.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 }
 
 const photos = [

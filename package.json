@@ -40,6 +40,7 @@
     "check:i18n-parity": "node scripts/check-i18n-parity.js --check",
     "check:jsx-specifiers": "node scripts/check-jsx-specifiers.mjs",
     "check:intrinsic-jsx": "node scripts/check-intrinsic-jsx.mjs",
+    "check:feature-modals": "node scripts/check-feature-modals.mjs",
     "check:locale-placeholders": "node scripts/check-locale-placeholders.js",
     "check:lockfile": "node scripts/check-lockfile.js",
     "check:package-metadata": "node scripts/check-package-metadata.mjs",

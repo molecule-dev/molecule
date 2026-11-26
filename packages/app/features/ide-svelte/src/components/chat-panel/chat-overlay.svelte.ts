@@ -2,13 +2,8 @@
  * React's `chat:overlay` regions of ChatPanel.tsx (lines 1190–1201 and
  * 1727–1754): the closeable panel overlay behind `/skills`, `/scripts`,
  * `/settings` and `/tests`, the query that seeds its search box, the action
- * that opens it, and the Escape listener that closes it from anywhere inside.
- *
- * `openPanelOverlay` first closes every sibling popup (the model and effort
- * pickers, the sounds picker and the command menu) so overlays never stack,
- * then seeds the query and opens the view. The Escape effect is React's
- * `#effect chat:overlay:1`: a window `keydown` listener attached only while an
- * overlay is open.
+ * that opens it. The kit dialog owns dismissal. Opening it closes the
+ * composer popups and seeds the search query.
  *
  * @module
  */
@@ -32,9 +27,6 @@ export interface ChatOverlaySlice {
 
   /** React's mount I/O for the region — none: it declares state only. */
   mount(): void
-
-  /** React's `#effect chat:overlay:<n>` entry points, at React's positions. */
-  readonly effects: { 1: () => void }
 }
 
 /**
@@ -82,20 +74,6 @@ export function createChatOverlay(ctx: ChatContext): ChatOverlaySlice {
     },
     mount(): void {
       // React's region declares state only; there is no mount I/O to repeat.
-    },
-    effects: {
-      1: (): void => {
-        $effect(() => {
-          if (!panelOverlay) return
-          const handler = (event: KeyboardEvent): void => {
-            if (event.key === 'Escape') setPanelOverlay(null)
-          }
-          window.addEventListener('keydown', handler)
-          return (): void => {
-            window.removeEventListener('keydown', handler)
-          }
-        })
-      },
     },
   }
 }
