@@ -192,10 +192,11 @@ export function pendingWithIntrinsicJsx(root) {
  * change the list takes, so an entry is never added.
  *
  * @param {string} root - The molecule root.
+ * @param {{ features: Record<string, boolean>, kitComponents: Record<string, boolean> }} [still] -
+ *   A {@link pendingWithIntrinsicJsx} result for `root`, when the caller already scanned it.
  * @returns {{ features: string[], kitComponents: string[] }} The lists to write back.
  */
-export function prunedPending(root) {
-  const still = pendingWithIntrinsicJsx(root)
+export function prunedPending(root, still = pendingWithIntrinsicJsx(root)) {
   return {
     features: Object.keys(still.features).filter((feature) => still.features[feature]),
     kitComponents: Object.keys(still.kitComponents).filter((file) => still.kitComponents[file]),

@@ -710,6 +710,9 @@ it.each(componentForms)(
     const [raised] = await scanPeerFloorTypes(root, only, { propsOnly: true })
     expect(raised.diagnostics).toEqual([])
   },
+  // Two TypeScript programs, one per floor: 2.9-3.3 s each for Svelte and Angular in CI run
+  // 45879257660, over half the default limit.
+  20_000,
 )
 
 it('compares new bindings within selected packages and skips unchanged binding names', async () => {

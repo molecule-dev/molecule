@@ -335,8 +335,9 @@ describe('eslint-rules/intrinsic-jsx-pending.json', () => {
         ),
     ]
     expect(stale).toEqual([])
-    // A list with nothing stale is what the command that drops stale entries writes back.
-    expect(prunedPending(ROOT)).toEqual(pending)
+    // A list with nothing stale is what the command that drops stale entries writes back. The
+    // scan above reads every React feature and kit component; the check reuses it.
+    expect(prunedPending(ROOT, still)).toEqual(pending)
   })
 })
 
