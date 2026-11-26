@@ -50,7 +50,8 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-auth-shell-vue', () => ({
+vi.mock('@molecule/app-auth-shell-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: { value: {} },
     setField: vi.fn(),
@@ -58,7 +59,8 @@ vi.mock('@molecule/app-auth-shell-vue', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -68,7 +70,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-vue', () => ({
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // The real Modal moves focus to its `initialFocus` once the open dialog is in the
   // document (its own conformance cases cover that), and so does this stand-in: these
   // tests check the control AuthModal names.
@@ -98,7 +101,8 @@ vi.mock('@molecule/app-ui-vue', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-oauth-buttons-vue', () => ({
+vi.mock('@molecule/app-oauth-buttons-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: defineComponent({ name: 'OAuthButtons', setup: () => () => null }),
   OAuthDivider: defineComponent({ name: 'OAuthDivider', setup: () => () => null }),
 }))

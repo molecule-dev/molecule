@@ -42,7 +42,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-auth-shell-solid', () => ({
+vi.mock('@molecule/app-auth-shell-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: () => ({}),
     setField: vi.fn(),
@@ -50,7 +51,8 @@ vi.mock('@molecule/app-auth-shell-solid', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -60,7 +62,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Modal: (props: { open: boolean; children?: JSX.Element; initialFocus?: OverlayTarget }) => {
     createEffect(() => {
       if (props.open) untrack(() => props.initialFocus?.current?.focus())
@@ -83,7 +86,8 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
-vi.mock('@molecule/app-oauth-buttons-solid', () => ({
+vi.mock('@molecule/app-oauth-buttons-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: () => null,
   OAuthDivider: () => null,
 }))

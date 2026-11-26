@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue: string }) =>
     opts?.defaultValue
       ? Object.entries(values ?? {}).reduce(

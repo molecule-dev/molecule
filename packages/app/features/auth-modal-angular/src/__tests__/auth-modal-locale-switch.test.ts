@@ -44,7 +44,8 @@ vi.mock('@molecule/app-angular', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-auth-shell-angular', () => ({
+vi.mock('@molecule/app-auth-shell-angular', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: () => ({ email: 'user@example.com' }),
     setField: vi.fn(),
@@ -55,12 +56,22 @@ vi.mock('@molecule/app-auth-shell-angular', () => ({
 vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { elementTarget } = await importOriginal<typeof AngularUI>()
   const stubs = await import('./stubs.js')
-  return { Modal: stubs.ModalStub, Icon: stubs.IconStub, Button: stubs.ButtonStub, elementTarget }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    Modal: stubs.ModalStub,
+    Icon: stubs.IconStub,
+    Button: stubs.ButtonStub,
+    elementTarget,
+  }
 })
 
-vi.mock('@molecule/app-oauth-buttons-angular', async () => {
+vi.mock('@molecule/app-oauth-buttons-angular', async (importOriginal) => {
   const stubs = await import('./stubs.js')
-  return { OAuthButtons: stubs.OAuthButtonsStub, OAuthDivider: stubs.OAuthDividerStub }
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    OAuthButtons: stubs.OAuthButtonsStub,
+    OAuthDivider: stubs.OAuthDividerStub,
+  }
 })
 
 import { AuthModal } from '../auth-modal.component.js'

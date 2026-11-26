@@ -60,6 +60,13 @@ ruleTester.run('vi-mock-keeps-actual', rule as RuleModule, {
         }))`,
     },
     {
+      name: 'a template-literal specifier is read like a string',
+      code: `vi.mock(\`@molecule/app-ui\`, async () => ({
+        ...(await vi.importActual(\`@molecule/app-ui\`)),
+        getClassMap: vi.fn(),
+      }))`,
+    },
+    {
       name: 'other packages are outside this rule',
       code: "vi.mock('react', () => ({ createElement: vi.fn() }))",
     },
@@ -84,6 +91,27 @@ ruleTester.run('vi-mock-keeps-actual', rule as RuleModule, {
       errors: [{ messageId: 'keepActual', data: { specifier: '@molecule/app-ui' } }],
     },
     {
+      name: 'a spread after the stubs lets the real module replace them',
+      code: `vi.mock('@molecule/app-ui', async (importOriginal) => ({
+        getClassMap: vi.fn(),
+        ...(await importOriginal<Record<string, unknown>>()),
+      }))`,
+      errors: [{ messageId: 'keepActual', data: { specifier: '@molecule/app-ui' } }],
+    },
+    {
+      name: 'a block factory returning its stubs before the actual alias',
+      code: `vi.mock('@molecule/app-ui', async (load) => {
+        const actual = await load<Record<string, unknown>>()
+        return { getClassMap: vi.fn(), ...actual }
+      })`,
+      errors: [{ messageId: 'keepActual', data: { specifier: '@molecule/app-ui' } }],
+    },
+    {
+      name: 'a template-literal specifier is checked too',
+      code: 'vi.mock(`@molecule/app-ui`, () => ({ getClassMap: vi.fn() }))',
+      errors: [{ messageId: 'keepActual', data: { specifier: '@molecule/app-ui' } }],
+    },
+    {
       name: 'importActual must read the mocked specifier',
       code: `vi.mock('@molecule/app-ui', async () => ({
         ...(await vi.importActual('@molecule/app-i18n')),
@@ -97,5 +125,6 @@ describe('vi-mock-keeps-actual RuleTester coverage', () => {
   it('keeps the diagnostic anchored to a module replacement', () => {
     expect(rule.meta.messages.keepActual).toContain('importOriginal<Record<string, unknown>>()')
     expect(rule.meta.messages.keepActual).toContain('override only what the test needs')
+    expect(rule.meta.messages.keepActual).toContain('spread first')
   })
 })

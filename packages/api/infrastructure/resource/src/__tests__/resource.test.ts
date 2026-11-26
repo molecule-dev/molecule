@@ -23,7 +23,8 @@ const { mockCreate, mockFindById, mockFindMany, mockUpdateById, mockDeleteById }
   }),
 )
 
-vi.mock('@molecule/api-database', () => ({
+vi.mock('@molecule/api-database', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   create: mockCreate,
   findById: mockFindById,
   findMany: mockFindMany,
@@ -32,7 +33,8 @@ vi.mock('@molecule/api-database', () => ({
 }))
 
 // Mock logger
-vi.mock('@molecule/api-logger', () => ({
+vi.mock('@molecule/api-logger', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   logger: {
     trace: vi.fn(),
     debug: vi.fn(),
@@ -43,7 +45,8 @@ vi.mock('@molecule/api-logger', () => ({
 }))
 
 // Mock i18n
-vi.mock('@molecule/api-i18n', () => ({
+vi.mock('@molecule/api-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   t: (key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) =>
     options?.defaultValue ?? key,
 }))

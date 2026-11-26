@@ -41,7 +41,8 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-auth-shell-vue', () => ({
+vi.mock('@molecule/app-auth-shell-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: { value: { email: 'new@example.com' } },
     setField: vi.fn(),
@@ -49,7 +50,8 @@ vi.mock('@molecule/app-auth-shell-vue', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -59,7 +61,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-vue', () => ({
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Modal: defineComponent({
     name: 'Modal',
     props: { open: Boolean },
@@ -83,7 +86,8 @@ vi.mock('@molecule/app-ui-vue', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-oauth-buttons-vue', () => ({
+vi.mock('@molecule/app-oauth-buttons-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: defineComponent({ name: 'OAuthButtons', setup: () => () => null }),
   OAuthDivider: defineComponent({ name: 'OAuthDivider', setup: () => () => null }),
 }))

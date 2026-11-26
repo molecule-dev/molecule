@@ -60,7 +60,8 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-auth-shell-vue', () => ({
+vi.mock('@molecule/app-auth-shell-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // The real composable returns `fields` as a Vue ref (the component reads
   // `fields.value.email`), so the stub carries the same shape.
   useAuthFormState: () => ({
@@ -70,7 +71,8 @@ vi.mock('@molecule/app-auth-shell-vue', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Any cm.* access yields a callable that stringifies to '' — covers both
   // `cm.textMuted` (string usage) and `cm.button({...})` / `cm.cn(...)` (calls).
   getClassMap: () =>
@@ -82,7 +84,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-vue', () => ({
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Modal: defineComponent({
     name: 'Modal',
     props: { open: Boolean },
@@ -102,7 +105,8 @@ vi.mock('@molecule/app-ui-vue', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-oauth-buttons-vue', () => ({
+vi.mock('@molecule/app-oauth-buttons-vue', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: defineComponent({ name: 'OAuthButtons', setup: () => () => null }),
   OAuthDivider: defineComponent({ name: 'OAuthDivider', setup: () => () => null }),
 }))

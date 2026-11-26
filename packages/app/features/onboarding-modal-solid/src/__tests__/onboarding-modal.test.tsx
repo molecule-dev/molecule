@@ -17,7 +17,8 @@ import type { OnboardingStep } from '../types.js'
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -51,9 +52,10 @@ vi.mock('@molecule/app-solid', async (importOriginal) => ({
 // data-button>` and a `<div data-modal>` that renders its content only while
 // `open`. The Modal stub spreads its `data-*`/`aria-*` rest props onto that
 // div, the real `Modal`'s passthrough contract.
-vi.mock('@molecule/app-ui-solid', async () => {
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => {
   const { splitProps } = await import('solid-js')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: (props: { children?: JSX.Element }) => <button data-button="">{props.children}</button>,
     Modal: (owned: { open: boolean; children?: JSX.Element }) => {
       const [, rest] = splitProps(owned, ['open', 'children'])

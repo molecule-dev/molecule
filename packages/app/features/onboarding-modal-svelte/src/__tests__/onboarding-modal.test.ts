@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins tokens, calling function-valued
 // args first — the same mock the React tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,10 +47,10 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
 // app-ui-svelte stubs: Button renders `<button data-button>`, Modal renders its
 // content in a `<div data-modal>` only while open — the same markers the React
 // suite's `@molecule/app-ui-react` stubs render.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/ButtonStub.svelte')
   const { default: Modal } = await import('./stubs/ModalStub.svelte')
-  return { Button, Modal }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Modal }
 })
 
 const { OnboardingModal } = await import('../components.js')

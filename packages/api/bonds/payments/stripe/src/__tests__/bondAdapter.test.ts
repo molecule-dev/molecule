@@ -101,7 +101,8 @@ const mockPaymentRecordService = {
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
 
-vi.mock('@molecule/api-bond', () => ({
+vi.mock('@molecule/api-bond', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getLogger: () => mockLogger,
   get: vi.fn(() => mockPaymentRecordService),
 }))

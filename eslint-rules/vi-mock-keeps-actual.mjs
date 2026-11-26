@@ -3,7 +3,8 @@
  *
  * A factory passed to `vi.mock` or `vi.doMock` replaces the whole module. Starting the returned
  * object with the real module prevents a shared package export from disappearing from unrelated
- * tests when the package grows. The test may override any real export after that spread.
+ * tests when the package grows. The test may override any real export after that spread; the spread
+ * must come first, because a later one replaces the stubs before it with the real exports.
  *
  * @module
  */
@@ -14,6 +15,20 @@ const FUNCTION_TYPES = new Set([
   'FunctionExpression',
   'FunctionDeclaration',
 ])
+
+/**
+ * The string a module specifier argument names: a string literal, or a template literal with no
+ * substitutions.
+ *
+ * @param {object | undefined} node - The argument.
+ * @returns {string | null} The specifier, or null for anything computed.
+ */
+function specifierText(node) {
+  if (node?.type === 'Literal' && typeof node.value === 'string') return node.value
+  if (node?.type === 'TemplateLiteral' && node.expressions.length === 0)
+    return node.quasis[0].value.cooked
+  return null
+}
 
 /**
  * Remove transparent TypeScript and parenthesis wrappers from an expression.
@@ -71,8 +86,7 @@ function readsRealModule(expression, loader, specifier) {
     callee.property.type === 'Identifier' &&
     callee.property.name === 'importActual' &&
     node.arguments.length >= 1 &&
-    node.arguments[0].type === 'Literal' &&
-    node.arguments[0].value === specifier
+    specifierText(node.arguments[0]) === specifier
   )
 }
 
@@ -151,19 +165,19 @@ function factoryData(factory, sourceCode, specifier) {
 }
 
 /**
- * Whether an object starts with, or otherwise contains, a spread of the real module.
+ * Whether an object starts with a spread of the real module.
  *
  * @param {object} object - An ESTree ObjectExpression.
  * @param {{ loader: string | null, real: Set<string> }} data - Factory loader data.
  * @param {string} specifier - The mocked module specifier.
- * @returns {boolean} True when the real module is spread into the object.
+ * @returns {boolean} True when the first property spreads the real module.
  */
 function spreadsRealModule(object, data, specifier) {
-  return object.properties.some(
-    (property) =>
-      property.type === 'SpreadElement' &&
-      (readsRealModule(property.argument, data.loader, specifier) ||
-        (property.argument.type === 'Identifier' && data.real.has(property.argument.name))),
+  const first = object.properties[0]
+  return (
+    first?.type === 'SpreadElement' &&
+    (readsRealModule(first.argument, data.loader, specifier) ||
+      (first.argument.type === 'Identifier' && data.real.has(first.argument.name)))
   )
 }
 
@@ -193,7 +207,7 @@ export default {
     schema: [],
     messages: {
       keepActual:
-        "Mock '{{specifier}}' from the real module and override only what the test needs: vi.mock('{{specifier}}', async (importOriginal) => ({ ...(await importOriginal<Record<string, unknown>>()), … }))",
+        "Mock '{{specifier}}' from the real module, spread first, and override only what the test needs: vi.mock('{{specifier}}', async (importOriginal) => ({ ...(await importOriginal<Record<string, unknown>>()), … }))",
     },
   },
 
@@ -219,18 +233,17 @@ export default {
         )
           return
 
-        const module = node.arguments[0]
-        if (module.type !== 'Literal' || typeof module.value !== 'string') return
-        if (!MOLECULE_MODULE.test(module.value)) return
+        const specifier = specifierText(node.arguments[0])
+        if (specifier === null || !MOLECULE_MODULE.test(specifier)) return
 
         const factory = node.arguments[1]
         if (!FUNCTION_TYPES.has(factory.type)) return
-        if (keepsActual(factory, sourceCode, module.value)) return
+        if (keepsActual(factory, sourceCode, specifier)) return
 
         context.report({
           node,
           messageId: 'keepActual',
-          data: { specifier: module.value },
+          data: { specifier },
         })
       },
     }

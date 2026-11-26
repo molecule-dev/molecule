@@ -5,7 +5,8 @@ import { loadContent } from '../loadContent.js'
 
 const addTranslations = vi.hoisted(() => vi.fn())
 
-vi.mock('@molecule/app-i18n', () => ({
+vi.mock('@molecule/app-i18n', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getProvider: () => ({ addTranslations, getLocale: () => 'loadContent' }),
   registerContent: vi.fn(),
 }))

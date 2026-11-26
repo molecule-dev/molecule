@@ -44,7 +44,8 @@ vi.mock('@molecule/app-solid', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-auth-shell-solid', () => ({
+vi.mock('@molecule/app-auth-shell-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: () => ({ email: 'user@example.com' }),
     setField: vi.fn(),
@@ -52,7 +53,8 @@ vi.mock('@molecule/app-auth-shell-solid', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -62,7 +64,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-solid', () => ({
+vi.mock('@molecule/app-ui-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Modal: (props: { open: boolean; title?: string; children?: JSX.Element }) =>
     props.open ? (
       <div>
@@ -82,7 +85,8 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
-vi.mock('@molecule/app-oauth-buttons-solid', () => ({
+vi.mock('@molecule/app-oauth-buttons-solid', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: () => null,
   OAuthDivider: () => null,
 }))

@@ -454,7 +454,8 @@ vi.mock('@molecule/app-ui', async (importOriginal) => ({
 // Mock @molecule/app-icons
 // ============================================================================
 
-vi.mock('@molecule/app-icons', () => ({
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getIcon: (name: string) => ({
     paths: [{ d: `mock-path-${name}`, fillRule: 'evenodd', clipRule: 'evenodd' }],
   }),

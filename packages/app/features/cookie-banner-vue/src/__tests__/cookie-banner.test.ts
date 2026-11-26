@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `link`),
 // so tests can assert which cm.* call was applied without a real bond — the
 // same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -48,9 +49,10 @@ vi.mock('@molecule/app-vue', async (importOriginal) => ({
 // handler and the details-list ARIA attrs fall through as attributes), and a
 // checkbox carrying the `checked` state (its label/description ids fall
 // through the same way).
-vi.mock('@molecule/app-ui-vue', async () => {
+vi.mock('@molecule/app-ui-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: defineComponent({
       name: 'Button',
       setup(_props, { slots }) {

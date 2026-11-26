@@ -18,7 +18,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
           ),
   }),
 }))
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Icon: ({ name }: { name: string }) => createElement('svg', { 'data-icon': name }),
   Modal: ({
     open,

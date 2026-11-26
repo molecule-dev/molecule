@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `link`),
 // so tests can assert which cm.* call was applied without a real bond — the
 // same mock the React package's own tests use.
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
@@ -46,10 +47,10 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => ({
 // The `data-button` / `data-switch` markers the React tests mock
 // `@molecule/app-ui-react` with: a button carrying its children and a
 // checkbox carrying the `checked` state it received.
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/ButtonStub.svelte')
   const { default: Switch } = await import('./stubs/SwitchStub.svelte')
-  return { Button, Switch }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Switch }
 })
 
 import { flushSync, mount, unmount } from 'svelte'

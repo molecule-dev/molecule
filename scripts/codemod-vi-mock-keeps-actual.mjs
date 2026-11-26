@@ -2,8 +2,8 @@
  * Rewrite Molecule Vitest module factories so they keep the real module exports.
  *
  * Dry-run mode records every owned file, old and new factory text, and module totals. Apply mode
- * consumes that plan and refuses to write if a source slice changed after the dry run. Existing
- * dirty files and the explicitly protected feature families are never candidates.
+ * consumes that plan and refuses to write if a source slice changed after the dry run. Files with
+ * uncommitted changes (another session's work in progress) are never candidates.
  *
  * @module
  */
@@ -31,20 +31,6 @@ function isTestFile(file) {
   return (
     /\.(?:[cm]?js|tsx?)$/.test(file) &&
     (file.includes('/__tests__/') || /\.(?:test|spec)\.[^/]+$/.test(file))
-  )
-}
-
-/**
- * Whether a path is one of the package families another worker owns.
- *
- * @param file - A path relative to the molecule root.
- * @returns True for a protected feature package.
- */
-function isProtectedFile(file) {
-  const match = file.match(/^packages\/app\/features\/([^/]+)\//)
-  if (!match) return false
-  return /^(?:auth-modal-|search-ui-|ide-|onboarding-modal-|cookie-banner-|annotation-pin-)|^embeddable-chat-widget/.test(
-    match[1],
   )
 }
 
@@ -404,17 +390,13 @@ function buildPlan() {
   const dirty = dirtyPaths()
   const fileRecords = []
   const moduleCounts = new Map()
-  const skipped = { dirty: [], protected: [] }
+  const skipped = { dirty: [] }
   for (const absolute of filesUnder(resolve(ROOT, 'packages')).filter((file) =>
     isTestFile(relative(ROOT, file)),
   )) {
     const file = relative(ROOT, absolute)
     if (dirty.has(file)) {
       skipped.dirty.push(file)
-      continue
-    }
-    if (isProtectedFile(file)) {
-      skipped.protected.push(file)
       continue
     }
     const text = readFileSync(absolute, 'utf8')
@@ -452,7 +434,6 @@ function buildPlan() {
     },
     skipped: {
       dirtyFiles: skipped.dirty.sort(),
-      protectedFiles: skipped.protected.sort(),
     },
     files: fileRecords.sort((left, right) => left.file.localeCompare(right.file)),
   }

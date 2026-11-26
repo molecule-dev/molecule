@@ -21,7 +21,9 @@ vi.mock('@sendgrid/mail', () => ({
   },
 }))
 
-vi.mock('@molecule/api-emails', () => ({}))
+vi.mock('@molecule/api-emails', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+}))
 
 describe('SendGrid Email Provider', () => {
   const originalEnv = process.env

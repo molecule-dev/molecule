@@ -45,7 +45,8 @@ vi.mock('@molecule/app-react', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-auth-shell-react', () => ({
+vi.mock('@molecule/app-auth-shell-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: { email: 'user@example.com' },
     setField: vi.fn(),
@@ -53,7 +54,8 @@ vi.mock('@molecule/app-auth-shell-react', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   // Any cm.* access yields a callable that stringifies to '' — covers both
   // `cm.textMuted` (string usage) and `cm.button({...})` / `cm.cn(...)` (calls).
   getClassMap: () =>
@@ -65,7 +67,8 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-react', () => ({
+vi.mock('@molecule/app-ui-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   Modal: ({ open, title, children }: { open: boolean; title?: ReactNode; children?: ReactNode }) =>
     open ? (
       <div>
@@ -89,7 +92,8 @@ vi.mock('@molecule/app-ui-react', () => ({
   ),
 }))
 
-vi.mock('@molecule/app-oauth-buttons-react', () => ({
+vi.mock('@molecule/app-oauth-buttons-react', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: () => null,
   OAuthDivider: () => null,
 }))

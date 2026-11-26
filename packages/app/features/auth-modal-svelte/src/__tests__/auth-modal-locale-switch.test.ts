@@ -44,7 +44,8 @@ vi.mock('@molecule/app-svelte', async (importOriginal) => {
   }
 })
 
-vi.mock('@molecule/app-auth-shell-svelte', () => ({
+vi.mock('@molecule/app-auth-shell-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   useAuthFormState: () => ({
     fields: writableOf({ email: 'user@example.com' }),
     setField: vi.fn(),
@@ -52,7 +53,8 @@ vi.mock('@molecule/app-auth-shell-svelte', () => ({
   }),
 }))
 
-vi.mock('@molecule/app-ui', () => ({
+vi.mock('@molecule/app-ui', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () =>
     new Proxy(
       {},
@@ -62,16 +64,17 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-vi.mock('@molecule/app-ui-svelte', async () => {
+vi.mock('@molecule/app-ui-svelte', async (importOriginal) => {
   const { default: Button } = await import('./stubs/ButtonStub.svelte')
   // The locale switch drives this test through the REAL title the modal hands
   // the Modal, so the stub exposes it on a marker element like React's does.
   const { default: Modal } = await import('./stubs/TitleModalStub.svelte')
   const Icon = () => null
-  return { Button, Modal, Icon }
+  return { ...(await importOriginal<Record<string, unknown>>()), Button, Modal, Icon }
 })
 
-vi.mock('@molecule/app-oauth-buttons-svelte', () => ({
+vi.mock('@molecule/app-oauth-buttons-svelte', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   OAuthButtons: () => null,
   OAuthDivider: () => null,
 }))

@@ -29,7 +29,7 @@ import { provideDomPlacement } from '@molecule/app-angular'
 // bond — the same tokens the React tests' proxy produces. Angular binds the
 // results to `[class]`, so the tokens are strings (Angular's class binding
 // rejects a function).
-vi.mock('@molecule/app-ui', () => {
+vi.mock('@molecule/app-ui', async (importOriginal) => {
   const cn = (...cls: unknown[]): string =>
     cls
       .flat(Infinity)
@@ -37,6 +37,7 @@ vi.mock('@molecule/app-ui', () => {
       .filter((c) => typeof c === 'string' && c.length > 0)
       .join(' ')
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     getClassMap: () => ({
       cn,
       stack: () => 'stack',
@@ -50,7 +51,7 @@ vi.mock('@molecule/app-ui', () => {
 // The markers the React tests mock `@molecule/app-ui-react` with: a
 // `<button data-button>` and a `<div data-modal>` that renders its content
 // only while `open`.
-vi.mock('@molecule/app-ui-angular', async () => {
+vi.mock('@molecule/app-ui-angular', async (importOriginal) => {
   const { Component, ElementRef, EventEmitter, inject } = await import('@angular/core')
   // No decorators here: this package's tsconfig excludes `src/**/__tests__/**`,
   // so vitest transforms test files without `experimentalDecorators`. The
@@ -81,6 +82,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
     }
   }
   return {
+    ...(await importOriginal<Record<string, unknown>>()),
     Button: Component({
       changeDetection: ChangeDetectionStrategy.Eager,
       selector: 'button[mol-button]',
