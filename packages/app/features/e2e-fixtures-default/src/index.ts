@@ -1,7 +1,7 @@
 /**
  * The `@playwright/test` drop-in for molecule apps: Playwright's `test`,
  * `expect` and `page`, with the browser supplied by the bonded e2e provider
- * and a console-error guard on every test.
+ * and a console-error guard on the page fixture.
  *
  * Import `test` and `expect` from here instead of `@playwright/test` and
  * write ordinary Playwright specs. Which browser runs them is the e2e bond
@@ -10,7 +10,8 @@
  * - **`@molecule/app-e2e-playwright`** launches a real Playwright browser.
  *   Every molecule sandbox image bakes Chromium, so this is what a sandbox
  *   uses as well as your own machine and CI — the specs run against the app's
- *   dev server on `localhost`, no IDE tab involved.
+ *   dev server on `localhost`. The suite installs the managed browser it needs
+ *   on first use. Set `MOL_E2E_SKIP_BROWSER_INSTALL=1` if you provision it yourself.
  * - **`@molecule/app-e2e-preview`** drives the LIVE PREVIEW the molecule.dev
  *   IDE is showing — the page the person is looking at, in their own browser —
  *   over a WebSocket through the dev server. Pick it with
@@ -24,7 +25,7 @@
  * matching provider (and `test` bonds it by name as a fallback); `test` reads
  * the same answer to decide whether to launch a browser.
  *
- * Every test also carries the console-error guard: the page's `pageerror`
+ * Tests using the page fixture carry the console-error guard: the page's `pageerror`
  * and `console.error` events fail the test at teardown, so a spec that only
  * asserts on `page.request` cannot stay green while the rendered page is
  * blank. Allow a known error with
@@ -112,8 +113,7 @@
  *   bond uses it, and so can any future one.
  * - `@playwright/test` is a peer dependency: it supplies the runner
  *   (`npx playwright test`), `expect` for plain values, and the `Page` types.
- *   It never downloads browsers on install; only the playwright bond needs
- *   `npx playwright install`.
+ *   Browser setup happens separately when a test requests a managed browser.
  *
  * @module
  */

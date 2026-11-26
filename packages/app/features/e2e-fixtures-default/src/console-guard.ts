@@ -1,5 +1,5 @@
 /**
- * The console-error guard fixture: every test subscribes to the page's
+ * The console-error guard fixture: a test using the page subscribes to its
  * `pageerror` and `console.error` events and fails at teardown if any were
  * seen. It works over both bonds — the preview client forwards console output
  * and errors, so the guard sees the same events a real browser emits.
@@ -69,7 +69,7 @@ export interface ConsoleGuardFixtures {
 }
 
 /**
- * Extend a Playwright `test` with the auto-attached console-error guard.
+ * Extend a Playwright `test` with a console-error guard that attaches when its page is requested.
  *
  * To intentionally let a known error through (rare — almost always a smell
  * that should be fixed in the app), use
@@ -86,66 +86,64 @@ export const withConsoleGuard = (
   PlaywrightWorkerArgs & PlaywrightWorkerOptions
 > =>
   base.extend<ConsoleGuardFixtures>({
-    consoleGuard: [
-      async ({ page }, use, testInfo) => {
-        const buffer: ConsoleErrorEntry[] = []
+    consoleGuard: async ({ page: _page }, use) => use(),
+    page: async ({ page }, use, testInfo) => {
+      const buffer: ConsoleErrorEntry[] = []
 
-        const matchesAllowed = (text: string, description: string | undefined): boolean => {
-          if (description === undefined) return true // no description = allow everything
-          try {
-            return new RegExp(description).test(text)
-          } catch (_error) {
-            // Not a valid regex: the annotation holds literal error text — match it as a substring.
-            return text.includes(description)
-          }
-        }
-
-        const shouldIgnore = (text: string): boolean => {
-          if (ALWAYS_IGNORE.some((re) => re.test(text))) return true
-          return testInfo.annotations
-            .filter((a) => a.type === 'allow-console-error')
-            .some((a) => matchesAllowed(text, a.description))
-        }
-
-        const onPageError = (err: Error): void => {
-          const text = err.message || String(err)
-          if (shouldIgnore(text)) return
-          buffer.push({ type: 'pageerror', text })
-        }
-        const onConsole = (msg: ConsoleMessage): void => {
-          if (msg.type() !== 'error') return
-          const text = msg.text()
-          if (shouldIgnore(text)) return
-          const loc = msg.location()
-          buffer.push({
-            type: 'console.error',
-            text,
-            location: loc?.url ? `${loc.url}:${loc.lineNumber}` : undefined,
-          })
-        }
-
-        page.on('pageerror', onPageError)
-        page.on('console', onConsole)
-
+      const matchesAllowed = (text: string, description: string | undefined): boolean => {
+        if (description === undefined) return true // no description = allow everything
         try {
-          await use()
-        } finally {
-          page.off('pageerror', onPageError)
-          page.off('console', onConsole)
+          return new RegExp(description).test(text)
+        } catch (_error) {
+          // Not a valid regex: the annotation holds literal error text — match it as a substring.
+          return text.includes(description)
         }
+      }
 
-        if (buffer.length > 0) {
-          const lines = buffer
-            .map((e) => `  - [${e.type}] ${e.text}${e.location ? `  (${e.location})` : ''}`)
-            .join('\n')
-          throw new Error(
-            `Browser console error(s) during test (${buffer.length}):\n${lines}\n\n` +
-              `If this error is genuinely expected, add\n` +
-              `  test.info().annotations.push({ type: 'allow-console-error', description: '<regex>' })\n` +
-              `to the test body BEFORE the error fires.`,
-          )
-        }
-      },
-      { auto: true },
-    ],
+      const shouldIgnore = (text: string): boolean => {
+        if (ALWAYS_IGNORE.some((re) => re.test(text))) return true
+        return testInfo.annotations
+          .filter((a) => a.type === 'allow-console-error')
+          .some((a) => matchesAllowed(text, a.description))
+      }
+
+      const onPageError = (err: Error): void => {
+        const text = err.message || String(err)
+        if (shouldIgnore(text)) return
+        buffer.push({ type: 'pageerror', text })
+      }
+      const onConsole = (msg: ConsoleMessage): void => {
+        if (msg.type() !== 'error') return
+        const text = msg.text()
+        if (shouldIgnore(text)) return
+        const loc = msg.location()
+        buffer.push({
+          type: 'console.error',
+          text,
+          location: loc?.url ? `${loc.url}:${loc.lineNumber}` : undefined,
+        })
+      }
+
+      page.on('pageerror', onPageError)
+      page.on('console', onConsole)
+
+      try {
+        await use(page)
+      } finally {
+        page.off('pageerror', onPageError)
+        page.off('console', onConsole)
+      }
+
+      if (buffer.length > 0) {
+        const lines = buffer
+          .map((e) => `  - [${e.type}] ${e.text}${e.location ? `  (${e.location})` : ''}`)
+          .join('\n')
+        throw new Error(
+          `Browser console error(s) during test (${buffer.length}):\n${lines}\n\n` +
+            `If this error is genuinely expected, add\n` +
+            `  test.info().annotations.push({ type: 'allow-console-error', description: '<regex>' })\n` +
+            `to the test body BEFORE the error fires.`,
+        )
+      }
+    },
   })

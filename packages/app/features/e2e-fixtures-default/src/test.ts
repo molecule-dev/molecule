@@ -1,10 +1,12 @@
 /**
  * Playwright's `test`, with the `page` fixture supplied by the bonded e2e
  * provider when this environment should not launch a browser, and the
- * console-error guard attached to every test.
+ * console-error guard attached when a test uses the page.
  *
  * @module
  */
+
+import { dirname } from 'node:path'
 
 import {
   type Page,
@@ -46,13 +48,69 @@ const bondByName = async (name: string): Promise<void> => {
   }
 }
 
-/** Playwright's `test` as-is, or one whose `page` comes from the bonded provider. */
+/** The installer arguments for the local browser Playwright will launch, if it manages it. */
+function browserInstallArgs({
+  browserName,
+  headless,
+  channel,
+  launchOptions,
+  connectOptions,
+}: Pick<
+  PlaywrightWorkerOptions,
+  'browserName' | 'headless' | 'channel' | 'launchOptions' | 'connectOptions'
+>): string[] | undefined {
+  const launchChannel = channel ?? launchOptions.channel
+  if (
+    process.env.MOL_E2E_SKIP_BROWSER_INSTALL === '1' ||
+    connectOptions ||
+    process.env.PW_TEST_CONNECT_WS_ENDPOINT ||
+    process.env.SELENIUM_REMOTE_URL ||
+    launchOptions.executablePath ||
+    (launchChannel && launchChannel !== 'chromium')
+  )
+    return
+  if (browserName === 'firefox' || browserName === 'webkit') return [browserName]
+  if (browserName !== 'chromium') return
+  const debug =
+    process.env.PWDEBUG ?? process.env.npm_config_pwdebug ?? process.env.npm_package_config_pwdebug
+  const inspector = debug && !['0', 'false', 'console'].includes(debug)
+  const headed = !(headless ?? launchOptions.headless ?? true) || inspector
+  return [headed || launchChannel === 'chromium' ? '--no-shell' : '--only-shell', 'chromium']
+}
+
+/** Playwright's native browser with a lazy preparatory fixture, or a page from the bonded provider. */
 const providerAware: TestType<
   PlaywrightTestArgs & PlaywrightTestOptions,
   PlaywrightWorkerArgs & PlaywrightWorkerOptions
 > =
   e2eProviderName === 'playwright'
-    ? base
+    ? base.extend<object, { browserReady: void }>({
+        browserReady: [
+          async (
+            { browserName, headless, channel, launchOptions, connectOptions },
+            use,
+            workerInfo,
+          ) => {
+            const args = browserInstallArgs({
+              browserName,
+              headless,
+              channel,
+              launchOptions,
+              connectOptions,
+            })
+            if (args) {
+              const { installPlaywrightBrowser } = await import('@molecule/app-e2e-playwright')
+              const config = workerInfo.config.configFile
+              await installPlaywrightBrowser(args, config ? dirname(config) : process.cwd())
+            }
+            await use()
+          },
+          { scope: 'worker', title: 'Molecule browser setup', timeout: 270_000 },
+        ],
+        // Playwright resolves sibling dependencies in order. The inherited browser launches
+        // before this function runs, so browserReady must be the first dependency.
+        browser: async ({ browserReady: _browserReady, browser }, use) => use(browser),
+      })
     : base.extend<{ page: Page }>({
         page: async ({ baseURL, viewport, actionTimeout, navigationTimeout }, use, testInfo) => {
           await bondByName(e2eProviderName)
@@ -150,12 +208,12 @@ const withRrwebRecording: TestType<
 /**
  * Drop-in for `import { test } from '@playwright/test'`.
  *
- * With the `playwright` provider this IS Playwright's `test` — real browsers,
- * traces, videos, every fixture untouched. With any other provider (the live
+ * With the `playwright` provider, Playwright's browser fixture supplies real browsers,
+ * traces and videos after any needed browser setup. With any other provider (the live
  * preview inside a molecule sandbox) the `page` fixture comes from the bonded
  * provider's `connect()`, honouring the project's `baseURL`, `viewport`,
  * `actionTimeout` and `navigationTimeout` options, and no browser is launched.
- * Either way the console-error guard is attached to every test.
+ * Either way the console-error guard is attached when the test uses the page fixture.
  */
 export const test: TestType<
   PlaywrightTestArgs & PlaywrightTestOptions & ConsoleGuardFixtures,

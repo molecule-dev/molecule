@@ -8,11 +8,9 @@
  * IDE tab involved. `@molecule/app-e2e-preview` remains the way to drive the
  * live preview the person is watching.
  *
- * When the test runner picks the `playwright` provider, `@molecule/app-e2e`'s
- * `test` IS Playwright's `test`, so this bond is only reached by scripts that
- * call `connect()` themselves (a measurement script, a smoke check outside the
- * runner). Under `npx playwright test`, Playwright's own fixtures launch the
- * browser as usual.
+ * The Molecule suite installs the managed browser it needs on first use,
+ * then Playwright's own fixtures launch it. Set `MOL_E2E_SKIP_BROWSER_INSTALL=1`
+ * if you provision browsers yourself.
  *
  * @example
  * ```ts
@@ -32,9 +30,9 @@
  * ```
  *
  * @remarks
- * - On your own machine, browsers are installed once with
- *   `npx playwright install chromium` (`@playwright/test` never downloads them
- *   on `npm install`). The launch error says so when they are missing.
+ * - Scripts that call `connectPlaywright()` directly can install their browser
+ *   first with `npx playwright install chromium` or pass the install arguments
+ *   to `installPlaywrightBrowser`.
  * - Inside a molecule sandbox nothing is installed by hand: the image ships
  *   Chromium where Playwright looks by default (`~/.cache/ms-playwright` of
  *   the sandbox user; `PLAYWRIGHT_BROWSERS_PATH` points there too), pinned to
@@ -55,5 +53,6 @@
  * @module
  */
 
+export { installPlaywrightBrowser } from './install.js'
 export { connectPlaywright, provider } from './provider.js'
 export * from './types.js'
