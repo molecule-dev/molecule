@@ -252,32 +252,60 @@ describe('a raised version ships with its CHANGELOG section', () => {
     expect(result.stdout).toContain('no push or pull-request base')
   })
 
-  it('known-bad: refuses molecule 923334bb5d itself, for its three document-text packages', () => {
-    // The release runs this suite from an export of the commit it pushes, which has no .git;
-    // MOL_INDEX_REPO names the checkout whose history it came from.
-    const history = process.env.MOL_INDEX_REPO || MOLECULE
-    const manifests = execFileSync(
-      'git',
-      [
-        '-C',
-        history,
-        'diff-tree',
-        '-r',
-        '--no-commit-id',
-        '--name-only',
-        '923334bb5d^',
-        '923334bb5d',
-      ],
-      { encoding: 'utf8' },
+  it('known-bad: refuses molecule 923334bb5d itself, for its three document-text packages', async () => {
+    // The commit's 1039 changed manifests, as the fields this check reads, rebuilt in a scratch
+    // repo. CI's tests job checks out one commit, so the case cannot read molecule's history.
+    const { commit, rows } = JSON.parse(
+      readFileSync(
+        join(import.meta.dirname, 'fixtures/version-changelogs-923334bb5d.json'),
+        'utf8',
+      ),
     )
+    expect(commit).toMatch(/^923334bb5d/)
+    const manifest = (name, version, isPrivate, revision) => ({
+      name,
+      version,
+      ...(isPrivate ? { private: true } : {}),
+      revision,
+    })
+    const root = mkdtempSync(join(tmpdir(), 'version-changelogs-923334bb5d-'))
+    roots.push(root)
+    git(root, 'init', '-q')
+    git(root, 'config', 'user.email', 'fixture@example.com')
+    git(root, 'config', 'user.name', 'Fixture')
+    for (const [file, name, from, , isPrivate] of rows)
+      if (from !== null) write(root, file, manifest(name, from, isPrivate, 'parent'))
+    git(root, 'add', '-A')
+    git(root, 'commit', '-qm', 'parent')
+    const base = git(root, 'rev-parse', 'HEAD')
+    for (const [file, name, , to, isPrivate, changelog] of rows) {
+      if (to === null) rmSync(join(root, file), { force: true })
+      else write(root, file, manifest(name, to, isPrivate, 'commit'))
+      const log = file.replace(/package\.json$/, 'CHANGELOG.md')
+      if (changelog === 'section') write(root, log, `# ${name}\n\n## ${to}\n`)
+      if (changelog === 'no-section') write(root, log, `# ${name}\n`)
+    }
+    git(root, 'add', '-A')
+    git(root, 'commit', '-qm', 'chore: version packages')
+    const changed = git(root, 'diff-tree', '-r', '--no-commit-id', '--name-only', base, 'HEAD')
       .split('\n')
       .filter((file) => file.endsWith('/package.json'))
-    expect(manifests.length).toBeGreaterThan(3)
-    const missing = judgeChange(history, manifests, '923334bb5d^', '923334bb5d')
-    expect(missing.map(({ name }) => name)).toEqual([
+    expect(changed).toHaveLength(rows.length)
+    expect(judgeChange(root, changed, base, 'HEAD').map(({ name }) => name)).toEqual([
       '@molecule/api-document-text',
       '@molecule/api-document-text-molecule',
       '@molecule/api-document-text-pdfjs',
+    ])
+    // CI's own step on the same push.
+    const ci = await run(root, ['--base=ci'], {
+      GITHUB_EVENT_NAME: 'push',
+      GITHUB_EVENT_BEFORE: base,
+    })
+    expect(ci.status).toBe(1)
+    expect(ci.stderr.match(/^✗ \S+/gm)).toEqual([
+      '✗ @molecule/api-document-text:',
+      '✗ @molecule/api-document-text-molecule:',
+      '✗ @molecule/api-document-text-pdfjs:',
     ])
   })
 
