@@ -42,7 +42,7 @@
   "devDependencies": {
     "@molecule/app-react": "4.17.0",
     "@molecule/app-ui": "1.14.0",
-    "@molecule/app-ui-react": "4.12.0",
+    "@molecule/app-ui-react": "4.12.1",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "react": "19.3.1",

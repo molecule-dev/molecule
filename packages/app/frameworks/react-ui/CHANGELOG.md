@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.12.1
+
+### Patch Changes
+
+- Clarify that the React elements entry renders React DOM and that the native elements entry has yet to ship.
+
 ## 4.12.0
 
 ### Minor Changes
