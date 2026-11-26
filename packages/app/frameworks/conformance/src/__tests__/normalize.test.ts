@@ -212,6 +212,30 @@ describe('normalizeDom text', () => {
   })
 })
 
+describe('normalizeDom form state', () => {
+  it('distinguishes a cleared dropdown from its selected empty-value placeholder', () => {
+    const root = container((host) => {
+      host.innerHTML =
+        '<select><option value="" disabled selected>Choose</option><option>A</option></select>'
+    })
+    const select = root.querySelector('select')
+    if (!select) throw new Error('missing dropdown fixture')
+    const withPlaceholder = norm(root)
+    expect(select.value).toBe('')
+    select.selectedIndex = -1
+    expect(select.value).toBe('')
+    expect(norm(root)).not.toBe(withPlaceholder)
+  })
+
+  it('does not record extra state for an unselected list with no implicit selection', () => {
+    const root = container((host) => {
+      host.innerHTML =
+        '<select multiple><option>A</option></select><select size="2"><option>A</option></select>'
+    })
+    expect(norm(root)).not.toContain('selectedIndex=')
+  })
+})
+
 describe('normalizeDom framework bookkeeping attributes', () => {
   it("drops React Router's data-discover link marker and keeps every other attribute", () => {
     const link = (discover: boolean): HTMLElement =>

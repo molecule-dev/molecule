@@ -166,6 +166,7 @@
   const coarse = useCoarsePointer()
 
   const cm: UIClassMap = getClassMap()
+  const DIRTY_MARKER = ' •'
   const isLight = $derived($mode === 'light')
   // The active theme's filename color tables (React picks them per render).
   const statusColors = $derived(isLight ? LIGHT_STATUS_COLORS : DARK_STATUS_COLORS)
@@ -382,7 +383,8 @@
               style:color={fileColor(tab, statusColors, diagnosticColors, status)}
               style:text-decoration={status === 'deleted' ? 'line-through' : undefined}
             >
-              {fileName(tab)}{#if tab.isDirty}<span class={cm.textWarning}> •</span>{/if}
+              {fileName(tab)}{#if tab.isDirty}<span class={cm.textWarning}>{DIRTY_MARKER}</span
+                >{/if}
             </span>
           </div>
           <button

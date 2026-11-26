@@ -68,9 +68,10 @@ function blurEl(el: HTMLElement): void {
 
 /**
  * Mounts a two-tab bar and hands back its elements.
+ * @param dirty - Whether the first tab has unsaved changes.
  * @returns The first tab, its close control and the second tab's close control.
  */
-function renderBar(): {
+function renderBar(dirty = false): {
   firstTab: HTMLElement
   firstClose: HTMLElement
   secondClose: HTMLElement
@@ -83,7 +84,7 @@ function renderBar(): {
     props: {
       theme: createFakeThemeProvider('light', sink),
       tabs: [
-        { path: APP, label: 'app.ts', isDirty: false, isActive: false },
+        { path: APP, label: 'app.ts', isDirty: dirty, isActive: false },
         { path: README, label: 'README.md', isDirty: false, isActive: false },
       ],
       activeFile: null,
@@ -156,6 +157,11 @@ describe('TabBar close-control focus reveal (WCAG 2.4.7)', () => {
     blurEl(firstTab)
     expect(firstClose.style.opacity).toBe('0')
   })
+})
+
+it('separates the dirty bullet from the filename with a visible space', () => {
+  const { firstTab } = renderBar(true)
+  expect(firstTab.textContent).toContain('app.ts •')
 })
 
 /**

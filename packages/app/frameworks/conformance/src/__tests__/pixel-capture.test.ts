@@ -103,6 +103,43 @@ describe('capturePage', () => {
     expect(parsed.getElementById('file-input')?.hasAttribute('value')).toBe(false)
   })
 
+  it('marks a cleared dropdown that would select an option again when reparsed', () => {
+    document.body.innerHTML = `
+      <select id="cleared"><option disabled value="">Choose</option><option>A</option></select>
+      <select id="empty"><option disabled>Unavailable</option></select>
+      <select id="multi" multiple><option>A</option></select>`
+    const cleared = document.querySelector('#cleared')
+    if (!(cleared instanceof HTMLSelectElement)) throw new Error('missing dropdown fixture')
+    cleared.selectedIndex = -1
+
+    const parsed = parse(capturePage(document))
+    expect(parsed.querySelectorAll('[data-pixel-empty-selection]')).toHaveLength(1)
+    expect(parsed.getElementById('cleared')?.hasAttribute('data-pixel-empty-selection')).toBe(true)
+  })
+
+  it('serializes CSSOM size pairs as the longhands a browser accepts', () => {
+    const button = document.createElement('button')
+    button.style.setProperty('--label', '"; min-size: 99px"')
+    button.style.setProperty('min-width', '0px', 'important')
+    button.style.setProperty('min-height', '44px', 'important')
+    button.style.maxWidth = 'calc(100vw - 32px)'
+    button.style.maxHeight = '640px'
+    document.body.append(button)
+
+    const liveStyle = button.getAttribute('style')
+    const captured = parse(capturePage(document)).querySelector('button')
+    expect(captured?.getAttribute('style')).toContain('min-width: 0px !important')
+    expect(captured?.getAttribute('style')).toContain('min-height: 44px !important')
+    expect(captured?.getAttribute('style')).toContain(`max-width: ${button.style.maxWidth}`)
+    expect(captured?.style.minWidth).toBe('0px')
+    expect(captured?.style.minHeight).toBe('44px')
+    expect(captured?.style.getPropertyPriority('min-height')).toBe('important')
+    expect(captured?.style.maxWidth).toBe(button.style.maxWidth)
+    expect(captured?.style.maxHeight).toBe('640px')
+    expect(captured?.style.getPropertyValue('--label')).toBe('"; min-size: 99px"')
+    expect(button.getAttribute('style')).toBe(liveStyle)
+  })
+
   it('replaces every data-parity-unwrap element with its children, nested ones included, in order', () => {
     const outer = document.createElement('div')
     outer.setAttribute('data-parity-unwrap', '')

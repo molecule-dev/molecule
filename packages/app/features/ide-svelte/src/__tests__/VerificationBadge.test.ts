@@ -66,7 +66,7 @@ describe('VerificationBadge — the pass', () => {
     const host = render({ status: 'ok', workspaces: ['api'], renderCheckUnavailable: true })
     const advisory = host.querySelector('[data-mol-id="render-check-unavailable"]')
     expect(advisory, 'the advisory should render').not.toBeNull()
-    expect(advisory?.textContent?.trim()).toContain('Render check unavailable')
+    expect(advisory?.textContent).toBe(' · Render check unavailable')
   })
 })
 

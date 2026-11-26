@@ -108,9 +108,9 @@
       })}{#if renderCheckUnavailable}<span
           data-mol-id="render-check-unavailable"
           class={cm.textWarning}
-          >· {t('ide.chat.renderCheckUnavailable', undefined, {
+          >{` · ${t('ide.chat.renderCheckUnavailable', undefined, {
             defaultValue: 'Render check unavailable',
-          })}</span
+          })}`}</span
         >{/if}
     </span>
   </div>

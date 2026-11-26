@@ -15,7 +15,7 @@
 
   import { kindLabel, paramLabel } from './labels.js'
   import { rangeValue } from './range-value.js'
-  import type { AudioEffectsRackProps, Effect, EffectKind, EffectParamSchema } from './types.js'
+  import type { AudioEffectsRackProps, Effect, EffectParamSchema } from './types.js'
   import {
     EFFECT_KINDS,
     EFFECT_PARAM_SCHEMAS,
@@ -76,15 +76,14 @@
    * @param event - The select's native change event.
    */
   function handleAdd(event: Event): void {
-    const element = event.currentTarget as HTMLSelectElement
+    const element = event.currentTarget
+    if (!(element instanceof HTMLSelectElement)) return
     const value = element.value
-    if (!value) return
     // Reset back to the placeholder so the user can pick the same kind twice in a
     // row without un-selecting first.
     element.value = ''
-    if ((EFFECT_KINDS as readonly string[]).includes(value)) {
-      onAdd?.(value as EffectKind)
-    }
+    const kind = EFFECT_KINDS.find((effectKind) => effectKind === value)
+    if (kind) onAdd?.(kind)
   }
 
   /**

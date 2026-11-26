@@ -22,13 +22,19 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import { losesEmptySelection } from './select-state.js'
+import { styleDeclarations } from './style-declarations.js'
+
 /** Where pixel pages go (`CONFORMANCE_PIXEL_DIR`), or null when the run records none. */
 export const pixelCaptureDir = (): string | null => process.env.CONFORMANCE_PIXEL_DIR || null
 
 /** The attribute that marks a checkbox the page shows as indeterminate (no HTML attribute exists). */
 export const INDETERMINATE_ATTRIBUTE = 'data-pixel-indeterminate'
 
-const FORM_CONTROLS = 'input, textarea, option'
+/** Marks a dropdown whose live empty selection would be replaced when its HTML is parsed. */
+const EMPTY_SELECTION_ATTRIBUTE = 'data-pixel-empty-selection'
+
+const FORM_CONTROLS = 'input, textarea, select, option'
 
 /**
  * Writes each form control's live state into attributes of its copy.
@@ -46,6 +52,8 @@ const copyControlState = (live: Element, copy: Element): void => {
     }
   } else if (live instanceof HTMLTextAreaElement) {
     copy.textContent = live.value
+  } else if (live.localName === 'select') {
+    copy.toggleAttribute(EMPTY_SELECTION_ATTRIBUTE, losesEmptySelection(live))
   } else if (live instanceof HTMLOptionElement) {
     copy.toggleAttribute('selected', live.selected)
   }
@@ -61,6 +69,32 @@ const attributeValue = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 
 /**
+ * Expands the min/max-size shorthands jsdom's CSSOM may generate from paired width and height
+ * longhands. Chromium drops those shorthands. Read the values from the original CSSOM so a
+ * lossy serialization never has to be parsed back into dimensions.
+ *
+ * @param el - The styled element in the live document.
+ * @returns Its inline style in browser-readable form, or null when no style was set.
+ */
+const captureStyle = (el: Element): string | null => {
+  const written = el.getAttribute('style')
+  if (!written || !/(?:min|max)-size\s*:/i.test(written)) return written
+  if (!(el instanceof HTMLElement || el instanceof SVGElement)) return written
+  return styleDeclarations(written)
+    .flatMap((declaration) => {
+      const prefix = /^(min|max)-size\s*:/i.exec(declaration)?.[1]?.toLowerCase()
+      if (!prefix) return declaration
+      const longhands = [`${prefix}-width`, `${prefix}-height`].map((name) => {
+        const value = el.style.getPropertyValue(name)
+        const priority = el.style.getPropertyPriority(name)
+        return value && `${name}: ${value}${priority ? ' !important' : ''}`
+      })
+      return longhands.every(Boolean) ? longhands : declaration
+    })
+    .join('; ')
+}
+
+/**
  * The document as a static page: `<html>` with its attributes, the stylesheets in
  * `<head>` (except the kit's own reference stylesheet), and `<body>` with live
  * form state written into attributes and the harness mount wrappers unwrapped.
@@ -74,7 +108,18 @@ export function capturePage(doc: Document): string {
   // shape: copy their state before anything below restructures the clone.
   const live = Array.from(doc.body.querySelectorAll(FORM_CONTROLS))
   const copies = Array.from(body.querySelectorAll(FORM_CONTROLS))
-  live.forEach((control, i) => copyControlState(control, copies[i]!))
+  live.forEach((control, i) => {
+    const copy = copies[i]
+    if (!copy) throw new Error('pixel capture: missing form control in cloned body')
+    copyControlState(control, copy)
+  })
+  const styled = [doc.body, ...doc.body.querySelectorAll('[style]')]
+  const styledCopies = [body, ...body.querySelectorAll('[style]')]
+  styled.forEach((element, i) => {
+    const style = captureStyle(element)
+    if (style !== null && style !== element.getAttribute('style'))
+      styledCopies[i]?.setAttribute('style', style)
+  })
   for (const wrapper of Array.from(body.querySelectorAll('[data-parity-unwrap]')))
     wrapper.replaceWith(...Array.from(wrapper.childNodes))
   // A script draws nothing, and would run in the browser that renders the page.
@@ -84,7 +129,11 @@ export function capturePage(doc: Document): string {
     .map((el) => el.outerHTML)
     .join('')
   const htmlAttributes = Array.from(doc.documentElement.attributes)
-    .map((attribute) => ` ${attribute.name}="${attributeValue(attribute.value)}"`)
+    .map((attribute) => {
+      const value =
+        attribute.name === 'style' ? (captureStyle(doc.documentElement) ?? '') : attribute.value
+      return ` ${attribute.name}="${attributeValue(value)}"`
+    })
     .join('')
   return `<!doctype html><html${htmlAttributes}><head>${styles}</head>${body.outerHTML}</html>`
 }

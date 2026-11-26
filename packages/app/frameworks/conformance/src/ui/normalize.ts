@@ -44,6 +44,9 @@
  * @module
  */
 
+import { losesEmptySelection } from './select-state.js'
+import { styleDeclarations } from './style-declarations.js'
+
 /** Attributes whose value is (a list of) element ids. */
 const ID_REFERENCE_ATTRS = new Set([
   'aria-activedescendant',
@@ -82,35 +85,6 @@ const escapeText = (s: string): string =>
 
 const escapeAttr = (s: string): string =>
   s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;')
-
-/**
- * The declarations of a style attribute, split at the semicolons outside quotes and brackets, so
- * a `url("data:…;base64,…")` stays one declaration.
- *
- * @param value - A style attribute.
- * @returns Its trimmed, non-empty declarations.
- */
-const styleDeclarations = (value: string): string[] => {
-  const out: string[] = []
-  let depth = 0
-  let quote = ''
-  let start = 0
-  for (let i = 0; i < value.length; i++) {
-    const c = value[i]
-    if (quote) {
-      if (c === '\\') i++
-      else if (c === quote) quote = ''
-    } else if (c === '"' || c === "'") quote = c
-    else if (c === '(') depth++
-    else if (c === ')') depth = Math.max(0, depth - 1)
-    else if (c === ';' && depth === 0) {
-      out.push(value.slice(start, i))
-      start = i + 1
-    }
-  }
-  out.push(value.slice(start))
-  return out.map((d) => d.trim()).filter(Boolean)
-}
 
 /** A declaration with its property name lower-cased and its whitespace collapsed. */
 const writtenDeclaration = (d: string): string => {
@@ -558,6 +532,8 @@ const serializeElement = (
       live.push(`value=${JSON.stringify(field.value)}`)
     }
   }
+  // Both an empty-value placeholder and a deselected dropdown have value "".
+  if (losesEmptySelection(el)) live.push('selectedIndex=-1')
   const head = [tag, ...attrs].join(' ')
   out.push(`<${head}${live.length ? ` {${live.join(' ')}}` : ''}>`)
   if (tag === 'textarea') {

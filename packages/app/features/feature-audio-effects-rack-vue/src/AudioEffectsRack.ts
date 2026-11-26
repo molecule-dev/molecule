@@ -640,15 +640,14 @@ export const AudioEffectsRack = defineComponent({
      * @param event - The select's native change event.
      */
     const handleAdd = (event: Event): void => {
-      const element = event.target as HTMLSelectElement
+      const element = event.currentTarget
+      if (!(element instanceof HTMLSelectElement)) return
       const value = element.value
-      if (!value) return
       // Reset back to the placeholder so the user can pick the same kind twice
       // in a row without un-selecting first.
       element.value = ''
-      if ((EFFECT_KINDS as readonly string[]).includes(value)) {
-        props.onAdd?.(value as EffectKind)
-      }
+      const kind = EFFECT_KINDS.find((effectKind) => effectKind === value)
+      if (kind) props.onAdd?.(kind)
     }
 
     return (): VNode => {
