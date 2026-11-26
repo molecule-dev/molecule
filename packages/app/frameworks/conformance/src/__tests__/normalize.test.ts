@@ -81,6 +81,13 @@ const h = (tag: string, children: (Node | string)[] = [], className = ''): HTMLE
 const text = (value: string): Text => document.createTextNode(value)
 
 describe('normalizeDom text', () => {
+  const normalizeHtml = (html: string): string =>
+    norm(
+      container((root) => {
+        root.innerHTML = html
+      }),
+    )
+
   it('merges adjacent text nodes, as they render', () => {
     const split = container((root) => root.append(h('span', [text('One'), text('Two')])))
     const merged = container((root) => root.append(h('span', ['OneTwo'])))
@@ -108,7 +115,7 @@ describe('normalizeDom text', () => {
     expect(norm(root)).toBe('A\n<br>\n</br>\nB')
   })
 
-  it('drops whitespace at the edges of an element and collapses inner whitespace', () => {
+  it('drops whitespace at the edges of a line and collapses inner whitespace', () => {
     const root = container((r) => r.append(text('  \n '), text(' a \n  b ')))
     expect(norm(root)).toBe('a b')
     const button = container((r) =>
@@ -119,9 +126,83 @@ describe('normalizeDom text', () => {
 
   it('keeps a space between text and an inline element, drops it next to blocks', () => {
     const root = container((r) =>
-      r.append(h('p', ['Hello ', h('b'), ' and ', h('i')]), '  ', h('hr')),
+      r.append(h('p', ['Hello ', h('b', ['Ada']), ' and ', h('i', ['Grace'])]), '  ', h('hr')),
     )
-    expect(norm(root)).toBe('<p>\nHello \n<b>\n</b>\n and \n<i>\n</i>\n</p>\n<hr>\n</hr>')
+    expect(norm(root)).toBe(
+      '<p>\nHello \n<b>\nAda\n</b>\n and \n<i>\nGrace\n</i>\n</p>\n<hr>\n</hr>',
+    )
+  })
+
+  it('distinguishes a dirty marker with a leading space from one without it', () => {
+    const spaced = normalizeHtml('<p>name<span> •</span></p>')
+    expect(spaced).toBe('<p>\nname\n<span>\n •\n</span>\n</p>')
+    expect(spaced).toBe(normalizeHtml('<p>name<span> \t•</span></p>'))
+    expect(spaced).not.toBe(normalizeHtml('<p>name<span>•</span></p>'))
+  })
+
+  it('collapses an inline leading space into preceding text whitespace', () => {
+    expect(normalizeHtml('<p>x <span> y</span></p>')).toBe(normalizeHtml('<p>x <span>y</span></p>'))
+    expect(normalizeHtml('<p>x <span> y</span></p>')).not.toBe(
+      normalizeHtml('<p>x<span>y</span></p>'),
+    )
+  })
+
+  it('keeps an inline trailing space and collapses the following leading space into it', () => {
+    const spaced = normalizeHtml('<p><span>x </span> y</p>')
+    expect(spaced).toBe('<p>\n<span>\nx \n</span>\ny\n</p>')
+    expect(spaced).toBe(normalizeHtml('<p><span>x </span>y</p>'))
+  })
+
+  it('keeps the first space through nested and whitespace-only inline siblings', () => {
+    expect(normalizeHtml('<p><span><em>x </em></span><i> </i><strong><b> y</b></strong></p>')).toBe(
+      '<p>\n<span>\n<em>\nx \n</em>\n</span>\n<i>\n</i>\n<strong>\n<b>\ny\n</b>\n</strong>\n</p>',
+    )
+  })
+
+  it('keeps spaces when the neighbouring content is outside several inline ancestors', () => {
+    expect(normalizeHtml('<p>x<span><em> y </em></span>z</p>')).toBe(
+      '<p>\nx\n<span>\n<em>\n y \n</em>\n</span>\nz\n</p>',
+    )
+    const inline = h('span', [h('em', [' y '])])
+    container((r) => r.append('x', h('b', [inline]), 'z'))
+    expect(norm(inline)).toBe('<em>\n y \n</em>')
+  })
+
+  it('trims nested inline edges at a block boundary or a hard line break', () => {
+    expect(normalizeHtml('<div><span><em> x </em></span></div>')).toBe(
+      normalizeHtml('<div><span><em>x</em></span></div>'),
+    )
+    expect(normalizeHtml('<p>x <span> <br> </span><em> y</em></p>')).toBe(
+      normalizeHtml('<p>x<span><br></span><em>y</em></p>'),
+    )
+  })
+
+  it('trims the edges of flex items and inline blocks while keeping spaces within them', () => {
+    expect(normalizeHtml('<div style="display: flex">x<span> y<em> z </em></span>w</div>')).toBe(
+      normalizeHtml('<div style="display: flex">x<span>y<em> z</em></span>w</div>'),
+    )
+    expect(normalizeHtml('<p>x<span style="display: inline-block"> y </span>z</p>')).toBe(
+      normalizeHtml('<p>x<span style="display: inline-block">y</span>z</p>'),
+    )
+  })
+
+  it('finds in-flow content beyond an out-of-flow inline neighbour', () => {
+    const popup = '<span style="position: absolute">popup</span>'
+    const spaced = normalizeHtml(`<p>x${popup}<span> y </span>${popup}z</p>`)
+    expect(spaced).toContain('<span>\n y \n</span>')
+    expect(spaced).toBe(normalizeHtml(`<p>x${popup}<span> y </span>${popup} z</p>`))
+    expect(normalizeHtml(`<p>${popup}<span> y </span>${popup}</p>`)).toContain('<span>\ny\n</span>')
+  })
+
+  it('keeps preserved whitespace at line edges and beside a collapsible space', () => {
+    const spaced = normalizeHtml('<p><span style="white-space: pre-wrap"> x </span><b> y</b></p>')
+    expect(spaced).toContain('\n x \n</span>\n<b>\n y\n')
+    expect(normalizeHtml('<p><span style="white-space: pre-wrap">x </span></p>')).toContain(
+      '\nx \n</span>',
+    )
+    expect(normalizeHtml('<p><span>\u00a0x\u00a0</span></p>')).toBe(
+      '<p>\n<span>\n\u00a0x\u00a0\n</span>\n</p>',
+    )
   })
 
   it('tells "12 unread" from "12unread" in a block', () => {

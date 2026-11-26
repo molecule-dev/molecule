@@ -79,7 +79,7 @@
    },
    "EUR in de-DE": {
     "snapshots": [
-     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n1.234,50 €\n</span>\n</span>\n@route /"
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n1.234,50 €\n</span>\n</span>\n@route /"
     ],
     "calls": []
    },

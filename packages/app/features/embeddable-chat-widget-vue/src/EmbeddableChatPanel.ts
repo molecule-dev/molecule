@@ -109,7 +109,7 @@ const PanelMessage = defineComponent({
           style: wrapperStyle,
           'data-mol-id': `embeddable-chat-message-${props.message.role}`,
         },
-        [h('div', { style: bubbleStyle }, [props.message.body || ' '])],
+        [h('div', { style: bubbleStyle }, [props.message.body || '\u00a0'])],
       )
     }
   },

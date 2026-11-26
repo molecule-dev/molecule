@@ -252,7 +252,7 @@
        preserves template whitespace, and React emits no text nodes here
        (prettier-ignore keeps the DOM exactly React's). -->
   <!-- prettier-ignore -->
-  <div style={messageWrapperStyle(props.message.role === 'user')} data-mol-id={`embeddable-chat-message-${props.message.role}`}><div style={bubbleStyle(props.message.role === 'user', props.theme)}>{props.message.body || ' '}</div></div>
+  <div style={messageWrapperStyle(props.message.role === 'user')} data-mol-id={`embeddable-chat-message-${props.message.role}`}><div style={bubbleStyle(props.message.role === 'user', props.theme)}>{props.message.body || '\u00a0'}</div></div>
 {/snippet}
 
 {#if visible}

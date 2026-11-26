@@ -247,7 +247,7 @@ const PanelMessage: Component<PanelMessageProps> = (props) => {
       style={messageWrapperStyle(isSelf())}
       data-mol-id={`embeddable-chat-message-${props.message.role}`}
     >
-      <div style={bubbleStyle(isSelf(), props.theme)}>{props.message.body || ' '}</div>
+      <div style={bubbleStyle(isSelf(), props.theme)}>{props.message.body || '\u00a0'}</div>
     </div>
   )
 }

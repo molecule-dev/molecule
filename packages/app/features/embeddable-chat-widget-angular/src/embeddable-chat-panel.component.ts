@@ -430,12 +430,12 @@ export class EmbeddableChatPanel {
   }
 
   /**
-   * The message bubble's text (React's `{message.body || ' '}`).
+   * The message bubble's text.
    * @param m - The message.
-   * @returns The body, or one space for an empty body.
+   * @returns The body, or a non-breaking space that holds the line open until text arrives.
    */
   bubbleText(m: EmbeddableChatMessage): string {
-    return m.body || ' '
+    return m.body || '\u00a0'
   }
 
   /**

@@ -24,14 +24,15 @@
  * Adjacent text nodes are merged before comparison (comments and scaffolding
  * between them are transparent): `'One'`+`'Two'` renders exactly like
  * `'OneTwo'`, and `'Hello '`+`'Ada'` like `'Hello Ada'`. Whitespace is then kept
- * exactly where CSS draws it, read from the document's computed style (the
- * case runner loads the reference stylesheet, see `stylesheet.ts`): inside
- * a flex or grid container every text run is trimmed (each run is its own
- * item); elsewhere whitespace is dropped at the start and end of the parent's
- * content and next to a block-level sibling, and kept, collapsed to one space,
- * between text and an inline-level element (`<strong>12</strong> unread`) or
- * between two inline-level elements. Text under `white-space: pre*` is kept
- * verbatim.
+ * using the document's computed style (the case runner loads the reference
+ * stylesheet). In flex and grid containers each text run is its own item
+ * and is trimmed. In an inline formatting context, the normalizer follows
+ * in-flow content through inline boxes up to the surrounding block or item.
+ * A leading collapsible space draws when inline content precedes it on the
+ * same line and no collapsible space already separates them. A trailing
+ * collapsible space draws when inline content follows on the same line. If
+ * spaces meet across inline boxes, only the first draws. Out-of-flow boxes
+ * are skipped. Text in preserving white-space modes is kept verbatim.
  *
  * Everything else is kept and canonicalized: attributes sorted by name,
  * class tokens sorted and de-duplicated (class ORDER never affects CSS),
@@ -314,6 +315,29 @@ export interface NormalizeOptions {
 /** Elements whose children are not rendered text (keep their text verbatim). */
 const RAW_TEXT = new Set(['script', 'style', 'textarea', 'pre'])
 
+/** Replaced elements and controls can occupy space without sharing their parent's line of text. */
+const ATOMIC_INLINE = new Set([
+  'audio',
+  'button',
+  'canvas',
+  'embed',
+  'iframe',
+  'img',
+  'input',
+  'math',
+  'meter',
+  'object',
+  'progress',
+  'select',
+  'svg',
+  'textarea',
+  'video',
+])
+
+const LEADING_SPACE = /^[ \t\r\n]+/
+const TRAILING_SPACE = /[ \t\r\n]+$/
+const HAS_INLINE_TEXT = /[^ \t\r\n]/
+
 interface IdMap {
   map: Map<string, string>
   next: number
@@ -408,28 +432,68 @@ const isOutOfFlow = (el: Element): boolean => {
 
 /** `white-space: pre`, `pre-wrap` or `break-spaces` keeps every space and newline. */
 const preservesWhitespace = (el: Element): boolean =>
-  /^(pre|pre-wrap|break-spaces)$/.test(computed(el)?.whiteSpace ?? '')
+  RAW_TEXT.has(el.localName) || /^(pre|pre-wrap|break-spaces)$/.test(computed(el)?.whiteSpace ?? '')
+
+/** Ordinary inline boxes share their line with their contents. Atomic inline boxes start their own. */
+const sharesInlineContext = (el: Element): boolean =>
+  !ATOMIC_INLINE.has(el.localName) &&
+  /^(inline( flow)?|contents)$/.test(computed(el)?.display || 'inline')
+
+type LineNeighbour = 'content' | 'space' | 'line-edge'
+type FindLineNeighbour = (step: -1 | 1) => LineNeighbour | undefined
 
 /**
- * The nearest sibling of `children[i]` on one side that takes part in the line: a text run with
- * something besides whitespace, or an in-flow element. Out-of-flow elements are skipped, and so
- * are whitespace-only runs, which collapse into this one.
+ * Finds inline content or a line edge on one side of a run, including inside inline siblings.
+ * A preceding collapsible space claims the gap before this run. A following collapsible space
+ * cannot claim it, so the forward search skips space-only runs and looks for content.
  *
  * @param children - The rendered children.
+ * @param parent - The element containing the children.
  * @param i - The index of the text run.
  * @param step - -1 for the sibling before, 1 for the one after.
- * @returns That sibling, or undefined when the run is at that edge of its parent.
+ * @returns The neighbour's effect on the space, or undefined at the edge of the parent.
  */
 const inFlowNeighbour = (
-  children: (Element | string)[],
+  children: readonly (Element | string)[],
+  parent: Element | null,
   i: number,
   step: -1 | 1,
-): Element | string | undefined => {
+): LineNeighbour | undefined => {
   for (let k = i + step; k >= 0 && k < children.length; k += step) {
     const child = children[k]
-    if (typeof child === 'string' ? /\S/.test(child) : !isOutOfFlow(child)) return child
+    if (typeof child === 'string') {
+      if (!child) continue
+      const edgeSpace = step === -1 ? TRAILING_SPACE : LEADING_SPACE
+      if (!edgeSpace.test(child)) return 'content'
+      if (parent && preservesWhitespace(parent)) {
+        const atBreak = step === -1 ? /[\r\n]$/.test(child) : /^[\r\n]/.test(child)
+        return atBreak ? 'line-edge' : 'content'
+      }
+      if (step === -1) return 'space'
+      if (HAS_INLINE_TEXT.test(child)) return 'content'
+    } else if (!isOutOfFlow(child) && computed(child)?.display !== 'none') {
+      if (isBlockLevel(child) || child.localName === 'br') return 'line-edge'
+      if (!sharesInlineContext(child)) return 'content'
+      const nested = renderedChildren(child.childNodes)
+      const neighbour = inFlowNeighbour(nested, child, step === -1 ? nested.length : -1, step)
+      if (neighbour) return neighbour
+    }
   }
   return undefined
+}
+
+/** Finds the neighbours of an inline root when normalizing only part of a line. */
+const outsideRoot = (el: Element, step: -1 | 1): LineNeighbour | undefined => {
+  let parent = el.parentElement
+  while (parent?.hasAttribute('data-parity-unwrap')) parent = parent.parentElement
+  if (!parent || isItemContainer(parent)) return undefined
+  const children = renderedChildren(parent.childNodes)
+  const index = children.indexOf(el)
+  if (index === -1) return undefined
+  return (
+    inFlowNeighbour(children, parent, index, step) ??
+    (sharesInlineContext(parent) && !isOutOfFlow(parent) ? outsideRoot(parent, step) : undefined)
+  )
 }
 
 const serializeChildren = (
@@ -439,33 +503,38 @@ const serializeChildren = (
   inRaw: boolean,
   out: string[],
   hash: boolean,
+  outside?: FindLineNeighbour,
 ): void => {
   const children = renderedChildren(nodes)
+  const neighbour = (i: number, step: -1 | 1): LineNeighbour | undefined => {
+    if (isItemContainer(parent)) return 'line-edge'
+    const sibling = inFlowNeighbour(children, parent, i, step)
+    if (sibling) return sibling
+    if (parent && sharesInlineContext(parent) && !isOutOfFlow(parent))
+      return outside ? outside(step) : outsideRoot(parent, step)
+    return undefined
+  }
+
   children.forEach((child, i) => {
     if (typeof child !== 'string') {
-      serializeElement(child, ids, inRaw, out, hash)
+      serializeElement(child, ids, inRaw, out, hash, (step) => neighbour(i, step))
       return
     }
-    if (inRaw) {
+    const leading = LEADING_SPACE.test(child)
+    const trailing = TRAILING_SPACE.test(child)
+    if (
+      inRaw ||
+      (parent &&
+        (leading || trailing || / {2}|[\t\r\n]/.test(child)) &&
+        preservesWhitespace(parent))
+    ) {
       out.push(escapeText(child))
       return
     }
     let text = child
-    // Computed style is read only when the edge whitespace of this run is in question.
-    if (/^\s|\s$/.test(text)) {
-      if (isItemContainer(parent)) {
-        text = text.trim()
-      } else {
-        const before = inFlowNeighbour(children, i, -1)
-        const after = inFlowNeighbour(children, i, 1)
-        if (before === undefined || (typeof before !== 'string' && isBlockLevel(before)))
-          text = text.trimStart()
-        if (after === undefined || (typeof after !== 'string' && isBlockLevel(after)))
-          text = text.trimEnd()
-      }
-    }
-    // A whitespace-only run left between two inline-level elements draws one space.
-    if (text) out.push(escapeText(text.replace(/\s+/g, ' ')))
+    if (leading && neighbour(i, -1) !== 'content') text = text.replace(LEADING_SPACE, '')
+    if (trailing && text && neighbour(i, 1) !== 'content') text = text.replace(TRAILING_SPACE, '')
+    if (text) out.push(escapeText(text.replace(/[ \t\r\n]+/g, ' ')))
   })
 }
 
@@ -475,6 +544,7 @@ const serializeElement = (
   inRaw: boolean,
   out: string[],
   hash: boolean,
+  outside: FindLineNeighbour,
 ): void => {
   const tag = el.tagName.toLowerCase()
   const attrs: string[] = []
@@ -541,11 +611,7 @@ const serializeElement = (
     out.push(`</${tag}>`)
     return
   }
-  const raw =
-    inRaw ||
-    RAW_TEXT.has(tag) ||
-    (/\s\s|[\n\t]/.test(el.textContent ?? '') && preservesWhitespace(el))
-  serializeChildren(el, Array.from(el.childNodes), ids, raw, out, hash)
+  serializeChildren(el, el.childNodes, ids, inRaw || RAW_TEXT.has(tag), out, hash, outside)
   out.push(`</${tag}>`)
 }
 
