@@ -19,8 +19,15 @@
  *     projects, or a path inside one project: the projects they name, in groups. Each group
  *     receives the arguments that selected one of its projects, so Vitest applies its own
  *     filter exactly as before.
- *   - Anything else (a flag, or a filter that names no project path): one Vitest process
- *     with the arguments unchanged, as `npm test` ran before this runner existed.
+ *   - Flags, read with Vitest's own CLI parser (so `-t <name>` keeps its value), go to every
+ *     group beside its path filters. A setting the runner adds itself (workers, `--bail`, the
+ *     test timeout, the reporters) gives way to the caller's own.
+ *   - A flag in {@link ONE_PROCESS_OPTIONS}, which chooses the configs or projects itself or needs
+ *     every test in one Vitest process, or a filter that names no project path: one Vitest
+ *     process with the arguments unchanged, as `npm test` ran before this runner existed. Vitest
+ *     reads `test.projects` only from the config it starts with, so there a package config that
+ *     declares projects of its own runs as one plain project; the runner names those it would
+ *     include before it starts.
  *
  * `MOL_VITEST_SHARD=i/n` assigns sorted project directories round-robin to disjoint runners.
  * `MOL_VITEST_PRIORITY` is a JSON array of project directories to run first within that share.
@@ -209,6 +216,54 @@ export function testTimeoutArgs(value) {
   return [`--testTimeout=${ms}`]
 }
 
+/**
+ * Vitest options that choose the configs or projects themselves (`--config`, `--root`, `--dir`,
+ * `--project`, `--workspace`) or need every test in one process: one coverage report, one output
+ * file, one UI, inspector or watcher, and Vitest's own `--shard` over all test files. With any
+ * of them, Vitest runs once with the arguments unchanged.
+ */
+export const ONE_PROCESS_OPTIONS = Object.freeze([
+  'config',
+  'root',
+  'dir',
+  'project',
+  'workspace',
+  'coverage',
+  'outputFile',
+  'mergeReports',
+  'ui',
+  'watch',
+  'inspect',
+  'inspectBrk',
+  'standalone',
+  'shard',
+])
+
+/**
+ * The caller's Vitest arguments as Vitest's own CLI parser reads them: its options, the
+ * positional filters, and every other token (the flags with their values), in order. A token is a
+ * filter exactly when the parser reads it as one, so a flag's value is never taken for a path.
+ *
+ * @param args - The arguments after `npm test --`.
+ * @param root - Repository root, where Vitest is installed.
+ * @returns The options, the filters and the flag tokens.
+ */
+export async function splitVitestArgs(args, root = ROOT) {
+  const entry = createRequire(join(root, 'package.json')).resolve('vitest/node')
+  const { parseCLI } = await import(pathToFileURL(entry).href)
+  const parse = (tokens) => parseCLI(['vitest', 'run', ...tokens])
+  const { filter, options } = parse(args)
+  const positional = args.map((arg, index) => {
+    if (arg.startsWith('-')) return false
+    const marker = `\u0000mol-filter-${index}`
+    return parse(args.map((token, i) => (i === index ? marker : token))).filter.includes(marker)
+  })
+  const filters = args.filter((_, index) => positional[index])
+  if (filters.join('\u0000') !== filter.map(String).join('\u0000'))
+    throw new Error(`could not place Vitest's filters in the arguments: ${JSON.stringify(args)}`)
+  return { options, filters, flags: args.filter((_, index) => !positional[index]) }
+}
+
 /** The reporter that names tests near their time limit (scripts/vitest-budget-reporter.mjs). */
 export const BUDGET_REPORTER = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -361,23 +416,31 @@ export async function runGrouped(args, options = {}) {
   } = options
   if (!Number.isInteger(concurrency) || concurrency < 1)
     throw new Error(`group concurrency must be a positive integer, got ${concurrency}`)
-  const timeoutArgs = testTimeoutArgs(testTimeout)
+  const { options: cli, filters: positionals, flags } = await splitVitestArgs(args, root)
+  const timeoutArgs = cli.testTimeout === undefined ? testTimeoutArgs(testTimeout) : []
   const reporters = reporterArgs(args, { agent: options.agent ?? (await vitestSeesAgent(root)) })
-  const unchanged = () => {
-    if (shard)
-      throw new Error('test sharding requires project path filters, not flags or unknown paths')
-    return run(['run', ...timeoutArgs, ...reporters, ...args])
-  }
-  if (args.some((arg) => arg.startsWith('-'))) return unchanged()
-  const paths = args.map((arg) => repoPath(arg, root))
-  if (paths.includes(null)) return unchanged()
   const patterns = options.patterns ?? (await rootProjectPatterns(root))
   const configs = projectConfigs(patterns, root, globSync)
-  const selected = selectProjects([...configs.keys()], paths)
-  if (!selected) {
-    log('[vitest-grouped] a filter names no project path; running Vitest unchanged')
-    return unchanged()
+  const paths = positionals.map((arg) => repoPath(arg, root))
+  const selected = paths.includes(null) ? null : selectProjects([...configs.keys()], paths)
+  const unchanged = async (why) => {
+    if (shard)
+      throw new Error('test sharding requires project path filters, not flags or unknown paths')
+    const included = selected ? [...selected.keys()] : [...configs.keys()]
+    const declaring = await configsWithProjects(included.map((dir) => join(root, configs.get(dir))))
+    const plain = [...declaring].map((file) => relative(root, dirname(file))).sort()
+    log(
+      `[vitest-grouped] ${why}; running Vitest unchanged` +
+        (plain.length
+          ? `, where these configs that declare projects run as one plain project each: ${plain.join(', ')}`
+          : ''),
+    )
+    return run(['run', ...timeoutArgs, ...reporters, ...args])
   }
+  const oneProcess = ONE_PROCESS_OPTIONS.filter((name) => cli[name] !== undefined)
+  if (oneProcess.length)
+    return unchanged(`${oneProcess.map((name) => `--${name}`).join(', ')} needs one Vitest process`)
+  if (!selected) return unchanged('a filter names no project path')
   if (!Array.isArray(priority) || priority.some((dir) => typeof dir !== 'string'))
     throw new Error('test priority must be a JSON array of project directories')
   const preferred = new Set(priority)
@@ -435,10 +498,11 @@ export async function runGrouped(args, options = {}) {
             'run',
             '--config',
             config,
-            ...workers,
-            ...(failFast ? ['--bail=1'] : []),
+            ...(cli.maxWorkers === undefined ? workers : []),
+            ...(failFast && cli.bail === undefined ? ['--bail=1'] : []),
             ...timeoutArgs,
             ...reporters,
+            ...flags,
             ...filters,
           ],
           { output, cwd: ownsRun(group[0]) ? dirname(config) : root },

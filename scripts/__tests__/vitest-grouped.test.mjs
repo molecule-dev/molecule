@@ -21,6 +21,7 @@ const {
   runPool,
   selectProjects,
   shardProjects,
+  splitVitestArgs,
   testTimeoutArgs,
   workersPerGroup,
 } = grouped
@@ -135,11 +136,6 @@ function fixture({ red = [], slow = [], timed = {}, nested = false, split = fals
   return { dir, run }
 }
 
-const ran = (result) =>
-  [...(result.stdout + result.stderr).matchAll(/package (\w) test|meta guard/g)].map(
-    (m) => m[1] ?? 'meta',
-  )
-
 /** Group start and exit events in the order the runner logged them. */
 const events = (result) =>
   [...result.stderr.matchAll(/\[vitest-grouped\] group (\d+)\/\d+(:| exited)/g)].map((m) => ({
@@ -192,11 +188,48 @@ describe('grouped Vitest runs', () => {
     expect(result.stdout).toMatch(/Test Files {2}1 passed/)
   }, 60000)
 
-  it('runs Vitest unchanged when an argument is a flag', () => {
-    const result = fixture().run(['--reporter=verbose', 'packages/api/core/a'])
+  it('gives a flag to every group, its value read as Vitest reads it', () => {
+    // A test-name filter runs only the named test; b's test would fail if it ran.
+    const result = fixture({ red: ['b'] }).run(
+      ['-t', 'package a', 'packages/api/core/a', 'packages/api/core/b'],
+      1,
+      1,
+    )
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    expect(events(result).filter((event) => !event.exit)).toHaveLength(2)
+  }, 60000)
+
+  it('runs a config that declares projects of its own as declared when a flag is given', () => {
+    // 2026-11-26: any flag ran one Vitest process from the root config, where such a config is
+    // one plain project and its SSR-only test ran in the browser project.
+    const result = fixture({ split: true }).run(['--reporter=verbose', 'packages/api/core/split'])
+    const out = result.stdout + result.stderr
+    expect(result.status, out).toBe(0)
+    expect(out).toMatch(/Test Files {2}2 passed \(2\)/)
+  }, 60000)
+
+  it('runs Vitest unchanged for a flag that needs one process, naming the plain-run configs', () => {
+    const result = fixture({ split: true }).run([
+      '--project',
+      'a',
+      'packages/api/core/a',
+      'packages/api/core/split',
+    ])
     expect(result.status, result.stdout + result.stderr).toBe(0)
     expect(result.stderr).not.toContain('[vitest-grouped] group')
-    expect(ran(result)).toEqual(['a'])
+    expect(result.stderr).toContain('--project needs one Vitest process; running Vitest unchanged')
+    expect(result.stderr).toContain('run as one plain project each: packages/api/core/split')
+  }, 60000)
+
+  it("gives way to the caller's own test timeout", () => {
+    const result = fixture({ timed: { a: 'sleep' } }).run(
+      ['--testTimeout=300000', 'packages/api/core/a'],
+      1,
+      1,
+      { MOL_VITEST_TEST_TIMEOUT_MS: '100' },
+    )
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    expect(result.stderr).toContain('group 1/1 exited 0')
   }, 60000)
 
   it('runs two groups at once, so a slow group does not hold the later ones', () => {
@@ -268,7 +301,7 @@ describe('grouped Vitest runs', () => {
   }, 60000)
 
   it('refuses shard fallbacks that would duplicate the whole suite', () => {
-    const result = fixture().run(['--reporter=verbose'], 2, 1, { MOL_VITEST_SHARD: '1/8' })
+    const result = fixture().run(['sample.test'], 2, 1, { MOL_VITEST_SHARD: '1/8' })
     expect(result.status).toBe(1)
     expect(result.stderr).toContain('sharding requires project path filters')
   }, 60000)
@@ -312,7 +345,7 @@ describe('grouped Vitest runs', () => {
 
   it('passes MOL_VITEST_TEST_TIMEOUT_MS to an unchanged run too', () => {
     const result = fixture({ timed: { a: 'sleep' } }).run(
-      ['--reporter=verbose', 'packages/api/core/a'],
+      ['--project', 'a', 'packages/api/core/a'],
       2,
       1,
       { MOL_VITEST_TEST_TIMEOUT_MS: '300000' },
@@ -509,6 +542,24 @@ describe('selection and grouping rules', () => {
     expect(balancedGroups([1, 2, 3, 4, 5, 6, 7], 3).map((g) => g.length)).toEqual([3, 2, 2])
     expect(balancedGroups([1, 2], 150)).toEqual([[1, 2]])
     expect(() => balancedGroups([1], 0)).toThrow(/positive integer/)
+  })
+})
+
+describe('splitVitestArgs', () => {
+  it('separates the filters from the flags and their values, as Vitest parses them', async () => {
+    const split = await splitVitestArgs(
+      ['-t', 'renders x', 'packages/a', '--reporter', 'verbose', 'packages/b'],
+      ROOT,
+    )
+    expect(split.filters).toEqual(['packages/a', 'packages/b'])
+    expect(split.flags).toEqual(['-t', 'renders x', '--reporter', 'verbose'])
+    expect(split.options.testNamePattern).toBe('renders x')
+  })
+
+  it('takes a flag value that matches a filter for the value, not the filter', async () => {
+    const split = await splitVitestArgs(['-t', 'packages/a', 'packages/a'], ROOT)
+    expect(split.filters).toEqual(['packages/a'])
+    expect(split.flags).toEqual(['-t', 'packages/a'])
   })
 })
 
