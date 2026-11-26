@@ -1,5 +1,11 @@
 # @molecule/api-ai-summarization-llm
 
+## 1.1.4
+
+### Patch Changes
+
+- Requires `@molecule/api-ai-summarization` 1.1.0 (`attempts`, `maxWords`, `sentences`, `withinCap`) or later, the first release that declares what it uses.
+
 ## 1.1.2
 
 ### Patch Changes

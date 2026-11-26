@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-invoice",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Line-item invoicing with payment tracking",
   "homepage": "https://www.molecule.dev/packages/api-resource-invoice",
   "type": "module",

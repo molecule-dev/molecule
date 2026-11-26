@@ -1,5 +1,11 @@
 # @molecule/api-resource-event-type
 
+## 1.0.7
+
+### Patch Changes
+
+- Types validation middleware against the event type route schemas.
+
 ## 1.0.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-payments-paypal
 
+## 1.0.9
+
+### Patch Changes
+
+- Retains valid subscription fields when PayPal supplies an invalid next billing date.
+
 ## 1.0.8
 
 ### Patch Changes

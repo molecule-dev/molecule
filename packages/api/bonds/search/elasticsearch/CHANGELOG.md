@@ -1,5 +1,11 @@
 # @molecule/api-search-elasticsearch
 
+## 1.0.6
+
+### Patch Changes
+
+- Preserves each Elasticsearch operation’s signature when adding connectivity error handling.
+
 ## 1.0.5
 
 ### Patch Changes

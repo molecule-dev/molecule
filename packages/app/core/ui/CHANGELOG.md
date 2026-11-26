@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.13.0
+
+### Minor Changes
+
+- Add shared value callbacks for text fields, checkboxes, and switches.
+
 ## 1.12.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-search-typesense
 
+## 1.0.5
+
+### Patch Changes
+
+- Omits missing highlight snippets and types Typesense searches against the SDK.
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-openapi
 
+## 1.0.5
+
+### Patch Changes
+
+- Reports unsupported Zod versions and safely associates validators with OpenAPI operations.
+
 ## 1.0.4
 
 ### Patch Changes

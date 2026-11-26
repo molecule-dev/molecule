@@ -1,5 +1,11 @@
 # @molecule/app-locales-photo-lightbox
 
+## 1.0.5
+
+### Patch Changes
+
+- Adds the `lightbox.image` and `lightbox.imageOfTotal` labels the lightbox reads out for a photo without alt text, in every locale.
+
 ## 1.0.4
 
 ### Patch Changes

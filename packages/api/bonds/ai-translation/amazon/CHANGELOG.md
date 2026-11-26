@@ -1,5 +1,11 @@
 # @molecule/api-ai-translation-amazon
 
+## 1.1.1
+
+### Patch Changes
+
+- Requires `@molecule/api-ai-translation` 1.1.0 (`protect`) or later, the first release that declares what it uses.
+
 ## 1.1.0
 
 ### Minor Changes

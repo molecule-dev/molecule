@@ -1,5 +1,11 @@
 # @molecule/api-uploads-s3
 
+## 1.3.2
+
+### Patch Changes
+
+- Types optional S3 lifecycle registration against the lifecycle package.
+
 ## 1.3.1
 
 ### Patch Changes

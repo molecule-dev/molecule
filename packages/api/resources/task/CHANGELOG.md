@@ -1,5 +1,11 @@
 # @molecule/api-resource-task
 
+## 1.0.8
+
+### Patch Changes
+
+- Types validation middleware against the task route schemas.
+
 ## 1.0.7
 
 ### Patch Changes

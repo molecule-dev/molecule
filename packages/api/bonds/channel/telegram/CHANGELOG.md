@@ -1,5 +1,11 @@
 # @molecule/api-channel-telegram
 
+## 1.0.4
+
+### Patch Changes
+
+- Checks inbound Telegram message fields before exposing them to consumers.
+
 ## 1.0.1
 
 ### Patch Changes

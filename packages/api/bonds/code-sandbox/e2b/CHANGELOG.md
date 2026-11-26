@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.4.6
+
+### Patch Changes
+
+- Types sandbox, snapshot and volume operations against the E2B SDK.
+
 ## 1.4.5
 
 ### Patch Changes

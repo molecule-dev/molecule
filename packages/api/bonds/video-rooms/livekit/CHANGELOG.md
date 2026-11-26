@@ -1,5 +1,11 @@
 # @molecule/api-video-rooms-livekit
 
+## 1.0.4
+
+### Patch Changes
+
+- Checks the LiveKit token, room and recording adapters against the SDK.
+
 ## 1.0.1
 
 ### Patch Changes

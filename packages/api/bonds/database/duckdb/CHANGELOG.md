@@ -1,5 +1,11 @@
 # @molecule/api-database-duckdb
 
+## 1.1.4
+
+### Patch Changes
+
+- Types optional DuckDB lifecycle registration against the lifecycle package.
+
 ## 1.1.3
 
 ### Patch Changes

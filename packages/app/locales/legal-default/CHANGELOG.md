@@ -1,5 +1,11 @@
 # @molecule/app-locales-legal-default
 
+## 1.0.5
+
+### Patch Changes
+
+- Falls back to English when a locale does not identify a translation catalog.
+
 ## 1.0.3
 
 ### Patch Changes

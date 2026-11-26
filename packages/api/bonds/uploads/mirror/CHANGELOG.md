@@ -1,5 +1,11 @@
 # @molecule/api-uploads-mirror
 
+## 1.1.8
+
+### Patch Changes
+
+- Uses Node’s stream types when unpiping a failed upload destination.
+
 ## 1.1.7
 
 ### Patch Changes

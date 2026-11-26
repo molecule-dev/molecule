@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.10.0
+
+### Minor Changes
+
+- Emit the new text or checked state when users edit a text field, checkbox, or switch.
+
 ## 1.9.0
 
 ### Minor Changes

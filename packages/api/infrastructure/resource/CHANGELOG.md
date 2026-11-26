@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.3.0
+
+### Minor Changes
+
+- Preserves server-managed IDs and timestamps when a CRUD schema parses only consumer fields, and declares the optional `clearCookie` on `MoleculeResponse`.
+
 ## 1.2.0
 
 ### Minor Changes

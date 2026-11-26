@@ -1,5 +1,11 @@
 # @molecule/api-resource-wiki-page
 
+## 1.0.9
+
+### Patch Changes
+
+- Types validation middleware against the wiki page route schemas.
+
 ## 1.0.8
 
 ### Patch Changes

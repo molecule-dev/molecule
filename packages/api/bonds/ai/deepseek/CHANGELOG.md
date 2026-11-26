@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.2.5
+
+### Patch Changes
+
+- Requires `@molecule/api-ai` 1.6.2 (`onProviderHttpError`) or later, the first release that declares what it uses.
+
 ## 1.2.4
 
 ### Patch Changes

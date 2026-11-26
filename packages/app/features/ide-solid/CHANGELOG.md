@@ -1,5 +1,15 @@
 # @molecule/app-ide-solid
 
+## 1.1.5
+
+### Patch Changes
+
+- The context usage card turns its padding into a style through the kit's shared `toStyleProps`, as the other renderers do.
+- Bug reports, sharing, quick pickers, the keyboard shortcuts reference and the chat panel overlay open as kit modals: Escape closes only the top one, focus stays inside and returns to the opener, and the page behind stops scrolling. Requires `@molecule/app-ai-models` 1.2.0, `@molecule/app-solid` 3.17.0, `@molecule/app-ui` 1.10.0 and `@molecule/app-ui-solid` 1.6.0 or later.
+- Requires `@molecule/app-ai-models` 1.4.0 and `@molecule/app-i18n` 1.2.0 or later, which `@molecule/app-ide-panel-logic` needs.
+- Updated dependencies
+  - @molecule/app-ide-panel-logic@1.4.2
+
 ## 1.1.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.15.1
+
+### Patch Changes
+
+- Types event timing fixture state and validates the listener map before reading it.
+
 ## 3.15.0
 
 ### Minor Changes

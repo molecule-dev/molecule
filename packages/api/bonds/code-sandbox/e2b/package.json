@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-code-sandbox-e2b",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "E2B (e2b.dev) Firecracker microVM code sandbox provider — golden templates, fork, pause/resume",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/api-cron-node-cron
 
+## 1.0.4
+
+### Patch Changes
+
+- Types scheduled job records with the live node-cron task.
+
 ## 1.0.1
 
 ### Patch Changes

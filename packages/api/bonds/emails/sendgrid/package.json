@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-sendgrid",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "SendGrid email provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",

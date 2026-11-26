@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-solid",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Solid IDE components for molecule.dev workspace",
   "homepage": "https://www.molecule.dev/packages/app-ide-solid",
   "type": "module",
@@ -50,7 +50,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@molecule/app-ide-panel-logic": "1.4.1",
+    "@molecule/app-ide-panel-logic": "1.4.2",
     "material-file-icons": "2.4.0"
   },
   "peerDependencies": {
@@ -88,9 +88,9 @@
     "@molecule/app-logger": "1.1.0",
     "@molecule/app-solid": "3.17.0",
     "@molecule/app-storage": "1.1.1",
-    "@molecule/app-ui": "1.12.0",
-    "@molecule/app-ui-solid": "1.8.0",
-    "@molecule/app-ui-tailwind": "1.5.0",
+    "@molecule/app-ui": "1.13.0",
+    "@molecule/app-ui-solid": "1.9.0",
+    "@molecule/app-ui-tailwind": "1.5.1",
     "@testing-library/dom": "10.4.2",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",

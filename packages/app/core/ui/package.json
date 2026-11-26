@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "description": "Styled component library with ClassMap",
   "type": "module",
   "main": "dist/index.js",

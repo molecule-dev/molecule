@@ -1,5 +1,15 @@
 # @molecule/app-ide-react
 
+## 4.4.1
+
+### Patch Changes
+
+- Type browser dictation, keyboard undo, and chat notice rendering against their actual inputs.
+- Bug reports, sharing, quick pickers, the keyboard shortcuts reference and the chat panel overlay open as kit modals: Escape closes only the top one, focus stays inside and returns to the opener, and the page behind stops scrolling. Requires `@molecule/app-ui` 1.10.0 and `@molecule/app-ui-react` 4.8.1 or later.
+- Requires `@molecule/app-ai-models` 1.4.0 and `@molecule/app-i18n` 1.2.0 or later, which `@molecule/app-ide-panel-logic` needs.
+- Updated dependencies
+  - @molecule/app-ide-panel-logic@1.4.2
+
 ## 4.4.0
 
 ### Minor Changes

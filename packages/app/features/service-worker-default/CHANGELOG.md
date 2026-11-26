@@ -1,5 +1,11 @@
 # @molecule/app-service-worker-default
 
+## 1.0.4
+
+### Patch Changes
+
+- Shows how to declare the service worker scope and the injected precache manifest.
+
 ## 1.0.1
 
 ### Patch Changes

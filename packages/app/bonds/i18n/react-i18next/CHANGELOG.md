@@ -1,5 +1,13 @@
 # @molecule/app-i18n-react-i18next
 
+## 1.0.8
+
+### Patch Changes
+
+- Requires `@molecule/app-i18n` 1.1.0 or later, which `@molecule/app-i18n-i18next` needs.
+- Updated dependencies
+  - @molecule/app-i18n-i18next@1.0.7
+
 ## 1.0.7
 
 ### Patch Changes

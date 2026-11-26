@@ -1,5 +1,11 @@
 # @molecule/app-feature-barcode-scanner-react
 
+## 5.0.1
+
+### Patch Changes
+
+- Uses the ZXing library types for the fallback barcode scanner and its format hints.
+
 ## 5.0.0
 
 ### Major Changes

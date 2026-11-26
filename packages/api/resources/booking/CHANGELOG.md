@@ -1,5 +1,11 @@
 # @molecule/api-resource-booking
 
+## 1.0.7
+
+### Patch Changes
+
+- Ignores repeated date query values when filtering bookings.
+
 ## 1.0.6
 
 ### Patch Changes

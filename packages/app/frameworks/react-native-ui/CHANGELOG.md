@@ -1,5 +1,11 @@
 # @molecule/app-ui-react-native
 
+## 2.0.0
+
+### Major Changes
+
+- Use `onValueChange` and `onCheckedChange` for native fields and eventless handlers for presses and focus. Requires `@molecule/app-ui` 1.13.0 or later.
+
 ## 1.0.10
 
 ### Patch Changes

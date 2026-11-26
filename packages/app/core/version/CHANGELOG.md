@@ -1,5 +1,11 @@
 # @molecule/app-version
 
+## 1.1.3
+
+### Patch Changes
+
+- Requires `@molecule/app-i18n` 1.2.0 (`defaultValue_one`) or later, the first release that declares what it uses.
+
 ## 1.1.2
 
 ### Patch Changes

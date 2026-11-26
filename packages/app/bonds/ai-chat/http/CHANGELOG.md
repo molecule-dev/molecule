@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat-http
 
+## 1.5.4
+
+### Patch Changes
+
+- Requires `@molecule/app-ai-chat` 1.7.0 (`billingAction`, `lastEventId`, `messageId`, `viaDictation`) or later, the first release that declares what it uses.
+
 ## 1.5.3
 
 ### Patch Changes

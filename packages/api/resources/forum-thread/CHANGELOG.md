@@ -1,5 +1,11 @@
 # @molecule/api-resource-forum-thread
 
+## 1.0.8
+
+### Patch Changes
+
+- Types validation middleware against the forum thread route schemas.
+
 ## 1.0.7
 
 ### Patch Changes

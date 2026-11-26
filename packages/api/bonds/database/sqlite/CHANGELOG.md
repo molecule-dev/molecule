@@ -1,5 +1,12 @@
 # @molecule/api-database-sqlite
 
+## 1.4.4
+
+### Patch Changes
+
+- With `SQLITE_PATH=:memory:`, the migrations and the pool share one in-memory database, so a server serves the tables it migrated at boot.
+- Types optional SQLite lifecycle registration against the lifecycle package.
+
 ## 1.4.3
 
 ### Patch Changes

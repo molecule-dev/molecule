@@ -1,5 +1,11 @@
 # @molecule/api-uploads-filesystem
 
+## 1.2.2
+
+### Patch Changes
+
+- Types optional filesystem upload readiness registration against the lifecycle package.
+
 ## 1.2.1
 
 ### Patch Changes

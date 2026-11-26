@@ -1,5 +1,11 @@
 # @molecule/api-export-pptx
 
+## 1.0.6
+
+### Patch Changes
+
+- Reports malformed slide data as a request error before exporting a presentation.
+
 ## 1.0.5
 
 ### Patch Changes

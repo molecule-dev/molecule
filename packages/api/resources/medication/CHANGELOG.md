@@ -1,5 +1,11 @@
 # @molecule/api-resource-medication
 
+## 1.0.7
+
+### Patch Changes
+
+- Types validation middleware against the medication route schemas.
+
 ## 1.0.6
 
 ### Patch Changes

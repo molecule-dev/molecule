@@ -1,5 +1,11 @@
 # @molecule/app-state-jotai
 
+## 1.0.7
+
+### Patch Changes
+
+- Returns Jotai’s writable atom type from the derived atom factory.
+
 ## 1.0.6
 
 ### Patch Changes

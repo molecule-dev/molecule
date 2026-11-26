@@ -1,5 +1,11 @@
 # @molecule/api-resource-template
 
+## 1.1.0
+
+### Minor Changes
+
+- Preserves JSON property names during substitution, and exports `Substituted<T>`, the result type with each substituted string widened to `string`.
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.13
+
+### Patch Changes
+
+- Types Stripe webhook and subscription fields while retaining the original payload.
+
 ## 1.2.12
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-document-text-pdfjs
 
+## 1.1.1
+
+### Patch Changes
+
+- Reads document metadata using the PDF SDK field types.
+
 ## 1.1.0
 
 ### Minor Changes

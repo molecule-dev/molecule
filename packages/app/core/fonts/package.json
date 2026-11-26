@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-fonts",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Font loading and typography — 20 self-hosted families ship as provider bonds (check here before npm-installing a webfont)",
   "type": "module",
   "main": "dist/index.js",

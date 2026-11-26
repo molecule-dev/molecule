@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-angular
 
+## 3.0.2
+
+### Patch Changes
+
+- Requires `@molecule/app-auth` 3.4.0 (`oauthServer`) or later, the first release that declares what it uses.
+
 ## 3.0.1
 
 ### Patch Changes

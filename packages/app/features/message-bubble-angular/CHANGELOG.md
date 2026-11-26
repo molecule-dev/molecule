@@ -1,5 +1,11 @@
 # @molecule/app-message-bubble-angular
 
+## 1.1.2
+
+### Patch Changes
+
+- Requires `@molecule/app-angular` 3.16.1 (`defaultValue_one`) or later, the first release that declares what it uses.
+
 ## 1.1.1
 
 ### Patch Changes

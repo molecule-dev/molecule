@@ -1,5 +1,11 @@
 # @molecule/app-styling
 
+## 1.0.7
+
+### Patch Changes
+
+- Resolves numeric keys and defaults in class variance configurations.
+
 ## 1.0.6
 
 ### Patch Changes

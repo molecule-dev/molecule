@@ -1,5 +1,14 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.7
+
+### Patch Changes
+
+- Prepare the managed browser before the first Playwright launch and keep request-only tests browser-free.
+- Types preview test APIs and supports asynchronous disposal of preview HTTP responses.
+- Updated dependencies
+  - @molecule/app-e2e-playwright@1.1.0
+
 ## 1.2.6
 
 ### Patch Changes

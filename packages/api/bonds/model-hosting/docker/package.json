@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-model-hosting-docker",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Self-hosted model hosting for molecule.dev — run a model server container on your own Docker host, with NVIDIA GPUs through the NVIDIA container runtime",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/app-ui-solid
 
+## 1.9.0
+
+### Minor Changes
+
+- Report changes to text fields, checkboxes, and switches through callbacks that receive the new value directly.
+
 ## 1.8.0
 
 ### Minor Changes

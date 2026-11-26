@@ -1,5 +1,11 @@
 # @molecule/api-database-pglite
 
+## 1.3.2
+
+### Patch Changes
+
+- Types the rows returned by PGlite migration queries.
+
 ## 1.3.1
 
 ### Patch Changes

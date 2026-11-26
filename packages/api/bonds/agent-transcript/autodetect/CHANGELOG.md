@@ -1,5 +1,12 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.2.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-agent-transcript-gemini-cli@1.0.3
+
 ## 1.2.6
 
 ### Patch Changes

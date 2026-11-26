@@ -1,5 +1,11 @@
 # @molecule/api-image-compositor
 
+## 1.0.5
+
+### Patch Changes
+
+- Rehydrates JSON-serialized image and mask bytes and validates compositing layers.
+
 ## 1.0.4
 
 ### Patch Changes

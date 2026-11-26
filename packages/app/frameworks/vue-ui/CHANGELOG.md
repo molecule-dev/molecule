@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.8.0
+
+### Minor Changes
+
+- Emit the new text or checked state when users edit a text field, checkbox, or switch.
+
 ## 1.7.0
 
 ### Minor Changes

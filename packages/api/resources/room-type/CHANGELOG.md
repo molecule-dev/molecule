@@ -1,5 +1,11 @@
 # @molecule/api-resource-room-type
 
+## 1.0.7
+
+### Patch Changes
+
+- Ignores repeated query values when applying room property and availability filters.
+
 ## 1.0.6
 
 ### Patch Changes

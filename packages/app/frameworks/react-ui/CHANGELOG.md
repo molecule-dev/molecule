@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.11.0
+
+### Minor Changes
+
+- Report changes to text fields, checkboxes, and switches through callbacks that receive the new value directly.
+
 ## 4.10.0
 
 ### Minor Changes

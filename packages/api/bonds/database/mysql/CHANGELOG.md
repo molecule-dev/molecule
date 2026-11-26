@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.4.4
+
+### Patch Changes
+
+- Types MySQL migration ledger queries and lifecycle registration.
+
 ## 1.4.3
 
 ### Patch Changes

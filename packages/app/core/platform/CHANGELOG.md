@@ -1,5 +1,11 @@
 # @molecule/app-platform
 
+## 1.0.6
+
+### Patch Changes
+
+- Checks optional Capacitor and Electron runtime properties before using them.
+
 ## 1.0.5
 
 ### Patch Changes

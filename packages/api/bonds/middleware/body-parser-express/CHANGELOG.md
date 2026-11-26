@@ -1,5 +1,11 @@
 # @molecule/api-middleware-body-parser-express
 
+## 2.1.1
+
+### Patch Changes
+
+- Types the Express adapter for custom JSON parser options.
+
 ## 2.1.0
 
 ### Minor Changes

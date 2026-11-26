@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.10.1
+
+### Patch Changes
+
+- Requires `@molecule/app-http` 1.10.0 or later, the first release that declares what it uses.
+
 ## 1.10.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-code-editor-monaco
 
+## 1.0.9
+
+### Patch Changes
+
+- Types Monaco language server adapters and provides the required completion ranges.
+
 ## 1.0.8
 
 ### Patch Changes

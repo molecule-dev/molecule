@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.11.5
+
+### Patch Changes
+
+- Handles malformed OAuth cookies and preserves nullable profile email values in the type contract. Requires `@molecule/api-resource` 1.3.0 or later.
+
 ## 1.11.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.5.1
+
+### Patch Changes
+
+- Types responsive and fixed grid column variants against the styling bond.
+
 ## 1.5.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-i18n-i18next
 
+## 1.0.7
+
+### Patch Changes
+
+- Requires `@molecule/app-i18n` 1.1.0 (`getRevision`) or later, the first release that declares what it uses.
+
 ## 1.0.6
 
 ### Patch Changes

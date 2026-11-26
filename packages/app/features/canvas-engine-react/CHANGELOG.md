@@ -1,5 +1,11 @@
 # @molecule/app-canvas-engine-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Accepts pointer movement and release events from both HTML and SVG canvas surfaces.
+
 ## 4.0.1
 
 ### Patch Changes

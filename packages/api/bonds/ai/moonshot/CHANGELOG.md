@@ -1,5 +1,11 @@
 # @molecule/api-ai-moonshot
 
+## 1.3.3
+
+### Patch Changes
+
+- Accepts legacy assistant reasoning only when it is text.
+
 ## 1.3.2
 
 ### Patch Changes

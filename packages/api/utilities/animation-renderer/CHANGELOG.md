@@ -1,5 +1,11 @@
 # @molecule/api-animation-renderer
 
+## 1.0.6
+
+### Patch Changes
+
+- Validates animation requests before queueing and types animated Lottie keyframes.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-deepseek",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "DeepSeek AI chat provider bond — DeepSeek API completions over the swappable @molecule/api-ai ai bond (DEEPSEEK_API_KEY), with bounded stream-stall timeouts",
   "homepage": "https://www.molecule.dev/packages/api-ai-deepseek",
   "type": "module",

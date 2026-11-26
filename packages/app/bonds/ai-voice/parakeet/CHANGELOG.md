@@ -1,5 +1,11 @@
 # @molecule/app-ai-voice-parakeet
 
+## 1.0.6
+
+### Patch Changes
+
+- Types speech recognition calls against the Parakeet SDK.
+
 ## 1.0.5
 
 ### Patch Changes

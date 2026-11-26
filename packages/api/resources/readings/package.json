@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-readings",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Generic time-series with on-the-fly aggregation",
   "homepage": "https://www.molecule.dev/packages/api-resource-readings",
   "type": "module",

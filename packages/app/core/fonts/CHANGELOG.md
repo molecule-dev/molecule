@@ -1,5 +1,11 @@
 # @molecule/app-fonts
 
+## 1.4.1
+
+### Patch Changes
+
+- Types the optional bundler environment used to resolve bundled font paths.
+
 ## 1.4.0
 
 ### Minor Changes

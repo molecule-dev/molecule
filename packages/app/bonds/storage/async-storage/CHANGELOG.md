@@ -1,5 +1,11 @@
 # @molecule/app-storage-async-storage
 
+## 1.0.8
+
+### Patch Changes
+
+- Supports nested CommonJS default exports when loading native AsyncStorage.
+
 ## 1.0.7
 
 ### Patch Changes

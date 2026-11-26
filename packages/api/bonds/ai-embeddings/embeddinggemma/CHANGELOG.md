@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-embeddinggemma
 
+## 1.0.4
+
+### Patch Changes
+
+- Reports malformed EmbeddingGemma model output before returning an embedding.
+
 ## 1.0.3
 
 ### Patch Changes

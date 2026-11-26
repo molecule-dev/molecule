@@ -1,5 +1,12 @@
 # @molecule/api-queue-redis
 
+## 1.1.3
+
+### Patch Changes
+
+- Requires `@molecule/api-queue` 1.1.0 (`ping`) or later, the first release that declares what it uses.
+- Types optional Redis queue lifecycle registration against the lifecycle package.
+
 ## 1.1.2
 
 ### Patch Changes

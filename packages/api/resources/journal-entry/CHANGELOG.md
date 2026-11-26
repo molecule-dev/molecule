@@ -1,5 +1,11 @@
 # @molecule/api-resource-journal-entry
 
+## 1.0.7
+
+### Patch Changes
+
+- Types validation middleware against the journal entry route schemas.
+
 ## 1.0.6
 
 ### Patch Changes

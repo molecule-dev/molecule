@@ -1,5 +1,11 @@
 # @molecule/app-analytics-mixpanel
 
+## 1.0.7
+
+### Patch Changes
+
+- Types Mixpanel runtime hook configuration and checks the replay endpoint override.
+
 ## 1.0.6
 
 ### Patch Changes

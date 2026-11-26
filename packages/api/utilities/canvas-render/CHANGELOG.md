@@ -1,5 +1,11 @@
 # @molecule/api-canvas-render
 
+## 1.0.5
+
+### Patch Changes
+
+- Checks drawing layers and output options and decodes inline images for PNG rendering.
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-firmware
 
+## 1.0.9
+
+### Patch Changes
+
+- Types firmware and rollout queries from their validation schemas.
+
 ## 1.0.8
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-middleware-cookie-parser-express
 
+## 1.0.4
+
+### Patch Changes
+
+- Types the default and configurable Express cookie parser adapters.
+
 ## 1.0.1
 
 ### Patch Changes

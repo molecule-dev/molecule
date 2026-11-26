@@ -1,5 +1,11 @@
 # @molecule/api-audio-render
 
+## 2.0.4
+
+### Patch Changes
+
+- Checks audio channel, clip and option types before queueing an HTTP render request.
+
 ## 2.0.3
 
 ### Patch Changes

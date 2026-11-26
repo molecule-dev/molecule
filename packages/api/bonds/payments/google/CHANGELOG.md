@@ -1,5 +1,11 @@
 # @molecule/api-payments-google
 
+## 2.0.1
+
+### Patch Changes
+
+- Validates decoded Google Play notification fields before verifying a purchase.
+
 ## 2.0.0
 
 ### Major Changes

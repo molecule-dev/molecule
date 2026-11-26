@@ -1,5 +1,12 @@
 # @molecule/api-database-postgresql
 
+## 1.4.3
+
+### Patch Changes
+
+- Requires `@molecule/api-database` 1.2.2 (`onConnectionLoss`) or later, the first release that declares what it uses.
+- Types PostgreSQL migration ledger queries and lifecycle registration.
+
 ## 1.4.2
 
 ### Patch Changes

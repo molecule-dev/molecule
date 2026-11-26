@@ -1,5 +1,11 @@
 # @molecule/api-imap
 
+## 1.0.5
+
+### Patch Changes
+
+- Types the lazy IMAP client against the ImapFlow SDK.
+
 ## 1.0.4
 
 ### Patch Changes

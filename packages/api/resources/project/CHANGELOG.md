@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.14
+
+### Patch Changes
+
+- Requires a string caller ID when creating a project through a legacy request adapter.
+
 ## 1.0.13
 
 ### Patch Changes

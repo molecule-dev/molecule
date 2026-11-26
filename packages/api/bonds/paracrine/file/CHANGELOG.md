@@ -1,5 +1,11 @@
 # @molecule/api-paracrine-file
 
+## 1.3.2
+
+### Patch Changes
+
+- Types SQLite mailbox rows and checks legacy message fields before import.
+
 ## 1.3.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.6.1
+
+### Patch Changes
+
+- Types browser storage and preserves the error fields used by credential redaction.
+
 ## 3.6.0
 
 ### Minor Changes

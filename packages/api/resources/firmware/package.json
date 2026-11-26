@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-firmware",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Firmware versions + OTA rollouts",
   "homepage": "https://www.molecule.dev/packages/api-resource-firmware",
   "type": "module",

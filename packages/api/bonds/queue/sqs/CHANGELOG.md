@@ -1,5 +1,11 @@
 # @molecule/api-queue-sqs
 
+## 1.0.6
+
+### Patch Changes
+
+- Types the SQS delivery fields used to construct a received message.
+
 ## 1.0.5
 
 ### Patch Changes

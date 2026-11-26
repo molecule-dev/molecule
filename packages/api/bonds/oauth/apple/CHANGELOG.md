@@ -1,5 +1,11 @@
 # @molecule/api-oauth-apple
 
+## 1.0.6
+
+### Patch Changes
+
+- Types Apple public keys against the Node crypto import format.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-emails-sendgrid
 
+## 1.0.8
+
+### Patch Changes
+
+- Checks SendGrid message content before sending and types the SDK request.
+
 ## 1.0.7
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.3.5
+
+### Patch Changes
+
+- Uses the browser idle callback types for speculative work.
+
 ## 1.3.4
 
 ### Patch Changes

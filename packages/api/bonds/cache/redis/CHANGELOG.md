@@ -1,5 +1,12 @@
 # @molecule/api-cache-redis
 
+## 1.1.3
+
+### Patch Changes
+
+- Requires `@molecule/api-cache` 1.1.0 (`ping`) or later, the first release that declares what it uses.
+- Types Redis reads and retains support for legacy plain-string entries.
+
 ## 1.1.2
 
 ### Patch Changes

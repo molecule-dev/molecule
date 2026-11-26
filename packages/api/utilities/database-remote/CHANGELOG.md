@@ -1,5 +1,11 @@
 # @molecule/api-database-remote
 
+## 1.0.7
+
+### Patch Changes
+
+- Checks lazy database driver loading against the installed driver declarations.
+
 ## 1.0.6
 
 ### Patch Changes

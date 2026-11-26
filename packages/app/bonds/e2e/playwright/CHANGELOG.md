@@ -1,5 +1,11 @@
 # @molecule/app-e2e-playwright
 
+## 1.1.0
+
+### Minor Changes
+
+- Use the suite's Playwright CLI to prepare the managed browser once per test run.
+
 ## 1.0.4
 
 ### Patch Changes
