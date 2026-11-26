@@ -13,10 +13,12 @@ import angularTestHostChangeDetection from './eslint-rules/angular-test-host-cha
 import { intrinsicJsxConfig } from './eslint-rules/intrinsic-jsx-config.mjs'
 import noCamelCaseNativeEventsInVueH from './eslint-rules/no-camel-case-native-events-in-vue-h.mjs'
 import noDomEventsInAngularCheckHooks from './eslint-rules/no-dom-events-in-angular-check-hooks.mjs'
+import noDoubleCast from './eslint-rules/no-double-cast.mjs'
 import noHandPlacedNodes from './eslint-rules/no-hand-placed-nodes.mjs'
 import noIntrinsicJsx from './eslint-rules/no-intrinsic-jsx.mjs'
 import noOnceReadResolvedNode from './eslint-rules/no-once-read-resolved-node.mjs'
 import noRequiredSnippetRender from './eslint-rules/no-required-snippet-render.mjs'
+import viMockKeepsActual from './eslint-rules/vi-mock-keeps-actual.mjs'
 import { moleculeLocalPlugin } from './packages/tooling/eslint-config/src/plugin.mjs'
 import {
   ROUTER_LIBRARY_FIX,
@@ -79,11 +81,13 @@ const moleculeLocal = {
   rules: {
     ...moleculeLocalPlugin.rules,
     'no-dom-events-in-angular-check-hooks': noDomEventsInAngularCheckHooks,
+    'no-double-cast': noDoubleCast,
     'no-camel-case-native-events-in-vue-h': noCamelCaseNativeEventsInVueH,
     'no-hand-placed-nodes': noHandPlacedNodes,
     'no-required-snippet-render': noRequiredSnippetRender,
     'no-once-read-resolved-node': noOnceReadResolvedNode,
     'angular-test-host-change-detection': angularTestHostChangeDetection,
+    'vi-mock-keeps-actual': viMockKeepsActual,
   },
 }
 
@@ -256,6 +260,14 @@ export default tseslint.config(
   },
   prettier,
   ...svelte.configs.prettier,
+  {
+    // A cast through `unknown` (`x as unknown as T`) switches the compiler off for that value; source
+    // narrows with a type guard, accepts only the fields it uses, or declares the global instead. Tests
+    // may feed deliberately invalid input.
+    files: ['**/*.{ts,tsx,mts,cts,svelte}'],
+    ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    rules: { 'molecule-local/no-double-cast': 'error' },
+  },
   {
     plugins: {
       'simple-import-sort': simpleImportSort,
@@ -669,6 +681,9 @@ export default tseslint.config(
       'jsdoc/require-returns': 'off',
       'jsdoc/require-returns-description': 'off',
       'molecule-local/no-vacuous-optional-chain-assertion': 'error',
+      // A vi.mock factory replaces the whole module: spread the real one first, so a new export
+      // does not vanish from every test that mocks the package.
+      'molecule-local/vi-mock-keeps-actual': 'error',
     },
   },
   {
