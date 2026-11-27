@@ -105,19 +105,25 @@ describe('check-intrinsic-jsx', () => {
     expect(output).toContain('`node scripts/check-intrinsic-jsx.mjs --fix` deletes them.')
   })
 
-  it('--fix deletes only the stale entries, after which the check passes', () => {
-    const dir = tree(FILES)
+  // Runs the check twice (`--fix`, then the plain check), and each run loads the TypeScript compiler
+  // to read the element types: about 1 s a run here, 2.5 s in all in CI run 46038970181.
+  it(
+    '--fix deletes only the stale entries, after which the check passes',
+    { timeout: 15_000 },
+    () => {
+      const dir = tree(FILES)
 
-    expect(check(dir, ['--fix']).status).toBe(0)
-    expect(
-      JSON.parse(readFileSync(join(dir, 'eslint-rules/intrinsic-jsx-pending.json'), 'utf8')),
-    ).toEqual({ features: ['canvas-react'], kitComponents: ['Menu.tsx'] })
-    expect(check(dir)).toEqual({
-      status: 0,
-      output:
-        'Every intrinsic-jsx-pending entry still renders an intrinsic JSX element, and the tag table matches the element types.\n',
-    })
-  })
+      expect(check(dir, ['--fix']).status).toBe(0)
+      expect(
+        JSON.parse(readFileSync(join(dir, 'eslint-rules/intrinsic-jsx-pending.json'), 'utf8')),
+      ).toEqual({ features: ['canvas-react'], kitComponents: ['Menu.tsx'] })
+      expect(check(dir)).toEqual({
+        status: 0,
+        output:
+          'Every intrinsic-jsx-pending entry still renders an intrinsic JSX element, and the tag table matches the element types.\n',
+      })
+    },
+  )
 
   it('names a tag an element type renders that the rule does not map, and an element whose `as` the rule ignores', () => {
     const dir = tree({
