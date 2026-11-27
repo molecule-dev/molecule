@@ -10,6 +10,7 @@ import type {
   RichTag,
   RichTranslateFunction,
   TranslateFunction,
+  TranslateOptions,
 } from './types.js'
 import { interpolate } from './utilities.js'
 
@@ -240,7 +241,11 @@ export function parseRichMessage(
  * @returns The corresponding rich translation function.
  */
 export function createRichTranslator(translate: TranslateFunction): RichTranslateFunction {
-  return (key, values, options) => {
+  return (
+    key: string,
+    values?: InterpolationValues,
+    options?: Omit<TranslateOptions, 'skipInterpolation'>,
+  ): readonly RichNode[] => {
     const count = options?.count ?? (typeof values?.count === 'number' ? values.count : undefined)
     // Some providers select plural forms from interpolation values. Promote only the numeric
     // selector so a provider that interpolates anyway cannot inject text into the raw template.

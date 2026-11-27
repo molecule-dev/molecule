@@ -6,6 +6,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { LANGUAGE_DEFINITIONS } from '../languages.js'
 import { setupI18nDefault } from '../setup.js'
 
+const { importedEnglishCommon } = vi.hoisted(() => ({ importedEnglishCommon: vi.fn() }))
+vi.mock('@molecule/app-locales-common/en.js', async (importOriginal) => {
+  importedEnglishCommon()
+  return { ...(await importOriginal<Record<string, unknown>>()) }
+})
+
 /**
  * Wait for queued microtasks/macrotasks to settle. The auto-prune in
  * `setupI18nDefault` runs as a background promise — the test needs to
@@ -15,6 +21,41 @@ import { setupI18nDefault } from '../setup.js'
 const flushAsync = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
 
 describe('setupI18nDefault', () => {
+  it('bootstraps French without registering or loading English', async () => {
+    const loadUi = vi.fn(async () => ({ 'app.action': 'Unexpected lazy app load' }))
+    const loadBond = vi.fn(async () => ({
+      'app.action': 'Bond action',
+      'bond.action': 'Action du module',
+    }))
+    const options = {
+      primaryLocale: 'fr',
+      primaryUi: { 'app.action': 'Action de l’application' },
+      supportedLocales: ['fr'],
+      lazyLoadUi: loadUi,
+      packageLocaleLoaders: [loadBond],
+    }
+    const provider = setupI18nDefault(options)
+    expect(provider.getLocale()).toBe('fr')
+    expect(provider.getLocales().map(({ code }) => code)).toEqual(['fr'])
+    expect(provider.t('app.action')).toBe('Action de l’application')
+    await vi.waitFor(() => expect(provider.t('bond.action')).toBe('Action du module'))
+    expect(provider.t('common.close')).toBe('Fermer')
+    expect(provider.t('app.action')).toBe('Action de l’application')
+    expect(loadBond.mock.calls).toEqual([['fr']])
+    expect(loadUi).not.toHaveBeenCalled()
+    expect(importedEnglishCommon).not.toHaveBeenCalled()
+  })
+
+  it('supplies the legacy English common translations synchronously', async () => {
+    const { setupI18nDefault: setupLegacy } = await import('../index.js')
+    const provider = setupLegacy({
+      enUi: {},
+      supportedLocales: ['en'],
+      lazyLoadUi: async () => ({}),
+    })
+    expect(provider.t('common.close')).toBe('Close')
+  })
+
   it('registers every fleet locale when supportedLocales is not provided (back-compat)', () => {
     const provider = setupI18nDefault({
       enUi: {},
@@ -282,8 +323,9 @@ describe('setupI18nDefault', () => {
     // every language's common dictionary inside EVERY consuming app's entry
     // chunk. Only the per-language loader entry may be imported here.
     const source = readFileSync(join(import.meta.dirname, '..', 'setup.ts'), 'utf8')
-    expect(source).not.toMatch(/import \* as \w+ from '@molecule\/app-locales-common'/)
+    const legacy = readFileSync(join(import.meta.dirname, '..', 'index.ts'), 'utf8')
+    expect(source + legacy).not.toMatch(/import \* as \w+ from '@molecule\/app-locales-common'/)
     expect(source).toContain("from '@molecule/app-locales-common/loader.js'")
-    expect(source).toContain("from '@molecule/app-locales-common/en.js'")
+    expect(legacy).toContain("from '@molecule/app-locales-common/en.js'")
   })
 })

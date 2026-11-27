@@ -38,18 +38,16 @@
  *
  * Every user-visible string must go through `t()` — never hardcode UI text. And
  * ALWAYS supply `{ defaultValue: 'English text' }`: a bare `t('settings.save')`
- * renders the raw KEY string ("settings.save") in the UI until a translation for
- * that key loads, so the default is what the user actually sees. Translation keys
- * are optional polish layered on top; the `defaultValue` is the real copy. Add
- * keys to the app's `locales/en/ui.ts` (and per-locale `{code}/ui.ts`) — not in
- * feature packages.
+ * renders the raw key in the UI until a translation loads.
  *
  * This is what makes a string a test suite (or a contract document) pins
  * verbatim cheap to satisfy: write it on the FIRST pass as
  * `t('article.favorited', undefined, { defaultValue: 'Favorited' })`. The
  * default renders exactly that English, so the markup is right immediately and
- * the page never needs an i18n retrofit later — and no locale entry is required
- * for copy the suite already fixes.
+ * the page has text while its dictionaries load. Add the key to the app's
+ * `locales/<code>/ui.ts` files or the owning locale bond. Custom scaffolds
+ * register their catalogs with {@link TranslationCatalogs}. The editor and
+ * build then report which translation each offered locale is missing.
  *
  * Interpolation tokens use **DOUBLE braces** `{{var}}` — in BOTH the
  * `defaultValue` and any matching locale-file entry:
@@ -71,7 +69,7 @@
  *   base `key` whenever `options.count` is provided (matches i18next).
  * - `addTranslations()` deep-merges nested translation objects.
  * - `exists(key)` follows the same locale-fallback chain as `t()` (active
- *   locale, then English), so it agrees with whether `t(key)` renders real
+ *   locale, then fallback locale), so it agrees with whether `t(key)` renders real
  *   translated text.
  *
  * @module

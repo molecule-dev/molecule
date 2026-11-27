@@ -21,6 +21,7 @@ import type {
   NumberFormatOptions,
   RichTranslateFunction,
   TranslateFunction,
+  TranslateFunctionWithFallback,
   TranslateOptions,
 } from '@molecule/app-i18n'
 import {
@@ -181,9 +182,7 @@ export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
  * Its identity is stable while the i18n provider instance is unchanged, so it
  * can be used directly as an effect dependency.
  */
-export type UseTFunction = I18nProvider['t'] & {
-  (key: string, fallback: string, options?: UseTShorthandOptions): string
-}
+export type UseTFunction = TranslateFunctionWithFallback
 
 /**
  * The translation function alone, under React's hook name.

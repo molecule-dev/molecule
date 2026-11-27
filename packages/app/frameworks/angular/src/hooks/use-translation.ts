@@ -14,6 +14,7 @@ import type {
   InterpolationValues,
   NumberFormatOptions,
   RichTranslateFunction,
+  TranslateFunctionWithFallback,
   TranslateOptions,
 } from '@molecule/app-i18n'
 import { createRichTranslator, getProvider, I18nError } from '@molecule/app-i18n'
@@ -72,9 +73,7 @@ export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
  * - `t(key, fallback, options?)` — a string second argument is the inline
  *   English `defaultValue`, with optional `count` for pluralization.
  */
-export type UseTFunction = I18nProvider['t'] & {
-  (key: string, fallback: string, options?: UseTShorthandOptions): string
-}
+export type UseTFunction = TranslateFunctionWithFallback
 
 /**
  * What {@link useTranslation} returns.

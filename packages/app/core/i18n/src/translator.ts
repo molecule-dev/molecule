@@ -17,6 +17,7 @@ import type {
   InterpolationValues,
   LocaleConfig,
   NumberFormatOptions,
+  TranslateFunction,
   TranslateOptions,
   Translations,
 } from './types.js'
@@ -119,8 +120,11 @@ export const registerLocaleModule = (moduleExports: Record<string, unknown>): vo
  * @param options.count - Count value for pluralization.
  * @returns The translated string, or the `defaultValue` / key if not found.
  */
-export const t = (key: string, values?: InterpolationValues, options?: TranslateOptions): string =>
-  getProvider().t(key, values, options)
+export const t: TranslateFunction = (
+  key: string,
+  values?: InterpolationValues,
+  options?: TranslateOptions,
+): string => getProvider().t(key, values, options)
 
 /** Reads a rich translation using the active bonded provider. In components, use `useRichTranslation()`. */
 export const tRich = createRichTranslator(t)

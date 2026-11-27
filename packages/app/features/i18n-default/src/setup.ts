@@ -1,6 +1,5 @@
-import type { I18nProvider } from '@molecule/app-i18n'
+import type { I18nProvider, LocaleConfig } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { en as commonEn } from '@molecule/app-locales-common/en.js'
 import { loadLocaleModule as loadCommonLocale } from '@molecule/app-locales-common/loader.js'
 
 import { LANGUAGE_DEFINITIONS } from './languages.js'
@@ -50,15 +49,13 @@ export type PackageLocaleBond = Record<string, unknown>
 /**
  * Options accepted by `setupI18nDefault`.
  *
- * `enUi` is the eagerly-loaded English UI translations (typically
- * imported as `import { ui as en } from '../locales/en/ui.js'` in
- * the consuming app). `lazyLoadUi` is a per-locale loader the app
- * provides — it MUST remain in the app so Vite can code-split the
- * per-language `ui.ts` bundles correctly.
+ * Import the primary UI dictionary eagerly and pass it as `primaryUi` with its
+ * `primaryLocale` code. Existing English-first callers can pass `enUi`.
  */
-export interface SetupI18nDefaultOptions {
-  /** Eagerly-imported English ui.ts translations. */
-  enUi: Record<string, string>
+export type SetupI18nDefaultOptions = (
+  | { enUi: Record<string, string>; primaryLocale?: never; primaryUi?: never }
+  | { enUi?: never; primaryLocale: string; primaryUi: Record<string, string> }
+) & {
   /**
    * Per-locale lazy loader for the app's `ui.ts`. The callback runs
    * on demand when the i18n provider switches to that locale; merging
@@ -116,11 +113,10 @@ export interface SetupI18nDefaultOptions {
    * When provided, only these locales are registered with the i18n
    * provider — so `useTranslation().locales` (and therefore any
    * language-picker UI built on top of it) renders ONLY supported
-   * choices. `'en'` is always included implicitly; the array doesn't
-   * need to list it explicitly.
+   * choices. The primary locale is always included.
    *
    * When omitted, every entry in the fleet's 80-language
-   * {@link LANGUAGE_DEFINITIONS} list is registered, then each non-English
+   * {@link LANGUAGE_DEFINITIONS} list is registered, then each secondary
    * locale's `ui.ts` is loaded through `lazyLoadUi` at boot and the empty
    * ones are removed: one request per language on a first visit.
    *
@@ -136,17 +132,23 @@ export interface SetupI18nDefaultOptions {
    * ```
    */
   supportedLocales?: readonly string[]
+  /** Optional factory for apps using an alternate i18n bond. */
+  createProvider?: (primaryLocale: string, locales: LocaleConfig[]) => I18nProvider
 }
 
 /**
  * Wire the molecule i18n provider with the fleet's 80-language list
- * plus a default English bootstrap, then persist the user's locale
+ * plus an eager primary dictionary, then persist the user's locale
  * selection through the bonded storage provider (if available).
  *
  * Replaces the 113-line per-app `bonds/i18n-default.ts` that every
  * flagship app shipped byte-identically — only the `enUi` import
  * and `lazyLoadUi` template literal had to live in the app to
  * preserve Vite's per-language code splitting.
+ *
+ * @param options - App dictionaries, offered locales, and companion loaders.
+ * @param primaryCommon - Common translations already loaded for the primary locale.
+ * @returns The configured provider.
  *
  * @example
  * ```ts
@@ -170,13 +172,23 @@ export interface SetupI18nDefaultOptions {
  * }
  * ```
  */
-export function setupI18nDefault({
-  enUi,
-  lazyLoadUi,
-  packageLocales,
-  packageLocaleLoaders,
-  supportedLocales,
-}: SetupI18nDefaultOptions): I18nProvider {
+export function setupI18nDefault(
+  {
+    enUi,
+    primaryLocale = 'en',
+    primaryUi,
+    lazyLoadUi,
+    packageLocales,
+    packageLocaleLoaders,
+    supportedLocales,
+    createProvider = (code, locales) => createSimpleI18nProvider(code, locales, code),
+  }: SetupI18nDefaultOptions,
+  primaryCommon?: Record<string, string>,
+): I18nProvider {
+  const ui = primaryUi ?? enUi
+  if (!ui || !LANGUAGE_DEFINITIONS.some(({ code }) => code === primaryLocale)) {
+    throw new Error(`Invalid primary locale "${primaryLocale}" or missing primary UI catalog`)
+  }
   /**
    * Translations contributed by the lazily-registered companion bonds for one
    * locale. A bond that has no dictionary for the code resolves `undefined`;
@@ -201,15 +213,17 @@ export function setupI18nDefault({
     return merged
   }
 
-  const provider = createSimpleI18nProvider(
-    'en',
-    LANGUAGE_DEFINITIONS.map((lang) => {
-      if (lang.code === 'en') {
+  const offered = supportedLocales ? new Set([primaryLocale, ...supportedLocales]) : undefined
+  const languages = LANGUAGE_DEFINITIONS.filter(({ code }) => !offered || offered.has(code))
+  const provider = createProvider(
+    primaryLocale,
+    languages.map((lang) => {
+      if (lang.code === primaryLocale) {
         return {
           code: lang.code,
           name: lang.name,
           direction: lang.direction,
-          translations: { ...commonEn, ...enUi },
+          translations: { ...primaryCommon, ...ui },
         }
       }
       return {
@@ -241,51 +255,22 @@ export function setupI18nDefault({
   // Order matters: per-package bonds are registered BEFORE the per-app
   // `lazyLoadUi` resolves, so per-app translations override per-package
   // ones (preserving the "apps win when they explicitly translate" rule).
-  if (packageLocales && packageLocales.length > 0) {
-    registerPackageLocales(provider, packageLocales)
-    // Re-assert the app's English UI translations AFTER the package bonds.
-    // English is the one locale whose app translations register eagerly (at
-    // provider creation), so without this the bonds — merged later — would
-    // override `enUi` for overlapping keys, inverting the documented
-    // "apps win when they explicitly translate" rule for the default locale.
-    // (Non-en locales already preserve the rule: their `lazyLoadUi` merge
-    // happens after bond registration.)
-    provider.addTranslations('en', enUi)
-  }
+  const eagerPrimary = packageLocales?.length
+    ? registerPackageLocales(provider, packageLocales, primaryLocale)
+    : {}
+  if (Object.keys(eagerPrimary).length > 0) provider.addTranslations(primaryLocale, ui)
 
-  // English is the default locale, so its companion-bond dictionaries are
-  // fetched at startup rather than waiting for a locale switch. They arrive
-  // after the first render — `t()` falls back to each call's inline English
-  // defaultValue until then, so first paint never waits on them. `enUi` is
-  // re-applied afterwards so the app's own translations still win.
-  if (packageLocaleLoaders && packageLocaleLoaders.length > 0) {
-    void packageTranslations('en').then((translations) => {
-      provider.addTranslations('en', translations)
-      provider.addTranslations('en', enUi)
+  // Fetch only the primary language at startup. Its app dictionary is ready for first paint.
+  if (!primaryCommon || packageLocaleLoaders?.length) {
+    void Promise.all([
+      primaryCommon ?? commonFor(primaryLocale),
+      packageTranslations(primaryLocale),
+    ]).then(([common, packages]) => {
+      provider.addTranslations(primaryLocale, { ...common, ...eagerPrimary, ...packages, ...ui })
     })
   }
-
-  // Filter out locales whose app-specific `ui.ts` is empty so the
-  // language-picker UI only offers languages the app actually translated.
-  //
-  // Strategy: register all 80 up-front (so the existing API stays
-  // back-compatible and locale-change listeners don't see a "loading
-  // languages" state), then asynchronously probe each non-en locale and
-  // remove the ones whose `lazyLoadUi` returns an empty object. This is
-  // fully automatic — apps don't need to declare their support matrix.
-  //
-  // Callers can short-circuit the probe by passing `supportedLocales`,
-  // which prunes the list synchronously and skips the async work
-  // entirely. Useful for tests, for build pipelines that want
-  // deterministic startup, or for apps that want to advertise fewer
-  // locales than they actually populated.
-  if (supportedLocales) {
-    const keep = new Set<string>(['en', ...supportedLocales])
-    for (const lang of LANGUAGE_DEFINITIONS) {
-      if (!keep.has(lang.code)) provider.removeLocale(lang.code)
-    }
-  } else {
-    void pruneUnsupportedLocalesAsync(provider, lazyLoadUi)
+  if (!supportedLocales) {
+    void pruneUnsupportedLocalesAsync(provider, lazyLoadUi, primaryLocale)
   }
 
   // Persist locale selection through the bonded storage provider (if available).
@@ -348,12 +333,14 @@ function isTranslationRecord(v: unknown): v is Record<string, string> {
 function registerPackageLocales(
   provider: I18nProvider,
   packageLocales: readonly PackageLocaleBond[],
-): void {
+  primaryLocale: string,
+): Record<string, string> {
   // Only attach bond translations to locales the fleet list already registered.
   // Without this guard a bond shipping a locale outside LANGUAGE_DEFINITIONS
   // would auto-create it on the provider, adding a phantom entry to the
   // language picker that the supportedLocales pruning never removes.
   const registered = new Set(provider.getLocales().map((l) => l.code))
+  const primary: Record<string, string> = {}
   for (const bond of packageLocales) {
     for (const [exportName, maybeTranslations] of Object.entries(bond)) {
       // Normalize regional codes: locale bonds export `zhTW` / `esMX`
@@ -370,8 +357,10 @@ function registerPackageLocales(
       if (!registered.has(maybeCode)) continue
       if (!isTranslationRecord(maybeTranslations)) continue
       provider.addTranslations(maybeCode, maybeTranslations)
+      if (maybeCode === primaryLocale) Object.assign(primary, maybeTranslations)
     }
   }
+  return primary
 }
 
 /**
@@ -392,8 +381,9 @@ const PROBE_CONCURRENCY = 6
 async function pruneUnsupportedLocalesAsync(
   provider: I18nProvider,
   lazyLoadUi: (code: string) => Promise<Record<string, string>>,
+  primaryLocale: string,
 ): Promise<void> {
-  const candidates = LANGUAGE_DEFINITIONS.map((l) => l.code).filter((c) => c !== 'en')
+  const candidates = LANGUAGE_DEFINITIONS.map((l) => l.code).filter((c) => c !== primaryLocale)
   let i = 0
   /**
    * Processes locale candidates in the shared `candidates` array up to
@@ -406,7 +396,7 @@ async function pruneUnsupportedLocalesAsync(
         const ui = await lazyLoadUi(code)
         if (!ui || Object.keys(ui).length === 0) {
           if (provider.getLocale() === code) {
-            await provider.setLocale('en')
+            await provider.setLocale(primaryLocale)
           }
           provider.removeLocale(code)
         }
@@ -416,9 +406,9 @@ async function pruneUnsupportedLocalesAsync(
         // listeners so any language picker re-renders.
         if (provider.getLocale() === code) {
           try {
-            await provider.setLocale('en')
+            await provider.setLocale(primaryLocale)
           } catch (_error) {
-            // best-effort; if en somehow isn't registered, nothing we can do
+            // An app can remove its primary locale while this probe is running.
           }
         }
         provider.removeLocale(code)

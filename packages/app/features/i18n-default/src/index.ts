@@ -2,7 +2,7 @@
  * `@molecule/app-i18n-default` — default i18n bond setup.
  *
  * Bundles the 80-language fleet definitions + `setupI18nDefault()`
- * helper that wires the molecule i18n provider with English bootstrap,
+ * helper that wires the molecule i18n provider with a primary locale,
  * lazy-loading for every other locale, common-bond translation merging,
  * and locale persistence via the bonded storage provider.
  *
@@ -40,7 +40,8 @@
  * }
  *
  * setupI18nDefault({
- *   enUi: en,
+ *   primaryLocale: 'en',
+ *   primaryUi: en,
  *   lazyLoadUi,
  *   supportedLocales: Object.keys(localeFiles).map(localeCode),
  * })
@@ -71,5 +72,24 @@
  * @module
  */
 
+import type { I18nProvider } from '@molecule/app-i18n'
+import { en } from '@molecule/app-locales-common/en.js'
+
+import type { SetupI18nDefaultOptions } from './setup.js'
+import { setupI18nDefault as setup } from './setup.js'
+
 export * from './languages.js'
-export * from './setup.js'
+export type { PackageLocaleBond, PackageLocaleLoader, SetupI18nDefaultOptions } from './setup.js'
+
+const englishCommon: Record<string, string> = { ...en }
+
+/**
+ * Configure i18n with synchronous English common translations when English is primary.
+ * Import from `@molecule/app-i18n-default/setup.js` for a different primary locale.
+ *
+ * @param options - App dictionaries, offered locales, and companion loaders.
+ * @returns The configured provider.
+ */
+export function setupI18nDefault(options: SetupI18nDefaultOptions): I18nProvider {
+  return setup(options, (options.primaryLocale ?? 'en') === 'en' ? englishCommon : undefined)
+}

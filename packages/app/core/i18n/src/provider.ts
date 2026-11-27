@@ -63,11 +63,13 @@ const changesText = (target: Translations, source: Translations): boolean =>
  *
  * @param initialLocale - The initial active locale code (defaults to `'en'`).
  * @param initialLocales - Pre-registered locale configurations with optional translations.
+ * @param fallbackLocale - Locale to use when the active catalog is missing a key (defaults to `'en'`).
  * @returns A fully functional `I18nProvider` instance.
  */
 export const createSimpleI18nProvider = (
   initialLocale: string = 'en',
   initialLocales: LocaleConfig[] = [],
+  fallbackLocale: string = 'en',
 ): I18nProvider => {
   // Looked up on every use, never at construction: constructing a provider (the
   // module-level `simpleProvider` included) must not bond a default logger before
@@ -88,11 +90,10 @@ export const createSimpleI18nProvider = (
     locales.set(config.code, { ...config, translations: config.translations ?? {} })
   }
 
-  // Add default English locale if not provided
-  if (!locales.has('en')) {
-    locales.set('en', {
-      code: 'en',
-      name: 'English',
+  if (!locales.has(fallbackLocale)) {
+    locales.set(fallbackLocale, {
+      code: fallbackLocale,
+      name: fallbackLocale === 'en' ? 'English' : fallbackLocale,
       direction: 'ltr',
       translations: {},
     })
@@ -231,15 +232,10 @@ export const createSimpleI18nProvider = (
 
       let text = lookup(config.translations ?? {}, currentLocale)
 
-      // Fall back to the English translations when the key is missing from the
-      // current locale — mirroring the API-side core provider and the
-      // api-i18n-simple bond. Previously a partially-translated locale showed
-      // the raw KEY (or the inline defaultValue) even when a proper English
-      // translation was registered, while the API side showed English text.
-      if (text === undefined && currentLocale !== 'en') {
-        const enConfig = locales.get('en')
-        if (enConfig) {
-          text = lookup(enConfig.translations ?? {}, 'en')
+      if (text === undefined && currentLocale !== fallbackLocale) {
+        const fallback = locales.get(fallbackLocale)
+        if (fallback) {
+          text = lookup(fallback.translations ?? {}, fallbackLocale)
         }
       }
 
@@ -273,18 +269,17 @@ export const createSimpleI18nProvider = (
     },
 
     exists(key: string): boolean {
-      // Mirrors t()'s fallback chain (current locale, then English) rather
-      // than checking only the current locale's own catalog — otherwise
-      // `exists()` reports `false` for a key that `t()` happily renders via
-      // the English fallback, and callers using `exists()` to predict `t()`
-      // get a wrong answer for every partially-translated locale.
+      // Use the same catalog fallback as t().
       const config = locales.get(currentLocale)
       if (config && getNestedValue(config.translations ?? {}, key) !== undefined) {
         return true
       }
-      if (currentLocale === 'en') return false
-      const enConfig = locales.get('en')
-      return enConfig ? getNestedValue(enConfig.translations ?? {}, key) !== undefined : false
+      const fallback = locales.get(fallbackLocale)
+      return (
+        currentLocale !== fallbackLocale &&
+        !!fallback &&
+        getNestedValue(fallback.translations ?? {}, key) !== undefined
+      )
     },
 
     formatNumber(value: number, options?: NumberFormatOptions): string {

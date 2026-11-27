@@ -215,7 +215,7 @@ export interface I18nProvider {
    *
    * @returns The translated string, or the default value / key if not found.
    */
-  t(key: string, values?: InterpolationValues, options?: TranslateOptions): string
+  t: TranslateFunction
 
   /**
    * Checks if a translation key exists.
@@ -322,13 +322,56 @@ export interface I18nProvider {
 }
 
 /**
- * Standalone translate function signature matching `I18nProvider.t()`.
+ * Apps can augment this interface with one property per offered locale. Each property
+ * is the union of keys in that locale's app and installed bond catalogs.
  */
-export type TranslateFunction = (
-  key: string,
-  values?: InterpolationValues,
-  options?: TranslateOptions,
-) => string
+export interface TranslationCatalogs {
+  [locale: symbol]: never
+}
+
+type OfferedLocale = Extract<keyof TranslationCatalogs, string>
+
+/** The keys that resolve in a locale, including plural keys when the caller supplies a count. */
+type CatalogKeys<Keys, Plural extends boolean> =
+  Keys | (Plural extends true ? (Keys extends `${infer Base}_other` ? Base : never) : never)
+
+/**
+ * Check every member of a key union against every offered locale. The signatures below
+ * map these messages inline so TypeScript prints them for a union of computed keys.
+ */
+type MissingTranslation<Key extends string, Plural extends boolean> = {
+  [
+    Locale in OfferedLocale
+  ]: `Missing translation in ${Locale}: ${Exclude<Key, CatalogKeys<TranslationCatalogs[Locale], Plural>>}`
+}[OfferedLocale]
+
+type HasCount<Options> = Options extends { count: number } ? true : false
+
+// Unmanaged apps keep a plain string parameter, including its contextual typing for templates.
+type TranslationSignature<Result, BaseOptions extends TranslateOptions> = [OfferedLocale] extends [
+  never,
+]
+  ? (key: string, values?: InterpolationValues, options?: BaseOptions) => Result
+  : <const Key extends string, Options extends BaseOptions = BaseOptions>(
+      key: Key & NoInfer<{ [Message in MissingTranslation<Key, HasCount<Options>>]: never }>,
+      values?: InterpolationValues,
+      options?: Options,
+    ) => Result
+
+/** Standalone translate function signature matching `I18nProvider.t()`. */
+export type TranslateFunction = TranslationSignature<string, TranslateOptions>
+
+type FallbackOptions = Omit<TranslateOptions, 'defaultValue'>
+type FallbackTranslation = [OfferedLocale] extends [never]
+  ? (key: string, fallback: string, options?: FallbackOptions) => string
+  : <const Key extends string, Options extends FallbackOptions = FallbackOptions>(
+      key: Key & NoInfer<{ [Message in MissingTranslation<Key, HasCount<Options>>]: never }>,
+      fallback: string,
+      options?: Options,
+    ) => string
+
+/** A reactive translator that also accepts a fallback string as its second argument. */
+export type TranslateFunctionWithFallback = TranslateFunction & FallbackTranslation
 
 /** A CLDR plural category, the suffix of a plural key (`items_one`, `items_other`). */
 export type PluralCategory = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other'
@@ -369,8 +412,7 @@ export type RichNode =
     }
 
 /** Reads rich catalog text using the same keys, locale fallback and plurals as `t()`. */
-export type RichTranslateFunction = (
-  key: string,
-  values?: InterpolationValues,
-  options?: Omit<TranslateOptions, 'skipInterpolation'>,
-) => readonly RichNode[]
+export type RichTranslateFunction = TranslationSignature<
+  readonly RichNode[],
+  Omit<TranslateOptions, 'skipInterpolation'>
+>
