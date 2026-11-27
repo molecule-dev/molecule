@@ -1236,6 +1236,31 @@ describe('export parity', () => {
       ])
     })
 
+    it.each([true, false])('checks an exempt counterpart in the same subpath (%s)', (sameEntry) => {
+      const exports = { '.': './dist/index.js', './hooks': './dist/hooks.js' }
+      const reference = reactRouter(REACT_ROUTING)
+      reference[`${ROUTING}/react-router`].pkg.exports = exports
+      reference[`${ROUTING}/react-router`].files['hooks.ts'] = 'export const usePanel = () => 1\n'
+      const replacement = 'export const readPanel = () => 1\n'
+      const port = vueRouter(sameEntry ? REACT_ROUTING : REACT_ROUTING + replacement, { exports })
+      port[`${ROUTING}/vue-router`].files['hooks.ts'] = sameEntry ? replacement : 'export {}\n'
+
+      expect(
+        check(exportTree({ ...reference, ...port }), {
+          exportExempt: {},
+          portExportExempt: {
+            [VUE_ROUTER]: { usePanel: { use: ['readPanel'], why: 'Vue reads the router service' } },
+          },
+        }),
+      ).toEqual(
+        sameEntry
+          ? []
+          : [
+              `${ROUTING}/vue-router: PORT_EXPORT_EXEMPT names readPanel as the counterpart of usePanel, but it does not export readPanel from "./hooks"`,
+            ],
+      )
+    })
+
     it('fails a React exemption that names an export React no longer has', () => {
       const root = exportTree({ ...react, ...sveltekit('') })
       expect(

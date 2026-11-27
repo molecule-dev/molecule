@@ -1103,8 +1103,8 @@ const SVELTE_READERS = {
 
 /**
  * Exports of a React package that one counterpart does not have, per counterpart, and why: each
- * entry names the counterpart's own exports that do that job (`use`, which the gate checks it
- * exports) and the reason its framework has no such export. Only a mechanism the counterpart's
+ * entry names the counterpart's own exports that do that job (`use`), and the reason its
+ * framework has no such export. The gate checks each replacement in the corresponding entry. Only a mechanism the counterpart's
  * framework lacks belongs here; a hook, a hook's result type, a prop or option type, or a
  * component the framework can express does not, and a name not ported yet goes in
  * {@link EXPORT_PARITY_PENDING}.
@@ -1452,11 +1452,13 @@ export function exportParityViolations(
       const portKeys = new Set(['.', ...subpathKeys(port.pkg)])
       // Every gap, by React name, before the exemptions and the ledger are applied.
       const gaps = new Map()
-      const gap = (name, message) => gaps.set(name, [...(gaps.get(name) ?? []), message])
+      const gap = (name, key, message) =>
+        gaps.set(name, [...(gaps.get(name) ?? []), { key, message }])
       for (const key of reactKeys) {
         if (key in reactExempt) continue
         if (key !== '.' && !portKeys.has(key)) {
           gap(
+            key,
             key,
             `${port.dir}: package.json "exports" has no "${key}", which ${reactName} has; add that subpath`,
           )
@@ -1472,6 +1474,7 @@ export function exportParityViolations(
           if (!match) {
             gap(
               name,
+              key,
               `${port.dir}: does not export ${name}${where}, which ${reactName} exports; export it under the same name (an app swaps the package for its counterpart)`,
             )
             continue
@@ -1483,15 +1486,16 @@ export function exportParityViolations(
               if (!theirs.has(kind) && !(`${name} (${kind})` in reactExempt))
                 gap(
                   name,
+                  key,
                   `${port.dir}: exports ${match}${where} only as a ${[...theirs].filter((k) => k !== 'class').join(' and ')}, but ${reactName} exports ${name} as a ${kind}; export the ${kind} under that name`,
                 )
         }
       }
       const exempt = portExportExempt[port.pkg.name] ?? {}
       const pending = new Set(Array.isArray(ledger[port.pkg.name]) ? ledger[port.pkg.name] : [])
-      for (const [name, messages] of gaps)
-        if (!(name in exempt) && !pending.has(name)) out.push(...messages)
-      const portRoot = exportsOf(port, '.')
+      for (const [name, missing] of gaps)
+        if (!(name in exempt) && !pending.has(name))
+          out.push(...missing.map(({ message }) => message))
       for (const [name, entry] of Object.entries(exempt)) {
         if (!reactAll.has(name) || name in reactExempt)
           out.push(
@@ -1501,11 +1505,15 @@ export function exportParityViolations(
           out.push(
             `${port.dir}: PORT_EXPORT_EXEMPT names ${name}, which it now exports; remove the entry`,
           )
-        for (const use of entry.use ?? [])
-          if (!portRoot?.has(use))
-            out.push(
-              `${port.dir}: PORT_EXPORT_EXEMPT names ${use} as the counterpart of ${name}, but it does not export ${use}`,
-            )
+        for (const key of new Set((gaps.get(name) ?? []).map((missing) => missing.key))) {
+          const portEntry = exportsOf(port, key)
+          const where = key === '.' ? '' : ` from "${key}"`
+          for (const use of entry.use ?? [])
+            if (!portEntry?.has(use))
+              out.push(
+                `${port.dir}: PORT_EXPORT_EXEMPT names ${use} as the counterpart of ${name}, but it does not export ${use}${where}`,
+              )
+        }
       }
       for (const name of pending) {
         const needNot = !reactAll.has(name) || name in reactExempt || name in exempt
