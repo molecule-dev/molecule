@@ -17,7 +17,7 @@ export const hy: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B PreviewProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.useRouterOutsideProvider':
-    'Այստեղ ռաութեր չկա։ Մոնտաժեք ռաութերի բաղադրիչը ծրագրի ռաութինգային կապից (`BrowserRouter` `@molecule/app-routing-react-router` ից) կամ փոխանցեք `router` `MoleculeProvider` ին։ Եթե ծրագիրն արդեն անում է սա, ապա դրա ռաութինգային կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-react-router@latest`):',
+    'Այստեղ ռաութեր չկա։ Մոնտաժեք ռաութերի բաղադրիչը ծրագրի ռաութինգային կապից (`BrowserRouter` `@molecule/app-routing-react-router`-ից) կամ փոխանցեք `router` `MoleculeProvider`-ին։ Եթե ծրագիրն արդեն անում է սա, ապա դրա ռաութինգային կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-react-router@latest`):',
   'react.error.noRoutedView':
     'Այս երթուղային կապը չունի երթուղային տեսք այստեղ ցուցադրելու համար. փոխարենը էջը փոխանցեք որպես դուստր։ Եթե հավելվածը երթուղայնացվում է `@molecule/app-routing-react-router`, այդ կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-react-router@latest`):',
   'react.error.useStoreOutsideProvider':

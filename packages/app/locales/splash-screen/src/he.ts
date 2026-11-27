@@ -6,5 +6,5 @@ export const he: SplashScreenTranslations = {
   'splashScreen.error.missingDependency':
     '`{{library}}` נדרש אך אינו מותקן. התקן אותו באמצעות: `npx expo install {{library}}`',
   'splashScreen.error.noProvider':
-    '`@molecule/app-splash-screen`: לא הוגדר ספק. קריאה ל `setProvider()` עם מימוש של `SplashScreenProvider` (לדוגמה, מ- `@molecule/app-splash-screen-react-native`).',
+    '`@molecule/app-splash-screen`: לא הוגדר ספק. קריאה ל-`setProvider()` עם מימוש של `SplashScreenProvider` (לדוגמה, מ-`@molecule/app-splash-screen-react-native`).',
 }

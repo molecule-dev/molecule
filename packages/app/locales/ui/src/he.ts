@@ -53,7 +53,7 @@ export const he: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'תפריט חשבון',
   'ui.error.noClassMap':
     'לא הוגדרה UIClassMap. קריאה לפונקציה setClassMap() בעת הפעלת האפליקציה באמצעות יישום ספריית עיצוב (למשל, @molecule/app-ui-tailwind).',
-  'ui.toast.error.noProvider': 'יש להשתמש ב `useToast` בתוך `ToastProvider`',
+  'ui.toast.error.noProvider': 'יש להשתמש ב-`useToast` בתוך `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'כווץ את סרגל הצד',
   'ui.pageShell.expandSidebar': 'הרחב את הצד',
   'ui.pageHeader.breadcrumbs': 'ניווט פירורי לחם',
@@ -74,7 +74,7 @@ export const he: Partial<UiTranslations> = {
   'ui.contextMenu': 'תפריט ההקשר',
   'ui.fileField.browse': 'עיון בקבצים',
   'ui.fileField.error.missingProvider':
-    'אין בורר קבצים מקושר. יש לייבא `provider` מ-{{bond}} ולקרוא ל `setProvider(provider)` מ-{{core}} ב `setupProviders()`.',
+    'אין בורר קבצים מקושר. יש לייבא `provider` מ-{{bond}} ולקרוא ל-`setProvider(provider)` מ-{{core}} ב-`setupProviders()`.',
   'ui.paste': 'לְהַדבִּיק',
   'ui.select.expanded': 'תפריט האפשרויות נפתח',
   'ui.select.selectionCount': 'נבחרו {{count}}',

@@ -6,7 +6,7 @@ export const he: SvelteTranslations = {
   'svelte.error.noAuthClient': 'לקוח אימות לא נמצא בהקשר',
   'svelte.error.noThemeProvider': 'ספק ערכת נושא לא נמצא בהקשר',
   'svelte.error.noRouter':
-    'אין כאן נתב. יש להרכיב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-sveltekit`) בשורש `+layout.svelte`, או לקרוא ל `setMoleculeContext({ router })` שם. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: יש לעדכן אותו (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'אין כאן נתב. יש להרכיב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-sveltekit`) בשורש `+layout.svelte`, או לקרוא ל-`setMoleculeContext({ router })` שם. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: יש לעדכן אותו (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noI18nProvider': 'ספק i18n לא נמצא בהקשר',
   'svelte.error.noHttpClient': 'לקוח HTTP לא נמצא בהקשר',
   'svelte.error.noStorageProvider': 'ספק אחסון לא נמצא בהקשר',
@@ -21,7 +21,7 @@ export const he: SvelteTranslations = {
   'svelte.error.useAuthOutsideProvider': 'יש להשתמש ב-useAuthClient בתוך ספק אימות',
   'svelte.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',
   'svelte.error.useRouterOutsideProvider':
-    'אין כאן נתב. יש להרכיב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-sveltekit`) בשורש `+layout.svelte`, או לקרוא ל `setMoleculeContext({ router })` שם. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: יש לעדכן אותו (`npm install @molecule/app-routing-sveltekit@latest`).',
+    'אין כאן נתב. יש להרכיב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-sveltekit`) בשורש `+layout.svelte`, או לקרוא ל-`setMoleculeContext({ router })` שם. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: יש לעדכן אותו (`npm install @molecule/app-routing-sveltekit@latest`).',
   'svelte.error.noRoutedView':
     'אין כאן תצוגה מנותבת. SvelteKit נותן לדף שלו פריסה בתור `children`: העבר `{@render children()}` בתוך רכיב זה.',
   'svelte.error.useHttpOutsideProvider': 'יש להשתמש ב-useHttpClient בתוך HttpProvider',

@@ -7,17 +7,17 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.commitFileCount_one': 'שמור קובץ {{count}}',
   'ide.chat.commitFileCount_other': 'שמור {{count}} קבצים',
   'ide.chat.commitFileCount_two': 'שמור {{count}} קבצים',
-  'ide.chat.autoCommit.countedBadge': '{{commit}} ב {{countdown}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ב-{{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'העברת הודעות צוות אינה זמינה בסביבת עבודה זו.',
   'ide.chat.teamOnly.badge': 'צוות בלבד - גלוי לצוות שלך; {{agentName}} יתעלם מכך',
   'ide.chat.tip.viewerTeamOnly':
-    'גישה לצפייה בלבד - קריאה משותפת ו /teamsay (או פשוט /t) את הצוות. סמל זהב זה מסמן הודעות לצוות בלבד ({{agentName}} מתעלם מהן). הפעלת העוזר ושינוי המודל או ההגדרות דורשים גישת עריכה.',
+    'גישה לצפייה בלבד - קריאה משותפת ו-/teamsay (או פשוט /t) את הצוות. סמל זהב זה מסמן הודעות לצוות בלבד ({{agentName}} מתעלם מהן). הפעלת העוזר ושינוי המודל או ההגדרות דורשים גישת עריכה.',
   'ide.chat.viewerReadOnly':
-    'יש לך גישת צפייה בלבד, כך שאינך יכול להפעיל את העוזר כאן. אתה עדיין יכול לקרוא ולהשתמש ב- /teamsay כדי לשלוח הודעה לצוות.',
+    'יש לך גישת צפייה בלבד, כך שאינך יכול להפעיל את העוזר כאן. אתה עדיין יכול לקרוא ולהשתמש ב-/teamsay כדי לשלוח הודעה לצוות.',
   'ide.chat.viewerReadOnlyCommand':
     'יש לך גישת צפייה בלבד, לכן פקודה זו אינה זמינה. בקש מעורך לבצע שינויים.',
   'ide.chat.viewerReadOnlyNote':
-    'גישת צפייה בלבד - קריאה משותפת ו /teamsay (או פשוט /t) של הצוות. הפעלת העוזר ושינוי המודל או ההגדרות דורשות גישת עריכה.',
+    'גישת צפייה בלבד - קריאה משותפת ו-/teamsay (או פשוט /t) של הצוות. הפעלת העוזר ושינוי המודל או ההגדרות דורשות גישת עריכה.',
   'common.cancel': 'לְבַטֵל',
   'common.save': 'לְהַצִיל',
   'ide.chat.editQueued': 'לַעֲרוֹך',
@@ -61,7 +61,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.soundsError': 'עדכון הגדרות הצליל נכשל.',
   'ide.chat.commitFailed': 'הביצוע נכשל',
   'ide.chat.fileTooLarge': 'הקובץ גדול מדי. גודל מקסימלי הוא {{maxSize}} MB.',
-  'ide.chat.modelSet': "מודל הצ'אט מוגדר ל- {{name}}",
+  'ide.chat.modelSet': "מודל הצ'אט מוגדר ל-{{name}}",
   'ide.chat.compacting': 'דחיסת שיחה...',
   'ide.chat.compactError': 'דחיסת השיחה נכשלה.',
   'ide.chat.switchedToPlan': 'עבר למצב תכנון',
@@ -75,8 +75,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.resetSoon': 'בקרוב',
   'ide.chat.resetUnderHour': 'בפחות משעה',
   'ide.chat.resetTomorrow': 'מחר',
-  'ide.chat.resetInHours': 'בעוד כ- {{hours}} שעות',
-  'ide.chat.resetInDays': 'בעוד כ- {{days}} ימים',
+  'ide.chat.resetInHours': 'בעוד כ-{{hours}} שעות',
+  'ide.chat.resetInDays': 'בעוד כ-{{days}} ימים',
   'ide.chat.models.colUsageRate': 'קצב שימוש',
   'ide.chat.models.usageRateHint':
     'כמה מהר דגם זה משתמש בקצבת הבינה המלאכותית שלך, יחסית לדגם החסכוני ביותר',
@@ -170,7 +170,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.toolCall.truncated': '... (קטוע)',
   'ide.toolCall.noFilesFound': 'לא נמצאו קבצים',
   'ide.toolCall.noMatches': 'אין התאמות',
-  'ide.toolCall.andMore': '... ו {{count}} יוֹתֵר',
+  'ide.toolCall.andMore': '... ו-{{count}} יוֹתֵר',
   'ide.chat.askUserPlaceholder': 'או להקליד בעצמך...',
   'ide.chat.askUserMultiHint': 'ניתן לבחור יותר מאחד.',
   'ide.chat.askUserSelectedCount': '{{count}} נבחרו',
@@ -234,7 +234,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.removeAttachment': 'הסר {{name}}',
   'ide.chat.retryCommit': 'נסה שוב',
   'ide.chat.loopLimitReached': 'הגעת למקסימום של {{max}} איטרציות של הכלי.',
-  'ide.chat.maxLoopsSet': 'מספר איטרציות הכלי המקסימלי מוגדר ל- {{n}}',
+  'ide.chat.maxLoopsSet': 'מספר איטרציות הכלי המקסימלי מוגדר ל-{{n}}',
   'ide.chat.modelError': "עדכון מודל הצ'אט נכשל.",
   'ide.chat.revertFile': 'חזרה לביצוע האחרון',
   'ide.chat.signUpRequired': 'הירשם לשימוש',
@@ -311,7 +311,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.tabs.close': 'לִסְגוֹר {{fileName}}',
   'ide.search.caseSensitive': 'מארז התאמה',
   'ide.search.noResults': 'לא נמצאו תוצאות',
-  'ide.search.resultsTruncated': '{{count}} תוצאות ב {{files}} קבצים (קטומים)',
+  'ide.search.resultsTruncated': '{{count}} תוצאות ב-{{files}} קבצים (קטומים)',
   'ide.preview.back': 'בְּחֲזָרָה',
   'ide.preview.forward': 'קָדִימָה',
   'ide.preview.urlBar': 'כתובת URL לתצוגה מקדימה',
@@ -321,7 +321,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'אפליקציה זו הפסיקה להגיב - לולאה אינסופית או רינדור רדום קפאו את התצוגה המקדימה. ה-IDE לא הושפע.',
   'ide.preview.frozenReload': 'טען מחדש את האפליקציה',
-  'ide.search.results': '{{count}} תוצאות ב {{files}} קבצים',
+  'ide.search.results': '{{count}} תוצאות ב-{{files}} קבצים',
   'ide.activity.cardAria': 'צפה בפעילות שנקלטה',
   'ide.activity.type.email': 'אֶלֶקטרוֹנִי',
   'ide.activity.type.sms': 'SMS',
@@ -362,7 +362,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.tip.report':
     "טיפ: משהו לא בסדר? /report שולח באג או משוב לצוות עם הצ'אט האחרון שלך מצורף.",
   'ide.chat.undoError': 'נכשל בביטול השינויים.',
-  'ide.chat.autoCommit.badge': 'ביצוע אוטומטי ב {{countdown}}',
+  'ide.chat.autoCommit.badge': 'ביצוע אוטומטי ב-{{countdown}}',
   'ide.chat.autoCommit.cancel': 'ביטול התחייבות אוטומטית',
   'ide.chat.autoCommit.cancelled': 'הפעולה האוטומטית בוטלה.',
   'ide.chat.autoCommit.enabled':
@@ -375,8 +375,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.effort.header': 'מאמץ חשיבה לכל מצב:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): קבוע - למודל זה יש מצב חשיבה אחד',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — זמינים: {{levels}}',
-  'ide.chat.effort.setMode': 'מאמץ ההיגיון עבור {{mode}} הוגדר ל- {{level}} ({{model}}).',
-  'ide.chat.setting.effort': 'מאמץ ההיגיון עבור {{mode}} מוגדר ל- {{level}}.',
+  'ide.chat.effort.setMode': 'מאמץ ההיגיון עבור {{mode}} הוגדר ל-{{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'מאמץ ההיגיון עבור {{mode}} מוגדר ל-{{level}}.',
   'ide.chat.settings.effortFixed': 'קבוע',
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
@@ -389,22 +389,22 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.models.sortBy': 'מיין לפי {{column}}',
   'ide.chat.modelsLoading': 'טוען מודלים…',
   'ide.chat.modelsNone': 'אין עדיין מודלים זמינים - בקשו מהמנהל שלכם לחבר ספק בינה מלאכותית.',
-  'ide.chat.modelInUse': 'כעת משתמש ב {{model}}',
+  'ide.chat.modelInUse': 'כעת משתמש ב-{{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'המודל שבחרת "{{removed}}" אינו זמין עוד. עבר ל- "{{fallback}}". הקלד /model כדי לבחור אחר.',
+    'המודל שבחרת "{{removed}}" אינו זמין עוד. עבר ל-"{{fallback}}". הקלד /model כדי לבחור אחר.',
   'ide.chat.modelRemovedNoFallback':
     'המודל שבחרת "{{removed}}" אינו זמין עוד, ואין דגם חלופי מחובר בשרת. בקש ממנהל המערכת שלך לחבר ספק בינה מלאכותית.',
   'ide.chat.olderModelsCollapse': 'דגמים ישנים יותר ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'דגמים ישנים יותר ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'בחר מודל מצב ביצוע',
   'ide.chat.selectPlanModel': 'בחר מודל מצב תכנון',
-  'ide.chat.executeModelSet': 'מודל מצב ביצוע מוגדר ל {{name}}',
-  'ide.chat.planModelSet': 'מודל מצב תכנון מוגדר ל {{name}}',
+  'ide.chat.executeModelSet': 'מודל מצב ביצוע מוגדר ל-{{name}}',
+  'ide.chat.planModelSet': 'מודל מצב תכנון מוגדר ל-{{name}}',
   'ide.chat.selectCommitModel': 'בחר מודל commit-message',
   'ide.chat.selectCompactModel': 'בחירת דגם דחיסה',
-  'ide.chat.commitModelSet': 'מודל הודעת ה-Commit מוגדר ל {{name}}',
-  'ide.chat.compactModelSet': 'מודל הדחיסה מוגדר ל {{name}}',
+  'ide.chat.commitModelSet': 'מודל הודעת ה-Commit מוגדר ל-{{name}}',
+  'ide.chat.compactModelSet': 'מודל הדחיסה מוגדר ל-{{name}}',
   'ide.chat.modelModeLabel': 'מצב',
   'ide.chat.modelMode.default': 'ברירת מחדל',
   'ide.chat.modelMode.commit': 'הודעות קומיט',
@@ -440,7 +440,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact': '• השתמשו בפונקציה /compact כדי לדחוס את ההקשר כאשר השיחה מתארכת.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
-  'ide.chat.help.tipPlan': '• השתמשו ב- /plan כדי ש- {{agentName}} יעשו מחקר לפני ביצוע שינויים.',
+  'ide.chat.help.tipPlan': '• השתמשו ב-/plan כדי ש-{{agentName}} יעשו מחקר לפני ביצוע שינויים.',
   'ide.chat.help.tipSlash': '• הקלד / כדי לעיין בכל פקודה לעיל.',
   'ide.chat.help.tipSpecific':
     '• היו ספציפיים - "הוספת דף התחברות עם כתובת דוא"ל/סיסמה ו-Google OAuth" עדיפה על "הוספת אישור".',
@@ -474,7 +474,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.scripts.saveError': 'לא ניתן היה לשמור את הסקריפט. אנא נסה שוב.',
   'ide.chat.scripts.invalid': 'סקריפט צריך שם וגוף שאינו ריק.',
   'ide.chat.scripts.empty':
-    'עדיין לא נשמרו סקריפטים. צור אחד למעלה, או בקש מ {{agentName}} לכתוב ולשמור אחד.',
+    'עדיין לא נשמרו סקריפטים. צור אחד למעלה, או בקש מ-{{agentName}} לכתוב ולשמור אחד.',
   'ide.chat.scripts.loading': 'טוען סקריפטים…',
   'ide.chat.scripts.error': 'לא ניתן היה לטעון סקריפטים עבור פרויקט זה.',
   'ide.chat.scripts.noMatch': 'אין סקריפטים התואמים את " {{query}} ".',
@@ -488,7 +488,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.scripts.cmdExitOk': '{{name}} יצא 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} יצא עם קוד {{code}}',
   'ide.chat.scripts.exitOk': 'יצא 0',
-  'ide.chat.scripts.exitFail': 'יצא מ {{code}}',
+  'ide.chat.scripts.exitFail': 'יצא מ-{{code}}',
   'ide.chat.scripts.noOutput': '(אין פלט)',
   'ide.chat.settings.heading': 'הגדרות',
   'ide.chat.settings.commandsHeading': 'פקודות קו נטוי',
@@ -762,15 +762,15 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.context.resets': 'מאפס {{at}} .',
   'ide.error.noProvider': 'ספק סביבת העבודה של IDE לא הוגדר. חבר ספק IDE תחילה.',
   'ide.chat.tip.getStarted':
-    'טיפ: הקלד / כדי לראות כל פקודה, או @ שם קובץ כדי לתת ל {{agentName}} קובץ לעבוד ממנו.',
+    'טיפ: הקלד / כדי לראות כל פקודה, או @ שם קובץ כדי לתת ל-{{agentName}} קובץ לעבוד ממנו.',
   'ide.chat.tip.plan':
-    'טיפ: השתמשו ב- /plan כדי ש- {{agentName}} יחקור ויציע תוכנית לפני עריכת קבצים כלשהם.',
+    'טיפ: השתמשו ב-/plan כדי ש-{{agentName}} יחקור ויציע תוכנית לפני עריכת קבצים כלשהם.',
   'ide.chat.compacted': 'דחוסה של {{count}} הודעות.',
   'ide.chat.models.usageRateMultiplier': '× {{rate}}',
   'ide.chat.undoComplete': 'הוחזר {{count}} קובץ(ים) מהתור האחרון של הבינה המלאכותית.',
   'ide.chat.autoFixCountdown': 'תיקון אוטומטי תוך {{seconds}} שניות...',
   'ide.chat.version': 'גרסה {{productName}} {{version}}',
-  'ide.search.replaceConfirmation': 'להחליף {{count}} מופעים ב {{files}} קבצים?',
+  'ide.search.replaceConfirmation': 'להחליף {{count}} מופעים ב-{{files}} קבצים?',
   'ide.chat.voice': 'לְהַכתִיב',
   'ide.chat.voiceStop': 'הפסקת הכתבה',
   // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
@@ -879,7 +879,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.settings.autoApproveCommands.label': 'אישור פקודות אוטומטי',
   'ide.chat.settings.sounds.label': 'צלילי התראות',
   'ide.chat.settings.timestamps.label': 'חותמות זמן',
-  'ide.chat.settings.model.desc': 'המודל ש{{agentName}} משתמש בו כאשר לא הוגדר מודל ייעודי למצב.',
+  'ide.chat.settings.model.desc': 'המודל ש-{{agentName}} משתמש בו כאשר לא הוגדר מודל ייעודי למצב.',
   'ide.chat.settings.planModel.desc':
     'המודל שבשימוש במצב התכנון. חוזר למודל ברירת המחדל אם לא הוגדר.',
   'ide.chat.settings.executeModel.desc':
@@ -890,15 +890,15 @@ export const he: Partial<IdeTranslations> = {
     'המודל שמסכם הודעות ישנות יותר כשהשיחה מתקרבת למגבלת ההקשר. חוזר לברירת מחדל מהירה אם לא הוגדר.',
   'ide.chat.settings.mode.desc': 'מצב התכנון חוקר ומציע ללא עריכת קבצים; מצב הביצוע כותב קוד.',
   'ide.chat.settings.maxLoops.desc':
-    'התקרה העליונה לקריאות כלים ש{{agentName}} מבצע בסבב אחד לפני שהוא עוצר בשבילך.',
+    'התקרה העליונה לקריאות כלים ש-{{agentName}} מבצע בסבב אחד לפני שהוא עוצר בשבילך.',
   'ide.chat.settings.autoFix.desc':
-    'לאחר עריכות AI, להריץ בדיקת טיפוסים ו-linter שוב ולהזרים שגיאות חזרה כדי ש{{agentName}} יתקן אותן.',
+    'לאחר עריכות AI, להריץ בדיקת טיפוסים ו-linter שוב ולהזרים שגיאות חזרה כדי ש-{{agentName}} יתקן אותן.',
   'ide.chat.settings.autoCommit.desc':
-    'מבצע commit לעבודה שלך באופן אוטומטי מספר שניות אחרי שינוי הקובץ האחרון — מופעל כברירת מחדל (5 שנ׳; 0 = כבוי), וממתין ש{{agentName}} יסיים את הסבב לפני ה-commit. כל שינוי מפעיל את הספירה לאחור מחדש, ואז נעצר אחרי ה-commit כדי שעץ נקי לא יעבור commit פעמיים.',
+    'מבצע commit לעבודה שלך באופן אוטומטי מספר שניות אחרי שינוי הקובץ האחרון — מופעל כברירת מחדל (5 שנ׳; 0 = כבוי), וממתין ש-{{agentName}} יסיים את הסבב לפני ה-commit. כל שינוי מפעיל את הספירה לאחור מחדש, ואז נעצר אחרי ה-commit כדי שעץ נקי לא יעבור commit פעמיים.',
   'ide.chat.settings.hooks.desc':
-    'פקודות מעטפת שרצות לפני פעולות כלים ויכולות לעצור אותן — למשל תצוגה מקדימה של שינוי לפני ש{{agentName}} דורס או מוחק קובץ. מוגדרות בקובץ הגדרות הסוכן של הפרויקט שלך.',
+    'פקודות מעטפת שרצות לפני פעולות כלים ויכולות לעצור אותן — למשל תצוגה מקדימה של שינוי לפני ש-{{agentName}} דורס או מוחק קובץ. מוגדרות בקובץ הגדרות הסוכן של הפרויקט שלך.',
   'ide.chat.settings.autoApproveCommands.desc':
-    'מדלג על אישור “להמשיך?” לפני ש{{agentName}} מריץ פקודה מאסיבית/הרסנית (hard reset, מחיקה רקורסיבית, עריכה במקום). גישת הרשת ממשיכה לפי רשימת ההיתרים של הפרויקט אלא אם גישה מלאה מופעלת.',
+    'מדלג על אישור “להמשיך?” לפני ש-{{agentName}} מריץ פקודה מאסיבית/הרסנית (hard reset, מחיקה רקורסיבית, עריכה במקום). גישת הרשת ממשיכה לפי רשימת ההיתרים של הפרויקט אלא אם גישה מלאה מופעלת.',
   'ide.chat.settings.sounds.desc': 'צלילי התראה לכל אירוע עבור תשובות, שגיאות, שינויי קבצים ועוד.',
   'ide.chat.settings.timestamps.desc':
     'הצגת השעה על כל הודעה ואירוע בצ׳אט. כבוי כברירת מחדל; ההודעות שלך ואירועים קריטיים תמיד מציגים אותה. במכשיר זה בלבד.',
@@ -908,18 +908,18 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.share.role.commenter': 'מגיב — צפייה ותגובות',
   'ide.chat.share.role.editor': 'עורך — צפייה ועריכה',
   'ide.chat.share.role.owner': 'בעלים — גישה מלאה',
-  'ide.chat.share.grants.viewer': 'כל מי שיש לו את הקישור הזה יכול לפעול כ{{role}}.',
-  'ide.chat.share.grants.commenter': 'כל מי שיש לו את הקישור הזה יכול לפעול כ{{role}}.',
-  'ide.chat.share.grants.editor': 'כל מי שיש לו את הקישור הזה יכול לפעול כ{{role}}.',
-  'ide.chat.share.grants.owner': 'כל מי שיש לו את הקישור הזה יכול לפעול כ{{role}}.',
+  'ide.chat.share.grants.viewer': 'כל מי שיש לו את הקישור הזה יכול לפעול כ-{{role}}.',
+  'ide.chat.share.grants.commenter': 'כל מי שיש לו את הקישור הזה יכול לפעול כ-{{role}}.',
+  'ide.chat.share.grants.editor': 'כל מי שיש לו את הקישור הזה יכול לפעול כ-{{role}}.',
+  'ide.chat.share.grants.owner': 'כל מי שיש לו את הקישור הזה יכול לפעול כ-{{role}}.',
   'ide.chat.share.subheading.viewer':
-    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ{{role}}.',
+    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ-{{role}}.',
   'ide.chat.share.subheading.commenter':
-    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ{{role}}.',
+    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ-{{role}}.',
   'ide.chat.share.subheading.editor':
-    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ{{role}}.',
+    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ-{{role}}.',
   'ide.chat.share.subheading.owner':
-    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ{{role}}.',
+    'יוצרים קישור ציבורי. כל מי שיש לו את הקישור יכול לפעול כ-{{role}}.',
   'ide.chat.expandMessage': 'הצג עוד',
   'ide.chat.collapseMessage': 'הצג פחות',
   'ide.chat.newConversation': 'שיחה חדשה',

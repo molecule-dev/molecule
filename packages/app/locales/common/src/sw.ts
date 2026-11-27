@@ -166,7 +166,7 @@ export const sw: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Imeshindwa kuingia.',
   'user.error.newPasswordRequired': 'Nenosiri jipya linahitajika.',
   'user.error.noPendingTwoFactorSetup':
-    'Hakuna usanidi wa vipengele viwili unaosubiriwa. Piga simu kwa "usanidi" wa kitendo kwanza.',
+    'Hakuna usanidi wa vipengele viwili unaosubiriwa. Ita kwa "usanidi" wa kitendo kwanza.',
   'user.error.notFound': 'Haikupatikana.',
   'user.error.oauthLoginFailed': 'Kuingia kwa OAuth kumeshindwa.',
   'user.error.oauthServerNotConfigured': 'Seva ya OAuth "{{server}}" haijasanidiwa.',

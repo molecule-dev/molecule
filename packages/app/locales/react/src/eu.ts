@@ -15,9 +15,9 @@ export const eu: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider baten barruan erabili behar da',
   'react.error.useRouterOutsideProvider':
-    'Ez dago bideratzailerik hemen. Muntatu bideratzaile osagai bat aplikazioaren bideratze loturatik (`BrowserRouter` `@molecule/app-routing-react-router`), edo pasa `router` `MoleculeProvider` ri. Aplikazioak dagoeneko egiten badu hau, bere bideratze lotura lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-react-router@latest`).',
+    'Ez dago bideratzailerik hemen. Muntatu bideratzaile osagai bat aplikazioaren bideratze loturatik (`BrowserRouter` `@molecule/app-routing-react-router`), edo pasa `router` `MoleculeProvider`-ri. Aplikazioak dagoeneko egiten badu hau, bere bideratze lotura lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea seme-alaba gisa. Aplikazioak `@molecule/app-routing-react-router` rekin bideratzen badu, lotura hori lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-react-router@latest`).',
+    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea seme-alaba gisa. Aplikazioak `@molecule/app-routing-react-router`-rekin bideratzen badu, lotura hori lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider':
     'useStateProvider StateProvider baten barruan erabili behar da',
   'react.error.useStorageOutsideProvider':

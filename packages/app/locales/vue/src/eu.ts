@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Basque. */
 export const eu: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Ez dago bideratzailerik hemen. Aplikazioa `MoleculeRouterProvider`-en bildu bideratze-loturatik (`@molecule/app-routing-vue-router`), edo pasa `router` `moleculePlugin` ri. Aplikazioak dagoeneko egiten badu hau, bere bideratze-lotura lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-vue-router@latest`).',
+    'Ez dago bideratzailerik hemen. Aplikazioa `MoleculeRouterProvider`-en bildu bideratze-loturatik (`@molecule/app-routing-vue-router`), edo pasa `router` `moleculePlugin`-ri. Aplikazioak dagoeneko egiten badu hau, bere bideratze-lotura lotura hau baino zaharragoa da: eguneratu (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea seme-alaba gisa. Aplikazioak `@molecule/app-routing-vue-router` rekin bideratzen badu, lotura hori lotura hau baino zaharragoa bada: eguneratu (`npm install @molecule/app-routing-vue-router@latest`).',
+    'Bideratze-lotura honek ez du hemen errendatzeko bideratutako ikuspegirik: pasa orrialdea seme-alaba gisa. Aplikazioak `@molecule/app-routing-vue-router`-rekin bideratzen badu, lotura hori lotura hau baino zaharragoa bada: eguneratu (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider barruan erabili behar da',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider barruan erabili behar da',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider barruan erabili behar da',

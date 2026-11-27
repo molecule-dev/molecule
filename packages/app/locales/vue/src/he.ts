@@ -3,7 +3,7 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Hebrew. */
 export const he: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'אין כאן נתב. עטפו את האפליקציה ב `MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-vue-router`), או העבירו `router` ל `moleculePlugin`. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: עדכנו אותו (`npm install @molecule/app-routing-vue-router@latest`).',
+    'אין כאן נתב. עטפו את האפליקציה ב-`MoleculeRouterProvider` מקשר הניתוב (`@molecule/app-routing-vue-router`), או העבירו `router` ל-`moleculePlugin`. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: עדכנו אותו (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
     'לקשר הניתוב הזה אין תצוגה מנותבת לעיבוד כאן: יש להעביר את הדף כעמודים ילדים במקום זאת. אם האפליקציה מנתבת עם `@molecule/app-routing-vue-router`, קשר זה ישן יותר מקישור זה: יש לעדכן אותו (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'יש להשתמש ב-useStateProvider בתוך StateProvider',

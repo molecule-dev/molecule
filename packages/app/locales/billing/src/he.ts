@@ -13,7 +13,7 @@ export const he: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'ביטול בכל עת · אין צורך בכרטיס אשראי כדי להתחיל',
   'billing.pricing.tierEyebrow': 'נִדבָּך',
   'billing.pricing.perSeat': 'לכל מושב',
-  'billing.pricing.upgradeCta': 'שדרג ל {{tierName}}',
+  'billing.pricing.upgradeCta': 'שדרג ל-{{tierName}}',
   'billing.pricing.currentCta': 'התוכנית הנוכחית',
   'billing.pricing.period.month': 'לחודש',
   'billing.pricing.period.year': 'לשנה',

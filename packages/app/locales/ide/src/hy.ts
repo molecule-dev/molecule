@@ -6,12 +6,12 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.showChangedFiles': 'Ցուցադրել փոփոխված ֆայլերը',
   'ide.chat.commitFileCount_one': 'Կատարել {{count}} ֆայլ',
   'ide.chat.commitFileCount_other': '{{count}} ֆայլի հաստատում',
-  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}} ում',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}-ում',
   'ide.chat.teamMessagesUnavailable':
     'Թիմային հաղորդագրությունները հասանելի չեն այս աշխատանքային տարածքում։',
-  'ide.chat.teamOnly.badge': 'Միայն թիմի համար տեսանելի է. {{agentName}} ը կանտեսի այն',
+  'ide.chat.teamOnly.badge': 'Միայն թիմի համար տեսանելի է. {{agentName}}-ը կանտեսի այն',
   'ide.chat.tip.viewerTeamOnly':
-    'Միայն դիտման մուտք — կարդացեք միասին և /teamsay (կամ պարզապես /t) ուղարկեք թիմին։ Այս ոսկեգույն պատկերակը նշում է միայն թիմային հաղորդագրությունները ({{agentName}} ը անտեսում է դրանք)։ Օգնականը գործարկելու և մոդելը կամ կարգավորումները փոխելու համար անհրաժեշտ է խմբագրի մուտք։',
+    'Միայն դիտման մուտք — կարդացեք միասին և /teamsay (կամ պարզապես /t) ուղարկեք թիմին։ Այս ոսկեգույն պատկերակը նշում է միայն թիմային հաղորդագրությունները ({{agentName}}-ը անտեսում է դրանք)։ Օգնականը գործարկելու և մոդելը կամ կարգավորումները փոխելու համար անհրաժեշտ է խմբագրի մուտք։',
   'ide.chat.viewerReadOnly':
     'Դուք ունեք միայն դիտման մուտք, ուստի չեք կարող այստեղ աշխատեցնել օգնականը։ Դուք դեռ կարող եք կարդալ և օգտագործել /teamsay ՝ թիմին հաղորդագրություն ուղարկելու համար։',
   'ide.chat.viewerReadOnlyCommand':
@@ -261,12 +261,12 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Հաստատման արդյունք',
   'ide.chat.soundEvent.preview_error': 'Նախադիտման սխալ',
   'ide.chat.soundEventDesc.message': 'Թիմակիցը միայն թիմին վերաբերող գրառում է արել',
-  'ide.chat.soundEventDesc.done': '{{agentName}} ը ավարտեց պատասխանը',
+  'ide.chat.soundEventDesc.done': '{{agentName}}-ը ավարտեց պատասխանը',
   'ide.chat.soundEventDesc.error': 'Պատասխանի ժամանակ ինչ-որ բան սխալ է տեղի ունեցել',
   'ide.chat.soundEventDesc.tool_result': 'Գործիքի կանչը (ֆայլի ընթերցում, հրաման և այլն) ավարտվեց',
   'ide.chat.soundEventDesc.file_diff': 'Ֆայլը ստեղծվել կամ փոփոխվել է',
   'ide.chat.soundEventDesc.commit_suggestion':
-    '{{agentName}} ը առաջարկում է ֆայլերը հաստատման համար',
+    '{{agentName}}-ը առաջարկում է ֆայլերը հաստատման համար',
   'ide.chat.soundEventDesc.mode': 'Անցում պլանավորման և կատարման ռեժիմների միջև',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Հասեք գործիքի առավելագույն կրկնությունների սահմանաչափին',
@@ -390,8 +390,8 @@ export const hy: Partial<IdeTranslations> = {
     '  {{mode}} ({{model}}): ֆիքսված — այս մոդելն ունի մեկ դատողության ռեժիմ',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — հասանելի են՝ {{levels}}',
   'ide.chat.effort.setMode':
-    '{{mode}} ի համար դատողության ջանքը սահմանված է {{level}} ({{model}}):',
-  'ide.chat.setting.effort': '{{mode}} ի համար դատողության ջանքը սահմանված է {{level}} ի վրա։',
+    '{{mode}}-ի համար դատողության ջանքը սահմանված է {{level}} ({{model}}):',
+  'ide.chat.setting.effort': '{{mode}}-ի համար դատողության ջանքը սահմանված է {{level}}-ի վրա։',
   'ide.chat.settings.effortFixed': 'ֆիքսված',
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
@@ -415,7 +415,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.olderModelsExpand': 'Ավելի հին մոդելներ ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Ընտրեք կատարման ռեժիմի մոդելը',
   'ide.chat.selectPlanModel': 'Ընտրեք պլանավորման ռեժիմի մոդել',
-  'ide.chat.executeModelSet': 'Կատարման ռեժիմի մոդելը սահմանված է {{name}} ի վրա',
+  'ide.chat.executeModelSet': 'Կատարման ռեժիմի մոդելը սահմանված է {{name}}-ի վրա',
   'ide.chat.planModelSet': 'Պլանավորման ռեժիմի մոդելը սահմանված է {{name}} համար',
   'ide.chat.selectCommitModel': 'Ընտրեք commit-message մոդելը',
   'ide.chat.selectCompactModel': 'Ընտրեք սեղմման մոդել',
@@ -446,10 +446,10 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.typeErrorsCount': '{{count}} տիպի սխալներ',
   'ide.chat.help.commandsHeading': '── Հրամաններ ──',
   'ide.chat.help.intro':
-    '{{agentName}} ը {{productName}}-ի արհեստական բանականության կոդավորող գործակալն է։ Նկարագրեք, թե ինչ եք ուզում կառուցել, և այն կկառուցի, կկոդավորի և կգործարկի ձեզ հետ միասին։',
+    '{{agentName}}-ը {{productName}}-ի արհեստական բանականության կոդավորող գործակալն է։ Նկարագրեք, թե ինչ եք ուզում կառուցել, և այն կկառուցի, կկոդավորի և կգործարկի ձեզ հետ միասին։',
   'ide.chat.help.introHeading': '── Սկսնակների համար ──',
   'ide.chat.help.modeDiscovery':
-    'Հայտնաբերում — նոր զրույցները սկսվում են այստեղ։ {{agentName}} ը պարզաբանող հարցեր է տալիս՝ որևէ կոդ գրելուց առաջ պահանջները ճշգրտելու համար։',
+    'Հայտնաբերում — նոր զրույցները սկսվում են այստեղ։ {{agentName}}-ը պարզաբանող հարցեր է տալիս՝ որևէ կոդ գրելուց առաջ պահանջները ճշգրտելու համար։',
   'ide.chat.help.modeExecute':
     'Կատարել — աշխատանքային լռելյայն ռեժիմը։ {{agentName}} գրում է կոդ, գործարկում գործիքներ և կիրառում փոփոխություններ, ապա ստուգում դրանք։',
   'ide.chat.help.modePlan':
@@ -462,7 +462,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
-    '• Փոփոխություններ կատարելուց առաջ օգտագործեք /plan ՝ {{agentName}} ը հետազոտելու համար։',
+    '• Փոփոխություններ կատարելուց առաջ օգտագործեք /plan ՝ {{agentName}}-ը հետազոտելու համար։',
   'ide.chat.help.tipSlash': '• Մուտքագրեք /՝ վերևում նշված բոլոր հրամանները դիտելու համար։',
   'ide.chat.help.tipSpecific':
     '• Եղեք կոնկրետ. «Ավելացրեք մուտքի էջ էլ. փոստով/գաղտնաբառով և Google OAuth-ով» ավելի լավ է, քան «ավելացնել վավերացում» տարբերակը։',
@@ -496,7 +496,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.scripts.saveError': 'Հնարավոր չէ պահպանել սկրիպտը։ Խնդրում ենք կրկին փորձել։',
   'ide.chat.scripts.invalid': 'Սկրիպտը պետք է ունենա անուն և ոչ դատարկ մարմին։',
   'ide.chat.scripts.empty':
-    'Պահպանված սկրիպտներ դեռ չկան։ Ստեղծեք մեկը վերևում կամ խնդրեք {{agentName}} ին գրել և պահպանել մեկը։',
+    'Պահպանված սկրիպտներ դեռ չկան։ Ստեղծեք մեկը վերևում կամ խնդրեք {{agentName}}-ին գրել և պահպանել մեկը։',
   'ide.chat.scripts.loading': 'Սկրիպտները բեռնվում են…',
   'ide.chat.scripts.error': 'Հնարավոր չէ բեռնել այս նախագծի սկրիպտները։',
   'ide.chat.scripts.noMatch': '« {{query}} »-ին համապատասխանող սկրիպտներ չկան։',
@@ -508,14 +508,14 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound': '« {{name}} » անունով սկրիպտ չկա։ Հասանելի է՝ {{names}}',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} դուրս եկավ 0-ից',
-  'ide.chat.scripts.cmdExitFail': '{{name}} ը դուրս եկավ {{code}} կոդով',
+  'ide.chat.scripts.cmdExitFail': '{{name}}-ը դուրս եկավ {{code}} կոդով',
   'ide.chat.scripts.exitOk': 'Ելք 0-ից',
-  'ide.chat.scripts.exitFail': 'Ելք {{code}} ից',
+  'ide.chat.scripts.exitFail': 'Ելք {{code}}-ից',
   'ide.chat.scripts.noOutput': '(արտադրանք չկա)',
   'ide.chat.settings.heading': 'Կարգավորումներ',
   'ide.chat.settings.commandsHeading': 'Slash հրամաններ',
   'ide.chat.settings.edit': 'Խմբագրել',
-  'ide.chat.settings.editVia': 'Խմբագրել {{command}} ի միջոցով',
+  'ide.chat.settings.editVia': 'Խմբագրել {{command}}-ի միջոցով',
   'ide.chat.settings.modeExecute': 'Կատարել',
   'ide.chat.settings.modePlan': 'Պլան',
   'ide.chat.settings.modelUnset': 'Սահմանված չէ',
@@ -605,7 +605,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.preview.reloadPreview': 'Վերաբեռնել նախադիտումը',
   'ide.preview.lastWorkingFrame': 'Վերջին աշխատանքային նախադիտում',
   'ide.chat.effort.notSupportedForModel':
-    '{{level}} ը հասանելի չէ {{model}} ի համար։ Հասանելի է՝ {{levels}}',
+    '{{level}}-ը հասանելի չէ {{model}}-ի համար։ Հասանելի է՝ {{levels}}',
   'ide.chat.modelSortLabel': 'Դասավորել',
   'ide.chat.modelSortDirection': 'Փոխարկել/անջատել տեսակավորման ուղղությունը',
   'ide.chat.skills.loadedBadge': 'Բեռնված է',
@@ -798,7 +798,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.tip.getStarted':
     'Հուշում. մուտքագրեք /՝ բոլոր հրամանները տեսնելու համար, կամ @՝ {{agentName}}-ին աշխատելու ֆայլ տրամադրելու համար։',
   'ide.chat.tip.plan':
-    'Խորհուրդ. օգտագործեք /plan , որպեսզի {{agentName}} ը հետազոտի և առաջարկի ծրագիր, նախքան որևէ ֆայլ խմբագրելը։',
+    'Խորհուրդ. օգտագործեք /plan , որպեսզի {{agentName}}-ը հետազոտի և առաջարկի ծրագիր, նախքան որևէ ֆայլ խմբագրելը։',
   'ide.chat.compacted': 'Սեղմված {{count}} հաղորդագրություն։',
   'ide.chat.models.usageRateMultiplier': '× {{rate}}',
   'ide.chat.undoComplete': 'Վերջին արհեստական ինտելեկտի շրջադարձից {{count}} ֆայլ(եր) հետադարձվեց։',

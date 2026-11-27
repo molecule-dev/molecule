@@ -45,16 +45,25 @@
  * one: it lets nothing through, it makes the gate require the English value of
  * that key in every language.
  *
+ * The same step detached grammatical particles from what they belong to (2026-11-27): Armenian wrote
+ * `` `setProvider()` ը `` for `` `setProvider()`-ը ``, Korean `{{provider}} 에 대한` for
+ * `{{provider}}에 대한`, and Swahili said "make a phone call" (`piga simu`) wherever English said
+ * "Call" a function. Every token was intact, so nothing above saw them; {@link detachedParticle} and
+ * {@link phoneCallForFunction} do.
+ *
  * ## Usage
  *
  *   node scripts/check-locale-placeholders.js            # report + exit 1 on any problem
  *   node scripts/check-locale-placeholders.js --quiet    # exit code only
+ *   node scripts/check-locale-placeholders.js --all      # print every problem, not the first 40
+ *   node scripts/check-locale-placeholders.js --root=<dir>  # the tables under another checkout
+ *                                                          # (a copy of an older tree)
  *
  * @module
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { isMainModule } from './lib/is-main.mjs'
@@ -193,11 +202,12 @@ export function valuesByKey(source) {
 /**
  * Locale bond directories that define an `en.ts`.
  *
+ * @param [root] - The checkout to read; this one unless a copy of another tree is named.
  * @returns Absolute package directories.
  */
-export function localePackages() {
+export function localePackages(root = ROOT) {
   const found = []
-  for (const base of LOCALE_DIRS) {
+  for (const base of LOCALE_DIRS.map((dir) => join(root, dir.slice(ROOT.length)))) {
     let entries
     try {
       entries = readdirSync(base)
@@ -234,6 +244,7 @@ const sameMultiset = (a, b) =>
  *
  * @param englishValue - The `en.ts` value for the same key.
  * @param value - The translated value.
+ * @param [lang] - The translation's language, if known.
  * @returns `null` when intact, else `{ klass, detail }`.
  *   `RENAMED` — same count, different names: the call site supplies `count`, the
  *     value asks for `{{ಎಣಿಕೆ}}`, and the raw token renders.
@@ -259,7 +270,7 @@ const sameMultiset = (a, b) =>
  *   `ENGLISH` — the value is still the English text ({@link isUntranslatedCopy}).
  *     {@link copiedEnglish} adds the short values a whole file never translated.
  */
-export function classify(englishValue, value) {
+export function classify(englishValue, value, lang) {
   const want = placeholders(englishValue)
   const have = placeholders(value)
   if (/<\s*\/?\s*(?:x|span)\b[^>]*>/i.test(value)) {
@@ -305,7 +316,7 @@ export function classify(englishValue, value) {
     }
   }
   const commands = commandSpans(englishValue)
-  const lostCommand = commands.find((span) => !commandSpans(value).includes(span))
+  const lostCommand = commands.find((span) => !commandSpans(value, lang).includes(span))
   if (lostCommand !== undefined) {
     return { klass: 'COMMAND', detail: `${lostCommand} not kept verbatim` }
   }
@@ -392,11 +403,12 @@ export function keptInEnglish(source) {
  * @param englishValue - The `en.ts` value for the same key.
  * @param value - The translated value.
  * @param keepReason - The key's `keep-english` reason, or undefined when unmarked.
+ * @param [lang] - The translation's language, if known.
  * @returns `null` when the value is acceptable, a `KEPT` verdict when a marked
  *   key holds anything but its English value, else {@link classify}'s verdict.
  */
-export function checkValue(englishValue, value, keepReason) {
-  if (keepReason === undefined) return classify(englishValue, value)
+export function checkValue(englishValue, value, keepReason, lang) {
+  if (keepReason === undefined) return classify(englishValue, value, lang)
   if (value === englishValue) return null
   return {
     klass: 'KEPT',
@@ -404,15 +416,26 @@ export function checkValue(englishValue, value, keepReason) {
   }
 }
 
+const COMMAND_START = /(?<![\w./<~-])/.source
+
 /**
- * A slash command (or an absolute path) and the argument syntax written after
- * it: `<name>`, `[on | off]`, `--plan|--execute`, `?`. It cannot follow an ASCII
- * letter, digit or `. / < ~ -`, so `and/or`, `1/2`, `.agents/skills` and `</p>`
- * are not commands; a CJK sentence puts one straight after a character
- * (`用法：/timestamps`).
+ * Match a slash command (or absolute path) and its argument syntax:
+ * `<name>`, `[on | off]`, `--plan|--execute`, `?`.
+ *
+ * @param start - Boundary before the slash.
+ * @param hyphen - Hyphens that can be part of the command or flag.
+ * @returns The command pattern.
  */
-export const COMMAND_RE =
-  /(?<![\w./<~-])\/[a-z][\w-]*(?:\/[\w.-]+)*(?:[ \t]+(?:<[\w-]+>|\[[^\]\n]{1,40}\]|--[a-z][\w-]*(?:\|--[a-z][\w-]*)*|\?(?![\w?])))*/g
+function commandPattern(start, hyphen) {
+  const label = `[a-z](?:\\w|${hyphen})*`
+  const path = `\\/${label}(?:\\/(?:[\\w.]|${hyphen})+)*`
+  const flag = `--${label}`
+  const args = `(?:[ \\t]+(?:<[\\w-]+>|\\[[^\\]\\n]{1,40}\\]|${flag}(?:\\|${flag})*|\\?(?![\\w?])))*`
+  return new RegExp(`${start}${path}${args}`, 'gu')
+}
+
+/** Commands start at their own boundary, so `and/or`, `1/2`, relative paths and tags stay prose. */
+export const COMMAND_RE = commandPattern(COMMAND_START, '-')
 
 /**
  * Every slash command in a value outside its code spans, with its argument
@@ -425,10 +448,13 @@ export const COMMAND_RE =
  * not exist.
  *
  * @param value - A string value.
+ * @param [lang] - The value's language, if known, for prefixes and suffixes joined to commands.
  * @returns The command spans.
  */
-export function commandSpans(value) {
-  return value.replace(/`[^`\n]+`/g, ' ').match(COMMAND_RE) ?? []
+export function commandSpans(value, lang) {
+  return (
+    value.replace(/`[^`\n]+`/g, ' ').match(JOINED_COMMAND_PATTERNS.get(lang) ?? COMMAND_RE) ?? []
+  )
 }
 
 /**
@@ -638,6 +664,328 @@ export function splitHyphenSuffix(englishValue, value, lang) {
     : null
 }
 
+/** A code name in backticks or a `{{placeholder}}`. */
+const NAME_RE = '`[^`\\n]+`|\\{\\{[^{}]*\\}\\}'
+/** A number in digits (`3`, `1.5`): a particle is written against it as against a name. */
+const NUMBER_RE = /\p{Nd}+(?:[.,]\p{Nd}+)*/u.source
+/**
+ * A name a value does not mark as code: `setProvider()`, `@molecule/app-icons`, `multipart/form-data`.
+ * In a language not written in Latin script it is a word of its own kind, and a particle after it is
+ * that word's. Basque is written in Latin script, where this would be every word, so it is not
+ * used there.
+ */
+const PLAIN_NAME_RE =
+  /[.@]?[\p{Script=Latin}][\p{Script=Latin}\p{M}\d@/_-]*(?:\.[\p{Script=Latin}\p{M}\d/_-]+)*(?:\(\))?/u
+    .source
+/** Quotes and brackets around a name stay in place when the particle is joined. */
+const OPENERS = /["'([\u2018\u201c]*/u.source
+const CLOSERS = /["')\]\u2019\u201d]*/u.source
+/** Horizontal whitespace, including a space left beside an already written hyphen. */
+const APART = /-?[^\S\r\n]+-?/u.source
+/**
+ * The particle is a whole word: no letter, mark or digit goes on after it. A word that merely begins
+ * with the particle's syllable is not the particle (Korean for "read {{source}} logs" and "fetch
+ * {{host}}", Armenian for "{{count}} selected"), and neither is a unit (Korean writes the "s" of
+ * "{{time}}s" as a two-syllable word that begins like the particle for "at").
+ */
+const WORD_END = /(?![\p{L}\p{M}\p{N}_\u200c\u200d])/u.source
+/**
+ * The prefix is a word of its own: no letter, mark or digit stands before it. It does not touch the
+ * end of a token (`{{hours}}<letter>`: the unit letter of a number, not a prefix of the next
+ * placeholder), nor an acronym's closing quote mark.
+ */
+const WORD_START = /(?<![\p{L}\p{M}\p{N}_`}%])(?<![\p{L}\p{N}]["'\u05f3\u05f4])/u.source
+/**
+ * Whether English writes the unit "s" of seconds against a name: `{{time}}s`, `{{value}} s`.
+ *
+ * @param englishValue - The `en.ts` value for the same key, when known.
+ * @param name - The name the particle stands next to.
+ * @returns True when the name is a code name or placeholder and English writes that unit against it.
+ */
+function secondsInEnglish(englishValue, name) {
+  if (englishValue === undefined) return false
+  const token = new RegExp(NAME_RE, 'u').exec(name)?.[0]
+  if (token === undefined) return false
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`${escaped} ?s${WORD_END}`, 'u').test(englishValue)
+}
+
+/**
+ * The suffixes and prefixes a language writes against the word they belong to, each a list of code
+ * points. They are never typed characters: the sweep that found this defect was written with one wrong
+ * code point (a Han character for an Armenian letter), matched nothing for that suffix, and left three
+ * values out of its list.
+ *
+ * - Armenian, Georgian, Malayalam and Basque write a case suffix against a code name or placeholder
+ *   with a hyphen: `` `setProvider()`-ը ``, `{{bond}}-ից`, `{{bond}}-დან`, `{{bond}}-ൽ`, `{{core}}-tik`.
+ * - Korean writes a particle straight against it: `{{bond}}에서`, `` `provider`를 ``, `{{label}}에게`.
+ * - Hebrew joins a one-letter prefix to a code name, a placeholder, a slash command, a Latin word
+ *   or a number with a hyphen, as in `מ-{{bond}}`.
+ *
+ * `after` lists suffixes, `before` lists prefixes, and `join` is what stands between (empty for
+ * Korean). Georgian also uses its `unitLetter` to spell the "s" of `{{time}}s`. The matching English
+ * token identifies those uses.
+ */
+export const JOINED_PARTICLES = Object.freeze({
+  hy: {
+    name: 'Armenian',
+    join: '-',
+    after: [
+      [0x56b, 0x581], // "from"
+      [0x568], // "the"
+      [0x56b, 0x576], // "to"
+      [0x578, 0x582, 0x574], // "in"
+      [0x578, 0x57e], // "with"
+      [0x56b], // "of", "to"
+    ],
+  },
+  ka: {
+    name: 'Georgian',
+    join: '-',
+    after: [
+      [0x10d8, 0x10e1, 0x10d7, 0x10d5, 0x10d8, 0x10e1], // "for"
+      [0x10d3, 0x10d0, 0x10dc], // "from"
+      [0x10e8, 0x10d8], // "in"
+      [0x10d8, 0x10d7], // "with", "by"
+      [0x10d8, 0x10e1], // "of"
+      [0x10d6, 0x10d4], // "on"
+      [0x10db, 0x10d0], // "the doer"
+      [0x10e1], // "to", "of"
+    ],
+    unitLetter: [0x10e1],
+  },
+  ml: {
+    name: 'Malayalam',
+    join: '-',
+    after: [
+      [0xd32, 0xd47, 0xd15, 0xd4d, 0xd15, 0xd4d], // "to", "towards"
+      [0xd28, 0xd41, 0xd33, 0xd4d, 0xd33], // "for"
+      [0xd32, 0xd4d, 0x200d], // "in", "at": the same letter as below, with a zero-width joiner
+      [0xd2f, 0xd41, 0xd1f, 0xd46], // "of", after a vowel
+      [0xd28, 0xd4d, 0xd31, 0xd46], // "of", after a consonant
+      [0xd7d], // "in", "at"
+      [0xd7c], // alternate spelling in the existing check
+      [0xd28, 0xd4d], // "to", "for"
+      [0xd28, 0xd46], // "the object"
+      [0xd06, 0xd2f, 0xd3f], // "as"
+      [0xd2e, 0xd3e, 0xd2f, 0xd3f], // "with"
+    ],
+  },
+  eu: {
+    name: 'Basque',
+    join: '-',
+    after: [
+      [0x72, 0x65, 0x6b, 0x69, 0x6e], // "with"
+      [0x72, 0x61, 0x6b, 0x6f], // "for"
+      [0x74, 0x69, 0x6b], // "from"
+      [0x72, 0x65, 0x6e], // "of"
+      [0x72, 0x61], // "to"
+      [0x72, 0x69], // "to"
+      [0x6e], // "in"
+      [0x6b], // "the doer"
+    ],
+  },
+  ko: {
+    name: 'Korean',
+    join: '',
+    after: [
+      [0xc5d0, 0xc11c], // "at", "from"
+      [0xc5d0, 0xac8c], // "to"
+      [0xc758], // "of"
+      [0xb97c], // the object particle after a vowel
+      [0xc744], // the object particle after a consonant
+      [0xac00], // the subject particle after a vowel
+      [0xc5d0], // "to", "at"
+      [0xb85c], // "to", "with"
+      [0xb294], // the topic particle after a vowel
+      [0xc774], // the subject particle after a consonant
+      [0xc740], // the topic particle after a consonant
+      [0xc73c, 0xb85c], // "to", "with": after a consonant
+      [0xae4c, 0xc9c0], // "until"
+      [0xbd80, 0xd130], // "from"
+      [0xc785, 0xb2c8, 0xb2e4], // "is": the copula, polite
+    ],
+  },
+  he: {
+    name: 'Hebrew',
+    join: '-',
+    before: [
+      [0x5de], // "from"
+      [0x5dc], // "to"
+      [0x5d1], // "in", "at"
+      [0x5e9], // "that"
+      [0x5db], // "like", "as"
+      [0x5d5], // "and"
+      [0x5d4], // "the"
+    ],
+  },
+})
+
+/**
+ * Build a pattern from the locale's registered particles.
+ *
+ * @param list - Particles as code point arrays.
+ * @returns A pattern matching the longest available particle first.
+ */
+function particleAlternatives(list) {
+  return list
+    .map((points) => String.fromCodePoint(...points))
+    .sort((a, b) => b.length - a.length)
+    .join('|')
+}
+
+// Only the current language's recognized joins can change where a command starts
+// or ends. A Latin suffix can look like a different command name.
+const JOINED_COMMAND_PATTERNS = new Map(
+  Object.entries(JOINED_PARTICLES)
+    .filter(([lang, language]) => language.join === '-' && writingScript(lang) !== 'Latn')
+    .map(([lang, { before, after }]) => {
+      const start = before
+        ? `(?:${COMMAND_START}|(?<=${WORD_START}(?:${particleAlternatives(before)})-))`
+        : COMMAND_START
+      const hyphen = after ? `-(?!(?:${particleAlternatives(after)})${WORD_END})` : '-'
+      return [lang, commandPattern(start, hyphen)]
+    }),
+)
+
+const PARTICLE_PATTERNS = new Map(
+  Object.entries(JOINED_PARTICLES).map(([lang, language]) => {
+    const suffix = language.after !== undefined
+    const particles = particleAlternatives(language.after ?? language.before)
+    const names = [NAME_RE, NUMBER_RE]
+    // In Basque an unquoted command ending in a Latin suffix can look like a different command.
+    if (writingScript(lang) !== 'Latn') names.push(COMMAND_RE.source, PLAIN_NAME_RE)
+    const name = `(?:${names.join('|')})`
+    const detached = suffix
+      ? `(${name}${CLOSERS})${APART}(${particles})${WORD_END}`
+      : `${WORD_START}(${particles})(?:${APART})?(${OPENERS}${name}${CLOSERS})`
+    // Consume a complete token even when nothing is detached from it. This keeps the
+    // Latin-name alternative from matching prose inside a code span or a placeholder.
+    return [lang, new RegExp(`${detached}|${NAME_RE}`, 'gu')]
+  }),
+)
+
+/**
+ * The part of a value around a match, on one line: enough to find the place by, not a paragraph.
+ *
+ * @param value - The value the match is in.
+ * @param index - Where the match starts.
+ * @param length - The match's length.
+ * @returns Up to 28 characters on each side of the match, between ellipses where the value goes on.
+ */
+function excerptAround(value, index, length) {
+  const PAD = 28
+  const start = Math.max(0, index - PAD)
+  const end = Math.min(value.length, index + length + PAD)
+  const text = value.slice(start, end).replace(/\s+/g, ' ').trim()
+  return `${start > 0 ? '…' : ''}${text}${end < value.length ? '…' : ''}`
+}
+
+/**
+ * Every place a value writes one of its language's particles as a word apart from the name it
+ * belongs to ({@link JOINED_PARTICLES}), from left to right.
+ *
+ * @param value - The translated value.
+ * @param lang - The language code.
+ * @param [englishValue] - The `en.ts` value for the same key. It tells the unit "s" of `{{time}}s`
+ *   from a particle in the one language that types that unit with a particle's letter
+ *   (`unitLetter` of {@link JOINED_PARTICLES}).
+ * @returns `{ start, end, name, particle, joined }` for each place: `start` and `end` bound the
+ *   detached writing in `value`, `joined` is what to write there. Empty for a language the table
+ *   does not list and for a value that holds none.
+ */
+export function detachedParticlePlaces(value, lang, englishValue) {
+  const pattern = PARTICLE_PATTERNS.get(lang)
+  if (pattern === undefined) return []
+  const language = JOINED_PARTICLES[lang]
+  const suffix = language.after !== undefined
+  const unitLetter =
+    language.unitLetter === undefined ? null : String.fromCodePoint(...language.unitLetter)
+  const places = []
+  for (const found of value.matchAll(pattern)) {
+    const [whole, first, second] = found
+    if (first === undefined) continue
+    const [name, particle] = suffix ? [first, second] : [second, first]
+    if (suffix && particle === unitLetter && secondsInEnglish(englishValue, name)) continue
+    places.push({
+      start: found.index,
+      end: found.index + whole.length,
+      name,
+      particle,
+      joined: suffix ? `${name}${language.join}${particle}` : `${particle}${language.join}${name}`,
+    })
+  }
+  return places
+}
+
+/**
+ * Whether a value writes one of its language's suffixes or prefixes as a separate word next to the
+ * name it belongs to ({@link JOINED_PARTICLES}).
+ *
+ * @param value - The translated value.
+ * @param lang - The language code.
+ * @param [englishValue] - The `en.ts` value for the same key ({@link detachedParticlePlaces}).
+ * @returns A `SPACING` verdict naming the form to write, or null when the language is not listed or
+ *   the value holds none.
+ */
+export function detachedParticle(value, lang, englishValue) {
+  const places = detachedParticlePlaces(value, lang, englishValue)
+  const first = places[0]
+  if (first === undefined) return null
+  const language = JOINED_PARTICLES[lang]
+  const suffix = language.after !== undefined
+  return {
+    klass: 'SPACING',
+    detail:
+      `${language.name} writes "${first.particle}" against the word it ${suffix ? 'follows' : 'precedes'}: ` +
+      `write ${first.joined} in "${excerptAround(value, first.start, first.end - first.start)}"` +
+      (places.length > 1 ? ` (and ${places.length - 1} more in this value)` : ''),
+  }
+}
+
+/**
+ * Swahili "piga simu" ("make a phone call") written where the value tells the reader to call a
+ * function. Machine translation chose it for every "Call" that stands in front of a code name or a
+ * call (`` Piga simu `setProvider()` ``, "Piga simu setPool() kwanza") in 26 values. The phrase must
+ * stand directly before the code, so a value that really is about a call ("Piga simu {{phone}}") is
+ * not matched.
+ */
+const PHONE_CALL_RE = /\bpiga simu (?=(`[^`\n]+`|[\w$]+(?:\.[\w$]+)*\([^()\n]*\)))/i
+
+/**
+ * The same verb's causative ("-itisha", "have something called") in front of a code name: "na
+ * uitishe `setProvider(provider)`" says to have the function called, not to call it. Only the forms
+ * of that verb count: "pitisha" (pass) is another verb, and a common one before a code name.
+ */
+const HAVE_IT_CALLED_RE =
+  /\b(?:u|tu|m|wa|a|i|li|ya|ki|vi|zi)?itish(?:e|eni|a|we|je) (?=(`[^`\n]+`))/i
+
+/**
+ * Whether a Swahili value says "make a phone call" or "have it called" where it tells the reader to
+ * call a function. To call is "-ita": "Ita `setProvider()`" as an instruction on its own, "uite
+ * `setProvider()`" after "na" or "au".
+ *
+ * @param value - The translated value.
+ * @param lang - The language code.
+ * @returns A `SPACING` verdict naming the verbs to write, or null for any other language and for a
+ *   value that says neither.
+ */
+export function phoneCallForFunction(value, lang) {
+  if (lang !== 'sw') return null
+  const phoneCall = PHONE_CALL_RE.exec(value)
+  const found = phoneCall ?? HAVE_IT_CALLED_RE.exec(value)
+  if (found === null) return null
+  const phrase = found[0].trim()
+  const how = `"Ita ${found[1]}" as an instruction on its own, "uite ${found[1]}" after "na" or "au"`
+  return {
+    klass: 'SPACING',
+    detail:
+      found === phoneCall
+        ? `"${phrase}" means "make a phone call"; to call a function write ${how} in "${excerptAround(value, found.index, found[0].length)}"`
+        : `"${phrase}" means "have it called"; to call a function write ${how} in "${excerptAround(value, found.index, found[0].length)}"`,
+  }
+}
+
 /**
  * Every value of one language file the gate refuses, with its verdict.
  *
@@ -648,7 +996,8 @@ export function splitHyphenSuffix(englishValue, value, lang) {
  * @param everywhere - The bond's keys still English in every language
  *   ({@link untranslatedEverywhere}).
  * @returns Each refused key's `{ klass, detail }` ({@link checkValue},
- *   {@link splitHyphenSuffix}, {@link copiedEnglish}, `everywhere`).
+ *   {@link splitHyphenSuffix}, {@link detachedParticle}, {@link phoneCallForFunction},
+ *   {@link copiedEnglish}, `everywhere`).
  */
 export function checkFile(
   englishByKey,
@@ -662,7 +1011,10 @@ export function checkFile(
     const englishValue = englishByKey.get(key)
     if (englishValue === undefined) continue
     const verdict =
-      checkValue(englishValue, value, kept.get(key)) ?? splitHyphenSuffix(englishValue, value, lang)
+      checkValue(englishValue, value, kept.get(key), lang) ??
+      splitHyphenSuffix(englishValue, value, lang) ??
+      detachedParticle(value, lang, englishValue) ??
+      phoneCallForFunction(value, lang)
     if (verdict) verdicts.set(key, verdict)
   }
   for (const [key, detail] of copiedEnglish(englishByKey, translated, lang, kept))
@@ -749,27 +1101,29 @@ export function missingPluralForms(bases, lang, translated) {
 /**
  * Sweep every locale bond and report every placeholder defect.
  *
+ * @param [options] - None, or `root`: the checkout whose tables are read (a copy of an older tree).
+ *   The default is this one.
  * @returns `{ problems, drifts, filesScanned, packagesScanned }` — `problems` are
  *   human-readable lines, `drifts` the structured records behind them.
  */
-export function analyzeLocalePlaceholders() {
+export function analyzeLocalePlaceholders({ root = ROOT } = {}) {
   const problems = []
   const drifts = []
   let filesScanned = 0
   let packagesScanned = 0
 
-  for (const pkg of localePackages()) {
+  for (const pkg of localePackages(root)) {
     packagesScanned += 1
     const src = join(pkg, 'src')
     const englishSource = readFileSync(join(src, 'en.ts'), 'utf8')
     const englishByKey = valuesByKey(englishSource)
     const { kept, problems: markerProblems } = keptInEnglish(englishSource)
     for (const problem of markerProblems)
-      problems.push(`${pkg.slice(ROOT.length + 1)}/src/en.ts: ${problem}`)
+      problems.push(`${pkg.slice(root.length + 1)}/src/en.ts: ${problem}`)
     const known = new Set()
     for (const value of englishByKey.values())
       for (const name of placeholders(value)) known.add(name)
-    const label = pkg.slice(ROOT.length + 1)
+    const label = pkg.slice(root.length + 1)
     const plurals = pluralBases(englishByKey)
 
     const files = readdirSync(src)
@@ -857,16 +1211,21 @@ export function analyzeLocalePlaceholders() {
 const isMain = isMainModule(import.meta.url)
 
 if (isMain) {
-  const { problems, filesScanned, packagesScanned } = analyzeLocalePlaceholders()
-  if (!process.argv.includes('--quiet')) {
+  const args = process.argv.slice(2)
+  const namedRoot = args.find((arg) => arg.startsWith('--root='))?.slice('--root='.length)
+  const root = namedRoot === undefined ? ROOT : resolve(namedRoot)
+  const { problems, filesScanned, packagesScanned } = analyzeLocalePlaceholders({ root })
+  if (!args.includes('--quiet')) {
     if (problems.length === 0) {
       console.log(
         `✓ locale placeholders intact (${filesScanned} file(s) across ${packagesScanned} bond(s))`,
       )
     } else {
+      const shown = args.includes('--all') ? problems : problems.slice(0, 40)
       console.error(`\n✗ locale placeholder problems (${problems.length}):\n`)
-      for (const problem of problems.slice(0, 40)) console.error(`  ${problem}`)
-      if (problems.length > 40) console.error(`  … and ${problems.length - 40} more`)
+      for (const problem of shown) console.error(`  ${problem}`)
+      if (shown.length < problems.length)
+        console.error(`  … and ${problems.length - shown.length} more`)
       console.error(
         `\nA placeholder name is a VARIABLE, not prose: it must match en.ts byte for byte\n` +
           `in every language, or the value never substitutes and the UI shows the raw token.\n` +

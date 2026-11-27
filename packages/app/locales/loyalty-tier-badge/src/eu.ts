@@ -5,7 +5,7 @@ export const eu: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} maila',
   'loyaltyTierBadge.progress': 'Aurrerapena {{next}}',
   'loyaltyTierBadge.topTier': 'Goiko mailara iritsi da',
-  'loyaltyTierBadge.remaining': '{{remaining}} {{next}} ra',
+  'loyaltyTierBadge.remaining': '{{remaining}} {{next}}-ra',
   'loyaltyTierBadge.tier.bronze': 'Brontzea',
   'loyaltyTierBadge.tier.silver': 'Zilarra',
   'loyaltyTierBadge.tier.gold': 'Urrea',

@@ -14,7 +14,7 @@ export const ml: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'നിങ്ങൾ എല്ലാം പൂർത്തിയാക്കി.',
   'notificationsPage.emptyBody': 'പുതിയ അറിയിപ്പുകൾ ഇവിടെ ദൃശ്യമാകും.',
   'notificationsPage.paginationAriaLabel': 'പേജിനേഷൻ',
-  'notificationsPage.pageOf': 'പേജ് {{current}} യുടെ {{total}}',
+  'notificationsPage.pageOf': 'പേജ് {{current}}-യുടെ {{total}}',
   'notificationsPage.prev': 'മുമ്പത്തേത്',
   'notificationsPage.next': 'അടുത്തത്',
 }

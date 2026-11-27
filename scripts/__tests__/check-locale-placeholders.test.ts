@@ -11,7 +11,17 @@
  * own suite — a per-bond copy only guards the keys someone remembered to list,
  * and the same defect was live in twenty other bonds at the time.
  */
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -25,11 +35,14 @@ import {
   commandSpans,
   copiedEnglish,
   countPluralForms,
+  detachedParticle,
   englishWords,
   isUntranslatedCopy,
+  JOINED_PARTICLES,
   keptInEnglish,
   localePackages,
   missingPluralForms,
+  phoneCallForFunction,
   placeholders,
   pluralBases,
   splitHyphenSuffix,
@@ -96,6 +109,100 @@ describe('locale placeholder gate', () => {
   it('is actually invoked by CI — not merely defined as an npm script', () => {
     const ci = readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')
     expect(runnableLines(ci)).toMatch(/run:\s*npm run check:locale-placeholders\b/)
+  })
+
+  it('reads the tables under another checkout (--root), and --all lists every problem', () => {
+    // A copy of an older tree: one bond with a detached particle in three of its languages and
+    // 45 more in Armenian, past the 40 lines the command prints by default.
+    const cp = String.fromCodePoint
+    const root = mkdtempSync(join(tmpdir(), 'locale-placeholders-'))
+    try {
+      const src = join(root, 'packages', 'app', 'locales', 'demo', 'src')
+      mkdirSync(src, { recursive: true })
+      const many = Array.from({ length: 45 }, (_, n) => `k${n + 1}`)
+      const bond = (values: Record<string, string>): string =>
+        `export const x = {\n${Object.entries(values)
+          .map(([key, value]) => `  ${JSON.stringify(key)}: ${JSON.stringify(value)},`)
+          .join('\n')}\n}\n`
+      writeFileSync(
+        join(src, 'en.ts'),
+        bond({
+          'a.call': 'Call `setProvider()`.',
+          'a.exit': 'Exited {{code}}.',
+          'a.phone': 'Call {{phone}}.',
+          ...Object.fromEntries(many.map((key) => [key, 'Call {{name}}.'])),
+        }),
+      )
+      const fine = (particle: string): Record<string, string> => ({
+        'a.call': `X \`setProvider()\`${particle}.`,
+        'a.exit': `{{code}}${particle}.`,
+        'a.phone': '{{phone}}.',
+        ...Object.fromEntries(many.map((key) => [key, `{{name}}${particle}.`])),
+      })
+      writeFileSync(
+        join(src, 'hy.ts'),
+        bond({
+          'a.call': `X \`setProvider()\` ${cp(0x568)}.`,
+          'a.exit': `{{code}} ${cp(0x56b, 0x581)}.`,
+          'a.phone': '{{phone}}.',
+          ...Object.fromEntries(many.map((key) => [key, `{{name}} ${cp(0x568)}.`])),
+        }),
+      )
+      writeFileSync(join(src, 'ko.ts'), bond(fine(cp(0xc5d0, 0xc11c))))
+      writeFileSync(join(src, 'sw.ts'), bond({ ...fine(''), 'a.phone': 'Piga simu {{phone}}.' }))
+      writeFileSync(join(src, 'he.ts'), bond({ ...fine(''), 'a.exit': `${cp(0x5de)} {{code}}.` }))
+
+      expect(localePackages(root)).toEqual([join(root, 'packages', 'app', 'locales', 'demo')])
+      const { problems, packagesScanned } = analyzeLocalePlaceholders({ root })
+      expect(packagesScanned).toBe(1)
+      expect(problems).toHaveLength(48)
+      // The file, the key, what to write and enough of the value to find the place by.
+      const at = (file: string, key: string): string =>
+        `^packages\\/app\\/locales\\/demo\\/src\\/${file}\\.ts: '${key}' SPACING — `
+      expect(problems).toContainEqual(
+        expect.stringMatching(
+          new RegExp(
+            `${at('hy', 'a.call')}Armenian writes ".*" against the word it follows: write \`setProvider\\(\\)\`-.* in "X \`setProvider\\(\\)\` .*\\."$`,
+          ),
+        ),
+      )
+      expect(problems).toContainEqual(
+        expect.stringMatching(
+          new RegExp(`${at('hy', 'a.exit')}Armenian writes .* write \\{\\{code\\}\\}-.* in ".*"$`),
+        ),
+      )
+      expect(problems).toContainEqual(
+        expect.stringMatching(
+          new RegExp(
+            `${at('he', 'a.exit')}Hebrew writes ".*" against the word it precedes: write .*-\\{\\{code\\}\\} in ".*"$`,
+          ),
+        ),
+      )
+      // A real phone call, and the languages that hold no defect, are not reported.
+      expect(problems.filter((problem) => problem.includes("'a.phone'"))).toEqual([])
+      expect(problems.filter((problem) => /\/(ko|sw)\.ts:/.test(problem))).toEqual([])
+
+      const run = (...args: string[]) =>
+        spawnSync(process.execPath, [join(SCRIPTS_DIR, 'check-locale-placeholders.js'), ...args], {
+          encoding: 'utf8',
+        })
+      const listed = (output: string): number =>
+        output.split('\n').filter((line) => line.startsWith('  packages/')).length
+      const defaultRun = run(`--root=${root}`)
+      expect([defaultRun.status, defaultRun.stderr]).toMatchObject([
+        1,
+        expect.stringContaining('locale placeholder problems (48):'),
+      ])
+      expect(listed(defaultRun.stderr)).toBe(40)
+      expect(defaultRun.stderr).toContain('… and 8 more')
+      const all = run(`--root=${root}`, '--all')
+      expect([all.status, listed(all.stderr)]).toEqual([1, 48])
+      expect(all.stderr).not.toContain('more')
+      const quiet = run('--quiet', `--root=${root}`)
+      expect([quiet.status, quiet.stdout, quiet.stderr]).toEqual([1, '', ''])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
   })
 })
 
@@ -310,6 +417,300 @@ describe('classify', () => {
     expect(
       classify('{{count}} results in {{files}} files', '{{count}} wyników w `{{files}}` plikach'),
     ).toMatchObject({ klass: 'CODE', detail: expect.stringContaining('gains `{{files}}`') })
+  })
+})
+
+describe('detached particles', () => {
+  const cp = String.fromCodePoint
+  // Every particle below is built from code points, never typed: the sweep that found this defect
+  // was written with one wrong code point and so never saw three of the values.
+  const hyArticle = cp(0x568) // "the"
+  const hyFrom = cp(0x56b, 0x581) // "from"
+  const koAt = cp(0xc5d0, 0xc11c) // "at", "from"
+  const kaIn = cp(0x10e8, 0x10d8) // "in"
+  const mlIn = cp(0xd7d) // "in", "at"
+  const heFrom = cp(0x5de) // "from"
+  const table = (bond: string, lang: string): Map<string, string> =>
+    valuesByKey(readFileSync(join(ROOT, 'packages/app/locales', bond, 'src', `${lang}.ts`), 'utf8'))
+  const translation = (bond: string, lang: string, key: string): string => {
+    const value = table(bond, lang).get(key)
+    if (value === undefined) throw new Error(`${bond}/${lang} has no value for ${key}`)
+    return value
+  }
+
+  it('catches a detached Armenian article and names the joined form to write', () => {
+    // Machine Armenian for "Call `setProvider()` with a `BadgeProvider` implementation".
+    const value = `\`setProvider()\` ${hyArticle} \`BadgeProvider\``
+    expect(detachedParticle(value, 'hy')).toEqual({
+      klass: 'SPACING',
+      detail: expect.stringContaining(
+        `Armenian writes "${hyArticle}" against the word it follows: write \`setProvider()\`-${hyArticle} in "${value}"`,
+      ),
+    })
+    expect(detachedParticle(`\`setProvider()\`-${hyArticle} \`BadgeProvider\``, 'hy')).toBeNull()
+    // The suffix for "from", written against a placeholder.
+    expect(detachedParticle(`{{bond}} ${hyFrom} {{core}}`, 'hy')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining(`write {{bond}}-${hyFrom}`),
+    })
+    expect(detachedParticle(`{{bond}}-${hyFrom} {{core}}-${hyFrom}`, 'hy')).toBeNull()
+    // Two in one value: the first is named, the second is counted.
+    expect(detachedParticle(`{{a}} ${hyArticle} {{b}} ${hyArticle}`, 'hy')).toMatchObject({
+      detail: expect.stringContaining('(and 1 more in this value)'),
+    })
+  })
+
+  it('catches a detached Korean particle, and not a word or a unit that begins with its syllable', () => {
+    // Machine Korean for "{{label}} from".
+    expect(detachedParticle(`{{label}} ${koAt}`, 'ko')).toEqual({
+      klass: 'SPACING',
+      detail: expect.stringContaining(
+        `Korean writes "${koAt}" against the word it follows: write {{label}}${koAt} in "{{label}} ${koAt}"`,
+      ),
+    })
+    expect(detachedParticle(`{{label}}${koAt}`, 'ko')).toBeNull()
+    // An ordinary space between a token and a word that is not a particle. The real values: the
+    // second word begins with the syllable of "to", of "with" and of "at".
+    const fetch = translation('ide', 'ko', 'ide.tool.fetchHost')
+    const logs = translation('ide', 'ko', 'ide.tool.readSourceLogs')
+    const seconds = translation('feature-video-scrubber', 'ko', 'videoScrubber.aria.playhead')
+    expect(fetch.startsWith(`{{host}} ${cp(0xac00)}`)).toBe(true)
+    expect(logs.startsWith(`{{source}} ${cp(0xb85c)}`)).toBe(true)
+    expect(seconds.startsWith(`Playhead${koAt} {{time}} ${cp(0xc5d0)}`)).toBe(true)
+    for (const value of [fetch, logs, seconds]) expect(detachedParticle(value, 'ko')).toBeNull()
+    // The Armenian article has the same look-alike: "{{count}} selected" begins with its letter.
+    const selected = translation('ide', 'hy', 'ide.chat.askUserSelectedCount')
+    expect(selected.startsWith(`{{count}} ${hyArticle}`)).toBe(true)
+    expect(detachedParticle(selected, 'hy')).toBeNull()
+  })
+
+  it('catches the Georgian, Malayalam and Basque suffix and the Hebrew prefix', () => {
+    expect(detachedParticle(`\`ToastProvider\` ${kaIn}`, 'ka')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining(`write \`ToastProvider\`-${kaIn}`),
+    })
+    expect(detachedParticle(`{{bond}} ${mlIn} {{core}}`, 'ml')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining(`write {{bond}}-${mlIn}`),
+    })
+    expect(detachedParticle('{{start}} tik {{end}}', 'eu')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining('write {{start}}-tik'),
+    })
+    expect(detachedParticle(`{{start}}-tik {{end}}`, 'eu')).toBeNull()
+    // The prefix stands before the word: it is joined to what follows it.
+    expect(detachedParticle(`${heFrom} {{code}}`, 'he')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining(
+        `Hebrew writes "${heFrom}" against the word it precedes: write ${heFrom}-{{code}}`,
+      ),
+    })
+    expect(detachedParticle(`${heFrom}-{{code}}`, 'he')).toBeNull()
+    // A word that ends with that letter is not the prefix.
+    expect(detachedParticle(`${cp(0x5d0, 0x5de)} {{code}}`, 'he')).toBeNull()
+    // A language the table does not list is not judged.
+    expect(detachedParticle('`setProvider()` aufrufen', 'de')).toBeNull()
+    expect(detachedParticle(`{{label}} ${koAt}`, 'ja')).toBeNull()
+  })
+
+  it('joins the Basque dative suffix to a code name', () => {
+    expect(detachedParticle('`provideMolecule` ri.', 'eu')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining('write `provideMolecule`-ri'),
+    })
+    expect(detachedParticle('`provideMolecule`-ri.', 'eu')).toBeNull()
+    expect(detachedParticle('{{body}} ribera', 'eu')).toBeNull()
+  })
+
+  it.each([
+    [0x5d1], // "in", "at"
+    [0x5d4], // "the"
+    [0x5d5], // "and"
+    [0x5db], // "like", "as"
+    [0x5dc], // "to"
+    [0x5de], // "from"
+    [0x5e9], // "that"
+  ])('joins Hebrew prefix %s to a code name, placeholder, Latin word or number', (point) => {
+    const prefix = cp(point)
+    for (const name of ['`setupProviders()`', '{{bond}}', 'API', '3']) {
+      expect(detachedParticle(`${prefix} ${name}`, 'he')).toMatchObject({
+        klass: 'SPACING',
+        detail: expect.stringContaining(`write ${prefix}-${name}`),
+      })
+      expect(detachedParticle(`${prefix}-${name}`, 'he')).toBeNull()
+    }
+  })
+
+  it('rejects a space after the Hebrew hyphen and preserves commands and quotes', () => {
+    const to = cp(0x5dc)
+    const inPrefix = cp(0x5d1)
+    expect(detachedParticle(`${to}- "{{fallback}}".`, 'he')).toMatchObject({
+      detail: expect.stringContaining(`write ${to}-"{{fallback}}"`),
+    })
+    expect(detachedParticle(`${inPrefix}- /plan`, 'he')).toMatchObject({
+      detail: expect.stringContaining(`write ${inPrefix}-/plan`),
+    })
+    expect(detachedParticle(`${to}{{agentName}}`, 'he')).toMatchObject({
+      detail: expect.stringContaining(`write ${to}-{{agentName}}`),
+    })
+    expect(detachedParticle(`${to}-"{{fallback}}". ${inPrefix}-/plan`, 'he')).toBeNull()
+  })
+
+  it('preserves verbatim command checks when a particle is joined', () => {
+    const hePrefix = cp(0x5d1)
+    const kaSuffix = cp(0x10d8, 0x10d7)
+    const english = new Map([['a.command', 'Use /plan-mode']])
+    for (const [lang, correct, misspelled] of [
+      ['he', `${hePrefix}-/plan-mode`, `${hePrefix}-/plan-modes`],
+      ['ka', `/plan-mode-${kaSuffix}`, `/plan-modes-${kaSuffix}`],
+    ]) {
+      expect(checkFile(english, new Map([['a.command', correct]]), lang).size).toBe(0)
+      expect(
+        checkFile(english, new Map([['a.command', misspelled]]), lang).get('a.command'),
+      ).toEqual({
+        klass: 'COMMAND',
+        detail: '/plan-mode not kept verbatim',
+      })
+    }
+  })
+
+  it('rejects command additions without a known particle in the current locale', () => {
+    const english = new Map([['a.command', 'Use /plan-mode']])
+    const accent = cp(0xe9)
+    const kaSuffix = cp(0x10d8, 0x10d7)
+    for (const [lang, ending] of [
+      ['fr', accent],
+      ['ka', accent],
+      ['fr', kaSuffix],
+    ]) {
+      const translated = new Map([['a.command', `/plan-mode-${ending}`]])
+      expect(checkFile(english, translated, lang).get('a.command')).toEqual({
+        klass: 'COMMAND',
+        detail: '/plan-mode not kept verbatim',
+      })
+    }
+  })
+
+  it('leaves an ordinary Hebrew word, an acronym, and a time unit alone', () => {
+    const pass = cp(0x5dc, 0x5d4, 0x5e2, 0x5d1, 0x5d9, 0x5e8)
+    const email = cp(0x5d3, 0x5d5, 0x5d0) + '"' + cp(0x5dc)
+    expect(detachedParticle(`${pass} router`, 'he')).toBeNull()
+    expect(detachedParticle(`${email} API`, 'he')).toBeNull()
+    expect(detachedParticle(`\`const name = "${cp(0x5dc)} API"\``, 'he')).toBeNull()
+    for (const [bond, key] of [
+      ['battery', 'battery.remainingTime'],
+      ['health', 'health.durationHoursMinutes'],
+    ]) {
+      const value = translation(bond, 'he', key)
+      expect(value).toBe(`{{hours}}${cp(0x5e9)} {{minutes}}${cp(0x5d3)}`)
+      expect(detachedParticle(value, 'he')).toBeNull()
+    }
+  })
+
+  it('uses the English token to distinguish the Georgian seconds symbol from a suffix', () => {
+    const letter = cp(0x10e1)
+    const translation = `{{time}} ${letter}, {{name}} ${letter}`
+    const en = new Map([['a.seconds', 'After {{time}}s, go to {{name}}']])
+    const translated = new Map([['a.seconds', translation]])
+    expect(checkFile(en, translated, 'ka').get('a.seconds')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining(`write {{name}}-${letter}`),
+    })
+    translated.set('a.seconds', `{{time}} ${letter}, {{name}}-${letter}`)
+    expect(checkFile(en, translated, 'ka').size).toBe(0)
+  })
+
+  it('is built from the letters the corrected tables write joined', () => {
+    // The missing file picker message was corrected by hand in these languages: every suffix its
+    // table lists is written there against its name, the way this gate asks for.
+    for (const lang of ['hy', 'ka', 'ml', 'eu', 'he', 'ko']) {
+      const value = translation('ui', lang, 'ui.fileField.error.missingProvider')
+      expect(detachedParticle(value, lang), lang).toBeNull()
+      const { after = [], before = [], join } = JOINED_PARTICLES[lang]
+      const joined = [...after, ...before].map((points: number[]) => cp(...points))
+      const written = (particle: string): boolean =>
+        after.length > 0
+          ? value.includes(`${join}${particle}`) ||
+            value.includes(`}}${particle}`) ||
+            value.includes(`\`${particle}`)
+          : value.includes(`${particle}${join}`)
+      expect(joined.some(written), `${lang}: ${joined.join(' ')}`).toBe(true)
+    }
+    // The particles with no share in that message, in the values corrected with them.
+    expect(table('filter-bar', 'ko').get('filterBar.to')).toBe(`{{label}}${cp(0xc5d0, 0xac8c)}`)
+    expect(table('keyboard', 'ko').get('keyboard.error.missingDependency')).toContain(
+      `\`{{library}}\`${cp(0xac00)}`,
+    )
+    expect(
+      table('routing', 'ko').get('routing.angularRouter.error.useMoleculeRouterOutsideRouter'),
+    ).toContain(`\`useMoleculeRouter\`${cp(0xb294)}`)
+  })
+
+  it('checkFile reports it for the language of the file, and passes the corrected file', () => {
+    const en = new Map([['a.call', 'Call `setProvider()` with a `BadgeProvider` implementation.']])
+    expect(
+      Object.fromEntries(
+        checkFile(
+          en,
+          new Map([['a.call', `X \`setProvider()\` ${hyArticle} \`BadgeProvider\` Y`]]),
+          'hy',
+        ),
+      ),
+    ).toEqual({
+      'a.call': {
+        klass: 'SPACING',
+        detail: expect.stringContaining(`\`setProvider()\`-${hyArticle}`),
+      },
+    })
+    expect(
+      checkFile(
+        en,
+        new Map([['a.call', `X \`setProvider()\`-${hyArticle} \`BadgeProvider\` Y`]]),
+        'hy',
+      ).size,
+    ).toBe(0)
+  })
+})
+
+describe('Swahili "make a phone call" for calling a function', () => {
+  it('catches "piga simu" and "uitishe" in front of a code name or a call, and names the verbs', () => {
+    // Machine Swahili for "Call `setProvider()` with a `BadgeProvider` implementation".
+    const value = 'Piga simu `setProvider()` ukitumia `BadgeProvider`'
+    expect(phoneCallForFunction(value, 'sw')).toEqual({
+      klass: 'SPACING',
+      detail: expect.stringContaining(
+        '"Piga simu" means "make a phone call"; to call a function write "Ita `setProvider()`" as an instruction on its own, "uite `setProvider()`" after "na" or "au"',
+      ),
+    })
+    expect(phoneCallForFunction('Piga simu setPool() kwanza.', 'sw')).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining('"Ita setPool()"'),
+    })
+    expect(
+      phoneCallForFunction('au piga simu `setMoleculeContext({ router })` hapo.', 'sw'),
+    ).toMatchObject({
+      klass: 'SPACING',
+    })
+    // The causative: "have it called".
+    expect(
+      phoneCallForFunction('na uitishe `setProvider(provider)` kutoka {{core}}', 'sw'),
+    ).toMatchObject({
+      klass: 'SPACING',
+      detail: expect.stringContaining('"uitishe" means "have it called"'),
+    })
+  })
+
+  it('passes the corrected forms, a real phone call, another verb that ends alike, and other languages', () => {
+    expect(phoneCallForFunction('Ita `setProvider()` ukitumia `BadgeProvider`', 'sw')).toBeNull()
+    expect(phoneCallForFunction('Ita setPool() kwanza.', 'sw')).toBeNull()
+    expect(phoneCallForFunction('au uite `setMoleculeContext({ router })` hapo.', 'sw')).toBeNull()
+    expect(phoneCallForFunction('na uite `setProvider(provider)` kutoka {{core}}', 'sw')).toBeNull()
+    // A value about a call: no code name follows the phrase.
+    expect(phoneCallForFunction('Piga simu {{phone}}', 'sw')).toBeNull()
+    expect(phoneCallForFunction('Kabla ya kupiga simu, …', 'sw')).toBeNull()
+    // "pitisha" is "pass", not the causative of "call".
+    expect(phoneCallForFunction('pitisha `{@render children()}` ndani ya', 'sw')).toBeNull()
+    expect(phoneCallForFunction('Piga simu `setProvider()`', 'sv')).toBeNull()
   })
 })
 

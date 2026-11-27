@@ -7,7 +7,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.showChangedFiles': 'മാറ്റിയ ഫയലുകൾ കാണിക്കുക',
   'ide.chat.commitFileCount_one': '{{count}} ഫയൽ കമ്മിറ്റ് ചെയ്യുക',
   'ide.chat.commitFileCount_other': '{{count}} ഫയലുകൾ കമ്മിറ്റ് ചെയ്യുക',
-  'ide.chat.autoCommit.countedBadge': '{{countdown}} ൽ {{commit}}',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}}-ൽ {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'ഈ വർക്ക്‌സ്‌പെയ്‌സിൽ ടീം സന്ദേശമയയ്‌ക്കൽ ലഭ്യമല്ല.',
   'ide.chat.teamOnly.badge':
     'ടീം മാത്രം — നിങ്ങളുടെ ടീമിന് ദൃശ്യമാണ്; {{agentName}} അത് അവഗണിക്കും.',
@@ -380,7 +380,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancel': 'ഓട്ടോ-കമ്മിറ്റ് റദ്ദാക്കുക',
   'ide.chat.autoCommit.cancelled': 'ഓട്ടോ-കമ്മിറ്റ് റദ്ദാക്കി.',
   'ide.chat.autoCommit.enabled':
-    'ഓട്ടോ-കമ്മിറ്റ് ഓൺ: അവസാന ഫയൽ മാറ്റത്തിന് ശേഷം {{seconds}} സെക്കൻഡ് കമ്മിറ്റ് ചെയ്യുന്നു.\nഓട്ടോകമ്മിറ്റ് പ്രവർത്തനരഹിതമാക്കാൻ 0 ആയി സജ്ജമാക്കുക.',
+    'ഓട്ടോ-കമ്മിറ്റ് ഓൺ: അവസാന ഫയൽ മാറ്റത്തിന് ശേഷം {{seconds}} സെക്കൻഡ് കമ്മിറ്റ് ചെയ്യുന്നു.\nഓട്ടോകമ്മിറ്റ് പ്രവർത്തനരഹിതമാക്കാൻ 0-ആയി സജ്ജമാക്കുക.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'യുക്തിസഹമായ ശ്രമം അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
@@ -391,9 +391,9 @@ export const ml: Partial<IdeTranslations> = {
     '  {{mode}} ({{model}}): പരിഹരിച്ചു — ഈ മോഡലിന് ഒരു യുക്തിസഹമായ മോഡ് ഉണ്ട്.',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — ലഭ്യം: {{levels}}',
   'ide.chat.effort.setMode':
-    '{{mode}} നുള്ള റീസണിംഗ് എഫർട്ട് {{level}} ({{model}}) ആയി സജ്ജീകരിച്ചിരിക്കുന്നു.',
+    '{{mode}}-നുള്ള റീസണിംഗ് എഫർട്ട് {{level}} ({{model}})-ആയി സജ്ജീകരിച്ചിരിക്കുന്നു.',
   'ide.chat.setting.effort':
-    '{{mode}} നുള്ള റീസണിംഗ് എഫർട്ട് {{level}} ആയി സജ്ജീകരിച്ചിരിക്കുന്നു.',
+    '{{mode}}-നുള്ള റീസണിംഗ് എഫർട്ട് {{level}}-ആയി സജ്ജീകരിച്ചിരിക്കുന്നു.',
   'ide.chat.settings.effortFixed': 'നിശ്ചിതം',
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
@@ -410,19 +410,19 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': 'ഇപ്പോൾ {{model}} ഉപയോഗിക്കുന്നു',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    'നിങ്ങളുടെ തിരഞ്ഞെടുത്ത മോഡൽ "{{removed}}" ഇനി ലഭ്യമല്ല. "{{fallback}}" ലേക്ക് മാറ്റി. മറ്റൊന്ന് തിരഞ്ഞെടുക്കാൻ /model എന്ന് ടൈപ്പ് ചെയ്യുക.',
+    'നിങ്ങളുടെ തിരഞ്ഞെടുത്ത മോഡൽ "{{removed}}" ഇനി ലഭ്യമല്ല. "{{fallback}}"-ലേക്ക് മാറ്റി. മറ്റൊന്ന് തിരഞ്ഞെടുക്കാൻ /model എന്ന് ടൈപ്പ് ചെയ്യുക.',
   'ide.chat.modelRemovedNoFallback':
     'നിങ്ങളുടെ തിരഞ്ഞെടുത്ത മോഡൽ "{{removed}}" ഇനി ലഭ്യമല്ല, കൂടാതെ സെർവറിൽ പകരം മറ്റൊന്നും ബന്ധിപ്പിച്ചിട്ടില്ല. ഒരു AI ദാതാവിനെ വയർ ചെയ്യാൻ നിങ്ങളുടെ അഡ്മിനോട് ആവശ്യപ്പെടുക.',
   'ide.chat.olderModelsCollapse': 'പഴയ മോഡലുകൾ ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'പഴയ മോഡലുകൾ ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'എക്സിക്യൂട്ട്-മോഡ് മോഡൽ തിരഞ്ഞെടുക്കുക',
   'ide.chat.selectPlanModel': 'പ്ലാൻ-മോഡ് മോഡൽ തിരഞ്ഞെടുക്കുക',
-  'ide.chat.executeModelSet': 'എക്സിക്യൂട്ട്-മോഡ് മോഡൽ {{name}} ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
-  'ide.chat.planModelSet': 'പ്ലാൻ-മോഡ് മോഡൽ {{name}} ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
+  'ide.chat.executeModelSet': 'എക്സിക്യൂട്ട്-മോഡ് മോഡൽ {{name}}-ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
+  'ide.chat.planModelSet': 'പ്ലാൻ-മോഡ് മോഡൽ {{name}}-ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
   'ide.chat.selectCommitModel': 'കമ്മിറ്റ്-മെസേജ് മോഡൽ തിരഞ്ഞെടുക്കുക',
   'ide.chat.selectCompactModel': 'കോംപാക്ഷൻ മോഡൽ തിരഞ്ഞെടുക്കുക',
-  'ide.chat.commitModelSet': 'കമ്മിറ്റ്-മെസേജ് മോഡൽ {{name}} ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
-  'ide.chat.compactModelSet': 'കോംപാക്ഷൻ മോഡൽ {{name}} ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
+  'ide.chat.commitModelSet': 'കമ്മിറ്റ്-മെസേജ് മോഡൽ {{name}}-ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
+  'ide.chat.compactModelSet': 'കോംപാക്ഷൻ മോഡൽ {{name}}-ആയി സജ്ജീകരിച്ചിരിക്കുന്നു',
   'ide.chat.modelModeLabel': 'മോഡ്',
   'ide.chat.modelMode.default': 'സ്ഥിരസ്ഥിതി',
   'ide.chat.modelMode.commit': 'commit സന്ദേശങ്ങൾ',
@@ -474,7 +474,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.report.heading': 'ഒരു ബഗ് റിപ്പോർട്ട് ചെയ്യുക',
   'ide.chat.report.openReport': 'ഒരു ബഗ് റിപ്പോർട്ട് ചെയ്യുക',
   'ide.chat.report.subheading':
-    'എന്താണ് തെറ്റ് സംഭവിച്ചതെന്നോ നിങ്ങൾ എന്താണ് കാണാൻ ആഗ്രഹിക്കുന്നതെന്നോ ഞങ്ങളോട് പറയുക. {{productName}} ന്റെ ടീമിലേക്ക് പോകുന്നു.',
+    'എന്താണ് തെറ്റ് സംഭവിച്ചതെന്നോ നിങ്ങൾ എന്താണ് കാണാൻ ആഗ്രഹിക്കുന്നതെന്നോ ഞങ്ങളോട് പറയുക. {{productName}}-ന്റെ ടീമിലേക്ക് പോകുന്നു.',
   'ide.chat.report.titleLabel': 'തലക്കെട്ട്',
   'ide.chat.report.titlePlaceholder': 'ചുരുക്ക വിവരണം',
   'ide.chat.report.descriptionLabel': 'വിവരണം',
@@ -511,10 +511,10 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     '“ {{name}} ” എന്ന പേരിൽ ഒരു സ്ക്രിപ്റ്റും ഇല്ല. ലഭ്യമാണ്: {{names}}',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
-  'ide.chat.scripts.cmdExitOk': '{{name}} 0 ൽ നിന്ന് പുറത്തുകടന്നു',
+  'ide.chat.scripts.cmdExitOk': '{{name}} 0-ൽ നിന്ന് പുറത്തുകടന്നു',
   'ide.chat.scripts.cmdExitFail': '{{name}} എന്ന കോഡ് {{code}} ഉപയോഗിച്ച് പുറത്തുകടന്നു.',
   'ide.chat.scripts.exitOk': 'പുറത്തുകടന്നു 0',
-  'ide.chat.scripts.exitFail': '{{code}} ൽ നിന്ന് പുറത്തുകടന്നു',
+  'ide.chat.scripts.exitFail': '{{code}}-ൽ നിന്ന് പുറത്തുകടന്നു',
   'ide.chat.scripts.noOutput': '(ഔട്ട്‌പുട്ട് ഇല്ല)',
   'ide.chat.settings.heading': 'ക്രമീകരണങ്ങൾ',
   'ide.chat.settings.commandsHeading': 'സ്ലാഷ് കമാൻഡുകൾ',
@@ -559,7 +559,7 @@ export const ml: Partial<IdeTranslations> = {
     'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
   'ide.chat.skills.loading': 'കഴിവുകൾ ലോഡ് ചെയ്യുന്നു…',
   'ide.chat.skills.error': 'ഈ പ്രോജക്റ്റിനുള്ള കഴിവുകൾ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.',
-  'ide.chat.skills.empty': 'ഈ പ്രോജക്റ്റിനായി .agents/skills/ ൽ കഴിവുകളൊന്നും കണ്ടെത്തിയില്ല.',
+  'ide.chat.skills.empty': 'ഈ പ്രോജക്റ്റിനായി .agents/skills/-ൽ കഴിവുകളൊന്നും കണ്ടെത്തിയില്ല.',
   'ide.chat.skills.noMatch': '“ {{query}} ” എന്നതിന് സമാനമായ കഴിവുകളൊന്നുമില്ല.',
   'ide.chat.skills.relevant.label': 'പ്രസക്തമായ നൈപുണ്യം',
   'ide.chat.skills.relevant.dismiss': 'നിർദ്ദേശം അവഗണിക്കുക',
@@ -582,7 +582,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'നിങ്ങളുടെ റിപ്പോർട്ട് സമർപ്പിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
   'ide.chat.report.submitted':
-    'നന്ദി! നിങ്ങളുടെ റിപ്പോർട്ട് {{productName}} ന്റെ ടീമിന് സമർപ്പിച്ചു.',
+    'നന്ദി! നിങ്ങളുടെ റിപ്പോർട്ട് {{productName}}-ന്റെ ടീമിന് സമർപ്പിച്ചു.',
   'ide.chat.report.submittedWithLink':
     'നന്ദി! നിങ്ങളുടെ റിപ്പോർട്ട് സമർപ്പിച്ചു — ലിങ്ക് ചെയ്ത വിഷയത്തിൽ അത് ട്രാക്ക് ചെയ്യുക.',
   'ide.chat.settings.modelFollowsDefault': 'ഡിഫോൾട്ട് മോഡൽ പിന്തുടരുന്നു',
@@ -609,7 +609,7 @@ export const ml: Partial<IdeTranslations> = {
     'വീണ്ടും ലോഡുചെയ്യാൻ ശ്രമിക്കുക, അല്ലെങ്കിൽ ഒരു പുതിയ ടാബിൽ പ്രിവ്യൂ തുറക്കുക.',
   'ide.preview.reloadPreview': 'പ്രിവ്യൂ വീണ്ടും ലോഡുചെയ്യുക',
   'ide.preview.lastWorkingFrame': 'അവസാനമായി പ്രവർത്തിക്കുന്ന പ്രിവ്യൂ',
-  'ide.chat.effort.notSupportedForModel': '{{model}} ന് {{level}} ലഭ്യമല്ല. ലഭ്യമാണ്: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{model}}-ന് {{level}} ലഭ്യമല്ല. ലഭ്യമാണ്: {{levels}}',
   'ide.chat.modelSortLabel': 'അടുക്കുക',
   'ide.chat.modelSortDirection': 'അടുക്കൽ ദിശ മാറ്റുക',
   'ide.chat.skills.loadedBadge': 'ലോഡ് ചെയ്തു',
@@ -646,7 +646,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.scripts.required': '(ആവശ്യമാണ്)',
   'ide.chat.scripts.cancelRun': 'റദ്ദാക്കുക',
   'ide.chat.scripts.runNeedsOptions':
-    '“{{name}}” ന് ഓപ്ഷനുകൾ ആവശ്യമാണ് — അവ സജ്ജീകരിച്ച് റൺ ചെയ്യാൻ /scripts തുറന്നു.',
+    '“{{name}}”-ന് ഓപ്ഷനുകൾ ആവശ്യമാണ് — അവ സജ്ജീകരിച്ച് റൺ ചെയ്യാൻ /scripts തുറന്നു.',
   'ide.chat.settings.effort.label': 'യുക്തിസഹമായ ശ്രമം',
   'ide.chat.timestampsShown': 'ടൈംസ്റ്റാമ്പുകൾ കാണിക്കുന്നു.',
   'ide.chat.timestampsHidden': 'ടൈംസ്റ്റാമ്പുകൾ മറച്ചു.',
@@ -878,7 +878,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.cmd.explain.desc': 'കോഡ് വിശദീകരിക്കുക (ഉദാ. /explain @file)',
   'ide.chat.cmd.lint.desc': 'ലിന്റർ പ്രവർത്തിപ്പിച്ച് പ്രശ്നങ്ങൾ പരിഹരിക്കുക',
   'ide.chat.cmd.test.desc': 'പ്രോജക്ടിന്റെ ടെസ്റ്റുകൾ പട്ടികപ്പെടുത്തി പ്രവർത്തിപ്പിക്കുക',
-  'ide.chat.cmd.undo.desc': 'AI യുടെ അവസാന തവണയിലെ ഫയൽ മാറ്റങ്ങൾ പഴയപടിയാക്കുക',
+  'ide.chat.cmd.undo.desc': 'AI-യുടെ അവസാന തവണയിലെ ഫയൽ മാറ്റങ്ങൾ പഴയപടിയാക്കുക',
   'ide.chat.cmd.scripts.desc':
     'സംരക്ഷിച്ച സ്ക്രിപ്റ്റുകളും ബിൽറ്റ്-ഇൻ പ്രവർത്തനങ്ങളും പരിശോധിച്ച് പ്രവർത്തിപ്പിക്കുക',
   'ide.chat.cmd.run.desc':
@@ -895,15 +895,15 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.cmd.maxloops.desc': 'പരമാവധി ടൂൾ ഇറ്ററേഷനുകൾ സെറ്റ് ചെയ്യുക',
   'ide.chat.cmd.effort.desc':
     'ഓരോ മോഡിനും മോഡലിന്റെ സ്വന്തം നിലകളിൽ നിന്ന് യുക്തി ശ്രമം തിരഞ്ഞെടുക്കുക',
-  'ide.chat.cmd.settings.desc': '{{agentName}} ന്റെ സെറ്റിംഗ്സ് കാണുകയും മാറ്റുകയും ചെയ്യുക',
+  'ide.chat.cmd.settings.desc': '{{agentName}}-ന്റെ സെറ്റിംഗ്സ് കാണുകയും മാറ്റുകയും ചെയ്യുക',
   'ide.chat.cmd.sounds.desc': 'അറിയിപ്പ് ശബ്ദങ്ങൾ',
   'ide.chat.cmd.timestamps.desc':
     'ചാറ്റ് സന്ദേശങ്ങളിലും സംഭവങ്ങളിലും സമയം കാണിക്കുകയോ മറയ്ക്കുകയോ ചെയ്യുക',
   'ide.chat.cmd.mic.desc': 'ഡിക്ടേഷൻ എഞ്ചിൻ തിരഞ്ഞെടുക്കുക (ഉപകരണത്തിൽ / ബ്രൗസർ നേറ്റീവ്)',
-  'ide.chat.cmd.dictate.desc': 'ഡിക്ടേഷൻ എഞ്ചിൻ തിരഞ്ഞെടുക്കുക (/mic ന്റെ അപരനാമം)',
+  'ide.chat.cmd.dictate.desc': 'ഡിക്ടേഷൻ എഞ്ചിൻ തിരഞ്ഞെടുക്കുക (/mic-ന്റെ അപരനാമം)',
   'ide.chat.cmd.help.desc': 'വർക്ക്ഫ്ലോ ഗൈഡും നിർദ്ദേശങ്ങളും',
   'ide.chat.cmd.report.desc': 'ബഗ് റിപ്പോർട്ട് ചെയ്യുക അല്ലെങ്കിൽ ഫീഡ്ബാക്ക് അയക്കുക',
-  'ide.chat.cmd.bug.desc': 'ബഗ് റിപ്പോർട്ട് ചെയ്യുക (/report ന്റെ അപരനാമം)',
+  'ide.chat.cmd.bug.desc': 'ബഗ് റിപ്പോർട്ട് ചെയ്യുക (/report-ന്റെ അപരനാമം)',
   'ide.chat.cmd.version.desc': 'ആപ്പിന്റെ പതിപ്പ് കാണിക്കുക',
   'ide.chat.help.category.context': 'സന്ദർഭം',
   'ide.chat.help.category.code': 'കോഡ്',
@@ -956,18 +956,18 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.share.role.commenter': 'കമന്റേറ്റർ — കാഴ്ചയും കമന്റും',
   'ide.chat.share.role.editor': 'എഡിറ്റർ — കാഴ്ചയും എഡിറ്റിംഗും',
   'ide.chat.share.role.owner': 'ഉടമ — പൂർണ്ണ ആക്സസ്',
-  'ide.chat.share.grants.viewer': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
-  'ide.chat.share.grants.commenter': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
-  'ide.chat.share.grants.editor': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
-  'ide.chat.share.grants.owner': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
+  'ide.chat.share.grants.viewer': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
+  'ide.chat.share.grants.commenter': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
+  'ide.chat.share.grants.editor': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
+  'ide.chat.share.grants.owner': 'ഈ ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
   'ide.chat.share.subheading.viewer':
-    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
+    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
   'ide.chat.share.subheading.commenter':
-    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
+    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
   'ide.chat.share.subheading.editor':
-    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
+    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
   'ide.chat.share.subheading.owner':
-    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}} ആയി പ്രവർത്തിക്കാം.',
+    'പൊതു ലിങ്ക് സൃഷ്ടിക്കുക. ലിങ്ക് ഉള്ള ആരും {{role}}-ആയി പ്രവർത്തിക്കാം.',
   'ide.chat.expandMessage': 'കൂടുതൽ കാണിക്കുക',
   'ide.chat.collapseMessage': 'കുറച്ച് കാണിക്കുക',
   'ide.chat.newConversation': 'പുതിയ സംഭാഷണം',

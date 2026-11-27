@@ -527,7 +527,7 @@ export const ml: Partial<CommonTranslations> = {
   'common.done': 'ചെയ്തുകഴിഞ്ഞു',
   'planUpdated.retry': 'വീണ്ടും ശ്രമിക്കുക',
   'planUpdated.verifyFailed': 'നിങ്ങളുടെ പേയ്‌മെന്റ് ഞങ്ങൾക്ക് ഇതുവരെ സ്ഥിരീകരിക്കാൻ കഴിഞ്ഞില്ല.',
-  'auth.modal.loggedInAs': '{{who}} ആയി ലോഗിൻ ചെയ്‌തു',
+  'auth.modal.loggedInAs': '{{who}}-ആയി ലോഗിൻ ചെയ്‌തു',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
   'auth.signup.name': 'പേര് (ഓപ്ഷണൽ)',

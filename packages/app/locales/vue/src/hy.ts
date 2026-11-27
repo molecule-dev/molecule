@@ -3,7 +3,7 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Armenian. */
 export const hy: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'Այստեղ ռաութեր չկա։ Փաթեթավորեք հավելվածը `MoleculeRouterProvider` ում ռաութինգի կապից (`@molecule/app-routing-vue-router`) կամ փոխանցեք `router` `moleculePlugin` ին։ Եթե հավելվածն արդեն անում է սա, ապա դրա ռաութինգի կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-vue-router@latest`):',
+    'Այստեղ ռաութեր չկա։ Փաթեթավորեք հավելվածը `MoleculeRouterProvider`-ում ռաութինգի կապից (`@molecule/app-routing-vue-router`) կամ փոխանցեք `router` `moleculePlugin`-ին։ Եթե հավելվածն արդեն անում է սա, ապա դրա ռաութինգի կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-vue-router@latest`):',
   'vue.error.noRoutedView':
     'Այս երթուղային կապը չունի երթուղային տեսք այստեղ ցուցադրելու համար. փոխարենը էջը փոխանցեք որպես դուստր։ Եթե հավելվածը երթուղայնացվում է `@molecule/app-routing-vue-router`, այդ կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-vue-router@latest`):',
   'vue.error.useStoreOutsideProvider':

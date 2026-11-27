@@ -13,7 +13,7 @@ export const he: AngularTranslations = {
   'angular.error.useLoggerOutsideProvider': 'יש להשתמש ב-useLoggerProvider בתוך LoggerProvider',
   'angular.error.usePreviewOutsideProvider': 'יש להשתמש ב-usePreviewProvider בתוך PreviewProvider',
   'angular.error.useRouterOutsideProvider':
-    'אין כאן נתב. הוסף `provideMoleculeRouter()` מקשר הניתוב (`@molecule/app-routing-angular-router`) לספקי האפליקציה, לאחר `provideRouter(routes)` של Angular, או העבר `router` ל `provideMolecule`. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: עדכן אותו (`npm install @molecule/app-routing-angular-router@latest`).',
+    'אין כאן נתב. הוסף `provideMoleculeRouter()` מקשר הניתוב (`@molecule/app-routing-angular-router`) לספקי האפליקציה, לאחר `provideRouter(routes)` של Angular, או העבר `router` ל-`provideMolecule`. אם האפליקציה כבר עושה זאת, קשר הניתוב שלה ישן יותר מקשר זה: עדכן אותו (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.noRoutedView':
     'לקשר הניתוב הזה אין תצוגה מנותבת לרינדור כאן: יש להעביר את הדף כעמוד ילדים במקום זאת. אם האפליקציה מנתבת עם `@molecule/app-routing-angular-router`, קשר זה ישן יותר מקישור זה: יש לעדכן אותו (`npm install @molecule/app-routing-angular-router@latest`).',
   'angular.error.useStorageOutsideProvider': 'יש להשתמש ב-useStorageProvider בתוך StorageProvider',

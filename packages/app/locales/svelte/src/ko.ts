@@ -34,7 +34,7 @@ export const ko: SvelteTranslations = {
   'svelte.error.useRouterOutsideProvider':
     '여기에 라우터가 없습니다. 루트 `+layout.svelte` 파일의 라우팅 본드(`@molecule/app-routing-sveltekit`)에서 `MoleculeRouterProvider` 마운트하거나, 해당 파일에서 `setMoleculeContext({ router })` 호출하세요. 앱에서 이미 이 작업을 수행하고 있다면, 해당 라우팅 본드가 이 바인딩보다 오래된 버전입니다. `npm install @molecule/app-routing-sveltekit@latest` 업데이트하세요.',
   'svelte.error.noRoutedView':
-    '여기에는 라우팅된 뷰가 없습니다. SvelteKit은 레이아웃에 페이지를 `children` 으로 제공합니다. 따라서 이 컴포넌트 내부에 `{@render children()}` 전달해야 합니다.',
+    '여기에는 라우팅된 뷰가 없습니다. SvelteKit은 레이아웃에 페이지를 `children`으로 제공합니다. 따라서 이 컴포넌트 내부에 `{@render children()}` 전달해야 합니다.',
   'svelte.error.useHttpOutsideProvider': 'useHttpClient는 HttpProvider 내에서 사용해야 합니다.',
   'svelte.error.useStorageOutsideProvider':
     'useStorageProvider는 StorageProvider 내에서 사용해야 합니다.',

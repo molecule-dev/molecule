@@ -52,7 +52,7 @@ export const sw: UiTranslations = {
   'ui.form.submitError': 'Haiwezi kuwasilisha. Tafadhali jaribu tena.',
   'userMenu.panelLabel': 'Menyu ya akaunti',
   'ui.error.noClassMap':
-    'Hakuna UIClassMap iliyowekwa. Piga simu setClassMap() wakati programu inapoanza kwa kutumia usanidi wa maktaba (km, @molecule/app-ui-tailwind).',
+    'Hakuna UIClassMap iliyowekwa. Ita setClassMap() wakati programu inapoanza kwa kutumia usanidi wa maktaba (km, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` lazima itumike ndani ya `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Kunja upau wa pembeni',
   'ui.pageShell.expandSidebar': 'Panua upau wa pembeni',
@@ -74,7 +74,7 @@ export const sw: UiTranslations = {
   'ui.contextMenu': 'Menyu ya muktadha',
   'ui.fileField.browse': 'Vinjari faili',
   'ui.fileField.error.missingProvider':
-    'Hakuna kiteuzi cha faili kilichounganishwa. Ingiza `provider` kutoka {{bond}} na uitishe `setProvider(provider)` kutoka {{core}} katika `setupProviders()`.',
+    'Hakuna kiteuzi cha faili kilichounganishwa. Ingiza `provider` kutoka {{bond}} na uite `setProvider(provider)` kutoka {{core}} katika `setupProviders()`.',
   'ui.paste': 'Bandika',
   'ui.select.expanded': 'Menyu ya chaguo imefunguliwa',
   'ui.select.selectionCount': '{{count}} imechaguliwa',

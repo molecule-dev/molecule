@@ -8,6 +8,6 @@ export const ml: BodyParserTranslations = {
   'middleware.error.fileMissing': '"{{field}}" ഫീൽഡിൽ ഒരു ഫയൽ അയയ്ക്കുക.',
   'middleware.error.tooManyFiles': 'ഫയലുകൾ വളരെ കൂടുതലാണ്. പരിധി {{max}} ആണ്.',
   'middleware.error.unexpectedFile': 'ഫയൽ "{{field}}" അല്ല, "{{expected}}" ഫീൽഡിൽ അയയ്ക്കുക.',
-  'middleware.error.notMultipart': 'ഫയൽ multipart/form-data ആയി "{{field}}" ഫീൽഡിൽ അയയ്ക്കുക.',
+  'middleware.error.notMultipart': 'ഫയൽ multipart/form-data-ആയി "{{field}}" ഫീൽഡിൽ അയയ്ക്കുക.',
   'middleware.error.payloadTooLarge': 'അഭ്യർത്ഥന വളരെ വലുതാണ്.',
 }

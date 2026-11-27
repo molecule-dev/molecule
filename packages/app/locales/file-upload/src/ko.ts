@@ -12,5 +12,5 @@ export const ko: FileUploadTranslations = {
   'fileUpload.error.timedOut': '업로드 시간 초과',
   'fileUpload.error.typeNotAccepted': '파일 형식 "{{type}}" 허용되지 않습니다.',
   'fileUpload.error.uploadFailed': '업로드 실패',
-  'fileUpload.error.uploadFailedStatus': '업로드에 실패했습니다. 상태 코드는 {{status}} 입니다.',
+  'fileUpload.error.uploadFailedStatus': '업로드에 실패했습니다. 상태 코드는 {{status}}입니다.',
 }

@@ -74,7 +74,7 @@ export const eu: UserTranslations = {
   'user.payment.noBillingAccount':
     'Ez da {{provider}} fakturazio konturik aurkitu erabiltzaile honetarako.',
   'user.payment.portalFailed': 'Ezin izan da {{provider}} fakturazio ataria ireki.',
-  'user.payment.portalNotSupported': '{{provider}} k ez du fakturazio ataririk eskaintzen.',
+  'user.payment.portalNotSupported': '{{provider}}-k ez du fakturazio ataririk eskaintzen.',
   'user.payment.subscriptionOwnershipMismatch': 'Harpidetza hau ez dagokio zure kontuari.',
   'user.payment.transactionAlreadyClaimed':
     'Erosketa hau beste kontu batekin lotuta dago dagoeneko.',

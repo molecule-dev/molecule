@@ -8,7 +8,7 @@ export const hy: UserPaymentTranslations = {
   'user.payment.verificationNotConfigured':
     'Vcharvogi stugumny kargavorvac che {{provider}}-i hamar.',
   'user.payment.invalidPlan': '{{provider}}-ի համար անվավեր պլան։',
-  'user.payment.verificationFailed': 'Վճարման ստուգումը ձախողվեց {{provider}} ի համար։',
+  'user.payment.verificationFailed': 'Վճարման ստուգումը ձախողվեց {{provider}}-ի համար։',
   'user.payment.unknownPlan': 'Anhayt plan.',
   'user.payment.invalidWebhookEvent': 'Anvaverakan webhook iradarcutyun.',
 }

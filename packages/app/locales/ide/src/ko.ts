@@ -8,9 +8,9 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.commitFileCount_other': '{{count}} 개 파일 커밋',
   'ide.chat.autoCommit.countedBadge': '{{commit}} in {{countdown}}',
   'ide.chat.teamMessagesUnavailable': '이 워크스페이스에서는 팀 메시징을 사용할 수 없습니다.',
-  'ide.chat.teamOnly.badge': '팀 전용 - 팀원에게만 표시됩니다. {{agentName}} 은 이를 무시합니다.',
+  'ide.chat.teamOnly.badge': '팀 전용 - 팀원에게만 표시됩니다. {{agentName}}은 이를 무시합니다.',
   'ide.chat.tip.viewerTeamOnly':
-    '보기 전용 액세스 — 메시지를 읽고 /teamsay(또는 /t) 명령어로 팀에 전달하세요. 이 금색 아이콘은 팀 전용 메시지를 나타냅니다({{agentName}} 이 메시지를 무시합니다). 어시스턴트를 실행하거나 모델 또는 설정을 변경하려면 편집자 권한이 필요합니다.',
+    '보기 전용 액세스 — 메시지를 읽고 /teamsay(또는 /t) 명령어로 팀에 전달하세요. 이 금색 아이콘은 팀 전용 메시지를 나타냅니다({{agentName}}이 메시지를 무시합니다). 어시스턴트를 실행하거나 모델 또는 설정을 변경하려면 편집자 권한이 필요합니다.',
   'ide.chat.viewerReadOnly':
     '현재 보기 전용 권한이므로 여기서는 어시스턴트를 실행할 수 없습니다. 하지만 내용을 읽고 /teamsay 명령어를 사용하여 팀에 메시지를 보낼 수는 있습니다.',
   'ide.chat.viewerReadOnlyCommand':
@@ -255,7 +255,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': '검증 결과',
   'ide.chat.soundEvent.preview_error': '미리보기 오류',
   'ide.chat.soundEventDesc.message': '팀원 한 명이 팀원 전용 메모를 게시했습니다.',
-  'ide.chat.soundEventDesc.done': '{{agentName}} 이 응답을 완료했습니다.',
+  'ide.chat.soundEventDesc.done': '{{agentName}}이 응답을 완료했습니다.',
   'ide.chat.soundEventDesc.error': '응답 중에 오류가 발생했습니다.',
   'ide.chat.soundEventDesc.tool_result': '도구 호출(파일 읽기, 명령 실행 등)이 완료되었습니다.',
   'ide.chat.soundEventDesc.file_diff': '파일이 생성되거나 수정되었습니다.',
@@ -369,8 +369,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed':
     '  {{mode}} ({{model}}): 고정 — 이 모델은 하나의 추론 모드를 가지고 있습니다.',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — 사용 가능: {{levels}}',
-  'ide.chat.effort.setMode': '{{mode}} 에 대한 추론 노력이 {{level}} ({{model}})로 설정되었습니다.',
-  'ide.chat.setting.effort': '{{mode}} 에 대한 추론 노력은 {{level}} 로 설정되었습니다.',
+  'ide.chat.effort.setMode': '{{mode}}에 대한 추론 노력이 {{level}} ({{model}})로 설정되었습니다.',
+  'ide.chat.setting.effort': '{{mode}}에 대한 추론 노력은 {{level}}로 설정되었습니다.',
   'ide.chat.settings.effortFixed': '고정',
   'ide.chat.models.colContext': '배경',
   'ide.chat.models.colCutoff': '지식 기준일',
@@ -385,9 +385,9 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.modelInUse': '현재 {{model}}을 사용하고 있습니다',
   'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
-    '선택하신 모델 "{{removed}}" 은 더 이상 사용할 수 없습니다. "{{fallback}}" 으로 변경되었습니다. 다른 모델을 선택하려면 /model 입력하세요.',
+    '선택하신 모델 "{{removed}}"은 더 이상 사용할 수 없습니다. "{{fallback}}"으로 변경되었습니다. 다른 모델을 선택하려면 /model 입력하세요.',
   'ide.chat.modelRemovedNoFallback':
-    '선택하신 모델 "{{removed}}" 은 더 이상 사용할 수 없으며, 서버에 대체 모델이 연결되어 있지 않습니다. 관리자에게 AI 제공업체를 연결해달라고 요청하십시오.',
+    '선택하신 모델 "{{removed}}"은 더 이상 사용할 수 없으며, 서버에 대체 모델이 연결되어 있지 않습니다. 관리자에게 AI 제공업체를 연결해달라고 요청하십시오.',
   'ide.chat.olderModelsCollapse': '구형 모델 ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': '구형 모델 ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': '실행 모드 모델 선택',
@@ -396,8 +396,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.planModelSet': '{{name}}로 설정된 플랜 모드 모델',
   'ide.chat.selectCommitModel': '커밋 메시지 모델을 선택하세요',
   'ide.chat.selectCompactModel': '압축 모델을 선택하십시오.',
-  'ide.chat.commitModelSet': '커밋 메시지 모델이 {{name}} 으로 설정되었습니다.',
-  'ide.chat.compactModelSet': '다짐 모델이 {{name}} 으로 설정되었습니다.',
+  'ide.chat.commitModelSet': '커밋 메시지 모델이 {{name}}으로 설정되었습니다.',
+  'ide.chat.compactModelSet': '다짐 모델이 {{name}}으로 설정되었습니다.',
   'ide.chat.modelModeLabel': '모드',
   'ide.chat.modelMode.default': '기본',
   'ide.chat.modelMode.commit': '커밋 메시지',
@@ -764,22 +764,22 @@ export const ko: Partial<IdeTranslations> = {
   'ide.toolCall.entryCount': '{{count}} 개 항목',
   'ide.toolCall.matchCount': '{{count}} 개 일치',
   'ide.toolCall.fileCount': '{{count}} 개 파일',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} 이 커밋할 파일을 제안하고 있습니다.',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}}이 커밋할 파일을 제안하고 있습니다.',
   'ide.chat.voiceLangsCount': '{{count}} 개 언어',
   'ide.chat.tip.mention':
     '팁: @filename을 입력하면 프로젝트 파일을 컨텍스트로 첨부할 수 있습니다. {{agentName}} 해당 파일을 직접 읽습니다.',
   'ide.chat.tip.plan':
-    '팁: /plan 명령어를 사용하면 {{agentName}} 이 파일을 수정하기 전에 먼저 조사하고 계획을 제안할 수 있습니다.',
+    '팁: /plan 명령어를 사용하면 {{agentName}}이 파일을 수정하기 전에 먼저 조사하고 계획을 제안할 수 있습니다.',
   'ide.chat.previewLinkTitle': '미리보기에서 {{path}} 엽니다.',
   'ide.chat.help.modePlan':
     '계획 수립 — {{agentName}} 코드베이스를 분석하고 파일을 수정하지 않고 계획을 제안합니다. /plan 명령어로 활성화/비활성화할 수 있습니다. 규모가 크거나 위험성이 높은 변경 작업에 가장 적합합니다.',
   'ide.chat.help.tipPlan':
-    '• 변경 사항을 적용하기 전에 {{agentName}} 이 조사하도록 하려면 /plan 명령어를 사용하세요.',
+    '• 변경 사항을 적용하기 전에 {{agentName}}이 조사하도록 하려면 /plan 명령어를 사용하세요.',
   'ide.chat.scripts.empty':
     '아직 저장된 스크립트가 없습니다. 위에서 스크립트를 생성하거나 {{agentName}} 스크립트를 작성하고 저장해달라고 요청하세요.',
-  'ide.tests.runningAgent': '{{agent}} 가 테스트를 실행 중입니다…',
+  'ide.tests.runningAgent': '{{agent}}가 테스트를 실행 중입니다…',
   'ide.chat.tip.getStarted':
-    '팁: 모든 명령어를 보려면 /를 입력하거나, {{agentName}} 에게 작업할 파일을 제공하려면 파일 이름을 @로 입력하세요.',
+    '팁: 모든 명령어를 보려면 /를 입력하거나, {{agentName}}에게 작업할 파일을 제공하려면 파일 이름을 @로 입력하세요.',
   'ide.chat.compacted': '압축된 메시지는 {{count}} 개입니다.',
   'ide.chat.models.usageRateMultiplier': '× {{rate}}',
   'ide.chat.undoComplete': '지난 AI 턴에서 {{count}} 개의 파일을 되돌렸습니다.',

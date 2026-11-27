@@ -7,5 +7,5 @@ export const hy: ClipboardTranslations = {
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange-ը չի աջակցվում մատակարարի կողմից',
   'clipboard.error.missingDependency':
-    '`{{library}}` պարտադիր է, բայց տեղադրված չէ։ Տեղադրեք այն՝ `npm install {{library}}` ով։',
+    '`{{library}}` պարտադիր է, բայց տեղադրված չէ։ Տեղադրեք այն՝ `npm install {{library}}`-ով։',
 }

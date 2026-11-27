@@ -7,7 +7,7 @@ export const ml: PricingPageTranslations = {
   'pricingPage.error': 'വിലനിർണ്ണയം ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
   'pricingPage.checkoutError': 'ചെക്ക്ഔട്ട് ആരംഭിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
   'pricingPage.perSeat': 'സീറ്റ് അനുസരിച്ച്',
-  'pricingPage.upgradeCta': '{{tierName}} ലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക',
+  'pricingPage.upgradeCta': '{{tierName}}-ലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക',
   'pricingPage.currentCta': 'നിലവിലെ പ്ലാൻ',
   'pricingPage.periodToggle.label': 'ബില്ലിംഗ് കാലയളവ്',
   'pricingPage.periodToggle.monthly': 'പ്രതിമാസം',

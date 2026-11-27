@@ -8,5 +8,5 @@ export const hy: Partial<FooterTranslations> = {
   'footer.language': 'Լեզու',
   'footer.legalNotConfigured':
     'Այս բովանդակությունը դեռ կարգավորված չէ։ Հավելվածի սեփականատերը պետք է այն տրամադրի։',
-  'footer.about': '{{appName}} ի մասին',
+  'footer.about': '{{appName}}-ի մասին',
 }

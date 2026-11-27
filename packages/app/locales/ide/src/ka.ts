@@ -93,7 +93,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoFixDisabled': 'ავტომატური შეკეთება გამორთულია.',
   'ide.chat.autoFixError': 'ავტომატური შესწორების პარამეტრის განახლება ვერ მოხერხდა.',
   'ide.chat.autoApproveEnabled':
-    'ავტომატური დამტკიცება ჩართულია — დესტრუქციული ბრძანებები სრულდება მოთხოვნის გარეშე. ექსფილტრაციის მცველი კვლავ ითხოვს. გამორთეთ /autoapprove ით.',
+    'ავტომატური დამტკიცება ჩართულია — დესტრუქციული ბრძანებები სრულდება მოთხოვნის გარეშე. ექსფილტრაციის მცველი კვლავ ითხოვს. გამორთეთ /autoapprove-ით.',
   'ide.chat.autoApproveDisabled':
     'ავტომატური დამტკიცება გამორთულია — დესტრუქციული ბრძანებები დადასტურებას ითხოვენ გაშვებამდე.',
   'ide.chat.autoApproveError': 'ავტომატური დამტკიცების პარამეტრის განახლება ვერ მოხერხდა.',
@@ -260,7 +260,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'ვერიფიკაციის შედეგი',
   'ide.chat.soundEvent.preview_error': 'გადახედვის შეცდომა',
   'ide.chat.soundEventDesc.message': 'თანაგუნდელმა მხოლოდ გუნდურ ჩანაწერს გამოაქვეყნა',
-  'ide.chat.soundEventDesc.done': '{{agentName}} მა დაასრულა პასუხის გაცემა',
+  'ide.chat.soundEventDesc.done': '{{agentName}}-მა დაასრულა პასუხის გაცემა',
   'ide.chat.soundEventDesc.error': 'პასუხის გაცემისას რაღაც შეცდომა მოხდა',
   'ide.chat.soundEventDesc.tool_result':
     'ინსტრუმენტის გამოძახება (ფაილის წაკითხვა, ბრძანება და ა.შ.) დასრულდა',
@@ -373,7 +373,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.tip.report':
     'რჩევა: რამე პრობლემაა? /report გუნდს უგზავნის შეცდომას ან გამოხმაურებას თქვენი ბოლო ჩატის თანდართული ინფორმაციით.',
   'ide.chat.undoError': 'ცვლილებების გაუქმება ვერ მოხერხდა.',
-  'ide.chat.autoCommit.badge': 'ავტომატური ჩაწერა {{countdown}} ში',
+  'ide.chat.autoCommit.badge': 'ავტომატური ჩაწერა {{countdown}}-ში',
   'ide.chat.autoCommit.cancel': 'ავტომატური დაფიქსირების გაუქმება',
   'ide.chat.autoCommit.cancelled': 'ავტომატური ჩაწერა გაუქმდა.',
   'ide.chat.autoCommit.enabled':
@@ -382,14 +382,14 @@ export const ka: Partial<IdeTranslations> = {
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'მსჯელობის ძალისხმევის განახლება ვერ მოხერხდა.',
   'ide.chat.effort.fixedForModel':
-    'მსჯელობის ძალისხმევა დაფიქსირებულია {{model}} ზე ({{mode}} რეჟიმი) — დასაყენებელი არაფერია.',
+    'მსჯელობის ძალისხმევა დაფიქსირებულია {{model}}-ზე ({{mode}} რეჟიმი) — დასაყენებელი არაფერია.',
   'ide.chat.effort.header': 'მსჯელობის ძალისხმევა რეჟიმის მიხედვით:',
   'ide.chat.effort.modeFixed':
     '  {{mode}} ({{model}}): fixed — ამ მოდელს აქვს ერთი მსჯელობის რეჟიმი',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — ხელმისაწვდომი: {{levels}}',
   'ide.chat.effort.setMode':
     '{{mode}}-ისთვის მსჯელობის ძალისხმევა დაყენებულია {{level}}-ზე ({{model}}).',
-  'ide.chat.setting.effort': '{{mode}} ისთვის მსჯელობის ძალისხმევა დაყენებულია {{level}}-ზე.',
+  'ide.chat.setting.effort': '{{mode}}-ისთვის მსჯელობის ძალისხმევა დაყენებულია {{level}}-ზე.',
   'ide.chat.settings.effortFixed': 'ფიქსირებული',
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
@@ -414,11 +414,11 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.selectExecuteModel': 'შესრულების რეჟიმის მოდელის არჩევა',
   'ide.chat.selectPlanModel': 'დაგეგმვის რეჟიმის მოდელის არჩევა',
   'ide.chat.executeModelSet': 'შესრულების რეჟიმის მოდელი დაყენებულია {{name}}-ზე',
-  'ide.chat.planModelSet': 'დაგეგმვის რეჟიმის მოდელი დაყენებულია {{name}} ზე',
+  'ide.chat.planModelSet': 'დაგეგმვის რეჟიმის მოდელი დაყენებულია {{name}}-ზე',
   'ide.chat.selectCommitModel': 'აირჩიეთ commit-message მოდელი',
   'ide.chat.selectCompactModel': 'დატკეპნის მოდელის შერჩევა',
-  'ide.chat.commitModelSet': 'Commit-message მოდელი დაყენებულია {{name}} ზე',
-  'ide.chat.compactModelSet': 'შეკუმშვის მოდელი დაყენებულია {{name}} ზე',
+  'ide.chat.commitModelSet': 'Commit-message მოდელი დაყენებულია {{name}}-ზე',
+  'ide.chat.compactModelSet': 'შეკუმშვის მოდელი დაყენებულია {{name}}-ზე',
   'ide.chat.modelModeLabel': 'რეჟიმი',
   'ide.chat.modelMode.default': 'ნაგულისხმევი',
   'ide.chat.modelMode.commit': 'Commit-ის შეტყობინებები',
@@ -451,7 +451,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.help.modeExecute':
     'შესრულება — ნაგულისხმევი სამუშაო რეჟიმი. {{agentName}} წერს კოდს, ამუშავებს ხელსაწყოებს და იყენებს ცვლილებებს, შემდეგ ამოწმებს მათ.',
   'ide.chat.help.modePlan':
-    'გეგმა — {{agentName}} იკვლევს კოდის ბაზას და გვთავაზობს გეგმას ფაილების რედაქტირების გარეშე. გადართეთ /plan ით. საუკეთესოა დიდი ან სარისკო ცვლილებებისთვის.',
+    'გეგმა — {{agentName}} იკვლევს კოდის ბაზას და გვთავაზობს გეგმას ფაილების რედაქტირების გარეშე. გადართეთ /plan-ით. საუკეთესოა დიდი ან სარისკო ცვლილებებისთვის.',
   'ide.chat.help.modesHeading': '── რეჟიმები ──',
   'ide.chat.help.shortcuts':
     'კლავიატურის ყველა მალსახმობის სანახავად დააჭირეთ Cmd+/ (Ctrl+/ Windows/Linux-ზე).',
@@ -494,7 +494,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.scripts.saveError': 'სკრიპტის შენახვა ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.',
   'ide.chat.scripts.invalid': 'სკრიპტს სჭირდება სახელი და არაცარიელი სხეული.',
   'ide.chat.scripts.empty':
-    'შენახული სკრიპტები ჯერ არ არის. შექმენით ერთი ზემოთ, ან სთხოვეთ {{agentName}} ს დაწეროს და შეინახოს.',
+    'შენახული სკრიპტები ჯერ არ არის. შექმენით ერთი ზემოთ, ან სთხოვეთ {{agentName}}-ს დაწეროს და შეინახოს.',
   'ide.chat.scripts.loading': 'სკრიპტები იტვირთება…',
   'ide.chat.scripts.error': 'ამ პროექტისთვის სკრიპტების ჩატვირთვა ვერ მოხერხდა.',
   'ide.chat.scripts.noMatch': '„ {{query}} “-ს არცერთი სკრიპტი არ შეესაბამება.',
@@ -509,12 +509,12 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.scripts.cmdExitOk': '{{name}} გამოვიდა 0-დან',
   'ide.chat.scripts.cmdExitFail': '{{name}} გამოვიდა კოდით {{code}}',
   'ide.chat.scripts.exitOk': 'გამოვიდა 0-დან',
-  'ide.chat.scripts.exitFail': 'გამოვიდა {{code}} დან',
+  'ide.chat.scripts.exitFail': 'გამოვიდა {{code}}-დან',
   'ide.chat.scripts.noOutput': '(გამომავალი არ არის)',
   'ide.chat.settings.heading': 'პარამეტრები',
   'ide.chat.settings.commandsHeading': 'Slash ბრძანებები',
   'ide.chat.settings.edit': 'რედაქტირება',
-  'ide.chat.settings.editVia': 'რედაქტირება {{command}} ის მეშვეობით',
+  'ide.chat.settings.editVia': 'რედაქტირება {{command}}-ის მეშვეობით',
   'ide.chat.settings.modeExecute': 'შესრულება',
   'ide.chat.settings.modePlan': 'გეგმა',
   'ide.chat.settings.modelUnset': 'არ არის დაყენებული',
@@ -792,9 +792,9 @@ export const ka: Partial<IdeTranslations> = {
   'ide.error.noProvider':
     'IDE სამუშაო სივრცის პროვაიდერი კონფიგურირებული არ არის. ჯერ IDE პროვაიდერთან დაკავშირება დააკავშირეთ.',
   'ide.chat.tip.getStarted':
-    'რჩევა: აკრიფეთ / ყველა ბრძანების სანახავად, ან @ ფაილის სახელი, რათა მიანიჭოთ {{agentName}} ს ფაილი, საიდანაც იმუშავებს.',
+    'რჩევა: აკრიფეთ / ყველა ბრძანების სანახავად, ან @ ფაილის სახელი, რათა მიანიჭოთ {{agentName}}-ს ფაილი, საიდანაც იმუშავებს.',
   'ide.chat.tip.plan':
-    'რჩევა: გამოიყენეთ /plan, რათა {{agentName}} მა გამოიკვლიოს და შესთავაზოს გეგმა, სანამ ფაილებს რედაქტირებას დაიწყებს.',
+    'რჩევა: გამოიყენეთ /plan, რათა {{agentName}}-მა გამოიკვლიოს და შესთავაზოს გეგმა, სანამ ფაილებს რედაქტირებას დაიწყებს.',
   'ide.chat.compacted': 'შეკუმშული {{count}} შეტყობინება.',
   'ide.chat.models.usageRateMultiplier': '× {{rate}}',
   'ide.chat.undoComplete': 'ბოლო ხელოვნური ინტელექტის რაუნდიდან {{count}} ფაილი აღდგა.',

@@ -15,5 +15,5 @@ export const he: NetworkTranslations = {
   'network.error.missingDependency':
     '`{{library}}` נדרש אך אינו מותקן. התקן אותו באמצעות: `npm install {{library}}`',
   'network.error.noProvider':
-    '`@molecule/app-network`: לא הוגדר ספק. קריאה ל `setProvider()` עם מימוש של `NetworkProvider` (לדוגמה, מ- `@molecule/app-network-react-native`).',
+    '`@molecule/app-network`: לא הוגדר ספק. קריאה ל-`setProvider()` עם מימוש של `NetworkProvider` (לדוגמה, מ-`@molecule/app-network-react-native`).',
 }

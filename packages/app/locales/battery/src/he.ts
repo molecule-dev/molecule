@@ -11,5 +11,5 @@ export const he: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ש {{minutes}}ד',
   'battery.remainingMinutes': '{{minutes}}ד',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: לא הוגדר ספק. קריאה ל `setProvider()` עם מימוש של `BatteryProvider` — Molecule לא שולחת ספק עבורו; יש לממש את הממשק על זמן הריצה המקורי שלך וליצור קשר איתו.',
+    '`@molecule/app-battery`: לא הוגדר ספק. קריאה ל-`setProvider()` עם מימוש של `BatteryProvider` — Molecule לא שולחת ספק עבורו; יש לממש את הממשק על זמן הריצה המקורי שלך וליצור קשר איתו.',
 }

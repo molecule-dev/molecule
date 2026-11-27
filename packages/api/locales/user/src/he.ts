@@ -61,7 +61,7 @@ export const he: UserTranslations = {
   'user.error.tooManyRequests': 'יותר מדי ניסיונות. אנא המתן ונסה שוב.',
   'user.error.webhookUnauthorized': 'הודעה על תשלום לא מורשה',
   'user.error.credentialsNested':
-    'נקודת קצה זו של התחברות קוראת אישורים ברמה העליונה, אך גוף זה מקנן אותם תחת {{envelope}}. הגדר את loginEndpoint לנתיב שפותח את המעטפה הזו, או השתמש ב- createRequestHandler עם mapRequest כדי לפתוח את req.body[ {{envelope}}] לפני handlers.logIn.',
+    'נקודת קצה זו של התחברות קוראת אישורים ברמה העליונה, אך גוף זה מקנן אותם תחת {{envelope}}. הגדר את loginEndpoint לנתיב שפותח את המעטפה הזו, או השתמש ב-createRequestHandler עם mapRequest כדי לפתוח את req.body[ {{envelope}}] לפני handlers.logIn.',
   'user.error.oauthStateMismatch': 'אי התאמה במצב OAuth - מתקפת CSRF אפשרית',
   'user.error.avatarTooLarge': 'אווטאר חייב להיות באורך {{max}} תווים או פחות.',
   'user.error.bioTooLong': 'ביוגרפיה חייבת להיות באורך {{max}} תווים או פחות.',

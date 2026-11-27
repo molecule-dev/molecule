@@ -47,7 +47,7 @@ export const sw: UserTranslations = {
     'Uthibitishaji wa hatua mbili umewashwa kwenye akaunti hii. Ingia kwa barua pepe na nenosiri lako ili kuendelea.',
   'user.error.tokenRequired': 'Tokeni inahitajika.',
   'user.error.noPendingTwoFactorSetup':
-    'Hakuna usanidi wa hatua mbili unaongojea. Piga simu kwa kitendo cha "setup" kwanza.',
+    'Hakuna usanidi wa hatua mbili unaongojea. Ita kwa kitendo cha "setup" kwanza.',
   'user.error.invalidToken': 'Tokeni batili.',
   'user.error.twoFactorRequired': 'Msimbo wa hatua mbili unahitajika.',
   'user.error.twoFactorNotEnabled': 'Hatua mbili haijawezeshwa.',

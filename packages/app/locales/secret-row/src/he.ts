@@ -10,5 +10,5 @@ export const he: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'לְסוֹבֵב',
   'secretRow.delete': 'לִמְחוֹק',
   'secretRow.lastRotated': 'סיבוב אחרון',
-  'secretRow.rotateIn': 'סובב ב {{days}} ימים',
+  'secretRow.rotateIn': 'סובב ב-{{days}} ימים',
 }

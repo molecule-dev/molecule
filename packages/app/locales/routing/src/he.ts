@@ -6,7 +6,7 @@ export const he: RoutingTranslations = {
   'routing.error.routeNotFound': 'הנתיב "{{name}}" לא נמצא',
   'routing.error.noNavigationRef': 'הפניה לניווט לא הוגדרה. ודא `MoleculeProvider` מותקן.',
   'routing.error.useMoleculeRouterOutsideRouter':
-    'יש להשתמש ב `useMoleculeRouter` בתוך נתב של React Router. יש להרכיב את `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, או `RouterProvider`.',
+    'יש להשתמש ב-`useMoleculeRouter` בתוך נתב של React Router. יש להרכיב את `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, או `RouterProvider`.',
   'routing.error.reactRouterHistoryBeforeRender':
     'היסטוריית React Router שימשה לפני שהרכיב שלה עבר עיבוד. יש להרכיב אותה בתוך נתב של React Router דרך MoleculeRouterProvider או useMoleculeRouter.',
   'routing.listRoute.error.pageSize': 'useListRoute: pageSize חייב להיות מספר שלם בטוח וחיובי',
@@ -23,11 +23,11 @@ export const he: RoutingTranslations = {
   'routing.sveltekit.error.serverHistory':
     'פעולות היסטוריה זמינות רק בדפדפן: נתב הלקוח של SvelteKit אינו פועל במהלך עיבוד בצד השרת',
   'routing.angularRouter.error.useMoleculeRouterOutsideRouter':
-    'יש לקרוא ל `useMoleculeRouter` בהקשר הזרקה של אפליקציית Angular המספקת את הנתב. יש להוסיף את `provideRouter(routes)` לספקי האפליקציה.',
+    'יש לקרוא ל-`useMoleculeRouter` בהקשר הזרקה של אפליקציית Angular המספקת את הנתב. יש להוסיף את `provideRouter(routes)` לספקי האפליקציה.',
   'routing.vueRouter.error.useMoleculeRouterOutsideRouter':
-    'יש לקרוא ל `useMoleculeRouter` ב `setup` של רכיב של אפליקציית Vue עם Vue Router מותקן. יש להתקין אותו עם `app.use(router)`.',
+    'יש לקרוא ל-`useMoleculeRouter` ב-`setup` של רכיב של אפליקציית Vue עם Vue Router מותקן. יש להתקין אותו עם `app.use(router)`.',
   'routing.solidRouter.error.useMoleculeRouterOutsideRouter':
-    'יש להשתמש ב `useMoleculeRouter` בתוך נתב של Solid Router. יש להרכיב את `Router`, `HashRouter`, או `MemoryRouter`.',
+    'יש להשתמש ב-`useMoleculeRouter` בתוך נתב של Solid Router. יש להרכיב את `Router`, `HashRouter`, או `MemoryRouter`.',
   'routing.sveltekit.error.useMoleculeRouterOutsideRouter':
-    'יש להשתמש ב `useMoleculeRouter` בתוך `MoleculeRouterProvider`. יש להרכיב את `MoleculeRouterProvider` בפריסת השורש שלך, סביב העמוד.',
+    'יש להשתמש ב-`useMoleculeRouter` בתוך `MoleculeRouterProvider`. יש להרכיב את `MoleculeRouterProvider` בפריסת השורש שלך, סביב העמוד.',
 }

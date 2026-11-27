@@ -3,6 +3,6 @@ import type { KeyboardTranslations } from './types.js'
 /** Keyboard translations for Swahili. */
 export const sw: KeyboardTranslations = {
   'keyboard.error.noProvider':
-    '@molecule/app-keyboard: Hakuna mtoa huduma aliyewekwa. Piga simu setProvider() na utekelezaji wa KeyboardProvider (mf., kutoka @molecule/app-keyboard-react-native).',
+    '@molecule/app-keyboard: Hakuna mtoa huduma aliyewekwa. Ita setProvider() na utekelezaji wa KeyboardProvider (mf., kutoka @molecule/app-keyboard-react-native).',
   'keyboard.error.missingDependency': '`{{library}}` inahitajika lakini haijasakinishwa.',
 }

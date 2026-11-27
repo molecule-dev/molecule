@@ -14,9 +14,9 @@ export const ka: ReactTranslations = {
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider უნდა გამოიყენოთ PreviewProvider-ის შიგნით',
   'react.error.useRouterOutsideProvider':
-    'აქ როუტერი არ არის. დაამონტაჟეთ როუტერის კომპონენტი აპლიკაციის მარშრუტიზაციის კავშირიდან (`BrowserRouter` `@molecule/app-routing-react-router` დან), ან გადაეცით `router` `MoleculeProvider` ს. თუ აპლიკაცია უკვე აკეთებს ამას, მისი მარშრუტიზაციის კავშირი ამ კავშირზე ძველია: განაახლეთ იგი (`npm install @molecule/app-routing-react-router@latest`).',
+    'აქ როუტერი არ არის. დაამონტაჟეთ როუტერის კომპონენტი აპლიკაციის მარშრუტიზაციის კავშირიდან (`BrowserRouter` `@molecule/app-routing-react-router`-დან), ან გადაეცით `router` `MoleculeProvider`-ს. თუ აპლიკაცია უკვე აკეთებს ამას, მისი მარშრუტიზაციის კავშირი ამ კავშირზე ძველია: განაახლეთ იგი (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.noRoutedView':
-    'ამ მარშრუტიზაციის ბმას არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით როგორც შვილობილი. თუ აპლიკაცია მარშრუტიზირდება `@molecule/app-routing-react-router` ით, ეს ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-react-router@latest`).',
+    'ამ მარშრუტიზაციის ბმას არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით როგორც შვილობილი. თუ აპლიკაცია მარშრუტიზირდება `@molecule/app-routing-react-router`-ით, ეს ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-react-router@latest`).',
   'react.error.useStoreOutsideProvider': 'useStateProvider უნდა გამოიყენოთ StateProvider-ის შიგნით',
   'react.error.useStorageOutsideProvider':
     'useStorageProvider უნდა გამოიყენოთ StorageProvider-ის შიგნით',

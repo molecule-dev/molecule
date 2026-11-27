@@ -345,7 +345,7 @@ export const he: Partial<CommonTranslations> = {
   'common.countGuests': '{{count}} אורחים',
   'common.minutesMin': '{{minutes}} דקות',
   'common.photographOf': 'תצלום של {{name}}',
-  'common.savedAt': 'נשמר ב {{time}}',
+  'common.savedAt': 'נשמר ב-{{time}}',
   'common.weSentAPasswordResetLink': 'שלחנו קישור לאיפוס סיסמה אל {{email}} .',
   'auth.login.rememberedYourPassword': 'זכרת את הסיסמה שלך?',
   'auth.login.rememberedIt': 'זכרת את זה?',

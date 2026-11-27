@@ -63,7 +63,7 @@ export const hy: UserTranslations = {
   'user.error.tooManyRequests': 'Չափազանց շատ փորձեր։ Խնդրում ենք սպասել և կրկին փորձել։',
   'user.error.webhookUnauthorized': 'Անօրինական վճարման մասին ծանուցում',
   'user.error.credentialsNested':
-    'Այս մուտքի վերջնակետը կարդում է մուտքի տվյալները վերին մակարդակում, բայց այս մարմինը դրանք տեղադրում է {{envelope}} ի տակ։ Սահմանեք loginEndpoint-ը այն երթուղու վրա, որը բացում է այս ծրարը, կամ օգտագործեք createRequestHandler-ը mapRequest-ի հետ՝ handlers.logIn-ից առաջ req.body[ {{envelope}}]-ը բացելու համար։',
+    'Այս մուտքի վերջնակետը կարդում է մուտքի տվյալները վերին մակարդակում, բայց այս մարմինը դրանք տեղադրում է {{envelope}}-ի տակ։ Սահմանեք loginEndpoint-ը այն երթուղու վրա, որը բացում է այս ծրարը, կամ օգտագործեք createRequestHandler-ը mapRequest-ի հետ՝ handlers.logIn-ից առաջ req.body[ {{envelope}}]-ը բացելու համար։',
   'user.error.oauthStateMismatch': 'OAuth վիճակի անհամապատասխանություն՝ հնարավոր CSRF հարձակում',
   'user.error.avatarTooLarge': 'Ավատարը պետք է լինի {{max}} կամ պակաս նիշ։',
   'user.error.bioTooLong': 'Կենսագրությունը պետք է լինի {{max}} կամ պակաս նիշ։',

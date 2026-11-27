@@ -20,7 +20,7 @@ export const hy: AngularTranslations = {
   'angular.error.usePreviewOutsideProvider':
     'usePreviewProvider-ը պետք է օգտագործվի PreviewProvider-ի ներսում',
   'angular.error.useRouterOutsideProvider':
-    'Այստեղ ռաութեր չկա։ Ավելացրեք `provideMoleculeRouter()` ը ռաութինգային կապից (`@molecule/app-routing-angular-router`) հավելվածի մատակարարներին, Angular-ի `provideRouter(routes)` ից հետո, կամ փոխանցեք `router` `provideMolecule` ին։ Եթե հավելվածն արդեն անում է սա, ապա դրա ռաութինգային կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-angular-router@latest`):',
+    'Այստեղ ռաութեր չկա։ Ավելացրեք `provideMoleculeRouter()`-ը ռաութինգային կապից (`@molecule/app-routing-angular-router`) հավելվածի մատակարարներին, Angular-ի `provideRouter(routes)`-ից հետո, կամ փոխանցեք `router` `provideMolecule`-ին։ Եթե հավելվածն արդեն անում է սա, ապա դրա ռաութինգային կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-angular-router@latest`):',
   'angular.error.noRoutedView':
     'Այս երթուղային կապը չունի երթուղային տեսք այստեղ ցուցադրելու համար. փոխարենը էջը փոխանցեք որպես դուստր։ Եթե հավելվածը երթուղայնացվում է `@molecule/app-routing-angular-router`, այդ կապը ավելի հին է, քան այս կապը. թարմացրեք այն (`npm install @molecule/app-routing-angular-router@latest`):',
   'angular.error.useStorageOutsideProvider':

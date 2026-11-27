@@ -3,9 +3,9 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Georgian. */
 export const ka: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
-    'აქ როუტერი არ არის. აპლიკაცია გადაიტანეთ `MoleculeRouterProvider` ში მარშრუტიზაციის ბმიდან (`@molecule/app-routing-vue-router`), ან გადაეცით `router` `moleculePlugin` ს. თუ აპლიკაცია უკვე აკეთებს ამას, მისი მარშრუტიზაციის ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-vue-router@latest`).',
+    'აქ როუტერი არ არის. აპლიკაცია გადაიტანეთ `MoleculeRouterProvider`-ში მარშრუტიზაციის ბმიდან (`@molecule/app-routing-vue-router`), ან გადაეცით `router` `moleculePlugin`-ს. თუ აპლიკაცია უკვე აკეთებს ამას, მისი მარშრუტიზაციის ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.noRoutedView':
-    'ამ მარშრუტიზაციის ბმას არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით როგორც შვილობილი. თუ აპლიკაცია მარშრუტიზირდება `@molecule/app-routing-vue-router` ით, ეს ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-vue-router@latest`).',
+    'ამ მარშრუტიზაციის ბმას არ აქვს მარშრუტიზებული ხედი აქ გამოსატანად: გვერდი გადაეცით როგორც შვილობილი. თუ აპლიკაცია მარშრუტიზირდება `@molecule/app-routing-vue-router`-ით, ეს ბმა უფრო ძველია, ვიდრე ეს ბმა: განაახლეთ იგი (`npm install @molecule/app-routing-vue-router@latest`).',
   'vue.error.useStoreOutsideProvider': 'useStateProvider უნდა გამოიყენოთ StateProvider-ის შიგნით',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider უნდა გამოიყენოთ ThemeProvider-ის შიგნით',
   'vue.error.useAuthOutsideProvider': 'useAuthClient უნდა გამოიყენოთ AuthProvider-ის შიგნით',

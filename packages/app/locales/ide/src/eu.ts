@@ -381,14 +381,14 @@ export const eu: Partial<IdeTranslations> = {
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Arrazoiketa ahalegina eguneratzea huts egin da.',
   'ide.chat.effort.fixedForModel':
-    'Arrazoiketa ahalegina {{model}} n finkatuta dago ({{mode}} modua) — ez dago ezer ezartzeko.',
+    'Arrazoiketa ahalegina {{model}}-n finkatuta dago ({{mode}} modua) — ez dago ezer ezartzeko.',
   'ide.chat.effort.header': 'Arrazoiketa ahalegina modu bakoitzeko:',
   'ide.chat.effort.modeFixed':
     '  {{mode}} ({{model}}): finkoa — eredu honek arrazoitzeko modu bakarra du',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — erabilgarri: {{levels}}',
   'ide.chat.effort.setMode':
-    '{{mode}} rako arrazoiketa-ahalegina {{level}}-ra ezarrita ({{model}}).',
-  'ide.chat.setting.effort': '{{mode}} rako arrazoiketa-ahalegina {{level}} ra ezarrita.',
+    '{{mode}}-rako arrazoiketa-ahalegina {{level}}-ra ezarrita ({{model}}).',
+  'ide.chat.setting.effort': '{{mode}}-rako arrazoiketa-ahalegina {{level}}-ra ezarrita.',
   'ide.chat.settings.effortFixed': 'finkoa',
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
@@ -413,11 +413,11 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.selectExecuteModel': 'Hautatu exekuzio moduko eredua',
   'ide.chat.selectPlanModel': 'Hautatu planifikazio moduko eredua',
   'ide.chat.executeModelSet': 'Exekuzio-moduko eredua {{name}}-ra ezarrita',
-  'ide.chat.planModelSet': 'Planifikazio moduko eredua {{name}} ra ezarrita',
+  'ide.chat.planModelSet': 'Planifikazio moduko eredua {{name}}-ra ezarrita',
   'ide.chat.selectCommitModel': 'Hautatu konpromiso-mezua eredua',
   'ide.chat.selectCompactModel': 'Hautatu trinkotze-eredua',
-  'ide.chat.commitModelSet': 'Mezu-konpromisoaren eredua {{name}} ra ezarri da',
-  'ide.chat.compactModelSet': '{{name}} ra ezarri da trinkotze-eredua',
+  'ide.chat.commitModelSet': 'Mezu-konpromisoaren eredua {{name}}-ra ezarri da',
+  'ide.chat.compactModelSet': '{{name}}-ra ezarri da trinkotze-eredua',
   'ide.chat.modelModeLabel': 'Modua',
   'ide.chat.modelMode.default': 'Lehenetsia',
   'ide.chat.modelMode.commit': 'Commit mezuak',
@@ -443,14 +443,14 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.typeErrorsCount': '{{count}} type errors',
   'ide.chat.help.commandsHeading': '── Commands ──',
   'ide.chat.help.intro':
-    '{{agentName}} {{productName}} ren AI kodetze agentea da. Deskribatu zer eraiki nahi duzun eta zurekin batera eskafoldatuko, kodetuko eta iterazio egingo du.',
+    '{{agentName}} {{productName}}-ren AI kodetze agentea da. Deskribatu zer eraiki nahi duzun eta zurekin batera eskafoldatuko, kodetuko eta iterazio egingo du.',
   'ide.chat.help.introHeading': '── Getting Started ──',
   'ide.chat.help.modeDiscovery':
     'Aurkikuntza — elkarrizketa berriak hemen hasten dira. {{agentName}}-k galdera argigarriak egiten ditu eskakizunak zehazteko edozein kode idatzi aurretik.',
   'ide.chat.help.modeExecute':
-    'Exekutatu — lehenetsitako lan modua. {{agentName}} k kodea idazten du, tresnak exekutatzen ditu eta aldaketak aplikatzen ditu, eta gero egiaztatzen ditu.',
+    'Exekutatu — lehenetsitako lan modua. {{agentName}}-k kodea idazten du, tresnak exekutatzen ditu eta aldaketak aplikatzen ditu, eta gero egiaztatzen ditu.',
   'ide.chat.help.modePlan':
-    'Plana — {{agentName}} k kode-basea ikertzen du eta fitxategiak editatu GABE plan bat proposatzen du. Aldatu /plan. Aldaketa handi edo arriskutsuetarako egokiena.',
+    'Plana — {{agentName}}-k kode-basea ikertzen du eta fitxategiak editatu GABE plan bat proposatzen du. Aldatu /plan. Aldaketa handi edo arriskutsuetarako egokiena.',
   'ide.chat.help.modesHeading': '── Modes ──',
   'ide.chat.help.shortcuts':
     'Sakatu Cmd+/ (Ctrl+/ Windows/Linux-en) teklatuko lasterbide guztiak ikusteko.',
@@ -459,7 +459,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
-    '• Erabili /plan {{agentName}} k aldaketak egin aurretik ikerketa egin dezan.',
+    '• Erabili /plan {{agentName}}-k aldaketak egin aurretik ikerketa egin dezan.',
   'ide.chat.help.tipSlash': '• Idatzi / goiko komando guztiak arakatzeko.',
   'ide.chat.help.tipSpecific':
     '• Izan zaitez zehatza — "Gehitu saioa hasteko orri bat posta elektronikoarekin/pasahitzarekin eta Google OAuth-ekin" "autentifikazioa gehitu" baino hobea da.',
@@ -493,7 +493,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.scripts.saveError': 'Ezin izan da gidoia gorde. Saiatu berriro.',
   'ide.chat.scripts.invalid': 'Script batek izen bat eta gorputz ez-huts bat behar ditu.',
   'ide.chat.scripts.empty':
-    'Ez dago gordetako gidoirik oraindik. Sortu bat goian, edo eskatu {{agentName}} ri bat idatzi eta gordetzeko.',
+    'Ez dago gordetako gidoirik oraindik. Sortu bat goian, edo eskatu {{agentName}}-ri bat idatzi eta gordetzeko.',
   'ide.chat.scripts.loading': 'Loading scripts…',
   'ide.chat.scripts.error': 'Ezin izan dira proiektu honen gidoiak kargatu.',
   'ide.chat.scripts.noMatch': 'Ez dago " {{query}} " kontsultarekin bat datorren scriptik.',
@@ -794,9 +794,9 @@ export const eu: Partial<IdeTranslations> = {
   'ide.error.noProvider':
     'IDE lan-eremuaren hornitzailea ez dago konfiguratuta. Lehenik IDE hornitzaile bat lotu.',
   'ide.chat.tip.getStarted':
-    'Aholkua: idatzi / komando guztiak ikusteko, edo @ fitxategi-izen bat {{agentName}} ri lan egiteko fitxategi bat emateko.',
+    'Aholkua: idatzi / komando guztiak ikusteko, edo @ fitxategi-izen bat {{agentName}}-ri lan egiteko fitxategi bat emateko.',
   'ide.chat.tip.plan':
-    'Aholkua: erabili /plan {{agentName}} k fitxategiak editatu aurretik plan bat ikertu eta proposa dezan.',
+    'Aholkua: erabili /plan {{agentName}}-k fitxategiak editatu aurretik plan bat ikertu eta proposa dezan.',
   'ide.chat.compacted': '{{count}} mezu trinkotu dira.',
   'ide.chat.models.usageRateMultiplier': '× {{rate}}',
   'ide.chat.undoComplete': '{{count}} fitxategi leheneratu dira azken AI txandatik.',

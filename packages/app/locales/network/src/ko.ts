@@ -15,5 +15,5 @@ export const ko: Partial<NetworkTranslations> = {
   'network.error.missingDependency':
     '`{{library}}` 필요하지만 설치되어 있지 않습니다. 다음 명령으로 설치하세요: `npm install {{library}}`',
   'network.error.noProvider':
-    '`@molecule/app-network`: 공급자가 설정되지 않았습니다. `@molecule/app-network-react-native` 의 `NetworkProvider` 구현체를 사용하여 `setProvider()` 호출하십시오.',
+    '`@molecule/app-network`: 공급자가 설정되지 않았습니다. `@molecule/app-network-react-native`의 `NetworkProvider` 구현체를 사용하여 `setProvider()` 호출하십시오.',
 }
