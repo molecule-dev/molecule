@@ -30,7 +30,6 @@ export const showcaseComponents: ComponentShowcase[] = [
       size: [...SIZES],
     },
     children: 'Button',
-    svelteElement: 'button',
   },
 
   // ── Form Inputs ──────────────────────────────────────────────────────
@@ -42,7 +41,6 @@ export const showcaseComponents: ComponentShowcase[] = [
     },
     defaultProps: { placeholder: 'Enter text...' },
     children: false,
-    svelteElement: 'input',
   },
   {
     name: 'Input',
@@ -51,7 +49,6 @@ export const showcaseComponents: ComponentShowcase[] = [
     },
     defaultProps: { placeholder: 'With error state', size: 'md', label: 'Label' },
     children: false,
-    svelteElement: 'input',
   },
   {
     name: 'Textarea',
@@ -60,7 +57,6 @@ export const showcaseComponents: ComponentShowcase[] = [
     },
     defaultProps: { placeholder: 'Enter text...', rows: 3 },
     children: false,
-    svelteElement: 'textarea',
   },
   {
     name: 'Select',
@@ -76,7 +72,6 @@ export const showcaseComponents: ComponentShowcase[] = [
       placeholder: 'Select...',
     },
     children: false,
-    svelteElement: 'select',
   },
   {
     name: 'Checkbox',

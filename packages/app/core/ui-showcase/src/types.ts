@@ -14,7 +14,6 @@
 export interface ComponentShowcase {
   /**
    * Component export name (must match the named export from `@molecule/app-ui-{framework}`).
-   * For Svelte, maps to the `get{Name}Classes` utility function.
    */
   name: string
 
@@ -37,10 +36,4 @@ export interface ComponentShowcase {
    * don't accept children (e.g., Spinner, Separator).
    */
   children?: string | false
-
-  /**
-   * The HTML element to render for Svelte class-utility components.
-   * Defaults to 'div'. Use 'button' for Button, 'input' for Input, etc.
-   */
-  svelteElement?: string
 }
