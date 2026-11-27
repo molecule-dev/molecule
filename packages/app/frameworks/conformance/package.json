@@ -238,7 +238,7 @@
     "@molecule/app-password-strength-meter-react": "4.1.0",
     "@molecule/app-photo-lightbox-react": "4.1.1",
     "@molecule/app-plan-updated-page-react": "4.3.1",
-    "@molecule/app-platform": "1.0.6",
+    "@molecule/app-platform": "1.1.0",
     "@molecule/app-presence-indicator-react": "4.1.0",
     "@molecule/app-price-range-slider-react": "4.1.1",
     "@molecule/app-pricing-page-react": "4.1.0",

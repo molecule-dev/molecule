@@ -1,5 +1,11 @@
 # @molecule/app-platform
 
+## 1.1.0
+
+### Minor Changes
+
+- Capacitor startup registers the app’s selected push provider and leaves push optional for other apps.
+
 ## 1.0.6
 
 ### Patch Changes
