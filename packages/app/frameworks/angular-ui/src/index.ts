@@ -66,8 +66,9 @@
  *   template variable (`<div mol-input #email>`) or `viewChild`, then read `email.element()`.
  *   That is the same element React's ref receives and is `null` while it is not rendered (a
  *   closed Tooltip, Dropdown or Modal).
- * - The original first-pass components remain exported under their `Molecule*` names
- *   (`MoleculeButton`, `MoleculeInput`, `MoleculeModal`, …) as deprecated aliases.
+ * - The first-pass components remain exported under their `Molecule*` names
+ *   (`MoleculeButton`, `MoleculeInput`, `MoleculeModal`, …) as deprecated, separate components:
+ *   they do not render what the React-named ones above do.
  *
  *
  * Import `WebDragDirective`, `WebHoverDirective`, or `WebWheelZoomDirective` into a

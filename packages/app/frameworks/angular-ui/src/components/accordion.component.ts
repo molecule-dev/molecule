@@ -11,6 +11,7 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
+import { nextInstanceId } from '../utilities/ids.js'
 import { asTemplate, nodeText } from '../utilities/node-value.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
 import { styleText } from '../utilities/style.js'
@@ -33,8 +34,10 @@ export interface AccordionItemData {
  * The host is the `div.accordionRoot` React renders. Items carry their
  * header/content as text or TemplateRef node values; expansion state is
  * internal unless the `value` input controls it (React's controlled /
- * uncontrolled pair), and ids are generated per item value so replacing the
- * `items` array keeps them stable (React's `useId` per item component).
+ * uncontrolled pair). Each item's trigger and content ids carry the
+ * instance's own prefix, so two accordions on one page never share an id
+ * (React's `useId` is unique per item of every instance), and are minted
+ * once per item value, so replacing the `items` array keeps them.
  */
 @Component({
   selector: 'div[mol-accordion]',
@@ -133,8 +136,13 @@ export class Accordion implements HasElement<HTMLDivElement> {
   private readonly host: ElementRef<HTMLDivElement> = inject(ElementRef)
   /** The element a caller's ref receives: the host `<div>`. */
   readonly element = hostElement(this.host)
+  /**
+   * The prefix of every id this instance renders. It is this instance's own, from the kit's
+   * per-instance counter, where React's `useId` is unique per item of every instance.
+   */
+  private readonly idBase = nextInstanceId()
+  /** Each item value's ids, minted on first render; a value never goes into an id itself. */
   private readonly idMap = new Map<string, { trigger: string; content: string }>()
-  private idCount = 0
 
   /**
    * The current class map.
@@ -214,8 +222,10 @@ export class Accordion implements HasElement<HTMLDivElement> {
   }
 
   /**
-   * The stable per-item ids (React generates them per item component; keying
-   * by item value keeps them stable across an `items` replacement).
+   * The ids of one item's trigger and its content region. Both carry this instance's prefix, so
+   * every `aria-controls` and `aria-labelledby` resolves inside its own accordion, and each
+   * value keeps the ids it was first given, so replacing the `items` array keeps them. The value
+   * itself stays out of the id: one with a space would split the `aria-controls` reference.
    *
    * @param value - The item value.
    * @returns The trigger and content ids.
@@ -223,8 +233,8 @@ export class Accordion implements HasElement<HTMLDivElement> {
   ids(value: string): { trigger: string; content: string } {
     let ids = this.idMap.get(value)
     if (!ids) {
-      ids = { trigger: `t${this.idCount}`, content: `c${this.idCount}` }
-      this.idCount++
+      const n = this.idMap.size
+      ids = { trigger: `${this.idBase}-t${n}`, content: `${this.idBase}-c${n}` }
       this.idMap.set(value, ids)
     }
     return ids

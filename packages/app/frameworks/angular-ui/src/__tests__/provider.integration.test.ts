@@ -960,6 +960,48 @@ describe('@molecule/app-ui-angular × REAL Angular + REAL @molecule/app-ui bonds
     )
   })
 
+  it('Accordion: two accordions with the same items keep different ids, each reference resolving inside its own', () => {
+    const items = [
+      { value: 'a', header: 'Section A', content: 'alpha body' },
+      { value: 'b', header: 'Section B', content: 'beta body' },
+      // A value with a space: an id made from it would split the `aria-controls` reference.
+      { value: 'c d', header: 'Section C', content: 'gamma body' },
+    ]
+    const { host, update } = mount(
+      `<div>
+        <div mol-accordion [items]="items"></div>
+        <div mol-accordion [items]="items"></div>
+      </div>`,
+      [Accordion],
+      { items },
+    )
+    const accordions = [...host.querySelectorAll('[mol-accordion]')]
+    expect(accordions).toHaveLength(2)
+
+    // React's `useId` gives every item of every instance its own id: none repeats on the page.
+    const idsOf = (): string[] => [...host.querySelectorAll('[id]')].map((el) => el.id)
+    const byId = (id: string | null): HTMLElement | null =>
+      id === null ? null : document.getElementById(id)
+    const ids = idsOf()
+    expect(ids).toHaveLength(12)
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(ids.filter((id) => /\s/.test(id))).toEqual([])
+    for (const accordion of accordions) {
+      for (const trigger of accordion.querySelectorAll('button[aria-controls]')) {
+        // `getElementById` returns the FIRST element carrying an id: a shared one would be the
+        // other accordion's region.
+        const region = byId(trigger.getAttribute('aria-controls'))
+        expect(region).not.toBeNull()
+        expect(accordion.contains(region)).toBe(true)
+        expect(byId(region?.getAttribute('aria-labelledby') ?? null)).toBe(trigger)
+      }
+    }
+
+    // An item keeps its ids when the `items` array is replaced.
+    update({ items: items.map((item) => ({ ...item })) })
+    expect(idsOf()).toEqual(ids)
+  })
+
   it('RadioGroup: id-less/unlabeled groups still form REAL native radio groups', async () => {
     const options = [
       { value: 'x', label: 'X' },
