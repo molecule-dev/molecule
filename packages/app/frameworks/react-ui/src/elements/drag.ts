@@ -1,29 +1,45 @@
-import { type PointerEventHandler, useEffect, useLayoutEffect, useState } from 'react'
+import {
+  type PointerEventHandler,
+  type RefCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import { createWebDrag } from '@molecule/app-pointer-events-dom'
-import type { ElementDrag } from '@molecule/app-ui'
+import type { ElementDragProps } from '@molecule/app-ui'
+
+import { mergeRefs } from '../utilities/mergeRefs.js'
 
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 /**
- * Offers a React element's press to the web kits' shared drag gesture.
+ * Offers React's bubbling pointer press and the mounted host to the same gesture owner.
  *
- * @param drag - The current drag handlers.
+ * @param options - The element's current drag and zoom handlers.
+ * @param ref - The element's existing ref.
  * @param hostTag - Changes when a polymorphic element replaces its host.
- * @returns The down handler for the existing DOM host.
+ * @returns The host bindings for the element.
  */
 export function useWebDrag<T extends HTMLElement | SVGElement>(
-  drag: ElementDrag | undefined,
+  options: ElementDragProps,
+  ref?: RefCallback<T>,
   hostTag?: string,
-): PointerEventHandler<T> | undefined {
-  const [gesture] = useState(() => createWebDrag(drag))
-  const enabled = Boolean(drag)
+): { ref?: RefCallback<T>; onPointerDown?: PointerEventHandler<T> } {
+  const [gesture] = useState(() => createWebDrag(options))
+  const enabled = Boolean(options.drag || options.zoom)
+  const zoom = Boolean(options.zoom)
 
   useIsomorphicLayoutEffect(() => {
-    gesture.update(drag)
+    gesture.update(options)
   })
   useIsomorphicLayoutEffect(() => gesture.cancel, [gesture, enabled, hostTag])
 
-  if (!drag) return undefined
-  return (event) => gesture.start(event.currentTarget, event.nativeEvent, drag, event.target)
+  return {
+    ref: useMemo(() => (zoom ? mergeRefs<T>(gesture.attach, ref) : ref), [gesture, ref, zoom]),
+    onPointerDown: enabled
+      ? (event) => gesture.start(event.currentTarget, event.nativeEvent, options.drag, event.target)
+      : undefined,
+  }
 }

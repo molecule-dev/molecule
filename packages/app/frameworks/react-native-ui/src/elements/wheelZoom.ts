@@ -1,7 +1,8 @@
 import type { ElementHandle } from '@molecule/app-ui'
 
 /**
- * The wheel shortcut has no native subscription. Zoom controls call their normal action.
+ * React Native View does not emit wheel events. For touch zoom, pass the element's
+ * `zoom` prop and consume its pinch samples.
  *
  * @param _ref - The corresponding web surface.
  * @param _onStep - The corresponding web zoom step.

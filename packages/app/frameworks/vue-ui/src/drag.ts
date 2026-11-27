@@ -1,7 +1,10 @@
 import type { ObjectDirective } from 'vue'
 
-import { bindWebDrag, type WebDragBinding } from '@molecule/app-pointer-events-dom'
-import type { ElementDrag } from '@molecule/app-ui'
+import {
+  bindWebDrag,
+  type WebDragBinding,
+  type WebDragOptions,
+} from '@molecule/app-pointer-events-dom'
 
 type DragHost = HTMLElement | SVGElement
 const bindings = new WeakMap<DragHost, WebDragBinding>()
@@ -9,9 +12,9 @@ const bindings = new WeakMap<DragHost, WebDragBinding>()
 /**
  * Binds a DOM element to the web kits' shared drag gesture. Use
  * `v-web-drag="handlers"` in templates or `withDirectives(node, [[vWebDrag, handlers]])`
- * in render functions. Pass undefined to disable the gesture.
+ * in render functions. Pass a drag or `{ drag, zoom }`. Undefined disables the gesture.
  */
-export const vWebDrag: ObjectDirective<DragHost, ElementDrag | undefined> = {
+export const vWebDrag: ObjectDirective<DragHost, WebDragOptions | undefined> = {
   mounted(host, { value }) {
     bindings.set(host, bindWebDrag(host, value))
   },

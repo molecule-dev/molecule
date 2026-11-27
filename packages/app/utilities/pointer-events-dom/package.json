@@ -28,7 +28,7 @@
   "license": "Apache-2.0",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "peerDependencies": {
-    "@molecule/app-ui": "^1.9.0"
+    "@molecule/app-ui": "^1.16.0"
   },
   "devDependencies": {
     "@molecule/app-ui": "1.15.0",

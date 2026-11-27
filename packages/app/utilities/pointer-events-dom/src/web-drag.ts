@@ -1,4 +1,12 @@
-import type { ElementDrag, ElementDragPoint } from '@molecule/app-ui'
+import type { ElementDrag, ElementDragPoint, ElementDragProps } from '@molecule/app-ui'
+
+import { trackWebPinch } from './web-pinch.js'
+import { bindWebFocalWheelZoom } from './web-wheel-zoom.js'
+
+type DragHost = HTMLElement | SVGElement
+
+/** Accepts a standalone drag or the element's combined drag and zoom options. */
+export type WebDragOptions = ElementDrag | ElementDragProps
 
 const claimed = new WeakSet<Event>()
 const pressTargets = new WeakSet<Element>()
@@ -56,16 +64,37 @@ function point(
   }
 }
 
-type DragSession = { pointerId: number; cancel(): void }
+/** Uses the SVG viewport rather than the bounds of a transformed group. */
+function viewportFor(host: DragHost): Element {
+  return host.localName === 'g' && 'ownerSVGElement' in host ? (host.ownerSVGElement ?? host) : host
+}
+
+/** Normalizes the original drag-only binding and the combined gesture options. */
+function surfaceOptions(options: WebDragOptions | undefined): ElementDragProps {
+  return options && 'onStart' in options ? { drag: options } : (options ?? {})
+}
+
+type DragSession = {
+  pointerId: number
+  move(event: PointerEvent): void
+  cancel(): void
+  takeOver(): void
+}
 
 /** The renderer-facing controls for one drag host. */
 export interface WebDrag {
   /**
    * Updates the callbacks used by the gesture. Removing the handlers cancels the contact.
    *
-   * @param drag - The current handlers, or undefined to disable dragging.
+   * @param options - The current handlers, or undefined to disable the surface.
    */
-  update(drag: ElementDrag | undefined): void
+  update(options: WebDragOptions | undefined): void
+  /**
+   * Attaches touch reservation and focal wheel input to the current host.
+   *
+   * @param host - The host receiving wheel events, or null on detach.
+   */
+  attach(host: DragHost | null): void
   /**
    * Offers a pointer press to this host.
    *
@@ -80,19 +109,47 @@ export interface WebDrag {
     drag?: ElementDrag,
     target?: EventTarget | null,
   ): void
-  /** Cancels the active contact, if any. */
+  /** Cancels the active input, if any. */
   cancel(): void
 }
 
 /**
  * Acquires a press on the deepest drag host and follows its pointer until release or interruption.
  *
- * @param initialDrag - The initial handlers, if the host starts enabled.
+ * @param initial - The initial handlers, if the host starts enabled.
  * @returns The controls a renderer uses to handle pointerdown, updates and unmount.
  */
-export function createWebDrag(initialDrag?: ElementDrag): WebDrag {
-  let handlers = initialDrag
+export function createWebDrag(initial?: WebDragOptions): WebDrag {
+  let { drag: handlers, zoom } = surfaceOptions(initial)
   let active: DragSession | null = null
+  let touch: ReturnType<typeof trackWebPinch> | null = null
+  let attached: DragHost | null = null
+  let detachZoom: (() => void) | undefined
+
+  /** Reserves touch input and installs focal wheel handling on the attached host. */
+  function attachZoom(): void {
+    if (!attached || !zoom || detachZoom) return
+    const host = attached
+    const previous = host.style.touchAction
+    // The touch-action decision is made at pointer down, before a second contact can register.
+    host.style.touchAction = 'none'
+    const removeWheel = bindWebFocalWheelZoom(
+      host,
+      () => viewportFor(host),
+      () => (active || touch ? undefined : zoom),
+    )
+    detachZoom = () => {
+      removeWheel()
+      if (host.style.touchAction === 'none') host.style.touchAction = previous ?? ''
+      detachZoom = undefined
+    }
+  }
+
+  /** Closes both the contact tracker and any acquired drag. */
+  function cancel(): void {
+    touch?.cancel()
+    active?.cancel()
+  }
 
   /**
    * Claims the press and starts tracking the owning pointer.
@@ -108,37 +165,78 @@ export function createWebDrag(initialDrag?: ElementDrag): WebDrag {
     drag = handlers,
     target = down.target,
   ): void {
-    if (!drag) return
+    if (!drag && !zoom) return
     if (down.button !== undefined && down.button !== 0) return
-    // A pointer event can lack a device type when dispatched through a mouse-only host.
-    if (down.pointerType && down.isPrimary === false) return
     if (claimed.has(down) || insideControl(host, target)) return
     const ownerWindow = host.ownerDocument.defaultView
     if (!ownerWindow) return
-    claimed.add(down)
-    const { pointerId } = down
-    // A down for the same pointer after a lost terminal event starts a new contact.
-    if (active && active.pointerId !== pointerId) return
-    active?.cancel()
 
-    const viewport =
-      host.localName === 'g' && 'ownerSVGElement' in host ? (host.ownerSVGElement ?? host) : host
+    if (down.pointerType === 'touch' && zoom) {
+      // A second finger cannot acquire a surface whose first contact belongs elsewhere.
+      if (!touch) {
+        if (down.isPrimary === false || active) return
+        touch = trackWebPinch(viewportFor(host), ownerWindow, {
+          takeOver: () => active?.takeOver(),
+          resume(remaining, event) {
+            if (handlers) beginDrag(host, ownerWindow, remaining, handlers, true, true).move(event)
+          },
+          zoom: (sample) => zoom?.onZoom(sample),
+          close(cancelDrag) {
+            touch = null
+            if (cancelDrag) active?.cancel()
+          },
+        })
+        claimed.add(down)
+        touch.add(down)
+        if (drag) beginDrag(host, ownerWindow, down, drag, true)
+      } else {
+        claimed.add(down)
+        touch.add(down)
+      }
+      return
+    }
+
+    if (!drag || touch || (down.pointerType && down.isPrimary === false)) return
+    claimed.add(down)
+    // A down for the same pointer after a lost terminal event starts a new contact.
+    if (active && active.pointerId !== down.pointerId) return
+    active?.cancel()
+    beginDrag(host, ownerWindow, down, drag, false)
+  }
+
+  /** Starts a drag at the original contact or the surviving contact after a pinch. */
+  function beginDrag(
+    host: DragHost,
+    ownerWindow: Window,
+    down: PointerEvent,
+    drag: ElementDrag,
+    ownsTouch: boolean,
+    resumed = false,
+  ): DragSession {
+    const { pointerId } = down
+    const viewport = viewportFor(host)
     const touch = down.pointerType === 'touch'
-    const longPress = touch && drag.touchStart === 'longPress'
+    const longPress = touch && !resumed && drag.touchStart === 'longPress'
     let timer: ReturnType<typeof setTimeout> | undefined
     let last: ElementDragPoint | undefined
     let captured = false
     let axisChosen =
       longPress ||
       (drag.axis !== 'horizontal' && drag.axis !== 'vertical') ||
-      (touch && ownerWindow.getComputedStyle(host).touchAction === 'none')
-    const session = { pointerId, cancel: () => finish() }
+      (touch && (ownsTouch || ownerWindow.getComputedStyle(host).touchAction === 'none'))
+    const session = {
+      pointerId,
+      move,
+      cancel: () => finish(),
+      takeOver: () => finish(undefined, true),
+    }
     active = session
 
     /** Captures the contact when supported and delivers the first sample. */
     function acquire(): void {
       if (active !== session) return
-      if (host.setPointerCapture && Number.isFinite(pointerId)) {
+      // Touch pointers on zoom surfaces already have implicit capture. Keep it through takeover.
+      if (!ownsTouch && host.setPointerCapture && Number.isFinite(pointerId)) {
         try {
           host.setPointerCapture(pointerId)
           captured = true
@@ -158,12 +256,12 @@ export function createWebDrag(initialDrag?: ElementDrag): WebDrag {
       if (Math.max(dx, dy) <= TOUCH_SLOP) return false
       if (!last) return true
       axisChosen = true
-      return drag?.axis === 'horizontal' ? dy > dx : dx > dy
+      return drag.axis === 'horizontal' ? dy > dx : dx > dy
     }
 
     /** Delivers movement from the owned pointer after scroll negotiation. */
     function move(sample: PointerEvent): void {
-      if (sample.pointerId !== pointerId) return
+      if (active !== session || sample.pointerId !== pointerId) return
       if (shouldYield(sample.clientX, sample.clientY)) finish()
       else if (last) {
         last = point(viewport, down, sample)
@@ -191,7 +289,7 @@ export function createWebDrag(initialDrag?: ElementDrag): WebDrag {
     }
 
     /** Removes the active subscriptions before the single terminal callback. */
-    function finish(released?: PointerEvent): void {
+    function finish(released?: PointerEvent, takenOver = false): void {
       if (active !== session) return
       active = null
       clearTimeout(timer)
@@ -210,6 +308,7 @@ export function createWebDrag(initialDrag?: ElementDrag): WebDrag {
       }
       if (!last) return
       if (released) handlers?.onEnd?.(point(viewport, down, released))
+      else if (takenOver) (handlers?.onCancel ?? handlers?.onEnd)?.(last)
       else handlers?.onCancel?.(last)
     }
 
@@ -219,20 +318,34 @@ export function createWebDrag(initialDrag?: ElementDrag): WebDrag {
     ownerWindow.addEventListener('pointercancel', cancel, true)
     ownerWindow.addEventListener('blur', session.cancel)
     host.addEventListener('lostpointercapture', cancel)
-    if (touch) ownerWindow.addEventListener('touchmove', preventScroll, { passive: false })
+    if (touch && !ownsTouch)
+      ownerWindow.addEventListener('touchmove', preventScroll, { passive: false })
     if (longPress) timer = setTimeout(acquire, LONG_PRESS_MS)
     else acquire()
+    return session
   }
 
   return {
     start,
-    update(drag) {
-      if (!drag) active?.cancel()
-      handlers = drag
+    update(options) {
+      const next = surfaceOptions(options)
+      if (zoom && !next.zoom) {
+        touch?.cancel()
+        detachZoom?.()
+      }
+      if (!next.drag) active?.cancel()
+      handlers = next.drag
+      zoom = next.zoom
+      attachZoom()
     },
-    cancel() {
-      active?.cancel()
+    attach(host) {
+      if (attached === host) return
+      cancel()
+      detachZoom?.()
+      attached = host
+      attachZoom()
     },
+    cancel,
   }
 }
 
@@ -241,9 +354,9 @@ export interface WebDragBinding {
   /**
    * Updates the handlers for this host.
    *
-   * @param drag - The current handlers, or undefined to disable dragging.
+   * @param options - The current handlers, or undefined to disable the surface.
    */
-  update(drag: ElementDrag | undefined): void
+  update(options: WebDragOptions | undefined): void
   /** Removes the pointer listener and cancels any active contact. */
   destroy(): void
 }
@@ -252,11 +365,12 @@ export interface WebDragBinding {
  * Binds a drag to a native bubbling pointerdown listener.
  *
  * @param host - The element that can own the press.
- * @param drag - The initial handlers, if the host starts enabled.
+ * @param options - The initial handlers, if the host starts enabled.
  * @returns The binding to update or destroy with the host.
  */
-export function bindWebDrag(host: HTMLElement | SVGElement, drag?: ElementDrag): WebDragBinding {
-  const gesture = createWebDrag(drag)
+export function bindWebDrag(host: DragHost, options?: WebDragOptions): WebDragBinding {
+  const gesture = createWebDrag(options)
+  gesture.attach(host)
   const target: GlobalEventHandlers = host
   const pointerDown = (event: PointerEvent): void => gesture.start(host, event)
   target.addEventListener('pointerdown', pointerDown)
@@ -264,7 +378,7 @@ export function bindWebDrag(host: HTMLElement | SVGElement, drag?: ElementDrag):
     update: gesture.update,
     destroy() {
       target.removeEventListener('pointerdown', pointerDown)
-      gesture.cancel()
+      gesture.attach(null)
     },
   }
 }

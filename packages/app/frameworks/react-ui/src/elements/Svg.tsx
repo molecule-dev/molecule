@@ -40,19 +40,17 @@ import type { ElementNode, ShapeNode } from './types.js'
  * @returns The element.
  */
 export const Svg = forwardRef<ElementHandle, SvgProps<ShapeNode>>(function Svg(
-  { drag, metadata, children, ...props },
+  { drag, zoom, metadata, children, ...props },
   ref,
 ): ReactElement {
+  const forward = useElementRef<SVGSVGElement>(ref)
+  const gesture = useWebDrag(
+    { drag, zoom: props.style?.pointerEvents === 'none' ? undefined : zoom },
+    forward,
+  )
   return createElement(
     'svg',
-    webElementAttributes(
-      props,
-      {
-        ref: useElementRef(ref),
-        onPointerDown: useWebDrag<SVGSVGElement>(drag),
-      },
-      { webShapeRendering: 'shapeRendering' },
-    ),
+    webElementAttributes(props, gesture, { webShapeRendering: 'shapeRendering' }),
     ...metadataChildren(metadata),
     children,
   )
@@ -177,9 +175,12 @@ export function Polygon(props: SvgPolyProps): ReactElement {
  * @param props - See {@link SvgGroupProps}.
  * @returns The element.
  */
-export function G({ drag, ...props }: SvgGroupProps<ShapeNode>): ReactElement {
-  const onPointerDown = useWebDrag<SVGGElement>(drag)
-  return shape('g', { ...props, onPointerDown })
+export function G({ drag, zoom, ...props }: SvgGroupProps<ShapeNode>): ReactElement {
+  const gesture = useWebDrag<SVGGElement>({
+    drag,
+    zoom: props.style?.pointerEvents === 'none' ? undefined : zoom,
+  })
+  return shape('g', { ...props, ...gesture })
 }
 
 /**

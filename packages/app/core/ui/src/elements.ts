@@ -112,10 +112,48 @@ export interface ElementDrag {
   onCancel?(point: ElementDragPoint): void
 }
 
+/** A point in the untransformed outer frame, in CSS pixels or native dp. */
+export interface ElementZoomPoint {
+  readonly x: number
+  readonly y: number
+}
+
+/** An incremental zoom gesture in the element's outer frame (the SVG viewport for a group). */
+export type ElementZoomSample =
+  | {
+      readonly kind: 'wheel'
+      readonly at: ElementZoomPoint
+      readonly deltaY: number
+      /** Wheel delta unit: 0 for pixels, 1 for lines, and 2 for pages. */
+      readonly deltaMode: 0 | 1 | 2
+    }
+  | {
+      readonly kind: 'pinch'
+      readonly from: ElementZoomPoint
+      readonly at: ElementZoomPoint
+      /** Current contact distance divided by the preceding distance. */
+      readonly factor: number
+    }
+
+/** Opts a surface into two-contact touch input and optionally focal wheel input. */
+export interface ElementZoom {
+  /** Which vertical wheel events the web surface handles. Other wheel input can scroll as usual. */
+  wheel: 'all' | 'ctrl' | 'off'
+  /** Receives a focal wheel sample or the movement of the currently owned pair. */
+  onZoom(sample: ElementZoomSample): void
+}
+
 /** Continuous manipulation of an element, through pointer capture or the native touch responder. */
 export interface ElementDragProps {
   /** Binds one contact on the current box or the enclosing SVG viewport. */
   drag?: ElementDrag
+  /**
+   * Reserves touch gestures on this surface. A pinch closes an acquired drag through
+   * `onCancel` (or `onEnd` when no cancel handler is supplied). When one contact remains,
+   * a new drag starts on its next move, using the surviving position as the origin.
+   * Apply transforms to the surface's children.
+   */
+  zoom?: ElementZoom
 }
 
 // ============================================================================
@@ -124,6 +162,13 @@ export interface ElementDragProps {
 
 /** A length both renderers accept: pixels as a number, or a percentage of the parent. */
 export type ElementLength = number | `${number}%`
+
+/** Translation after uniform scaling around a child's top-left corner. */
+export interface ElementContentTransform {
+  readonly translateX: number
+  readonly translateY: number
+  readonly scale: number
+}
 
 /**
  * Inline layout and paint that CSS and React Native apply the same way. Numbers are CSS pixels on
@@ -213,6 +258,8 @@ export interface BoxStyle {
   columnGap?: number
   /** Clipping of overflowing children (scrolling content belongs in a `ScrollArea`). */
   overflow?: 'visible' | 'hidden'
+  /** Transform for the content inside an untransformed gesture surface. */
+  contentTransform?: ElementContentTransform
   /** Stacking order. */
   zIndex?: number
   /** Width-to-height ratio. */

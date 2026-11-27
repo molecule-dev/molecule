@@ -106,6 +106,7 @@ function BoxView(
   const delegatedDrag = !ownDrag && secondary ? inheritedDrag : null
   const responder = useNativeDrag(delegatedDrag?.frame ?? frame, {
     drag: ownDrag ?? delegatedDrag?.drag,
+    zoom: hidden ? undefined : props.zoom,
     secondary,
     press: interaction,
   })
@@ -127,7 +128,6 @@ function BoxView(
     importantForAccessibility: hidden ? 'no-hide-descendants' : undefined,
     pointerEvents: hidden ? 'none' : undefined,
     collapsable: ref ? false : undefined,
-    onLayout: ref ? layoutChanged : undefined,
     onTouchStart: props.onTouchStart
       ? (event) => {
           outside.onTouchStart?.(event)
@@ -144,6 +144,13 @@ function BoxView(
         secondary,
       ),
     }),
+    onLayout:
+      ref || responder
+        ? (event) => {
+            responder?.onLayout?.(event)
+            if (ref) layoutChanged()
+          }
+        : undefined,
     className: split.view || undefined,
     style: [
       resolvedStyle,

@@ -29,6 +29,7 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
     as,
     children,
     drag,
+    zoom,
     onPressOutside,
     secondaryAction,
     accessibilityGroup: _accessibilityGroup,
@@ -40,7 +41,7 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
   const node = useRef<HTMLElement>(null)
   const forward = useElementRef<HTMLElement>(ref)
   const setNode = useMemo(() => mergeRefs(node, forward), [forward])
-  const pointerDown = useWebDrag(hidden ? undefined : drag, as)
+  const gesture = useWebDrag(hidden ? {} : { drag, zoom }, onPressOutside ? setNode : forward, as)
   const hover = useWebHover<HTMLElement>({ onMouseEnter, onMouseLeave })
   useEffect(() => {
     const element = node.current
@@ -61,8 +62,7 @@ export const Box = forwardRef<ElementHandle, BoxProps<ElementNode>>(function Box
       props,
       {
         ...hover,
-        ref: onPressOutside ? setNode : forward,
-        onPointerDown: pointerDown,
+        ...gesture,
         onTouchStart: onTouchStart ? () => onTouchStart() : undefined,
         onDoubleClick: secondaryAction
           ? (event: KitMouseEvent): void => {

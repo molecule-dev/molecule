@@ -73,7 +73,8 @@ import {
 
 import { type NativeAccessibility, nativeAccessibility } from './accessibility.js'
 import { useImageSource } from './documentUrl.js'
-import { SvgDragFrame, useNativeDrag } from './drag.js'
+import { SvgDragScope, useNativeDrag } from './drag.js'
+import { useDragModifiers } from './dragModifiers.js'
 import { keyboardEvent, mouseEvent } from './events.js'
 import { registerInline } from './flow.js'
 import { useGridCell } from './grid.js'
@@ -114,8 +115,12 @@ function Canvas(
   const forward = useNativeRef<View>(props.elementRef)
   const hover = useSvgHover(props)
   const hoverHost = hover.host
+  const modifiers = useDragModifiers()
+  const dragScope = useMemo(() => ({ frame: hoverHost, modifiers }), [hoverHost, modifiers])
   const responder = useNativeDrag(hoverHost, {
+    modifiers,
     drag: props.style?.pointerEvents === 'none' ? undefined : props.drag,
+    zoom: props.style?.pointerEvents === 'none' ? undefined : props.zoom,
     press: { onPress: canvas.props.onPress },
   })
   const ref = useCallback(
@@ -180,16 +185,21 @@ function Canvas(
       pointerEvents={responder ? 'auto' : 'box-none'}
       {...hover.handlers}
       {...responder}
+      {...modifiers.handlers}
+      onPointerMoveCapture={(event) => {
+        hover.handlers.onPointerMoveCapture?.(event)
+        modifiers.handlers.onPointerMoveCapture?.(event)
+      }}
       accessibilityElementsHidden={hidden}
       importantForAccessibility={hidden ? 'no-hide-descendants' : undefined}
       style={canvas.frameStyle}
       className={canvas.frameClassName}
     >
-      <SvgDragFrame.Provider value={hoverHost}>
+      <SvgDragScope.Provider value={dragScope}>
         <SvgFocusScope.Provider value={hidden ? null : register}>
           <SvgHoverScope.Provider value={hover.register}>{content}</SvgHoverScope.Provider>
         </SvgFocusScope.Provider>
-      </SvgDragFrame.Provider>
+      </SvgDragScope.Provider>
       {rootFocusable && <SvgFocusTarget target={focusTarget(props, canvas.accessibility)} fill />}
       {!hidden &&
         Array.from(targets, ([id, target]) => <SvgFocusTarget key={id} target={target} />)}
@@ -622,11 +632,13 @@ export function Polygon(props: SvgPolyProps): ReactElement {
  * @param props - See {@link SvgGroupProps}.
  * @returns The element.
  */
-export function G({ drag, ...props }: SvgGroupProps<ShapeNode>): ReactElement {
-  const frame = useContext(SvgDragFrame)
+export function G({ drag, zoom, ...props }: SvgGroupProps<ShapeNode>): ReactElement {
+  const scope = useContext(SvgDragScope)
   const shape = useShape(props)
-  const responder = useNativeDrag(frame, {
+  const responder = useNativeDrag(scope?.frame ?? null, {
+    modifiers: scope?.modifiers,
     drag: props.style?.pointerEvents === 'none' ? undefined : drag,
+    zoom: props.style?.pointerEvents === 'none' ? undefined : zoom,
     press: { onPress: shape.onPress },
   })
   return (

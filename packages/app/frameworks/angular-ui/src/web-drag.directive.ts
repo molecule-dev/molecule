@@ -1,12 +1,11 @@
 import { Directive, ElementRef, inject, Input, type OnDestroy } from '@angular/core'
 
-import { createWebDrag } from '@molecule/app-pointer-events-dom'
-import type { ElementDrag } from '@molecule/app-ui'
+import { createWebDrag, type WebDragOptions } from '@molecule/app-pointer-events-dom'
 
 /**
  * Binds an HTML or SVG element to the web kits' shared drag gesture. Import
  * `WebDragDirective` into a standalone component and bind `[molDrag]="handlers"`.
- * Pass undefined to disable the gesture.
+ * Pass a drag or `{ drag, zoom }`. Undefined disables the gesture.
  */
 @Directive({
   selector: '[molDrag]',
@@ -19,8 +18,9 @@ export class WebDragDirective implements OnDestroy {
 
   /** The current handlers for this host. */
   @Input()
-  set molDrag(drag: ElementDrag | undefined) {
-    this.gesture.update(drag)
+  set molDrag(options: WebDragOptions | undefined) {
+    this.gesture.attach(this.host)
+    this.gesture.update(options)
   }
 
   /**
@@ -34,6 +34,6 @@ export class WebDragDirective implements OnDestroy {
 
   /** Cancels the gesture when Angular destroys its host. */
   ngOnDestroy(): void {
-    this.gesture.cancel()
+    this.gesture.attach(null)
   }
 }

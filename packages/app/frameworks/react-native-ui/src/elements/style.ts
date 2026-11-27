@@ -262,9 +262,14 @@ export function nativeStyle(
 ): NativeTextStyle | undefined {
   if (!style && !webStyle) return undefined
   const merged: TextStyle = { ...style, ...(webStyle ? drawable(webStyle) : {}) }
-  const { lineHeight, ...rest } = merged
+  const { lineHeight, contentTransform, ...rest } = merged
   const out: NativeTextStyle =
     lineHeight === undefined ? rest : { ...rest, lineHeight: Number.parseFloat(lineHeight) }
+  if (contentTransform) {
+    const { translateX, translateY, scale } = contentTransform
+    out.transform = [{ translateX }, { translateY }, { scale }]
+    out.transformOrigin = [0, 0, 0]
+  }
   const transform = nativeTransform(webStyle?.transform)
   return transform ? { ...out, transform } : out
 }

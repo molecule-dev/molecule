@@ -26,6 +26,21 @@ function pointer(
 }
 
 describe('element interaction', () => {
+  it('scales translated child content from the top-left without transforming the outer frame', () => {
+    const { getByTestId } = render(
+      <Box as="section" data-testid="untransformed-frame">
+        <Box
+          as="div"
+          data-testid="zoom-content"
+          style={{ contentTransform: { translateX: -12, translateY: 20, scale: 2 } }}
+        />
+      </Box>,
+    )
+    expect(getByTestId('zoom-content').style.transform).toBe('translate(-12px, 20px) scale(2)')
+    expect(getByTestId('zoom-content').style.transformOrigin).toBe('0px 0px')
+    expect(getByTestId('untransformed-frame').style.transform).toBe('')
+  })
+
   it('serializes the timeline range control with its original literal attributes', () => {
     const attributes = { 'data-mol-id': 'zoom', min: 2, max: 200, step: 1, value: 20 }
     const onValueChange = vi.fn()

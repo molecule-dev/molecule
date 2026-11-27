@@ -1,3 +1,7 @@
+import type { ElementZoom, ElementZoomSample } from '@molecule/app-ui'
+
+const claimed = new WeakSet<Event>()
+
 /** Called with the direction of one Ctrl-wheel step. */
 export type WebWheelZoomHandler = (direction: 'in' | 'out') => void
 
@@ -28,9 +32,18 @@ export function bindWebWheelZoom(
   let onStep: WebWheelZoomHandler | undefined
 
   const wheel = (event: Event): void => {
-    if (!onStep || !('ctrlKey' in event) || !event.ctrlKey || !('deltaY' in event)) return
+    if (
+      !onStep ||
+      claimed.has(event) ||
+      event.defaultPrevented ||
+      !('ctrlKey' in event) ||
+      !event.ctrlKey ||
+      !('deltaY' in event)
+    )
+      return
     const delta = event.deltaY
     if (typeof delta !== 'number' || !Number.isFinite(delta) || delta === 0) return
+    claimed.add(event)
     event.preventDefault()
     onStep(delta < 0 ? 'in' : 'out')
   }
@@ -50,4 +63,55 @@ export function bindWebWheelZoom(
 
   update(initialStep)
   return { update, destroy: () => update(undefined) }
+}
+
+/**
+ * Binds a non-passive focal wheel listener to a gesture surface.
+ *
+ * @param host - The wheel event host.
+ * @param frame - Reads the untransformed outer frame after the host mounts.
+ * @param current - Reads the enabled zoom callback when the surface is free to accept a wheel.
+ * @returns Removes the wheel listener.
+ */
+export function bindWebFocalWheelZoom(
+  host: Element,
+  frame: () => Element,
+  current: () => ElementZoom | undefined,
+): () => void {
+  const wheel = (event: Event): void => {
+    const Wheel = host.ownerDocument.defaultView?.WheelEvent
+    const zoom = current()
+    if (
+      !zoom ||
+      !Wheel ||
+      zoom.wheel === 'off' ||
+      claimed.has(event) ||
+      event.defaultPrevented ||
+      !(event instanceof Wheel) ||
+      (zoom.wheel === 'ctrl' && !event.ctrlKey)
+    )
+      return
+    // Read the unit before the delta. Some browsers choose compatibility units at access time.
+    const { deltaMode, deltaY, clientX, clientY } = event
+    if (
+      (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) ||
+      !Number.isFinite(deltaY) ||
+      deltaY === 0 ||
+      !Number.isFinite(clientX) ||
+      !Number.isFinite(clientY)
+    )
+      return
+    const { left, top } = frame().getBoundingClientRect()
+    const sample: ElementZoomSample = {
+      kind: 'wheel',
+      at: { x: clientX - left, y: clientY - top },
+      deltaY,
+      deltaMode,
+    }
+    claimed.add(event)
+    event.preventDefault()
+    zoom.onZoom(sample)
+  }
+  host.addEventListener('wheel', wheel, { passive: false })
+  return () => host.removeEventListener('wheel', wheel)
 }

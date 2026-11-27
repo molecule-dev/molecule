@@ -7,7 +7,7 @@
 import type { CSSProperties } from 'react'
 
 import { coverImageStyle } from '@molecule/app-inline-style-dom'
-import type { BoxProps, SvgStyle, WebStyle } from '@molecule/app-ui'
+import type { BoxProps, ElementContentTransform, SvgStyle, WebStyle } from '@molecule/app-ui'
 
 interface StyleProps {
   style?: BoxProps['style'] | SvgStyle
@@ -27,14 +27,28 @@ export function webElementStyle(
   webStyle: WebStyle | undefined,
 ): CSSProperties | undefined {
   if (!style && !webStyle) return undefined
-  if (style && 'coverImage' in style) {
-    const cover = coverImageStyle(style.coverImage)
-    const authored = Object.entries(style).flatMap(([name, value]) =>
-      name === 'coverImage' ? Object.entries(cover) : [[name, value]],
-    )
-    return { ...Object.fromEntries(authored), ...webStyle }
+  if (!style || (!('coverImage' in style) && !('contentTransform' in style))) {
+    return { ...style, ...webStyle }
   }
-  return { ...style, ...webStyle }
+  const cover = 'coverImage' in style ? coverImageStyle(style.coverImage) : undefined
+  const transform =
+    'contentTransform' in style ? contentTransformStyle(style.contentTransform) : undefined
+  const authored = Object.entries(style).flatMap(([name, value]) => {
+    if (name === 'coverImage') return Object.entries(cover ?? {})
+    if (name === 'contentTransform') return Object.entries(transform ?? {})
+    return [[name, value]]
+  })
+  return { ...Object.fromEntries(authored), ...webStyle }
+}
+
+/** Expresses the portable scale and translation in CSS transform order. */
+function contentTransformStyle(transform?: ElementContentTransform): CSSProperties | undefined {
+  if (!transform) return undefined
+  const { translateX, translateY, scale } = transform
+  return {
+    transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+    transformOrigin: '0 0',
+  }
 }
 
 /**

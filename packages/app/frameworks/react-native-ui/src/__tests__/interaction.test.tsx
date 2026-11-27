@@ -29,11 +29,24 @@ type Touch = {
   pageY: number
   locationX: number
   locationY: number
+  timestamp?: number
 }
 type TouchEvent = {
   nativeEvent: Touch & { touches: Touch[]; changedTouches: Touch[] }
   persist(): void
   stopPropagation(): void
+}
+type Pointer = {
+  nativeEvent: {
+    pointerId: number
+    timestamp?: number
+    pageX: number
+    pageY: number
+    altKey: boolean
+    ctrlKey: boolean
+    shiftKey: boolean
+    metaKey: boolean
+  }
 }
 type HostProps = {
   children?: ReactNode
@@ -45,6 +58,10 @@ type HostProps = {
   onChangeText?: (value: string) => void
   onStartShouldSetResponder?: (event: TouchEvent) => boolean
   onResponderGrant?: (event: TouchEvent) => void
+  onResponderStart?: (event: TouchEvent) => void
+  onPointerDownCapture?: (event: Pointer) => void
+  onPointerMoveCapture?: (event: Pointer) => void
+  onPointerUpCapture?: (event: Pointer) => void
   onResponderMove?: (event: TouchEvent) => void
   onResponderEnd?: (event: TouchEvent) => void
   onResponderRelease?: (event: TouchEvent) => void
@@ -401,6 +418,7 @@ describe('native element interaction', () => {
     const second = touch('2', 300, 40)
     await act(async () => {
       binding.onResponderGrant?.(event(first))
+      binding.onResponderStart?.(event(second, [first, second]))
       binding.onResponderMove?.(event(second, [first, second]))
       binding.onResponderMove?.(event(second, [first, second], [first, second]))
       binding.onResponderMove?.(event(touch('1', 43, 34), [first, second]))
@@ -409,6 +427,163 @@ describe('native element interaction', () => {
     act(() => binding.onResponderRelease?.(event(second, [])))
     expect(onMove).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ dx: 8, dy: 9 }))
     expect(onEnd).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ dx: 13, dy: 14 }))
+  })
+
+  it.each(['cancel', 'end'])(
+    'takes over once through %s and rebases in a measured viewport',
+    async (terminal) => {
+      const trace = vi.fn()
+      native.defer = true
+      render(
+        <Svg viewBox="0 0 20 20">
+          <G
+            data-mol-id="transformed-group"
+            transform="translate(40 30)"
+            drag={{
+              onStart: (point) => trace('start', point),
+              onMove: (point) => trace('move', point),
+              onEnd: (point) => trace('end', point),
+              onCancel: terminal === 'cancel' ? (point) => trace('cancel', point) : undefined,
+            }}
+            zoom={{ wheel: 'off', onZoom: (point) => trace('zoom', point) }}
+          />
+        </Svg>,
+      )
+      const binding = host('transformed-group')
+      const first = touch('1', 40, 30)
+      const second = touch('2', 80, 30)
+      const outward = touch('2', 100, 30)
+      const rotatedFirst = touch('1', 60, 10)
+      const rotatedSecond = touch('2', 60, 70)
+      await act(async () => {
+        binding.onResponderGrant?.(event(first))
+        binding.onResponderStart?.(event(first))
+        binding.onResponderStart?.(event(second, [first, second]))
+        expect(binding.onResponderTerminationRequest?.()).toBe(false)
+        Object.assign(native.frame, { pageX: 25, pageY: 14, windowX: 95, windowY: 69 })
+        binding.onResponderMove?.(event(outward, [first, outward]))
+        binding.onResponderMove?.(
+          event(rotatedFirst, [rotatedFirst, rotatedSecond], [rotatedFirst, rotatedSecond]),
+        )
+        binding.onResponderEnd?.(event(rotatedFirst, [rotatedSecond]))
+        binding.onResponderMove?.(event(touch('2', 65, 80)))
+        binding.onResponderRelease?.(event(touch('2', 70, 85), []))
+      })
+      expect(trace).not.toHaveBeenCalled()
+      act(() =>
+        native.pending
+          .splice(0)
+          .reverse()
+          .forEach((measure) => measure()),
+      )
+      expect(trace.mock.calls).toEqual([
+        ['start', expect.objectContaining({ x: 10, y: 10, dx: 0, dy: 0 })],
+        [terminal, expect.objectContaining({ x: 10, y: 10, dx: 0, dy: 0 })],
+        ['zoom', { kind: 'pinch', from: { x: 30, y: 10 }, at: { x: 45, y: 16 }, factor: 1.5 }],
+        ['zoom', { kind: 'pinch', from: { x: 45, y: 16 }, at: { x: 35, y: 26 }, factor: 1 }],
+        ['start', expect.objectContaining({ x: 35, y: 56, dx: 0, dy: 0 })],
+        ['move', expect.objectContaining({ x: 40, y: 66, dx: 5, dy: 10 })],
+        ['end', expect.objectContaining({ x: 45, y: 71, dx: 10, dy: 15 })],
+      ])
+    },
+  )
+
+  it('does not restart an acquired drag after the native responder cancels a pinch', async () => {
+    const trace = vi.fn()
+    render(
+      <Box
+        as="div"
+        data-mol-id="pinch-cancel"
+        drag={{
+          onStart: () => trace('start'),
+          onCancel: () => trace('cancel'),
+          onEnd: () => trace('end'),
+        }}
+        zoom={{ wheel: 'all', onZoom: () => trace('pinch') }}
+        onClick={() => trace('tap')}
+      />,
+    )
+    const binding = host('pinch-cancel')
+    const first = touch('1', 40, 30)
+    const second = touch('2', 60, 40)
+    await act(async () => {
+      binding.onResponderGrant?.(event(first))
+      binding.onResponderStart?.(event(second, [first, second]))
+      binding.onResponderEnd?.(event(first, [second]))
+      binding.onResponderTerminate?.()
+      binding.onResponderRelease?.(event(second, []))
+    })
+    expect(trace.mock.calls).toEqual([['start'], ['cancel']])
+  })
+
+  it('scales translated child content from the top-left without transforming the outer frame', () => {
+    render(
+      <Box as="div" data-mol-id="untransformed-frame">
+        <Box
+          as="div"
+          data-mol-id="zoom-content"
+          style={{ contentTransform: { translateX: -12, translateY: 20, scale: 2 } }}
+        />
+      </Box>,
+    )
+    expect(host('zoom-content').style).toContainEqual({
+      transform: [{ translateX: -12 }, { translateY: 20 }, { scale: 2 }],
+      transformOrigin: [0, 0, 0],
+    })
+    expect(host('untransformed-frame').style).not.toContainEqual(
+      expect.objectContaining({ transform: expect.anything() }),
+    )
+  })
+
+  it('uses modifiers from the corresponding W3C pointer packets without a sticky key', async () => {
+    const trace = vi.fn()
+    render(
+      <Box
+        as="div"
+        data-mol-id="modifiers"
+        drag={{
+          onStart: (point) => trace(point),
+          onMove: (point) => trace(point),
+          onEnd: (point) => trace(point),
+        }}
+      />,
+    )
+    const binding = host('modifiers')
+    await act(async () => {
+      binding.onResponderGrant?.(event({ ...touch('7', 40, 30), timestamp: 123 }))
+      binding.onPointerDownCapture?.({
+        nativeEvent: {
+          pointerId: 7,
+          pageX: 40,
+          pageY: 30,
+          timestamp: 123,
+          altKey: true,
+          ctrlKey: true,
+          shiftKey: false,
+          metaKey: false,
+        },
+      })
+    })
+    await act(async () => {
+      binding.onPointerMoveCapture?.({
+        nativeEvent: {
+          pointerId: 1234,
+          pageX: 45,
+          pageY: 35,
+          altKey: false,
+          ctrlKey: false,
+          shiftKey: true,
+          metaKey: true,
+        },
+      })
+      binding.onResponderMove?.(event({ ...touch('7', 45, 35), timestamp: 124 }))
+      binding.onResponderRelease?.(event({ ...touch('7', 50, 40), timestamp: 125 }, []))
+    })
+    expect(trace.mock.calls).toEqual([
+      [expect.objectContaining({ altKey: true, ctrlKey: true, shiftKey: false, metaKey: false })],
+      [expect.objectContaining({ altKey: false, ctrlKey: false, shiftKey: true, metaKey: true })],
+      [expect.objectContaining({ altKey: false, ctrlKey: false, shiftKey: false, metaKey: false })],
+    ])
   })
 
   it('cancels with the last position if the responder terminates after responder-end', async () => {

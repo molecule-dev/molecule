@@ -105,6 +105,7 @@ export function Pressable(props: PressableProps<ElementNode> & ElementRefProps):
   const secondary = disabled ? undefined : props.secondaryAction
   const responder = useNativeDrag(frame, {
     drag: disabled ? undefined : props.drag,
+    zoom: disabled ? undefined : props.zoom,
     secondary,
     press,
   })
