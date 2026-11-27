@@ -403,11 +403,14 @@ export function findOptionalPeersLoaded(
       .map(([name]) => name),
   )
   const graph = localLoads(imports)
+  const sourceFiles = new Set(imports.map(({ file }) => file))
   const covered = new Map(
-    Object.entries(entryFiles).map(([name, { files, condition }]) => [
-      name,
-      entryClosure(files ?? rendererEntryFiles(pkg, condition), graph),
-    ]),
+    Object.entries(entryFiles).map(([name, { files, condition }]) => {
+      const scope = files
+        ? { device: files, shared: [] }
+        : rendererEntryScope(pkg, condition, sourceFiles)
+      return [name, entryClosure(scope.device, graph, scope.shared)]
+    }),
   )
   const found = new Map()
   for (const imp of imports) {
@@ -440,15 +443,29 @@ function sourceFileCandidates(path) {
  *
  * @param pkg - The parsed package manifest.
  * @param renderer - The package's device condition.
- * @returns The candidate source paths reached exclusively by that condition.
+ * @param sourceFiles - Source paths that load a module.
+ * @returns Candidate device and shared source entry paths.
  */
-function rendererEntryFiles(pkg, renderer) {
+function rendererEntryScope(pkg, renderer, sourceFiles) {
   const scoped = new Set()
   const shared = new Set()
+  const runtimeTarget = (target) => typeof target === 'string' && /\.[cm]?jsx?$/.test(target)
   const collect = (target, set) => {
+    if (!runtimeTarget(target)) return
     const path = target.replace(/^\.\//, '')
-    if (!path.startsWith('dist/') || path.includes('*') || !/\.[cm]?jsx?$/.test(path)) return
-    for (const file of sourceFileCandidates('src/' + path.slice('dist/'.length))) set.add(file)
+    if (!path.startsWith('dist/')) return
+    for (const file of sourceFileCandidates('src/' + path.slice('dist/'.length))) {
+      if (!file.includes('*')) {
+        set.add(file)
+        continue
+      }
+      const pattern = file
+        .split('*')
+        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('.*')
+      const matches = new RegExp('^' + pattern + '$')
+      for (const source of sourceFiles) if (matches.test(source)) set.add(source)
+    }
   }
   const visit = (target, device = false) => {
     if (typeof target === 'string') {
@@ -460,14 +477,14 @@ function rendererEntryFiles(pkg, renderer) {
       for (const [condition, candidate] of Object.entries(target)) {
         visit(candidate, device || (condition === renderer && browserFirst))
         if (condition === 'browser')
-          browserFirst = typeof candidate === 'string' || typeof candidate?.default === 'string'
+          browserFirst = runtimeTarget(candidate) || runtimeTarget(candidate?.default)
       }
     }
   }
   visit(pkg.exports)
   for (const fallback of [pkg.main, pkg.module])
     if (typeof fallback === 'string') collect(fallback, shared)
-  return [...scoped].filter((file) => !shared.has(file))
+  return { device: [...scoped], shared: [...shared] }
 }
 
 /**
@@ -510,11 +527,12 @@ function reachable(start, graph) {
  *
  * @param entries - The entry files listed for the peer.
  * @param graph - The files each file loads ({@link localLoads}).
+ * @param sharedEntries - Entry points a consumer outside the renderer can import.
  * @returns The covered files.
  */
-function entryClosure(entries, graph) {
+function entryClosure(entries, graph, sharedEntries) {
   const inside = reachable(entries, graph)
-  const outside = [...graph.keys()].filter((file) => !inside.has(file))
+  const outside = [...sharedEntries, ...[...graph.keys()].filter((file) => !inside.has(file))]
   const shared = reachable(outside, graph)
   return new Set([...inside].filter((file) => !shared.has(file)))
 }

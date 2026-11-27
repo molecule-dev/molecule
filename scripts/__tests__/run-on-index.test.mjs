@@ -261,6 +261,12 @@ describe('run-on-index', () => {
       { case: 'a device-only root', browser: './dist/index.js', webImport: '', status: 0 },
       { case: 'a missing browser condition', browser: undefined, webImport: '', status: 1 },
       {
+        case: 'a browser declaration without runtime code',
+        browser: './dist/index.d.ts',
+        webImport: '',
+        status: 1,
+      },
+      {
         case: 'an eager browser import',
         browser: './dist/index.js',
         webImport: "export * from './elements/native.js'",
@@ -272,39 +278,64 @@ describe('run-on-index', () => {
         webImport: '',
         status: 1,
       },
-    ])('checks optional peer reachability for $case', ({ browser, webImport, status }) => {
-      const root = importFixture()
-      const peer = '@molecule/app-ui-react-native'
-      write(root, 'packages/b/package.json', {
-        name: '@molecule/app-ui-react',
-        version: '1.0.0',
-        main: 'dist/index.js',
-        exports: {
-          '.': { browser, 'react-native': './dist/index.native.js', import: './dist/index.js' },
-          './elements': {
-            browser: './dist/elements/index.js',
-            'react-native': './dist/elements/native.js',
-            import: './dist/elements/index.js',
+      {
+        case: 'a native helper also exported as an ordinary subpath',
+        browser: './dist/index.js',
+        webImport: '',
+        extraExports: { './legacy-elements': './dist/elements/native.js' },
+        status: 1,
+      },
+      {
+        case: 'a native helper also exported through a wildcard',
+        browser: './dist/index.js',
+        webImport: '',
+        extraExports: { './legacy/*': './dist/*.js' },
+        status: 1,
+      },
+      {
+        case: 'a native helper also advertised as main',
+        browser: './dist/index.js',
+        webImport: '',
+        main: 'dist/elements/native.js',
+        status: 1,
+      },
+    ])(
+      'checks optional peer reachability for $case',
+      ({ browser, webImport, status, extraExports, main = 'dist/index.js' }) => {
+        const root = importFixture()
+        const peer = '@molecule/app-ui-react-native'
+        write(root, 'packages/b/package.json', {
+          name: '@molecule/app-ui-react',
+          version: '1.0.0',
+          main,
+          exports: {
+            '.': { browser, 'react-native': './dist/index.native.js', import: './dist/index.js' },
+            './elements': {
+              browser: './dist/elements/index.js',
+              'react-native': './dist/elements/native.js',
+              import: './dist/elements/index.js',
+            },
+            ...extraExports,
           },
-        },
-        peerDependencies: { [peer]: '^2.1.0' },
-        peerDependenciesMeta: { [peer]: { optional: true } },
-      })
-      write(root, 'packages/b/src/index.ts', webImport || 'export const web = true')
-      write(root, 'packages/b/src/index.native.ts', "export * from './elements/native.js'")
-      write(root, 'packages/b/src/elements/index.ts', 'export const web = true')
-      write(
-        root,
-        'packages/b/src/elements/native.ts',
-        `export { FileField } from '${peer}/elements'`,
-      )
-      git(root, ['add', 'packages/b'])
+          peerDependencies: { [peer]: '^2.1.0' },
+          peerDependenciesMeta: { [peer]: { optional: true } },
+        })
+        write(root, 'packages/b/src/index.ts', webImport || 'export const web = true')
+        write(root, 'packages/b/src/index.native.ts', "export * from './elements/native.js'")
+        write(root, 'packages/b/src/elements/index.ts', 'export const web = true')
+        write(
+          root,
+          'packages/b/src/elements/native.ts',
+          `export { FileField } from '${peer}/elements'`,
+        )
+        git(root, ['add', 'packages/b'])
 
-      const result = run(root, ['scripts/check-undeclared-imports.mjs'])
-      expect(result.status).toBe(status)
-      if (status)
-        expect(result.stderr).toContain(`marks peer ${peer} optional but loads it on start-up`)
-    })
+        const result = run(root, ['scripts/check-undeclared-imports.mjs'])
+        expect(result.status).toBe(status)
+        if (status)
+          expect(result.stderr).toContain(`marks peer ${peer} optional but loads it on start-up`)
+      },
+    )
   })
 
   it('tells each command the repository the export came from', () => {

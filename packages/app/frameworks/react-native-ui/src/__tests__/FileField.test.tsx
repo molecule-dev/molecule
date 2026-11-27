@@ -9,6 +9,7 @@ import type { PickedFile } from '@molecule/app-filesystem'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { type FileFieldHandle, setClassMap } from '@molecule/app-ui'
+import { FileField as RootFileField } from '@molecule/app-ui-react'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { FileField, isRegistered } from '../elements/index.js'
@@ -27,6 +28,7 @@ interface HostProps {
 
 vi.mock('react-native', () => ({
   Platform: { OS: 'android', select: ({ default: value }: { default: unknown }) => value },
+  StyleSheet: { create: (styles: object) => styles },
   Pressable: (props: HostProps) =>
     createElement(
       'button',
@@ -49,6 +51,10 @@ vi.mock('react-native', () => ({
 vi.mock('react-native-svg', () => ({ Svg: () => null }))
 vi.mock('react-native-url-polyfill', () => ({ URL }))
 vi.mock('@react-native-community/slider', () => ({ default: () => null }))
+vi.mock('react-native-safe-area-context', async () => {
+  const { createContext } = await import('react')
+  return { SafeAreaInsetsContext: createContext(null) }
+})
 
 function file(name: string, type: string, size: number): PickedFile {
   return {
@@ -89,13 +95,20 @@ async function press(target = screen.getByTestId('file-field')): Promise<void> {
 }
 
 it('opens the bonded picker from an external button and ignores the handle while disabled', async () => {
+  expect(RootFileField).toBe(FileField)
   const picker = createRef<FileFieldHandle>()
   const view = (disabled: boolean): ReactNode => (
     <>
       <button type="button" onClick={() => picker.current?.pick()}>
         Choose attachments
       </button>
-      <FileField ref={picker} externalTrigger disabled={disabled} accept=".pdf" {...callbacks} />
+      <RootFileField
+        ref={picker}
+        externalTrigger
+        disabled={disabled}
+        accept=".pdf"
+        {...callbacks}
+      />
     </>
   )
   pickFiles.mockResolvedValue([png, pdf])
