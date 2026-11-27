@@ -588,6 +588,7 @@
   "@molecule/app-announcement-bar-svelte",
   "@molecule/app-announcement-bar-vue",
   "@molecule/app-audio",
+  "@molecule/app-audio-expo",
   "@molecule/app-audio-howler",
   "@molecule/app-audio-player-angular",
   "@molecule/app-audio-player-react",
