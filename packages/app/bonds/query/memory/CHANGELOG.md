@@ -1,5 +1,11 @@
 # @molecule/app-query-memory
 
+## 1.2.0
+
+### Minor Changes
+
+- Read `staleTime` and `gcTime`, and report a rejection that is not an `Error` as an `Error` whose `cause` is the rejected value.
+
 ## 1.1.1
 
 ### Patch Changes

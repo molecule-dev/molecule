@@ -1,5 +1,18 @@
 # @molecule/app-ui-vue
 
+## 1.11.0
+
+### Minor Changes
+
+- Support focal wheel zoom and two-finger pinch through the drag binding.
+- Support `lang` on Vue labels and card descriptions.
+
+### Patch Changes
+
+- Show a refused request's server message under a `Form`, not the HTTP client's status line.
+- Updated dependencies
+  - @molecule/app-pointer-events-dom@1.2.0
+
 ## 1.10.0
 
 ### Minor Changes

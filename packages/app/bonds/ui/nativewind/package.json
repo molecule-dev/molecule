@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@molecule/app-styling": "1.0.7",
-    "@molecule/app-ui": "1.15.0",
+    "@molecule/app-ui": "1.16.0",
     "@molecule/app-ui-tailwind": "1.5.1",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

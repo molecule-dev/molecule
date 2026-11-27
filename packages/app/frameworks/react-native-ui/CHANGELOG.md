@@ -1,5 +1,20 @@
 # @molecule/app-ui-react-native
 
+## 2.2.0
+
+### Minor Changes
+
+- Support two-finger pinch and rebased drags on zoom surfaces, and carry hardware modifiers when React Native supplies pointer events.
+- Pass element language to React Native accessibility and React Native Web.
+
+### Patch Changes
+
+- Restore default alert colors and use CSS skeleton animations on React Native Web.
+- Fix focus and focus restoration in overlays and select fields on React Native Web.
+- Import `FormArea` and `TextField` from the kit and submit with `Button type="submit"`, including in HTML forms on React Native Web.
+- Fix RangeField imports when Vite loads the slider's CommonJS exports.
+- Render a single spinner ring on React Native Web using ClassMap styles.
+
 ## 2.1.0
 
 ### Minor Changes

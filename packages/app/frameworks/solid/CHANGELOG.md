@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.18.0
+
+### Minor Changes
+
+- Adds dedicated imports for chat, AI models and push, with deprecated root aliases.
+
 ## 3.17.0
 
 ### Minor Changes

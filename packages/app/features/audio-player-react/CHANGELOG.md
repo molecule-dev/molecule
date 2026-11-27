@@ -1,5 +1,15 @@
 # @molecule/app-audio-player-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Add React Native playback to AudioPlayer through the audio provider bond.
+
+### Patch Changes
+
+- Set the visible caption's language on the shared React player live region.
+
 ## 4.1.1
 
 ### Patch Changes

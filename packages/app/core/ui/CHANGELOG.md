@@ -1,5 +1,12 @@
 # @molecule/app-ui
 
+## 1.16.0
+
+### Minor Changes
+
+- Add portable focal wheel and two-finger pinch samples and a top-left content transform for gesture surfaces.
+- Add an optional BCP 47 language tag to shared element props.
+
 ## 1.15.0
 
 ### Minor Changes

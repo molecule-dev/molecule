@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.8.2
+
+### Patch Changes
+
+- Pass `QueryContent`'s error renderer an `Error`, and type `useQuery`'s `error` as one.
+
 ## 1.8.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-locales-audio-player
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the message shown when no audio provider is bonded.
+
 ## 1.0.5
 
 ### Patch Changes

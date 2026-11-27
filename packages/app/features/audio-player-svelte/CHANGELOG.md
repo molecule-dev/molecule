@@ -1,5 +1,11 @@
 # @molecule/app-audio-player-svelte
 
+## 1.1.3
+
+### Patch Changes
+
+- Set the language of visible audio captions from `captionsLang`.
+
 ## 1.1.2
 
 ### Patch Changes

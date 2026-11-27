@@ -1,5 +1,11 @@
 # @molecule/api-resource-device
 
+## 1.2.2
+
+### Patch Changes
+
+- Mount device-management routes in new scaffolds that select device management, settings, or push.
+
 ## 1.2.1
 
 ### Patch Changes

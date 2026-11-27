@@ -1,5 +1,11 @@
 # @molecule/app-query-angular
 
+## 1.4.2
+
+### Patch Changes
+
+- Pass `QueryContent`'s error renderer an `Error`, and type `useQuery`'s `error` as one.
+
 ## 1.4.1
 
 ### Patch Changes

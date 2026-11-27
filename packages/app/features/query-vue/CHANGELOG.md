@@ -1,5 +1,11 @@
 # @molecule/app-query-vue
 
+## 1.4.1
+
+### Patch Changes
+
+- Pass `QueryContent`'s error renderer an `Error`, and type `useQuery`'s `error` as one.
+
 ## 1.4.0
 
 ### Minor Changes

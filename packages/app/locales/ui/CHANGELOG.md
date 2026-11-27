@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.3.2
+
+### Patch Changes
+
+- Correct the missing file picker message in 14 languages.
+
 ## 1.3.1
 
 ### Patch Changes

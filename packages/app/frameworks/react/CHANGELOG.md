@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.18.0
+
+### Minor Changes
+
+- Adds dedicated imports for chat, AI models and push, with deprecated root aliases.
+
 ## 4.17.0
 
 ### Minor Changes

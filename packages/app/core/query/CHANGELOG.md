@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.4.0
+
+### Minor Changes
+
+- Accept TanStack Query's `staleTime` and `gcTime` option names, and type `QueryState.error` as an `Error`.
+
 ## 1.3.5
 
 ### Patch Changes

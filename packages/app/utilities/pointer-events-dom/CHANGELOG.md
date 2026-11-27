@@ -1,5 +1,11 @@
 # @molecule/app-pointer-events-dom
 
+## 1.2.0
+
+### Minor Changes
+
+- Support focal wheel zoom and two-finger pinch on opt-in drag surfaces.
+
 ## 1.1.0
 
 ### Minor Changes

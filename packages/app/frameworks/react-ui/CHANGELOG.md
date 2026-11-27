@@ -1,5 +1,18 @@
 # @molecule/app-ui-react
 
+## 4.14.0
+
+### Minor Changes
+
+- Support focal wheel zoom, two-finger pinch and portable content transforms on React DOM gesture surfaces.
+- Support the typed `lang` prop on React DOM elements.
+
+### Patch Changes
+
+- Show a refused request's server message under a `Form`, not the HTTP client's status line.
+- Updated dependencies
+  - @molecule/app-pointer-events-dom@1.2.0
+
 ## 4.13.0
 
 ### Minor Changes
