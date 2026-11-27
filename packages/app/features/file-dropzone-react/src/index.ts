@@ -33,9 +33,8 @@
  * Read selected bytes with `arrayBuffer()` or append a file to a multipart
  * body with `file.appendTo(formData, fieldName)`.
  *
- * Pass `children` to replace the default "Drop files here or click to
- * browse" copy; the default copy translates via
- * `@molecule/app-locales-file-dropzone`.
+ * Pass `children` to replace the default instructions. Browsers describe
+ * dropping or browsing. The device entry shows the file picker action.
  *
  * The zone is a keyboard-activatable `role="button"` (`tabIndex={0}`):
  * pressing Enter or Space opens the native file dialog, matching a click.
@@ -43,4 +42,4 @@
  * @module
  */
 
-export * from './FileDropzone.js'
+export { FileDropzone, type FileDropzoneProps } from './FileDropzone.js'

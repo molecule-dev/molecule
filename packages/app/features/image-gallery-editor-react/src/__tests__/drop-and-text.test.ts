@@ -1,3 +1,6 @@
+import { execFileSync } from 'node:child_process'
+import { join } from 'node:path'
+
 import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -45,6 +48,7 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 }))
 
 const { ImageGalleryEditor } = await import('../ImageGalleryEditor.js')
+const { ImageGalleryEditor: DeviceImageGalleryEditor } = await import('../native.js')
 
 let root: Root | null = null
 let host: HTMLElement | null = null
@@ -155,9 +159,29 @@ describe('ImageGalleryEditor drop zone', () => {
 
 describe('ImageGalleryEditor text', () => {
   it('takes the drop-zone heading and hint through i18n by default', async () => {
-    const { container } = await mount({})
+    const webEntry = execFileSync(
+      process.execPath,
+      [
+        '--conditions=react-native',
+        '--conditions=browser',
+        '--input-type=module',
+        '--eval',
+        "console.log(import.meta.resolve('@molecule/app-image-gallery-editor-react'))",
+      ],
+      { cwd: join(import.meta.dirname, '../..'), encoding: 'utf8' },
+    )
+    expect(webEntry.trim()).toMatch(/\/dist\/index\.js$/)
+
+    const { container, onChange } = await mount({})
     expect(zone(container).textContent).toContain('«imageGalleryEditor.dropZone.title»')
     expect(zone(container).textContent).toContain('«imageGalleryEditor.dropZone.hint»')
+
+    await act(async () => {
+      root?.render(createElement(DeviceImageGalleryEditor, { slots: [null], onChange }))
+    })
+    expect(zone(container).textContent).toContain('«ui.fileField.browse»')
+    expect(zone(container).textContent).not.toContain('«imageGalleryEditor.dropZone.title»')
+    expect(zone(container).textContent).not.toContain('«imageGalleryEditor.dropZone.hint»')
   })
 
   it('takes the remove confirmation through i18n by default', async () => {
@@ -172,12 +196,13 @@ describe('ImageGalleryEditor text', () => {
   })
 
   it('keeps the caller’s own heading, hint and message', async () => {
-    const { container } = await mount({
+    const props = {
       slots: ['x'],
       dropZoneTitle: 'Drop photos',
       dropZoneHint: 'or pick some',
       confirmRemoveMessage: 'Delete it?',
-    })
+    }
+    const { container, onChange } = await mount(props)
     expect(zone(container).textContent).toContain('Drop photos')
     expect(zone(container).textContent).toContain('or pick some')
     const slot = target(container, 'image-gallery-editor-slot-0')
@@ -185,5 +210,10 @@ describe('ImageGalleryEditor text', () => {
       slot.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
     expect(container.querySelector('[data-confirm-dialog]')?.textContent).toContain('Delete it?')
+    await act(async () => {
+      root?.render(createElement(DeviceImageGalleryEditor, { ...props, onChange }))
+    })
+    expect(zone(container).textContent).toContain('Drop photos')
+    expect(zone(container).textContent).toContain('or pick some')
   })
 })

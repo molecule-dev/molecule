@@ -13,6 +13,14 @@
   },
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "react-native": {
+        "types": "./dist/native.d.ts",
+        "default": "./dist/native.js"
+      },
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
@@ -43,7 +51,7 @@
     "@molecule/app-logger": "^1.1.0",
     "@molecule/app-react": "^4.13.0",
     "@molecule/app-ui": "^1.14.0",
-    "@molecule/app-ui-react": "^4.12.0",
+    "@molecule/app-ui-react": "^4.13.0",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {

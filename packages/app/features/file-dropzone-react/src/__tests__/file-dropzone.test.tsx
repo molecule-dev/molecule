@@ -1,3 +1,6 @@
+import { execFileSync } from 'node:child_process'
+import { join } from 'node:path'
+
 import { cleanup, createEvent, fireEvent, render } from '@testing-library/react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -35,24 +38,46 @@ vi.mock('@molecule/app-react', async (importOriginal) => ({
 }))
 
 const { FileDropzone } = await import('../FileDropzone.js')
+const { FileDropzone: DeviceFileDropzone } = await import('../native.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('FileDropzone', () => {
   it('renders the default upload copy', () => {
+    const webEntry = execFileSync(
+      process.execPath,
+      [
+        '--conditions=react-native',
+        '--conditions=browser',
+        '--input-type=module',
+        '--eval',
+        "console.log(import.meta.resolve('@molecule/app-file-dropzone-react'))",
+      ],
+      { cwd: join(import.meta.dirname, '../..'), encoding: 'utf8' },
+    )
+    expect(webEntry.trim()).toMatch(/\/dist\/index\.js$/)
+
     const markup = html(createElement(FileDropzone, { onFiles: () => {} }))
     expect(markup).toContain('Drop files here or click to browse')
+
+    const device = html(createElement(DeviceFileDropzone, { onFiles: () => {}, accept: '.pdf' }))
+    expect(device).toContain('>Browse files<')
+    expect(device).toContain('Accepts:')
+    expect(device).toContain('.pdf')
+    expect(device).not.toContain('Drop files here or click to browse')
   })
 
   it('renders custom children in place of the default copy', () => {
-    const markup = html(
-      createElement(FileDropzone, {
-        onFiles: () => {},
-        children: createElement('span', { 'data-custom': '' }, 'My uploader'),
-      }),
-    )
+    const props = {
+      onFiles: (): void => {},
+      children: createElement('span', { 'data-custom': '' }, 'My uploader'),
+    }
+    const markup = html(createElement(FileDropzone, props))
     expect(markup).toContain('data-custom=""')
     expect(markup).not.toContain('Drop files here')
+    const device = html(createElement(DeviceFileDropzone, props))
+    expect(device).toContain('data-custom=""')
+    expect(device).not.toContain('Browse files')
   })
 
   it('renders the accept hint when an accept filter is given', () => {

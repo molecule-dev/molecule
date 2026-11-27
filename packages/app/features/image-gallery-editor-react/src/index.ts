@@ -52,6 +52,8 @@
  *   `@molecule/app-locales-image-gallery-editor` companion bond (or the host
  *   app's own locale) translates it. `dropZoneTitle`, `dropZoneHint` and
  *   `confirmRemoveMessage` override it per instance.
+ * - The device entry describes selecting a file in the picker. Browsers also
+ *   display drop instructions.
  * - A drop that carries a file other than an image is refused, as the picker
  *   (`accept="image/*"`) would refuse it.
  * - `onPickFiles` receives portable files. Use `file.appendTo(formData, field)`
@@ -61,4 +63,4 @@
  * @module
  */
 
-export * from './ImageGalleryEditor.js'
+export { ImageGalleryEditor, type ImageGalleryEditorProps } from './ImageGalleryEditor.js'

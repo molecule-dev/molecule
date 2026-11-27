@@ -122,7 +122,16 @@ function reportSelectionError(error: unknown): void {
 }
 
 /** Editable image gallery primitive. */
-export function ImageGalleryEditor({
+export function ImageGalleryEditor(props: ImageGalleryEditorProps): JSX.Element {
+  return <ImageGalleryEditorSurface {...props} />
+}
+
+/**
+ * Shared image gallery surface.
+ *
+ * @internal
+ */
+export function ImageGalleryEditorSurface({
   slots,
   onChange,
   onPickFiles,
@@ -134,7 +143,8 @@ export function ImageGalleryEditor({
   confirmRemoveMessage,
   statusMessage: statusMessageProp,
   emptySlotIcon = 'image',
-}: ImageGalleryEditorProps): JSX.Element {
+  devicePicker = false,
+}: ImageGalleryEditorProps & { devicePicker?: boolean }): JSX.Element {
   const header = slot(headerProp)
   const counter = slot(counterProp)
   const statusMessage = slot(statusMessageProp)
@@ -150,10 +160,18 @@ export function ImageGalleryEditor({
   )
   const title =
     dropZoneTitle ??
-    t('imageGalleryEditor.dropZone.title', {}, { defaultValue: 'Drag and drop assets here' })
+    (devicePicker
+      ? t('ui.fileField.browse', {}, { defaultValue: 'Browse files' })
+      : t('imageGalleryEditor.dropZone.title', {}, { defaultValue: 'Drag and drop assets here' }))
   const hint =
     dropZoneHint ??
-    t('imageGalleryEditor.dropZone.hint', {}, { defaultValue: 'or click to browse local files' })
+    (devicePicker
+      ? undefined
+      : t(
+          'imageGalleryEditor.dropZone.hint',
+          {},
+          { defaultValue: 'or click to browse local files' },
+        ))
   const removeMessage =
     confirmRemoveMessage ??
     t('imageGalleryEditor.remove.message', {}, { defaultValue: 'Remove this image?' })
@@ -317,9 +335,11 @@ export function ImageGalleryEditor({
           <Box as="p" className={cm.cn(cm.fontWeight('bold'))}>
             {title}
           </Box>
-          <Box as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>
-            {hint}
-          </Box>
+          {hint !== undefined && (
+            <Box as="p" className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>
+              {hint}
+            </Box>
+          )}
         </Pressable>
         {/* Thumbnail slot grid (spans 4/12). */}
         <Box

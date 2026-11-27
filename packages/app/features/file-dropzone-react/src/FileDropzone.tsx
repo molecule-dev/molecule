@@ -35,7 +35,16 @@ export interface FileDropzoneProps {
  * extension/MIME check) via `onRejected`.
  * @param props - Component props (see {@link FileDropzoneProps}).
  */
-export function FileDropzone({
+export function FileDropzone(props: FileDropzoneProps): JSX.Element {
+  return <FileDropzoneSurface {...props} />
+}
+
+/**
+ * Shared file selection surface.
+ *
+ * @internal
+ */
+export function FileDropzoneSurface({
   onFiles,
   accept,
   multiple = false,
@@ -44,7 +53,8 @@ export function FileDropzone({
   children: childrenProp,
   disabled,
   className,
-}: FileDropzoneProps): JSX.Element {
+  devicePicker = false,
+}: FileDropzoneProps & { devicePicker?: boolean }): JSX.Element {
   const children = slot(childrenProp)
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -89,7 +99,13 @@ export function FileDropzone({
       {children ?? (
         <>
           <Text as="p" className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-            {t('fileDropzone.dropHere', {}, { defaultValue: 'Drop files here or click to browse' })}
+            {devicePicker
+              ? t('ui.fileField.browse', {}, { defaultValue: 'Browse files' })
+              : t(
+                  'fileDropzone.dropHere',
+                  {},
+                  { defaultValue: 'Drop files here or click to browse' },
+                )}
           </Text>
           {accept && (
             <Text as="p" className={cm.cn(cm.textSize('xs'), cm.sp('mt', 1))}>
