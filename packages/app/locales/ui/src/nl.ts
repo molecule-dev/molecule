@@ -62,4 +62,23 @@ export const nl: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Verplaatsing annuleren',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Verplaats naar positie {{position}}',
+  'ui.a11y.columnPosition': 'Kolomnummer {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolommen',
+  'ui.a11y.invalid': 'Ongeldige waarde',
+  'ui.a11y.level': 'Niveau {{level}}',
+  'ui.a11y.readonly': 'Alleen-lezen veld',
+  'ui.a11y.required': 'Verplicht veld',
+  'ui.a11y.rowPosition': 'Rijnummer {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rijen',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Contextmenu',
+  'ui.fileField.browse': 'Blader door bestanden',
+  'ui.fileField.error.missingProvider':
+    'Er is geen bestandsselector gekoppeld. Importeer `provider` uit {{bond}} en roep `setProvider(provider)` aan vanuit {{core}} in `setupProviders()`.',
+  'ui.paste': 'Plakken',
+  'ui.select.expanded': 'Optiesmenu geopend',
+  'ui.select.selectionCount': '{{count}} geselecteerd',
+  'filePicker.error.cachedFileUnavailable':
+    'Het geselecteerde bestand kon niet uit de app-cache worden gelezen.',
+  'filePicker.error.pick': 'Kon geen bestanden selecteren.',
 }

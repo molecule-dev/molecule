@@ -39,7 +39,12 @@ export const FloatingInput = defineComponent({
     defaultValue: [String, Number] as PropType<string | number>,
     id: String,
   },
-  emits: ['change', 'focus', 'blur'],
+  emits: {
+    change: (_event: Event) => true,
+    valueChange: (_value: string) => true,
+    focus: (_event: FocusEvent) => true,
+    blur: (_event: FocusEvent) => true,
+  },
   setup(props, { attrs, emit, expose }) {
     const cm = getClassMap()
     const internalValue = ref(String(props.defaultValue ?? ''))
@@ -49,12 +54,14 @@ export const FloatingInput = defineComponent({
 
     const handleChange = (e: Event): void => {
       emit('change', e)
-      const element = e.target as HTMLInputElement | null
+      const element = e.currentTarget
+      if (!element || !('value' in element) || typeof element.value !== 'string') return
+      emit('valueChange', element.value)
       // A controlled input is restored to the prop right after the change
       // handler runs, exactly like React; an uncontrolled one keeps what the
       // user typed (tracked internally).
-      if (props.value !== undefined && element) element.value = String(props.value)
-      else if (element) internalValue.value = element.value
+      if (props.value !== undefined) element.value = String(props.value)
+      else internalValue.value = element.value
     }
 
     return () => {

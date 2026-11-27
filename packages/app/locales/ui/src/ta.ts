@@ -69,4 +69,23 @@ export const ta: UiTranslations = {
   'ui.dragDrop.cancelMove': 'நகர்த்துவதை ரத்துசெய்',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': '{{position}} ஆம் இடத்திற்கு நகர்த்தவும்',
+  'ui.a11y.columnPosition': 'நெடுவரிசை எண் {{column}}',
+  'ui.a11y.columnTotal': '{{total}} நெடுவரிசைகள்',
+  'ui.a11y.invalid': 'தவறான மதிப்பு',
+  'ui.a11y.level': 'நிலை {{level}}',
+  'ui.a11y.readonly': 'படிக்க மட்டும் அனுமதியுள்ள புலம்',
+  'ui.a11y.required': 'தேவையான புலம்',
+  'ui.a11y.rowPosition': 'வரிசை எண் {{row}}',
+  'ui.a11y.rowTotal': '{{total}} வரிசைகள்',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'சூழல் மெனு',
+  'ui.fileField.browse': 'கோப்புகளை உலாவுக',
+  'ui.fileField.error.missingProvider':
+    'கோப்புத் தேர்வி எதுவும் பிணைக்கப்படவில்லை. `setupProviders()`-இல் {{bond}} இலிருந்து `provider` இறக்குமதி செய்து, {{core}} இலிருந்து `setProvider(provider)` ஐ அழைக்கவும்.',
+  'ui.paste': 'பசை',
+  'ui.select.expanded': 'விருப்பங்கள் மெனு திறக்கப்பட்டது',
+  'ui.select.selectionCount': 'தேர்ந்தெடுக்கப்பட்டவர்களின் {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'தேர்ந்தெடுக்கப்பட்ட கோப்பை செயலியின் நினைவகத்திலிருந்து படிக்க முடியவில்லை.',
+  'filePicker.error.pick': 'கோப்புகளைத் தேர்ந்தெடுக்க முடியவில்லை.',
 }

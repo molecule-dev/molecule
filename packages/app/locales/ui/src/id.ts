@@ -62,4 +62,23 @@ export const id: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Batalkan pemindahan',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Pindahkan ke posisi {{position}}',
+  'ui.a11y.columnPosition': 'Nomor kolom {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolom',
+  'ui.a11y.invalid': 'Nilai tidak valid',
+  'ui.a11y.level': 'Level {{level}}',
+  'ui.a11y.readonly': 'Bidang hanya baca',
+  'ui.a11y.required': 'Kolom wajib diisi',
+  'ui.a11y.rowPosition': 'Nomor baris {{row}}',
+  'ui.a11y.rowTotal': '{{total}} baris',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menu kontekstual',
+  'ui.fileField.browse': 'Telusuri file',
+  'ui.fileField.error.missingProvider':
+    'Tidak ada pemilih file yang terikat. Impor `provider` dari {{bond}} dan panggil `setProvider(provider)` dari {{core}} di `setupProviders()`.',
+  'ui.paste': 'Pasta',
+  'ui.select.expanded': 'Menu opsi terbuka',
+  'ui.select.selectionCount': '{{count}} dipilih',
+  'filePicker.error.cachedFileUnavailable':
+    'Berkas yang dipilih tidak dapat dibaca dari cache aplikasi.',
+  'filePicker.error.pick': 'Tidak dapat memilih file.',
 }

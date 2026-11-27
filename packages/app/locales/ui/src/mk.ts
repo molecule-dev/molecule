@@ -68,4 +68,23 @@ export const mk: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Откажи преместување',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Премести на позиција {{position}}',
+  'ui.a11y.columnPosition': 'Број на колона {{column}}',
+  'ui.a11y.columnTotal': '{{total}} колони',
+  'ui.a11y.invalid': 'Неважечка вредност',
+  'ui.a11y.level': 'Ниво {{level}}',
+  'ui.a11y.readonly': 'Поле само за читање',
+  'ui.a11y.required': 'Задолжително поле',
+  'ui.a11y.rowPosition': 'Број на ред {{row}}',
+  'ui.a11y.rowTotal': '{{total}} редови',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Контекстно мени',
+  'ui.fileField.browse': 'Прелистај датотеки',
+  'ui.fileField.error.missingProvider':
+    'Не е поврзан избирач на датотеки. Увезете го `provider` од {{bond}} и повикајте го `setProvider(provider)` од {{core}} во `setupProviders()`.',
+  'ui.paste': 'Залепи',
+  'ui.select.expanded': 'Менито со опции е отворено',
+  'ui.select.selectionCount': 'Избрано е {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'Избраната датотека не можеше да се прочита од кешот на апликацијата.',
+  'filePicker.error.pick': 'Не можев да одберам датотеки.',
 }

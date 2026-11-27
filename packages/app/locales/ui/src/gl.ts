@@ -62,4 +62,23 @@ export const gl: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Cancelar o movemento',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Mover á posición {{position}}',
+  'ui.a11y.columnPosition': 'Número de columna {{column}}',
+  'ui.a11y.columnTotal': '{{total}} columnas',
+  'ui.a11y.invalid': 'Valor non válido',
+  'ui.a11y.level': 'Nivel {{level}}',
+  'ui.a11y.readonly': 'Campo de só lectura',
+  'ui.a11y.required': 'Campo obrigatorio',
+  'ui.a11y.rowPosition': 'Número de fila {{row}}',
+  'ui.a11y.rowTotal': '{{total}} filas',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menú contextual',
+  'ui.fileField.browse': 'Explorar ficheiros',
+  'ui.fileField.error.missingProvider':
+    'Non hai ningún selector de ficheiros vinculado. Importa `provider` desde {{bond}} e chama `setProvider(provider)` desde {{core}} en `setupProviders()`.',
+  'ui.paste': 'Pegar',
+  'ui.select.expanded': 'Abriuse o menú de opcións',
+  'ui.select.selectionCount': '{{count}} seleccionados',
+  'filePicker.error.cachedFileUnavailable':
+    'Non se puido ler o ficheiro seleccionado da caché da aplicación.',
+  'filePicker.error.pick': 'Non se puideron escoller ficheiros.',
 }

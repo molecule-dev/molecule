@@ -62,4 +62,23 @@ export const cs: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Zrušit přesun',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Přesunout na pozici {{position}}',
+  'ui.a11y.columnPosition': 'Číslo sloupce {{column}}',
+  'ui.a11y.columnTotal': '{{total}} sloupců',
+  'ui.a11y.invalid': 'Neplatná hodnota',
+  'ui.a11y.level': 'Úroveň {{level}}',
+  'ui.a11y.readonly': 'Pole pouze pro čtení',
+  'ui.a11y.required': 'Povinné pole',
+  'ui.a11y.rowPosition': 'Číslo řádku {{row}}',
+  'ui.a11y.rowTotal': '{{total}}',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontextová nabídka',
+  'ui.fileField.browse': 'Procházet soubory',
+  'ui.fileField.error.missingProvider':
+    'Žádný výběr souborů není propojen. Importujte `provider` z {{bond}} a zavolejte `setProvider(provider)` z {{core}} v `setupProviders()`.',
+  'ui.paste': 'Pasta',
+  'ui.select.expanded': 'Otevřena nabídka možností',
+  'ui.select.selectionCount': 'Vybráno {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'Vybraný soubor se nepodařilo načíst z mezipaměti aplikace.',
+  'filePicker.error.pick': 'Nepodařilo se vybrat soubory.',
 }

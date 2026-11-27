@@ -474,7 +474,8 @@ export interface InputProps extends InputElementProps, Pick<TextFieldProps, 'onV
  *
  * Ref element: the native `<input>`.
  */
-export interface FloatingInputProps extends InputElementProps {
+export interface FloatingInputProps
+  extends InputElementProps, Pick<TextFieldProps, 'onValueChange'> {
   /**
    * Input type.
    */

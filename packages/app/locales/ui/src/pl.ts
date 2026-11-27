@@ -62,4 +62,23 @@ export const pl: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Anuluj przenoszenie',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Przenieś na pozycję {{position}}',
+  'ui.a11y.columnPosition': 'Numer kolumny {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolumn',
+  'ui.a11y.invalid': 'Nieprawidłowa wartość',
+  'ui.a11y.level': 'Poziom {{level}}',
+  'ui.a11y.readonly': 'Pole tylko do odczytu',
+  'ui.a11y.required': 'Pole wymagane',
+  'ui.a11y.rowPosition': 'Numer wiersza {{row}}',
+  'ui.a11y.rowTotal': '{{total}} wierszy',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menu kontekstowe',
+  'ui.fileField.browse': 'Przeglądaj pliki',
+  'ui.fileField.error.missingProvider':
+    'Żaden selektor plików nie jest powiązany. Zaimportuj `provider` z {{bond}} i wywołaj `setProvider(provider)` z {{core}} w `setupProviders()`.',
+  'ui.paste': 'Pasta',
+  'ui.select.expanded': 'Otwarto menu opcji',
+  'ui.select.selectionCount': '{{count}} wybrano',
+  'filePicker.error.cachedFileUnavailable':
+    'Nie udało się odczytać wybranego pliku z pamięci podręcznej aplikacji.',
+  'filePicker.error.pick': 'Nie można wybrać plików.',
 }

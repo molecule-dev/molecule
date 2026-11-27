@@ -62,4 +62,23 @@ export const ms: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Batalkan pengalihan',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Alihkan ke kedudukan {{position}}',
+  'ui.a11y.columnPosition': 'Nombor lajur {{column}}',
+  'ui.a11y.columnTotal': '{{total}} lajur',
+  'ui.a11y.invalid': 'Nilai tidak sah',
+  'ui.a11y.level': 'Aras {{level}}',
+  'ui.a11y.readonly': 'Medan baca sahaja',
+  'ui.a11y.required': 'Medan yang diperlukan',
+  'ui.a11y.rowPosition': 'Nombor baris {{row}}',
+  'ui.a11y.rowTotal': 'baris {{total}}',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menu konteks',
+  'ui.fileField.browse': 'Layari fail',
+  'ui.fileField.error.missingProvider':
+    'Tiada pemilih fail terikat. Import `provider` daripada {{bond}} dan panggil `setProvider(provider)` daripada {{core}} dalam `setupProviders()`.',
+  'ui.paste': 'Tampal',
+  'ui.select.expanded': 'Menu pilihan dibuka',
+  'ui.select.selectionCount': '{{count}} dipilih',
+  'filePicker.error.cachedFileUnavailable':
+    'Fail yang dipilih tidak dapat dibaca daripada cache aplikasi.',
+  'filePicker.error.pick': 'Tidak dapat memilih fail.',
 }

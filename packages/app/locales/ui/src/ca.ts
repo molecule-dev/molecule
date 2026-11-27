@@ -62,4 +62,23 @@ export const ca: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Cancel·la el moviment',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Mou a la posició {{position}}',
+  'ui.a11y.columnPosition': 'Número de columna {{column}}',
+  'ui.a11y.columnTotal': '{{total}} columnes',
+  'ui.a11y.invalid': 'Valor no vàlid',
+  'ui.a11y.level': 'Nivell {{level}}',
+  'ui.a11y.readonly': 'Camp de només lectura',
+  'ui.a11y.required': 'Camp obligatori',
+  'ui.a11y.rowPosition': 'Número de fila {{row}}',
+  'ui.a11y.rowTotal': '{{total}} files',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menú contextual',
+  'ui.fileField.browse': 'Navega pels fitxers',
+  'ui.fileField.error.missingProvider':
+    'No hi ha cap selector de fitxers vinculat. Importeu `provider` des de {{bond}} i crideu `setProvider(provider)` des de {{core}} a `setupProviders()`.',
+  'ui.paste': 'Enganxa',
+  'ui.select.expanded': "El menú d'opcions s'ha obert",
+  'ui.select.selectionCount': '{{count}} seleccionats',
+  'filePicker.error.cachedFileUnavailable':
+    "No s'ha pogut llegir el fitxer seleccionat de la memòria cau de l'aplicació.",
+  'filePicker.error.pick': "No s'han pogut seleccionar fitxers.",
 }

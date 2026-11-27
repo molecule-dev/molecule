@@ -6,7 +6,7 @@
 
 import { forwardRef, useId, useState } from 'react'
 
-import type { FloatingInputProps } from '@molecule/app-ui'
+import type { FloatingInputProps, TextFieldProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Box, Text, TextField } from '@molecule/app-ui-react/elements'
 
@@ -30,7 +30,10 @@ import { rootProps } from '../utilities/rootProps.js'
  * `id` falls back to `useId()` when the caller doesn't pass one, mirroring
  * Input/Select/Textarea's id-collision fix.
  */
-export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
+export const FloatingInput = forwardRef<
+  HTMLInputElement,
+  FloatingInputProps & Pick<TextFieldProps, 'onValueChange'>
+>(
   (
     {
       placeholder,
@@ -39,6 +42,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
       testId,
       value: valueProp,
       onChange,
+      onValueChange,
       defaultValue,
       id,
       ...props
@@ -54,6 +58,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
 
     const handleValueChange = (text: string): void => {
       if (!isControlled) setInternalValue(text)
+      onValueChange?.(text)
     }
 
     return (

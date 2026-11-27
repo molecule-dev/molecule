@@ -62,4 +62,23 @@ export const is: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Hætta við færslu',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Færa í {{position}}. sæti',
+  'ui.a11y.columnPosition': 'Dálkanúmer {{column}}',
+  'ui.a11y.columnTotal': '{{total}} dálkar',
+  'ui.a11y.invalid': 'Ógilt gildi',
+  'ui.a11y.level': 'Stig {{level}}',
+  'ui.a11y.readonly': 'Aðeins leshæfur reitur',
+  'ui.a11y.required': 'Skylda reitur',
+  'ui.a11y.rowPosition': 'Röð númer {{row}}',
+  'ui.a11y.rowTotal': '{{total}} raðir',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Samhengisvalmynd',
+  'ui.fileField.browse': 'Skoða skrár',
+  'ui.fileField.error.missingProvider':
+    'Enginn skráarvalari er tengdur. Flyttu inn `provider` frá {{bond}} og kallaðu á `setProvider(provider)` frá {{core}} í `setupProviders()`.',
+  'ui.paste': 'Líma',
+  'ui.select.expanded': 'Valkostavalmynd opnuð',
+  'ui.select.selectionCount': '{{count}} valið',
+  'filePicker.error.cachedFileUnavailable':
+    'Ekki var hægt að lesa valda skrá úr skyndiminni forritsins.',
+  'filePicker.error.pick': 'Gat ekki valið skrár.',
 }

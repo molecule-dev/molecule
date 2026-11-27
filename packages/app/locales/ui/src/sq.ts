@@ -62,4 +62,23 @@ export const sq: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Anulo zhvendosjen',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Zhvendos në pozicionin {{position}}',
+  'ui.a11y.columnPosition': 'Numri i kolonës {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolona',
+  'ui.a11y.invalid': 'Vlerë e pavlefshme',
+  'ui.a11y.level': 'Niveli {{level}}',
+  'ui.a11y.readonly': 'Fushë vetëm për lexim',
+  'ui.a11y.required': 'Fushë e detyrueshme',
+  'ui.a11y.rowPosition': 'Numri i rreshtit {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rreshta',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menuja e kontekstit',
+  'ui.fileField.browse': 'Shfleto skedarët',
+  'ui.fileField.error.missingProvider':
+    'Nuk ka asnjë zgjedhës skedarësh të lidhur. Importo `provider` nga {{bond}} dhe thirr `setProvider(provider)` nga {{core}} në `setupProviders()`.',
+  'ui.paste': 'Ngjit',
+  'ui.select.expanded': 'Menyja e opsioneve u hap',
+  'ui.select.selectionCount': '{{count}} i zgjedhur',
+  'filePicker.error.cachedFileUnavailable':
+    'Skedari i zgjedhur nuk mund të lexohej nga memoria e përkohshme e aplikacionit.',
+  'filePicker.error.pick': 'Nuk mund të zgjidheshin skedarë.',
 }

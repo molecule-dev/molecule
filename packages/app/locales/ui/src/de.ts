@@ -62,4 +62,23 @@ export const de: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Verschieben abbrechen',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'An Position {{position}} verschieben',
+  'ui.a11y.columnPosition': 'Spaltennummer {{column}}',
+  'ui.a11y.columnTotal': '{{total}} Spalten',
+  'ui.a11y.invalid': 'Ungültiger Wert',
+  'ui.a11y.level': 'Stufe {{level}}',
+  'ui.a11y.readonly': 'Schreibgeschütztes Feld',
+  'ui.a11y.required': 'Pflichtfeld',
+  'ui.a11y.rowPosition': 'Zeilennummer {{row}}',
+  'ui.a11y.rowTotal': '{{total}} Zeilen',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontextmenü',
+  'ui.fileField.browse': 'Dateien durchsuchen',
+  'ui.fileField.error.missingProvider':
+    'Es ist kein Dateiauswahldialog gebunden. Importieren Sie `provider` aus {{bond}} und rufen Sie `setProvider(provider)` aus {{core}} in `setupProviders()` auf.',
+  'ui.paste': 'Paste',
+  'ui.select.expanded': 'Optionsmenü geöffnet',
+  'ui.select.selectionCount': '{{count}} ausgewählt',
+  'filePicker.error.cachedFileUnavailable':
+    'Die ausgewählte Datei konnte nicht aus dem App-Cache gelesen werden.',
+  'filePicker.error.pick': 'Dateien konnten nicht ausgewählt werden.',
 }

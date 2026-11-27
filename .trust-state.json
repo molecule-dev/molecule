@@ -963,6 +963,8 @@
   "@molecule/app-file-dropzone-solid",
   "@molecule/app-file-dropzone-svelte",
   "@molecule/app-file-dropzone-vue",
+  "@molecule/app-file-picker",
+  "@molecule/app-file-picker-expo",
   "@molecule/app-file-upload",
   "@molecule/app-file-upload-filepond",
   "@molecule/app-filesystem",

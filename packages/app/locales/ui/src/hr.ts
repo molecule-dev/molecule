@@ -62,4 +62,23 @@ export const hr: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Otkaži premještanje',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Premjesti na poziciju {{position}}',
+  'ui.a11y.columnPosition': 'Broj stupca {{column}}',
+  'ui.a11y.columnTotal': '{{total}} stupaca',
+  'ui.a11y.invalid': 'Nevažeća vrijednost',
+  'ui.a11y.level': 'Razina {{level}}',
+  'ui.a11y.readonly': 'Polje samo za čitanje',
+  'ui.a11y.required': 'Obavezno polje',
+  'ui.a11y.rowPosition': 'Broj retka {{row}}',
+  'ui.a11y.rowTotal': '{{total}} redaka',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontekstni izbornik',
+  'ui.fileField.browse': 'Pregledaj datoteke',
+  'ui.fileField.error.missingProvider':
+    'Nijedan birač datoteka nije povezan. Uvezite `provider` iz {{bond}} i pozovite `setProvider(provider)` iz {{core}} u `setupProviders()`.',
+  'ui.paste': 'Zalijepiti',
+  'ui.select.expanded': 'Izbornik opcija otvoren je',
+  'ui.select.selectionCount': 'Odabrano je {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'Odabrana datoteka nije mogla biti pročitana iz predmemorije aplikacije.',
+  'filePicker.error.pick': 'Nije moguće odabrati datoteke.',
 }

@@ -62,4 +62,23 @@ export const sw: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Ghairi kuhamisha',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Hamisha hadi nafasi ya {{position}}',
+  'ui.a11y.columnPosition': 'Nambari ya safu wima {{column}}',
+  'ui.a11y.columnTotal': 'Safu wima {{total}}',
+  'ui.a11y.invalid': 'Thamani batili',
+  'ui.a11y.level': 'Kiwango {{level}}',
+  'ui.a11y.readonly': 'Sehemu ya kusoma pekee',
+  'ui.a11y.required': 'Sehemu inayohitajika',
+  'ui.a11y.rowPosition': 'Nambari ya safu {{row}}',
+  'ui.a11y.rowTotal': 'Safu {{total}}',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menyu ya muktadha',
+  'ui.fileField.browse': 'Vinjari faili',
+  'ui.fileField.error.missingProvider':
+    'Hakuna kiteuzi cha faili kilichounganishwa. Ingiza `provider` kutoka {{bond}} na upigie simu `setProvider(provider)` kutoka {{core}} katika `setupProviders()`.',
+  'ui.paste': 'Bandika',
+  'ui.select.expanded': 'Menyu ya chaguo imefunguliwa',
+  'ui.select.selectionCount': '{{count}} imechaguliwa',
+  'filePicker.error.cachedFileUnavailable':
+    'Faili iliyochaguliwa haikuweza kusomwa kutoka kwenye akiba ya programu.',
+  'filePicker.error.pick': 'Haikuweza kuchagua faili.',
 }

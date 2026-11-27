@@ -62,4 +62,23 @@ export const eu: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Utzi mugimendua bertan behera',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Mugitu {{position}} posiziora',
+  'ui.a11y.columnPosition': 'Zutabe zenbakia {{column}}',
+  'ui.a11y.columnTotal': '{{total}} zutabe',
+  'ui.a11y.invalid': 'Balio baliogabea',
+  'ui.a11y.level': '{{level}} maila',
+  'ui.a11y.readonly': 'Irakurtzeko soilik den eremua',
+  'ui.a11y.required': 'Beharrezko eremua',
+  'ui.a11y.rowPosition': 'Errenkada zenbakia {{row}}',
+  'ui.a11y.rowTotal': '{{total}} errenkada',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Testuinguru-menua',
+  'ui.fileField.browse': 'Arakatu fitxategiak',
+  'ui.fileField.error.missingProvider':
+    'Ez dago fitxategi-hautatzailerik lotuta. Inportatu `provider` {{bond}}-tik eta deitu `setProvider(provider)` {{core}} tik `setupProviders()`-n.',
+  'ui.paste': 'Itsatsi',
+  'ui.select.expanded': 'Aukeren menua ireki da',
+  'ui.select.selectionCount': '{{count}} hautatuta',
+  'filePicker.error.cachedFileUnavailable':
+    'Hautatutako fitxategia ezin izan da aplikazioaren cachetik irakurri.',
+  'filePicker.error.pick': 'Ezin izan dira fitxategiak aukeratu.',
 }

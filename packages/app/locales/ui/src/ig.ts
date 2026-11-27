@@ -62,4 +62,23 @@ export const ig: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Kagbuo mbugharị',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Bugharịa gaa na ọnọdụ {{position}}',
+  'ui.a11y.columnPosition': 'Nọmba kọlụm {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kọlụm',
+  'ui.a11y.invalid': 'Uru na-ezighi ezi',
+  'ui.a11y.level': 'Ọkwa {{level}}',
+  'ui.a11y.readonly': 'Ọgba aghara naanị maka ọgụgụ',
+  'ui.a11y.required': 'Ogige achọrọ',
+  'ui.a11y.rowPosition': 'Nọmba ahịrị {{row}}',
+  'ui.a11y.rowTotal': '{{total}} ahịrị',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': "Ndepụta ihe dị n'ime ya",
+  'ui.fileField.browse': 'Chọgharịa faịlụ',
+  'ui.fileField.error.missingProvider':
+    'Enweghị ihe e ji ahọrọ faịlụ ejikọtara. Bubata `provider` site na {{bond}} wee kpọọ `setProvider(provider)` site na {{core}} na `setupProviders()`.',
+  'ui.paste': 'Paste',
+  'ui.select.expanded': 'Emepere menu nhọrọ',
+  'ui.select.selectionCount': '{{count}} ahọpụtara',
+  'filePicker.error.cachedFileUnavailable':
+    'Enweghị ike ịgụ faịlụ ahọpụtara site na nchekwa ngwa ahụ.',
+  'filePicker.error.pick': 'Enweghị ike ịhọrọ faịlụ.',
 }

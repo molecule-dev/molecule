@@ -62,4 +62,23 @@ export const fa: UiTranslations = {
   'ui.dragDrop.cancelMove': 'لغو جابه‌جایی',
   'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
   'ui.dragDrop.moveToPosition': 'جابه‌جایی به موقعیت {{position}}',
+  'ui.a11y.columnPosition': 'شماره ستون {{column}}',
+  'ui.a11y.columnTotal': '{{total}} ستون‌ها',
+  'ui.a11y.invalid': 'مقدار نامعتبر',
+  'ui.a11y.level': 'سطح {{level}}',
+  'ui.a11y.readonly': 'فیلد فقط خواندنی',
+  'ui.a11y.required': 'فیلد مورد نیاز',
+  'ui.a11y.rowPosition': 'شماره ردیف {{row}}',
+  'ui.a11y.rowTotal': '{{total}} ردیف‌ها',
+  'ui.a11y.withDetails': '{{label}}، {{details}}',
+  'ui.contextMenu': 'منوی زمینه',
+  'ui.fileField.browse': 'مرور فایل‌ها',
+  'ui.fileField.error.missingProvider':
+    'هیچ انتخابگر فایلی پیوند داده نشده است. `provider` از {{bond}} وارد کنید و `setProvider(provider)` را از {{core}} در `setupProviders()` فراخوانی کنید.',
+  'ui.paste': 'چسباندن',
+  'ui.select.expanded': 'منوی گزینه‌ها باز شد',
+  'ui.select.selectionCount': '{{count}} انتخاب شده',
+  'filePicker.error.cachedFileUnavailable':
+    'فایل انتخاب‌شده از حافظه پنهان برنامه قابل خواندن نیست.',
+  'filePicker.error.pick': 'نتونستم فایل‌ها رو انتخاب کنم.',
 }

@@ -62,4 +62,23 @@ export const nb: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Avbryt flytting',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Flytt til posisjon {{position}}',
+  'ui.a11y.columnPosition': 'Kolonnenummer {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolonner',
+  'ui.a11y.invalid': 'Ugyldig verdi',
+  'ui.a11y.level': 'Nivå {{level}}',
+  'ui.a11y.readonly': 'Skrivebeskyttet felt',
+  'ui.a11y.required': 'Obligatorisk felt',
+  'ui.a11y.rowPosition': 'Radnummer {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rader',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontekstmeny',
+  'ui.fileField.browse': 'Bla gjennom filer',
+  'ui.fileField.error.missingProvider':
+    'Ingen filvelger er bundet. Importer `provider` fra {{bond}} og kall `setProvider(provider)` fra {{core}} i `setupProviders()`.',
+  'ui.paste': 'Lim inn',
+  'ui.select.expanded': 'Alternativmenyen er åpnet',
+  'ui.select.selectionCount': '{{count}} valgt',
+  'filePicker.error.cachedFileUnavailable':
+    'Den valgte filen kunne ikke leses fra appens hurtigbuffer.',
+  'filePicker.error.pick': 'Kunne ikke velge filer.',
 }

@@ -62,4 +62,23 @@ export const ro: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Anulează mutarea',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Mută la poziția {{position}}',
+  'ui.a11y.columnPosition': 'Numărul coloanei {{column}}',
+  'ui.a11y.columnTotal': '{{total}} coloane',
+  'ui.a11y.invalid': 'Valoare nevalidă',
+  'ui.a11y.level': 'Nivelul {{level}}',
+  'ui.a11y.readonly': 'Câmp doar pentru citire',
+  'ui.a11y.required': 'Câmp obligatoriu',
+  'ui.a11y.rowPosition': 'Numărul rândului {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rânduri',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Meniu contextual',
+  'ui.fileField.browse': 'Răsfoiți fișierele',
+  'ui.fileField.error.missingProvider':
+    'Niciun selector de fișiere nu este asociat. Importați `provider` din {{bond}} și apelați `setProvider(provider)` din {{core}} în `setupProviders()`.',
+  'ui.paste': 'Pastă',
+  'ui.select.expanded': 'Meniul de opțiuni s-a deschis',
+  'ui.select.selectionCount': '{{count}} selectate',
+  'filePicker.error.cachedFileUnavailable':
+    'Fișierul selectat nu a putut fi citit din memoria cache a aplicației.',
+  'filePicker.error.pick': 'Nu s-au putut selecta fișierele.',
 }

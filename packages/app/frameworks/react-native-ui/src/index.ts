@@ -34,6 +34,8 @@
  * ```
  *
  * @remarks
+ * - Use `@molecule/app-ui-react-native/elements` for renderer-neutral device elements and
+ *   `@molecule/app-ui-react-native/platform` for the device overlay host.
  * - **Styling requires NativeWind, not just setClassMap.** Components apply ClassMap classes via
  *   `className` on React Native primitives — that prop only has an effect when the NativeWind
  *   babel preset + Tailwind config are wired into the app AND `setClassMap(classMap)` from

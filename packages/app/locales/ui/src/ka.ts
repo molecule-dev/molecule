@@ -69,4 +69,23 @@ export const ka: UiTranslations = {
   'ui.dragDrop.cancelMove': 'გადატანის გაუქმება',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'გადატანა {{position}} პოზიციაზე',
+  'ui.a11y.columnPosition': 'სვეტის ნომერი {{column}}',
+  'ui.a11y.columnTotal': '{{total}} სვეტი',
+  'ui.a11y.invalid': 'არასწორი მნიშვნელობა',
+  'ui.a11y.level': 'დონე {{level}}',
+  'ui.a11y.readonly': 'მხოლოდ წასაკითხი ველი',
+  'ui.a11y.required': 'სავალდებულო ველი',
+  'ui.a11y.rowPosition': 'რიგის ნომერი {{row}}',
+  'ui.a11y.rowTotal': '{{total}} რიგი',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'კონტექსტური მენიუ',
+  'ui.fileField.browse': 'ფაილების დათვალიერება',
+  'ui.fileField.error.missingProvider':
+    'ფაილის ამომრჩეველი არ არის დაკავშირებული. იმპორტირებულია `provider` {{bond}}-დან და გამოიძახეთ `setProvider(provider)` {{core}}-დან `setupProviders()` ში.',
+  'ui.paste': 'ჩასმა',
+  'ui.select.expanded': 'პარამეტრების მენიუ გახსნილია',
+  'ui.select.selectionCount': '{{count}} არჩეულია',
+  'filePicker.error.cachedFileUnavailable':
+    'არჩეული ფაილის წაკითხვა აპლიკაციის ქეშიდან ვერ მოხერხდა.',
+  'filePicker.error.pick': 'ფაილების არჩევა ვერ მოხერხდა.',
 }

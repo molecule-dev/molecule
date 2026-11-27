@@ -600,6 +600,8 @@ export interface FloatingInputProps extends WithElementRef<object, HTMLInputElem
   value?: string
   /** Change handler (fires on input events, like React onChange). */
   onChange?: (event: Event) => void
+  /** Receives the typed text on each input event. */
+  onValueChange?: (value: string) => void
   /** Initial value for uncontrolled usage. */
   defaultValue?: string
   /** Explicit id. */

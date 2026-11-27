@@ -4,9 +4,9 @@
  * @module
  */
 
-import { type ComponentProps, type ComponentType, createContext, useContext } from 'react'
+import { type ComponentType, createContext, type ReactNode, type Ref, useContext } from 'react'
 
-import type { Box, ElementNode, ElementRefProps } from '@molecule/app-ui-react/elements'
+import type { ElementDragProps, ElementHandle } from '@molecule/app-ui'
 
 import { webScopedDragDrop } from './scoped-web.js'
 import type { DragDropContextOptions, DragStartEvent } from './types.js'
@@ -16,7 +16,7 @@ export interface DragScopeProps extends Pick<
   DragDropContextOptions,
   'onDragStart' | 'onDragMove' | 'onDragEnd'
 > {
-  children: ElementNode
+  children: ReactNode
 }
 
 /** Localized controls for moving a source directly to a target. */
@@ -37,18 +37,20 @@ export interface DragMoveControls {
 export interface DragSourceProps {
   source: DragStartEvent
   controls?: DragMoveControls
-  children: ElementNode
+  children: ReactNode
 }
 
 /** A drop target in the current scope. */
 export interface DragTargetProps {
   id: string
-  children: ElementNode
+  children: ReactNode
 }
 
 /** Host bindings, including the drag gesture on element kits that expose it. */
-export type ScopedDragHostProps = ElementRefProps &
-  Pick<ComponentProps<typeof Box>, Extract<'drag', keyof ComponentProps<typeof Box>>>
+export interface ScopedDragHostProps extends ElementDragProps {
+  /** Receives the existing web element or native host. */
+  ref?: Ref<ElementHandle>
+}
 
 /** Configuration shared by dedicated handles and targets that also serve as sources. */
 export interface ScopedDragSourceOptions {
@@ -65,7 +67,7 @@ export interface ScopedDragSourceProps extends ScopedDragSourceOptions {
   /** Identity and optional application data of the dragged item. */
   source: DragStartEvent
   /** Renders the existing drag handle with its binding. */
-  children: (host: ScopedDragHostProps) => ElementNode
+  children: (host: ScopedDragHostProps) => ReactNode
 }
 
 /** Registers an authored target, optionally allowing the same host to start a drag. */
@@ -75,7 +77,7 @@ export interface ScopedDragTargetProps {
   /** Enables pickup from the target itself, leaving its embedded controls independent. */
   source?: ScopedDragSourceOptions
   /** Renders the existing target row with its binding. */
-  children: (host: ScopedDragHostProps) => ElementNode
+  children: (host: ScopedDragHostProps) => ReactNode
 }
 
 /** Renderer bindings for an isolated drag scope with authored source and target hosts. */

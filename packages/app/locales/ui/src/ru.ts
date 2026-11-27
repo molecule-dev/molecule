@@ -68,4 +68,23 @@ export const ru: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Отменить перемещение',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Переместить на позицию {{position}}',
+  'ui.a11y.columnPosition': 'Номер столбца {{column}}',
+  'ui.a11y.columnTotal': '{{total}} столбцов',
+  'ui.a11y.invalid': 'Недопустимое значение',
+  'ui.a11y.level': 'Уровень {{level}}',
+  'ui.a11y.readonly': 'Поле только для чтения',
+  'ui.a11y.required': 'Обязательное поле',
+  'ui.a11y.rowPosition': 'Номер строки {{row}}',
+  'ui.a11y.rowTotal': '{{total}} строк',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Контекстное меню',
+  'ui.fileField.browse': 'Просмотреть файлы',
+  'ui.fileField.error.missingProvider':
+    'Средство выбора файлов не привязано. Импортируйте `provider` из {{bond}} и вызовите `setProvider(provider)` из {{core}} в `setupProviders()`.',
+  'ui.paste': 'Вставить',
+  'ui.select.expanded': 'Открылось меню «Параметры».',
+  'ui.select.selectionCount': '{{count}} выбрано',
+  'filePicker.error.cachedFileUnavailable':
+    'Выбранный файл не удалось прочитать из кэша приложения.',
+  'filePicker.error.pick': 'Не удалось выбрать файлы.',
 }

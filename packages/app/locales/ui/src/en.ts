@@ -62,4 +62,23 @@ export const en: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Cancel move',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Move to position {{position}}',
+  'ui.a11y.columnPosition': 'Column number {{column}}',
+  'ui.a11y.columnTotal': '{{total}} columns',
+  'ui.a11y.invalid': 'Invalid value',
+  'ui.a11y.level': 'Level {{level}}',
+  'ui.a11y.readonly': 'Read-only field',
+  'ui.a11y.required': 'Required field',
+  'ui.a11y.rowPosition': 'Row number {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rows',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Context menu',
+  'ui.fileField.browse': 'Browse files',
+  'ui.fileField.error.missingProvider':
+    'No file picker is bonded. Import `provider` from {{bond}} and call `setProvider(provider)` from {{core}} in `setupProviders()`.',
+  'ui.paste': 'Paste',
+  'ui.select.expanded': 'Options menu opened',
+  'ui.select.selectionCount': '{{count}} selected',
+  'filePicker.error.cachedFileUnavailable':
+    'The selected file could not be read from the app cache.',
+  'filePicker.error.pick': 'Could not pick files.',
 }

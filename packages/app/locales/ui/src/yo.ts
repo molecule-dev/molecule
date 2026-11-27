@@ -62,4 +62,23 @@ export const yo: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Fagilé gbígbé',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Gbé lọ sí ipo {{position}}',
+  'ui.a11y.columnPosition': 'Nọ́mbà ọ̀wọ́n {{column}}',
+  'ui.a11y.columnTotal': 'Àwọn ọ̀wọ́n {{total}}',
+  'ui.a11y.invalid': 'Iye ti ko tọ',
+  'ui.a11y.level': 'Ipele {{level}}',
+  'ui.a11y.readonly': 'Pápá kíkà-nìkan',
+  'ui.a11y.required': 'Ààyè tí a nílò',
+  'ui.a11y.rowPosition': 'Nọ́mbà ìlà {{row}}',
+  'ui.a11y.rowTotal': 'Àwọn ìlà {{total}}',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Àkójọ àyíká',
+  'ui.fileField.browse': 'Ṣawari awọn faili',
+  'ui.fileField.error.missingProvider':
+    'Kò sí olùyan fáìlì tí a so mọ́ra. Gbé `provider` wọlé láti {{bond}} kí o sì pe `setProvider(provider)` láti {{core}} nínú `setupProviders()`.',
+  'ui.paste': 'Paste',
+  'ui.select.expanded': 'Àtòjọ àṣàyàn ṣí sílẹ̀',
+  'ui.select.selectionCount': '{{count}} ti a yan',
+  'filePicker.error.cachedFileUnavailable':
+    'A ko le ka faili ti a yan lati inu apo ipamọ ohun elo naa.',
+  'filePicker.error.pick': 'Kò le yan àwọn fáìlì.',
 }

@@ -62,4 +62,23 @@ export const ky: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Жылдырууну жокко чыгаруу',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': '{{position}} позицияга жылдыруу',
+  'ui.a11y.columnPosition': 'Мамычанын номери {{column}}',
+  'ui.a11y.columnTotal': '{{total}} тилке',
+  'ui.a11y.invalid': 'Жараксыз маани',
+  'ui.a11y.level': '{{level}} деңгээли',
+  'ui.a11y.readonly': 'Окуу үчүн гана талаа',
+  'ui.a11y.required': 'Милдеттүү талаа',
+  'ui.a11y.rowPosition': 'Катар номери {{row}}',
+  'ui.a11y.rowTotal': '{{total}} катар',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Контексттик меню',
+  'ui.fileField.browse': 'Файлдарды карап чыгуу',
+  'ui.fileField.error.missingProvider':
+    'Бир дагы файл тандагыч байланыштырылган эмес. {{bond}} дарегинен `provider` функциясын импорттоп, `setupProviders()` ичинде {{core}} дарегинен `setProvider(provider)` функциясын чакырыңыз.',
+  'ui.paste': 'Чаптоо',
+  'ui.select.expanded': 'Параметрлер менюсу ачылды',
+  'ui.select.selectionCount': '{{count}} тандалды',
+  'filePicker.error.cachedFileUnavailable':
+    'Тандалган файлды колдонмо кэшинен окуу мүмкүн болгон жок.',
+  'filePicker.error.pick': 'Файлдарды тандай алган жок.',
 }

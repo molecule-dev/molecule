@@ -25,6 +25,8 @@ export interface FloatingInputProps extends Omit<
    * component calls it itself, so Solid's bound `[handler, data]` form is not accepted.
    */
   onChange?: JSX.ChangeEventHandler<HTMLInputElement, Event>
+  /** Receives the typed text on each input event. */
+  onValueChange?: (value: string) => void
   /** Extra classes appended to the input (React spelling). */
   className?: string
   /** Initial value of the uncontrolled input (React spelling). */
@@ -58,6 +60,7 @@ export const FloatingInput: Component<WithRef<FloatingInputProps, HTMLInputEleme
     'className',
     'value',
     'onChange',
+    'onValueChange',
     'onFocus',
     'onBlur',
     'defaultValue',
@@ -90,6 +93,7 @@ export const FloatingInput: Component<WithRef<FloatingInputProps, HTMLInputEleme
       setInternalValue(event.target.value)
     }
     local.onChange?.(event)
+    local.onValueChange?.(event.currentTarget.value)
     if (isControlled()) event.target.value = String(local.value)
   }
 

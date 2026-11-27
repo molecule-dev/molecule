@@ -62,4 +62,23 @@ export const el: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Ακύρωση μετακίνησης',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Μετακίνηση στη θέση {{position}}',
+  'ui.a11y.columnPosition': 'Αριθμός στήλης {{column}}',
+  'ui.a11y.columnTotal': '{{total}} στήλες',
+  'ui.a11y.invalid': 'Μη έγκυρη τιμή',
+  'ui.a11y.level': 'Επίπεδο {{level}}',
+  'ui.a11y.readonly': 'Πεδίο μόνο για ανάγνωση',
+  'ui.a11y.required': 'Υποχρεωτικό πεδίο',
+  'ui.a11y.rowPosition': 'Αριθμός σειράς {{row}}',
+  'ui.a11y.rowTotal': '{{total}} σειρές',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Μενού περιβάλλοντος',
+  'ui.fileField.browse': 'Αναζήτηση αρχείων',
+  'ui.fileField.error.missingProvider':
+    'Δεν υπάρχει δεσμευμένος επιλογέας αρχείων. Εισαγάγετε `provider` από {{bond}} και καλέστε `setProvider(provider)` από {{core}} στο `setupProviders()`.',
+  'ui.paste': 'Πάστα',
+  'ui.select.expanded': 'Άνοιξε το μενού επιλογών',
+  'ui.select.selectionCount': '{{count}} επιλεγμένα',
+  'filePicker.error.cachedFileUnavailable':
+    'Δεν ήταν δυνατή η ανάγνωση του επιλεγμένου αρχείου από την προσωρινή μνήμη της εφαρμογής.',
+  'filePicker.error.pick': 'Δεν ήταν δυνατή η επιλογή αρχείων.',
 }

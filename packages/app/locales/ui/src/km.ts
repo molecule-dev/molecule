@@ -65,4 +65,23 @@ export const km: UiTranslations = {
   'ui.dragDrop.cancelMove': 'បោះបង់ការផ្លាស់ទី',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'ផ្លាស់ទីទៅ ទីតាំង {{position}}',
+  'ui.a11y.columnPosition': 'លេខជួរឈរ {{column}}',
+  'ui.a11y.columnTotal': 'ជួរឈរ {{total}}',
+  'ui.a11y.invalid': 'តម្លៃមិនត្រឹមត្រូវ',
+  'ui.a11y.level': 'កម្រិត {{level}}',
+  'ui.a11y.readonly': 'វាលអានតែប៉ុណ្ណោះ',
+  'ui.a11y.required': 'វាលដែលតម្រូវឲ្យបំពេញ',
+  'ui.a11y.rowPosition': 'លេខជួរ {{row}}',
+  'ui.a11y.rowTotal': 'ជួរដេក {{total}}',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'ម៉ឺនុយបរិបទ',
+  'ui.fileField.browse': 'រកមើលឯកសារ',
+  'ui.fileField.error.missingProvider':
+    'គ្មាន​កម្មវិធី​ជ្រើសរើស​ឯកសារ​ណាមួយ​ត្រូវ​បាន​ភ្ជាប់​ទេ។ នាំចូល `provider` ពី {{bond}} ហើយ​ហៅ `setProvider(provider)` ពី {{core}} ក្នុង `setupProviders()` ។',
+  'ui.paste': 'បិទភ្ជាប់',
+  'ui.select.expanded': 'ម៉ឺនុយជម្រើសបានបើក',
+  'ui.select.selectionCount': 'បានជ្រើសរើស {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'ឯកសារដែលបានជ្រើសរើសមិនអាចអានពីឃ្លាំងសម្ងាត់កម្មវិធីបានទេ។',
+  'filePicker.error.pick': 'មិនអាចជ្រើសរើសឯកសារបានទេ។',
 }

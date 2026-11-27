@@ -62,4 +62,23 @@ export const ha: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Soke matsarwa',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Matsar zuwa matsayi {{position}}',
+  'ui.a11y.columnPosition': 'Lambar ginshiƙi {{column}}',
+  'ui.a11y.columnTotal': '{{total}} ginshiƙai',
+  'ui.a11y.invalid': 'Ƙimar da ba ta aiki ba',
+  'ui.a11y.level': 'Mataki {{level}}',
+  'ui.a11y.readonly': 'Filin karatu kawai',
+  'ui.a11y.required': 'Filin da ake buƙata',
+  'ui.a11y.rowPosition': 'Lambar layi {{row}}',
+  'ui.a11y.rowTotal': '{{total}} layuka',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menu na mahallin',
+  'ui.fileField.browse': 'Duba fayiloli',
+  'ui.fileField.error.missingProvider':
+    'Babu mai zaɓar fayil da aka haɗa. Shigo da `provider` daga {{bond}} kuma kira `setProvider(provider)` daga {{core}} a cikin `setupProviders()`.',
+  'ui.paste': 'Paste',
+  'ui.select.expanded': 'An buɗe menu na zaɓuɓɓuka',
+  'ui.select.selectionCount': 'An zaɓi {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    "Fayil ɗin da aka zaɓa ba za a iya karantawa daga ma'ajiyar manhajar ba.",
+  'filePicker.error.pick': 'An kasa ɗaukar fayiloli.',
 }

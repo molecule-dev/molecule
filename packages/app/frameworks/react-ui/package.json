@@ -24,10 +24,18 @@
       "import": "./dist/components/Tooltip.web.js"
     },
     "./elements": {
+      "react-native": {
+        "types": "./dist/elements/native.d.ts",
+        "default": "./dist/elements/native.js"
+      },
       "types": "./dist/elements/index.d.ts",
       "import": "./dist/elements/index.js"
     },
     "./platform": {
+      "react-native": {
+        "types": "./dist/platform/native.d.ts",
+        "default": "./dist/platform/native.js"
+      },
       "types": "./dist/platform/index.d.ts",
       "import": "./dist/platform/index.js"
     },
@@ -61,6 +69,7 @@
     "@molecule/app-icons": "^1.0.1",
     "@molecule/app-react": "^4.15.0",
     "@molecule/app-ui": "^1.14.0",
+    "@molecule/app-ui-react-native": "^2.1.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
@@ -70,6 +79,7 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-react": "4.17.0",
     "@molecule/app-routing": "1.5.3",
+    "@molecule/app-ui-react-native": "2.0.1",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
@@ -89,5 +99,10 @@
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-ui-react-native": {
+      "optional": true
+    }
   }
 }

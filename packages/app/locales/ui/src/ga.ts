@@ -62,4 +62,23 @@ export const ga: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Cealaigh an t-aistriú',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Bog go suíomh {{position}}',
+  'ui.a11y.columnPosition': 'Uimhir an cholúin {{column}}',
+  'ui.a11y.columnTotal': '{{total}} colún',
+  'ui.a11y.invalid': 'Luach neamhbhailí',
+  'ui.a11y.level': 'Leibhéal {{level}}',
+  'ui.a11y.readonly': 'Réimse inléite amháin',
+  'ui.a11y.required': 'Réimse riachtanach',
+  'ui.a11y.rowPosition': 'Uimhir na sraithe {{row}}',
+  'ui.a11y.rowTotal': '{{total}} sraitheanna',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Roghchlár comhthéacs',
+  'ui.fileField.browse': 'Brabhsáil comhaid',
+  'ui.fileField.error.missingProvider':
+    'Níl aon roghnóir comhad nasctha. Iompórtáil `provider` ó {{bond}} agus glaoigh ar `setProvider(provider)` ó {{core}} i `setupProviders()`.',
+  'ui.paste': 'Greamaigh',
+  'ui.select.expanded': 'Osclaíodh an roghchlár roghanna',
+  'ui.select.selectionCount': '{{count}} roghnaithe',
+  'filePicker.error.cachedFileUnavailable':
+    'Níorbh fhéidir an comhad roghnaithe a léamh ón taisce aip.',
+  'filePicker.error.pick': 'Níorbh fhéidir comhaid a roghnú.',
 }

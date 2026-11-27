@@ -95,6 +95,9 @@ export class FloatingInput
   /** Fires the raw `input` event (React's text-input onChange). */
   @Output() readonly change = new EventEmitter<Event>()
 
+  /** Emits the typed text on each input event. */
+  @Output() readonly valueChange = new EventEmitter<string>()
+
   /** The native input (React's `...rest` spread target). */
   private inputEl?: ElementRef<HTMLInputElement>
   /** The native input view query; also feeds the caller's ref element. */
@@ -167,9 +170,11 @@ export class FloatingInput
    */
   handleInput(event: Event): void {
     event.stopPropagation()
-    const input = event.target as HTMLInputElement
+    const input = event.currentTarget
+    if (!(input instanceof HTMLInputElement)) return
     if (this.value === undefined) this.internalValue = input.value
     this.change.emit(event)
+    this.valueChange.emit(input.value)
     if (this.value !== undefined && input.value !== String(this.value))
       input.value = String(this.value)
   }

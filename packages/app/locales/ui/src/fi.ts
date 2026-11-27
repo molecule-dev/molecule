@@ -62,4 +62,23 @@ export const fi: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Peru siirto',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Siirrä paikkaan {{position}}',
+  'ui.a11y.columnPosition': 'Sarakkeen numero {{column}}',
+  'ui.a11y.columnTotal': '{{total}} saraketta',
+  'ui.a11y.invalid': 'Virheellinen arvo',
+  'ui.a11y.level': 'Taso {{level}}',
+  'ui.a11y.readonly': 'Vain luku -kenttä',
+  'ui.a11y.required': 'Pakollinen kenttä',
+  'ui.a11y.rowPosition': 'Rivin numero {{row}}',
+  'ui.a11y.rowTotal': '{{total}} riviä',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontekstivalikko',
+  'ui.fileField.browse': 'Selaa tiedostoja',
+  'ui.fileField.error.missingProvider':
+    'Tiedostonvalitsinta ei ole sidottu. Tuo `provider` kohdasta {{bond}} ja kutsu `setProvider(provider)` kohdasta {{core}} kohdassa `setupProviders()`.',
+  'ui.paste': 'Liitä',
+  'ui.select.expanded': 'Asetukset-valikko avattu',
+  'ui.select.selectionCount': '{{count}} valittu',
+  'filePicker.error.cachedFileUnavailable':
+    'Valittua tiedostoa ei voitu lukea sovelluksen välimuistista.',
+  'filePicker.error.pick': 'Tiedostojen valitseminen epäonnistui.',
 }

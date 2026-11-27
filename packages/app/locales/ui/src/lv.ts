@@ -62,4 +62,23 @@ export const lv: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Atcelt pārvietošanu',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Pārvietot uz {{position}}. pozīciju',
+  'ui.a11y.columnPosition': 'Kolonnas numurs {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolonnas',
+  'ui.a11y.invalid': 'Nederīga vērtība',
+  'ui.a11y.level': 'Līmenis {{level}}',
+  'ui.a11y.readonly': 'Tikai lasāms lauks',
+  'ui.a11y.required': 'Obligāti aizpildāms lauks',
+  'ui.a11y.rowPosition': 'Rindas numurs {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rindas',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Konteksta izvēlne',
+  'ui.fileField.browse': 'Pārlūkot failus',
+  'ui.fileField.error.missingProvider':
+    'Nav piesaistīts neviens failu atlasītājs. Importējiet `provider` no {{bond}} un izsauciet `setProvider(provider)` no {{core}} `setupProviders()`.',
+  'ui.paste': 'Ielīmēt',
+  'ui.select.expanded': 'Opciju izvēlne atvērta',
+  'ui.select.selectionCount': 'Atlasīts {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'Atlasīto failu nevarēja nolasīt no lietotnes kešatmiņas.',
+  'filePicker.error.pick': 'Nevarēja izvēlēties failus.',
 }

@@ -59,6 +59,23 @@ export type UiTranslationKey =
   | 'ui.dragDrop.cancelMove'
   | 'ui.dragDrop.moveAtPosition'
   | 'ui.dragDrop.moveToPosition'
+  | 'ui.a11y.columnPosition'
+  | 'ui.a11y.columnTotal'
+  | 'ui.a11y.invalid'
+  | 'ui.a11y.level'
+  | 'ui.a11y.readonly'
+  | 'ui.a11y.required'
+  | 'ui.a11y.rowPosition'
+  | 'ui.a11y.rowTotal'
+  | 'ui.a11y.withDetails'
+  | 'ui.contextMenu'
+  | 'ui.fileField.browse'
+  | 'ui.fileField.error.missingProvider'
+  | 'ui.paste'
+  | 'ui.select.expanded'
+  | 'ui.select.selectionCount'
+  | 'filePicker.error.cachedFileUnavailable'
+  | 'filePicker.error.pick'
 
 /** Translation record mapping ui keys to translated strings. */
 export type UiTranslations = Record<UiTranslationKey, string>

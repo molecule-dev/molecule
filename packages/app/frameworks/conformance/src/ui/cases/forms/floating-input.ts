@@ -36,6 +36,18 @@ export const floatingInputCases: UIComponentCases = {
       callbacks: ['onChange'],
       interactions: [{ type: 'input', selector: 'input', value: 'typed more' }],
     },
+    {
+      name: 'value callback receives typed text before a controlled input is restored',
+      props: { placeholder: 'Email address', value: 'locked@x.io' },
+      callbacks: ['onChange', 'onValueChange'],
+      interactions: [{ type: 'input', selector: 'input', value: 'attempt@x.io' }],
+    },
+    {
+      name: 'value callback can be the only handler on an uncontrolled input',
+      props: { placeholder: 'Email address', defaultValue: 'seed' },
+      callbacks: ['onValueChange'],
+      interactions: [{ type: 'input', selector: 'input', value: 'typed more' }],
+    },
     { name: 'disabled', props: { placeholder: 'Email address', disabled: true } },
     { name: 'type email', props: { placeholder: 'Email address', type: 'email', name: 'email' } },
     {

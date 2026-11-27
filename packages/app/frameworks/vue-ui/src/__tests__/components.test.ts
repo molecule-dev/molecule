@@ -3323,7 +3323,12 @@ describe('FloatingInput component', () => {
     expect(props).toHaveProperty('value')
     expect(props).toHaveProperty('defaultValue')
     expect(props).toHaveProperty('id')
-    expect(FloatingInput.emits).toEqual(['change', 'focus', 'blur'])
+    expect(Object.keys(FloatingInput.emits ?? {})).toEqual([
+      'change',
+      'valueChange',
+      'focus',
+      'blur',
+    ])
   })
 
   it('should render the wrapper, the input and a floating label for the placeholder', async () => {
@@ -3363,11 +3368,13 @@ describe('FloatingInput component', () => {
     const { renderFn, mockEmit } = await setupFloatingInput({ defaultValue: 'seed' })
     renderFn()
     expect(inputCall()!.props.value).toBe('seed')
-    const event = { target: { value: 'typed more' } }
+    const currentTarget = { value: 'typed more' }
+    const event = { target: currentTarget, currentTarget }
     ;(inputCall()!.props.onInput as (e: unknown) => void)(event)
     renderFn()
     expect(inputCall()!.props.value).toBe('typed more')
-    expect(mockEmit).toHaveBeenCalledWith('change', event)
+    expect(mockEmit).toHaveBeenNthCalledWith(1, 'change', event)
+    expect(mockEmit).toHaveBeenNthCalledWith(2, 'valueChange', 'typed more')
     expect(event.target.value).toBe('typed more')
   })
 
@@ -3375,11 +3382,13 @@ describe('FloatingInput component', () => {
     const { renderFn, mockEmit } = await setupFloatingInput({ value: 'locked@x.io' })
     renderFn()
     expect(inputCall()!.props.value).toBe('locked@x.io')
-    const event = { target: { value: 'attempt@x.io' } }
+    const currentTarget = { value: 'attempt@x.io' }
+    const event = { target: currentTarget, currentTarget }
     ;(inputCall()!.props.onInput as (e: unknown) => void)(event)
     renderFn()
     expect(inputCall()!.props.value).toBe('locked@x.io')
-    expect(mockEmit).toHaveBeenCalledWith('change', event)
+    expect(mockEmit).toHaveBeenNthCalledWith(1, 'change', event)
+    expect(mockEmit).toHaveBeenNthCalledWith(2, 'valueChange', 'attempt@x.io')
     expect(event.target.value).toBe('locked@x.io')
   })
 

@@ -330,6 +330,36 @@ export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
  * other file is still flagged.
  */
 export const OPTIONAL_PEER_ENTRY_FILES = {
+  '@molecule/app-ui-react': {
+    '@molecule/app-ui-react-native': {
+      files: ['src/elements/native.ts', 'src/platform/native.ts'],
+      reason: 'The React Native export condition selects these device entries.',
+    },
+  },
+  '@molecule/app-ui-react-native': {
+    '@react-native-community/slider': {
+      files: ['src/elements/index.ts'],
+      reason: 'The device elements entry renders the slider supplied by the app.',
+    },
+    'react-native-svg': {
+      files: ['src/elements/index.ts'],
+      reason: 'The device elements entry renders SVG with the app’s native SVG package.',
+    },
+    'react-native-safe-area-context': {
+      files: ['src/elements/index.ts', 'src/platform/index.tsx'],
+      reason: 'The device entries position overlays using the app’s safe area context.',
+    },
+  },
+  '@molecule/app-ui-nativewind': {
+    nativewind: {
+      files: ['src/native.ts'],
+      reason: 'The React Native condition uses the app’s NativeWind registration.',
+    },
+    'react-native-svg': {
+      files: ['src/native.ts'],
+      reason: 'The React Native condition styles the SVG components supplied by the app.',
+    },
+  },
   '@molecule/app-drag-drop': {
     react: {
       files: ['src/react.ts'],

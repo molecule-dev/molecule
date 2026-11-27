@@ -62,4 +62,23 @@ export const ja: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': '移動をキャンセル',
   'ui.dragDrop.moveAtPosition': '{{action}}、{{position}}',
   'ui.dragDrop.moveToPosition': '{{position}}番目の位置に移動',
+  'ui.a11y.columnPosition': '列番号{{column}}',
+  'ui.a11y.columnTotal': '{{total}}列',
+  'ui.a11y.invalid': '無効な値',
+  'ui.a11y.level': 'レベル{{level}}',
+  'ui.a11y.readonly': '読み取り専用フィールド',
+  'ui.a11y.required': '必須項目',
+  'ui.a11y.rowPosition': '行番号{{row}}',
+  'ui.a11y.rowTotal': '{{total}}行',
+  'ui.a11y.withDetails': '{{label}}、{{details}}',
+  'ui.contextMenu': 'コンテキストメニュー',
+  'ui.fileField.browse': 'ファイルを参照する',
+  'ui.fileField.error.missingProvider':
+    'ファイル選択機能が設定されていません。{{bond}} から `provider` をインポートし、`setupProviders()` 内で {{core}} の `setProvider(provider)` を呼び出してください。',
+  'ui.paste': 'ペースト',
+  'ui.select.expanded': 'オプションメニューが開きました',
+  'ui.select.selectionCount': '{{count}}個が選択されました',
+  'filePicker.error.cachedFileUnavailable':
+    '選択したファイルをアプリのキャッシュから読み取ることができませんでした。',
+  'filePicker.error.pick': 'ファイルを選択できませんでした。',
 }

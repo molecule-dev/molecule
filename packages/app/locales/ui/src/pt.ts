@@ -62,4 +62,23 @@ export const pt: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Cancelar movimentação',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Mover para a posição {{position}}',
+  'ui.a11y.columnPosition': 'Número da coluna {{column}}',
+  'ui.a11y.columnTotal': '{{total}} colunas',
+  'ui.a11y.invalid': 'Valor inválido',
+  'ui.a11y.level': 'Nível {{level}}',
+  'ui.a11y.readonly': 'Campo somente leitura',
+  'ui.a11y.required': 'Campo obrigatório',
+  'ui.a11y.rowPosition': 'Número da linha {{row}}',
+  'ui.a11y.rowTotal': '{{total}} linhas',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menu de contexto',
+  'ui.fileField.browse': 'Procurar arquivos',
+  'ui.fileField.error.missingProvider':
+    'Nenhum seletor de arquivos está vinculado. Importe `provider` de {{bond}} e chame `setProvider(provider)` de {{core}} em `setupProviders()`.',
+  'ui.paste': 'Colar',
+  'ui.select.expanded': 'Menu de opções aberto',
+  'ui.select.selectionCount': '{{count}} selecionados',
+  'filePicker.error.cachedFileUnavailable':
+    'Não foi possível ler o arquivo selecionado do cache do aplicativo.',
+  'filePicker.error.pick': 'Não foi possível selecionar os arquivos.',
 }

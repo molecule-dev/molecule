@@ -69,4 +69,23 @@ export const kn: UiTranslations = {
   'ui.dragDrop.cancelMove': 'ಸರಿಸುವುದನ್ನು ರದ್ದುಗೊಳಿಸಿ',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': '{{position}} ಸ್ಥಾನಕ್ಕೆ ಸರಿಸಿ',
+  'ui.a11y.columnPosition': 'ಕಾಲಮ್ ಸಂಖ್ಯೆ {{column}}',
+  'ui.a11y.columnTotal': '{{total}} ಕಾಲಮ್‌ಗಳು',
+  'ui.a11y.invalid': 'ಅಮಾನ್ಯ ಮೌಲ್ಯ',
+  'ui.a11y.level': 'ಹಂತ {{level}}',
+  'ui.a11y.readonly': 'ಓದಲು-ಮಾತ್ರ ಕ್ಷೇತ್ರ',
+  'ui.a11y.required': 'ಅಗತ್ಯವಿರುವ ಕ್ಷೇತ್ರ',
+  'ui.a11y.rowPosition': 'ಸಾಲು ಸಂಖ್ಯೆ {{row}}',
+  'ui.a11y.rowTotal': '{{total}} ಸಾಲುಗಳು',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'ಸಂದರ್ಭ ಮೆನು',
+  'ui.fileField.browse': 'ಫೈಲ್‌ಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ',
+  'ui.fileField.error.missingProvider':
+    'ಯಾವುದೇ ಫೈಲ್ ಪಿಕ್ಕರ್ ಅನ್ನು ಬಾಂಡ್ ಮಾಡಲಾಗಿಲ್ಲ. {{bond}} ನಿಂದ `provider` ಆಮದು ಮಾಡಿಕೊಳ್ಳಿ ಮತ್ತು `setupProviders()` ನಲ್ಲಿ {{core}} ನಿಂದ `setProvider(provider)` ಕರೆ ಮಾಡಿ.',
+  'ui.paste': 'ಅಂಟಿಸಿ',
+  'ui.select.expanded': 'ಆಯ್ಕೆಗಳ ಮೆನು ತೆರೆಯಲಾಗಿದೆ',
+  'ui.select.selectionCount': '{{count}} ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ',
+  'filePicker.error.cachedFileUnavailable':
+    'ಆಯ್ಕೆ ಮಾಡಿದ ಫೈಲ್ ಅನ್ನು ಅಪ್ಲಿಕೇಶನ್ ಸಂಗ್ರಹದಿಂದ ಓದಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.',
+  'filePicker.error.pick': 'ಫೈಲ್‌ಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.',
 }

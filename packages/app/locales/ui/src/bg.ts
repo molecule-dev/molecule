@@ -62,4 +62,23 @@ export const bg: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Отказ от преместването',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Преместване на позиция {{position}}',
+  'ui.a11y.columnPosition': 'Номер на колона {{column}}',
+  'ui.a11y.columnTotal': '{{total}} колони',
+  'ui.a11y.invalid': 'Невалидна стойност',
+  'ui.a11y.level': 'Ниво {{level}}',
+  'ui.a11y.readonly': 'Поле само за четене',
+  'ui.a11y.required': 'Задължително поле',
+  'ui.a11y.rowPosition': 'Номер на ред {{row}}',
+  'ui.a11y.rowTotal': '{{total}} реда',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Контекстно меню',
+  'ui.fileField.browse': 'Преглед на файлове',
+  'ui.fileField.error.missingProvider':
+    'Няма свързан инструмент за избор на файлове. Импортирайте `provider` от {{bond}} и извикайте `setProvider(provider)` от {{core}} в `setupProviders()`.',
+  'ui.paste': 'Паста',
+  'ui.select.expanded': 'Менюто с опции е отворено',
+  'ui.select.selectionCount': 'Избрани са {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'Избраният файл не можа да бъде прочетен от кеша на приложението.',
+  'filePicker.error.pick': 'Не можах да избера файлове.',
 }

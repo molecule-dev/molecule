@@ -62,4 +62,23 @@ export const zu: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Khansela ukuhambisa',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Hambisa endaweni ye-{{position}}',
+  'ui.a11y.columnPosition': 'Inombolo yekholomu {{column}}',
+  'ui.a11y.columnTotal': '{{total}} amakholomu',
+  'ui.a11y.invalid': 'Inani elingavumelekile',
+  'ui.a11y.level': 'Izinga {{level}}',
+  'ui.a11y.readonly': 'Inkambu yokufunda kuphela',
+  'ui.a11y.required': 'Inkambu edingekayo',
+  'ui.a11y.rowPosition': 'Inombolo yomugqa {{row}}',
+  'ui.a11y.rowTotal': 'Imigqa engu {{total}}',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Imenyu yokuqukethwe',
+  'ui.fileField.browse': 'Phequlula amafayela',
+  'ui.fileField.error.missingProvider':
+    'Akukho sikhethi sefayela esiboshiwe. Ngenisa `provider` kusuka ku {{bond}} bese ushayela `setProvider(provider)` kusuka ku {{core}} ku `setupProviders()`.',
+  'ui.paste': 'Namathisela',
+  'ui.select.expanded': 'Imenyu yezinketho ivuliwe',
+  'ui.select.selectionCount': '{{count}} kukhethiwe',
+  'filePicker.error.cachedFileUnavailable':
+    'Ifayela elikhethiwe alikwazanga ukufundwa kusukela kunqolobane yohlelo lokusebenza.',
+  'filePicker.error.pick': 'Ayikwazanga ukukhetha amafayela.',
 }

@@ -62,4 +62,23 @@ export const fr: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Annuler le déplacement',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Déplacer vers la position {{position}}',
+  'ui.a11y.columnPosition': 'Numéro de colonne {{column}}',
+  'ui.a11y.columnTotal': '{{total}} colonnes',
+  'ui.a11y.invalid': 'Valeur invalide',
+  'ui.a11y.level': 'Niveau {{level}}',
+  'ui.a11y.readonly': 'Champ en lecture seule',
+  'ui.a11y.required': 'Champ obligatoire',
+  'ui.a11y.rowPosition': 'Numéro de ligne {{row}}',
+  'ui.a11y.rowTotal': '{{total}} lignes',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Menu contextuel',
+  'ui.fileField.browse': 'Parcourir les fichiers',
+  'ui.fileField.error.missingProvider':
+    "Aucun sélecteur de fichiers n'est lié. Importez `provider` depuis {{bond}} et appelez `setProvider(provider)` depuis {{core}} dans `setupProviders()`.",
+  'ui.paste': 'Coller',
+  'ui.select.expanded': "Le menu des options s'est ouvert.",
+  'ui.select.selectionCount': '{{count}} sélectionné',
+  'filePicker.error.cachedFileUnavailable':
+    "Le fichier sélectionné n'a pas pu être lu depuis le cache de l'application.",
+  'filePicker.error.pick': 'Impossible de sélectionner les fichiers.',
 }

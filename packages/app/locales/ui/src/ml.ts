@@ -71,4 +71,23 @@ export const ml: UiTranslations = {
   'ui.dragDrop.cancelMove': 'നീക്കൽ റദ്ദാക്കുക',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': '{{position}} സ്ഥാനത്തേക്ക് നീക്കുക',
+  'ui.a11y.columnPosition': 'കോളം നമ്പർ {{column}}',
+  'ui.a11y.columnTotal': '{{total}} നിരകൾ',
+  'ui.a11y.invalid': 'അസാധുവായ മൂല്യം',
+  'ui.a11y.level': 'ലെവൽ {{level}}',
+  'ui.a11y.readonly': 'വായന-മാത്രം ഫീൽഡ്',
+  'ui.a11y.required': 'ആവശ്യമായ ഫീൽഡ്',
+  'ui.a11y.rowPosition': 'വരി നമ്പർ {{row}}',
+  'ui.a11y.rowTotal': '{{total}} വരികൾ',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'സന്ദർഭ മെനു',
+  'ui.fileField.browse': 'ഫയലുകൾ ബ്രൗസ് ചെയ്യുക',
+  'ui.fileField.error.missingProvider':
+    'ഒരു ഫയൽ പിക്കറും ബോണ്ടഡ് ചെയ്തിട്ടില്ല. {{bond}} ൽ നിന്ന് `provider` ഇറക്കുമതി ചെയ്യുക, `setupProviders()` ൽ {{core}} ൽ നിന്ന് `setProvider(provider)` വിളിക്കുക.',
+  'ui.paste': 'ഒട്ടിക്കുക',
+  'ui.select.expanded': 'ഓപ്ഷൻ മെനു തുറന്നു',
+  'ui.select.selectionCount': '{{count}} തിരഞ്ഞെടുത്തു',
+  'filePicker.error.cachedFileUnavailable':
+    'തിരഞ്ഞെടുത്ത ഫയൽ ആപ്പ് കാഷെയിൽ നിന്ന് വായിക്കാൻ കഴിഞ്ഞില്ല.',
+  'filePicker.error.pick': 'ഫയലുകൾ തിരഞ്ഞെടുക്കാൻ കഴിഞ്ഞില്ല.',
 }

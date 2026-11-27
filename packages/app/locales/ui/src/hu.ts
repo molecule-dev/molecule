@@ -62,4 +62,23 @@ export const hu: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'Áthelyezés megszakítása',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': '{{position}}. pozícióra áthelyezés',
+  'ui.a11y.columnPosition': 'Oszlopszám {{column}}',
+  'ui.a11y.columnTotal': '{{total}} oszlop',
+  'ui.a11y.invalid': 'Érvénytelen érték',
+  'ui.a11y.level': 'Szint {{level}}',
+  'ui.a11y.readonly': 'Csak olvasható mező',
+  'ui.a11y.required': 'Kötelező mező',
+  'ui.a11y.rowPosition': 'Sor száma {{row}}',
+  'ui.a11y.rowTotal': '{{total}} sor',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Helyi menü',
+  'ui.fileField.browse': 'Fájlok böngészése',
+  'ui.fileField.error.missingProvider':
+    'Nincs fájlválasztó kötve. Importáld `provider` függvényt {{bond}} mappából, és hívd meg `setProvider(provider)` függvényt {{core}} mappából `setupProviders()` függvényben.',
+  'ui.paste': 'Paszta',
+  'ui.select.expanded': 'Beállítások menü megnyitva',
+  'ui.select.selectionCount': '{{count}} kiválasztott',
+  'filePicker.error.cachedFileUnavailable':
+    'A kiválasztott fájl nem olvasható az alkalmazás gyorsítótárából.',
+  'filePicker.error.pick': 'Nem sikerült fájlokat kiválasztani.',
 }

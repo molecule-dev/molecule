@@ -62,4 +62,23 @@ export const sk: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Zrušiť presun',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Presunúť na pozíciu {{position}}',
+  'ui.a11y.columnPosition': 'Číslo stĺpca {{column}}',
+  'ui.a11y.columnTotal': 'stĺpce {{total}}',
+  'ui.a11y.invalid': 'Neplatná hodnota',
+  'ui.a11y.level': 'Úroveň {{level}}',
+  'ui.a11y.readonly': 'Pole iba na čítanie',
+  'ui.a11y.required': 'Povinné pole',
+  'ui.a11y.rowPosition': 'Číslo riadku {{row}}',
+  'ui.a11y.rowTotal': '{{total}} riadkov',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontextové menu',
+  'ui.fileField.browse': 'Prehliadať súbory',
+  'ui.fileField.error.missingProvider':
+    'Žiadny výber súborov nie je prepojený. Importujte `provider` z {{bond}} a zavolajte `setProvider(provider)` z {{core}} v `setupProviders()`.',
+  'ui.paste': 'Prilepiť',
+  'ui.select.expanded': 'Ponuka možností bola otvorená',
+  'ui.select.selectionCount': '{{count}} vybraných',
+  'filePicker.error.cachedFileUnavailable':
+    'Vybraný súbor sa nepodarilo prečítať z vyrovnávacej pamäte aplikácie.',
+  'filePicker.error.pick': 'Nepodarilo sa vybrať súbory.',
 }

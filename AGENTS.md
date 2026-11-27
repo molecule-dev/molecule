@@ -315,11 +315,11 @@ list may only shrink). The design:
   `Link`, `GlyphIcon`). Their props are typed once in `@molecule/app-ui` (`elements.ts`). Each has an
   `as` prop naming the web tag. `@molecule/app-ui-react/elements` renders exactly that tag, so
   `<Box as="ul">` is `<ul>` and every recorded golden stays the same.
-  The planned `@molecule/app-ui-react-native/elements` entry will render native views once its
-  `src/elements` lands. A device has no CSS cascade, so text classes go to the `Text` that draws
-  them, split by the ClassMap's `splitForNative`.
-- Features and the UI kit import `@molecule/app-ui-react/elements`. Add its `react-native` export
-  condition when the native elements entry is available.
+  `@molecule/app-ui-react-native/elements` renders native views. A device has no CSS cascade, so
+  the ClassMap's `splitForNative` applies text classes to the `Text` that draws them.
+- Features and the UI kit import `@molecule/app-ui-react/elements`. Its `react-native` export
+  condition selects the native elements. The matching `./platform` condition selects the device
+  overlay host.
 - The kit is single-source: `@molecule/app-ui-react`'s own components render with the elements.
   They are converted in order of how many features use them; Button and Spinner are done.
   `@molecule/app-ui-react-native` shrinks to the native elements plus platform pieces (overlay host,

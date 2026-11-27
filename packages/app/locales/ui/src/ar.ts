@@ -62,4 +62,23 @@ export const ar: Partial<UiTranslations> = {
   'ui.dragDrop.cancelMove': 'إلغاء النقل',
   'ui.dragDrop.moveAtPosition': '{{action}}، {{position}}',
   'ui.dragDrop.moveToPosition': 'نقل إلى الموضع {{position}}',
+  'ui.a11y.columnPosition': 'رقم العمود {{column}}',
+  'ui.a11y.columnTotal': '{{total}} عمودًا',
+  'ui.a11y.invalid': 'قيمة غير صالحة',
+  'ui.a11y.level': 'المستوى {{level}}',
+  'ui.a11y.readonly': 'حقل للقراءة فقط',
+  'ui.a11y.required': 'حقل مطلوب',
+  'ui.a11y.rowPosition': 'رقم الصف {{row}}',
+  'ui.a11y.rowTotal': '{{total}} صفوف',
+  'ui.a11y.withDetails': '{{label}}، {{details}}',
+  'ui.contextMenu': 'قائمة السياق',
+  'ui.fileField.browse': 'تصفح الملفات',
+  'ui.fileField.error.missingProvider':
+    'لا يوجد منتقي ملفات مرتبط. استورد `provider` من {{bond}} واستدعِ `setProvider(provider)` من {{core}} في `setupProviders()`.',
+  'ui.paste': 'لصق',
+  'ui.select.expanded': 'تم فتح قائمة الخيارات',
+  'ui.select.selectionCount': 'تم تحديد {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'تعذر قراءة الملف المحدد من ذاكرة التخزين المؤقت للتطبيق.',
+  'filePicker.error.pick': 'تعذر اختيار الملفات.',
 }

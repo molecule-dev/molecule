@@ -19,6 +19,7 @@
     className,
     value: valueProp,
     onChange,
+    onValueChange,
     defaultValue,
     id,
     ...props
@@ -32,14 +33,14 @@
   const inputId = $derived(id || generatedId)
   const valueProps = $derived({ value, defaultValue })
 
-  const handleChange = (e: Event): void => {
-    if (!isControlled) {
-      internalValue = (e.target as HTMLInputElement).value
-    }
+  const handleChange = (e: Event & { currentTarget: HTMLInputElement }): void => {
+    const input = e.currentTarget
+    if (!isControlled) internalValue = input.value
     onChange?.(e)
+    onValueChange?.(input.value)
     // A controlled value without a caller update keeps its prop value, exactly
     // like react-dom's controlled-input restore after the change event.
-    if (isControlled && e.target instanceof HTMLInputElement) e.target.value = valueProp ?? ''
+    if (isControlled) input.value = valueProp ?? ''
   }
 </script>
 

@@ -62,4 +62,23 @@ export const lt: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Atšaukti perkėlimą',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Perkelti į {{position}} poziciją',
+  'ui.a11y.columnPosition': 'Stulpelio numeris {{column}}',
+  'ui.a11y.columnTotal': '{{total}} stulpeliai',
+  'ui.a11y.invalid': 'Neteisinga reikšmė',
+  'ui.a11y.level': 'Lygis {{level}}',
+  'ui.a11y.readonly': 'Tik skaitymui skirtas laukas',
+  'ui.a11y.required': 'Privalomas laukas',
+  'ui.a11y.rowPosition': 'Eilutės numeris {{row}}',
+  'ui.a11y.rowTotal': '{{total}} eilutės',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontekstinis meniu',
+  'ui.fileField.browse': 'Naršyti failus',
+  'ui.fileField.error.missingProvider':
+    'Failų rinkiklis nėra sujungtas. Importuokite `provider` iš {{bond}} ir iškvieskite `setProvider(provider)` iš {{core}} `setupProviders()` funkcijoje.',
+  'ui.paste': 'Įklijuoti',
+  'ui.select.expanded': 'Parinkčių meniu atidarytas',
+  'ui.select.selectionCount': 'Pasirinkta {{count}}',
+  'filePicker.error.cachedFileUnavailable':
+    'Pasirinkto failo nepavyko nuskaityti iš programos talpyklos.',
+  'filePicker.error.pick': 'Nepavyko pasirinkti failų.',
 }

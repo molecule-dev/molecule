@@ -62,4 +62,23 @@ export const af: UiTranslations = {
   'ui.dragDrop.cancelMove': 'Kanselleer skuif',
   'ui.dragDrop.moveAtPosition': '{{action}}, {{position}}',
   'ui.dragDrop.moveToPosition': 'Skuif na posisie {{position}}',
+  'ui.a11y.columnPosition': 'Kolomnommer {{column}}',
+  'ui.a11y.columnTotal': '{{total}} kolomme',
+  'ui.a11y.invalid': 'Ongeldige waarde',
+  'ui.a11y.level': 'Vlak {{level}}',
+  'ui.a11y.readonly': 'Leesalleen-veld',
+  'ui.a11y.required': 'Verpligte veld',
+  'ui.a11y.rowPosition': 'Rynommer {{row}}',
+  'ui.a11y.rowTotal': '{{total}} rye',
+  'ui.a11y.withDetails': '{{label}}, {{details}}',
+  'ui.contextMenu': 'Kontekskieslys',
+  'ui.fileField.browse': 'Blaai deur lêers',
+  'ui.fileField.error.missingProvider':
+    'Geen lêerkieser is gebonde nie. Voer `provider` vanaf {{bond}} in en roep `setProvider(provider)` vanaf {{core}} in `setupProviders()` aan.',
+  'ui.paste': 'Plak',
+  'ui.select.expanded': 'Opsies-kieslys oopgemaak',
+  'ui.select.selectionCount': '{{count}} gekies',
+  'filePicker.error.cachedFileUnavailable':
+    'Die gekose lêer kon nie vanaf die toepassing se kasgeheue gelees word nie.',
+  'filePicker.error.pick': 'Kon nie lêers kies nie.',
 }
