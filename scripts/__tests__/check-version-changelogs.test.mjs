@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import { execFile, execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -6,11 +7,7 @@ import process from 'node:process'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import {
-  judgeChange,
-  readRevisionFiles,
-  versionsWithoutChangelog,
-} from '../check-version-changelogs.mjs'
+import { readRevisionFiles, versionsWithoutChangelog } from '../check-version-changelogs.mjs'
 
 const SCRIPT = join(import.meta.dirname, '../check-version-changelogs.mjs')
 const MOLECULE = join(import.meta.dirname, '../..')
@@ -262,6 +259,7 @@ describe('a raised version ships with its CHANGELOG section', () => {
       ),
     )
     expect(commit).toMatch(/^923334bb5d/)
+    expect(rows).toHaveLength(1039)
     const manifest = (name, version, isPrivate, revision) => ({
       name,
       version,
@@ -270,33 +268,34 @@ describe('a raised version ships with its CHANGELOG section', () => {
     })
     const root = mkdtempSync(join(tmpdir(), 'version-changelogs-923334bb5d-'))
     roots.push(root)
-    git(root, 'init', '-q')
-    git(root, 'config', 'user.email', 'fixture@example.com')
-    git(root, 'config', 'user.name', 'Fixture')
-    for (const [file, name, from, , isPrivate] of rows)
-      if (from !== null) write(root, file, manifest(name, from, isPrivate, 'parent'))
-    git(root, 'add', '-A')
-    git(root, 'commit', '-qm', 'parent')
-    const base = git(root, 'rev-parse', 'HEAD')
-    for (const [file, name, , to, isPrivate, changelog] of rows) {
-      if (to === null) rmSync(join(root, file), { force: true })
-      else write(root, file, manifest(name, to, isPrivate, 'commit'))
+    // Write two real Git trees in one stream. The replay needs revisions and blobs,
+    // so a bare repository avoids creating, staging and hashing a full worktree twice.
+    const data = (text) => `data ${Buffer.byteLength(text)}\n${text}\n`
+    const blob = (path, text) => `M 100644 inline ${JSON.stringify(path)}\n${data(text)}`
+    const revision = (time, message, files) =>
+      `commit refs/heads/main\ncommitter Fixture <fixture@example.com> ${time} +0000\n` +
+      `${data(message)}deleteall\n${files.join('')}\n`
+    const before = []
+    const after = []
+    for (const [file, name, from, to, isPrivate, changelog] of rows) {
+      if (from !== null)
+        before.push(blob(file, JSON.stringify(manifest(name, from, isPrivate, 'parent'))))
+      if (to !== null)
+        after.push(blob(file, JSON.stringify(manifest(name, to, isPrivate, 'commit'))))
       const log = file.replace(/package\.json$/, 'CHANGELOG.md')
-      if (changelog === 'section') write(root, log, `# ${name}\n\n## ${to}\n`)
-      if (changelog === 'no-section') write(root, log, `# ${name}\n`)
+      if (changelog === 'section') after.push(blob(log, `# ${name}\n\n## ${to}\n`))
+      if (changelog === 'no-section') after.push(blob(log, `# ${name}\n`))
     }
-    git(root, 'add', '-A')
-    git(root, 'commit', '-qm', 'chore: version packages')
+    git(root, 'init', '-q', '--bare', '--initial-branch=main')
+    execFileSync('git', ['-C', root, 'fast-import', '--quiet'], {
+      input: revision(1, 'parent', before) + revision(2, 'chore: version packages', after),
+    })
+    const base = git(root, 'rev-parse', 'HEAD^')
     const changed = git(root, 'diff-tree', '-r', '--no-commit-id', '--name-only', base, 'HEAD')
       .split('\n')
       .filter((file) => file.endsWith('/package.json'))
     expect(changed).toHaveLength(rows.length)
-    expect(judgeChange(root, changed, base, 'HEAD').map(({ name }) => name)).toEqual([
-      '@molecule/api-document-text',
-      '@molecule/api-document-text-molecule',
-      '@molecule/api-document-text-pdfjs',
-    ])
-    // CI's own step on the same push.
+    // Exercise CI's own step against the full recorded change.
     const ci = await run(root, ['--base=ci'], {
       GITHUB_EVENT_NAME: 'push',
       GITHUB_EVENT_BEFORE: base,
