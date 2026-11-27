@@ -1,5 +1,11 @@
 # @molecule/app-ide-svelte
 
+## 2.0.6
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 2.0.5
 
 ### Patch Changes

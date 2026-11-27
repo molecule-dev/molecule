@@ -56,7 +56,7 @@
     "@molecule/app-query": "1.4.0",
     "@molecule/app-query-memory": "1.2.0",
     "@molecule/app-query-tanstack": "1.2.0",
-    "@molecule/app-solid": "3.18.0",
+    "@molecule/app-solid": "3.18.1",
     "@molecule/app-ui": "1.16.0",
     "@molecule/app-ui-solid": "1.12.0",
     "@types/node": "26.6.5",

@@ -1,5 +1,11 @@
 # @molecule/app-ide-vue
 
+## 1.1.4
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 1.1.3
 
 ### Patch Changes

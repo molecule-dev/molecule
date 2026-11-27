@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-solid",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Solid IDE components for molecule.dev workspace",
   "homepage": "https://www.molecule.dev/packages/app-ide-solid",
   "type": "module",
@@ -86,7 +86,7 @@
     "@molecule/app-live-preview": "1.0.3",
     "@molecule/app-locales-ide": "1.12.0",
     "@molecule/app-logger": "1.1.0",
-    "@molecule/app-solid": "3.18.0",
+    "@molecule/app-solid": "3.18.1",
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-ui": "1.16.0",
     "@molecule/app-ui-solid": "1.12.0",

@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-vue
 
+## 2.0.3
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 2.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ide-angular
 
+## 1.1.6
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 1.1.5
 
 ### Patch Changes

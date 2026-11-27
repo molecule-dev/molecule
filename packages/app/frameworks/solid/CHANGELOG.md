@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.18.1
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 3.18.0
 
 ### Minor Changes

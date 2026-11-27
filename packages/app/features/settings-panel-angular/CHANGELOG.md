@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-angular
 
+## 3.0.3
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 3.0.2
 
 ### Patch Changes

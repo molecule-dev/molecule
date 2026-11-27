@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.6.0
+
+### Minor Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 4.5.0
 
 ### Minor Changes

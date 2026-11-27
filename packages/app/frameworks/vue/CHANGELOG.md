@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.16.1
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 3.16.0
 
 ### Minor Changes

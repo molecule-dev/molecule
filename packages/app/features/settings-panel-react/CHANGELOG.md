@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 5.1.1
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 5.1.0
 
 ### Minor Changes

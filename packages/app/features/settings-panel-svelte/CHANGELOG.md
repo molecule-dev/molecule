@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-svelte
 
+## 2.0.2
+
+### Patch Changes
+
+- Uses the dedicated feature imports from the framework binding.
+
 ## 2.0.1
 
 ### Patch Changes

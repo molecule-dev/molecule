@@ -57,7 +57,7 @@
     "@molecule/app-ui": "1.16.0",
     "@molecule/app-ui-tailwind": "1.5.1",
     "@molecule/app-ui-vue": "1.11.0",
-    "@molecule/app-vue": "3.16.0",
+    "@molecule/app-vue": "3.16.1",
     "@testing-library/dom": "10.4.2",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
