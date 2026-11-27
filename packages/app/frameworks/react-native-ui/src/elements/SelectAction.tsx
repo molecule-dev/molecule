@@ -116,6 +116,10 @@ export const SelectAction = forwardRef<SelectActionHandle, SelectActionProps>(fu
   useLayoutEffect(() => {
     const host = keyboard ? hardware.current : stock.current
     if (!focusRequest || disabled || !host) return
+    if (Platform.OS === 'web') {
+      host.focus()
+      return
+    }
     const tag = findNodeHandle(host)
     if (tag === null) return
     if (keyboard) UIManager.dispatchViewManagerCommand(tag, 'rnekKeyboardFocus', [])

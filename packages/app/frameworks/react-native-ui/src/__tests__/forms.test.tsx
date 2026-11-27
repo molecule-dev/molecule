@@ -4,6 +4,7 @@ import {
   type ChangeEvent,
   createElement,
   createRef,
+  type FormEvent,
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
@@ -14,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CheckFieldHandle, FormAreaHandle, KitEvent } from '@molecule/app-ui'
 
+import { Button } from '../components/Button.js'
 import { Box } from '../elements/Box.js'
 import { CheckField } from '../elements/CheckField.js'
 import { Fieldset } from '../elements/Fieldset.js'
@@ -25,6 +27,8 @@ import { TextField } from '../elements/TextField.js'
 vi.mock('@molecule/app-ui', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   getClassMap: () => ({
+    button: () => '',
+    cn: () => '',
     splitForNative: (view: string) => ({
       view: view === 'contents' ? '' : view,
       display: view === 'contents' || view === 'flex' ? view : null,
@@ -47,6 +51,7 @@ vi.mock('react-native', () => {
   interface HostProps {
     id?: string
     role?: string
+    accessibilityRole?: string
     testID?: string
     'aria-label'?: string
     'aria-checked'?: boolean | 'mixed'
@@ -94,10 +99,23 @@ vi.mock('react-native', () => {
       props.children,
     )
   return {
+    ActivityIndicator: () => createElement('span'),
     Platform: { select: ({ default: value }: { default: string }) => value },
     useWindowDimensions: () => ({ width: 640 }),
     View: host('div'),
-    Pressable: host('div'),
+    Pressable: (props: HostProps) =>
+      props.accessibilityRole === 'button'
+        ? createElement(
+            'button',
+            {
+              ...identity(props),
+              type: 'button',
+              disabled: props.disabled,
+              onClick: props.onPress,
+            },
+            props.children,
+          )
+        : host('div')(props),
     Text: host('span'),
     TextInput: (props: InputProps) =>
       createElement(props.multiline ? 'textarea' : 'input', {
@@ -163,6 +181,77 @@ function enter(id: string): void {
 }
 
 describe('Native form elements', () => {
+  it('submits FormArea once from the kit Button or a field, with validation and entries', () => {
+    const onSubmit = vi.fn()
+    const view = (loading = false): ReactNode => (
+      <FormArea as="form" onSubmit={onSubmit}>
+        <TextField as="input" type="email" name="email" data-testid="email" required />
+        <TextField as="input" name="name" data-testid="name" defaultValue="Reader" required />
+        <Button testId="ordinary">Cancel</Button>
+        <Button type="submit" testId="submit" loading={loading}>
+          Save
+        </Button>
+      </FormArea>
+    )
+
+    render(view())
+    edit('email', 'reader@example.test')
+    press('ordinary')
+    expect(onSubmit).not.toHaveBeenCalled()
+    const entries = [
+      ['email', 'reader@example.test'],
+      ['name', 'Reader'],
+    ]
+    press('submit')
+    expect(onSubmit).toHaveBeenCalledExactlyOnceWith(expect.any(Object), entries)
+    onSubmit.mockClear()
+    enter('email')
+    expect(onSubmit).toHaveBeenCalledExactlyOnceWith(expect.any(Object), entries)
+
+    onSubmit.mockClear()
+    render(view(true))
+    press('submit')
+    enter('name')
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    render(view())
+    edit('email', '')
+    press('submit')
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(host('email'))
+  })
+
+  it('lets HTML validate and submit the enclosing form with the kit Button as submitter', () => {
+    const onSubmit = vi.fn((event: FormEvent<HTMLFormElement>) => event.preventDefault())
+    const view = (type: 'button' | 'submit', disabled = false): ReactNode => (
+      <form onSubmit={onSubmit}>
+        <input data-testid="raw-email" name="email" type="email" required />
+        <Button type={type} disabled={disabled} testId="raw-submit">
+          Save
+        </Button>
+      </form>
+    )
+
+    render(view('submit'))
+    press('raw-submit')
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    edit('raw-email', 'reader@example.test')
+    press('raw-submit')
+    expect(onSubmit).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        nativeEvent: expect.objectContaining({ submitter: host('raw-submit') }),
+      }),
+    )
+
+    onSubmit.mockClear()
+    render(view('button'))
+    press('raw-submit')
+    render(view('submit', true))
+    press('raw-submit')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it('uses the text named by an aria-describedby relationship as the pressable hint', () => {
     const onRetry = vi.fn()
     render(

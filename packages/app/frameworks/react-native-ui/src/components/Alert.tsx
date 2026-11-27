@@ -38,12 +38,8 @@ export const Alert: React.FC<AlertProps> = ({
 }) => {
   const { t } = useTranslation()
   const cm = getClassMap()
-  const classes = cm.cn(
-    cm.alert({
-      variant: (status || 'default') as 'default' | 'info' | 'success' | 'warning' | 'error',
-    }),
-    className,
-  )
+  const tone = status === 'primary' || status === 'secondary' ? 'default' : (status ?? 'default')
+  const classes = cm.cn(cm.alert({ variant: tone }), className)
 
   return (
     <View className={classes} testID={testId} accessibilityRole="alert">

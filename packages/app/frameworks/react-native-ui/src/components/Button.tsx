@@ -4,15 +4,17 @@
  * @module
  */
 
-import React from 'react'
+import React, { useCallback, useContext } from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 
 import { getClassMap } from '@molecule/app-ui'
 
+import { DisabledScope, FormScope, useFormRegistration } from '../elements/form.js'
 import type { ButtonProps } from '../types.js'
 
 /**
- * Renders a Button component.
+ * Renders a Button component. Submit buttons use the nearest FormArea, or
+ * the enclosing HTML form on React Native Web.
  * @param root0 - Component props.
  * @param root0.children - Button content.
  * @param root0.variant - Visual variant.
@@ -26,6 +28,7 @@ import type { ButtonProps } from '../types.js'
  * @param root0.className - CSS class name override.
  * @param root0.testId - Test identifier.
  * @param root0.disabled - Whether disabled.
+ * @param root0.type - The button's form action.
  * @param root0.onClick - Called when the button is pressed.
  * @returns The rendered Button element.
  */
@@ -42,19 +45,47 @@ export const Button: React.FC<ButtonProps> = ({
   className,
   testId,
   disabled,
+  type = 'button',
   onClick,
 }) => {
   const cm = getClassMap()
   const classes = cm.cn(cm.button({ variant, color, size, fullWidth }), className)
+  const form = useContext(FormScope)
+  const fieldsetDisabled = useContext(DisabledScope)
+  const unavailable = Boolean(disabled || loading || fieldsetDisabled)
+  const submit = type === 'submit' ? form?.submit : undefined
+  const activate = (): void => {
+    if (unavailable) return
+    onClick?.()
+    submit?.()
+  }
+  useFormRegistration(submit ? form?.buttons : undefined, {
+    type,
+    disabled: unavailable,
+    activate,
+  })
+
+  // RNW gives the host type="button". Hand the default action back to the browser
+  // only when there is no FormArea to perform validation and submit.
+  const webType = type === 'submit' && !form ? 'submit' : 'button'
+  const setWebType = useCallback(
+    (host: View | null): void => {
+      if (typeof HTMLButtonElement !== 'undefined' && host instanceof HTMLButtonElement) {
+        host.type = webType
+      }
+    },
+    [webType],
+  )
 
   return (
     <Pressable
+      ref={setWebType}
       className={classes}
-      disabled={disabled || loading}
-      onPress={onClick ? () => onClick() : undefined}
+      disabled={unavailable}
+      onPress={onClick || submit ? activate : undefined}
       testID={testId}
       accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
+      accessibilityState={{ disabled: unavailable, busy: loading }}
     >
       {loading && <ActivityIndicator size="small" className={cm.buttonIconLeft} />}
       {!loading && !!leftIcon && (

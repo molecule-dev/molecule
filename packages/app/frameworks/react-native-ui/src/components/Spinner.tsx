@@ -5,7 +5,7 @@
  */
 
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, Platform, View } from 'react-native'
 
 import { useTranslation } from '@molecule/app-react'
 import type { SpinnerProps } from '@molecule/app-ui'
@@ -39,7 +39,7 @@ export const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className, testId
       accessibilityRole="progressbar"
       accessibilityLabel={t('ui.spinner.loading', undefined, { defaultValue: 'Loading' })}
     >
-      <ActivityIndicator size={sizeMap[size] || 'small'} />
+      {Platform.OS !== 'web' && <ActivityIndicator size={sizeMap[size] || 'small'} />}
     </View>
   )
 }

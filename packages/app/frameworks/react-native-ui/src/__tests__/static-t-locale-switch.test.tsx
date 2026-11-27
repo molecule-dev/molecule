@@ -24,6 +24,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
+const platform = vi.hoisted(() => ({ OS: 'ios' }))
+
 // Host-element stand-ins for React Native, so the accessibility props are
 // visible in the rendered DOM (mirrors input-clear.test.ts).
 vi.mock('react-native', () => {
@@ -44,6 +46,7 @@ vi.mock('react-native', () => {
     Text: host('Text'),
     Pressable: host('Pressable'),
     ActivityIndicator: host('ActivityIndicator'),
+    Platform: platform,
   }
 })
 
@@ -65,6 +68,7 @@ vi.mock('@molecule/app-ui', async (importOriginal) => ({
 let provider: I18nProvider
 
 beforeEach(() => {
+  platform.OS = 'ios'
   // Outside an I18nProvider the hook (and previously the static `t`) reads the
   // bonded provider, so bond one with both tables before rendering.
   provider = createSimpleI18nProvider('en', [
@@ -90,5 +94,19 @@ describe('components migrated off the static t re-render on a locale switch', ()
       await provider.setLocale('fr')
     })
     expect(container.querySelector('[aria-label]')?.getAttribute('aria-label')).toBe('Chargement')
+  })
+
+  it('draws the web spinner once using the ClassMap', async () => {
+    platform.OS = 'web'
+    const { Spinner } = await import('../components/Spinner.js')
+    const { container } = render(createElement(Spinner))
+    expect(container.querySelector('[aria-label="Loading"]')).not.toBeNull()
+    expect(container.querySelector('[data-rn="ActivityIndicator"]')).toBeNull()
+  })
+
+  it('draws the native activity indicator on a device', async () => {
+    const { Spinner } = await import('../components/Spinner.js')
+    const { container } = render(createElement(Spinner))
+    expect(container.querySelector('[data-rn="ActivityIndicator"]')).not.toBeNull()
   })
 })

@@ -69,11 +69,16 @@ function isNativeHost(handle: ElementHandle): handle is View | Text {
 /** Focuses a mounted native target without depending on a React Native renderer private tag. */
 export function focusNativeTarget(target: OverlayTarget | undefined): boolean {
   const node = target?.current
-  if (!node || !isNativeHost(node)) return false
-  const tag = findNodeHandle(node)
-  if (tag === null) return false
-  node.focus()
-  AccessibilityInfo.setAccessibilityFocus(tag)
+  if (!node) return false
+  if (Platform.OS === 'web') {
+    node.focus()
+  } else {
+    if (!isNativeHost(node)) return false
+    const tag = findNodeHandle(node)
+    if (tag === null) return false
+    node.focus()
+    AccessibilityInfo.setAccessibilityFocus(tag)
+  }
   current = target
   return true
 }

@@ -5,8 +5,8 @@
  * core `@molecule/app-ui` component interfaces, including Accordion,
  * Alert, Avatar, Badge, Button, Card (+ CardHeader/CardTitle/CardDescription/
  * CardContent/CardFooter), Checkbox, Container, Dropdown, FileField, Flex, Form,
- * FormField, Grid, Input, Label, Modal, Pagination, Progress, RadioGroup,
- * Select, Separator, Skeleton, Spacer, Spinner, Switch, Table, Tabs,
+ * FormArea, FormField, Grid, Input, Label, Modal, Pagination, Progress, RadioGroup,
+ * Select, Separator, Skeleton, Spacer, Spinner, Switch, Table, Tabs, TextField,
  * Textarea, Toast (+ ToastProvider / ToastContainer / useToast), Tooltip.
  * Prop types build on `@molecule/app-ui`. Web-only extras (Icon,
  * UserMenu, ThemeToggle, PageHeader, …) live in `@molecule/app-ui-react` and
@@ -94,6 +94,8 @@ export {
   useToast,
 } from './components/index.js'
 export { FileField } from './elements/FileField.js'
+export { FormArea } from './elements/FormArea.js'
+export { TextField } from './elements/TextField.js'
 export type * from './types.js'
 export type {
   AccordionProps,

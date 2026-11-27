@@ -110,26 +110,26 @@ vi.mock('react-native-external-keyboard', () => {
   throw new Error('The stock elements barrel must load without a hardware-keyboard package')
 })
 
-vi.mock('@react-native-community/slider', () => ({
-  default: function WriteOnlySlider(props: SliderProps) {
-    const [position, setPosition] = useState(props.value || props.minimumValue)
-    useLayoutEffect(() => {
-      // The 4.5.6 wrapper drops zero, and Android Fabric echoes programmatic progress.
-      if (props.value) {
-        setPosition(props.value)
-        if (device.os === 'android') props.onValueChange?.(props.value)
-      }
-    }, [props.value])
-    return (
-      <div
-        data-thumb={position}
-        ref={(node) => {
-          if (node) tracks.set(node, { props, move: setPosition })
-        }}
-      />
-    )
-  },
-}))
+function WriteOnlySlider(props: SliderProps) {
+  const [position, setPosition] = useState(props.value || props.minimumValue)
+  useLayoutEffect(() => {
+    // The 4.5.6 wrapper drops zero, and Android Fabric echoes programmatic progress.
+    if (props.value) {
+      setPosition(props.value)
+      if (device.os === 'android') props.onValueChange?.(props.value)
+    }
+  }, [props.value])
+  return (
+    <div
+      data-thumb={position}
+      ref={(node) => {
+        if (node) tracks.set(node, { props, move: setPosition })
+      }}
+    />
+  )
+}
+
+vi.mock('@react-native-community/slider', () => ({ default: WriteOnlySlider }))
 
 let container: HTMLDivElement
 let root: ReturnType<typeof createRoot>
@@ -186,6 +186,20 @@ function slide(position: number, id = 'range'): void {
     slider.props.onSlidingComplete?.(position)
   })
 }
+
+it('renders the slider when a browser bundler imports the CommonJS exports object', async () => {
+  device.os = 'web'
+  setNativeKeyboardView(undefined)
+  vi.resetModules()
+  vi.doMock('@react-native-community/slider', () => ({ default: { default: WriteOnlySlider } }))
+  try {
+    const { RangeField: WebRangeField } = await import('../elements/RangeField.js')
+    render(<WebRangeField data-testid="range" defaultValue={30} />)
+    expect(track().position).toBe(31)
+  } finally {
+    vi.doUnmock('@react-native-community/slider')
+  }
+})
 
 describe('RangeField on device', () => {
   it.each([true, false])('forwards the slider language with hardware keyboard %s', (keyboard) => {

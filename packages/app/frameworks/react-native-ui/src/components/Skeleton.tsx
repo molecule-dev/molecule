@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useState } from 'react'
-import { Animated, View, type ViewStyle } from 'react-native'
+import { Animated, Platform, View, type ViewStyle } from 'react-native'
 
 import type { SkeletonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -33,20 +33,19 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   // The animated value is created once per mount and kept in state; a ref would
   // have to be read while rendering.
   const [opacity] = useState(() => new Animated.Value(1))
-
+  // Web uses the ClassMap's CSS animation.
+  const nativePulse = animation === 'pulse' && Platform.OS !== 'web'
   useEffect(() => {
-    if (animation === 'pulse') {
-      const pulse = Animated.loop(
-        Animated.sequence([
-          Animated.timing(opacity, { toValue: 0.5, duration: 1000, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 1, duration: 1000, useNativeDriver: true }),
-        ]),
-      )
-      pulse.start()
-      return () => pulse.stop()
-    }
-    return undefined
-  }, [animation, opacity])
+    if (!nativePulse) return undefined
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.5, duration: 1000, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 1000, useNativeDriver: true }),
+      ]),
+    )
+    pulse.start()
+    return () => pulse.stop()
+  }, [nativePulse, opacity])
 
   const classes = cm.cn(
     cm.skeleton(),
@@ -65,7 +64,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   return (
     <Animated.View
       className={classes}
-      style={[sizeStyle, { opacity: animation === 'pulse' ? opacity : 1 }]}
+      style={[sizeStyle, { opacity: nativePulse ? opacity : 1 }]}
       testID={testId}
     />
   )

@@ -176,6 +176,7 @@ vi.mock('react-native', () => {
       announceForAccessibility: device.announce,
     },
     findNodeHandle: (node: HTMLElement) => {
+      if (device.os === 'web') throw new Error('findNodeHandle is not supported on web')
       const id = handles.size + 1
       handles.set(id, node)
       return id
@@ -802,6 +803,18 @@ describe('SelectField (native)', () => {
     })
     expect(container.querySelector('[aria-label="Row 0"]')).toBeNull()
     expect(device.accessibilityFocus).toHaveBeenLastCalledWith(option('Row 129'))
+  })
+
+  it('focuses the selected option and restores the trigger through React Native Web refs', () => {
+    device.os = 'web'
+    render(<SelectField as="select" data-mol-id="select" options={[free, pro]} value="free" />)
+    open()
+    expect(document.activeElement).toBe(option('Free'))
+
+    act(() => modal?.onRequestClose())
+    frame()
+    expect(document.activeElement).toBe(trigger())
+    expect(device.accessibilityFocus).not.toHaveBeenCalled()
   })
 
   it('cycles hardware focus within the modal, skips disabled rows and deduplicates activation', () => {

@@ -174,7 +174,10 @@ vi.mock('react-native', async () => {
       metrics: () => undefined,
       addListener: () => ({ remove() {} }),
     },
-    findNodeHandle: (node: MockNode) => node.tag,
+    findNodeHandle: (node: MockNode) => {
+      if (native.platform.OS === 'web') throw new Error('findNodeHandle is not supported on web')
+      return node.tag
+    },
     AccessibilityInfo: {
       setAccessibilityFocus: native.accessFocus,
       announceForAccessibility: native.announce,
@@ -597,24 +600,25 @@ it('delivers one Back outside native modals and leaves a passive toast out of di
   expect(native.back.size).toBe(0)
 })
 
-it('focuses the first enabled control after show and layout and restores the mounted opener', () => {
-  function Screen(): ReactElement {
-    const [open, setOpen] = useState(false)
-    return (
-      <>
-        <Pressable as="button" onClick={() => setOpen(true)}>
-          Opener
+function FocusScreen(): ReactElement {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Pressable as="button" onClick={() => setOpen(true)}>
+        Opener
+      </Pressable>
+      <Dialog open={open} name="Confirm" dismissKey onDismiss={() => setOpen(false)}>
+        <Pressable as="button" disabled>
+          Unavailable
         </Pressable>
-        <Dialog open={open} name="Confirm" dismissKey onDismiss={() => setOpen(false)}>
-          <Pressable as="button" disabled>
-            Unavailable
-          </Pressable>
-          <Pressable as="button">Action</Pressable>
-        </Dialog>
-      </>
-    )
-  }
-  render(<Screen />)
+        <Pressable as="button">Action</Pressable>
+      </Dialog>
+    </>
+  )
+}
+
+it('focuses the first enabled control after show and layout and restores the mounted opener', () => {
+  render(<FocusScreen />)
   const opener = screen.getByText('Opener').closest('button')
   fireEvent.click(screen.getByText('Opener'))
   act(() => presenter('Confirm').onShow())
@@ -633,6 +637,22 @@ it('focuses the first enabled control after show and layout and restores the mou
   frame()
   expect(document.activeElement).toBe(opener)
   expect(native.accessFocus).toHaveBeenCalledTimes(2)
+})
+
+it('focuses and restores an overlay control through its React Native Web ref', () => {
+  native.platform.OS = 'web'
+  render(<FocusScreen />)
+  const opener = screen.getByText('Opener').closest('button')
+  fireEvent.click(screen.getByText('Opener'))
+  act(() => presenter('Confirm').onShow())
+  act(() => native.layout.forEach((layout) => layout()))
+  frame()
+  expect(document.activeElement).toBe(screen.getByText('Action').closest('button'))
+
+  act(() => presenter('Confirm').onRequestClose())
+  frame()
+  expect(document.activeElement).toBe(opener)
+  expect(native.accessFocus).not.toHaveBeenCalled()
 })
 
 it('serializes iOS sibling presentations and resumes the lower drawer after dismissal', () => {

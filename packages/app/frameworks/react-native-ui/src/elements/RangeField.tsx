@@ -4,7 +4,7 @@
  * @module
  */
 
-import Slider from '@react-native-community/slider'
+import sliderExport from '@react-native-community/slider'
 import {
   type ComponentRef,
   forwardRef,
@@ -55,6 +55,14 @@ import { nativeStyle } from './style.js'
 
 type RangeHost = View | ComponentRef<NativeKeyboardView>
 
+/** The slider component, also when Vite's ES module interop exposes its CommonJS exports object. */
+function resolveSlider(
+  exported: typeof sliderExport | { default: typeof sliderExport },
+): typeof sliderExport {
+  return 'default' in exported ? exported.default : exported
+}
+
+const Slider = resolveSlider(sliderExport)
 const ADJUST_ACTIONS = [{ name: 'increment' }, { name: 'decrement' }]
 
 /** Gives the rotated track a vertical layout footprint. */
