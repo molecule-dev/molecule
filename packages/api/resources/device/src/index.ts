@@ -39,6 +39,9 @@
  *   standard scaffold replays `__setup__/*.sql` on migrate;
  *   `resource.tableName` is `devices`). When adding to an existing app, apply
  *   it before use — nothing at runtime creates the table.
+ * - New app scaffolds mount device list, read, update and delete routes with a settings panel or
+ *   API push provider. To opt in directly, include `@molecule/api-resource-device` in
+ *   `mlcl create --packages` or run `mlcl add @molecule/api-resource-device --inject`.
  * - **The handler map is a factory, not a constant.** Call
  *   `createRequestHandlerMap(createRequestHandler)`; do not import a
  *   `requestHandlerMap` constant like other resources export. Its `auth` /
@@ -56,9 +59,9 @@
  *   never a crash. Surface those states in the client instead of retrying.
  *
  * @e2e
- * Integration checklist — drive the real UI (live preview, no mocks), adapt
- * each item to this app's actual screens/flows, and check every box off one
- * by one. A box you can't check is an integration bug to fix — not a skip:
+ * Integration checklist for apps with device-management routes. Drive the real UI in a live
+ * preview and check each flow the app offers. The push-subscription checks apply with a push
+ * provider.
  * - [ ] Registering a device persists a real row that appears in the signed-in
  *   user's device list: sign in on a fresh browser/install, open GET /devices,
  *   and the device shows with its `name` and timestamps — the current session's
