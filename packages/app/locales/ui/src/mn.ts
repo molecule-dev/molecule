@@ -80,7 +80,7 @@ export const mn: UiTranslations = {
   'ui.contextMenu': 'Контекст цэс',
   'ui.fileField.browse': 'Файлуудыг үзэх',
   'ui.fileField.error.missingProvider':
-    'Файл сонгогч холбогдоогүй байна. {{bond}}-с `provider` импортлоод `setupProviders()` дотор {{core}} `setProvider(provider)`-г дуудна уу.',
+    'Файл сонгогч холбогдоогүй байна. {{bond}}-с `provider` импортлоод `setupProviders()` дотор {{core}}-с `setProvider(provider)`-г дуудна уу.',
   'ui.paste': 'Буулгах',
   'ui.select.expanded': 'Сонголтын цэс нээгдсэн',
   'ui.select.selectionCount': '{{count}} сонгосон',

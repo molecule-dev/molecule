@@ -74,7 +74,7 @@ export const mt: UiTranslations = {
   'ui.contextMenu': 'Menù tal-kuntest',
   'ui.fileField.browse': 'Fittex il-fajls',
   'ui.fileField.error.missingProvider':
-    "L-ebda selettur ta' fajls mhu marbut. Importa `provider` minn {{bond}} u sejjaħ `setProvider(provider)` minn {{core}} `setupProviders()`.",
+    "L-ebda selettur ta' fajls mhu marbut. Importa `provider` minn {{bond}} u sejjaħ `setProvider(provider)` minn {{core}} fi `setupProviders()`.",
   'ui.paste': 'Pejst',
   'ui.select.expanded': 'Il-menù tal-għażliet infetaħ',
   'ui.select.selectionCount': '{{count}} magħżula',

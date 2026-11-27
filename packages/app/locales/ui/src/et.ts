@@ -74,7 +74,7 @@ export const et: UiTranslations = {
   'ui.contextMenu': 'Kontekstimenüü',
   'ui.fileField.browse': 'Sirvi faile',
   'ui.fileField.error.missingProvider':
-    'Failivalijat pole ühendatud. Impordi `provider` failist {{bond}} ja kutsu `setProvider(provider)` failist {{core}} failis `setupProviders()`.',
+    'Failivalijat pole ühendatud. Impordi `provider` paketist {{bond}} ja kutsu `setProvider(provider)` paketist {{core}} funktsioonis `setupProviders()`.',
   'ui.paste': 'Kleebi',
   'ui.select.expanded': 'Valikute menüü on avatud',
   'ui.select.selectionCount': '{{count}} valitud',

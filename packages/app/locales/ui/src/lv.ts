@@ -74,7 +74,7 @@ export const lv: UiTranslations = {
   'ui.contextMenu': 'Konteksta izvēlne',
   'ui.fileField.browse': 'Pārlūkot failus',
   'ui.fileField.error.missingProvider':
-    'Nav piesaistīts neviens failu atlasītājs. Importējiet `provider` no {{bond}} un izsauciet `setProvider(provider)` no {{core}} `setupProviders()`.',
+    'Nav piesaistīts neviens failu atlasītājs. Importējiet `provider` no {{bond}} un izsauciet `setProvider(provider)` no {{core}} funkcijā `setupProviders()`.',
   'ui.paste': 'Ielīmēt',
   'ui.select.expanded': 'Opciju izvēlne atvērta',
   'ui.select.selectionCount': 'Atlasīts {{count}}',

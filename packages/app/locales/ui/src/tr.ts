@@ -74,7 +74,7 @@ export const tr: Partial<UiTranslations> = {
   'ui.contextMenu': 'Bağlam menüsü',
   'ui.fileField.browse': 'Dosyalara göz at',
   'ui.fileField.error.missingProvider':
-    'Hiçbir dosya seçici bağlanmamıştır. {{bond}} `provider` içe aktarın ve `setupProviders()` {{core}} `setProvider(provider)` çağırın.',
+    "Hiçbir dosya seçici bağlanmamıştır. {{bond}} paketinden `provider`'ı içe aktarın ve `setupProviders()` içinde {{core}} paketinden `setProvider(provider)`'ı çağırın.",
   'ui.paste': 'Yapıştır',
   'ui.select.expanded': 'Seçenekler menüsü açıldı.',
   'ui.select.selectionCount': '{{count}} seçildi',

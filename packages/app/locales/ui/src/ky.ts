@@ -74,7 +74,7 @@ export const ky: UiTranslations = {
   'ui.contextMenu': 'Контексттик меню',
   'ui.fileField.browse': 'Файлдарды карап чыгуу',
   'ui.fileField.error.missingProvider':
-    'Бир дагы файл тандагыч байланыштырылган эмес. {{bond}} дарегинен `provider` функциясын импорттоп, `setupProviders()` ичинде {{core}} дарегинен `setProvider(provider)` функциясын чакырыңыз.',
+    'Бир дагы файл тандагыч байланыштырылган эмес. {{bond}} дарегинен `provider` импорттоп, `setupProviders()` ичинде {{core}} дарегинен `setProvider(provider)` функциясын чакырыңыз.',
   'ui.paste': 'Чаптоо',
   'ui.select.expanded': 'Параметрлер менюсу ачылды',
   'ui.select.selectionCount': '{{count}} тандалды',

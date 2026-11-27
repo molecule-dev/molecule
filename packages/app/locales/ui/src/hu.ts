@@ -74,7 +74,7 @@ export const hu: Partial<UiTranslations> = {
   'ui.contextMenu': 'Helyi menü',
   'ui.fileField.browse': 'Fájlok böngészése',
   'ui.fileField.error.missingProvider':
-    'Nincs fájlválasztó kötve. Importáld `provider` függvényt {{bond}} mappából, és hívd meg `setProvider(provider)` függvényt {{core}} mappából `setupProviders()` függvényben.',
+    'Nincs fájlválasztó kötve. Importáld a `provider`-t a {{bond}}-ból, és hívd meg a `setProvider(provider)` függvényt a {{core}}-ból a `setupProviders()` függvényben.',
   'ui.paste': 'Paszta',
   'ui.select.expanded': 'Beállítások menü megnyitva',
   'ui.select.selectionCount': '{{count}} kiválasztott',

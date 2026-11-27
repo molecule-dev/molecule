@@ -74,7 +74,7 @@ export const sw: UiTranslations = {
   'ui.contextMenu': 'Menyu ya muktadha',
   'ui.fileField.browse': 'Vinjari faili',
   'ui.fileField.error.missingProvider':
-    'Hakuna kiteuzi cha faili kilichounganishwa. Ingiza `provider` kutoka {{bond}} na upigie simu `setProvider(provider)` kutoka {{core}} katika `setupProviders()`.',
+    'Hakuna kiteuzi cha faili kilichounganishwa. Ingiza `provider` kutoka {{bond}} na uitishe `setProvider(provider)` kutoka {{core}} katika `setupProviders()`.',
   'ui.paste': 'Bandika',
   'ui.select.expanded': 'Menyu ya chaguo imefunguliwa',
   'ui.select.selectionCount': '{{count}} imechaguliwa',

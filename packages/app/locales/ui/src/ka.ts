@@ -81,7 +81,7 @@ export const ka: UiTranslations = {
   'ui.contextMenu': 'კონტექსტური მენიუ',
   'ui.fileField.browse': 'ფაილების დათვალიერება',
   'ui.fileField.error.missingProvider':
-    'ფაილის ამომრჩეველი არ არის დაკავშირებული. იმპორტირებულია `provider` {{bond}}-დან და გამოიძახეთ `setProvider(provider)` {{core}}-დან `setupProviders()` ში.',
+    'ფაილის ამომრჩეველი არ არის დაკავშირებული. შემოიტანეთ `provider` {{bond}}-დან და გამოიძახეთ `setProvider(provider)` {{core}}-დან `setupProviders()`-ში.',
   'ui.paste': 'ჩასმა',
   'ui.select.expanded': 'პარამეტრების მენიუ გახსნილია',
   'ui.select.selectionCount': '{{count}} არჩეულია',

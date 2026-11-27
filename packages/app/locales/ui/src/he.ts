@@ -74,7 +74,7 @@ export const he: Partial<UiTranslations> = {
   'ui.contextMenu': 'תפריט ההקשר',
   'ui.fileField.browse': 'עיון בקבצים',
   'ui.fileField.error.missingProvider':
-    'אין בורר קבצים מקושר. יש לייבא `provider` מ- {{bond}} ולקרוא ל `setProvider(provider)` מ- {{core}} ב `setupProviders()`.',
+    'אין בורר קבצים מקושר. יש לייבא `provider` מ-{{bond}} ולקרוא ל `setProvider(provider)` מ-{{core}} ב `setupProviders()`.',
   'ui.paste': 'לְהַדבִּיק',
   'ui.select.expanded': 'תפריט האפשרויות נפתח',
   'ui.select.selectionCount': 'נבחרו {{count}}',

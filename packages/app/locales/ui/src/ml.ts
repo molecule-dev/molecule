@@ -83,7 +83,7 @@ export const ml: UiTranslations = {
   'ui.contextMenu': 'സന്ദർഭ മെനു',
   'ui.fileField.browse': 'ഫയലുകൾ ബ്രൗസ് ചെയ്യുക',
   'ui.fileField.error.missingProvider':
-    'ഒരു ഫയൽ പിക്കറും ബോണ്ടഡ് ചെയ്തിട്ടില്ല. {{bond}} ൽ നിന്ന് `provider` ഇറക്കുമതി ചെയ്യുക, `setupProviders()` ൽ {{core}} ൽ നിന്ന് `setProvider(provider)` വിളിക്കുക.',
+    'ഒരു ഫയൽ പിക്കറും ബോണ്ടഡ് ചെയ്തിട്ടില്ല. {{bond}}-ൽ നിന്ന് `provider` ഇറക്കുമതി ചെയ്യുക, `setupProviders()`-ൽ {{core}}-ൽ നിന്ന് `setProvider(provider)` വിളിക്കുക.',
   'ui.paste': 'ഒട്ടിക്കുക',
   'ui.select.expanded': 'ഓപ്ഷൻ മെനു തുറന്നു',
   'ui.select.selectionCount': '{{count}} തിരഞ്ഞെടുത്തു',

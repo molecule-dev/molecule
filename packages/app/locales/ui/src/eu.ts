@@ -74,7 +74,7 @@ export const eu: UiTranslations = {
   'ui.contextMenu': 'Testuinguru-menua',
   'ui.fileField.browse': 'Arakatu fitxategiak',
   'ui.fileField.error.missingProvider':
-    'Ez dago fitxategi-hautatzailerik lotuta. Inportatu `provider` {{bond}}-tik eta deitu `setProvider(provider)` {{core}} tik `setupProviders()`-n.',
+    'Ez dago fitxategi-hautatzailerik lotuta. Inportatu `provider` {{bond}}-tik eta deitu `setProvider(provider)` {{core}}-tik `setupProviders()`-n.',
   'ui.paste': 'Itsatsi',
   'ui.select.expanded': 'Aukeren menua ireki da',
   'ui.select.selectionCount': '{{count}} hautatuta',

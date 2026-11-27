@@ -74,7 +74,7 @@ export const ko: Partial<UiTranslations> = {
   'ui.contextMenu': '컨텍스트 메뉴',
   'ui.fileField.browse': '파일 찾아보기',
   'ui.fileField.error.missingProvider':
-    '파일 선택기가 연결되어 있지 않습니다. `setupProviders()` {{bond}} 에서 `provider` 가져오고 {{core}} 의 `setProvider(provider)` 호출하세요.',
+    '파일 선택기가 연결되어 있지 않습니다. {{bond}}에서 `provider`를 가져오고 `setupProviders()`에서 {{core}}의 `setProvider(provider)`를 호출하세요.',
   'ui.paste': '반죽',
   'ui.select.expanded': '옵션 메뉴가 열렸습니다',
   'ui.select.selectionCount': '{{count}} 명이 선택했습니다',

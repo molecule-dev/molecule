@@ -79,7 +79,7 @@ export const hy: UiTranslations = {
   'ui.contextMenu': 'Համատեքստային ցանկ',
   'ui.fileField.browse': 'Ֆայլերի դիտում',
   'ui.fileField.error.missingProvider':
-    'Ֆայլերի ընտրիչ չկա կապված։ Ներմուծեք `provider` {{bond}} ից և կանչեք `setProvider(provider)` ը {{core}}-ից `setupProviders()`-ում։',
+    'Ֆայլերի ընտրիչ չկա կապված։ Ներմուծեք `provider` {{bond}}-ից և կանչեք `setProvider(provider)`-ը {{core}}-ից `setupProviders()`-ում։',
   'ui.paste': 'Տեղադրել',
   'ui.select.expanded': 'Ընտրանքների ցանկը բաց է',
   'ui.select.selectionCount': 'Ընտրված է {{count}}',
