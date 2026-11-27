@@ -30,7 +30,7 @@ export interface AudioPlayerProps {
    * it the track is empty and no caption line is shown.
    */
   captions?: string
-  /** BCP 47 language of the captions (the track's `srclang`). */
+  /** BCP 47 language for the captions track and the visible caption text. */
   captionsLang?: string
   /**
    * Human-readable name of the captions track. Defaults through i18n

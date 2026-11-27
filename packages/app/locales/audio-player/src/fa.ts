@@ -8,4 +8,6 @@ export const fa: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'بی‌صدا کردن',
   'audio.unmute': 'بی‌صدا کردن',
   'audio.captions': 'زیرنویس',
+  'audio.error.missingProvider':
+    'هیچ ارائه‌دهنده صوتی پیوند داده نشده است. `provider` از {{bond}} وارد کنید و `setProvider(provider)` را از {{core}} در `setupProviders()` فراخوانی کنید.',
 }

@@ -8,4 +8,6 @@ export const lo: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'ປິດສຽງ',
   'audio.unmute': 'ເປີດສຽງ',
   'audio.captions': 'ຄຳບັນຍາຍ',
+  'audio.error.missingProvider':
+    'ບໍ່ມີຜູ້ໃຫ້ບໍລິການສຽງໃດຖືກຜູກມັດ. ນຳເຂົ້າ `provider` ຈາກ {{bond}} ແລະ ເອີ້ນ `setProvider(provider)` ຈາກ {{core}} ໃນ `setupProviders()`.',
 }

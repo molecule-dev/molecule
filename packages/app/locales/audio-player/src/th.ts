@@ -8,4 +8,6 @@ export const th: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'ปิดเสียง',
   'audio.unmute': 'เปิดเสียง',
   'audio.captions': 'คำบรรยาย',
+  'audio.error.missingProvider':
+    'ไม่มี audio provider ใดถูกผูกไว้ นำเข้า `provider` จาก {{bond}} และเรียก `setProvider(provider)` จาก {{core}} ใน `setupProviders()`',
 }

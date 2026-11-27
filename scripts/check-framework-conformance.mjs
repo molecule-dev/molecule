@@ -810,6 +810,10 @@ export const TITLE_PARITY_EXEMPT = {
     'src/__tests__/useRouter.route-params-hook.test.tsx':
       "tests `RouterProvider`'s `useRouteParams`, a hook only React Router needs: it scopes route params to the calling component, while Vue Router, SvelteKit, Solid Router and Angular Router answer params at the router's root, so no other binding takes such a hook",
   },
+  '@molecule/app-audio-player-react': {
+    'src/__tests__/native.test.tsx':
+      'drives the native media entry, the audio bond, and the device slider; the DOM ports use browser media events and match the shared controls through the conformance goldens',
+  },
   '@molecule/app-copy-link-field-react': {
     'src/__tests__/copy-link-field-native-focus.test.tsx':
       "calls the field's focus handler with a React Native focus event, which has no selectable web field; a Vue, Svelte, Solid or Angular port renders a DOM input, and each tests selecting it on focus",

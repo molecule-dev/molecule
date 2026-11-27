@@ -7,11 +7,11 @@
   import type { DropdownLabelProps } from '../types.js'
   import ReactNode from './ReactNode.svelte'
 
-  let { ref = $bindable(null), children, className }: DropdownLabelProps = $props()
+  let { ref = $bindable(null), children, className, lang }: DropdownLabelProps = $props()
 
   const cm = $derived(getClassMap())
 </script>
 
-<div bind:this={ref} class={cm.cn(cm.dropdownLabel, className)}>
+<div bind:this={ref} class={cm.cn(cm.dropdownLabel, className)} {lang}>
   <ReactNode node={children} />
 </div>

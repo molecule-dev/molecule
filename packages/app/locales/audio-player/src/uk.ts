@@ -8,4 +8,6 @@ export const uk: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Вимкнути звук',
   'audio.unmute': 'Увімкнути звук',
   'audio.captions': 'Субтитри',
+  'audio.error.missingProvider':
+    "Жоден аудіопостачальник не прив'язаний. Імпортуйте `provider` з {{bond}} та викличте `setProvider(provider)` з {{core}} у `setupProviders()`.",
 }

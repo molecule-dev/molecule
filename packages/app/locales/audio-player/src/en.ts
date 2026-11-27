@@ -8,4 +8,6 @@ export const en: AudioPlayerTranslations = {
   'audio.mute': 'Mute',
   'audio.unmute': 'Unmute',
   'audio.captions': 'Captions',
+  'audio.error.missingProvider':
+    'No audio provider is bonded. Import `provider` from {{bond}} and call `setProvider(provider)` from {{core}} in `setupProviders()`.',
 }

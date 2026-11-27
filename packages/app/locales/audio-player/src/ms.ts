@@ -8,4 +8,6 @@ export const ms: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Bisu',
   'audio.unmute': 'Nyahbisukan',
   'audio.captions': 'Sari kata',
+  'audio.error.missingProvider':
+    'Tiada pembekal audio terikat. Import `provider` daripada {{bond}} dan panggil `setProvider(provider)` daripada {{core}} dalam `setupProviders()`.',
 }

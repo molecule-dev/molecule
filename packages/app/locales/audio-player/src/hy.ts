@@ -8,4 +8,6 @@ export const hy: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Անջատել',
   'audio.unmute': 'Միացնել ձայնը',
   'audio.captions': 'Ենթավերնագրեր',
+  'audio.error.missingProvider':
+    'Աուդիո մատակարար չկա կապված։ Ներմուծեք `provider` {{bond}}-ից և կանչեք `setProvider(provider)`-ը {{core}}-ից `setupProviders()`-ում։',
 }

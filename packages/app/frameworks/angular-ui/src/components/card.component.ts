@@ -11,6 +11,7 @@ import type { MouseEventHandler, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
+import { ElementLanguage } from '../utilities/element-language.js'
 import { styleText } from '../utilities/style.js'
 
 /** React's variant spellings → class-map variants. */
@@ -256,6 +257,7 @@ export class CardTitle implements HasElement<HTMLHeadingElement> {
 @Component({
   selector: 'p[mol-card-description]',
   standalone: true,
+  hostDirectives: [{ directive: ElementLanguage, inputs: ['lang'] }],
   inputs: ['className'],
   host: {
     '[class]': 'classes()',

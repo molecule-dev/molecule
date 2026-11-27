@@ -8,4 +8,6 @@ export const ga: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Balbhaigh',
   'audio.unmute': 'Díbholadh',
   'audio.captions': 'Fotheidil',
+  'audio.error.missingProvider':
+    'Níl aon soláthraí fuaime nasctha. Iompórtáil `provider` ó {{bond}} agus glaoigh ar `setProvider(provider)` ó {{core}} i `setupProviders()`.',
 }

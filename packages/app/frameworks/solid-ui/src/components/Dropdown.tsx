@@ -25,7 +25,7 @@ import {
   readOverlayAnchorWidth,
 } from '@molecule/app-overlay-dom'
 import { BodyPortal, resolveNode, useLocation } from '@molecule/app-solid'
-import { getClassMap } from '@molecule/app-ui'
+import { type ElementProps, getClassMap } from '@molecule/app-ui'
 
 import type { DropdownItem, DropdownProps } from '../types.js'
 import { toStyleProps, type WithRef } from '../utilities/dom.js'
@@ -519,7 +519,10 @@ export const Dropdown = withDisplayName<WithRef<DropdownProps<string>, HTMLDivEl
  * @returns The rendered label element.
  */
 export const DropdownLabel = withDisplayName<
-  WithRef<{ children?: JSX.Element; className?: string }, HTMLDivElement>
+  WithRef<
+    Pick<ElementProps, 'lang'> & { children?: JSX.Element; className?: string },
+    HTMLDivElement
+  >
 >((props) => {
   const cm = getClassMap()
   return (
@@ -528,6 +531,7 @@ export const DropdownLabel = withDisplayName<
         if (typeof props.ref === 'function') props.ref(el)
       }}
       class={cm.cn(cm.dropdownLabel, props.className)}
+      lang={props.lang}
     >
       {props.children}
     </div>

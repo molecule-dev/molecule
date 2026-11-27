@@ -10,6 +10,7 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
+import { ElementLanguage } from '../utilities/element-language.js'
 
 /**
  * Label component.
@@ -20,6 +21,7 @@ import { type HasElement, hostElement } from '../utilities/element.js'
 @Component({
   selector: 'label[mol-label]',
   standalone: true,
+  hostDirectives: [{ directive: ElementLanguage, inputs: ['lang'] }],
   inputs: ['required', 'className', 'htmlFor'],
   host: {
     '[class]': 'classes()',

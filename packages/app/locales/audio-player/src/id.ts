@@ -8,4 +8,6 @@ export const id: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Bisu',
   'audio.unmute': 'Membunyikan',
   'audio.captions': 'Subtitel',
+  'audio.error.missingProvider':
+    'Tidak ada penyedia audio yang terikat. Impor `provider` dari {{bond}} dan panggil `setProvider(provider)` dari {{core}} di `setupProviders()`.',
 }

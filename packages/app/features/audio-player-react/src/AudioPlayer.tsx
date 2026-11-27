@@ -1,10 +1,9 @@
 import type { JSX, ReactNode } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { createElement, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import { slot } from '@molecule/app-react/render'
-import { getClassMap } from '@molecule/app-ui'
-import { Button } from '@molecule/app-ui-react'
+
+import { AudioPlayerChrome } from './AudioPlayerChrome.js'
 
 /** Props for {@link AudioPlayer}. */
 export interface AudioPlayerProps {
@@ -16,16 +15,14 @@ export interface AudioPlayerProps {
   /** Optional waveform / visualizer slot rendered above the controls. */
   visualizer?: ReactNode
   /**
-   * WebVTT captions file URL. When set, the player loads it on the media
-   * element's captions `<track>` and shows the current caption under the
-   * controls, in a polite live region that screen readers announce. Without
-   * it the track is empty and no caption line is shown.
+   * WebVTT captions file URL. The current caption appears in a polite live
+   * region below the controls.
    */
   captions?: string
-  /** BCP 47 language of the captions (the track's `srclang`). */
+  /** BCP 47 language for the captions track and its visible caption text. */
   captionsLang?: string
   /**
-   * Human-readable name of the captions track. Defaults through i18n
+   * Human-readable name of the browser's captions track. Defaults through i18n
    * (`audio.captions`, English "Captions").
    */
   captionsLabel?: string
@@ -42,17 +39,6 @@ export interface AudioPlayerProps {
 }
 
 /**
- * Formats a duration in seconds as M:SS (e.g. 90 → "1:30").
- * @param s
- */
-function fmt(s: number): string {
-  if (!isFinite(s)) return '0:00'
-  const m = Math.floor(s / 60)
-  const sec = Math.floor(s % 60)
-  return `${m}:${String(sec).padStart(2, '0')}`
-}
-
-/**
  * HTML5 audio player chrome — play/pause, scrub, time, mute, optional
  * visualizer slot. Use for podcasts, voice notes, music previews,
  * narrated lessons.
@@ -60,8 +46,8 @@ function fmt(s: number): string {
  */
 export function AudioPlayer({
   src,
-  title: titleProp,
-  subtitle: subtitleProp,
+  title,
+  subtitle,
   visualizer,
   captions,
   captionsLang,
@@ -73,9 +59,6 @@ export function AudioPlayer({
   onEnded,
   className,
 }: AudioPlayerProps): JSX.Element {
-  const title = slot(titleProp)
-  const subtitle = slot(subtitleProp)
-  const cm = getClassMap()
   const { t } = useTranslation()
   const ref = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(!!autoPlay)
@@ -161,85 +144,35 @@ export function AudioPlayer({
     setMuted(a.muted)
   }
 
+  // This media element exists only in the browser entry. The controls are portable.
+  const media = createElement(
+    'audio',
+    { ref, src, autoPlay, muted, preload: 'metadata', style: { display: 'none' } },
+    createElement('track', {
+      ref: trackRef,
+      kind: 'captions',
+      src: captions,
+      srcLang: captionsLang,
+      label: captionsLabel ?? t('audio.captions', {}, { defaultValue: 'Captions' }),
+    }),
+  )
+
   return (
-    <div className={cm.cn(cm.stack(2), cm.sp('p', 3), className)}>
-      <audio
-        ref={ref}
-        src={src}
-        autoPlay={autoPlay}
-        muted={muted}
-        preload="metadata"
-        style={{ display: 'none' }}
-      >
-        <track
-          ref={trackRef}
-          kind="captions"
-          src={captions}
-          srcLang={captionsLang}
-          label={captionsLabel ?? t('audio.captions', {}, { defaultValue: 'Captions' })}
-        />
-      </audio>
-      {(title || subtitle) && (
-        <header className={cm.stack(0 as const)}>
-          {title && (
-            <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title}</span>
-          )}
-          {subtitle && <span className={cm.textSize('xs')}>{subtitle}</span>}
-        </header>
-      )}
-      {visualizer}
-      <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggle}
-          data-mol-id="audio-player-toggle"
-          aria-label={
-            playing
-              ? t('audio.pause', {}, { defaultValue: 'Pause' })
-              : t('audio.play', {}, { defaultValue: 'Play' })
-          }
-        >
-          <span aria-hidden>{playing ? '⏸' : '▶'}</span>
-        </Button>
-        <span className={cm.textSize('xs')} style={{ minWidth: 64 }}>
-          {fmt(current)} / {fmt(duration)}
-        </span>
-        <input
-          type="range"
-          min={0}
-          max={duration || 0}
-          step={0.1}
-          value={current}
-          onChange={(e) => seek(Number(e.target.value))}
-          aria-label={t('audio.seek', {}, { defaultValue: 'Seek' })}
-          data-mol-id="audio-player-seek"
-          className={cm.flex1}
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleMute}
-          data-mol-id="audio-player-mute"
-          aria-label={
-            muted
-              ? t('audio.unmute', {}, { defaultValue: 'Unmute' })
-              : t('audio.mute', {}, { defaultValue: 'Mute' })
-          }
-        >
-          <span aria-hidden>{muted ? '🔇' : '🔊'}</span>
-        </Button>
-      </div>
-      {captions && (
-        <p
-          aria-live="polite"
-          data-mol-id="audio-player-captions"
-          className={cm.textSize('sm')}
-          style={{ minHeight: '1.5em', whiteSpace: 'pre-line' }}
-        >
-          {caption}
-        </p>
-      )}
-    </div>
+    <AudioPlayerChrome
+      title={title}
+      subtitle={subtitle}
+      visualizer={visualizer}
+      className={className}
+      media={media}
+      caption={captions ? caption : undefined}
+      captionsLang={captionsLang}
+      playing={playing}
+      muted={muted}
+      current={current}
+      duration={duration}
+      toggle={toggle}
+      seek={seek}
+      toggleMute={toggleMute}
+    />
   )
 }

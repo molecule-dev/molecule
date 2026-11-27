@@ -8,4 +8,6 @@ export const ha: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'shiru',
   'audio.unmute': 'Cire shiru',
   'audio.captions': 'Fassara',
+  'audio.error.missingProvider':
+    'Babu mai bada sauti da aka haɗa. Shigo da `provider` daga {{bond}} kuma kira `setProvider(provider)` daga {{core}} a cikin `setupProviders()`.',
 }

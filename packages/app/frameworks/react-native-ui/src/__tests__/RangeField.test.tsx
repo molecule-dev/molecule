@@ -44,6 +44,7 @@ interface HostProps {
   accessible?: boolean
   accessibilityRole?: string
   accessibilityLabel?: string
+  accessibilityLanguage?: string
   accessibilityValue?: { min?: number; max?: number; now?: number; text?: string }
   accessibilityActions?: { name: string }[]
   accessibilityState?: { disabled?: boolean }
@@ -187,6 +188,15 @@ function slide(position: number, id = 'range'): void {
 }
 
 describe('RangeField on device', () => {
+  it.each([true, false])('forwards the slider language with hardware keyboard %s', (keyboard) => {
+    device.os = 'ios'
+    device.keyboard = keyboard
+    render(<RangeField data-testid="range" lang="fr-CA" aria-label="Volume" />)
+
+    expect(control().accessibilityLabel).toBe('Volume')
+    expect(control().accessibilityLanguage).toBe('fr-CA')
+  })
+
   it('starts at the HTML midpoint and seeks on a tap with one edit notification', () => {
     const changed = vi.fn()
     render(<RangeField data-testid="range" onValueChange={changed} />)

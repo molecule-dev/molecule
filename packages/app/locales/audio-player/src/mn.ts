@@ -8,4 +8,6 @@ export const mn: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Дуугүй болгох',
   'audio.unmute': 'Дуугүй болгох',
   'audio.captions': 'Субтитр',
+  'audio.error.missingProvider':
+    'Аудио үйлчилгээ үзүүлэгч холбогдоогүй байна. {{bond}}-с `provider` импортлоод `setupProviders()` дотор {{core}}-с `setProvider(provider)`-г дуудна уу.',
 }

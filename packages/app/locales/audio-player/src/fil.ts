@@ -8,4 +8,6 @@ export const fil: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'I-mute',
   'audio.unmute': 'I-unmute',
   'audio.captions': 'Mga Caption',
+  'audio.error.missingProvider':
+    'Walang naka-bond na audio provider. I-import `provider` mula sa {{bond}} at tawagin `setProvider(provider)` mula sa {{core}} sa `setupProviders()`.',
 }

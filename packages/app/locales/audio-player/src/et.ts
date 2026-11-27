@@ -8,4 +8,6 @@ export const et: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Vaigista',
   'audio.unmute': 'Tühista heli',
   'audio.captions': 'Subtiitrid',
+  'audio.error.missingProvider':
+    'Helipakkujat pole ühendatud. Impordi `provider` paketist {{bond}} ja kutsu `setProvider(provider)` paketist {{core}} funktsioonis `setupProviders()`.',
 }

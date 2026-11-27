@@ -13,7 +13,7 @@
  * @module
  */
 import { fireEvent, within } from '@testing-library/dom'
-import type { JSX } from 'solid-js'
+import { createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -168,6 +168,21 @@ const baseCases: Array<[string, (props: Record<string, unknown>) => JSX.Element]
 ]
 
 describe('declared props reach the DOM', () => {
+  it('updates the HTML lang attribute on a dropdown label', () => {
+    const [lang, setLang] = createSignal<string | undefined>('fr-CA')
+    mount(() => <ui.DropdownLabel lang={lang()}>Préférences</ui.DropdownLabel>)
+    const element = document.body.firstElementChild?.firstElementChild
+
+    expect(element?.textContent).toBe('Préférences')
+    expect(element?.getAttribute('lang')).toBe('fr-CA')
+
+    setLang('es-MX')
+    expect(element?.getAttribute('lang')).toBe('es-MX')
+
+    setLang(undefined)
+    expect(element?.hasAttribute('lang')).toBe(false)
+  })
+
   for (const [name, renderWith] of [...elementCases, ...baseCases]) {
     it(`${name} renders automationId as data-mol-id`, () => {
       mount(() => renderWith({ automationId: AUTO }))

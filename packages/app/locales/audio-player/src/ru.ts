@@ -8,4 +8,6 @@ export const ru: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Немой',
   'audio.unmute': 'Включить звук',
   'audio.captions': 'Субтитры',
+  'audio.error.missingProvider':
+    'Аудиопровайдер не привязан. Импортируйте `provider` из {{bond}} и вызовите `setProvider(provider)` из {{core}} в `setupProviders()`.',
 }

@@ -22,6 +22,7 @@ import type { IconName } from '@molecule/app-icons'
 import type {
   CheckboxProps as KitCheckboxProps,
   ColorVariant,
+  ElementProps,
   InputProps as KitInputProps,
   KeyboardEventHandler,
   OverlayTarget,
@@ -296,7 +297,10 @@ export interface CardContentProps extends WithElementRef<object, HTMLDivElement>
 }
 
 /** Props for {@link CardDescription}. */
-export interface CardDescriptionProps extends WithElementRef<object, HTMLParagraphElement> {
+export interface CardDescriptionProps extends WithElementRef<
+  Pick<ElementProps, 'lang'>,
+  HTMLParagraphElement
+> {
   /** Description content. */
   children?: Snippet
   /** Extra class names. */
@@ -525,7 +529,10 @@ export interface DropdownProps extends WithElementRef<object, HTMLDivElement> {
 }
 
 /** Props for {@link DropdownLabel}. */
-export interface DropdownLabelProps extends WithElementRef<object, HTMLDivElement> {
+export interface DropdownLabelProps extends WithElementRef<
+  Pick<ElementProps, 'lang'>,
+  HTMLDivElement
+> {
   /** Label content. */
   children?: Snippet | string
   /** Extra class names. */
@@ -766,7 +773,7 @@ export interface InputProps
 }
 
 /** Props for {@link Label}. */
-export interface LabelProps extends WithElementRef<object, HTMLLabelElement> {
+export interface LabelProps extends WithElementRef<Pick<ElementProps, 'lang'>, HTMLLabelElement> {
   /** Label content. */
   children?: Snippet
   /** Whether the required marker renders. */

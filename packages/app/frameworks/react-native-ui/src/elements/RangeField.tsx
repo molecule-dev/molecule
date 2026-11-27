@@ -208,7 +208,7 @@ export const RangeField = forwardRef<ElementHandle, RangeFieldProps>(
     // action at the wrong bound unless fractional controls expose their value as text alone.
     const exposeNumbers =
       !android || (props['aria-valuetext'] === undefined && range.hasIntegerAccessibilityValue)
-    const control: ViewProps = {
+    const control: ViewProps & Pick<RangeFieldProps, 'lang'> = {
       nativeID: props.id,
       testID: accessibility.testID,
       className: split.view || undefined,
@@ -225,6 +225,8 @@ export const RangeField = forwardRef<ElementHandle, RangeFieldProps>(
       role: android ? 'slider' : undefined,
       accessibilityRole: android ? undefined : 'adjustable',
       accessibilityLabel: props['aria-label'] ?? label,
+      accessibilityLanguage: accessibility.accessibilityLanguage,
+      lang: accessibility.lang,
       accessibilityLabelledBy: props['aria-labelledby'],
       accessibilityState: { disabled: disabled || accessibility['aria-disabled'] },
       accessibilityValue: exposeNumbers

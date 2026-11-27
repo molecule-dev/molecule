@@ -8,4 +8,6 @@ export const uz: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Ovozsiz',
   'audio.unmute': 'Ovozsiz rejimni yoqish',
   'audio.captions': 'Subtitrlar',
+  'audio.error.missingProvider':
+    "Hech qanday audio provayder bog'lanmagan. {{bond}} dan `provider` import qiling va `setupProviders()` da {{core}} dan `setProvider(provider)` ni chaqiring.",
 }

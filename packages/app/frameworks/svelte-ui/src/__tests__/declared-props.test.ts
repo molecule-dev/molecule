@@ -14,6 +14,7 @@
  */
 import { fireEvent, screen } from '@testing-library/dom'
 import { type Component, createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
+import { SvelteMap } from 'svelte/reactivity'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
@@ -201,6 +202,25 @@ const baseCases: Array<[string, RenderCase]> = [
 ]
 
 describe('declared props reach the DOM', () => {
+  it('updates the HTML lang attribute on a dropdown label', () => {
+    const language = new SvelteMap([['lang', 'fr-CA']])
+    show(ui.DropdownLabel, {
+      children: 'Préférences',
+      get lang() {
+        return language.get('lang')
+      },
+    })
+    const element = screen.getByText('Préférences')
+
+    expect(element.getAttribute('lang')).toBe('fr-CA')
+
+    flushSync(() => language.set('lang', 'es-MX'))
+    expect(element.getAttribute('lang')).toBe('es-MX')
+
+    flushSync(() => language.delete('lang'))
+    expect(element.hasAttribute('lang')).toBe(false)
+  })
+
   for (const [name, renderWith] of [...elementCases, ...baseCases]) {
     it(`${name} renders automationId as data-mol-id`, () => {
       renderWith({ automationId: AUTO })

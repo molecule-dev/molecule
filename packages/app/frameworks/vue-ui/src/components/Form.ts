@@ -308,6 +308,7 @@ export const Label = defineComponent({
   props: {
     required: Boolean,
     className: String,
+    lang: String,
   },
   setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
@@ -319,6 +320,7 @@ export const Label = defineComponent({
         {
           ref: element,
           ...restAttrs(attrs),
+          lang: props.lang,
           class: cm.cn(
             cm.label({ required: !!props.required }),
             ...classOf(props.className, attrs),

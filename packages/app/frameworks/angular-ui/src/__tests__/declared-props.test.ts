@@ -18,6 +18,7 @@ import {
   Component,
   createComponent,
   provideZonelessChangeDetection,
+  signal,
   type Type,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
@@ -351,6 +352,32 @@ const baseCases: Array<[string, string, Type<unknown>[], Record<string, unknown>
 ]
 
 describe('declared props reach the DOM', () => {
+  it('updates the HTML lang attribute on spoken labels and text', async () => {
+    const lang = signal<string | undefined>('fr-CA')
+    await mount(
+      `<label mol-label [lang]="lang()">Préférences</label>
+        <div mol-dropdown-label [lang]="lang()">Options</div>
+        <p mol-card-description [lang]="lang()">Carte</p>
+        <label mol-label [attr.lang]="'de-DE'">Einstellungen</label>`,
+      [ui.Label, ui.DropdownLabel, ui.CardDescription],
+      { lang },
+    )
+    const elements = Array.from(
+      document.querySelectorAll('label[mol-label], [mol-dropdown-label], [mol-card-description]'),
+    )
+    const languages = () => elements.map((element) => element.getAttribute('lang'))
+
+    expect(languages()).toEqual(['fr-CA', 'fr-CA', 'fr-CA', 'de-DE'])
+
+    lang.set('es-MX')
+    appRef?.tick()
+    expect(languages()).toEqual(['es-MX', 'es-MX', 'es-MX', 'de-DE'])
+
+    lang.set(undefined)
+    appRef?.tick()
+    expect(languages()).toEqual([null, null, null, 'de-DE'])
+  })
+
   for (const [name, template, imports, props] of [...elementCases, ...baseCases]) {
     it(`${name} renders automationId as data-mol-id`, async () => {
       await mount(template, imports, props)

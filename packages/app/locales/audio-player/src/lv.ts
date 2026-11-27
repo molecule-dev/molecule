@@ -8,4 +8,6 @@ export const lv: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Izslēgt skaņu',
   'audio.unmute': 'Ieslēgt skaņu',
   'audio.captions': 'Subtitri',
+  'audio.error.missingProvider':
+    'Nav piesaistīts neviens audio nodrošinātājs. Importējiet `provider` no {{bond}} un izsauciet `setProvider(provider)` no {{core}} funkcijā `setupProviders()`.',
 }

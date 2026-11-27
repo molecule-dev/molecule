@@ -8,4 +8,6 @@ export const hu: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Néma',
   'audio.unmute': 'Némítás feloldása',
   'audio.captions': 'Feliratok',
+  'audio.error.missingProvider':
+    'Nincs hangszolgáltató kötve. Importáld a `provider`-t a {{bond}}-ból, és hívd meg a `setProvider(provider)` függvényt a {{core}}-ból a `setupProviders()` függvényben.',
 }

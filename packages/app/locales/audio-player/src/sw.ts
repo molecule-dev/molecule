@@ -8,4 +8,6 @@ export const sw: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Zima sauti',
   'audio.unmute': 'Rejesha sauti',
   'audio.captions': 'Manukuu',
+  'audio.error.missingProvider':
+    'Hakuna mtoa huduma wa sauti aliyeunganishwa. Ingiza `provider` kutoka {{bond}} na uitishe `setProvider(provider)` kutoka {{core}} katika `setupProviders()`.',
 }

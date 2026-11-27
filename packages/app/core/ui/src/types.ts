@@ -195,7 +195,7 @@ export interface BaseProps {
  * Base props for HTML elements.
  * Framework bindings should extend this with framework-specific attributes.
  */
-export interface HTMLElementProps extends BaseProps {
+export interface HTMLElementProps extends BaseProps, Pick<ElementProps, 'lang'> {
   id?: string
   title?: string
   tabIndex?: number

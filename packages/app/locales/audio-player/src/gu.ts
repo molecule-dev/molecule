@@ -8,4 +8,6 @@ export const gu: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'મ્યૂટ કરો',
   'audio.unmute': 'અનમ્યૂટ કરો',
   'audio.captions': 'કૅપ્શન',
+  'audio.error.missingProvider':
+    'કોઈ ઓડિયો પ્રદાતા બોન્ડેડ નથી. {{bond}} માંથી `provider` આયાત કરો અને `setupProviders()` માં {{core}} માંથી `setProvider(provider)` ને કૉલ કરો.',
 }

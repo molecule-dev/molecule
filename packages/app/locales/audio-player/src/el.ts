@@ -8,4 +8,6 @@ export const el: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Βουβός',
   'audio.unmute': 'Ενεργοποίηση σίγασης',
   'audio.captions': 'Υπότιτλοι',
+  'audio.error.missingProvider':
+    'Δεν υπάρχει δεσμευμένος πάροχος ήχου. Εισαγάγετε `provider` από {{bond}} και καλέστε `setProvider(provider)` από {{core}} στο `setupProviders()`.',
 }

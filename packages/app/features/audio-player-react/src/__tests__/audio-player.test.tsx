@@ -8,6 +8,7 @@ vi.mock('@molecule/app-ui', async (importOriginal) => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
       get(_t, prop) {
+        if (prop === 'flex1') return 'flex1'
         if (prop === 'cn') {
           return (...cls: unknown[]) =>
             cls
@@ -137,6 +138,11 @@ describe('AudioPlayer', () => {
     expect(markup).toContain('src="captions.vtt"')
     expect(markup).toContain('srcLang="en"')
     expect(markup).toContain('label="English"')
+    const caption = markup.match(/<p\b[^>]*data-mol-id="audio-player-captions"[^>]*>/)?.[0]
+    expect(caption).toContain('aria-live="polite"')
+    expect(caption).toContain('lang="en"')
+    expect(caption).not.toContain('aria-label=')
+    expect(caption).not.toContain('aria-description=')
   })
 
   it('labels the captions track through i18n when captionsLabel is absent', () => {

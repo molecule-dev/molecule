@@ -563,6 +563,7 @@ export const DropdownLabel = defineComponent({
   name: 'MDropdownLabel',
   props: {
     className: String,
+    lang: String,
   },
   setup(props, { attrs, slots, expose }) {
     const cm = getClassMap()
@@ -571,7 +572,11 @@ export const DropdownLabel = defineComponent({
     return () =>
       h(
         'div',
-        { ref: element, class: cm.cn(cm.dropdownLabel, ...classOf(props.className, attrs)) },
+        {
+          ref: element,
+          class: cm.cn(cm.dropdownLabel, ...classOf(props.className, attrs)),
+          lang: props.lang,
+        },
         slots.default?.(),
       )
   },

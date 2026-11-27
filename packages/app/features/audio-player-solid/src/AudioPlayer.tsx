@@ -229,6 +229,7 @@ export const AudioPlayer: Component<AudioPlayerProps> = (props) => {
         <p
           aria-live="polite"
           data-mol-id="audio-player-captions"
+          lang={props.captionsLang}
           class={cm.textSize('sm')}
           style={{ 'min-height': '1.5em', 'white-space': 'pre-line' }}
         >

@@ -8,4 +8,6 @@ export const nb: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Stum',
   'audio.unmute': 'Slå av lyden',
   'audio.captions': 'Undertekster',
+  'audio.error.missingProvider':
+    'Ingen lydleverandør er bundet. Importer `provider` fra {{bond}} og kall `setProvider(provider)` fra {{core}} i `setupProviders()`.',
 }

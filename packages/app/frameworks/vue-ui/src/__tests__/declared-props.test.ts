@@ -172,6 +172,25 @@ const baseCases: Array<[string, (props: Record<string, unknown>) => VNodeChild]>
 ]
 
 describe('declared props reach the DOM', () => {
+  it('declares the language of a label and updates its HTML lang attribute', async () => {
+    const lang = ref<string | undefined>('fr-CA')
+    const label = ref<InstanceType<typeof ui.DropdownLabel>>()
+    mount(() => h(ui.DropdownLabel, { lang: lang.value, ref: label }, () => 'Préférences'))
+    const element = document.body.firstElementChild?.firstElementChild
+
+    expect(element?.textContent).toBe('Préférences')
+    expect(element?.getAttribute('lang')).toBe('fr-CA')
+    expect(label.value?.$props).toHaveProperty('lang', 'fr-CA')
+
+    lang.value = 'es-MX'
+    await nextTick()
+    expect(element?.getAttribute('lang')).toBe('es-MX')
+
+    lang.value = undefined
+    await nextTick()
+    expect(element?.hasAttribute('lang')).toBe(false)
+  })
+
   for (const [name, renderWith] of [...elementCases, ...baseCases]) {
     it(`${name} renders automationId as data-mol-id`, () => {
       mount(() => renderWith({ automationId: AUTO }))

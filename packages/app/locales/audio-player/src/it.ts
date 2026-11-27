@@ -8,4 +8,6 @@ export const it: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Silenzioso',
   'audio.unmute': "Riattiva l'audio",
   'audio.captions': 'Sottotitoli',
+  'audio.error.missingProvider':
+    'Nessun provider audio è collegato. Importa `provider` da {{bond}} e chiama `setProvider(provider)` da {{core}} in `setupProviders()`.',
 }

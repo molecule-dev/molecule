@@ -8,4 +8,6 @@ export const pl: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Niemy',
   'audio.unmute': 'Wyłącz wyciszenie',
   'audio.captions': 'Napisy',
+  'audio.error.missingProvider':
+    'Żaden dostawca audio nie jest powiązany. Zaimportuj `provider` z {{bond}} i wywołaj `setProvider(provider)` z {{core}} w `setupProviders()`.',
 }

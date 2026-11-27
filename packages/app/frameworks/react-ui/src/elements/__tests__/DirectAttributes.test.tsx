@@ -3,7 +3,13 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
 import { expect, expectTypeOf, it, vi } from 'vitest'
 
-import type { AriaAttributes, BoxProps, TextFieldProps, TextProps } from '@molecule/app-ui'
+import type {
+  AriaAttributes,
+  BoxProps,
+  ElementProps,
+  TextFieldProps,
+  TextProps,
+} from '@molecule/app-ui'
 
 import { Box } from '../Box.js'
 import { Pressable } from '../Pressable.js'
@@ -61,6 +67,29 @@ it('preserves mounted content and writes the original HTML attributes', () => {
   expect(item.getAttribute('aria-rowindex')).toBe('2')
   expect(item.getAttribute('aria-colindex')).toBe('1')
   expect(screen.getByText('Ctrl').outerHTML).toBe('<kbd translate="no">Ctrl</kbd>')
+})
+
+it('renders and updates language on text, its container, and a control label', () => {
+  expectTypeOf<ElementProps['lang']>().toEqualTypeOf<string | undefined>()
+  const tree = (lang?: string): React.ReactElement => (
+    <Box as="div" lang={lang} data-testid="translated-content">
+      <Text as="span" lang="fr-CA">
+        Bonjour
+      </Text>
+      <Pressable as="button" lang="es-MX">
+        Continuar
+      </Pressable>
+    </Box>
+  )
+  const { rerender } = render(tree('en-GB'))
+  const container = screen.getByTestId('translated-content')
+  expect(container.getAttribute('lang')).toBe('en-GB')
+  expect(screen.getByText('Bonjour').getAttribute('lang')).toBe('fr-CA')
+  expect(screen.getByRole('button', { name: 'Continuar' }).getAttribute('lang')).toBe('es-MX')
+  rerender(tree('pt-BR'))
+  expect(container.getAttribute('lang')).toBe('pt-BR')
+  rerender(tree())
+  expect(container.hasAttribute('lang')).toBe(false)
 })
 
 it('forwards exact text hints and selects the slot on focus', () => {

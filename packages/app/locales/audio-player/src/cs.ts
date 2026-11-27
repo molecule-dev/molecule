@@ -8,4 +8,6 @@ export const cs: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Ztlumit',
   'audio.unmute': 'Zrušit zvuk',
   'audio.captions': 'Titulky',
+  'audio.error.missingProvider':
+    'Žádný audio poskytovatel není propojen. Importujte `provider` z {{bond}} a zavolejte `setProvider(provider)` z {{core}} v `setupProviders()`.',
 }

@@ -24,6 +24,7 @@ interface ViewProps {
   text?: string
   'aria-label'?: string
   'aria-level'?: number
+  accessibilityLanguage?: string
   accessibilityLabel?: string
   accessibilityActions?: { name: string; label?: string }[]
   onAccessibilityAction?: (event: { nativeEvent: { actionName: string } }) => void
@@ -279,6 +280,55 @@ it('announces depth and one-based grid values without replacing the existing nam
     role: 'grid',
     'aria-label': 'Sheet, 7 rows, 4 columns',
   })
+})
+
+it.each(['ios', 'android'])('forwards language to %s accessibility hosts', (os) => {
+  platform.OS = os
+
+  act(() =>
+    root.render(
+      <>
+        <Text as="span" aria-live="polite" lang="es-MX" data-testid="cue">
+          Buenos días
+        </Text>
+        <Box as="div" lang="fr-CA" aria-label="Bonjour" data-testid="label" />
+        <Text as="span" data-testid="ambient">
+          Default language
+        </Text>
+      </>,
+    ),
+  )
+
+  expect(lastHost(nativeText, 'cue')).toMatchObject({
+    accessibilityLanguage: 'es-MX',
+    'aria-live': 'polite',
+  })
+  expect(lastHost(view, 'label')).toMatchObject({
+    accessibilityLanguage: 'fr-CA',
+    'aria-label': 'Bonjour',
+  })
+  expect(lastHost(nativeText, 'cue')).not.toHaveProperty('lang')
+  expect(lastHost(nativeText, 'ambient').accessibilityLanguage).toBeUndefined()
+})
+
+it('uses the Android Text live-region prop for caption updates', () => {
+  platform.OS = 'android'
+
+  act(() =>
+    root.render(
+      <>
+        <Text as="span" aria-live="polite" data-testid="cue">
+          Active caption
+        </Text>
+        <Text as="span" aria-live="off" data-testid="silent">
+          Silent caption
+        </Text>
+      </>,
+    ),
+  )
+
+  expect(lastHost(nativeText, 'cue')).toHaveProperty('accessibilityLiveRegion', 'polite')
+  expect(lastHost(nativeText, 'silent')).toHaveProperty('accessibilityLiveRegion', 'none')
 })
 
 it('routes actual native paste separately from typing, autofill or IME', () => {

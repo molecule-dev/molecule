@@ -8,4 +8,6 @@ export const ro: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Mut',
   'audio.unmute': 'Activează sunetul',
   'audio.captions': 'Subtitrări',
+  'audio.error.missingProvider':
+    'Niciun furnizor audio nu este asociat. Importați `provider` din {{bond}} și apelați `setProvider(provider)` din {{core}} în `setupProviders()`.',
 }

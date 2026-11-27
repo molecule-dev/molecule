@@ -8,4 +8,6 @@ export const zu: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Thulisa',
   'audio.unmute': 'Susa ukuthula',
   'audio.captions': 'Izihloko',
+  'audio.error.missingProvider':
+    'Akukho umhlinzeki womsindo oboshiwe. Ngenisa `provider` kusuka ku {{bond}} bese ushayela `setProvider(provider)` kusuka ku {{core}} ku `setupProviders()`.',
 }

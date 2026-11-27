@@ -8,4 +8,6 @@ export const km: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'បិទសំឡេង',
   'audio.unmute': 'បើកសំឡេង',
   'audio.captions': 'ចំណងជើងរង',
+  'audio.error.missingProvider':
+    'គ្មាន​អ្នកផ្តល់សំឡេង​ណាមួយ​ត្រូវ​បាន​ភ្ជាប់​ទេ។ នាំចូល `provider` ពី {{bond}} ហើយ​ហៅ `setProvider(provider)` ពី {{core}} ក្នុង `setupProviders()` ។',
 }

@@ -8,7 +8,7 @@ import { isValidElement, type ReactNode } from 'react'
 import { Platform, type ViewProps } from 'react-native'
 
 import { formatNumber, t } from '@molecule/app-i18n'
-import type { AriaAttributes, AriaBoolean, DataAttributes, ElementRole } from '@molecule/app-ui'
+import type { AriaAttributes, AriaBoolean, ElementProps, ElementRole } from '@molecule/app-ui'
 
 /**
  * The React Native role (`role` prop) of each element role: the same name, the closest one React
@@ -153,15 +153,18 @@ export type NativeAccessibility = Pick<
   | 'aria-valuetext'
   | 'aria-level'
   | 'accessibilityHint'
-> & {
-  accessibilityCollectionItem?: {
-    rowIndex: number
-    columnIndex: number
-    rowSpan: number
-    columnSpan: number
-    heading: boolean
+  | 'accessibilityLanguage'
+  | 'accessibilityLiveRegion'
+> &
+  Pick<ElementProps, 'lang'> & {
+    accessibilityCollectionItem?: {
+      rowIndex: number
+      columnIndex: number
+      rowSpan: number
+      columnSpan: number
+      heading: boolean
+    }
   }
-}
 
 /**
  * A boolean ARIA value as a device reads it: React DOM's spelling `'true'`/`'false'` as a boolean.
@@ -174,8 +177,7 @@ function ariaFlag(value: AriaBoolean | undefined): boolean | undefined {
 }
 
 /** The element props {@link nativeAccessibility} reads. */
-export type AccessibilitySource = AriaAttributes &
-  DataAttributes & { id?: string; role?: ElementRole; children?: ReactNode }
+export type AccessibilitySource = ElementProps & { children?: ReactNode }
 
 /** Reads the visible text used by default to name a container. */
 function childText(child: ReactNode): string {
@@ -274,6 +276,8 @@ function collectionAccessibility(
  * implies), the ARIA attributes React Native applies (`aria-pressed` and `aria-current` read as
  * selected), its id, and `data-mol-id` (else `data-testid`) as its `testID`. Other `data-*` attributes and ARIA
  * attributes React Native has no equivalent for are left out.
+ * React Native Web forwards `lang` to HTML. Device renderers receive `accessibilityLanguage`,
+ * which React Native 0.79 applies on iOS.
  *
  * @param props - The element's props.
  * @param tag - The element's web tag.
@@ -289,6 +293,7 @@ export function nativeAccessibility(props: AccessibilitySource, tag?: string): N
   const level = props['aria-level'] ?? (tag ? HEADING_LEVEL[tag] : undefined)
   return {
     ...collectionAccessibility(props, role, level),
+    ...(Platform.OS === 'web' ? { lang: props.lang } : { accessibilityLanguage: props.lang }),
     role,
     id: props.id,
     testID: testID === undefined ? undefined : String(testID),
@@ -303,6 +308,9 @@ export function nativeAccessibility(props: AccessibilitySource, tag?: string): N
     'aria-checked': checked === 'mixed' ? 'mixed' : ariaFlag(checked),
     'aria-busy': ariaFlag(props['aria-busy']),
     'aria-live': live,
+    // Android Text forwards native props directly without the View aria-live conversion.
+    accessibilityLiveRegion:
+      Platform.OS === 'android' ? (live === 'off' ? 'none' : live) : undefined,
     'aria-modal': ariaFlag(props['aria-modal']),
     'aria-valuemax': props['aria-valuemax'],
     'aria-valuemin': props['aria-valuemin'],

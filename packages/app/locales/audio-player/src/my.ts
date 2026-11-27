@@ -8,4 +8,6 @@ export const my: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'အသံတိတ်ပါ',
   'audio.unmute': 'အသံဖွင့်ရန်',
   'audio.captions': 'စာတွဲ',
+  'audio.error.missingProvider':
+    'အသံ provider ကို ချိတ်ဆက်မထားပါ။ {{bond}} မှ `provider` တင်သွင်းပြီး `setupProviders()` ရှိ {{core}} မှ `setProvider(provider)` ကို ခေါ်ပါ။',
 }

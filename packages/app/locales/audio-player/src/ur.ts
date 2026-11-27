@@ -8,4 +8,6 @@ export const ur: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'خاموش',
   'audio.unmute': 'چالو کریں۔',
   'audio.captions': 'کیپشن',
+  'audio.error.missingProvider':
+    'کوئی آڈیو فراہم کنندہ پابند نہیں ہے۔ {{bond}} سے `provider` درآمد کریں اور `setupProviders()` میں {{core}} سے `setProvider(provider)` کال کریں۔',
 }

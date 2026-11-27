@@ -204,6 +204,7 @@ export const CardDescription = defineComponent({
   inheritAttrs: false,
   props: {
     className: String,
+    lang: String,
     style: [String, Object] as PropType<Record<string, string | number> | string>,
   },
   emits: ['click'],
@@ -217,6 +218,7 @@ export const CardDescription = defineComponent({
         {
           ref: element,
           class: cm.cn(cm.cardDescription, ...classOf(props.className, attrs)),
+          lang: props.lang,
           style: styleOf(props.style, attrs),
           onClick: (event: MouseEvent) => emit('click', event),
           ...restAttrs(attrs),

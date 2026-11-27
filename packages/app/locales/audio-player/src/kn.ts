@@ -8,4 +8,6 @@ export const kn: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'ಮ್ಯೂಟ್ ಮಾಡಿ',
   'audio.unmute': 'ಅನ್‌ಮ್ಯೂಟ್ ಮಾಡಿ',
   'audio.captions': 'ಶೀರ್ಷಿಕೆಗಳು',
+  'audio.error.missingProvider':
+    'ಯಾವುದೇ ಆಡಿಯೋ ಪೂರೈಕೆದಾರನನ್ನು ಬಾಂಡ್ ಮಾಡಲಾಗಿಲ್ಲ. {{bond}} ನಿಂದ `provider` ಆಮದು ಮಾಡಿಕೊಳ್ಳಿ ಮತ್ತು `setupProviders()` ನಲ್ಲಿ {{core}} ನಿಂದ `setProvider(provider)` ಕರೆ ಮಾಡಿ.',
 }

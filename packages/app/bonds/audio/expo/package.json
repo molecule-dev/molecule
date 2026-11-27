@@ -1,0 +1,56 @@
+{
+  "name": "@molecule/app-audio-expo",
+  "version": "1.0.0",
+  "description": "Expo audio playback provider for molecule.dev.",
+  "homepage": "https://www.molecule.dev/packages/app-audio-expo",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "audio",
+    "audio-player",
+    "expo-audio",
+    "react-native"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/audio/expo"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-audio": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "expo-audio": "0.4.9"
+  },
+  "devDependencies": {
+    "@molecule/app-audio": "1.0.3",
+    "@molecule/app-logger": "1.1.0",
+    "@types/node": "26.6.5",
+    "expo-audio": "0.4.9",
+    "expo-modules-core": "2.5.0",
+    "react-native": "0.79.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

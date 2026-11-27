@@ -432,6 +432,8 @@ export interface AriaAttributes {
 export interface ElementProps extends AriaAttributes, DataAttributes {
   /** Element id (native `nativeID`). */
   id?: string
+  /** BCP 47 language tag for content or accessible labels, which any element can carry. */
+  lang?: string
   /** ClassMap classes (`cm.*`). */
   className?: string
   /** Accessibility role, when it differs from the one `as` implies. */

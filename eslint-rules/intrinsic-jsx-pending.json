@@ -1,6 +1,5 @@
 {
   "features": [
-    "audio-player-react",
     "audio-recorder-react",
     "barcode-scanner-react",
     "canvas-engine-react",

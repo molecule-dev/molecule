@@ -1,7 +1,6 @@
 /**
- * HTML5 audio player chrome — play/pause, scrub bar, elapsed/total time,
- * and a mute toggle, over a hidden `<audio>` element. Use for podcasts,
- * voice notes, music previews, narrated lessons.
+ * Audio player for React DOM and React Native with play, pause, seek,
+ * elapsed/total time, mute, and optional WebVTT captions.
  *
  * @example
  * ```tsx
@@ -17,14 +16,17 @@
  * ```
  *
  * @remarks
- * There is NO volume slider — only a mute toggle; and no playback-rate
- * or skip controls. The optional `visualizer` prop is a free-form node
- * slot rendered above the controls (bring your own waveform). `autoPlay`
- * is passed to the `<audio>` element and is routinely blocked by
- * browsers until user interaction — never rely on it. Duration renders
- * `0:00` until `loadedmetadata` fires (`preload="metadata"`).
+ * Pass a React node to `visualizer` to render a waveform above the controls.
+ * The time display shows `0:00` until playback metadata arrives.
+ * Browsers can block `autoPlay` until the first user interaction.
+ * On React Native, bond an `@molecule/app-audio` provider at startup. Expo apps
+ * can use `@molecule/app-audio-expo` and a device-accessible media URL.
  * Translations come from the companion `@molecule/app-locales-audio-player`
  * locale bond.
+ *
+ * @e2e
+ * - [ ] Play, pause, seek, mute and unmute a track from both renderers.
+ * - [ ] Confirm elapsed time, duration, captions and the end callback follow playback.
  *
  * @module
  */

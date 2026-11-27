@@ -252,6 +252,7 @@
   {#if captions}<p
       aria-live="polite"
       data-mol-id="audio-player-captions"
+      lang={captionsLang}
       class={cm.textSize('sm')}
       style="min-height: 1.5em; white-space: pre-line"
     >

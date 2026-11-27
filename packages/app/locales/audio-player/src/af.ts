@@ -8,4 +8,6 @@ export const af: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Demp',
   'audio.unmute': 'Ontdemp',
   'audio.captions': 'Onderskrifte',
+  'audio.error.missingProvider':
+    'Geen oudio-verskaffer is gebonde nie. Voer `provider` vanaf {{bond}} in en roep `setProvider(provider)` vanaf {{core}} in `setupProviders()` aan.',
 }

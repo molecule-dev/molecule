@@ -8,4 +8,6 @@ export const ig: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Ogbi',
   'audio.unmute': 'Kwụpụ ogbi',
   'audio.captions': 'Okwu ederede',
+  'audio.error.missingProvider':
+    'Enweghị onye na-enye ọdịyo ejikọtara. Bubata `provider` site na {{bond}} wee kpọọ `setProvider(provider)` site na {{core}} na `setupProviders()`.',
 }

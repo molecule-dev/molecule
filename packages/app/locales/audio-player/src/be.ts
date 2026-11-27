@@ -8,4 +8,6 @@ export const be: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Адключыць гук',
   'audio.unmute': 'Уключыць гук',
   'audio.captions': 'Субтытры',
+  'audio.error.missingProvider':
+    'Аудыёпастаўшчык не звязаны. Імпартуйце `provider` з {{bond}} і выклічце `setProvider(provider)` з {{core}} у `setupProviders()`.',
 }

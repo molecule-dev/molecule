@@ -8,4 +8,6 @@ export const fi: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Mykistä',
   'audio.unmute': 'Poista mykistys',
   'audio.captions': 'Tekstitys',
+  'audio.error.missingProvider':
+    'Äänipalveluntarjoajaa ei ole sidottu. Tuo `provider` kohdasta {{bond}} ja kutsu `setProvider(provider)` kohdasta {{core}} kohdassa `setupProviders()`.',
 }

@@ -51,6 +51,7 @@ import type { DropdownItem, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type HasElement, hostElement } from '../utilities/element.js'
+import { ElementLanguage } from '../utilities/element-language.js'
 import { nextInstanceId } from '../utilities/ids.js'
 import { styleText } from '../utilities/style.js'
 import { MolTemplateOutlet } from './template-outlet.directive.js'
@@ -827,6 +828,7 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy, HasElement<H
 @Component({
   selector: 'div[mol-dropdown-label]',
   standalone: true,
+  hostDirectives: [{ directive: ElementLanguage, inputs: ['lang'] }],
   inputs: ['className'],
   host: {
     '[class]': 'classes()',

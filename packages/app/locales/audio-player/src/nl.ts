@@ -8,4 +8,6 @@ export const nl: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Stom',
   'audio.unmute': 'Dempen inschakelen',
   'audio.captions': 'Ondertitels',
+  'audio.error.missingProvider':
+    'Er is geen audioprovider gekoppeld. Importeer `provider` uit {{bond}} en roep `setProvider(provider)` aan vanuit {{core}} in `setupProviders()`.',
 }

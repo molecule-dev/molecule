@@ -296,6 +296,7 @@ export const AudioPlayer = defineComponent({
               {
                 'aria-live': 'polite',
                 'data-mol-id': 'audio-player-captions',
+                lang: props.captionsLang,
                 class: cm.textSize('sm'),
                 style: { minHeight: '1.5em', whiteSpace: 'pre-line' },
               },

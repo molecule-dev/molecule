@@ -8,4 +8,6 @@ export const sl: Partial<AudioPlayerTranslations> = {
   'audio.mute': 'Izklopi zvok',
   'audio.unmute': 'Vklopi zvok',
   'audio.captions': 'Podnapisi',
+  'audio.error.missingProvider':
+    'Noben zvočni ponudnik ni povezan. Uvozite `provider` iz {{bond}} in pokličite `setProvider(provider)` iz {{core}} v `setupProviders()`.',
 }
