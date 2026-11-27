@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-i18n-default-react",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "description": "Renamed to @molecule/app-i18n-default, which it re-exports unchanged; import from @molecule/app-i18n-default instead.",
   "homepage": "https://www.molecule.dev/packages/app-i18n-default-react",
   "type": "module",
@@ -37,13 +37,13 @@
     "directory": "packages/app/features/i18n-default-react"
   },
   "dependencies": {
-    "@molecule/app-i18n-default": "1.1.1"
+    "@molecule/app-i18n-default": "1.2.0"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12",
-    "@molecule/app-i18n": "1.3.0",
+    "@molecule/app-i18n": "1.4.0",
     "@molecule/app-locales-common": "1.0.11",
     "@molecule/app-storage": "1.1.1"
   },

@@ -1,5 +1,11 @@
 # @molecule/app-i18n-default
 
+## 1.2.0
+
+### Minor Changes
+
+- Start the i18n provider in the app's primary locale.
+
 ## 1.1.1
 
 ### Patch Changes

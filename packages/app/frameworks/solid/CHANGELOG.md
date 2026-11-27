@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.19.0
+
+### Minor Changes
+
+- Check translation keys against every locale the app offers.
+
 ## 3.18.1
 
 ### Patch Changes

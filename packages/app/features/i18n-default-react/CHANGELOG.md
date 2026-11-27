@@ -1,5 +1,16 @@
 # @molecule/app-i18n-default-react
 
+## 1.1.0
+
+### Minor Changes
+
+- Start the i18n provider in the app's primary locale.
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-i18n-default@1.2.0
+
 ## 1.0.10
 
 ### Patch Changes

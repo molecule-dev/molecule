@@ -1,5 +1,11 @@
 # @molecule/app-i18n
 
+## 1.4.0
+
+### Minor Changes
+
+- Check translation keys against every locale the app offers.
+
 ## 1.3.0
 
 ### Minor Changes

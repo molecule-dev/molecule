@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react",
-  "version": "4.18.0",
+  "version": "4.19.0",
   "description": "React framework bindings with hooks for auth, forms and server-backed toggles. Use useOptimisticToggle for a follow button, favorite button, star button or thread subscription with any markup: toggle() takes no state argument and commit(desired) returns the server-confirmed boolean. Use useOptimisticValue for flags with related counts.",
   "type": "module",
   "main": "dist/index.js",
@@ -98,7 +98,7 @@
     "@molecule/app-ai-chat": "1.8.1",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-bonds-default-react": "3.1.0",
-    "@molecule/app-i18n": "1.3.0",
+    "@molecule/app-i18n": "1.4.0",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

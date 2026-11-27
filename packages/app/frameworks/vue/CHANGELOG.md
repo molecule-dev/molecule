@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.17.0
+
+### Minor Changes
+
+- Check translation keys against every locale the app offers.
+
 ## 3.16.1
 
 ### Patch Changes

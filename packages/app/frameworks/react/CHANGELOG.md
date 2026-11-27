@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.19.0
+
+### Minor Changes
+
+- Check translation keys against every locale the app offers.
+
 ## 4.18.0
 
 ### Minor Changes

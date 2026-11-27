@@ -44,7 +44,7 @@
   "devDependencies": {
     "@molecule/app-client-search": "1.0.4",
     "@molecule/app-client-search-minisearch": "1.0.4",
-    "@molecule/app-react": "4.18.0",
+    "@molecule/app-react": "4.19.0",
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-ui": "1.16.0",
     "@types/node": "26.6.5",
