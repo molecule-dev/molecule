@@ -9,22 +9,33 @@ import { accessSync } from 'node:fs'
 import { basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const entries = ['elements', 'platform'].map((entry) => {
-  const path = fileURLToPath(import.meta.resolve('@molecule/app-ui-react/' + entry))
+const entries = ['', '/components/Tooltip.js', '/elements', '/platform'].map((entry) => {
+  const path = fileURLToPath(import.meta.resolve('@molecule/app-ui-react' + entry))
   accessSync(path)
   return basename(path)
 })
 console.log(JSON.stringify(entries))
 `
 
+const browserEntries = ['index.web.js', 'Tooltip.web.js', 'index.js', 'index.js']
+
 it.each([
-  { renderer: 'React DOM', conditions: [], entry: 'index.js' },
-  { renderer: 'React Native', conditions: ['--conditions=react-native'], entry: 'native.js' },
-])('resolves the built elements and overlay entries for $renderer', ({ conditions, entry }) => {
+  { renderer: 'React DOM', conditions: [], entries: browserEntries },
+  {
+    renderer: 'React Native',
+    conditions: ['--conditions=react-native'],
+    entries: ['index.js', 'Tooltip.native.js', 'native.js', 'native.js'],
+  },
+  {
+    renderer: 'React Native Web',
+    conditions: ['--conditions=react-native', '--conditions=browser'],
+    entries: browserEntries,
+  },
+])('resolves the built UI entries for $renderer', ({ conditions, entries }) => {
   const output = execFileSync(
     process.execPath,
     [...conditions, '--input-type=module', '--eval', resolveEntries],
     { cwd, encoding: 'utf8' },
   )
-  expect(JSON.parse(output)).toEqual([entry, entry])
+  expect(JSON.parse(output)).toEqual(entries)
 })

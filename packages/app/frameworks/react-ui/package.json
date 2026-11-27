@@ -8,6 +8,10 @@
   "types": "dist/index.web.d.ts",
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/index.web.d.ts",
+        "default": "./dist/index.web.js"
+      },
       "react-native": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
@@ -16,6 +20,10 @@
       "import": "./dist/index.web.js"
     },
     "./components/Tooltip.js": {
+      "browser": {
+        "types": "./dist/components/Tooltip.web.d.ts",
+        "default": "./dist/components/Tooltip.web.js"
+      },
       "react-native": {
         "types": "./dist/components/Tooltip.native.d.ts",
         "default": "./dist/components/Tooltip.native.js"
@@ -24,6 +32,10 @@
       "import": "./dist/components/Tooltip.web.js"
     },
     "./elements": {
+      "browser": {
+        "types": "./dist/elements/index.d.ts",
+        "default": "./dist/elements/index.js"
+      },
       "react-native": {
         "types": "./dist/elements/native.d.ts",
         "default": "./dist/elements/native.js"
@@ -32,6 +44,10 @@
       "import": "./dist/elements/index.js"
     },
     "./platform": {
+      "browser": {
+        "types": "./dist/platform/index.d.ts",
+        "default": "./dist/platform/index.js"
+      },
       "react-native": {
         "types": "./dist/platform/native.d.ts",
         "default": "./dist/platform/native.js"

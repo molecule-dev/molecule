@@ -1,3 +1,7 @@
+import { execFileSync } from 'node:child_process'
+import { basename, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { createElement, Fragment, isValidElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
@@ -19,6 +23,27 @@ vi.mock('react-native-svg', () => ({
 }))
 
 describe('the React Native entry', () => {
+  it.each([
+    { renderer: 'device', conditions: ['--conditions=react-native'], entry: 'native.js' },
+    {
+      renderer: 'web',
+      conditions: ['--conditions=react-native', '--conditions=browser'],
+      entry: 'index.js',
+    },
+  ])('loads the ClassMap entry for $renderer', ({ conditions, entry }) => {
+    const output = execFileSync(
+      process.execPath,
+      [
+        ...conditions,
+        '--input-type=module',
+        '--eval',
+        "console.log(import.meta.resolve('@molecule/app-ui-nativewind'))",
+      ],
+      { cwd: join(import.meta.dirname, '../..'), encoding: 'utf8' },
+    )
+    expect(basename(fileURLToPath(output.trim()))).toBe(entry)
+  })
+
   it("registers react-native-svg's canvases so their classes style them", async () => {
     const svg = await import('react-native-svg')
     const native = await import('../native.js')

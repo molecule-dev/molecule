@@ -13,6 +13,10 @@
   },
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "react-native": {
         "types": "./dist/native.d.ts",
         "default": "./dist/native.js"
