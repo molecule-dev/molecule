@@ -13,8 +13,8 @@
         "default": "./dist/index.web.js"
       },
       "react-native": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/index.native.d.ts",
+        "default": "./dist/index.native.js"
       },
       "types": "./dist/index.web.d.ts",
       "import": "./dist/index.web.js"

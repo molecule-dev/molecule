@@ -143,10 +143,12 @@
  * - **`Textarea`** `autoResize` also works uncontrolled (`defaultValue` +
  *   user typing): it listens to `input` events rather than only reacting to
  *   the controlled `value` prop.
+ * - **React Native** uses the `@molecule/app-ui-react-native` peer for elements and overlays.
+ *   Native scaffolds include that kit. **`FileField`** uses the browser chooser on web and the
+ *   bonded file picker on iOS and Android. Expo scaffolds wire the Expo picker.
  *
  * @module
  */
 
-export * from './components/index.js'
-export * from './types.js'
-export * from './utilities.js'
+export { FileField } from './elements/FileField.js'
+export * from './shared.js'

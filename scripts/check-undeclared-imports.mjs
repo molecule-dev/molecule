@@ -46,8 +46,8 @@
  * Fix a load-time optional peer by making the peer required (drop its
  * `optional` flag), or by loading it lazily if the package truly works
  * without it. A file that is an entry of its own (a `package.json` `exports`
- * subpath) which only a consumer that has the peer loads is listed, with that
- * reason, in {@link OPTIONAL_PEER_ENTRY_FILES}.
+ * subpath or renderer condition) which only a consumer that has the peer
+ * loads is scoped, with that reason, by {@link OPTIONAL_PEER_ENTRY_FILES}.
  *
  * Usage:
  *   node scripts/check-undeclared-imports.mjs            # check (exit 1 on any offender)
@@ -323,7 +323,7 @@ export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
 
 /**
  * Optional peers a package may load from named files only, by package name and peer. Each file is
- * an entry of its own (an `exports` subpath) that only a consumer who has the peer loads. The
+ * an entry of its own (an `exports` subpath or condition) that only a consumer who has the peer loads. The
  * package files an entry loads are covered with it, so a helper split out of the entry needs no
  * entry here (app-drag-drop's `src/scoped-web.ts`, loaded by `src/react.ts`), but only while no
  * other file of the package loads that file or the entry itself. A load of the peer from any
@@ -332,8 +332,9 @@ export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
 export const OPTIONAL_PEER_ENTRY_FILES = {
   '@molecule/app-ui-react': {
     '@molecule/app-ui-react-native': {
-      files: ['src/elements/native.ts', 'src/platform/native.ts'],
-      reason: 'The React Native export condition selects these device entries.',
+      condition: 'react-native',
+      reason:
+        'The React Native scaffold declares the native UI peer. The package resolves browser exports before device exports.',
     },
   },
   '@molecule/app-ui-react-native': {
@@ -403,7 +404,10 @@ export function findOptionalPeersLoaded(
   )
   const graph = localLoads(imports)
   const covered = new Map(
-    Object.entries(entryFiles).map(([name, { files }]) => [name, entryClosure(files, graph)]),
+    Object.entries(entryFiles).map(([name, { files, condition }]) => [
+      name,
+      entryClosure(files ?? rendererEntryFiles(pkg, condition), graph),
+    ]),
   )
   const found = new Map()
   for (const imp of imports) {
@@ -417,6 +421,55 @@ export function findOptionalPeersLoaded(
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
+/** Conventional source paths for a relative JavaScript import or export target. */
+function sourceFileCandidates(path) {
+  return [
+    path,
+    path.replace(/\.js$/, '.ts'),
+    path.replace(/\.js$/, '.tsx'),
+    path.replace(/\.jsx$/, '.tsx'),
+    path.replace(/\.mjs$/, '.mts'),
+    path.replace(/\.cjs$/, '.cts'),
+  ]
+}
+
+/**
+ * Find entries confined to a renderer condition. A browser branch with a
+ * runtime target must precede it because Metro Web can assert both conditions.
+ * A source advertised on any other branch or through main/module is shared.
+ *
+ * @param pkg - The parsed package manifest.
+ * @param renderer - The package's device condition.
+ * @returns The candidate source paths reached exclusively by that condition.
+ */
+function rendererEntryFiles(pkg, renderer) {
+  const scoped = new Set()
+  const shared = new Set()
+  const collect = (target, set) => {
+    const path = target.replace(/^\.\//, '')
+    if (!path.startsWith('dist/') || path.includes('*') || !/\.[cm]?jsx?$/.test(path)) return
+    for (const file of sourceFileCandidates('src/' + path.slice('dist/'.length))) set.add(file)
+  }
+  const visit = (target, device = false) => {
+    if (typeof target === 'string') {
+      collect(target, device ? scoped : shared)
+    } else if (Array.isArray(target)) {
+      for (const candidate of target) visit(candidate, device)
+    } else if (target && typeof target === 'object') {
+      let browserFirst = false
+      for (const [condition, candidate] of Object.entries(target)) {
+        visit(candidate, device || (condition === renderer && browserFirst))
+        if (condition === 'browser')
+          browserFirst = typeof candidate === 'string' || typeof candidate?.default === 'string'
+      }
+    }
+  }
+  visit(pkg.exports)
+  for (const fallback of [pkg.main, pkg.module])
+    if (typeof fallback === 'string') collect(fallback, shared)
+  return [...scoped].filter((file) => !shared.has(file))
+}
+
 /**
  * The package files each source file loads when it loads: its relative load-time imports, resolved
  * to the files the import list names (a file with no load-time import loads no peer either).
@@ -426,15 +479,7 @@ export function findOptionalPeersLoaded(
  */
 function localLoads(imports) {
   const files = new Set(imports.map((imp) => imp.file))
-  const sourceOf = (path) =>
-    [
-      path,
-      path.replace(/\.js$/, '.ts'),
-      path.replace(/\.js$/, '.tsx'),
-      path.replace(/\.jsx$/, '.tsx'),
-      path.replace(/\.mjs$/, '.mts'),
-      path.replace(/\.cjs$/, '.cts'),
-    ].find((candidate) => files.has(candidate))
+  const sourceOf = (path) => sourceFileCandidates(path).find((candidate) => files.has(candidate))
   const graph = new Map()
   for (const { specifier, file } of imports) {
     if (!specifier.startsWith('./') && !specifier.startsWith('../')) continue

@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process'
-import { join } from 'node:path'
+import { join, normalize } from 'node:path'
 
+import ts from 'typescript'
 import { expect, it } from 'vitest'
 
 const cwd = join(import.meta.dirname, '..', '..', '..')
@@ -24,7 +25,7 @@ it.each([
   {
     renderer: 'React Native',
     conditions: ['--conditions=react-native'],
-    entries: ['index.js', 'Tooltip.native.js', 'native.js', 'native.js'],
+    entries: ['index.native.js', 'Tooltip.native.js', 'native.js', 'native.js'],
   },
   {
     renderer: 'React Native Web',
@@ -38,4 +39,49 @@ it.each([
     { cwd, encoding: 'utf8' },
   )
   expect(JSON.parse(output)).toEqual(entries)
+})
+
+it('exposes the same public root exports on React DOM and React Native', () => {
+  const options = {
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+  }
+  const rootImport = (customConditions: string[]): string => {
+    const { resolvedModule } = ts.resolveModuleName(
+      '@molecule/app-ui-react',
+      join(cwd, 'entry-consumer.ts'),
+      { ...options, customConditions },
+      ts.sys,
+    )
+    if (!resolvedModule) throw new Error('Missing built React UI declaration')
+    return resolvedModule.resolvedFileName
+  }
+  const webEntry = rootImport([])
+  const deviceEntry = rootImport(['react-native'])
+  const program = ts.createProgram([webEntry, deviceEntry], options)
+  const checker = program.getTypeChecker()
+  const entryExports = (entry: string): ts.Symbol[] => {
+    const source = program.getSourceFile(entry)
+    const entrySymbol = source && checker.getSymbolAtLocation(source)
+    if (!entrySymbol) throw new Error('Missing declaration module at ' + entry)
+    return checker.getExportsOfModule(entrySymbol)
+  }
+  const webExports = entryExports(webEntry)
+  const deviceExports = entryExports(deviceEntry)
+  const exportNames = (symbols: readonly ts.Symbol[]): string[] =>
+    symbols.map((symbol) => symbol.name).sort()
+  expect(exportNames(deviceExports)).toEqual(exportNames(webExports))
+
+  const fileFieldOwner = (symbols: readonly ts.Symbol[]): string => {
+    const field = symbols.find((symbol) => symbol.name === 'FileField')
+    if (!field) throw new Error('Missing FileField export')
+    const owner = field.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(field) : field
+    const declaration = owner.declarations?.[0]
+    if (!declaration) throw new Error('Missing FileField declaration')
+    return normalize(declaration.getSourceFile().fileName)
+  }
+  expect([fileFieldOwner(webExports), fileFieldOwner(deviceExports)]).toEqual([
+    join(cwd, 'dist/elements/FileField.d.ts'),
+    join(cwd, '../react-native-ui/dist/elements/FileField.d.ts'),
+  ])
 })
