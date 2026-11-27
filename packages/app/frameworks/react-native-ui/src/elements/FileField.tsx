@@ -41,6 +41,7 @@ export const FileField = forwardRef<FileFieldHandle, FileFieldProps<ReactNode>>(
       onRejected,
       onValueChange,
       role = 'button',
+      tabIndex,
       ...attrs
     } = props
     const t = useT()
@@ -140,7 +141,7 @@ export const FileField = forwardRef<FileFieldHandle, FileFieldProps<ReactNode>>(
         }
         aria-disabled={disabled}
         disabled={disabled}
-        tabIndex={disabled ? -1 : 0}
+        tabIndex={tabIndex ?? (disabled ? -1 : 0)}
         onClick={open}
       >
         {children}

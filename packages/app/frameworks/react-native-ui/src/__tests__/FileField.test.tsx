@@ -173,6 +173,17 @@ it('browse delivers both files in selection order', async () => {
   expect(onPickError).not.toHaveBeenCalled()
 })
 
+it('keeps an explicit tab index, as the browser field does', () => {
+  render(
+    <>
+      <FileField {...callbacks} aria-label="Skipped" tabIndex={-1} />
+      <FileField {...callbacks} aria-label="Reachable" disabled tabIndex={0} />
+    </>,
+  )
+  expect(screen.getByRole('button', { name: 'Skipped' }).tabIndex).toBe(-1)
+  expect(screen.getByRole('button', { name: 'Reachable' }).tabIndex).toBe(0)
+})
+
 it('reselecting the same file calls back twice', async () => {
   pickFiles.mockResolvedValue([pdf])
   render(<FileField {...callbacks} />)
