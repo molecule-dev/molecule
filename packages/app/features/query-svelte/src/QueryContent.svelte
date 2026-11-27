@@ -68,7 +68,7 @@
 
 {#if $view.data === undefined || ($view.isPreviousData && (identified || props.recordKey !== undefined || $view.data === null || (props.empty?.when($view.data) ?? false)))}
   {#if $view.status === 'error' && props.error}
-    {@render props.error?.($view.error)}
+    {@render props.error?.($view.error ?? new Error('The query failed without an error.'))}
   {:else if props.pending}
     {@render props.pending?.()}
   {/if}

@@ -69,9 +69,9 @@ interface QueryRecordContentContext<T, Id extends string | number> extends Query
  */
 export interface QueryContentErrorContext {
   /** The error the failed read rejected with. */
-  $implicit: unknown
+  $implicit: Error
   /** The same error, as the first render argument. */
-  a0: unknown
+  a0: Error
 }
 
 /** A loaded document owns its controls; absent documents expose only status content. */

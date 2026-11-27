@@ -36,7 +36,9 @@ export function QueryContent<T, Id extends string | number>(
     (query.isPreviousData &&
       (identified || recordKey !== undefined || data === null || empty?.when(data)))
   ) {
-    return query.status === 'error' && error ? error(query.error) : pending
+    return query.status === 'error' && error
+      ? error(query.error ?? new Error('The query failed without an error.'))
+      : pending
   }
   if (data === null) return missing
   let content: ReactNode

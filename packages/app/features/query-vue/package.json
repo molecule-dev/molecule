@@ -20,7 +20,8 @@
     "build": "tsc",
     "dev": "vue-tsc --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck:tests": "tsc -p tsconfig.tests.json"
   },
   "keywords": [
     "molecule",
@@ -45,7 +46,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@molecule/app-query": "^1.2.0",
+    "@molecule/app-query": "^1.4.0",
     "vue": "^3.4.0"
   },
   "devDependencies": {

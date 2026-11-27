@@ -240,4 +240,51 @@ describe('Form submission error defaults', () => {
     expect(request).toHaveBeenCalledOnce()
     expect(container.querySelector('fieldset')!.disabled).toBe(false)
   })
+
+  it("shows a refused request's { error } sentence, not the transport's status line", async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              error: 'Invalid credentials.',
+              errorKey: 'user.error.invalidCredentials',
+            }),
+            { status: 401, headers: { 'content-type': 'application/json' } },
+          ),
+      ),
+    )
+    const http = createFetchClient({ baseURL: 'https://accounts.example/api' })
+    const container = mount(() => (
+      <Form
+        onFormSubmit={async (data) => {
+          await http.post('/users/log-in', data)
+        }}
+      >
+        <input name="email" value="reader@example.test" />
+        <button>Log in</button>
+      </Form>
+    ))
+    fireEvent.submit(container.querySelector('form')!)
+    const view = within(document.body)
+    await waitFor(() => expect(view.queryByRole('alert')).not.toBeNull())
+    expect(view.getByRole('alert').textContent).toBe('Invalid credentials.')
+  })
+
+  it("shows a plain Error's own message", async () => {
+    const container = mount(() => (
+      <Form
+        onFormSubmit={async () => {
+          throw new Error('Passwords do not match.')
+        }}
+      >
+        <button>Save</button>
+      </Form>
+    ))
+    fireEvent.submit(container.querySelector('form')!)
+    const view = within(document.body)
+    await waitFor(() => expect(view.queryByRole('alert')).not.toBeNull())
+    expect(view.getByRole('alert').textContent).toBe('Passwords do not match.')
+  })
 })

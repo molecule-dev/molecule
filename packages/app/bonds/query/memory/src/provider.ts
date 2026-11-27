@@ -52,8 +52,8 @@ class MemoryQueryClient implements QueryClient {
    * @param config - Defaults for every query.
    */
   constructor(config: QueryClientConfig = {}) {
-    this.staleMs = config.staleMs ?? DEFAULT_STALE_MS
-    this.gcMs = config.gcMs ?? DEFAULT_GC_MS
+    this.staleMs = config.staleMs ?? config.staleTime ?? DEFAULT_STALE_MS
+    this.gcMs = config.gcMs ?? config.gcTime ?? DEFAULT_GC_MS
   }
 
   /**
@@ -102,7 +102,7 @@ class MemoryQueryClient implements QueryClient {
    * @returns The configured entry.
    */
   private configure<T>(options: QueryOptions<T>): Entry<T> {
-    const entry = this.entry<T>(options.key, options.gcMs)
+    const entry = this.entry<T>(options.key, options.gcMs ?? options.gcTime)
     if (options.normalizeData) {
       entry.normalizeData = options.normalizeData
       if (entry.state.data !== undefined) {
@@ -183,7 +183,10 @@ class MemoryQueryClient implements QueryClient {
         this.scheduleGc(entry)
         return data
       })
-      .catch((error: unknown) => {
+      .catch((thrown: unknown) => {
+        // Observers read `error.message`: a rejection that is not an Error is wrapped in one.
+        const error =
+          thrown instanceof Error ? thrown : new Error(String(thrown), { cause: thrown })
         if (owns()) {
           entry.inflight = null
           entry.state = { ...entry.state, status: 'error', error, isFetching: false }
@@ -256,7 +259,7 @@ class MemoryQueryClient implements QueryClient {
    */
   fetch<T>(options: QueryOptions<T>): Promise<T> {
     const entry = this.configure(options)
-    if (this.isFresh(entry, options.staleMs ?? this.staleMs))
+    if (this.isFresh(entry, options.staleMs ?? options.staleTime ?? this.staleMs))
       return Promise.resolve(entry.state.data as T)
     // A direct caller keeps this particular fetch alive after the last observer leaves. Demand
     // belongs to the request, not the entry: a superseded caller must not protect a later fetch.
@@ -275,7 +278,8 @@ class MemoryQueryClient implements QueryClient {
    */
   prefetch<T>(options: QueryOptions<T>): void {
     const entry = this.configure(options)
-    if (entry.inflight || this.isFresh(entry, options.staleMs ?? this.staleMs)) return
+    if (entry.inflight || this.isFresh(entry, options.staleMs ?? options.staleTime ?? this.staleMs))
+      return
     this.start(entry, options).catch((_error) => {
       // Speculative: the real navigation reports a document that will not load.
     })
@@ -342,7 +346,10 @@ class MemoryQueryClient implements QueryClient {
       entry.gcTimer = null
     }
     listener(entry.state)
-    if (!entry.inflight && !this.isFresh(entry, options.staleMs ?? this.staleMs)) {
+    if (
+      !entry.inflight &&
+      !this.isFresh(entry, options.staleMs ?? options.staleTime ?? this.staleMs)
+    ) {
       this.start(entry, options).catch((_error) => {
         // The state carries the error; observers read it from there.
       })

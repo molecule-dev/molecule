@@ -91,7 +91,8 @@ export const QueryContent = Object.assign(
       (query.isPreviousData &&
         (identified || recordKey !== undefined || data === null || empty?.when(data)))
     ) {
-      if (query.status === 'error' && error) return error(query.error)
+      if (query.status === 'error' && error)
+        return error(query.error ?? new Error('The query failed without an error.'))
       return pending ?? ctx.slots.pending?.() ?? null
     }
     if (data === null) return missing ?? ctx.slots.missing?.() ?? null

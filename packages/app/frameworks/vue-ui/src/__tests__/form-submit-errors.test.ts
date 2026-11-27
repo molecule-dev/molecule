@@ -307,4 +307,56 @@ describe('Form submission error defaults', () => {
     expect(request).toHaveBeenCalledOnce()
     await waitFor(() => expect(fieldsetEl().disabled).toBe(false))
   })
+
+  it("shows a refused request's { error } sentence, not the transport's status line", async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              error: 'Invalid credentials.',
+              errorKey: 'user.error.invalidCredentials',
+            }),
+            { status: 401, headers: { 'content-type': 'application/json' } },
+          ),
+      ),
+    )
+    const http = createFetchClient({ baseURL: 'https://accounts.example/api' })
+    mount(() =>
+      h(
+        Form,
+        {
+          onFormSubmit: async (data: Record<string, unknown>) => {
+            await http.post('/users/log-in', data)
+          },
+        },
+        () =>
+          [
+            h('input', { name: 'email', value: 'reader@example.test' }),
+            h('button', { type: 'submit' }, 'Log in'),
+          ] as VNodeChild[],
+      ),
+    )
+    submit()
+    await waitFor(() => expect(body().queryByRole('alert')).toBeTruthy())
+    expect(body().getByRole('alert').textContent).toBe('Invalid credentials.')
+  })
+
+  it("shows a plain Error's own message", async () => {
+    mount(() =>
+      h(
+        Form,
+        {
+          onFormSubmit: async () => {
+            throw new Error('Passwords do not match.')
+          },
+        },
+        () => [h('button', { type: 'submit' }, 'Save')] as VNodeChild[],
+      ),
+    )
+    submit()
+    await waitFor(() => expect(body().queryByRole('alert')).toBeTruthy())
+    expect(body().getByRole('alert').textContent).toBe('Passwords do not match.')
+  })
 })

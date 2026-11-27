@@ -411,4 +411,44 @@ describe('Form submission error defaults', () => {
     expect(request).toHaveBeenCalledOnce()
     expect(fieldsetOf(fixture).disabled).toBe(false)
   })
+
+  it("shows a refused request's { error } sentence, not the transport's status line", async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              error: 'Invalid credentials.',
+              errorKey: 'user.error.invalidCredentials',
+            }),
+            { status: 401, headers: { 'content-type': 'application/json' } },
+          ),
+      ),
+    )
+    const http = createFetchClient({ baseURL: 'https://accounts.example/api' })
+    const fixture = render(HttpHost, (instance) => {
+      instance.save = async (data) => {
+        await http.post('/users/log-in', data)
+      }
+    })
+    fireEvent.submit(formOf(fixture))
+    await vi.waitFor(() => {
+      fixture.detectChanges()
+      expect(alertText()).toBe('Invalid credentials.')
+    })
+  })
+
+  it("shows a plain Error's own message", async () => {
+    const fixture = render(HttpHost, (instance) => {
+      instance.save = async () => {
+        throw new Error('Passwords do not match.')
+      }
+    })
+    fireEvent.submit(formOf(fixture))
+    await vi.waitFor(() => {
+      fixture.detectChanges()
+      expect(alertText()).toBe('Passwords do not match.')
+    })
+  })
 })

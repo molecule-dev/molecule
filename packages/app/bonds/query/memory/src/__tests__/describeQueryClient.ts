@@ -185,6 +185,44 @@ export function describeQueryClient(
       expect(fetch).toHaveBeenCalledTimes(2)
     })
 
+    it('reports a rejection that is not an Error as an Error carrying it as cause', async () => {
+      const c = createClient()
+      const fetch = vi.fn().mockRejectedValueOnce('offline')
+      const thrown = await c.fetch({ key: ['k'], fetch }).catch((error: unknown) => error)
+      const { error, status } = c.getState(['k'])
+      expect(status).toBe('error')
+      expect(error).toBeInstanceOf(Error)
+      expect(error?.message).toBe('offline')
+      expect(error?.cause).toBe('offline')
+      // The caller and the observers see the same failure, and every state read returns it.
+      expect(thrown).toBe(error)
+      expect(c.getState(['k']).error).toBe(error)
+    })
+
+    it('keeps an Error rejection as it is', async () => {
+      const c = createClient()
+      const failure = new Error('down')
+      await c
+        .fetch({ key: ['k'], fetch: vi.fn().mockRejectedValueOnce(failure) })
+        .catch((_error) => {
+          // The state is what this case reads.
+        })
+      expect(c.getState(['k']).error).toBe(failure)
+    })
+
+    it("accepts TanStack Query's staleTime and gcTime, with staleMs and gcMs winning", async () => {
+      const fetch = vi.fn().mockResolvedValueOnce('one').mockResolvedValueOnce('two')
+      const c = createClient({ staleTime: 60_000 })
+      expect(await c.fetch({ key: ['k'], fetch })).toBe('one')
+      expect(await c.fetch({ key: ['k'], fetch })).toBe('one')
+      expect(await c.fetch({ key: ['k'], staleTime: 0, fetch })).toBe('two')
+      const both = vi.fn().mockResolvedValueOnce('a').mockResolvedValueOnce('b')
+      expect(await c.fetch({ key: ['both'], staleMs: 60_000, staleTime: 0, fetch: both })).toBe('a')
+      expect(await c.fetch({ key: ['both'], staleMs: 60_000, staleTime: 0, fetch: both })).toBe('a')
+      expect(both).toHaveBeenCalledTimes(1)
+      c.clear()
+    })
+
     it('refetches once the document is stale', async () => {
       const c = createClient({ staleMs: 20 })
       const fetch = vi.fn().mockResolvedValueOnce('one').mockResolvedValueOnce('two')

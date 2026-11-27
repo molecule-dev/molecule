@@ -48,8 +48,14 @@ export type QueryOptions<T> = {
   /** How long a cached document is fresh (no refetch). Defaults to the client's, then 5 minutes. */
   staleMs?: number
 
+  /** TanStack Query's name for {@link QueryOptions.staleMs}; `staleMs` wins when both are set. */
+  staleTime?: number
+
   /** How long an unused document stays in memory. Defaults to the client's, then 30 minutes. */
   gcMs?: number
+
+  /** TanStack Query's name for {@link QueryOptions.gcMs}; `gcMs` wins when both are set. */
+  gcTime?: number
 
   /**
    * Whose answer the document is: the viewer the request is made for, as a stable id — the
@@ -91,8 +97,12 @@ export interface QueryState<T> {
   /** `idle` before anything happened, `loading` with nothing cached yet, then `success` or `error`. */
   status: QueryStatus
 
-  /** The last fetch's error, when `status` is `error`. */
-  error: unknown
+  /**
+   * The last fetch's error, when `status` is `error`. A `fetch` that rejects with something other
+   * than an `Error` is reported as an `Error` whose `cause` is that value, so `error.message` is
+   * always readable.
+   */
+  error: Error | undefined
 
   /** A fetch is in flight (also while stale data is shown). */
   isFetching: boolean
@@ -200,8 +210,14 @@ export interface QueryClientConfig {
   /** Default freshness. Defaults to 5 minutes. */
   staleMs?: number
 
+  /** TanStack Query's name for {@link QueryClientConfig.staleMs}; `staleMs` wins when both are set. */
+  staleTime?: number
+
   /** Default time an unused document stays in memory. Defaults to 30 minutes. */
   gcMs?: number
+
+  /** TanStack Query's name for {@link QueryClientConfig.gcMs}; `gcMs` wins when both are set. */
+  gcTime?: number
 }
 
 /**

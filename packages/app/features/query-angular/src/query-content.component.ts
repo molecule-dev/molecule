@@ -159,12 +159,11 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
           query.data === null ||
           this.empty?.when(query.data)))
     ) {
-      return query?.status === 'error' && this.error
-        ? {
-            template: this.error,
-            context: { $implicit: query.error, a0: query.error },
-          }
-        : { template: this.pending ?? null, context: {} }
+      if (query?.status === 'error' && this.error) {
+        const error = query.error ?? new Error('The query failed without an error.')
+        return { template: this.error, context: { $implicit: error, a0: error } }
+      }
+      return { template: this.pending ?? null, context: {} }
     }
     if (query.data === null) return { template: this.missing ?? null, context: {} }
     const identifiedTemplate = identified ? this.children : null

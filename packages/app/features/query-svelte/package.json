@@ -26,7 +26,8 @@
     "build": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src --output dist --tsconfig ./tsconfig.json",
     "dev": "svelte-package --input src --output dist --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck:tests": "svelte-check --tsconfig ./tsconfig.tests.json --fail-on-warnings"
   },
   "keywords": [
     "molecule",
@@ -51,7 +52,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@molecule/app-query": "^1.2.0",
+    "@molecule/app-query": "^1.4.0",
     "svelte": "^5.0.0"
   },
   "devDependencies": {

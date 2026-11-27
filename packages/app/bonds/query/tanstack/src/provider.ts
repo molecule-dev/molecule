@@ -39,8 +39,8 @@ class TanstackClient implements QueryClient {
    */
   constructor(qc: TanstackQueryClient, config: QueryClientConfig = {}) {
     this.qc = qc
-    this.staleMs = config.staleMs ?? DEFAULT_STALE_MS
-    this.gcMs = config.gcMs ?? DEFAULT_GC_MS
+    this.staleMs = config.staleMs ?? config.staleTime ?? DEFAULT_STALE_MS
+    this.gcMs = config.gcMs ?? config.gcTime ?? DEFAULT_GC_MS
   }
 
   /**
@@ -70,12 +70,16 @@ class TanstackClient implements QueryClient {
     return {
       queryKey: options.key as TanstackKey,
       queryFn: async ({ signal }: { signal: AbortSignal }) => {
-        const data = await options.fetch(signal)
+        // Observers read `error.message`: a rejection that is not an Error is wrapped in one here,
+        // so TanStack stores (and every state read returns) the same Error.
+        const data = await options.fetch(signal).catch((thrown: unknown) => {
+          throw thrown instanceof Error ? thrown : new Error(String(thrown), { cause: thrown })
+        })
         const normalize = this.normalizers.get(query)
         return normalize ? (normalize(data) as T) : data
       },
-      staleTime: options.staleMs ?? this.staleMs,
-      gcTime: options.gcMs ?? this.gcMs,
+      staleTime: options.staleMs ?? options.staleTime ?? this.staleMs,
+      gcTime: options.gcMs ?? options.gcTime ?? this.gcMs,
       retry: false as const,
     }
   }
@@ -208,8 +212,8 @@ export function createProvider(config: TanstackQueryConfig = {}): QueryProvider 
         new TanstackQueryClient({
           defaultOptions: {
             queries: {
-              staleTime: clientConfig?.staleMs ?? DEFAULT_STALE_MS,
-              gcTime: clientConfig?.gcMs ?? DEFAULT_GC_MS,
+              staleTime: clientConfig?.staleMs ?? clientConfig?.staleTime ?? DEFAULT_STALE_MS,
+              gcTime: clientConfig?.gcMs ?? clientConfig?.gcTime ?? DEFAULT_GC_MS,
               retry: false,
             },
           },

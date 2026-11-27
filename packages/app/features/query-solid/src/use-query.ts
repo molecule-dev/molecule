@@ -180,7 +180,7 @@ export function useQuery<T>(options: QueryOptionsInput<T>): UseQueryResult<T> {
     get status(): QueryState<T>['status'] {
       return display().status
     },
-    get error(): unknown {
+    get error(): Error | undefined {
       return display().error
     },
     get isFetching(): boolean {

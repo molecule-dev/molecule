@@ -272,7 +272,7 @@ it('follows each replaced query object: states move from pending through loaded 
   await settle()
   expect(mounted.host.querySelector('article')?.getAttribute('data-doc')).toBe('pkg-a')
 
-  setQuery({ data: undefined, status: 'error', error: { message: 'boom' } })
+  setQuery({ data: undefined, status: 'error', error: new Error('boom') })
   await settle()
   expect(mounted.host.querySelector('[data-state="error"]')?.textContent).toBe('failed: boom')
   expect(mounted.host.querySelector('article')).toBeNull()

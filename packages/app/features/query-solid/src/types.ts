@@ -42,7 +42,7 @@ export interface UseQueryResult<T> extends QueryState<T> {
 export type QueryContentContext<T> = Accessor<NonNullable<T>>
 
 /** What {@link QueryContentProps.error} receives: the error the failed initial read rejected with. */
-export type QueryContentErrorContext = unknown
+export type QueryContentErrorContext = Error
 
 /** A loaded document owns its controls; absent documents expose only status content. */
 export interface QueryContentProps<T> {

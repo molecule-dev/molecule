@@ -88,7 +88,7 @@ export function QueryContent<T, Id extends string | number = string | number>(
         (identified || props.recordKey !== undefined || data === null || props.empty?.when(data)))
     ) {
       return query.status === 'error' && props.error
-        ? props.error(query.error)
+        ? props.error(query.error ?? new Error('The query failed without an error.'))
         : (props.pending ?? null)
     }
     if (data === null) return props.missing ?? null

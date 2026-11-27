@@ -29,6 +29,11 @@ export function formSubmitErrorMessages(error: unknown, fallback: string): strin
           .map((message) => `${field} ${message}`),
       )
   if (messages.length) return messages
-  const message = failure?.message ?? body?.message ?? body?.error ?? error
-  return [text(message) ? message : fallback]
+  // A failure that carries a response came from the transport, and its own message is a status line written for
+  // logs ("Request failed with status 401."): the body speaks for the server. Molecule API routes answer a refused
+  // request with `{ error }`, already translated for the user.
+  const sources = record(failure?.response)
+    ? [body?.error, body?.message]
+    : [body?.error, body?.message, failure?.message, error]
+  return [sources.find(text) ?? fallback]
 }

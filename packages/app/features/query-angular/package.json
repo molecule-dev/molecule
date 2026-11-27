@@ -20,7 +20,8 @@
     "build": "ngc",
     "dev": "ngc --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck:tests": "tsc -p tsconfig.tests.json"
   },
   "keywords": [
     "molecule",
@@ -49,7 +50,7 @@
     "@angular/core": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@molecule/app-angular": "^3.13.0",
-    "@molecule/app-query": "^1.2.0"
+    "@molecule/app-query": "^1.4.0"
   },
   "devDependencies": {
     "@angular/common": "22.2.3",
