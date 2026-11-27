@@ -2,9 +2,9 @@
  * React Native UI components for molecule.dev.
  *
  * Provides React Native implementations (View/Pressable/Text-based) of the
- * core `@molecule/app-ui` component interfaces — 30 components: Accordion,
+ * core `@molecule/app-ui` component interfaces, including Accordion,
  * Alert, Avatar, Badge, Button, Card (+ CardHeader/CardTitle/CardDescription/
- * CardContent/CardFooter), Checkbox, Container, Dropdown, Flex, Form,
+ * CardContent/CardFooter), Checkbox, Container, Dropdown, FileField, Flex, Form,
  * FormField, Grid, Input, Label, Modal, Pagination, Progress, RadioGroup,
  * Select, Separator, Skeleton, Spacer, Spinner, Switch, Table, Tabs,
  * Textarea, Toast (+ ToastProvider / ToastContainer / useToast), Tooltip.
@@ -93,6 +93,7 @@ export {
   Tooltip,
   useToast,
 } from './components/index.js'
+export { FileField } from './elements/FileField.js'
 export type * from './types.js'
 export type {
   AccordionProps,

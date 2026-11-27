@@ -13,6 +13,7 @@ import { FileField as RootFileField } from '@molecule/app-ui-react'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { FileField, isRegistered } from '../elements/index.js'
+import * as nativeKit from '../index.js'
 
 interface HostProps {
   children?: ReactNode
@@ -96,6 +97,7 @@ async function press(target = screen.getByTestId('file-field')): Promise<void> {
 
 it('opens the bonded picker from an external button and ignores the handle while disabled', async () => {
   expect(RootFileField).toBe(FileField)
+  expect(nativeKit).toHaveProperty('FileField', FileField)
   const picker = createRef<FileFieldHandle>()
   const view = (disabled: boolean): ReactNode => (
     <>
