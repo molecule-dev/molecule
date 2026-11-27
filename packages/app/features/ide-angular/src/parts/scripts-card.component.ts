@@ -38,7 +38,8 @@ import {
   type SimpleChanges,
 } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, useHttpClient, useTranslation } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
+import { useHttpClient, useTranslation } from '@molecule/app-angular'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import type { ScriptInfo, ScriptParam, ScriptRunResult } from '@molecule/app-ide-panel-logic/panels'
 import {

@@ -26,8 +26,8 @@ import {
   parseChatProjectSettings,
   resolveRemovedModelFallback,
 } from '@molecule/app-ide-panel-logic/panels'
-import type { UseAIModelsResult } from '@molecule/app-solid'
-import { useAIModels } from '@molecule/app-solid'
+import type { UseAIModelsResult } from '@molecule/app-solid/ai-models'
+import { useAIModels } from '@molecule/app-solid/ai-models'
 
 import type { ChatInnerCtx, ModelRegion, SliceEffects } from './context.js'
 

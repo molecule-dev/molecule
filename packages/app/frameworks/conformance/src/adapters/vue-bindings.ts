@@ -32,6 +32,7 @@ import {
 
 import {
   type BindingAdapter,
+  type BindingServices,
   callHook,
   type MountedHook,
   reactiveSources,
@@ -43,6 +44,8 @@ import { settle } from '../ui/index.js'
 export interface VueBinding {
   /** The composition root: the mounted app receives the case's services through it. */
   moleculePlugin: Plugin
+  /** Installs just the selected chat service. */
+  createChatPlugin(provider: NonNullable<BindingServices['chat']>): Plugin
   /** The routing provider, which also takes a routing bond's routed view (`routedView`). */
   RouterProvider: Component
   /** Clears the binding's module-level chat stores before each case. */
@@ -119,7 +122,11 @@ export function createVueBindingAdapter({
             })
         app = createApp(Host)
         // The root case mounts MoleculeProvider as the app's root: no plugin around it.
-        if (options.render !== 'root') app.use(binding.moleculePlugin, services)
+        if (options.render !== 'root') {
+          const { chat, ...baseServices } = services
+          app.use(binding.moleculePlugin, baseServices)
+          if (chat) app.use(binding.createChatPlugin(chat))
+        }
         app.mount(container)
       }
       const flush = async (): Promise<void> => {

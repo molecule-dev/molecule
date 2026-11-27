@@ -21,7 +21,8 @@
 
 import { Component } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
+import { useTranslation } from '@molecule/app-angular'
 import type { CommandGroup, CommandId } from '@molecule/app-ide-panel-logic'
 import {
   chatCardStyle,

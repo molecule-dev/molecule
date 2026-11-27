@@ -36,13 +36,9 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { CommandDef } from '@molecule/app-ide-panel-logic'
 import { TIP_IDLE_MS, TIP_MIN_MESSAGES } from '@molecule/app-ide-panel-logic/panels'
-import {
-  ChatContext,
-  HttpContext,
-  resetAIModelsCache,
-  resetChatStoresForTests,
-  ThemeContext,
-} from '@molecule/app-solid'
+import { HttpContext, ThemeContext } from '@molecule/app-solid'
+import { resetAIModelsCache } from '@molecule/app-solid/ai-models'
+import { ChatContext, resetChatStoresForTests } from '@molecule/app-solid/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

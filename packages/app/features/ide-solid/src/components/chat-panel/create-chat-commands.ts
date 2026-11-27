@@ -16,6 +16,7 @@
 import type { Accessor } from 'solid-js'
 import { createMemo } from 'solid-js'
 
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { CommandDef, CommandId } from '@molecule/app-ide-panel-logic'
 import {
   allowanceResetCountdown,
@@ -31,7 +32,6 @@ import {
   formatTokenTotal,
   viewerCommandAllowed,
 } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-solid'
 
 import type { ChatInnerCtx, SliceEffects } from './context.js'
 

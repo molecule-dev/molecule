@@ -7,7 +7,8 @@ import {
   enablePushOnCurrentDevice,
   readCurrentDevicePushEnabled,
 } from '@molecule/app-push'
-import { useHttpClient, usePush, useTranslation } from '@molecule/app-react'
+import { useHttpClient, useTranslation } from '@molecule/app-react'
+import { usePush } from '@molecule/app-react/push'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Switch } from '@molecule/app-ui-react'
 import { Box, Text } from '@molecule/app-ui-react/elements'

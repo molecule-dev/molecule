@@ -24,7 +24,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
-import { resetChatStoresForTests } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type {

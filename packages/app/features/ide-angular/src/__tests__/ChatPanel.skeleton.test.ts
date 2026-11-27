@@ -29,13 +29,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import {
-  provideChat,
-  provideDomPlacement,
-  provideHttp,
-  provideI18n,
-  provideTheme,
-} from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import { provideChat } from '@molecule/app-angular/chat'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 

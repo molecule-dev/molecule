@@ -27,7 +27,8 @@ import {
   type SkillInfo,
   SOUNDS_STORAGE_KEY,
 } from '@molecule/app-ide-panel-logic/panels'
-import { resetAIModelsCache, resetChatStoresForTests } from '@molecule/app-svelte'
+import { resetAIModelsCache } from '@molecule/app-svelte/ai-models'
+import { resetChatStoresForTests } from '@molecule/app-svelte/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

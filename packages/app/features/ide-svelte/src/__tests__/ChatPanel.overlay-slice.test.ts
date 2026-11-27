@@ -10,7 +10,7 @@ import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { resetChatStoresForTests } from '@molecule/app-svelte'
+import { resetChatStoresForTests } from '@molecule/app-svelte/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

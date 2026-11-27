@@ -23,7 +23,7 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-vue'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 
 import type { ChatCtx, ChatInnerProps } from './context.js'
 import { renderChatAutoFixBanner } from './render-chat-auto-fix-banner.js'

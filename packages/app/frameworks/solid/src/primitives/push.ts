@@ -43,7 +43,7 @@ export interface PushPrimitives {
  *
  * @example
  * ```tsx
- * import { createPush } from '@molecule/app-solid'
+ * import { createPush } from '@molecule/app-solid/push'
  *
  * function NotificationButton() {
  *   const { permission, requestPermission, register } = createPush()

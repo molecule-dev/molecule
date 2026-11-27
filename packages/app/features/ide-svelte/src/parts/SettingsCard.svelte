@@ -24,6 +24,7 @@
 </script>
 
 <script lang="ts">
+  import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
   import type { CommandId } from '@molecule/app-ide-panel-logic'
   import { chatCardStyle } from '@molecule/app-ide-panel-logic'
   import {
@@ -35,7 +36,7 @@
     settingLabel,
   } from '@molecule/app-ide-panel-logic'
   import type { SettingDescriptor } from '@molecule/app-ide-panel-logic/panels'
-  import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-svelte'
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Tooltip } from '@molecule/app-ui-svelte'
 

@@ -23,12 +23,10 @@ import { AUTO_COMMIT_DISABLED, CHAT_TIMESTAMPS_STORAGE_KEY } from '@molecule/app
 import { DEFAULT_SOUNDS_CONFIG } from '@molecule/app-ide-panel-logic/panels'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import {
-  moleculePlugin,
-  resetAIModelsCache,
-  resetChatStoresForTests,
-  useTranslation,
-} from '@molecule/app-vue'
+import { moleculePlugin, useTranslation } from '@molecule/app-vue'
+import { resetAIModelsCache } from '@molecule/app-vue/ai-models'
+import { createChatPlugin } from '@molecule/app-vue/chat'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import type { ChatCtx, ChatInnerProps } from '../components/chat-panel/context.js'
 import type { ChatAutoCommitSlice } from '../components/chat-panel/use-chat-auto-commit.js'
@@ -283,8 +281,8 @@ function mountHarness(
     i18n: createSimpleI18nProvider('en'),
     theme: buildThemeProvider(),
     http,
-    chat: buildChatProvider([]),
   })
+  app.use(createChatPlugin(buildChatProvider([])))
   app.mount(container)
   if (!built) throw new Error('the slice harness did not build its context')
   return {

@@ -50,6 +50,10 @@
  * - For components/styling pair this with `@molecule/app-ui-react-native`, whose ClassMap
  *   styling requires the NativeWind setup (`@molecule/app-ui-nativewind`) — see that package's docs.
  *
+ * Use `@molecule/app-react-native/chat`, `@molecule/app-react-native/ai-models`, and
+ * `@molecule/app-react-native/push` for those features. The corresponding exports at the
+ * package root are deprecated.
+ *
  * @module
  */
 

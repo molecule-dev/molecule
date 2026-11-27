@@ -28,8 +28,8 @@
 
 import { Component, ElementRef, inject, type OnInit, signal, ViewChild } from '@angular/core'
 
+import { DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import {
-  DEFAULT_PRODUCT_NAME,
   MolPlacement,
   placeContentBefore,
   setElementPresent,

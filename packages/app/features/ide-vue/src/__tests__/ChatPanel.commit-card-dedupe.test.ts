@@ -24,7 +24,7 @@ import { setIconSet } from '@molecule/app-icons'
 import { de, en } from '@molecule/app-locales-ide'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { resetChatStoresForTests } from '@molecule/app-vue'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import { mountPanel, type PanelMount, responseOf } from './chat-panel-harness.js'
 

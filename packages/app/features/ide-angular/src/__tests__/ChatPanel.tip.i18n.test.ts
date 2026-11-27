@@ -18,7 +18,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
-import { resetChatStoresForTests } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import {
   createSimpleI18nProvider,
   type I18nProvider as I18nProviderContract,

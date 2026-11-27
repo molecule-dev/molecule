@@ -18,7 +18,8 @@ import {
 } from '@molecule/app-push'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Switch } from '@molecule/app-ui-vue'
-import { useHttpClient, usePush, useTranslation } from '@molecule/app-vue'
+import { useHttpClient, useTranslation } from '@molecule/app-vue'
+import { usePush } from '@molecule/app-vue/push'
 
 /**
  * Push-notification toggle section — the full receive-side enable chain:

@@ -30,7 +30,7 @@ import type {
   TestSelection,
 } from '@molecule/app-ide-panel-logic'
 import { COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
-import { resetChatStoresForTests } from '@molecule/app-svelte'
+import { resetChatStoresForTests } from '@molecule/app-svelte/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

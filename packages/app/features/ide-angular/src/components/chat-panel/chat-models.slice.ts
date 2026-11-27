@@ -20,7 +20,7 @@
 import { computed, inject, Injectable, Injector, signal } from '@angular/core'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
-import { useAIModels, type UseAIModelsResult } from '@molecule/app-angular'
+import { useAIModels, type UseAIModelsResult } from '@molecule/app-angular/ai-models'
 import { resolveAutoCommitSeconds } from '@molecule/app-ide-panel-logic'
 import {
   effectiveModeModelId,

@@ -18,6 +18,7 @@
 import type { Snippet } from 'svelte'
 
 import type { ChatSessionControls, ChatStreamEvent } from '@molecule/app-ai-chat'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { I18nProvider } from '@molecule/app-i18n'
 import type {
   Activity,
@@ -32,7 +33,6 @@ import type {
 } from '@molecule/app-ide-panel-logic'
 import type { ConversationSummary } from '@molecule/app-ide-panel-logic/panels'
 import type { useHttpClient } from '@molecule/app-svelte'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-svelte'
 import type { UIClassMap } from '@molecule/app-ui'
 
 import type { ChatPanelProps, ChatUserIdentity } from '../../props.js'

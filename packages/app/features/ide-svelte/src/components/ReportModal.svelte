@@ -18,6 +18,7 @@
   ClassMap can't express. All user-facing text goes through `t()`.
 -->
 <script module lang="ts">
+  import { DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
   import {
     buildReportPayload,
     collectClientInfo,
@@ -27,12 +28,7 @@
     type ReportResult,
   } from '@molecule/app-ide-panel-logic'
   import { getLogger } from '@molecule/app-logger'
-  import {
-    DEFAULT_PRODUCT_NAME,
-    useHttpClient,
-    useThemeMode,
-    useTranslation,
-  } from '@molecule/app-svelte'
+  import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-svelte'
   import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
   import { Modal } from '@molecule/app-ui-svelte'
 

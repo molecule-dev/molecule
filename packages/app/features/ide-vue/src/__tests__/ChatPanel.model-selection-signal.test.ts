@@ -22,7 +22,8 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { resetAIModelsCache, resetChatStoresForTests } from '@molecule/app-vue'
+import { resetAIModelsCache } from '@molecule/app-vue/ai-models'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import {
   buildChatProvider,

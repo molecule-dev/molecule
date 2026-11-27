@@ -15,7 +15,8 @@
 
 import { Component, inject } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, useHostPresence } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
+import { useHostPresence } from '@molecule/app-angular'
 import {
   SOUND_EVENTS,
   soundEventDescription,

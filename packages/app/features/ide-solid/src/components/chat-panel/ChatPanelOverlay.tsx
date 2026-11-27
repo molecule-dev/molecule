@@ -8,8 +8,8 @@
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import { panelOverlayHeading } from '@molecule/app-ide-panel-logic'
-import { DEFAULT_AGENT_NAME } from '@molecule/app-solid'
 import { Modal } from '@molecule/app-ui-solid'
 
 import { ScriptsCard } from '../../parts/ScriptsCard.jsx'

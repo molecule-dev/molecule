@@ -22,7 +22,7 @@ import { setIconSet } from '@molecule/app-icons'
 import { registerCustomEventCard } from '@molecule/app-ide-panel-logic'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { resetChatStoresForTests } from '@molecule/app-vue'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import {
   buildRejectingHttpClient,

@@ -40,7 +40,7 @@ import type {
   ChatSessionState,
 } from '@molecule/app-ai-chat'
 import { createChatSession } from '@molecule/app-ai-chat'
-import { useChatProvider } from '@molecule/app-angular'
+import { useChatProvider } from '@molecule/app-angular/chat'
 
 import { ChatAutoCommit } from './chat-auto-commit.slice.js'
 import { ChatAutoFix } from './chat-auto-fix.slice.js'

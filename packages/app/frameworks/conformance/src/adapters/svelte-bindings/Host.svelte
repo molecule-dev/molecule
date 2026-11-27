@@ -14,6 +14,7 @@
   let {
     config,
     setMoleculeContext,
+    setChatContext,
     setRouterContext,
     routedView,
     run,
@@ -22,6 +23,7 @@
   }: {
     config: Parameters<SvelteBinding['setMoleculeContext']>[0]
     setMoleculeContext: SvelteBinding['setMoleculeContext']
+    setChatContext: SvelteBinding['setChatContext']
     setRouterContext?: SvelteBinding['setRouterContext']
     routedView?: string
     run?: () => void
@@ -32,7 +34,9 @@
   // The case's services and the binding's context setters are fixed for its whole run. A case
   // with a routed view sets the router again with the view, as a routing bond does.
   untrack(() => {
-    setMoleculeContext(config)
+    const { chat, ...baseServices } = config
+    setMoleculeContext(baseServices)
+    if (chat) setChatContext(chat)
     if (routedView !== undefined && config.router) {
       if (!setRouterContext)
         throw new Error("Host: a case with a routed view needs the binding's setRouterContext")

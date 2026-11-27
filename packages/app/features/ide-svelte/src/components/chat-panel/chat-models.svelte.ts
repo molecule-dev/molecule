@@ -31,7 +31,7 @@ import {
   resolveRemovedModelFallback,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
-import { useAIModels, type UseAIModelsResult } from '@molecule/app-svelte'
+import { useAIModels, type UseAIModelsResult } from '@molecule/app-svelte/ai-models'
 
 import type { ChatSetState } from './chat-popups.svelte.js'
 import type { ChatContext, ModelRegion } from './context.svelte.js'

@@ -24,12 +24,8 @@ import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { de, en } from '@molecule/app-locales-ide'
-import {
-  ChatContext,
-  HttpContext,
-  resetChatStoresForTests,
-  ThemeContext,
-} from '@molecule/app-solid'
+import { HttpContext, ThemeContext } from '@molecule/app-solid'
+import { ChatContext, resetChatStoresForTests } from '@molecule/app-solid/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

@@ -17,6 +17,7 @@
 
 import { computed, type ComputedRef } from 'vue'
 
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import {
   allowanceResetCountdown,
   APP_VERSION,
@@ -33,7 +34,6 @@ import {
   viewerCommandAllowed,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-vue'
 
 import type { ChatCtx } from './context.js'
 

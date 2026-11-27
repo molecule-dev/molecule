@@ -20,6 +20,7 @@
   ClassMap can't express. All user-facing text goes through `t()`.
 -->
 <script module lang="ts">
+  import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
   import { chatCardStyle } from '@molecule/app-ide-panel-logic'
   import type { ScriptInfo, ScriptRunResult } from '@molecule/app-ide-panel-logic/panels'
   import {
@@ -31,12 +32,7 @@
     runSucceeded,
   } from '@molecule/app-ide-panel-logic/panels'
   import { getLogger } from '@molecule/app-logger'
-  import {
-    DEFAULT_AGENT_NAME,
-    useHttpClient,
-    useTranslation,
-    type UseTranslationResult,
-  } from '@molecule/app-svelte'
+  import { useHttpClient, useTranslation, type UseTranslationResult } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   const logger = getLogger('scripts-card')

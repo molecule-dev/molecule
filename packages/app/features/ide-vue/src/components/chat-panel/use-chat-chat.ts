@@ -25,7 +25,7 @@ import type {
   ChatSendOptions,
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
-import { useChat } from '@molecule/app-vue'
+import { useChat } from '@molecule/app-vue/chat'
 
 import type { ChatCtx, ChatEffect, MutableRef, SendMessage } from './context.js'
 

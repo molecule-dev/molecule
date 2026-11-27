@@ -18,7 +18,8 @@
 
 import { Component, inject } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, useHostPresence } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
+import { useHostPresence } from '@molecule/app-angular'
 import { APP_VERSION } from '@molecule/app-ide-panel-logic'
 import {
   COMMAND_CATEGORIES,

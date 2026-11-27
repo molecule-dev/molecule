@@ -26,7 +26,7 @@ import type {
   ChatSessionState,
 } from '@molecule/app-ai-chat'
 import { createChatSession } from '@molecule/app-ai-chat'
-import { useChatProvider } from '@molecule/app-solid'
+import { useChatProvider } from '@molecule/app-solid/chat'
 
 import type { ChatInnerCtx, MutableRef, SendChatMessage, SliceEffects } from './context.js'
 

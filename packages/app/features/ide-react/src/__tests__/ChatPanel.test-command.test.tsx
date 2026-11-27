@@ -30,14 +30,11 @@ import type {
   TestSelection,
 } from '@molecule/app-ide-panel-logic'
 import { COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
+import { AuthProvider, HttpProvider, I18nProvider, ThemeProvider } from '@molecule/app-react'
 import {
-  AuthProvider,
   ChatProvider as ChatContextProvider,
-  HttpProvider,
-  I18nProvider,
   resetChatStoresForTests,
-  ThemeProvider,
-} from '@molecule/app-react'
+} from '@molecule/app-react/chat'
 import { lightTheme, type ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'

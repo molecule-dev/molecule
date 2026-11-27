@@ -25,7 +25,7 @@ import {
   resolveRemovedModelFallback,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
-import { useAIModels, type UseAIModelsResult } from '@molecule/app-vue'
+import { useAIModels, type UseAIModelsResult } from '@molecule/app-vue/ai-models'
 
 import type { ChatCtx, ChatEffect, SetState } from './context.js'
 

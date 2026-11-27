@@ -186,7 +186,7 @@ export interface UseAIModelsResult {
  * @example
  * ```svelte
  * <script>
- *   import { useAIModels } from '@molecule/app-svelte'
+ *   import { useAIModels } from '@molecule/app-svelte/ai-models'
  *   const { models, freeTierModel, loading } = useAIModels()
  * </script>
  * ```

@@ -35,6 +35,7 @@ import {
   watch,
 } from 'vue'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import type { ScriptInfo, ScriptParam, ScriptRunResult } from '@molecule/app-ide-panel-logic/panels'
 import {
@@ -47,7 +48,7 @@ import {
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
 import { getClassMap } from '@molecule/app-ui'
-import { DEFAULT_AGENT_NAME, useHttpClient, useTranslation } from '@molecule/app-vue'
+import { useHttpClient, useTranslation } from '@molecule/app-vue'
 
 const logger = getLogger('scripts-card')
 

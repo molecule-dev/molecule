@@ -27,9 +27,8 @@
 import { Component, computed, ElementRef, inject } from '@angular/core'
 
 import type { ChatErrorMeta, ChatMessage } from '@molecule/app-ai-chat'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import {
-  DEFAULT_AGENT_NAME,
-  DEFAULT_PRODUCT_NAME,
   MolPlacement,
   placeContentBefore,
   setElementPresent,

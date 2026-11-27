@@ -20,6 +20,7 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { ChatEventCardAction } from '@molecule/app-ide-panel-logic'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import {
@@ -29,7 +30,7 @@ import {
   HELP_TIPS,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getClassMap } from '@molecule/app-ui'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME, useTranslation } from '@molecule/app-vue'
+import { useTranslation } from '@molecule/app-vue'
 
 import { Icon } from '../components/Icon.js'
 import { isAllowedLinkHref } from './MarkdownContent.js'

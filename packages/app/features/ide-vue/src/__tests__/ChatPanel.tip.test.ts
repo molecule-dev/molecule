@@ -25,7 +25,7 @@ import type { CommandDef } from '@molecule/app-ide-panel-logic'
 import { TIP_IDLE_MS, TIP_MIN_MESSAGES } from '@molecule/app-ide-panel-logic/panels'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { resetChatStoresForTests } from '@molecule/app-vue'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import type { ChatPanelProps } from '../components/ChatPanel.js'
 import {

@@ -14,6 +14,7 @@
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import { APP_VERSION } from '@molecule/app-ide-panel-logic'
 import type {
   CommandCategoryKey,
@@ -27,7 +28,6 @@ import {
   SOUND_EVENTS,
   SOUND_MODE_LABELS,
 } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME } from '@molecule/app-solid'
 
 import type { ChatInnerCtx } from './context.js'
 

@@ -16,7 +16,8 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useHttpClient, usePush, useTranslation } from '@molecule/app-angular'
+import { useHttpClient, useTranslation } from '@molecule/app-angular'
+import { usePush } from '@molecule/app-angular/push'
 import type { PushToggleResult } from '@molecule/app-push'
 import {
   disablePushOnCurrentDevice,

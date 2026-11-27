@@ -46,7 +46,7 @@
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
-    "@molecule/app-angular": "^3.13.0",
+    "@molecule/app-angular": "^3.17.0",
     "@molecule/app-auth": "^3.4.0",
     "@molecule/app-http": "^1.8.0",
     "@molecule/app-push": "^1.1.0",

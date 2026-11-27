@@ -80,7 +80,7 @@ export const resetChatStoresForTests: typeof coreResetChatStoresForTests =
  * @example
  * ```svelte
  * <script>
- *   import { useChat } from '@molecule/app-svelte'
+ *   import { useChat } from '@molecule/app-svelte/chat'
  *
  *   const chat = useChat({ endpoint: '/projects/p1/chat', projectId: 'p1' })
  *   const { messages, sendMessage } = chat

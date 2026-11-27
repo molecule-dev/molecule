@@ -24,13 +24,9 @@ import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-cha
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
-import {
-  ChatContext,
-  HttpContext,
-  resetAIModelsCache,
-  resetChatStoresForTests,
-  ThemeContext,
-} from '@molecule/app-solid'
+import { HttpContext, ThemeContext } from '@molecule/app-solid'
+import { resetAIModelsCache } from '@molecule/app-solid/ai-models'
+import { ChatContext, resetChatStoresForTests } from '@molecule/app-solid/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

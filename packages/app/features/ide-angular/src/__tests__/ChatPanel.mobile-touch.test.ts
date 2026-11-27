@@ -29,7 +29,7 @@ import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { provideDomPlacement, provideTheme } from '@molecule/app-angular'
-import { resetChatStoresForTests } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '@molecule/app-ide-panel-logic'

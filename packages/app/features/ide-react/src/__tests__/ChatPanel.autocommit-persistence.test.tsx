@@ -38,13 +38,11 @@ import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { DEFAULT_AUTO_COMMIT_SECONDS } from '@molecule/app-ide-panel-logic'
+import { HttpProvider, I18nProvider, ThemeProvider } from '@molecule/app-react'
 import {
   ChatProvider as ChatContextProvider,
-  HttpProvider,
-  I18nProvider,
   resetChatStoresForTests,
-  ThemeProvider,
-} from '@molecule/app-react'
+} from '@molecule/app-react/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

@@ -8,8 +8,8 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import { Component, ElementRef, inject, TemplateRef, type Type } from '@angular/core'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import {
-  DEFAULT_AGENT_NAME,
   MolPlacement,
   placeContentBefore,
   setElementPresent,

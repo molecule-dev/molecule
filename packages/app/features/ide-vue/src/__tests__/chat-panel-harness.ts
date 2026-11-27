@@ -18,6 +18,7 @@ import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { moleculePlugin } from '@molecule/app-vue'
+import { createChatPlugin } from '@molecule/app-vue/chat'
 
 import { ChatPanel, type ChatPanelProps } from '../components/ChatPanel.js'
 import { buildThemeProvider } from './theme-test-provider.js'
@@ -128,8 +129,8 @@ export function mountPanel(options: MountPanelOptions): PanelMount {
     i18n: options.i18n ?? createSimpleI18nProvider('en'),
     theme: buildThemeProvider(),
     http: options.http,
-    chat: options.chat,
   })
+  app.use(createChatPlugin(options.chat))
   app.mount(container)
   return {
     container,

@@ -12,7 +12,8 @@ import {
   enablePushOnCurrentDevice,
   readCurrentDevicePushEnabled,
 } from '@molecule/app-push'
-import { useHttpClient, usePush, useTranslation } from '@molecule/app-solid'
+import { useHttpClient, useTranslation } from '@molecule/app-solid'
+import { usePush } from '@molecule/app-solid/push'
 import { getClassMap, molIdProps } from '@molecule/app-ui'
 import { Flex, Switch } from '@molecule/app-ui-solid'
 

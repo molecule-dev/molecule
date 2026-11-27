@@ -107,7 +107,7 @@ export function useChatProvider(): ChatProvider {
  * ```vue
  * <script setup lang="ts">
  * import { ref } from 'vue'
- * import { useChat } from '@molecule/app-vue'
+ * import { useChat } from '@molecule/app-vue/chat'
  *
  * const props = defineProps<{ conversationId: string }>()
  * const { messages, isLoading, sendMessage } = useChat(() => ({

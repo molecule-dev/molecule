@@ -24,13 +24,11 @@ import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { de, en } from '@molecule/app-locales-ide'
+import { HttpProvider, I18nProvider, ThemeProvider } from '@molecule/app-react'
 import {
   ChatProvider as ChatContextProvider,
-  HttpProvider,
-  I18nProvider,
   resetChatStoresForTests,
-  ThemeProvider,
-} from '@molecule/app-react'
+} from '@molecule/app-react/chat'
 import { lightTheme, type ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'

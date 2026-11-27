@@ -17,7 +17,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatMessage, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
-import { resetChatStoresForTests } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import { setIconSet } from '@molecule/app-icons'
 import { registerCustomEventCard } from '@molecule/app-ide-panel-logic'
 import { setClassMap } from '@molecule/app-ui'

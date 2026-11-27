@@ -25,7 +25,8 @@
 
 import { Component } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME, useTranslation } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
+import { useTranslation } from '@molecule/app-angular'
 import type { ChatEventCardAction } from '@molecule/app-ide-panel-logic'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import {

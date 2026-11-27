@@ -31,7 +31,7 @@ import type {
 import { COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { resetChatStoresForTests } from '@molecule/app-vue'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import type { ChatPanelProps } from '../components/ChatPanel.js'
 import {

@@ -26,6 +26,7 @@
 
 import type { JSX } from 'react'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import { settingDescription, settingLabel } from '@molecule/app-ide-panel-logic'
 import type { CommandId } from '@molecule/app-ide-panel-logic/panels'
@@ -36,7 +37,7 @@ import {
   isRegistryCommandId,
 } from '@molecule/app-ide-panel-logic/panels'
 import { groupCommandsByCategory } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-react'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 

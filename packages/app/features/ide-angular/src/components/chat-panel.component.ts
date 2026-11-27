@@ -29,7 +29,8 @@
 import type { SimpleChanges, TemplateRef } from '@angular/core'
 import { type AfterViewInit, Component, type OnChanges, type OnInit, signal } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME, useHttpClient } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
+import { useHttpClient } from '@molecule/app-angular'
 import type { CommandDef } from '@molecule/app-ide-panel-logic'
 import type { ConversationSummary } from '@molecule/app-ide-panel-logic/panels'
 import { chatConversationStorageKey } from '@molecule/app-ide-panel-logic/panels'

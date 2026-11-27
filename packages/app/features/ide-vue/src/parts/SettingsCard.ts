@@ -18,6 +18,7 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import type { CommandId } from '@molecule/app-ide-panel-logic'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import {
@@ -31,7 +32,7 @@ import {
 import type { SettingDescriptor } from '@molecule/app-ide-panel-logic/panels'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-vue'
-import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-vue'
+import { useTranslation } from '@molecule/app-vue'
 
 /** Props for {@link SettingsCard} — the React prop names, React's own contract. */
 export interface SettingsCardProps {

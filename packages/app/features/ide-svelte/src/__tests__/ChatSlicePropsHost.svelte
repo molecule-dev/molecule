@@ -15,12 +15,8 @@
 
   import type { ChatProvider } from '@molecule/app-ai-chat'
   import type { HttpClient } from '@molecule/app-http'
-  import {
-    setChatContext,
-    setHttpContext,
-    setThemeContext,
-    useTranslation,
-  } from '@molecule/app-svelte'
+  import { setHttpContext, setThemeContext, useTranslation } from '@molecule/app-svelte'
+  import { setChatContext } from '@molecule/app-svelte/chat'
   import type { ThemeProvider } from '@molecule/app-theme'
   import { getClassMap } from '@molecule/app-ui'
 

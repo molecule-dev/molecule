@@ -19,7 +19,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
-import { resetChatStoresForTests } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { CommandDef } from '@molecule/app-ide-panel-logic'

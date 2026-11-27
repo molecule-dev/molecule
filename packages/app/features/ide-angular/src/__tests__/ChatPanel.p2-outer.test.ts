@@ -15,7 +15,7 @@
 import '@molecule/app-framework-conformance/ui/setup'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { resetChatStoresForTests } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'

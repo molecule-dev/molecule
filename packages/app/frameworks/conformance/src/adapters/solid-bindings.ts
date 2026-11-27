@@ -44,6 +44,8 @@ export interface SolidBinding {
       children: JSX.Element
     }
   >
+  /** Provides the selected chat service to the case. */
+  ChatProvider: Component<{ provider: NonNullable<BindingServices['chat']>; children: JSX.Element }>
   /** Clears the chat stores' module-level state between cases. */
   resetChatStoresForTests(): void
   /** The routing provider, which also takes a routing bond's routed view (`routedView`). */
@@ -95,6 +97,7 @@ export function createSolidBindingAdapter({
       const sources = reactiveSources(hook, args, options, (value) =>
         createSignal<unknown>(value, { equals: false }),
       )
+      const { chat, ...baseServices } = services
       const start = (current: unknown[]): void => {
         const Host: Component = () => {
           const target = exportsOf[hook]
@@ -115,7 +118,7 @@ export function createSolidBindingAdapter({
                   ...(current[0] as Record<string, unknown>),
                 })
               : createComponent(MoleculeProvider, {
-                  ...services,
+                  ...baseServices,
                   // React's reference adapter renders its MoleculeProvider with `awaitSession: false`,
                   // so a hook case under a loading client mounts at once.
                   awaitSession: false,
@@ -123,12 +126,21 @@ export function createSolidBindingAdapter({
                     // The case's routed view, as a routing bond provides one.
                     const text = options.routedView
                     const router = services.router
-                    if (text === undefined || !router) return createComponent(Host, {})
+                    const renderHost = (): JSX.Element =>
+                      chat
+                        ? createComponent(binding.ChatProvider, {
+                            provider: chat,
+                            get children() {
+                              return createComponent(Host, {})
+                            },
+                          })
+                        : createComponent(Host, {})
+                    if (text === undefined || !router) return renderHost()
                     return createComponent(RouterProvider, {
                       router,
                       routedView: () => text,
                       get children(): JSX.Element {
-                        return createComponent(Host, {})
+                        return renderHost()
                       },
                     })
                   },

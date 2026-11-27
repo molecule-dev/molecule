@@ -25,13 +25,8 @@ import {
 import { createApplication } from '@angular/platform-browser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  provideDomPlacement,
-  provideHttp,
-  provideI18n,
-  provideTheme,
-  resetChatStoresForTests,
-} from '@molecule/app-angular'
+import { provideDomPlacement, provideHttp, provideI18n, provideTheme } from '@molecule/app-angular'
+import { resetChatStoresForTests } from '@molecule/app-angular/chat'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'

@@ -35,6 +35,7 @@ import type {
   ContextCompaction,
   ContextUsage,
 } from '@molecule/app-ai-chat'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { AppModelDefinition } from '@molecule/app-ai-models'
 import { formatTokenCount, partitionByDeprecation } from '@molecule/app-ai-models'
 import type { VoiceEngineDef } from '@molecule/app-ai-voice'
@@ -210,15 +211,9 @@ import {
   wrapIdx,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
-import {
-  DEFAULT_AGENT_NAME,
-  DEFAULT_PRODUCT_NAME,
-  useAIModels,
-  useChat,
-  useHttpClient,
-  useThemeMode,
-  useTranslation,
-} from '@molecule/app-react'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
+import { useAIModels } from '@molecule/app-react/ai-models'
+import { useChat } from '@molecule/app-react/chat'
 import { useCommittedRef, useEffectEvent, useStableCallback } from '@molecule/app-react/render'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-react'

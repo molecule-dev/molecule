@@ -18,7 +18,8 @@
     enablePushOnCurrentDevice,
     readCurrentDevicePushEnabled,
   } from '@molecule/app-push'
-  import { useHttpClient, usePush, useTranslation } from '@molecule/app-svelte'
+  import { useHttpClient, useTranslation } from '@molecule/app-svelte'
+  import { usePush } from '@molecule/app-svelte/push'
   import { getClassMap } from '@molecule/app-ui'
   import { Flex, Switch } from '@molecule/app-ui-svelte'
 

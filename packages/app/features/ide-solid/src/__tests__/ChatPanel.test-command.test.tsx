@@ -30,13 +30,9 @@ import type {
   TestSelection,
 } from '@molecule/app-ide-panel-logic'
 import { COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
-import {
-  ChatContext,
-  HttpContext,
-  resetAIModelsCache,
-  resetChatStoresForTests,
-  ThemeContext,
-} from '@molecule/app-solid'
+import { HttpContext, ThemeContext } from '@molecule/app-solid'
+import { resetAIModelsCache } from '@molecule/app-solid/ai-models'
+import { ChatContext, resetChatStoresForTests } from '@molecule/app-solid/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

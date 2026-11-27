@@ -12,6 +12,7 @@
  * @module
  */
 
+import { DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { ReportResult } from '@molecule/app-ide-panel-logic'
 import { formatReportConfirmation } from '@molecule/app-ide-panel-logic'
 import type {
@@ -20,7 +21,6 @@ import type {
   FileEntry,
   ModelMode,
 } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_PRODUCT_NAME } from '@molecule/app-vue'
 
 import type { ChatCtx } from './context.js'
 

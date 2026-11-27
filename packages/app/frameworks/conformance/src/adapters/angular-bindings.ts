@@ -59,6 +59,8 @@ export interface AngularBinding {
    * @param services - The case's services (without those the case omits), and `awaitSession`.
    * @returns The environment providers the host application starts with.
    */
+  /** Registers the case's explicitly selected chat provider. */
+  provideChat(provider: NonNullable<BindingServices['chat']>): EnvironmentProviders
   provideMolecule(
     services: Partial<BindingServices> & { awaitSession?: boolean },
   ): EnvironmentProviders
@@ -234,6 +236,7 @@ export function createAngularBindingAdapter({
     async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
       const container = document.createElement('div')
       document.body.appendChild(container)
+      const { chat, ...baseServices } = services
       if (options.render === 'root')
         return mountRoot(container, services, (args[0] as Record<string, unknown>) ?? {})
       let result: unknown
@@ -246,7 +249,8 @@ export function createAngularBindingAdapter({
           // (the SessionReady cases render the gate themselves).
           providers: [
             provideZonelessChangeDetection(),
-            provideMolecule({ ...services, awaitSession: false }),
+            provideMolecule({ ...baseServices, awaitSession: false }),
+            ...(chat ? [binding.provideChat(chat)] : []),
             // The case's routed view, as a routing bond provides one.
             ...(options.routedView !== undefined && services.router
               ? [

@@ -24,6 +24,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, mapArray, Match, Show, Switch } from 'solid-js'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import {
   CHAT_CARD_ICON_SIZE,
   chatCardStyle,
@@ -32,7 +33,6 @@ import {
 } from '@molecule/app-ide-panel-logic'
 import type { ChatTimelineItem, SystemCard } from '@molecule/app-ide-panel-logic/panels'
 import { tipText, upgradeContextFromError } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-solid'
 
 import { ChatItemBoundary } from '../../parts/ChatItemBoundary.jsx'
 import { CommitCardItem } from '../../parts/CommitCardItem.jsx'

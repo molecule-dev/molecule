@@ -22,7 +22,9 @@ import { setIconSet } from '@molecule/app-icons'
 import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '@molecule/app-ide-panel-logic'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { moleculePlugin, resetChatStoresForTests } from '@molecule/app-vue'
+import { moleculePlugin } from '@molecule/app-vue'
+import { createChatPlugin } from '@molecule/app-vue/chat'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import { ToolCallCard } from '../components/ToolCallCard.js'
 import { MarkdownContent } from '../parts/MarkdownContent.js'
@@ -109,8 +111,8 @@ function mountNode(node: VNodeChild): HTMLElement {
     i18n: createSimpleI18nProvider('en'),
     theme: buildThemeProvider(),
     http: buildRejectingHttpClient(),
-    chat: buildChatProvider([]),
   })
+  app.use(createChatPlugin(buildChatProvider([])))
   app.mount(container)
   mountedApps.push(app)
   return container

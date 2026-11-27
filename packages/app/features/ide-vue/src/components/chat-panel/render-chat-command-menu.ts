@@ -14,6 +14,7 @@
 
 import { h, type VNodeChild } from 'vue'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import { APP_VERSION } from '@molecule/app-ide-panel-logic'
 import {
   COMMAND_CATEGORIES,
@@ -23,7 +24,6 @@ import {
   SOUND_EVENTS,
   SOUND_MODE_LABELS,
 } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME } from '@molecule/app-vue'
 
 import type { ChatCtx } from './context.js'
 

@@ -23,6 +23,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show } from 'solid-js'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import type { CommandId } from '@molecule/app-ide-panel-logic'
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import {
@@ -34,7 +35,7 @@ import {
   settingLabel,
 } from '@molecule/app-ide-panel-logic'
 import type { SettingDescriptor } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-solid'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-solid'
 

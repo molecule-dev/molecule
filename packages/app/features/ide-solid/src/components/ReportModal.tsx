@@ -25,6 +25,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal } from 'solid-js'
 
+import { DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { ReportFormState, ReportResult } from '@molecule/app-ide-panel-logic'
 import {
   buildReportPayload,
@@ -33,12 +34,7 @@ import {
   isReportFormValid,
 } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
-import {
-  DEFAULT_PRODUCT_NAME,
-  useHttpClient,
-  useThemeMode,
-  useTranslation,
-} from '@molecule/app-solid'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-solid'
 import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-solid'
 

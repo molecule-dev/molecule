@@ -26,7 +26,7 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { CommandDef } from '@molecule/app-ide-panel-logic'
 import { TIP_IDLE_MS, TIP_MIN_MESSAGES } from '@molecule/app-ide-panel-logic/panels'
-import { resetChatStoresForTests } from '@molecule/app-svelte'
+import { resetChatStoresForTests } from '@molecule/app-svelte/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

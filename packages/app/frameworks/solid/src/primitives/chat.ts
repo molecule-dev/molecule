@@ -105,7 +105,7 @@ export function useChatProvider(): ChatProvider {
  * @returns Each state field as an accessor, and the chat controls.
  * @example
  * ```tsx
- * import { useChat } from '@molecule/app-solid'
+ * import { useChat } from '@molecule/app-solid/chat'
  *
  * function Chat(props: { conversationId: string }) {
  *   const chat = useChat(() => ({

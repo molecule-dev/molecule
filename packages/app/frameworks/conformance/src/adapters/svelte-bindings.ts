@@ -79,6 +79,8 @@ export interface SvelteBinding {
    * @param config - The services to provide.
    */
   setMoleculeContext(config: SvelteMoleculeConfig): void
+  /** Sets the explicitly selected chat provider. */
+  setChatContext(provider: ChatProvider): void
   /**
    * Sets the router in Svelte context with a routing bond's routed view; the host calls it for a
    * case with a `routedView`.
@@ -212,7 +214,7 @@ export function createSvelteBindingAdapter({
   exports: exportsOf,
   binding,
 }: SvelteBindingAdapterOptions): BindingAdapter {
-  const { setMoleculeContext } = binding
+  const { setMoleculeContext, setChatContext } = binding
 
   return {
     name: 'svelte',
@@ -255,6 +257,7 @@ export function createSvelteBindingAdapter({
               props: {
                 config,
                 setMoleculeContext,
+                setChatContext,
                 setRouterContext: binding.setRouterContext,
                 routedView: options.routedView,
                 component: exportsOf[hook] as Component<Record<string, unknown>>,
@@ -267,6 +270,7 @@ export function createSvelteBindingAdapter({
             props: {
               config,
               setMoleculeContext,
+              setChatContext,
               setRouterContext: binding.setRouterContext,
               routedView: options.routedView,
               run: () => {

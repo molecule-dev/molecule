@@ -20,7 +20,7 @@
 
 import { computed, inject, Injectable } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { InterpolationValues, TranslateFunction, TranslateOptions } from '@molecule/app-i18n'
 import {
   allowanceResetCountdown,

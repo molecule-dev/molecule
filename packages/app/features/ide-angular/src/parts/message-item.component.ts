@@ -36,8 +36,8 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core'
 
 import type { ChatMessage, MessageBlock, ToolCall } from '@molecule/app-ai-chat'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import {
-  DEFAULT_AGENT_NAME,
   MolPlacement,
   placeElementBefore,
   setElementPresent,

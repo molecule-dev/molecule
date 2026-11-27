@@ -7,13 +7,11 @@ import type { ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { HttpProvider, I18nProvider, ThemeProvider } from '@molecule/app-react'
 import {
   ChatProvider as ChatContextProvider,
-  HttpProvider,
-  I18nProvider,
   resetChatStoresForTests,
-  ThemeProvider,
-} from '@molecule/app-react'
+} from '@molecule/app-react/chat'
 import type { ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { lightTheme } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'

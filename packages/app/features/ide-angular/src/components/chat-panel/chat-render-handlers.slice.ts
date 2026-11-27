@@ -14,7 +14,7 @@
 
 import { inject, Injectable } from '@angular/core'
 
-import { DEFAULT_PRODUCT_NAME } from '@molecule/app-angular'
+import { DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { ReportResult } from '@molecule/app-ide-panel-logic'
 import { formatReportConfirmation } from '@molecule/app-ide-panel-logic'
 import type {

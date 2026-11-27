@@ -21,7 +21,9 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { AutoFixCountdown } from '@molecule/app-ide-panel-logic/panels'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { moleculePlugin, resetChatStoresForTests, useTranslation } from '@molecule/app-vue'
+import { moleculePlugin, useTranslation } from '@molecule/app-vue'
+import { createChatPlugin } from '@molecule/app-vue/chat'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import type { ChatCtx, ChatInnerProps } from '../components/chat-panel/context.js'
 import type { ChatAutoCommitSlice } from '../components/chat-panel/use-chat-auto-commit.js'
@@ -186,8 +188,8 @@ function mountHarness(
     i18n: createSimpleI18nProvider('en'),
     theme: buildThemeProvider(),
     http,
-    chat: buildChatProvider([]),
   })
+  app.use(createChatPlugin(buildChatProvider([])))
   app.mount(container)
   if (!built) throw new Error('the harness did not build its context')
   return {

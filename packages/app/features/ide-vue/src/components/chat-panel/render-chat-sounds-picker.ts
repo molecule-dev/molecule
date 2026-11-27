@@ -12,13 +12,13 @@
 
 import { h, type VNodeChild } from 'vue'
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
 import {
   SOUND_EVENTS,
   soundEventDescription,
   soundEventLabel,
   soundModeLabel,
 } from '@molecule/app-ide-panel-logic/panels'
-import { DEFAULT_AGENT_NAME } from '@molecule/app-vue'
 
 import type { ChatCtx } from './context.js'
 

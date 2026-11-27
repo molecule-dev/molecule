@@ -25,6 +25,7 @@
 
 import { computed, defineComponent, h, type PropType, ref, type VNode, type VNodeChild } from 'vue'
 
+import { DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { ReportFormState, ReportResult } from '@molecule/app-ide-panel-logic'
 import {
   buildReportPayload,
@@ -35,12 +36,7 @@ import {
 import { getLogger } from '@molecule/app-logger'
 import { getClassMap, type OverlayTarget } from '@molecule/app-ui'
 import { Modal } from '@molecule/app-ui-vue'
-import {
-  DEFAULT_PRODUCT_NAME,
-  useHttpClient,
-  useThemeMode,
-  useTranslation,
-} from '@molecule/app-vue'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-vue'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 

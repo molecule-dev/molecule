@@ -26,13 +26,11 @@ import {
   type I18nProvider as I18nProviderContract,
 } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { HttpProvider, I18nProvider, ThemeProvider } from '@molecule/app-react'
 import {
   ChatProvider as ChatContextProvider,
-  HttpProvider,
-  I18nProvider,
   resetChatStoresForTests,
-  ThemeProvider,
-} from '@molecule/app-react'
+} from '@molecule/app-react/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 

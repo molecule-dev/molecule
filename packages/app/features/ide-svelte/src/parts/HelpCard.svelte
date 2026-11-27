@@ -24,6 +24,7 @@
 </script>
 
 <script lang="ts">
+  import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
   import type { ChatEventCardAction } from '@molecule/app-ide-panel-logic'
   import { chatCardStyle } from '@molecule/app-ide-panel-logic'
   import {
@@ -32,7 +33,7 @@
     HELP_SHORTCUTS,
     HELP_TIPS,
   } from '@molecule/app-ide-panel-logic/panels'
-  import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME, useTranslation } from '@molecule/app-svelte'
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import Icon from '../components/Icon.svelte'

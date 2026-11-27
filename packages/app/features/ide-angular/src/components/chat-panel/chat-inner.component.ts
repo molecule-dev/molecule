@@ -26,7 +26,7 @@
 import type { AfterViewInit, OnChanges, TemplateRef } from '@angular/core'
 import { Component, inject } from '@angular/core'
 
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-angular'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-ai-chat'
 import type { CommandDef } from '@molecule/app-ide-panel-logic'
 import { styleText } from '@molecule/app-ui-angular'
 

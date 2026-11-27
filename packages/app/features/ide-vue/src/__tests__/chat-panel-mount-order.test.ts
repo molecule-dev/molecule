@@ -21,7 +21,7 @@ import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { resetChatStoresForTests } from '@molecule/app-vue'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import {
   buildChatProvider,

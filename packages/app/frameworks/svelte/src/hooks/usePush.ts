@@ -76,7 +76,7 @@ export interface UsePushOptions {
  * @example
  * ```svelte
  * <script>
- *   import { usePush } from '@molecule/app-svelte'
+ *   import { usePush } from '@molecule/app-svelte/push'
  *   const { permission, requestPermission, register } = usePush({ checkOnMount: true })
  * </script>
  *

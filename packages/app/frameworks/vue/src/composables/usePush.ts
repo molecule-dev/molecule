@@ -69,7 +69,7 @@ export type UsePushReturn = UsePushResult
  * @example
  * ```vue
  * <script setup>
- * import { usePush } from '@molecule/app-vue'
+ * import { usePush } from '@molecule/app-vue/push'
  *
  * const { permission, token, requestPermission, register } = usePush({ checkOnMount: true })
  *

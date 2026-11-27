@@ -28,7 +28,7 @@ import type {
   ChatSessionControls,
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
-import { useChat, type UseChatOptions } from '@molecule/app-svelte'
+import { useChat, type UseChatOptions } from '@molecule/app-svelte/chat'
 
 import type { ChatContext, ChatSendMessage, MutableRef } from './context.svelte.js'
 

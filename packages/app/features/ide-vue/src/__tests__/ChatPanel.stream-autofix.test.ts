@@ -33,7 +33,9 @@ import { setIconSet } from '@molecule/app-icons'
 import type { Activity, IdeClientAction } from '@molecule/app-ide-panel-logic'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
-import { moleculePlugin, resetChatStoresForTests, useTranslation } from '@molecule/app-vue'
+import { moleculePlugin, useTranslation } from '@molecule/app-vue'
+import { createChatPlugin } from '@molecule/app-vue/chat'
+import { resetChatStoresForTests } from '@molecule/app-vue/chat'
 
 import type {
   ChatCtx,
@@ -204,8 +206,8 @@ function mountHarness(): Harness {
     i18n: createSimpleI18nProvider('en'),
     theme: buildThemeProvider(),
     http: buildRejectingHttpClient(),
-    chat: buildChatProvider([]),
   })
+  app.use(createChatPlugin(buildChatProvider([])))
   app.mount(container)
   harness.unmount = () => {
     app.unmount()

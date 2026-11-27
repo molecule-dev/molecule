@@ -20,7 +20,7 @@ import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { type ChatEventCardAction, registerCustomEventCard } from '@molecule/app-ide-panel-logic'
-import { resetChatStoresForTests } from '@molecule/app-svelte'
+import { resetChatStoresForTests } from '@molecule/app-svelte/chat'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
