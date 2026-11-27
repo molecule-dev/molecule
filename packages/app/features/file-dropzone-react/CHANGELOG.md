@@ -1,5 +1,11 @@
 # @molecule/app-file-dropzone-react
 
+## 5.1.0
+
+### Minor Changes
+
+- Show the file picker action in the React Native file dropzone and image gallery.
+
 ## 5.0.0
 
 ### Major Changes
