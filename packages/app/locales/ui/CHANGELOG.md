@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.3.1
+
+### Patch Changes
+
+- Translate native accessibility announcements, file picker messages, menu actions, and selection counts across the supported UI locales.
+
 ## 1.3.0
 
 ### Minor Changes

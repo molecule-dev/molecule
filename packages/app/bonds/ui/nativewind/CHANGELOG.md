@@ -1,5 +1,15 @@
 # @molecule/app-ui-nativewind
 
+## 1.7.0
+
+### Minor Changes
+
+- Apply NativeWind styles to native SVG elements.
+
+### Patch Changes
+
+- Select browser UI and ClassMap entries when Metro asserts both browser and React Native conditions.
+
 ## 1.6.0
 
 ### Minor Changes

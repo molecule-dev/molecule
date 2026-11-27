@@ -1,5 +1,17 @@
 # @molecule/app-ui-react
 
+## 4.13.0
+
+### Minor Changes
+
+- Resolve the shared elements and overlay entries to the native renderers on React Native.
+- Expose the typed text value from FloatingInput in every renderer. Use onValueChange in React, Solid, and Svelte, and the valueChange event in Vue and Angular.
+
+### Patch Changes
+
+- Select browser UI and ClassMap entries when Metro asserts both browser and React Native conditions.
+- Expose FileField from the React Native root through the same public entry as React DOM.
+
 ## 4.12.1
 
 ### Patch Changes

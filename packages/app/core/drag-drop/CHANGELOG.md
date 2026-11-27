@@ -1,5 +1,11 @@
 # @molecule/app-drag-drop
 
+## 1.2.1
+
+### Patch Changes
+
+- Use shared host types for drag and drop so React and React Native can build against the same bindings.
+
 ## 1.2.0
 
 ### Minor Changes

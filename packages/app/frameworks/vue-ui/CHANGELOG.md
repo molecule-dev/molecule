@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.10.0
+
+### Minor Changes
+
+- Expose the typed text value from FloatingInput in every renderer. Use onValueChange in React, Solid, and Svelte, and the valueChange event in Vue and Angular.
+
 ## 1.9.0
 
 ### Minor Changes

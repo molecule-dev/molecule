@@ -1,5 +1,15 @@
 # @molecule/app-ui-react-native
 
+## 2.1.0
+
+### Minor Changes
+
+- Add native elements, overlay primitives, and file selection with validation.
+
+### Patch Changes
+
+- FileField keeps an explicit `tabIndex`, as the browser field does.
+
 ## 2.0.1
 
 ### Patch Changes
