@@ -7,7 +7,9 @@
  * @module
  */
 
+import { get as getBondedProvider } from '@molecule/app-bond'
 import { warn } from '@molecule/app-logger'
+import type { PushProvider } from '@molecule/app-push'
 
 /**
  * Capacitor app configuration options.
@@ -19,10 +21,11 @@ export interface CapacitorAppOptions {
   onReady?: () => void | Promise<void>
 
   /**
-   * Whether to initialize push notifications on startup.
+   * Whether to initialize push notifications on startup. Install and bond an
+   * `@molecule/app-push` provider before initialization, or pass a registration callback.
    * @default false
    */
-  pushNotifications?: boolean
+  pushNotifications?: boolean | (() => Promise<unknown>)
 
   /**
    * Whether to handle deep links on startup.
@@ -110,7 +113,7 @@ export interface CapacitorApp {
  *
  * @example
  * ```typescript
- * import { createCapacitorApp } from '`@molecule/app-platform`'
+ * import { createCapacitorApp } from '@molecule/app-platform'
  *
  * const app = createCapacitorApp({
  *   pushNotifications: true,
@@ -220,10 +223,13 @@ export function createCapacitorApp(options: CapacitorAppOptions = {}): Capacitor
     if (!options.pushNotifications) return
 
     try {
-      // Dynamically import push provider to avoid hard dependency
-      const push = await import('@molecule/app-push')
-      const provider = push.getProvider()
-      await provider.register()
+      if (typeof options.pushNotifications === 'function') {
+        await options.pushNotifications()
+      } else {
+        const provider = getBondedProvider<PushProvider>('push')
+        if (!provider) throw new Error('Bond a push provider before enabling Capacitor push')
+        await provider.register()
+      }
       updateState({ pushReady: true })
     } catch (error) {
       // Push init failure should not block app readiness

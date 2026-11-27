@@ -1,10 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { bond, unbond } from '@molecule/app-bond'
 
 import { createCapacitorApp } from '../capacitor.js'
 
 describe('createCapacitorApp', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+  })
+
+  afterEach(() => {
+    unbond('push')
   })
 
   it('starts with ready=false', () => {
@@ -99,26 +105,44 @@ describe('createCapacitorApp', () => {
     expect(app.getState().pushReady).toBe(false)
   })
 
-  it('handles push init failure gracefully', async () => {
-    // vi.doMock (not vi.mock) — applies only after this point and is NOT
-    // hoisted, so it doesn't bleed into other tests in the file.
-    vi.doMock('@molecule/app-push', async (importOriginal) => {
-      throw new Error('Module not found')
-
-      return { ...(await importOriginal<Record<string, unknown>>()) }
-    })
-
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  it('registers the push provider already bonded by the Capacitor app', async () => {
+    const register = vi.fn().mockResolvedValue({ value: 'test-token', platform: 'ios' })
+    bond('push', { register })
     const app = createCapacitorApp({ pushNotifications: true })
 
     await app.initialize()
 
-    // Should still become ready despite push failure
-    expect(app.isReady()).toBe(true)
-    expect(app.getState().pushReady).toBe(true)
+    expect(register).toHaveBeenCalledOnce()
+    expect(app.getState()).toMatchObject({ ready: true, pushReady: true })
+  })
 
-    warnSpy.mockRestore()
-    vi.doUnmock('@molecule/app-push')
+  it('allows the app to supply its own push registration callback', async () => {
+    const register = vi.fn().mockResolvedValue({ value: 'test-token', platform: 'web' })
+    const app = createCapacitorApp({ pushNotifications: register })
+
+    await app.initialize()
+
+    expect(register).toHaveBeenCalledOnce()
+    expect(app.getState()).toMatchObject({ ready: true, pushReady: true })
+  })
+
+  it('handles push init failure gracefully', async () => {
+    const register = vi.fn().mockRejectedValue(new Error('permission denied'))
+    bond('push', { register })
+    const app = createCapacitorApp({ pushNotifications: true })
+
+    await app.initialize()
+
+    expect(register).toHaveBeenCalledOnce()
+    expect(app.getState()).toMatchObject({ ready: true, pushReady: true, error: null })
+  })
+
+  it('becomes ready with push enabled and no bonded push provider', async () => {
+    const app = createCapacitorApp({ pushNotifications: true })
+
+    await app.initialize()
+
+    expect(app.getState()).toMatchObject({ ready: true, pushReady: true, error: null })
   })
 
   it('destroy clears all listeners', async () => {

@@ -29,11 +29,13 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
+    "@molecule/app-bond": "^1.0.1",
     "@molecule/app-lifecycle": "^1.0.1",
     "@molecule/app-logger": "^1.0.1",
     "@molecule/app-push": "^1.0.1"
   },
   "devDependencies": {
+    "@molecule/app-bond": "1.0.5",
     "@molecule/app-lifecycle": "1.0.3",
     "@molecule/app-push": "1.2.2",
     "@types/node": "26.6.5",
@@ -49,5 +51,10 @@
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-push": {
+      "optional": true
+    }
   }
 }
