@@ -48,7 +48,7 @@ vi.mock('@molecule/app-logger', async (importOriginal) => ({
 import { getLogger } from '@molecule/app-logger'
 import { getProvider } from '@molecule/app-push'
 
-import { usePush, type UsePushOptions, type UsePushResult } from '../use-native.js'
+import { usePush, type UsePushOptions, type UsePushResult } from '../use-push.js'
 
 /** The warning the hook logs when its mount check fails. */
 const warnMock = vi.fn<(message: string, ...args: unknown[]) => void>()

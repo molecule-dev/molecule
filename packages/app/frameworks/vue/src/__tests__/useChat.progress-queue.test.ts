@@ -20,8 +20,8 @@ import type {
   ChatProvider,
 } from '@molecule/app-ai-chat'
 
+import { createChatPlugin } from '../chat-plugin.js'
 import { resetChatStoresForTests, useChat, type UseChatOptions } from '../composables/useChat.js'
-import { createChatPlugin } from '../plugin.js'
 
 const task: BackgroundTaskState = {
   id: 'summary-1',

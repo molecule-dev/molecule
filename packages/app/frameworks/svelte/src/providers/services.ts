@@ -5,9 +5,9 @@
  * @module
  */
 
+import { setChatContext } from '../chat-context.js'
 import {
   setAuthContext,
-  setChatContext,
   setEditorContext,
   setHttpContext,
   setI18nContext,

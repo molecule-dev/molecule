@@ -15,8 +15,8 @@ import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { Logger, LoggerProvider } from '@molecule/app-logger'
 import { setProvider as setLoggerProvider } from '@molecule/app-logger'
 
+import { createChatPlugin } from '../chat-plugin.js'
 import { resetChatStoresForTests, useChat } from '../composables/useChat.js'
-import { createChatPlugin } from '../plugin.js'
 
 const wrappers: VueWrapper[] = []
 

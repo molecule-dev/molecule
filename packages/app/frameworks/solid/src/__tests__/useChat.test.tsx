@@ -24,7 +24,7 @@ import type {
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
 
-import { ChatContext } from '../context.js'
+import { ChatContext } from '../chat-context.js'
 import {
   convergeHistory,
   localOnlyMessages,

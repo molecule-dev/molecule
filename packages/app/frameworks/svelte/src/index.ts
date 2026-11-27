@@ -153,14 +153,20 @@
  *   placed it. Nothing renders on the server; `target` replaces the body and `null` renders
  *   nothing until a target exists.
  *
+ * Use `@molecule/app-svelte/chat`, `@molecule/app-svelte/ai-models`, and
+ * `@molecule/app-svelte/push` for those features. The corresponding exports at the
+ * package root are deprecated.
+ *
  * @module
  */
 
-export * from './agent-identity.js'
 export * from './components/index.js'
 export * from './content.js'
 export * from './context.js'
 export * from './hooks/index.js'
+export * from './legacy-ai-models.js'
+export * from './legacy-chat.js'
+export * from './legacy-push.js'
 export * from './link/index.js'
 export * from './providers/index.js'
 export * from './routed-view/index.js'

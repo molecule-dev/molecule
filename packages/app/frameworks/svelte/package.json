@@ -16,7 +16,22 @@
       "svelte": "./dist/link/index.js",
       "default": "./dist/link/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./chat": {
+      "types": "./dist/chat/index.d.ts",
+      "svelte": "./dist/chat/index.js",
+      "default": "./dist/chat/index.js"
+    },
+    "./ai-models": {
+      "types": "./dist/ai-models.d.ts",
+      "svelte": "./dist/ai-models.js",
+      "default": "./dist/ai-models.js"
+    },
+    "./push": {
+      "types": "./dist/push.d.ts",
+      "svelte": "./dist/push.js",
+      "default": "./dist/push.js"
+    }
   },
   "svelte": "./dist/index.js",
   "files": [

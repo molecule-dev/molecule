@@ -14,9 +14,9 @@ import {
   hasProvider as hasStateProvider,
 } from '@molecule/app-state'
 
+import { ChatContext } from './chat-context.js'
 import {
   AuthContext,
-  ChatContext,
   EditorContext,
   HttpContext,
   I18nContext,
@@ -33,7 +33,6 @@ import { RoutedViewContext } from './routed-view-context.js'
 import { SessionReady } from './session-ready.js'
 import type {
   AuthProviderProps,
-  ChatProviderProps,
   EditorProviderProps,
   HttpProviderProps,
   I18nProviderProps,
@@ -252,15 +251,6 @@ export function StorageProvider({ provider, children }: StorageProviderProps): R
  */
 export function LoggerProvider({ provider, children }: LoggerProviderProps): React.ReactElement {
   return <LoggerContext.Provider value={provider}>{children}</LoggerContext.Provider>
-}
-
-/**
- * Provider for AI chat.
- * @param props - Component props (see {@link ChatProviderProps}).
- * @returns The rendered chat provider element.
- */
-export function ChatProvider({ provider, children }: ChatProviderProps): React.ReactElement {
-  return <ChatContext.Provider value={provider}>{children}</ChatContext.Provider>
 }
 
 /**

@@ -2,7 +2,7 @@
   Provider for AI chat, as @molecule/app-react's ChatProvider.
 -->
 <script lang="ts">
-  import type { ChatProviderProps } from '../types.js'
+  import type { ChatProviderProps } from '../chat-types.js'
   import Provided from './Provided.svelte'
 
   let { provider, children }: ChatProviderProps = $props()

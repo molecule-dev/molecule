@@ -20,7 +20,6 @@ import type { StorageProvider as CoreStorageProvider } from '@molecule/app-stora
 import type { ThemeProvider as CoreThemeProvider } from '@molecule/app-theme'
 
 import AuthProviderComponent from './AuthProvider.svelte'
-import ChatProviderComponent from './ChatProvider.svelte'
 import EditorProviderComponent from './EditorProvider.svelte'
 import HttpProviderComponent from './HttpProvider.svelte'
 import I18nProviderComponent from './I18nProvider.svelte'
@@ -143,11 +142,6 @@ export const LoggerProvider = LoggerProviderComponent
  * `@molecule/app-react`; import the interface from `@molecule/app-logger`.
  */
 export type LoggerProvider = CoreLoggerProvider
-
-/**
- * Provider for AI chat, as `@molecule/app-react`'s `ChatProvider`.
- */
-export const ChatProvider = ChatProviderComponent
 
 /**
  * Provider for the IDE workspace, as `@molecule/app-react`'s `WorkspaceProvider`.

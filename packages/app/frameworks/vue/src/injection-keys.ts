@@ -6,7 +6,6 @@
 
 import type { InjectionKey } from 'vue'
 
-import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
@@ -58,11 +57,6 @@ export const StorageKey: InjectionKey<StorageProvider> = Symbol('molecule-storag
  * Injection key for logger provider.
  */
 export const LoggerKey: InjectionKey<LoggerProvider> = Symbol('molecule-logger')
-
-/**
- * Injection key for the AI chat provider.
- */
-export const ChatKey: InjectionKey<ChatProvider> = Symbol('molecule-chat')
 
 /**
  * Injection key for the IDE workspace provider.

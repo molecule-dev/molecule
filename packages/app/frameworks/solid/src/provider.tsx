@@ -9,7 +9,7 @@
  * @module
  */
 
-import { type Context, createComponent, createMemo, type JSX, Show } from 'solid-js'
+import { createComponent, createMemo, type JSX, Show } from 'solid-js'
 
 import type { I18nProvider as CoreI18nProvider } from '@molecule/app-i18n'
 import type { LoggerProvider as CoreLoggerProvider } from '@molecule/app-logger'
@@ -21,9 +21,9 @@ import {
 import type { StorageProvider as CoreStorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider as CoreThemeProvider } from '@molecule/app-theme'
 
+import { ChatContext } from './chat-context.js'
 import {
   AuthContext,
-  ChatContext,
   EditorContext,
   HttpContext,
   I18nContext,
@@ -36,10 +36,10 @@ import {
   WorkspaceContext,
 } from './context.js'
 import { RoutedViewContext } from './routed-view-context.js'
+import { serviceProvider, wrap } from './service-provider.js'
 import { SessionReady } from './session-ready.js'
 import type {
   AuthProviderProps,
-  ChatProviderProps,
   EditorProviderProps,
   HttpProviderProps,
   I18nProviderProps,
@@ -72,56 +72,6 @@ function identityOf(value: unknown): number {
   nextIdentity += 1
   identities.set(value, nextIdentity)
   return nextIdentity
-}
-
-/**
- * `inner` wrapped in `context`'s provider carrying `value`, or `inner` itself without a value.
- *
- * Providers are composed with explicit `createComponent` calls and getter props, the shape
- * `vite-plugin-solid` compiles JSX to. Solid evaluates children eagerly, so the getter
- * `children` chain is what keeps each level lazy: a child component's `useContext` would
- * otherwise read a context whose provider has not run yet.
- *
- * @param context - The context to provide.
- * @param value - Its value, or `undefined` to leave it out.
- * @param inner - Renders the tree below.
- * @returns Renders the provided tree.
- */
-function wrap<T>(
-  context: Context<T | undefined>,
-  value: T | undefined,
-  inner: () => JSX.Element,
-): () => JSX.Element {
-  if (value === undefined || value === null) return inner
-  return () =>
-    createComponent(context.Provider, {
-      value,
-      get children() {
-        return inner()
-      },
-    })
-}
-
-/**
- * A provider of one service, whose tree is re-created when the service changes.
- *
- * @param context - The context the service's primitives read.
- * @param value - Reads the service prop.
- * @param children - Reads the children prop.
- * @returns The provided tree.
- */
-function serviceProvider<T extends object>(
-  context: Context<T | undefined>,
-  value: () => T,
-  children: () => JSX.Element,
-): JSX.Element {
-  return Show({
-    get when() {
-      return value()
-    },
-    keyed: true,
-    children: (service: T) => wrap(context, service, children)(),
-  })
 }
 
 /**
@@ -309,20 +259,6 @@ export function LoggerProvider(props: LoggerProviderProps): JSX.Element {
  * `@molecule/app-react`; import the interface from `@molecule/app-logger`.
  */
 export type LoggerProvider = CoreLoggerProvider
-
-/**
- * Provider for AI chat, as `@molecule/app-react`'s `ChatProvider`.
- *
- * @param props - Component props (see {@link ChatProviderProps}).
- * @returns The provided tree.
- */
-export function ChatProvider(props: ChatProviderProps): JSX.Element {
-  return serviceProvider(
-    ChatContext,
-    () => props.provider,
-    () => props.children,
-  )
-}
 
 /**
  * Provider for the IDE workspace, as `@molecule/app-react`'s `WorkspaceProvider`.

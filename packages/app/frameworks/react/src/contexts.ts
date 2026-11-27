@@ -9,7 +9,6 @@
 
 import { createContext } from 'react'
 
-import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
@@ -69,12 +68,6 @@ StorageContext.displayName = 'MoleculeStorageContext'
  */
 export const LoggerContext = createContext<LoggerProvider | null>(null)
 LoggerContext.displayName = 'MoleculeLoggerContext'
-
-/**
- * Context for AI chat provider.
- */
-export const ChatContext = createContext<ChatProvider | null>(null)
-ChatContext.displayName = 'MoleculeChatContext'
 
 /**
  * Context for IDE workspace provider.

@@ -10,6 +10,8 @@
 import { type Component, flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { useChatProvider } from '../chat-context.js'
+import { ChatProvider } from '../chat-provider.js'
 import {
   getAuthClient,
   getHttpClient,
@@ -19,14 +21,12 @@ import {
   getStateProvider,
   getStorageProvider,
   getThemeProvider,
-  useChatProvider,
   useEditorProvider,
   usePreviewProvider,
   useWorkspaceProvider,
 } from '../context.js'
 import {
   AuthProvider,
-  ChatProvider,
   EditorProvider,
   HttpProvider,
   I18nProvider,

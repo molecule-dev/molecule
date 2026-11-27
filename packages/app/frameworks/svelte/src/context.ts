@@ -8,7 +8,6 @@ import type { Component } from 'svelte'
 import { getContext, onDestroy, setContext } from 'svelte'
 import { get, type Readable, writable } from 'svelte/store'
 
-import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
@@ -26,6 +25,7 @@ import {
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { setChatContext } from './chat-context.js'
 import { type MaybeReadable, toReadable } from './hooks/maybe-readable.js'
 import { setRoutedViewContext } from './routed-view-context.js'
 import type { MoleculeConfig } from './types.js'
@@ -39,7 +39,6 @@ const I18N_KEY = Symbol('molecule-i18n')
 const HTTP_KEY = Symbol('molecule-http')
 const STORAGE_KEY = Symbol('molecule-storage')
 const LOGGER_KEY = Symbol('molecule-logger')
-const CHAT_KEY = Symbol('molecule-chat')
 const WORKSPACE_KEY = Symbol('molecule-workspace')
 const EDITOR_KEY = Symbol('molecule-editor')
 const PREVIEW_KEY = Symbol('molecule-preview')
@@ -82,7 +81,7 @@ export function setMoleculeContext(config: MoleculeConfig): void {
   if (config.http) setContext(HTTP_KEY, config.http)
   if (config.storage) setContext(STORAGE_KEY, config.storage)
   if (config.logger) setContext(LOGGER_KEY, config.logger)
-  if (config.chat) setContext(CHAT_KEY, config.chat)
+  if (config.chat) setChatContext(config.chat)
   if (config.workspace) setContext(WORKSPACE_KEY, config.workspace)
   if (config.editor) setContext(EDITOR_KEY, config.editor)
   if (config.preview) setContext(PREVIEW_KEY, config.preview)
@@ -155,14 +154,6 @@ export function setStorageContext(provider: StorageProvider): void {
  */
 export function setLoggerContext(provider: LoggerProvider): void {
   setContext(LOGGER_KEY, provider)
-}
-
-/**
- * Sets the AI chat context.
- * @param provider - The chat provider to store in Svelte context.
- */
-export function setChatContext(provider: ChatProvider): void {
-  setContext(CHAT_KEY, provider)
 }
 
 /**
@@ -317,22 +308,6 @@ export function getLoggerProvider(): LoggerProvider {
     throw new Error(
       t('svelte.error.noLoggerProvider', undefined, {
         defaultValue: 'Logger provider not found in context',
-      }),
-    )
-  return provider
-}
-
-/**
- * Gets the AI chat provider from Svelte context (`setMoleculeContext({ chat })`).
- * @returns The chat provider instance.
- * @throws {Error} If no chat provider has been set in context.
- */
-export function useChatProvider(): ChatProvider {
-  const provider = getContext<ChatProvider | undefined>(CHAT_KEY)
-  if (!provider)
-    throw new Error(
-      t('svelte.error.useChatOutsideProvider', undefined, {
-        defaultValue: 'useChatProvider must be used within a ChatProvider',
       }),
     )
   return provider

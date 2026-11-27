@@ -62,12 +62,18 @@
  *   react-router `<Link>`'s click rules. A bare `<a href>` reloads the page; a hand-written click
  *   handler that calls `navigate()` breaks ctrl/cmd-click (new tab) unless it repeats those rules.
  *
+ * Use `@molecule/app-solid/chat`, `@molecule/app-solid/ai-models`, and
+ * `@molecule/app-solid/push` for those features. The corresponding exports at the
+ * package root are deprecated.
+ *
  * @module
  */
 
-export * from './agent-identity.js'
 export * from './body-portal.jsx'
 export * from './context.js'
+export * from './legacy-ai-models.js'
+export * from './legacy-chat.js'
+export * from './legacy-push.js'
 export * from './link.jsx'
 export * from './node.js'
 export * from './node-scope.jsx'

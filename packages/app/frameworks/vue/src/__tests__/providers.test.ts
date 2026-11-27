@@ -16,10 +16,11 @@ import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { createSimpleStateProvider } from '@molecule/app-state'
 import { lightTheme, type ThemeProvider as ThemeService } from '@molecule/app-theme'
 
+import { ChatKey } from '../chat-context.js'
+import { ChatProvider } from '../chat-provider.js'
 import { useTranslation } from '../composables/useTranslation.js'
 import {
   AuthKey,
-  ChatKey,
   EditorKey,
   HttpKey,
   I18nKey,
@@ -33,7 +34,6 @@ import {
 } from '../injection-keys.js'
 import {
   AuthProvider,
-  ChatProvider,
   EditorProvider,
   HttpProvider,
   I18nProvider,

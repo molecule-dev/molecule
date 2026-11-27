@@ -107,15 +107,20 @@
  *   `<a href>` reloads the page; a hand-written `(click)` handler that calls `navigate()`
  *   breaks ctrl/cmd-click (new tab) unless it repeats those rules.
  *
+ * Use `@molecule/app-angular/chat`, `@molecule/app-angular/ai-models`, and
+ * `@molecule/app-angular/push` for those features. The corresponding exports at the
+ * package root are deprecated.
+ *
  * @module
  */
 
-export * from './agent-identity.js'
-export * from './chat.js'
 export * from './dom-placement.js'
 export * from './hooks/index.js'
 export * from './i18n-reactive.js'
 export * from './lazy-slot.js'
+export * from './legacy-ai-models.js'
+export * from './legacy-chat.js'
+export * from './legacy-push.js'
 export * from './link.js'
 export * from './maybe-signal.js'
 export * from './node.js'

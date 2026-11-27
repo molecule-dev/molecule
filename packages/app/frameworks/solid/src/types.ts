@@ -193,13 +193,6 @@ export interface LoggerProviderProps extends ProviderProps {
 }
 
 /**
- * Props for the `ChatProvider` component.
- */
-export interface ChatProviderProps extends ProviderProps {
-  provider: ChatProvider
-}
-
-/**
  * Props for the `WorkspaceProvider` component.
  */
 export interface WorkspaceProviderProps extends ProviderProps {

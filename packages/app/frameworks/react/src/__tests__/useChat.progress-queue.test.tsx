@@ -12,7 +12,7 @@ import type {
   ChatProvider,
 } from '@molecule/app-ai-chat'
 
-import { ChatContext } from '../contexts.js'
+import { ChatContext } from '../chat-context.js'
 import { resetChatStoresForTests, useChat } from '../hooks/useChat.js'
 
 const task: BackgroundTaskState = {

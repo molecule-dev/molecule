@@ -14,7 +14,19 @@
       "types": "./dist/link.d.ts",
       "default": "./dist/link.jsx"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./chat": {
+      "types": "./dist/chat/index.d.ts",
+      "default": "./dist/chat/index.js"
+    },
+    "./ai-models": {
+      "types": "./dist/ai-models.d.ts",
+      "default": "./dist/ai-models.js"
+    },
+    "./push": {
+      "types": "./dist/push.d.ts",
+      "default": "./dist/push.js"
+    }
   },
   "files": [
     "dist",

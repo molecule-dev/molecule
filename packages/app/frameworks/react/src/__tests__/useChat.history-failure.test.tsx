@@ -15,7 +15,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import { type LoggerProvider, setProvider as setLoggerProvider } from '@molecule/app-logger'
 
-import { ChatContext } from '../contexts.js'
+import { ChatContext } from '../chat-context.js'
 import { resetChatStoresForTests, useChat } from '../hooks/useChat.js'
 
 afterEach(() => {

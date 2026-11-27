@@ -31,7 +31,7 @@ import {
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
-import { ChatContext } from '../context.js'
+import { ChatContext } from '../chat-context.js'
 import { access } from './maybe-accessor.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */

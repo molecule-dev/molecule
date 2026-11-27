@@ -23,9 +23,9 @@ import {
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { ChatKey } from './chat-context.js'
 import {
   AuthKey,
-  ChatKey,
   EditorKey,
   HttpKey,
   I18nKey,
@@ -266,19 +266,6 @@ export function createLoggerPlugin(provider: LoggerProvider): Plugin {
   return {
     install(app: App) {
       app.provide(LoggerKey, provider)
-    },
-  }
-}
-
-/**
- * Creates a Vue plugin that provides an AI chat provider via dependency injection.
- * @param provider - The chat provider to inject into the Vue application.
- * @returns A Vue plugin that provides the chat provider to all descendant components.
- */
-export function createChatPlugin(provider: ChatProvider): Plugin {
-  return {
-    install(app: App) {
-      app.provide(ChatKey, provider)
     },
   }
 }

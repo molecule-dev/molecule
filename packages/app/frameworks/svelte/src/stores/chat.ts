@@ -21,7 +21,7 @@ import {
   resetChatStoresForTests as coreResetChatStoresForTests,
 } from '@molecule/app-ai-chat'
 
-import { useChatProvider } from '../context.js'
+import { useChatProvider } from '../chat-context.js'
 import { toReadable } from '../hooks/maybe-readable.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */

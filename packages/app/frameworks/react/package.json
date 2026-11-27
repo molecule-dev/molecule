@@ -21,7 +21,19 @@
     "./overlay": {
       "types": "./dist/overlay.d.ts"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./chat": {
+      "types": "./dist/chat/index.d.ts",
+      "import": "./dist/chat/index.js"
+    },
+    "./ai-models": {
+      "types": "./dist/ai-models.d.ts",
+      "import": "./dist/ai-models.js"
+    },
+    "./push": {
+      "types": "./dist/push.d.ts",
+      "import": "./dist/push.js"
+    }
   },
   "files": [
     "dist",

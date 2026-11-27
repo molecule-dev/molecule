@@ -13,7 +13,6 @@ import {
   provideEnvironmentInitializer,
 } from '@angular/core'
 
-import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
@@ -30,12 +29,12 @@ import {
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { CHAT_PROVIDER } from './chat-context.js'
 import { provideDomPlacement } from './dom-placement.js'
 import { bumpLocaleVersion } from './i18n-reactive.js'
 import { ROUTED_VIEW } from './routed-view-token.js'
 import {
   AUTH_CLIENT,
-  CHAT_PROVIDER,
   EDITOR_PROVIDER,
   HTTP_CLIENT,
   I18N_PROVIDER,
@@ -143,16 +142,6 @@ export function provideStorage(provider: StorageProvider): EnvironmentProviders 
  */
 export function provideLogger(provider: LoggerProvider): EnvironmentProviders {
   return makeEnvironmentProviders([{ provide: LOGGER_PROVIDER, useValue: provider }])
-}
-
-/**
- * Registers the AI chat provider useChat and useChatProvider use.
- *
- * @param provider - Chat provider
- * @returns Environment providers
- */
-export function provideChat(provider: ChatProvider): EnvironmentProviders {
-  return makeEnvironmentProviders([{ provide: CHAT_PROVIDER, useValue: provider }])
 }
 
 /**

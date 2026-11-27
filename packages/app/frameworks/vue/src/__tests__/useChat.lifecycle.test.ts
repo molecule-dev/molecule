@@ -12,8 +12,8 @@ import type {
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
 
+import { createChatPlugin } from '../chat-plugin.js'
 import { resetChatStoresForTests, useChat } from '../composables/useChat.js'
-import { createChatPlugin } from '../plugin.js'
 
 /**
  * A dropped-stream provider: `sendMessage` replays a script entry's events and

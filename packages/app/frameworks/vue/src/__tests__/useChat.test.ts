@@ -22,6 +22,7 @@ import type {
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
 
+import { createChatPlugin } from '../chat-plugin.js'
 import {
   convergeHistory,
   localOnlyMessages,
@@ -29,7 +30,6 @@ import {
   useChat,
   type UseChatOptions,
 } from '../composables/useChat.js'
-import { createChatPlugin } from '../plugin.js'
 
 // ── Mock provider factory ─────────────────────────────────────────────────
 

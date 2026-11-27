@@ -32,8 +32,8 @@ import {
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
+import { CHAT_PROVIDER } from './chat-context.js'
 import { readMaybeSignal } from './maybe-signal.js'
-import { CHAT_PROVIDER } from './tokens.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */
 export type UseChatOptions = ChatSessionOptions

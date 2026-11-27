@@ -6,7 +6,6 @@
 
 import { createContext, useContext } from 'solid-js'
 
-import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
 import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
@@ -31,7 +30,6 @@ const I18nContext = createContext<I18nProvider>()
 const HttpContext = createContext<HttpClient>()
 const StorageContext = createContext<StorageProvider>()
 const LoggerContext = createContext<LoggerProvider>()
-const ChatContext = createContext<ChatProvider>()
 const WorkspaceContext = createContext<WorkspaceProvider>()
 const EditorContext = createContext<EditorProvider>()
 const PreviewContext = createContext<PreviewProvider>()
@@ -248,7 +246,6 @@ export function getPreviewProvider(): PreviewProvider {
 // Export contexts for advanced use cases
 export {
   AuthContext,
-  ChatContext,
   EditorContext,
   HttpContext,
   I18nContext,

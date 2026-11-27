@@ -12,9 +12,10 @@ import { type Context, createComponent, createSignal, type JSX, useContext } fro
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { ChatContext } from '../chat-context.js'
+import { ChatProvider } from '../chat-provider.js'
 import {
   AuthContext,
-  ChatContext,
   EditorContext,
   HttpContext,
   I18nContext,
@@ -28,7 +29,6 @@ import {
 } from '../context.js'
 import {
   AuthProvider,
-  ChatProvider,
   EditorProvider,
   HttpProvider,
   I18nProvider,

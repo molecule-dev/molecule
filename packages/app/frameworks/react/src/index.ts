@@ -313,13 +313,19 @@
  *   separate — components that render react-router `<Link>` (several in
  *   `@molecule/app-ui-react`) need it in addition to the molecule providers.
  *
+ * Use `@molecule/app-react/chat`, `@molecule/app-react/ai-models`, and
+ * `@molecule/app-react/push` for those features. The corresponding exports at the
+ * package root are deprecated.
+ *
  * @module
  */
 
-export * from './agent-identity.js'
 export * from './contexts.js'
 export * from './hooks/index.js'
 export * from './hooks/useProfileForm.js'
+export * from './legacy-ai-models.js'
+export * from './legacy-chat.js'
+export * from './legacy-push.js'
 export * from './providers.js'
 export * from './session-ready.js'
 export * from './types.js'

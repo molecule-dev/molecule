@@ -20,8 +20,8 @@ import {
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
-import { ChatContext } from '../contexts.js'
-import type { UseChatOptions, UseChatResult } from '../types.js'
+import { ChatContext } from '../chat-context.js'
+import type { UseChatOptions, UseChatResult } from '../chat-types.js'
 
 /**
  * Converge a live transcript on a fresh server history without rewinding

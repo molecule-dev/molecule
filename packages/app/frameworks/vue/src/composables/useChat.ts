@@ -32,7 +32,7 @@ import {
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
-import { ChatKey } from '../injection-keys.js'
+import { ChatKey } from '../chat-context.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */
 export type UseChatOptions = ChatSessionOptions

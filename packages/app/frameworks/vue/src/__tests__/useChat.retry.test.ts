@@ -14,8 +14,8 @@ import { defineComponent, h, nextTick, shallowRef } from 'vue'
 
 import type { ChatEventHandler, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 
+import { createChatPlugin } from '../chat-plugin.js'
 import { resetChatStoresForTests, useChat, type UseChatOptions } from '../composables/useChat.js'
-import { createChatPlugin } from '../plugin.js'
 
 /**
  * Scriptable mock chat provider: each sendMessage call shifts the next script

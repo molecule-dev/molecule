@@ -129,13 +129,19 @@
  * - For locale-reactive text use `useTranslation()`'s `t` in components — the raw `t()` import
  *   from `@molecule/app-i18n` does not trigger re-render on locale change.
  *
+ * Use `@molecule/app-vue/chat`, `@molecule/app-vue/ai-models`, and
+ * `@molecule/app-vue/push` for those features. The corresponding exports at the
+ * package root are deprecated.
+ *
  * @module
  */
 
-export * from './agent-identity.js'
 export * from './children.js'
 export * from './composables/index.js'
 export * from './injection-keys.js'
+export * from './legacy-ai-models.js'
+export * from './legacy-chat.js'
+export * from './legacy-push.js'
 export * from './link.js'
 export * from './plugin.js'
 export * from './providers.js'

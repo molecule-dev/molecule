@@ -22,7 +22,7 @@ import type {
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
 
-import { ChatContext } from '../context.js'
+import { ChatContext } from '../chat-context.js'
 import { resetChatStoresForTests, useChat, type UseChatResult } from '../primitives/chat.js'
 
 /** A dropped-stream provider whose script, calls and flags the test inspects. */

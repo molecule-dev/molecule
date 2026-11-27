@@ -19,7 +19,7 @@ import {
   setProvider as setLoggerProvider,
 } from '@molecule/app-logger'
 
-import { ChatContext } from '../context.js'
+import { ChatContext } from '../chat-context.js'
 import { resetChatStoresForTests, useChat } from '../primitives/chat.js'
 
 const disposers: Array<() => void> = []

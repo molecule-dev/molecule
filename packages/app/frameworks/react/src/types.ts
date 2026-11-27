@@ -6,13 +6,7 @@
 
 import type { ComponentType, ReactNode } from 'react'
 
-import type {
-  ChatProvider,
-  ChatSendOptions,
-  ChatSessionControls,
-  ChatSessionOptions,
-  ChatSessionState,
-} from '@molecule/app-ai-chat'
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type {
   DiffFile,
@@ -130,13 +124,6 @@ export interface StorageProviderProps extends ProviderProps {
  */
 export interface LoggerProviderProps extends ProviderProps {
   provider: LoggerProvider
-}
-
-/**
- * Props for the ChatProvider React component.
- */
-export interface ChatProviderProps extends ProviderProps {
-  provider: ChatProvider
 }
 
 /**
@@ -338,22 +325,6 @@ export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
 export type UseTFunction = I18nProvider['t'] & {
   (key: string, fallback: string, options?: UseTShorthandOptions): string
 }
-
-/**
- * Hook options for useChat: the chat session options (see `createChatSession`
- * in `@molecule/app-ai-chat`).
- */
-export type UseChatOptions = ChatSessionOptions
-
-/**
- * Options for {@link UseChatResult.sendMessage}.
- */
-export type SendMessageOptions = ChatSendOptions
-
-/**
- * Hook result for useChat: the chat session's state plus its controls.
- */
-export type UseChatResult = ChatSessionState & ChatSessionControls
 
 /**
  * Hook result for useWorkspace.

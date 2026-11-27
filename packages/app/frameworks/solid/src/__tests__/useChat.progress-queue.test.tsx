@@ -25,7 +25,7 @@ import type {
   ChatProvider,
 } from '@molecule/app-ai-chat'
 
-import { ChatContext } from '../context.js'
+import { ChatContext } from '../chat-context.js'
 import {
   resetChatStoresForTests,
   useChat,

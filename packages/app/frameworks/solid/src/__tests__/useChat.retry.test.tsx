@@ -17,7 +17,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatEventHandler, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 
-import { ChatContext } from '../context.js'
+import { ChatContext } from '../chat-context.js'
 import {
   resetChatStoresForTests,
   useChat,
