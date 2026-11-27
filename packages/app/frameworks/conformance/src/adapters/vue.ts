@@ -86,7 +86,9 @@ export interface VueBinding extends BindingCaseResets {
   createRouterPlugin(router: Router): Plugin
   createThemePlugin(provider: ThemeProvider): Plugin
   /** The full composition root, for feature cases that mount with every service (`RunOptions.app`). */
-  moleculePlugin: Plugin<[BindingServices]>
+  moleculePlugin: Plugin<[Omit<BindingServices, 'chat'>]>
+  /** Provides chat for feature cases that select it. */
+  createChatPlugin?(provider: NonNullable<BindingServices['chat']>): Plugin
   /** Provides the router and the routing bond's routed view (`routedView`) to its subtree. */
   RouterProvider: Component
   SessionReady: Component
@@ -367,7 +369,9 @@ export function createVueAdapter({
                 ),
             })
             if (full) {
-              app.use(moleculePlugin, full.services)
+              const { chat, ...services } = full.services
+              app.use(moleculePlugin, services)
+              if (chat && binding.createChatPlugin) app.use(binding.createChatPlugin(chat))
             } else {
               app.use(createI18nPlugin(services.i18n))
               app.use(createRouterPlugin(services.router))

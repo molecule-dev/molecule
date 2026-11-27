@@ -20,8 +20,6 @@ import { fileURLToPath } from 'node:url'
 
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import * as ReactBindings from '@molecule/app-react'
-
 import {
   bindingCaseFamilies,
   type BindingGoldens,
@@ -32,7 +30,7 @@ import {
 } from '../bindings/index.js'
 import { assertBuiltFromSource } from '../build-freshness.js'
 import { watchConformanceEventLoop } from '../stall-watchdog-vitest.js'
-import { reactBindingAdapter } from './react-bindings-adapter.js'
+import { reactBindingAdapter, reactBindingExports } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
 
 // React is recorded here: a reference that stops yielding ends the run with its stack.
@@ -53,7 +51,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 assertBuiltFromSource(['@molecule/app-react'], here)
 const GOLDENS_FILE = join(here, '..', 'bindings', 'goldens.json')
 
-const exportNames = requiredBindingExports(Object.keys(ReactBindings))
+const exportNames = requiredBindingExports(Object.keys(reactBindingExports))
 const recorded: BindingGoldens = { exports: exportNames, cases: {} }
 
 describe.skipIf(FILTER !== null)('React binding coverage', () => {
@@ -75,7 +73,7 @@ describe.skipIf(FILTER !== null)('React binding coverage', () => {
     // export (Angular's root is `provideMolecule`; check-framework-conformance judges the names).
     const names = (f: (typeof bindingCaseFamilies)[number]): boolean =>
       f.render === 'root'
-        ? f.hook === 'MoleculeProvider' && f.hook in ReactBindings
+        ? f.hook === 'MoleculeProvider' && f.hook in reactBindingExports
         : exportNames.includes(f.hook)
     expect(bindingCaseFamilies.filter((f) => !names(f)).map((f) => f.hook)).toEqual([])
   })

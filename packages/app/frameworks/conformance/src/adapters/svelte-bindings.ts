@@ -80,7 +80,7 @@ export interface SvelteBinding {
    */
   setMoleculeContext(config: SvelteMoleculeConfig): void
   /** Sets the explicitly selected chat provider. */
-  setChatContext(provider: ChatProvider): void
+  setChatContext?(provider: ChatProvider): void
   /**
    * Sets the router in Svelte context with a routing bond's routed view; the host calls it for a
    * case with a `routedView`.
@@ -219,8 +219,8 @@ export function createSvelteBindingAdapter({
   return {
     name: 'svelte',
     reset: () => {
-      const resetChatStores = exportsOf.resetChatStoresForTests as () => void
-      resetChatStores()
+      const resetChatStores = exportsOf.resetChatStoresForTests
+      if (typeof resetChatStores === 'function') resetChatStores()
       // React resets its models cache too; present once this binding ports useAIModels.
       const resetModels = exportsOf.resetAIModelsCache
       if (typeof resetModels === 'function') resetModels()

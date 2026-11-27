@@ -64,6 +64,8 @@ export interface SvelteMoleculeConfig extends Partial<Omit<BindingServices, 'aut
 /** What the adapter needs from `@molecule/app-svelte` (the package under test passes the module). */
 export interface SvelteBinding extends BindingCaseResets {
   setMoleculeContext(config: SvelteMoleculeConfig): void
+  /** Provides chat for feature cases that select it. */
+  setChatContext?(provider: NonNullable<SvelteMoleculeConfig['chat']>): void
   /** Sets the router, with the routing bond's routed view (`RoutedView` renders it). */
   setRouterContext(router: Router, options?: { routedView?: Component }): void
 }
@@ -109,7 +111,7 @@ export function createSvelteAdapter({
   binding,
   listChildren,
 }: SvelteAdapterOptions): FrameworkAdapter {
-  const { setMoleculeContext, setRouterContext } = binding
+  const { setMoleculeContext, setChatContext, setRouterContext } = binding
 
   /** Builds the recording spy for a nested `{ $callback }` in the running case. */
   let callbackSpy: CallbackSpy | undefined
@@ -170,6 +172,7 @@ export function createSvelteAdapter({
                   component: Target,
                   exports: exportsOf,
                   setMoleculeContext,
+                  setChatContext,
                   setRouterContext,
                   routedPage: testCase.context?.routedPage,
                   callback: callbackSpy,

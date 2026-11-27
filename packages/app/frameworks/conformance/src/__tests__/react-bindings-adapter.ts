@@ -11,6 +11,9 @@ import { act, createElement, Fragment, type ReactElement } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import * as ReactBindings from '@molecule/app-react'
+import * as Models from '@molecule/app-react/ai-models'
+import * as Chat from '@molecule/app-react/chat'
+import * as Push from '@molecule/app-react/push'
 
 import {
   type BindingAdapter,
@@ -72,28 +75,32 @@ const tree = (
   services: Partial<BindingServices>,
   into: Slot,
   options: MountOptions,
-): ReactElement =>
-  options.render === 'root'
-    ? // The composition root itself, as an app mounts it: its own defaults, nothing around it.
-      // A root case's first argument is the provider's props, its children among them.
-      createElement(ReactBindings.MoleculeProvider, {
-        ...services,
-        ...(args[0] as ReactBindings.MoleculeProviderProps),
-      })
-    : createElement(ReactBindings.MoleculeProvider, {
-        ...services,
-        awaitSession: false,
-        children: underRoutedView(
-          services,
-          options,
-          options.render === 'text'
-            ? // A component export renders with args[0] as props; its string props are text slots.
-              createElement(exportsOf[hook] as (props: object) => ReactElement, {
-                ...(args[0] as object),
-              })
-            : createElement(Host, { fn: exportsOf[hook], args, into }),
-        ),
-      })
+): ReactElement => {
+  const { chat, ...baseServices } = services
+  if (options.render === 'root') {
+    // A root case's first argument supplies the root's props and children.
+    return createElement(ReactBindings.MoleculeProvider, {
+      ...baseServices,
+      ...(args[0] as ReactBindings.MoleculeProviderProps),
+    })
+  }
+
+  const child =
+    options.render === 'text'
+      ? createElement(exportsOf[hook] as (props: object) => ReactElement, {
+          ...(args[0] as object),
+        })
+      : createElement(Host, { fn: exportsOf[hook], args, into })
+  return createElement(ReactBindings.MoleculeProvider, {
+    ...baseServices,
+    awaitSession: false,
+    children: underRoutedView(
+      services,
+      options,
+      chat ? createElement(Chat.ChatProvider, { provider: chat, children: child }) : child,
+    ),
+  })
+}
 
 /**
  * Builds a React binding adapter over an export map.
@@ -105,8 +112,8 @@ export function createReactBindingAdapter(exportsOf: Record<string, unknown>): B
   return {
     name: 'react',
     reset: () => {
-      ReactBindings.resetChatStoresForTests()
-      ReactBindings.resetAIModelsCache()
+      Chat.resetChatStoresForTests()
+      Models.resetAIModelsCache()
     },
     has: (name) => typeof exportsOf[name] !== 'undefined',
     async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
@@ -144,7 +151,8 @@ export function createReactBindingAdapter(exportsOf: Record<string, unknown>): B
   }
 }
 
-/** The React reference adapter over `@molecule/app-react`. */
-export const reactBindingAdapter: BindingAdapter = createReactBindingAdapter(
-  ReactBindings as unknown as Record<string, unknown>,
-)
+/** All APIs the binding conformance suite exercises. */
+export const reactBindingExports = { ...ReactBindings, ...Chat, ...Models, ...Push }
+
+/** The React reference adapter over the root and feature entries. */
+export const reactBindingAdapter: BindingAdapter = createReactBindingAdapter(reactBindingExports)

@@ -23,7 +23,7 @@
   }: {
     config: Parameters<SvelteBinding['setMoleculeContext']>[0]
     setMoleculeContext: SvelteBinding['setMoleculeContext']
-    setChatContext: SvelteBinding['setChatContext']
+    setChatContext?: SvelteBinding['setChatContext']
     setRouterContext?: SvelteBinding['setRouterContext']
     routedView?: string
     run?: () => void
@@ -36,7 +36,7 @@
   untrack(() => {
     const { chat, ...baseServices } = config
     setMoleculeContext(baseServices)
-    if (chat) setChatContext(chat)
+    if (chat) setChatContext?.(chat)
     if (routedView !== undefined && config.router) {
       if (!setRouterContext)
         throw new Error("Host: a case with a routed view needs the binding's setRouterContext")

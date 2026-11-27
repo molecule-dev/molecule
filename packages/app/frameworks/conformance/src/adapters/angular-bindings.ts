@@ -60,7 +60,7 @@ export interface AngularBinding {
    * @returns The environment providers the host application starts with.
    */
   /** Registers the case's explicitly selected chat provider. */
-  provideChat(provider: NonNullable<BindingServices['chat']>): EnvironmentProviders
+  provideChat?(provider: NonNullable<BindingServices['chat']>): EnvironmentProviders
   provideMolecule(
     services: Partial<BindingServices> & { awaitSession?: boolean },
   ): EnvironmentProviders
@@ -226,7 +226,8 @@ export function createAngularBindingAdapter({
   return {
     name: 'angular',
     reset: () => {
-      ;(exportsOf.resetChatStoresForTests as () => void)()
+      const resetChatStores = exportsOf.resetChatStoresForTests
+      if (typeof resetChatStores === 'function') resetChatStores()
       // React resets its models cache too; present once this binding ports useAIModels.
       const resetModels = exportsOf.resetAIModelsCache
       if (typeof resetModels === 'function') resetModels()
@@ -250,7 +251,7 @@ export function createAngularBindingAdapter({
           providers: [
             provideZonelessChangeDetection(),
             provideMolecule({ ...baseServices, awaitSession: false }),
-            ...(chat ? [binding.provideChat(chat)] : []),
+            ...(chat && binding.provideChat ? [binding.provideChat(chat)] : []),
             // The case's routed view, as a routing bond provides one.
             ...(options.routedView !== undefined && services.router
               ? [

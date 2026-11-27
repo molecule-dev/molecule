@@ -21,13 +21,16 @@ import { ideFeature } from '@molecule/app-framework-conformance/features/cases/i
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as PanelLogic from '@molecule/app-ide-panel-logic'
 import * as Binding from '@molecule/app-solid'
+import * as Models from '@molecule/app-solid/ai-models'
+import * as Chat from '@molecule/app-solid/chat'
 import * as UI from '@molecule/app-ui-solid'
 
 import * as Feature from '../index.js'
 import * as Parts from '../parts.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createSolidAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding: Binding })
+const binding = { ...Binding, ...Chat, ...Models }
+const adapter = createSolidAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding })
 
 runFeatureConformance('@molecule/app-ide-react', adapter, {
   module: Feature,
@@ -36,7 +39,7 @@ runFeatureConformance('@molecule/app-ide-react', adapter, {
   sharedModules: { '@molecule/app-ide-panel-logic': PanelLogic },
   parts: Parts,
   bindingAdapter: createSolidBindingAdapter({
-    exports: { ...Binding, ...Feature },
-    binding: Binding,
+    exports: { ...binding, ...Feature },
+    binding,
   }),
 })

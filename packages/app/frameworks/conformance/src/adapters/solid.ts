@@ -134,6 +134,11 @@ export interface SolidBindingProps {
 /** What the adapter needs from `@molecule/app-solid` (the package under test passes the module). */
 export interface SolidBinding extends BindingCaseResets {
   MoleculeProvider: Component<SolidBindingProps>
+  /** Provides chat for feature cases that select it. */
+  ChatProvider?: Component<{
+    provider: NonNullable<BindingServices['chat']>
+    children: JSX.Element
+  }>
   /** Provides the router and the routing bond's routed view (`routedView`) to its subtree. */
   RouterProvider: Component<{
     /** The case's router. */
@@ -445,6 +450,8 @@ export function createSolidAdapter({
       }
       // The routing bond's routed view: the case's `routedPage` text, or nothing (an `Outlet`
       // with no matched child), provided as a routing bond provides one.
+      const { chat, ...baseConfig } = config
+      const { ChatProvider } = binding
       const routedPage = testCase.context?.routedPage
       const RoutedPage: Component = () => routedPage ?? null
 
@@ -466,7 +473,7 @@ export function createSolidAdapter({
               renderDisposably(
                 () =>
                   createComponent(MoleculeProvider, {
-                    config,
+                    config: baseConfig,
                     get children() {
                       const merged: Record<string, unknown> = {}
                       for (const key of Object.keys(initial)) {
@@ -493,13 +500,22 @@ export function createSolidAdapter({
                           refValue = value
                         }
                       }
-                      return createComponent(RouterProvider, {
-                        router,
-                        routedView: RoutedPage,
-                        get children() {
-                          return createComponent(Comp, merged)
-                        },
-                      })
+                      const routed = (): JSX.Element =>
+                        createComponent(RouterProvider, {
+                          router,
+                          routedView: RoutedPage,
+                          get children() {
+                            return createComponent(Comp, merged)
+                          },
+                        })
+                      return chat && ChatProvider
+                        ? createComponent(ChatProvider, {
+                            provider: chat,
+                            get children() {
+                              return routed()
+                            },
+                          })
+                        : routed()
                     },
                   }),
                 mountPoint,

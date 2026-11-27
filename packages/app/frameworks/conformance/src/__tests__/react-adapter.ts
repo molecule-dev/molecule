@@ -19,7 +19,6 @@ import {
 } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import * as ReactBinding from '@molecule/app-react'
 import {
   AuthProvider,
   I18nProvider,
@@ -27,6 +26,8 @@ import {
   RouterProvider,
   ThemeProvider,
 } from '@molecule/app-react'
+import { resetAIModelsCache } from '@molecule/app-react/ai-models'
+import { ChatProvider, resetChatStoresForTests } from '@molecule/app-react/chat'
 import * as ReactUI from '@molecule/app-ui-react'
 
 import {
@@ -191,7 +192,7 @@ async function runReactCase(
   testCase: UICase,
   options: RunOptions = {},
 ): ReturnType<FrameworkAdapter['run']> {
-  resetBindingForCase(ReactBinding)
+  resetBindingForCase({ resetChatStoresForTests, resetAIModelsCache })
   exportsOf = exportMap
   const Component = exportsOf[component] as Parameters<typeof createElement>[0]
   const recorder = new CallRecorder(testCase.callbackResults)
@@ -240,10 +241,11 @@ async function runReactCase(
         : createElement(Component, props),
     )
     if (app) {
+      const { chat, ...services } = app.services
       tree = createElement(MoleculeProvider, {
-        ...app.services,
+        ...services,
         awaitSession: false,
-        children: tree,
+        children: chat ? createElement(ChatProvider, { provider: chat, children: tree }) : tree,
       })
     } else {
       if (services.auth)

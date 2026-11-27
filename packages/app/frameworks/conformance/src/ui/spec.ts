@@ -841,25 +841,24 @@ export interface CaseResult {
 }
 
 /**
- * The per-case resets every framework binding exports (`@molecule/app-react`, `-vue`, `-svelte`,
- * `-solid`, `-angular`): the chat stores and the AI-models cache are module-level, so without them
- * a case would see the conversations and models an earlier case loaded.
+ * Per-case resets from the optional chat and AI-models binding entries. Their module-level
+ * state must reset between cases that load those features.
  */
 export interface BindingCaseResets {
   /** Drops every chat store, so the next `useChat` starts empty. */
-  resetChatStoresForTests(): void
+  resetChatStoresForTests?(): void
   /** Forgets the loaded AI models, so the next `useAIModels` requests them again. */
-  resetAIModelsCache(): void
+  resetAIModelsCache?(): void
 }
 
 /**
  * Runs a binding's per-case resets: every adapter calls it when a case starts.
  *
- * @param binding - The framework binding module.
+ * @param binding - The selected binding features.
  */
 export function resetBindingForCase(binding: BindingCaseResets): void {
-  binding.resetChatStoresForTests()
-  binding.resetAIModelsCache()
+  binding.resetChatStoresForTests?.()
+  binding.resetAIModelsCache?.()
 }
 
 /** The contract every framework adapter implements. */

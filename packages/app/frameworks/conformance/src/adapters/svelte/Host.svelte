@@ -21,6 +21,7 @@
     component: Target,
     exports: exportsOf,
     setMoleculeContext,
+    setChatContext,
     setRouterContext,
     routedPage,
     callback,
@@ -39,6 +40,7 @@
     /** Every component and composable the cases may render or call. */
     exports: Record<string, unknown>
     setMoleculeContext: (config: SvelteMoleculeConfig) => void
+    setChatContext?: (provider: NonNullable<SvelteMoleculeConfig['chat']>) => void
     /** The binding's router setter, which also takes the routing bond's routed view. */
     setRouterContext: (router: Router, options?: { routedView?: Component }) => void
     /** The case's `context.routedPage`: the text the routed view renders. */
@@ -95,7 +97,11 @@
 
   // The case's services, the binding's context setter and the callback spy are
   // fixed for its whole run.
-  untrack(() => setMoleculeContext(config))
+  untrack(() => {
+    const { chat, ...services } = config
+    setMoleculeContext(services)
+    if (chat) setChatContext?.(chat)
+  })
   // The routing bond's routed view, as an app's router component provides it: the case's
   // `routedPage` text, or nothing.
   untrack(() => {

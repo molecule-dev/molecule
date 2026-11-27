@@ -45,9 +45,12 @@ export interface SolidBinding {
     }
   >
   /** Provides the selected chat service to the case. */
-  ChatProvider: Component<{ provider: NonNullable<BindingServices['chat']>; children: JSX.Element }>
+  ChatProvider?: Component<{
+    provider: NonNullable<BindingServices['chat']>
+    children: JSX.Element
+  }>
   /** Clears the chat stores' module-level state between cases. */
-  resetChatStoresForTests(): void
+  resetChatStoresForTests?(): void
   /** The routing provider, which also takes a routing bond's routed view (`routedView`). */
   RouterProvider: Component<{
     /** The case's router. */
@@ -77,12 +80,12 @@ export function createSolidBindingAdapter({
   exports: exportsOf,
   binding,
 }: SolidBindingAdapterOptions): BindingAdapter {
-  const { MoleculeProvider, RouterProvider, resetChatStoresForTests } = binding
+  const { ChatProvider, MoleculeProvider, RouterProvider, resetChatStoresForTests } = binding
 
   return {
     name: 'solid',
     reset: () => {
-      resetChatStoresForTests()
+      resetChatStoresForTests?.()
       // React resets its models cache too; present once this binding ports useAIModels.
       const resetModels = exportsOf.resetAIModelsCache
       if (typeof resetModels === 'function') resetModels()
@@ -127,8 +130,8 @@ export function createSolidBindingAdapter({
                     const text = options.routedView
                     const router = services.router
                     const renderHost = (): JSX.Element =>
-                      chat
-                        ? createComponent(binding.ChatProvider, {
+                      chat && ChatProvider
+                        ? createComponent(ChatProvider, {
                             provider: chat,
                             get children() {
                               return createComponent(Host, {})

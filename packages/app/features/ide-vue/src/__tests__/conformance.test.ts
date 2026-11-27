@@ -22,12 +22,15 @@ import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as PanelLogic from '@molecule/app-ide-panel-logic'
 import * as UI from '@molecule/app-ui-vue'
 import * as Binding from '@molecule/app-vue'
+import * as Models from '@molecule/app-vue/ai-models'
+import * as Chat from '@molecule/app-vue/chat'
 
 import * as Feature from '../index.js'
 import * as Parts from '../parts.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createVueAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding: Binding })
+const binding = { ...Binding, ...Chat, ...Models }
+const adapter = createVueAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding })
 
 runFeatureConformance('@molecule/app-ide-react', adapter, {
   module: Feature,
@@ -36,7 +39,7 @@ runFeatureConformance('@molecule/app-ide-react', adapter, {
   sharedModules: { '@molecule/app-ide-panel-logic': PanelLogic },
   parts: Parts,
   bindingAdapter: createVueBindingAdapter({
-    exports: { ...Binding, ...Feature },
-    binding: Binding,
+    exports: { ...binding, ...Feature },
+    binding,
   }),
 })

@@ -14,6 +14,7 @@
  * @module
  */
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider, Translations } from '@molecule/app-i18n'
@@ -419,7 +420,7 @@ export interface BindingServices {
   storage: StorageProvider
   state: StateProvider
   logger: LoggerProvider
-  chat?: MoleculeProviderProps['chat']
+  chat?: ChatProvider
   workspace?: MoleculeProviderProps['workspace']
   editor?: MoleculeProviderProps['editor']
   preview?: MoleculeProviderProps['preview']

@@ -376,6 +376,8 @@ export interface AngularBinding extends BindingCaseResets {
   setElementPresent(element: Node, present: boolean): void
   /** Auth state; the session gate holds its content until `status` leaves `'loading'`. */
   useAuth(): { status: Signal<AuthStatus> }
+  /** Provides chat for feature cases that select it. */
+  provideChat?(provider: NonNullable<BindingServices['chat']>): EnvironmentProviders
   /** The full composition root, for feature cases that mount with every service (`RunOptions.app`). */
   provideMolecule(
     services: Partial<BindingServices> & { awaitSession?: boolean },
@@ -805,6 +807,7 @@ export function createAngularAdapter({
       const services = buildServices(testCase, recorder)
       // A feature case that reads HTTP, push, device …: the full composition root.
       const full = options.app ? buildAppServices(testCase, recorder, options.app) : null
+      const { chat, ...baseServices } = full?.services ?? {}
       const router = full ? full.services.router : services.router
       // React's MoleculeProvider (the full composition root) renders with
       // `awaitSession: false`: no session gate.
@@ -943,7 +946,8 @@ export function createAngularAdapter({
                 ? [
                     provideZonelessChangeDetection(),
                     // React's MoleculeProvider renders with `awaitSession: false` here too.
-                    provideMolecule({ ...full.services, awaitSession: false }),
+                    provideMolecule({ ...baseServices, awaitSession: false }),
+                    ...(chat && binding.provideChat ? [binding.provideChat(chat)] : []),
                     provideRouter(full.services.router, { routedView: routedPage }),
                   ]
                 : [

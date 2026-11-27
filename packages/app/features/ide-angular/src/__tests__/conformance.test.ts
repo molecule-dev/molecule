@@ -15,6 +15,8 @@
 import '@molecule/app-framework-conformance/ui/setup'
 
 import * as Binding from '@molecule/app-angular'
+import * as Models from '@molecule/app-angular/ai-models'
+import * as Chat from '@molecule/app-angular/chat'
 import { createAngularAdapter } from '@molecule/app-framework-conformance/adapters/angular'
 import { createAngularBindingAdapter } from '@molecule/app-framework-conformance/adapters/angular-bindings'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
@@ -27,7 +29,8 @@ import * as Feature from '../index.js'
 import * as Parts from '../parts.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-const adapter = createAngularAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding: Binding })
+const binding = { ...Binding, ...Chat, ...Models }
+const adapter = createAngularAdapter({ exports: { ...UI, ...Feature, ...Parts }, binding })
 
 runFeatureConformance('@molecule/app-ide-react', adapter, {
   module: Feature,
@@ -36,7 +39,7 @@ runFeatureConformance('@molecule/app-ide-react', adapter, {
   sharedModules: { '@molecule/app-ide-panel-logic': PanelLogic },
   parts: Parts,
   bindingAdapter: createAngularBindingAdapter({
-    exports: { ...Binding, ...Feature },
-    binding: Binding,
+    exports: { ...binding, ...Feature },
+    binding,
   }),
 })

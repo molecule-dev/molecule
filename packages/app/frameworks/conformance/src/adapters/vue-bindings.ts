@@ -45,11 +45,11 @@ export interface VueBinding {
   /** The composition root: the mounted app receives the case's services through it. */
   moleculePlugin: Plugin
   /** Installs just the selected chat service. */
-  createChatPlugin(provider: NonNullable<BindingServices['chat']>): Plugin
+  createChatPlugin?(provider: NonNullable<BindingServices['chat']>): Plugin
   /** The routing provider, which also takes a routing bond's routed view (`routedView`). */
   RouterProvider: Component
   /** Clears the binding's module-level chat stores before each case. */
-  resetChatStoresForTests(): void
+  resetChatStoresForTests?(): void
 }
 
 /** Options for {@link createVueBindingAdapter}. */
@@ -73,7 +73,7 @@ export function createVueBindingAdapter({
   return {
     name: 'vue',
     reset: () => {
-      binding.resetChatStoresForTests()
+      binding.resetChatStoresForTests?.()
       // React resets its models cache too; present once this binding ports useAIModels.
       const resetModels = exportsOf.resetAIModelsCache
       if (typeof resetModels === 'function') resetModels()
@@ -125,7 +125,7 @@ export function createVueBindingAdapter({
         if (options.render !== 'root') {
           const { chat, ...baseServices } = services
           app.use(binding.moleculePlugin, baseServices)
-          if (chat) app.use(binding.createChatPlugin(chat))
+          if (chat && binding.createChatPlugin) app.use(binding.createChatPlugin(chat))
         }
         app.mount(container)
       }

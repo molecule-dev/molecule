@@ -21,6 +21,8 @@ import { ideFeature } from '@molecule/app-framework-conformance/features/cases/i
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as PanelLogic from '@molecule/app-ide-panel-logic'
 import * as Binding from '@molecule/app-svelte'
+import * as Models from '@molecule/app-svelte/ai-models'
+import * as Chat from '@molecule/app-svelte/chat'
 import * as UI from '@molecule/app-ui-svelte'
 
 import * as Feature from '../index.js'
@@ -29,9 +31,10 @@ import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
 // `WorkspaceLayout` takes its panes as data and drops a text child, as React's
 // `Children.toArray(...).filter(isValidElement)` does.
+const binding = { ...Binding, ...Chat, ...Models }
 const adapter = createSvelteAdapter({
   exports: { ...UI, ...Feature, ...Parts },
-  binding: Binding,
+  binding,
   listChildren: { WorkspaceLayout: { prop: 'items', elementsOnly: true } },
 })
 
@@ -42,7 +45,7 @@ runFeatureConformance('@molecule/app-ide-react', adapter, {
   sharedModules: { '@molecule/app-ide-panel-logic': PanelLogic },
   parts: Parts,
   bindingAdapter: createSvelteBindingAdapter({
-    exports: { ...Binding, ...Feature },
-    binding: Binding,
+    exports: { ...binding, ...Feature },
+    binding,
   }),
 })
