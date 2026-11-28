@@ -693,6 +693,7 @@ for (const pkg of todo) {
           'publish',
           '--access',
           'public',
+          '--loglevel=notice',
           // npm's OWN retry loop burns ~70s per failure and, per npm support,
           // keeps re-triggering the limiter. We want one attempt and a clean
           // answer, not three hidden ones.

@@ -173,7 +173,7 @@ const { spawnSync } = await import('node:child_process')
 // nothing to do with lock sync and is absent from a tree without dev installs.
 const dryRun = spawnSync(
   'npm',
-  ['ci', '--dry-run', '--ignore-scripts', '--no-audit', '--no-fund'],
+  ['ci', '--dry-run', '--ignore-scripts', '--no-audit', '--no-fund', '--loglevel=notice'],
   {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],

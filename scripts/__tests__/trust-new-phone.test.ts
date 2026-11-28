@@ -19,12 +19,67 @@ import http from 'node:http'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { runInNewContext } from 'node:vm'
 
+import ts from 'typescript'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { npmTwoFactorFailure } from '../lib/otp-gate.mjs'
 const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..')
 const A = '@molecule/api-demo-a'
 const B = '@molecule/api-demo-b'
+
+it('classifies the same npm publish OTP refusal under a silent parent', async () => {
+  const source = readFileSync(join(SCRIPTS, 'trust-new-packages.mjs'), 'utf8')
+  const ast = ts.createSourceFile('trust-new-packages.mjs', source, ts.ScriptTarget.Latest, true)
+  const declarations = ast.statements.filter(
+    (statement) =>
+      ts.isVariableStatement(statement) &&
+      statement.declarationList.declarations.some((node) =>
+        ['npmPublish', 'publishFailure'].includes(node.name.getText(ast)),
+      ),
+  )
+  expect(declarations).toHaveLength(2)
+  const bin = mkdtempSync(join(tmpdir(), 'trust-new-npm-'))
+  try {
+    writeFileSync(
+      join(bin, 'npm'),
+      `#!/bin/sh
+level=\${npm_config_loglevel:-notice}
+for arg do case "$arg" in --loglevel=*) level=\${arg#*=};; esac; done
+if [ "$level" != silent ]; then printf '%s\\n' 'npm error code EOTP' >&2; fi
+exit 1
+`,
+      { mode: 0o755 },
+    )
+    // Exercise the captured publish and classifier without touching the registry or phone.
+    const run = async (loglevel: string): Promise<unknown> => {
+      const output: string[] = []
+      return await runInNewContext(
+        `${declarations.map((statement) => statement.getText(ast)).join('\n')}
+npmPublish(['publish', '--otp', '000000'], cwd).then((result) => ({
+  verdict: publishFailure(result), status: result.status, output,
+}))`,
+        {
+          cwd: bin,
+          npmTwoFactorFailure,
+          output,
+          console: {
+            log: (line: string) => output.push(line),
+            error: (line: string) => output.push(line),
+          },
+          spawn: (file: string, args: string[], options: object) =>
+            spawn(file, args, { ...options, env: { PATH: bin, npm_config_loglevel: loglevel } }),
+        },
+      )
+    }
+    const normal = await run('notice')
+    expect(normal).toEqual({ verdict: 'otp', status: 1, output: ['npm error code EOTP\n'] })
+    expect(await run('silent')).toEqual(normal)
+  } finally {
+    rmSync(bin, { recursive: true, force: true })
+  }
+})
 
 // The stub npm: 2FA'd trust calls spend one use of a code's budget; an exhausted or
 // unknown code answers 401 the way npm does, so the script must ask for a new one. A

@@ -1,5 +1,8 @@
 /** Exercise the actual publisher with inert npm, filesystem, clock and registry boundaries. */
-import { readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { runInNewContext } from 'node:vm'
 
 import ts from 'typescript'
@@ -51,6 +54,7 @@ async function publish(
     reviewHold = '',
     dry = false,
     unknown = '',
+    runNpm = (_args: string[]): void => undefined,
   } = {},
 ) {
   let clock = 0
@@ -108,6 +112,7 @@ async function publish(
       expect(args).toContain('--fetch-retries=0')
       const manifest = manifests[Number(opts.cwd.split('/').pop())]
       attempts.push(manifest.name)
+      runNpm(args)
       if (manifest.name === authThenRateLimit) {
         const diagnostic = attempts.filter((name) => name === manifest.name).length > 1
         throw Object.assign(Error('refused'), {
@@ -316,6 +321,43 @@ describe('consumer publication lane', () => {
     })
     expect(served.attempts).toEqual(['@molecule/z-fix'])
   })
+  it('stops on the same npm rate limit under a silent parent', async () => {
+    const bin = mkdtempSync(join(tmpdir(), 'publish-paced-fake-npm-'))
+    try {
+      writeFileSync(
+        join(bin, 'npm'),
+        `#!/bin/sh
+level=\${npm_config_loglevel:-notice}
+for arg do case "$arg" in --loglevel=*) level=\${arg#*=};; esac; done
+if [ "$level" != silent ]; then printf '%s\\n' 'npm error E429 429 Too Many Requests' >&2; fi
+exit 1
+`,
+        { mode: 0o755 },
+      )
+      const run = (loglevel: string) =>
+        publish(
+          [pkg('rate-limited')],
+          {},
+          {
+            runNpm: (args) => {
+              execFileSync('npm', args, {
+                env: { PATH: bin, npm_config_loglevel: loglevel },
+                stdio: ['ignore', 'pipe', 'pipe'],
+                encoding: 'utf8',
+              })
+            },
+          },
+        )
+      const normal = await run('notice')
+      expect(normal.exitCode).toBe(1)
+      expect(normal.logs).toContain('RATE LIMITED on @molecule/rate-limited')
+      expect(normal.files['/fixture/.publish-failures.json']).toContain('stopped: rate limited')
+      expect(await run('silent')).toEqual(normal)
+    } finally {
+      rmSync(bin, { recursive: true, force: true })
+    }
+  })
+
   it('stops on a 429 in the existing auth diagnostic and reports a rate failure, not a holdable auth refusal', async () => {
     const result = await publish(
       [pkg('a-auth'), pkg('b-next'), pkg('z-fix')],

@@ -741,7 +741,10 @@ const stopsTheSweep = (error) =>
 const npmPublish = (args, cwd) =>
   new Promise((resolve) => {
     // Not spawnSync: packages publish side by side, which a blocking call would serialize.
-    const child = spawn('npm', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] })
+    const child = spawn('npm', [...args, '--loglevel=notice'], {
+      cwd,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
     let stdout = ''
     let stderr = ''
     child.stdout.on('data', (chunk) => (stdout += chunk))

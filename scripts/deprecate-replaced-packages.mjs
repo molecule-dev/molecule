@@ -110,6 +110,31 @@ async function whoamiStatus(bearer) {
 }
 
 /**
+ * Run the post-approval deprecation and capture npm's diagnostic.
+ *
+ * @param pkg - The replaced package and its replacement.
+ * @param otp - The owner's npm code.
+ * @param userconfig - npm configuration for the approved session.
+ * @returns npm's status and captured output.
+ */
+export function runNpmDeprecation(pkg, otp, userconfig) {
+  return spawnSync(
+    'npm',
+    [
+      'deprecate',
+      pkg.name,
+      deprecationMessage(pkg.name, pkg.replacement),
+      '--loglevel=notice',
+      '--otp',
+      otp,
+      '--userconfig',
+      userconfig,
+    ],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+  )
+}
+
+/**
  * Deprecates what is due, asking the owner's phone for the sign-in and codes it needs.
  *
  * @returns The exit status: 0 when nothing is left due.
@@ -158,19 +183,7 @@ async function main() {
         link: () => npmApprovalLink(pkg.name, { bearer: token }),
         bearer: token,
       })
-      const run = spawnSync(
-        'npm',
-        [
-          'deprecate',
-          pkg.name,
-          deprecationMessage(pkg.name, pkg.replacement),
-          '--otp',
-          otp,
-          '--userconfig',
-          login.path,
-        ],
-        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-      )
+      const run = runNpmDeprecation(pkg, otp, login.path)
       if (run.status !== 0) {
         failed += 1
         console.error(`✗ ${pkg.name}: npm deprecate exited ${run.status}\n${run.stderr}`)

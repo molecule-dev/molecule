@@ -64,7 +64,13 @@ try {
   // or malformed one is a broken checkout, not a reason to audit another tree.
   if (error?.code !== 'ENOENT') throw error
 }
-const auditArgs = ['audit', '--json', ...(ownManifest.workspaces ? [] : ['--workspaces=false'])]
+// The JSON report is the verdict. Preserve npm's diagnostics when it could not write a report.
+const auditArgs = [
+  'audit',
+  '--json',
+  '--loglevel=notice',
+  ...(ownManifest.workspaces ? [] : ['--workspaces=false']),
+]
 
 let report
 try {

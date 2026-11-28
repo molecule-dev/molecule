@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest'
  * @param accepted - The allowlist entries.
  * @param args - Arguments for the script.
  * @param manifest - The repo's package.json, when it has one.
+ * @param loglevel - The log level inherited by npm.
  * @returns The script's result and the arguments npm was called with.
  */
 function audit(
@@ -22,6 +23,7 @@ function audit(
   accepted: object[] = [],
   args: string[] = [],
   manifest?: object,
+  loglevel = 'notice',
 ) {
   const root = mkdtempSync(join(tmpdir(), 'molecule-audit-control-'))
   try {
@@ -36,14 +38,39 @@ function audit(
     const argsFile = join(root, 'npm-args.json')
     writeFileSync(
       join(root, 'bin/npm'),
-      `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(argsFile)},JSON.stringify(process.argv.slice(2)));process.stdout.write(${JSON.stringify(JSON.stringify(report))});process.exitCode=${exitCode};\n`,
+      `#!/usr/bin/env node
+const fs = require('node:fs')
+const args = process.argv.slice(2)
+fs.writeFileSync(${JSON.stringify(argsFile)}, JSON.stringify(args))
+const report = ${JSON.stringify(JSON.stringify(report) ?? '')}
+const level = args.find((arg) => arg.startsWith('--loglevel='))?.split('=')[1] ?? process.env.npm_config_loglevel
+if (report) fs.writeSync(1, report)
+else if (level !== 'silent') fs.writeSync(2, 'npm error code EUSAGE\\n')
+process.exitCode = ${exitCode}
+`,
       { mode: 0o755 },
     )
-    const result = spawnSync(process.execPath, [join(root, 'scripts/audit-gate.mjs'), ...args], {
-      encoding: 'utf8',
-      env: { ...process.env, PATH: `${join(root, 'bin')}${delimiter}${process.env.PATH}` },
-      timeout: 10_000,
-    })
+    const result = spawnSync(
+      'bash',
+      [
+        '-c',
+        '"$@" > >(cat) 2> >(cat >&2)',
+        '--',
+        process.execPath,
+        join(root, 'scripts/audit-gate.mjs'),
+        ...args,
+      ],
+      {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: {
+          ...process.env,
+          PATH: `${join(root, 'bin')}${delimiter}${process.env.PATH}`,
+          npm_config_loglevel: loglevel,
+        },
+        timeout: 10_000,
+      },
+    )
     let npmArgs: string[] = []
     try {
       npmArgs = JSON.parse(readFileSync(argsFile, 'utf8'))
@@ -69,6 +96,16 @@ const vulnerable = {
 }
 
 describe('audit-gate CLI', () => {
+  it('reports the same npm failure when no JSON is available under a silent parent', () => {
+    const normal = audit(undefined, 1, [], [], undefined, 'notice')
+    const silent = audit(undefined, 1, [], [], undefined, 'silent')
+    expect(normal.status).toBe(2)
+    expect(normal.stderr).toContain('produced no output')
+    expect(normal.stderr).toContain('npm error code EUSAGE')
+    expect(silent.status).toBe(normal.status)
+    expect(silent.stderr).toBe(normal.stderr)
+  })
+
   it('accepts a complete clean report without an installed dependency tree', () => {
     expect(audit(clean).status).toBe(0)
   })
@@ -157,6 +194,7 @@ describe('audit-gate CLI', () => {
     expect(audit(clean, 0, [], [], { name: 'mlcl' }).npmArgs).toEqual([
       'audit',
       '--json',
+      '--loglevel=notice',
       '--workspaces=false',
     ])
   })
@@ -165,6 +203,7 @@ describe('audit-gate CLI', () => {
     expect(audit(clean, 0, [], [], { workspaces: ['packages/*'] }).npmArgs).toEqual([
       'audit',
       '--json',
+      '--loglevel=notice',
     ])
   })
 

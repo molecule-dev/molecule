@@ -16,9 +16,10 @@ afterEach(() => {
 /**
  * Run the real checker with controlled npm output and a valid minimal lock.
  * @param program - The fake npm executable's JavaScript.
+ * @param loglevel - npm's inherited log level.
  * @returns The native checker result.
  */
-function checkWithNpm(program) {
+function checkWithNpm(program, loglevel = 'notice') {
   const root = mkdtempSync(join(tmpdir(), 'lockfile-probe-'))
   roots.push(root)
   mkdirSync(join(root, 'scripts/lib'), { recursive: true })
@@ -46,14 +47,29 @@ function checkWithNpm(program) {
     new URL('../lib/lockfile-ranges.mjs', import.meta.url),
     join(root, 'scripts/lib/lockfile-ranges.mjs'),
   )
-  writeFileSync(join(root, 'bin/npm'), `#!${process.execPath}\n${program}\n`, { mode: 0o755 })
+  writeFileSync(
+    join(root, 'bin/npm'),
+    `#!${process.execPath}\nimport {writeSync} from 'node:fs'\nconst level = process.argv.find((arg) => arg.startsWith('--loglevel='))?.split('=')[1] ?? process.env.npm_config_loglevel\nconsole.error = (line) => { if (level !== 'silent') writeSync(2, line + '\\n') }\n${program}\n`,
+    { mode: 0o755 },
+  )
   return spawnSync(
-    process.execPath,
-    [join(root, 'scripts/check-lockfile.js')],
+    'bash',
+    [
+      '-c',
+      '"$@" > >(cat) 2> >(cat >&2)',
+      '--',
+      process.execPath,
+      join(root, 'scripts/check-lockfile.js'),
+    ],
     {
       cwd: root,
       encoding: 'utf8',
-      env: { ...process.env, PATH: `${join(root, 'bin')}:${process.env.PATH}` },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: {
+        ...process.env,
+        PATH: `${join(root, 'bin')}:${process.env.PATH}`,
+        npm_config_loglevel: loglevel,
+      },
       timeout: 20_000,
     },
     30_000,
@@ -77,12 +93,15 @@ describe('the lockfile check uses the actual npm probe result', () => {
   }, 30_000)
 
   it('still diagnoses an npm-confirmed missing lock entry', () => {
-    const result = checkWithNpm(
-      "console.error('npm error EUSAGE Missing: stock@1.0.0 from lock file'); process.exitCode = 1",
-    )
+    const program =
+      "console.error('npm error EUSAGE Missing: stock@1.0.0 from lock file'); process.exitCode = 1"
+    const result = checkWithNpm(program)
     expect(result.status).toBe(1)
     expect(result.stderr).toContain('OUT OF SYNC')
     expect(result.stderr).toContain('Missing: stock@1.0.0')
+    const silent = checkWithNpm(program, 'silent')
+    expect(silent.status).toBe(result.status)
+    expect(silent.stderr).toBe(result.stderr)
   }, 30_000)
 
   it('accepts a successful npm probe', () => {
