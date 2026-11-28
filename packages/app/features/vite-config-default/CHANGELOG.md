@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.10.0
+
+### Minor Changes
+
+- An app with no unit tests yet passes a plain `vitest run`; a run that names files still fails when none of them match.
+
 ## 1.9.1
 
 ### Patch Changes
