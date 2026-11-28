@@ -5570,6 +5570,9 @@ export function parseCheckProblem(result: {
 }): string | null {
   if (result.exitCode === 0) return null
   const text = (result.stderr || result.stdout).trim()
+  // Every parser here prints its error, so a failure with no output is a check that did not run
+  // (killed, or its interpreter missing), not a message: null, never an empty string.
+  if (!text) return null
   if (/Cannot find module|not found/i.test(text) && !/SyntaxError/.test(text)) return null
   return text.slice(0, 1200)
 }

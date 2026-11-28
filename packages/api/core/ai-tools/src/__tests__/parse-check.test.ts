@@ -124,6 +124,11 @@ describe('parse check treats TypeScript config files as JSONC', () => {
       }),
     ).toBeNull()
   })
+
+  it('treats a failure that printed nothing as no check, not an empty message', () => {
+    expect(parseCheckProblem({ stdout: '', stderr: '', exitCode: 137 })).toBeNull()
+    expect(parseCheckProblem({ stdout: '\n', stderr: '  \n', exitCode: 1 })).toBeNull()
+  })
 })
 
 /**
