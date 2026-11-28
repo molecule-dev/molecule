@@ -21,6 +21,15 @@
  * undefined on a device: it lists one literal `import()` per language,
  * as the second example does (and as `mlcl` writes it for an Expo app).
  *
+ * This entry, and `@molecule/app-i18n-default/setup.js` for another
+ * primary language, load the common bond's strings through its
+ * `loader.js`, so a build carries a chunk for each of its 79 languages.
+ * An app that offers a few languages imports `setupI18nDefault` from
+ * `@molecule/app-i18n-default/offered.js` instead, which loads no locale
+ * bond itself, and passes the common bond's strings in its
+ * `packageLocaleLoaders` with the others (`mlcl` writes them in
+ * `locales/packages.ts`).
+ *
  * @example
  * ```ts
  * import { setupI18nDefault } from '@molecule/app-i18n-default'

@@ -19,6 +19,10 @@
     "./setup.js": {
       "types": "./dist/setup.d.ts",
       "import": "./dist/setup.js"
+    },
+    "./offered.js": {
+      "types": "./dist/offered.d.ts",
+      "import": "./dist/offered.js"
     }
   },
   "files": [
