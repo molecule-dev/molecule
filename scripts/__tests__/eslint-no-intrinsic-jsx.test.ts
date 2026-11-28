@@ -20,7 +20,7 @@ import rule, { ELEMENT_FOR_TAG, TAKES_AS } from '../../eslint-rules/no-intrinsic
  * the element of `@molecule/app-ui-react/elements` that replaces it in the message; a member
  * element, a namespaced one and a fragment pass. Then the rule through its config block over the
  * real tree: `eslint-rules/intrinsic-jsx-pending.json` lists only packages that still render an
- * intrinsic element, and every other file of the React features and the React UI kit is held and
+ * intrinsic element, and every other React feature or UI kit component is held and
  * reports nothing.
  *
  * @module
@@ -341,7 +341,7 @@ describe('eslint-rules/intrinsic-jsx-pending.json', () => {
   })
 })
 
-// The last test reads both trees with the TypeScript parser and again with ESLint's; on a busy
+// The last test reads the component sources with the TypeScript parser and again with ESLint's; on a busy
 // machine that needs the time.
 describe(
   'the no-intrinsic-jsx block over the React features and the React UI kit',
@@ -351,6 +351,7 @@ describe(
       const probes = [
         'packages/app/features/zz-known-bad-react/src/Badge.tsx',
         'packages/app/frameworks/react-ui/src/components/KnownBad.tsx',
+        'packages/app/utilities/react-ui-kit-components/src/components/KnownBad.tsx',
       ]
       expect(pending.features, 'the probe feature must stay out of the pending list').not.toContain(
         'zz-known-bad-react',
@@ -382,7 +383,7 @@ describe(
       }
     })
 
-    it('holds every other .tsx file of both trees, and reports none', async () => {
+    it('holds every other feature and kit component, and reports none', async () => {
       const sources = sourceFiles(ROOT)
       const results = await eslint.lintFiles(block.files)
 

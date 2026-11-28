@@ -10,7 +10,7 @@ import { ELEMENT_FOR_TAG, TAKES_AS } from './no-intrinsic-jsx.mjs'
  * the scan that tells which packages are still pending.
  *
  * The rule holds every `.tsx` file of `packages/app/features/*-react/src` and of the React UI
- * kit's `components`, except test files and the packages listed in `intrinsic-jsx-pending.json`.
+ * kit's vendored and shared components, except tests and the entries in `intrinsic-jsx-pending.json`.
  * That list was written once from the scan below and may only shrink: when a package stops
  * rendering an intrinsic element, `scripts/check-intrinsic-jsx.mjs` (the pre-commit hook and CI run
  * it) says to delete its entry, and from then on the rule holds the package. An entry is never added: an
@@ -29,11 +29,14 @@ const FEATURES = 'packages/app/features'
 /** The React UI kit's components, relative to the molecule root. */
 const KIT_COMPONENTS = 'packages/app/frameworks/react-ui/src/components'
 
+/** The component trees shared by the DOM and device renderers. */
+const SHARED_KIT_COMPONENTS = 'packages/app/utilities/react-ui-kit-components/src/components'
+
 /** The files the rule holds. */
 const FILES = [
   `${FEATURES}/*-react/src/**/*.tsx`,
   `${KIT_COMPONENTS}/**/*.tsx`,
-  'packages/app/utilities/react-ui-kit-components/src/components/**/*.tsx',
+  `${SHARED_KIT_COMPONENTS}/**/*.tsx`,
 ]
 
 /** Test files: the rule does not hold them, and the scan skips them. */
@@ -110,9 +113,11 @@ export function sourceFiles(root) {
       const src = join(features, entry.name, 'src')
       return existsSync(src) ? tsxFiles(src) : []
     })
-  return [...files, ...tsxFiles(join(root, KIT_COMPONENTS))]
-    .map((file) => relative(root, file))
-    .sort()
+  const kitFiles = [KIT_COMPONENTS, SHARED_KIT_COMPONENTS].flatMap((dir) => {
+    const absolute = join(root, dir)
+    return existsSync(absolute) ? tsxFiles(absolute) : []
+  })
+  return [...files, ...kitFiles].map((file) => relative(root, file)).sort()
 }
 
 /** Each source file with the intrinsic tags it renders. */
