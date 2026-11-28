@@ -1620,6 +1620,7 @@
   "@molecule/app-rating-form-vue",
   "@molecule/app-react",
   "@molecule/app-react-native",
+  "@molecule/app-react-ui-kit-components",
   "@molecule/app-reading-progress-bar-angular",
   "@molecule/app-reading-progress-bar-react",
   "@molecule/app-reading-progress-bar-solid",
