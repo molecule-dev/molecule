@@ -71,12 +71,16 @@ describe('e2eRunnerDefaults', () => {
     expect(defaults.fullyParallel).toBe(false)
   })
 
-  it('on your machine: parallel, 1 retry, no failure cap, 60 s', () => {
+  // A run on your machine is a feedback loop, as it is in a sandbox: a retry doubled the time a
+  // failing spec took to report (a coding agent's first failing run took 114 s and it reran with
+  // --retries=0 itself) and passes a flaky test without saying so. Playwright's own config does
+  // the same: `retries: process.env.CI ? 2 : 0`.
+  it('on your machine: parallel, no retries, no failure cap, 60 s', () => {
     pretendSandbox(false)
     expect(e2eRunnerDefaults()).toEqual({
       workers: '50%',
       fullyParallel: true,
-      retries: 1,
+      retries: 0,
       maxFailures: 0,
       timeout: 60_000,
     })

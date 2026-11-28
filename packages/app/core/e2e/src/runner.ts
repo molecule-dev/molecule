@@ -109,8 +109,10 @@ export const SANDBOX_MAX_FAILURES = 8
  * - Inside a molecule sandbox (`isMoleculeSandbox()`): 0 retries, stop after
  *   {@link SANDBOX_MAX_FAILURES} failures, {@link SANDBOX_TEST_TIMEOUT_MS}
  *   per test.
- * - Elsewhere: 2 retries under CI (`process.env.CI`), 1 otherwise; no
- *   failure cap; {@link DEFAULT_TEST_TIMEOUT_MS} per test.
+ * - Elsewhere: 2 retries under CI (`process.env.CI`), none otherwise (a run on your
+ *   machine is a feedback loop: a retry doubles the time a failing spec takes to
+ *   report and passes a flaky one without saying so); no failure cap;
+ *   {@link DEFAULT_TEST_TIMEOUT_MS} per test.
  * - `webServer`: the dev servers {@link e2eDevServers} names, when there are any, so
  *   `playwright test` starts the app (and its API) itself instead of failing on a
  *   server nobody started.
@@ -123,7 +125,7 @@ export const e2eRunnerDefaults = (): E2ERunnerDefaults => {
   return {
     workers: preview ? 1 : sandbox ? SANDBOX_WORKERS : '50%',
     fullyParallel: !preview,
-    retries: sandbox ? 0 : ci ? 2 : 1,
+    retries: ci && !sandbox ? 2 : 0,
     maxFailures: sandbox ? SANDBOX_MAX_FAILURES : 0,
     timeout: sandbox ? SANDBOX_TEST_TIMEOUT_MS : DEFAULT_TEST_TIMEOUT_MS,
     ...(webServer.length > 0 ? { webServer } : {}),
