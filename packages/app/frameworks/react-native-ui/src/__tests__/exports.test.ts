@@ -14,6 +14,16 @@ import { describe, expect, it, vi } from 'vitest'
 
 // Minimal react-native stub — every primitive the components import maps to a
 // plain host-ish component so the modules evaluate in node.
+vi.mock('react-native-safe-area-context', async () => {
+  const { createContext } = await import('react')
+  return { SafeAreaInsetsContext: createContext(null) }
+})
+
+vi.mock('react-native-svg', () => ({
+  Svg: 'svg',
+  Path: 'path',
+}))
+
 vi.mock('react-native', () => {
   const stub = (tag: string) => {
     const C = (props: Record<string, unknown>) =>
@@ -34,6 +44,7 @@ vi.mock('react-native', () => {
     Switch: stub('Switch'),
     StyleSheet: { create: (s: unknown) => s, flatten: (s: unknown) => s },
     Platform: { OS: 'ios', select: (o: Record<string, unknown>) => o.ios ?? o.default },
+    AccessibilityInfo: {},
     Animated: { View: stub('Animated.View'), Value: class {}, timing: () => ({ start: () => {} }) },
     Dimensions: { get: () => ({ width: 375, height: 812 }) },
   }

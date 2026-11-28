@@ -51,6 +51,9 @@ export const Switch = defineComponent({
     className: String,
     style: [String, Object] as PropType<SwitchProps['style']>,
     testId: String,
+    name: String,
+    value: [String, Number, Array],
+    required: Boolean,
     disabled: {
       type: Boolean,
       default: false,
@@ -128,6 +131,9 @@ export const Switch = defineComponent({
         h('input', {
           ref: hiddenInputRef,
           type: 'checkbox',
+          name: props.name,
+          value: props.value === undefined ? undefined : String(props.value),
+          required: props.required || undefined,
           disabled: props.disabled,
           'aria-hidden': 'true',
           tabIndex: -1,

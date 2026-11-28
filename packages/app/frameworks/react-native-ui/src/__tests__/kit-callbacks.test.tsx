@@ -8,6 +8,8 @@ import type * as Native from 'react-native'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
 
 import { Button } from '../components/Button.js'
 import { Card } from '../components/Card.js'
@@ -18,7 +20,22 @@ import { Select } from '../components/Select.js'
 import { Switch } from '../components/Switch.js'
 import { Textarea } from '../components/Textarea.js'
 
-vi.mock('react-native', () => ({
+vi.mock('react-native-safe-area-context', async () => {
+  const { createContext } = await import('react')
+  return { SafeAreaInsetsContext: createContext(null) }
+})
+
+vi.mock('react-native-svg', () => ({
+  Svg: 'svg',
+  Path: 'path',
+}))
+
+vi.mock('react-native', async () => ({
+  ...(await import('react-native-web')),
+  Platform: {
+    OS: 'ios',
+    select: (options: Record<string, unknown>) => options.ios ?? options.default,
+  },
   View: ({ children, testID, onTouchEnd }: ComponentProps<typeof Native.View>) => (
     <div data-testid={testID} onClick={onTouchEnd}>
       {children}
@@ -30,12 +47,21 @@ vi.mock('react-native', () => ({
     disabled,
     testID,
     accessibilityLabel,
+    role,
     onPress,
   }: ComponentProps<typeof Native.Pressable>) => (
     <div
       data-testid={testID}
       aria-label={accessibilityLabel}
-      onClick={disabled ? undefined : onPress}
+      role={role}
+      onClick={
+        disabled || !onPress
+          ? undefined
+          : (event) => {
+              event.stopPropagation()
+              onPress(event)
+            }
+      }
     >
       {children}
     </div>
@@ -82,24 +108,11 @@ vi.mock('react-native', () => ({
   ),
 }))
 
-vi.mock('@molecule/app-ui', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
-  getClassMap: () =>
-    new Proxy(
-      {},
-      {
-        get: (_target, prop) =>
-          prop === 'cn'
-            ? (...parts: unknown[]) => parts.filter(Boolean).join(' ')
-            : () => String(prop),
-      },
-    ),
-}))
-
 let root: Root
 let host: HTMLDivElement
 
 beforeEach(() => {
+  setClassMap(classMap)
   setProvider(createSimpleI18nProvider('en', [{ code: 'en', name: 'English', translations: {} }]))
   host = document.createElement('div')
   document.body.appendChild(host)

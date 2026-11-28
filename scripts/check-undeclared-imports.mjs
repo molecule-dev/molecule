@@ -343,12 +343,27 @@ export const OPTIONAL_PEER_ENTRY_FILES = {
       reason: 'The device elements entry renders the slider supplied by the app.',
     },
     'react-native-svg': {
-      files: ['src/elements/index.ts'],
-      reason: 'The device elements entry renders SVG with the app’s native SVG package.',
+      files: ['src/index.ts', 'src/kit-hosts.tsx', 'src/elements/index.ts'],
+      reason: 'Device kit components and elements render SVG with the app’s native SVG package.',
     },
     'react-native-safe-area-context': {
-      files: ['src/elements/index.ts', 'src/platform/index.tsx'],
+      files: [
+        'src/index.ts',
+        'src/kit-hosts.tsx',
+        'src/elements/index.ts',
+        'src/platform/index.tsx',
+      ],
       reason: 'The device entries position overlays using the app’s safe area context.',
+    },
+  },
+  '@molecule/app-react-ui-kit-components': {
+    '@molecule/app-icons': {
+      files: ['src/dom.tsx', 'src/utilities/renderIcon.tsx'],
+      reason: 'The DOM kit and the SVG icon renderer read the consumer’s bonded icon set.',
+    },
+    'react-dom': {
+      files: ['src/dom.tsx', 'src/platform/index.tsx'],
+      reason: 'The DOM kit and DOM overlay entry use React DOM for portals.',
     },
   },
   '@molecule/app-ui-nativewind': {

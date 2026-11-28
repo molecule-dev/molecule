@@ -1,0 +1,91 @@
+{
+  "name": "@molecule/app-react-ui-kit-components",
+  "version": "1.0.0",
+  "description": "Shared React UI kit component trees and their DOM hosts for React and React Native.",
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./dom": {
+      "types": "./dist/dom.d.ts",
+      "import": "./dist/dom.js"
+    },
+    "./elements/*.js": {
+      "types": "./dist/elements/*.d.ts",
+      "import": "./dist/elements/*.js"
+    },
+    "./helpers": {
+      "types": "./dist/utilities/index.d.ts",
+      "import": "./dist/utilities/index.js"
+    },
+    "./platform": {
+      "types": "./dist/platform/index.d.ts",
+      "import": "./dist/platform/index.js"
+    },
+    "./icons": {
+      "types": "./dist/utilities/renderIcon.d.ts",
+      "import": "./dist/utilities/renderIcon.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/utilities/react-ui-kit-components"
+  },
+  "homepage": "https://www.molecule.dev/packages/app-react-ui-kit-components",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@molecule/app-inline-style-dom": "1.2.0",
+    "@molecule/app-overlay-dom": "1.1.0",
+    "@molecule/app-pointer-events-dom": "1.2.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-icons": "^1.0.1",
+    "@molecule/app-react": "^4.17.0",
+    "@molecule/app-ui": "^1.16.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-icons": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@molecule/app-icons": "1.0.4",
+    "@molecule/app-react": "4.19.0",
+    "@molecule/app-ui": "1.16.0",
+    "@testing-library/react": "16.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "jsdom": "31.0.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

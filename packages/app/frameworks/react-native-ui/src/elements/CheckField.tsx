@@ -16,7 +16,8 @@ import {
 } from 'react'
 import { type GestureResponderEvent, Pressable as NativePressable, type View } from 'react-native'
 
-import { type CheckFieldHandle, type CheckFieldProps, getClassMap } from '@molecule/app-ui'
+import type { KitCheckFieldProps } from '@molecule/app-react-ui-kit-components'
+import { type CheckFieldHandle, getClassMap } from '@molecule/app-ui'
 
 import { nativeAccessibility } from './accessibility.js'
 import { fieldEvent } from './events.js'
@@ -45,7 +46,7 @@ import { Path, Svg } from './Svg.js'
  * @returns The visible control, or null for a hidden one.
  */
 export function CheckField(
-  props: CheckFieldProps & { ref?: Ref<CheckFieldHandle> },
+  props: KitCheckFieldProps & { ref?: Ref<CheckFieldHandle> },
 ): ReactElement | null {
   const {
     as,
@@ -114,7 +115,7 @@ export function CheckField(
       (type === 'radio' && !!name && form?.hasCheckedRadio(name) === true),
     checkedRadio: () => (type === 'radio' && field.read() ? name : undefined),
     reset: field.reset,
-    focus,
+    focus: props.formFocus ?? focus,
   })
   // RN View.focus is available to focusable hosts, and hidden controls never acquire a host.
   useLayoutEffect(() => {

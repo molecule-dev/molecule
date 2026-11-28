@@ -30,7 +30,11 @@ const FEATURES = 'packages/app/features'
 const KIT_COMPONENTS = 'packages/app/frameworks/react-ui/src/components'
 
 /** The files the rule holds. */
-const FILES = [`${FEATURES}/*-react/src/**/*.tsx`, `${KIT_COMPONENTS}/**/*.tsx`]
+const FILES = [
+  `${FEATURES}/*-react/src/**/*.tsx`,
+  `${KIT_COMPONENTS}/**/*.tsx`,
+  'packages/app/utilities/react-ui-kit-components/src/components/**/*.tsx',
+]
 
 /** Test files: the rule does not hold them, and the scan skips them. */
 const TEST_FILES = ['**/__tests__/**', '**/*.test.tsx']

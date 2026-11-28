@@ -4,11 +4,13 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import { setIconSet } from '@molecule/app-icons'
+import { iconSet } from '@molecule/app-icons-molecule'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { Alert } from '../components/Alert.js'
 import { Skeleton } from '../components/Skeleton.js'
+import { Alert } from '../index.web.js'
 
 const animations = vi.hoisted(() => {
   const start = vi.fn()
@@ -41,6 +43,7 @@ vi.mock('react-native', () => {
     View: view,
     Text: view,
     Platform: {
+      select: (options: Record<string, unknown>) => options.default,
       get OS() {
         return animations.os
       },
@@ -59,6 +62,7 @@ beforeEach(() => {
   animations.os = 'web'
   vi.clearAllMocks()
   setClassMap(classMap)
+  setIconSet(iconSet)
   setProvider(createSimpleI18nProvider())
 })
 

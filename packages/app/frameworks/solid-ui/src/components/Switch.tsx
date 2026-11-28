@@ -44,6 +44,9 @@ export const Switch = withDisplayName<WithRef<SwitchProps, HTMLButtonElement>>((
     'className',
     'style',
     'testId',
+    'name',
+    'value',
+    'required',
     'disabled',
     'onChange',
     'onCheckedChange',
@@ -91,6 +94,9 @@ export const Switch = withDisplayName<WithRef<SwitchProps, HTMLButtonElement>>((
           hiddenInput = el
         }}
         type="checkbox"
+        name={local.name}
+        attr:value={local.value === undefined ? undefined : String(local.value)}
+        required={local.required}
         checked={!!local.checked}
         disabled={local.disabled}
         aria-hidden="true"

@@ -1393,6 +1393,12 @@ export interface SwitchProps
   style?: CSSStyle
   /** data-testid. */
   testId?: string
+  /** The field name submitted while checked. */
+  name?: KitSwitchProps['name']
+  /** The field value submitted while checked. */
+  value?: KitSwitchProps['value']
+  /** Requires the switch to be checked when submitting. */
+  required?: KitSwitchProps['required']
   /** Disables the switch. */
   disabled?: boolean
   /** Receives the native change event from the hidden checkbox. */

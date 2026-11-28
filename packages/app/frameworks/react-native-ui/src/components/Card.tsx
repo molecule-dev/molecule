@@ -7,9 +7,18 @@
 import React from 'react'
 import { Pressable, Text, View } from 'react-native'
 
+import { isReactNode } from '@molecule/app-react-ui-kit-components/helpers'
 import { getClassMap } from '@molecule/app-ui'
 
+import { splitClasses, wrapStrings } from '../elements/inherited.js'
 import type { CardProps } from '../types.js'
+
+/** A card's visual variant as the ClassMap names it (`filled` is the default surface). */
+const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> = {
+  elevated: 'elevated',
+  outlined: 'outline',
+  filled: 'default',
+}
 
 /**
  * Renders a Card component.
@@ -38,13 +47,17 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const cm = getClassMap()
   const classes = cm.cn(
-    cm.card({ variant: variant as 'default' | 'elevated' | 'outline' | 'ghost' }),
+    cm.card({ variant: variantMap[variant] || 'default' }),
     cm.cardPadding(padding),
     interactive && cm.cardInteractive,
     className,
   )
 
   const Wrapper = onClick || interactive ? Pressable : View
+
+  // Text goes in a Text with the classes the card hands its text, as on a device, where a view
+  // neither holds text nor passes its text classes down.
+  const text = splitClasses(classes, '').text
 
   return (
     <Wrapper
@@ -60,7 +73,7 @@ export const Card: React.FC<CardProps> = ({
           }
         : {})}
     >
-      {children as React.ReactNode}
+      {wrapStrings(isReactNode(children) ? children : undefined, text)}
     </Wrapper>
   )
 }

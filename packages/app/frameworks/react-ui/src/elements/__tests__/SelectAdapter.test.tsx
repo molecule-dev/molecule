@@ -18,7 +18,10 @@ vi.mock(import('@molecule/app-ui'), async (importOriginal) => ({
   }),
 }))
 
-vi.mock('../../utilities/renderIcon.js', () => ({ renderIcon: () => null }))
+vi.mock('@molecule/app-icons', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getIcon: () => ({ paths: [], viewBox: '0 0 16 16' }),
+}))
 
 function field(role: 'combobox' | 'listbox' = 'combobox'): HTMLSelectElement {
   const select = screen.getByRole(role)

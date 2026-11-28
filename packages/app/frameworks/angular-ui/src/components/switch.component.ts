@@ -52,6 +52,9 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
     'className',
     'style',
     'testId',
+    'name',
+    'value',
+    'required',
     'disabled',
     'automationId',
     'dataMolId: data-mol-id',
@@ -59,6 +62,9 @@ import { MolControlledChecked } from './controlled-checked.directive.js'
   ],
   template: `<input
       type="checkbox"
+      [attr.name]="name"
+      [attr.value]="value"
+      [required]="!!required"
       [molChecked]="!!checked"
       [disabled]="disabled"
       aria-hidden="true"
@@ -103,6 +109,12 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
   style?: Record<string, unknown>
   /** `data-testid` for the button. */
   testId?: string
+  /** The name submitted with the checked value. */
+  name?: string
+  /** The value submitted while the switch is checked. */
+  value?: string | number | readonly string[]
+  /** Requires the switch to be on before submitting. */
+  required?: boolean
   /** Disables the switch. */
   disabled?: boolean
   /** `data-mol-id` automation id (React's `automationId`). */
@@ -154,7 +166,9 @@ export class Switch implements AfterViewChecked, HasElement<HTMLButtonElement> {
       placeContentBefore(host, host)
       setElementPresent(host, false)
       // React spreads the rest props on the switch button.
-      setHostRoot(host, this.trigger?.nativeElement, { except: ['data-mol-id'] })
+      setHostRoot(host, this.trigger?.nativeElement, {
+        except: ['data-mol-id', 'name', 'value', 'required'],
+      })
       this.hasLabel = !!this.label || hasContent(this.labelSlot?.nativeElement)
       setElementPresent(this.labelSlot?.nativeElement, this.hasLabel)
     })

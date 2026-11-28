@@ -13,6 +13,10 @@
   },
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.web.js"
+      },
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
@@ -23,6 +27,10 @@
     "./platform": {
       "types": "./dist/platform/index.d.ts",
       "import": "./dist/platform/index.js"
+    },
+    "./kit-hosts": {
+      "types": "./dist/kit-hosts.d.ts",
+      "import": "./dist/kit-hosts.js"
     }
   },
   "files": [
@@ -52,6 +60,7 @@
     "@molecule/app-fonts": "1.4.1",
     "@molecule/app-i18n": "1.4.0",
     "@molecule/app-icons": "1.0.4",
+    "@molecule/app-icons-molecule": "1.0.3",
     "@molecule/app-image-gallery-editor-react": "5.1.0",
     "@molecule/app-kanban-board-react": "4.1.0",
     "@molecule/app-logger": "1.1.0",
@@ -100,9 +109,6 @@
     "react-native-url-polyfill": "^3.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-icons": {
-      "optional": true
-    },
     "@react-native-community/slider": {
       "optional": true
     },
@@ -117,6 +123,12 @@
     },
     "react-native-url-polyfill": {
       "optional": true
+    },
+    "@molecule/app-icons": {
+      "optional": true
     }
+  },
+  "dependencies": {
+    "@molecule/app-react-ui-kit-components": "1.0.0"
   }
 }

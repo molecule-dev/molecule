@@ -58,6 +58,26 @@ export const formCases: UIComponentCases = {
       interactions: [{ type: 'submit', selector: 'form' }],
     },
     {
+      name: 'submit includes named checked switches and checkboxes',
+      callbacks: ['onFormSubmit'],
+      children: [
+        {
+          component: 'Switch',
+          props: { label: 'Sync', name: 'sync', value: 'yes', checked: true },
+        },
+        {
+          component: 'Checkbox',
+          props: { label: 'Consent', name: 'consent', value: 'granted', checked: true },
+        },
+        { component: 'Switch', props: { label: 'Off', name: 'off', checked: false } },
+        {
+          component: 'Checkbox',
+          props: { label: 'Disabled', name: 'disabled', checked: true, disabled: true },
+        },
+      ],
+      interactions: [{ type: 'submit', selector: 'form' }],
+    },
+    {
       name: 'onSubmit receives the event',
       a11y: BARE_INPUTS,
       callbacks: ['onSubmit'],

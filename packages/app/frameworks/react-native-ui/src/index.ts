@@ -36,6 +36,11 @@
  * @remarks
  * - Use `@molecule/app-ui-react-native/elements` for renderer-neutral device elements and
  *   `@molecule/app-ui-react-native/platform` for the device overlay host.
+ * - **On React Native Web the browser's own elements appear in the DOM.** A web bundle (Vite with
+ *   `react-native` aliased to React Native Web) loads this package's `browser` entry, where
+ *   Accordion, Alert, Avatar, Checkbox, Pagination, RadioGroup, Select, Switch, Table, Tabs,
+ *   Textarea and Toast share the React kit's component trees. On the web these render with DOM
+ *   elements and participate in the surrounding FormArea. On devices they use native hosts.
  * - **Styling requires NativeWind, not just setClassMap.** Components apply ClassMap classes via
  *   `className` on React Native primitives — that prop only has an effect when the NativeWind
  *   babel preset + Tailwind config are wired into the app AND `setClassMap(classMap)` from
@@ -49,70 +54,5 @@
  * @module
  */
 
-export {
-  Accordion,
-  Alert,
-  Avatar,
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Checkbox,
-  Container,
-  Dropdown,
-  DropdownLabel,
-  DropdownSeparator,
-  Flex,
-  Form,
-  FormField,
-  Grid,
-  Input,
-  Label,
-  Modal,
-  Pagination,
-  Progress,
-  RadioGroup,
-  Select,
-  Separator,
-  Skeleton,
-  SkeletonCircle,
-  SkeletonText,
-  Spacer,
-  Spinner,
-  Switch,
-  Table,
-  Tabs,
-  Textarea,
-  Toast,
-  ToastContainer,
-  ToastProvider,
-  Tooltip,
-  useToast,
-} from './components/index.js'
-export { FileField } from './elements/FileField.js'
-export { FormArea } from './elements/FormArea.js'
-export { TextField } from './elements/TextField.js'
-export type * from './types.js'
-export type {
-  AccordionProps,
-  AlertProps,
-  AvatarProps,
-  BadgeProps,
-  BaseProps,
-  DropdownProps,
-  FormFieldProps,
-  FormProps,
-  ModalProps,
-  PaginationProps,
-  RadioGroupProps,
-  SkeletonProps,
-  SpinnerProps,
-  TableProps,
-  TabsProps,
-  ToastProps,
-  TooltipProps,
-} from '@molecule/app-ui'
+export * from './common.js'
+export * from './components/index.js'

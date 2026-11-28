@@ -21,6 +21,9 @@
     className,
     style,
     testId,
+    name,
+    value,
+    required,
     disabled,
     onChange,
     onCheckedChange,
@@ -51,6 +54,9 @@
 
 <input
   type="checkbox"
+  {name}
+  value={value === undefined ? undefined : String(value)}
+  {required}
   use:reflectChecked={!!checked}
   {disabled}
   aria-hidden="true"

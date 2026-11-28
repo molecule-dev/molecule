@@ -33,6 +33,7 @@ export default defineConfig({
     ],
   },
   test: {
+    server: { deps: { inline: ['@molecule/app-react-ui-kit-components'] } },
     globals: true,
     environment: 'node',
     testTimeout: 10000,
