@@ -391,7 +391,11 @@ export async function moleculeEslintConfig(configUrl, { generatedResourceClients
         '**/*.test.{ts,tsx,js,jsx,mjs}',
         '**/*.spec.{ts,tsx,js,jsx,mjs}',
       ],
-      rules: { 'molecule-local/no-vacuous-optional-chain-assertion': 'error' },
+      rules: {
+        'molecule-local/no-vacuous-optional-chain-assertion': 'error',
+        // A mock a beforeEach/beforeAll callback returns is called as its teardown.
+        'molecule-local/no-mock-returned-from-hook': 'error',
+      },
     },
     {
       // Accessibility gate (eslint-plugin-jsx-a11y): the full `recommended`

@@ -97,7 +97,9 @@ const render = (props: FilterBarProps): HTMLElement => {
 const html = (props: FilterBarProps): string => render(props).innerHTML
 
 describe('FilterBar', () => {
-  beforeEach(() => tSpy.mockClear())
+  beforeEach(() => {
+    tSpy.mockClear()
+  })
 
   it('renders a text input with the field label as aria-label', () => {
     const fields: FilterField[] = [{ id: 'q', type: 'text', label: 'Search' }]

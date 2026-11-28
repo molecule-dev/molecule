@@ -16,6 +16,7 @@ import {
 } from './rules/no-empty-interactive-target.mjs'
 import { noHandStyledButton } from './rules/no-hand-styled-button.mjs'
 import { noLiteralUiText } from './rules/no-literal-ui-text.mjs'
+import noMockReturnedFromHook from './rules/no-mock-returned-from-hook.mjs'
 import { noRawClassNames } from './rules/no-raw-class-names.mjs'
 import noResourceTableWrites from './rules/no-resource-table-writes.mjs'
 import noStandInQueryRecord from './rules/no-stand-in-query-record.mjs'
@@ -45,6 +46,7 @@ export const moleculeLocalPlugin = {
     'no-literal-ui-text': noLiteralUiText,
     'no-vite-import-meta': noViteImportMeta,
     'no-vacuous-optional-chain-assertion': noVacuousOptionalChainAssertion,
+    'no-mock-returned-from-hook': noMockReturnedFromHook,
     ...scaffoldRules(tseslint.parser),
   },
 }

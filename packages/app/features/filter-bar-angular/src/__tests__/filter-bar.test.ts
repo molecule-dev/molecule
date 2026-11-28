@@ -300,7 +300,9 @@ describe('FilterBar', () => {
     expect(texts()).toEqual(['1', '3'])
   })
 
-  beforeEach(() => tSpy.mockClear())
+  beforeEach(() => {
+    tSpy.mockClear()
+  })
 
   it('renders a text input with the field label as aria-label', async () => {
     const fields = [{ id: 'q', type: 'text', label: 'Search' }]

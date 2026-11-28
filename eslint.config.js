@@ -681,6 +681,8 @@ export default tseslint.config(
       'jsdoc/require-returns': 'off',
       'jsdoc/require-returns-description': 'off',
       'molecule-local/no-vacuous-optional-chain-assertion': 'error',
+      // Vitest calls a function a beforeEach/beforeAll callback returns as its teardown.
+      'molecule-local/no-mock-returned-from-hook': 'error',
       // A vi.mock factory replaces the whole module: spread the real one first, so a new export
       // does not vanish from every test that mocks the package.
       'molecule-local/vi-mock-keeps-actual': 'error',

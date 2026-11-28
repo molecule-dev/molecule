@@ -146,7 +146,9 @@ describe('AuthFormStateProvider / useAuthFormStateContext', () => {
 
   describe('outside a provider', () => {
     // React logs the thrown render error; silence it for this expected case.
-    beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}))
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+    })
     afterEach(() => vi.mocked(console.error).mockRestore())
 
     it('throws a helpful error', () => {

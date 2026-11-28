@@ -122,7 +122,9 @@ const html = (props: FilterBarProps): string => {
 }
 
 describe('FilterBar', () => {
-  beforeEach(() => tSpy.mockClear())
+  beforeEach(() => {
+    tSpy.mockClear()
+  })
 
   it('renders a text input with the field label as aria-label', () => {
     const fields: FilterField[] = [{ id: 'q', type: 'text', label: 'Search' }]

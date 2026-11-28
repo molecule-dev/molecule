@@ -23,7 +23,9 @@ const answer = (status: number, body: unknown): void => {
   )
 }
 
-beforeEach(() => warn.mockReset())
+beforeEach(() => {
+  warn.mockReset()
+})
 afterEach(() => vi.unstubAllGlobals())
 
 describe('a login/register body the API wanted inside an envelope', () => {
