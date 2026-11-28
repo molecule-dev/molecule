@@ -118,10 +118,12 @@ describe('OAuthButtons', () => {
   it('renders provider label text only when showLabels is true', () => {
     mockUseOAuth.mockReturnValue({ providers: { value: ['github'] }, redirect: () => {} })
     const labeled = render({ oauthConfig: {}, showLabels: true })
-    expect(visibleMarkup(labeled.host)).toContain('GitHub')
+    expect(labeled.host.querySelector('button')?.textContent).toBe('GitHub')
     labeled.unmount()
     const unlabeled = render({ oauthConfig: {} })
-    expect(visibleMarkup(unlabeled.host)).not.toContain('GitHub')
+    const button = unlabeled.host.querySelector('button')
+    expect(button?.textContent).toBe('')
+    expect(button?.getAttribute('aria-label')).toBe('Continue with GitHub')
     unlabeled.unmount()
   })
 
