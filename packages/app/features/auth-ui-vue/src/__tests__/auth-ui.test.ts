@@ -10,6 +10,8 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { InterpolationValues } from '@molecule/app-i18n'
+
 // `useOAuth` is hoisted so tests can vary the provider list.
 const { mockUseOAuth } = vi.hoisted(() => ({ mockUseOAuth: vi.fn() }))
 
@@ -30,14 +32,17 @@ vi.mock('@molecule/app-ui', async (importOriginal) => ({
   }),
 }))
 
-vi.mock('@molecule/app-vue', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
-  useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
-  }),
-  useOAuth: mockUseOAuth,
-}))
+vi.mock('@molecule/app-vue', async (importOriginal) => {
+  const { interpolate } = await import('@molecule/app-i18n')
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    useTranslation: () => ({
+      t: (key: string, values: InterpolationValues = {}, opts?: { defaultValue?: string }) =>
+        interpolate(opts?.defaultValue ?? key, values),
+    }),
+    useOAuth: mockUseOAuth,
+  }
+})
 
 vi.mock('@molecule/app-oauth-logos-vue', async (importOriginal) => {
   const { defineComponent, h } = await import('vue')
