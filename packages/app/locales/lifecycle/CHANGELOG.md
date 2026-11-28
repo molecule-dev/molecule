@@ -1,5 +1,15 @@
 # @molecule/app-locales-lifecycle
 
+## 1.2.0
+
+### Minor Changes
+
+- Each language can be imported on its own, as `<package>/<code>.js`.
+
+### Patch Changes
+
+- Join suffixes and prefixes to code names and placeholders in Armenian, Basque, Georgian, Hebrew, Korean and Malayalam, and say "call" correctly in Swahili.
+
 ## 1.1.2
 
 ### Patch Changes

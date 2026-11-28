@@ -1,5 +1,11 @@
 # @molecule/app-e2e
 
+## 1.3.1
+
+### Patch Changes
+
+- Run end-to-end tests without retries outside CI, so a failing test reports once and a flaky one is not passed silently.
+
 ## 1.3.0
 
 ### Minor Changes

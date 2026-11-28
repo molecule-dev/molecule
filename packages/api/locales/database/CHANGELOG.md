@@ -1,5 +1,11 @@
 # @molecule/api-locales-database
 
+## 1.0.4
+
+### Patch Changes
+
+- Join suffixes and prefixes to code names and placeholders in Armenian, Basque, Georgian, Hebrew, Korean and Malayalam, and say "call" correctly in Swahili.
+
 ## 1.0.3
 
 ### Patch Changes

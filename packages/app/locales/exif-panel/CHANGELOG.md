@@ -1,5 +1,11 @@
 # @molecule/app-locales-exif-panel
 
+## 1.1.0
+
+### Minor Changes
+
+- Each language can be imported on its own, as `<package>/<code>.js`.
+
 ## 1.0.6
 
 ### Patch Changes

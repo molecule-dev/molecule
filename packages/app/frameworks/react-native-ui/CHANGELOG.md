@@ -1,5 +1,16 @@
 # @molecule/app-ui-react-native
 
+## 2.3.0
+
+### Minor Changes
+
+- Match the React kit’s browser components and submit named fields through FormArea on React Native Web.
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react-ui-kit-components@1.0.1
+
 ## 2.2.0
 
 ### Minor Changes

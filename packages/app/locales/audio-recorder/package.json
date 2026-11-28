@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-audio-recorder",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Translations for @molecule/app-audio-recorder-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-audio-recorder",
   "license": "Apache-2.0",

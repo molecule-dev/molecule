@@ -1,5 +1,13 @@
 # @molecule/app-ui-react
 
+## 4.14.1
+
+### Patch Changes
+
+- Submit the name and value of a checked Switch with its form and require @molecule/app-react 4.17 or later.
+- Updated dependencies
+  - @molecule/app-react-ui-kit-components@1.0.1
+
 ## 4.14.0
 
 ### Minor Changes

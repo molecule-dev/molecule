@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.11.1
+
+### Patch Changes
+
+- Submit the name and value of a checked Switch with its form.
+
 ## 1.11.0
 
 ### Minor Changes

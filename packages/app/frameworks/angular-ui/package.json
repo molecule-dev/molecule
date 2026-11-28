@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-angular",
-  "version": "1.13.1",
+  "version": "1.13.2",
   "description": "Angular UI components for molecule.dev",
   "type": "module",
   "sideEffects": false,

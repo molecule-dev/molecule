@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.13.2
+
+### Patch Changes
+
+- Submit the name and value of a checked Switch with its form.
+
 ## 1.13.1
 
 ### Patch Changes

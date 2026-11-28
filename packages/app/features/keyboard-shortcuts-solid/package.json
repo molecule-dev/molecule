@@ -57,7 +57,7 @@
     "@molecule/app-keyboard-shortcuts": "1.0.3",
     "@molecule/app-solid": "3.19.0",
     "@molecule/app-ui": "1.16.0",
-    "@molecule/app-ui-solid": "1.12.0",
+    "@molecule/app-ui-solid": "1.12.1",
     "@types/node": "26.6.5",
     "jsdom": "31.0.1",
     "solid-js": "1.9.17",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-live-preview",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Translations for @molecule/app-live-preview in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-live-preview",
   "license": "Apache-2.0",

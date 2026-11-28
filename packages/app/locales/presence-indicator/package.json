@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-presence-indicator",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Translations for @molecule/app-presence-indicator-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-presence-indicator",
   "license": "Apache-2.0",

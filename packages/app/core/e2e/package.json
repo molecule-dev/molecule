@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-e2e",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "The e2e bond contract: which browser runs an app's end-to-end specs — the live IDE preview inside a molecule sandbox, or real Playwright browsers — plus the rule that picks one per environment.",
   "type": "module",
   "main": "dist/index.js",

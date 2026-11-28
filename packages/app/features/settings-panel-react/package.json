@@ -40,7 +40,7 @@
     "@molecule/app-push": "1.2.2",
     "@molecule/app-react": "4.19.0",
     "@molecule/app-ui": "1.16.0",
-    "@molecule/app-ui-react": "4.14.0",
+    "@molecule/app-ui-react": "4.14.1",
     "@molecule/app-utilities": "1.0.7",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

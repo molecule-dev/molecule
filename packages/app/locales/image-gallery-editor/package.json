@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-image-gallery-editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Translations for @molecule/app-image-gallery-editor-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-image-gallery-editor",
   "license": "Apache-2.0",

@@ -62,7 +62,7 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-svelte": "3.18.0",
     "@molecule/app-ui": "1.16.0",
-    "@molecule/app-ui-svelte": "1.12.0",
+    "@molecule/app-ui-svelte": "1.12.1",
     "@molecule/app-ui-tailwind": "1.5.1",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",

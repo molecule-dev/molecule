@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-react-native",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "React Native UI component implementations for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-ui-react-native",
   "type": "module",
@@ -71,7 +71,7 @@
     "@molecule/app-routing-react-navigation": "1.1.2",
     "@molecule/app-spreadsheet-grid-react": "4.1.0",
     "@molecule/app-ui": "1.16.0",
-    "@molecule/app-ui-react": "4.14.0",
+    "@molecule/app-ui-react": "4.14.1",
     "@molecule/app-ui-tailwind": "1.5.1",
     "@react-native-community/slider": "4.5.6",
     "@testing-library/react": "16.3.3",
@@ -129,6 +129,6 @@
     }
   },
   "dependencies": {
-    "@molecule/app-react-ui-kit-components": "1.0.0"
+    "@molecule/app-react-ui-kit-components": "1.0.1"
   }
 }

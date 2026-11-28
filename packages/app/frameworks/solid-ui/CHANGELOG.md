@@ -1,5 +1,11 @@
 # @molecule/app-ui-solid
 
+## 1.12.1
+
+### Patch Changes
+
+- Submit the name and value of a checked Switch with its form.
+
 ## 1.12.0
 
 ### Minor Changes

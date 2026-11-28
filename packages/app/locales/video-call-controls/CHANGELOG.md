@@ -1,5 +1,11 @@
 # @molecule/app-locales-video-call-controls
 
+## 1.1.0
+
+### Minor Changes
+
+- Each language can be imported on its own, as `<package>/<code>.js`.
+
 ## 1.0.5
 
 ### Patch Changes
