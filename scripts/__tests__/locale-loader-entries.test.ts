@@ -53,6 +53,42 @@ function localeBonds(stack: 'app' | 'api') {
   return bonds
 }
 
+/**
+ * What an `exports` map gives for a subpath, the way Node resolves it: the exact key, else the
+ * `*` pattern with the longest prefix, its `*` replaced in each condition's target.
+ *
+ * @param exports - The package's `exports` map.
+ * @param subpath - The subpath asked for (`./fr.js`).
+ * @returns Each condition's target, or undefined when nothing matches.
+ */
+function resolveExport(
+  exports: Record<string, { types?: string; import?: string }>,
+  subpath: string,
+): { types?: string; import?: string } | undefined {
+  if (exports[subpath]) return exports[subpath]
+  const patterns = Object.keys(exports)
+    .filter((key) => {
+      const [prefix, suffix] = key.split('*')
+      return (
+        suffix !== undefined &&
+        subpath.startsWith(prefix!) &&
+        subpath.endsWith(suffix) &&
+        subpath.length >= key.length
+      )
+    })
+    .sort((a, b) => b.indexOf('*') - a.indexOf('*'))
+  const key = patterns[0]
+  if (!key) return undefined
+  const [prefix, suffix] = key.split('*')
+  const star = subpath.slice(prefix!.length, subpath.length - suffix!.length)
+  return Object.fromEntries(
+    Object.entries(exports[key]!).map(([condition, target]) => [
+      condition,
+      target.replace('*', star),
+    ]),
+  )
+}
+
 describe('companion locale bonds expose a lazy per-language entry', () => {
   const appBonds = localeBonds('app')
 
@@ -77,6 +113,30 @@ describe('companion locale bonds expose a lazy per-language entry', () => {
     // Without the export the loader import fails to resolve in a consumer's
     // build; without the source there is nothing to publish.
     expect(broken).toEqual([])
+  })
+
+  // An app that offers a few languages imports each one from its own file (mlcl generates
+  // `import { fr } from '@molecule/app-locales-auth/fr.js'`). Through the root or `loader.js`,
+  // a bundler emits all 79 languages of every bond: an English-only app with 15 bonds built
+  // 1,185 locale chunks, and its dev server loaded 1.41 MB of dictionaries for 14 KB of English.
+  it('publishes each language module at ./<file>.js', () => {
+    const unreachable: string[] = []
+    for (const bond of appBonds) {
+      const pkg = JSON.parse(readFileSync(join(bond.root, bond.dir, 'package.json'), 'utf8')) as {
+        exports?: Record<string, { types?: string; import?: string }>
+      }
+      for (const module of bond.modules) {
+        const target = resolveExport(pkg.exports ?? {}, `./${module.file}.js`)
+        if (
+          target?.import !== `./dist/${module.file}.js` ||
+          target.types !== `./dist/${module.file}.d.ts`
+        )
+          unreachable.push(
+            `${bond.name}: ./${module.file}.js resolves to ${JSON.stringify(target)}`,
+          )
+      }
+    }
+    expect(unreachable).toEqual([])
   })
 
   it('lists every language module in loader.ts', () => {

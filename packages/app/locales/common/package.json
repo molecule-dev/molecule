@@ -21,6 +21,10 @@
       "types": "./dist/loader.d.ts",
       "import": "./dist/loader.js"
     },
+    "./*.js": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    },
     "./en.js": {
       "types": "./dist/en.d.ts",
       "import": "./dist/en.js"

@@ -14,6 +14,10 @@
     "./loader.js": {
       "types": "./dist/loader.d.ts",
       "import": "./dist/loader.js"
+    },
+    "./*.js": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
     }
   },
   "files": [
