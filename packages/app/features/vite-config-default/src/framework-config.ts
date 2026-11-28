@@ -26,6 +26,7 @@ import {
   svelteKitStaticSite,
   type SvelteKitStaticSiteOptions,
 } from './sveltekit.js'
+import { passWithNoTestFiles } from './test-files.js'
 
 /** Branding strings used in the PWA manifest. */
 export interface DefaultViteConfigBranding {
@@ -748,6 +749,9 @@ export function createFrameworkViteConfig(
       // to jsdom otherwise, which no scaffold installs. A test file that needs a DOM
       // names its environment in a `@vitest-environment` comment.
       environment: 'node',
+      // An app with no unit tests yet passes a plain `vitest run`; a run that names files still
+      // fails when none match.
+      passWithNoTests: passWithNoTestFiles,
       // The setup a declared framework binding needs for its component tests
       // (@molecule/app-vue's event timing), from its package.json.
       ...(testSetupFiles.length ? { setupFiles: testSetupFiles } : {}),

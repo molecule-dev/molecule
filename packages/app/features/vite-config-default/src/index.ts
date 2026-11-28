@@ -131,7 +131,8 @@
  * `*.spec.ts`, which vitest's default include would otherwise collect and
  * fail. Put unit tests under `src/` and Playwright specs under `e2e/`
  * (`playwright.config.ts` → `testDir: './e2e'`); if you override
- * `test.exclude`, keep the `**\/e2e/**` entry.
+ * `test.exclude`, keep the `**\/e2e/**` entry. An app with no unit tests yet passes a plain
+ * `npm test` ("No test files found"); a run that names files still fails when none match.
  *
  * **A framework binding's test setup runs without being listed.** Each `@molecule/*`
  * package the app's package.json declares can name the vitest setup files its component
